@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="24" time="12.720" timestamp="2026-10-07T19:06:20.720244+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point[None]" time="0.003"><failure message="assert 0.5 is None">point_estimate = None
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [None, True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point(
+        point_estimate: Any,
+    ) -&gt; None:
+        evidence = generation_cycle._s10_calibration_evidence_from_report(
+            _report(point_estimate=point_estimate)
+        )
+    
+        shape = evidence["estimator_shape_diagnostics"]
+        assert shape["finite_point"] is False
+&gt;       assert shape["relative_interval_width"] is None
+E       assert 0.5 is None
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:129: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point[True]" time="0.000"><failure message="assert 0.5 is None">point_estimate = True
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [None, True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point(
+        point_estimate: Any,
+    ) -&gt; None:
+        evidence = generation_cycle._s10_calibration_evidence_from_report(
+            _report(point_estimate=point_estimate)
+        )
+    
+        shape = evidence["estimator_shape_diagnostics"]
+        assert shape["finite_point"] is False
+&gt;       assert shape["relative_interval_width"] is None
+E       assert 0.5 is None
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:129: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point[nan]" time="0.000"><failure message="assert nan is None">point_estimate = nan
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [None, True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point(
+        point_estimate: Any,
+    ) -&gt; None:
+        evidence = generation_cycle._s10_calibration_evidence_from_report(
+            _report(point_estimate=point_estimate)
+        )
+    
+        shape = evidence["estimator_shape_diagnostics"]
+        assert shape["finite_point"] is False
+&gt;       assert shape["relative_interval_width"] is None
+E       assert nan is None
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:129: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point[inf]" time="0.000"><failure message="assert 0.0 is None">point_estimate = inf
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [None, True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point(
+        point_estimate: Any,
+    ) -&gt; None:
+        evidence = generation_cycle._s10_calibration_evidence_from_report(
+            _report(point_estimate=point_estimate)
+        )
+    
+        shape = evidence["estimator_shape_diagnostics"]
+        assert shape["finite_point"] is False
+&gt;       assert shape["relative_interval_width"] is None
+E       assert 0.0 is None
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:129: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point[-inf]" time="0.000"><failure message="assert 0.0 is None">point_estimate = -inf
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [None, True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_s10_shape_diagnostic_keeps_relative_width_unknown_for_invalid_point(
+        point_estimate: Any,
+    ) -&gt; None:
+        evidence = generation_cycle._s10_calibration_evidence_from_report(
+            _report(point_estimate=point_estimate)
+        )
+    
+        shape = evidence["estimator_shape_diagnostics"]
+        assert shape["finite_point"] is False
+&gt;       assert shape["relative_interval_width"] is None
+E       assert 0.0 is None
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:129: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_zero_point_uses_scale_floor_without_promoting_calibration" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_report_shape_and_diagnostics_cannot_clear_value_calibration[None]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_report_shape_and_diagnostics_cannot_clear_value_calibration[0.0]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_report_shape_and_diagnostics_cannot_clear_value_calibration[True]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_report_shape_and_diagnostics_cannot_clear_value_calibration[nan]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_report_shape_and_diagnostics_cannot_clear_value_calibration[inf]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation" time="0.002"><failure message="polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/estimator-numeric-shapes-red/pytest-basetemp/test_s10_cas_readback_preserve0')
+
+    def test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation(
+        tmp_path: Path,
+    ) -&gt; None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
+    
+        store = FileSystemCAS(tmp_path / "e02-estimator-candidate-cas")
+        cases: dict[str, dict[str, Any]] = {}
+        for label, point_estimate in (("unknown", None), ("zero", 0.0)):
+            report = _report(point_estimate=point_estimate)
+            evidence = generation_cycle._s10_calibration_evidence_from_report(report)
+            report_payload = {
+                "point_estimate": point_estimate,
+                "confidence_interval": [-0.25, 0.25],
+                "standard_error": 0.2,
+                "confidence_level": 0.95,
+                "diagnostics": [],
+                "sample_size": 100,
+                "n_treated": 50,
+                "n_control": 50,
+                "pre_periods": 4,
+                "post_periods": 4,
+                "method": "e02_numeric_shape_test",
+            }
+            candidate_payload = {
+                "report": report_payload,
+                "estimator_calibration_evidence": evidence,
+            }
+&gt;           ref = put_json_artifact(
+                store,
+                candidate_payload,
+                kind="test.json",
+                schema_name="tests.E02EstimatorCandidate",
+                schema_version="1.0",
+            )
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:196: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/artifacts/io.py:44: in put_json_artifact
+    ref = store.put_json(
+src/polisyos/core/artifacts/store.py:2460: in put_json
+    data = to_canonical_bytes(obj, canon_spec)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/canon/canon_json.py:40: in to_canonical_bytes
+    return _to_canonical_bytes(
+src/polisyos/common/canonical.py:232: in to_canonical_bytes
+    canon_obj = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:210: in _canonicalize_obj
+    _canonicalize_obj(
+src/polisyos/common/canonical.py:193: in _canonicalize_obj
+    _raise_violation(violation_type, "float forbidden in canonical JSON")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+violation_type = &lt;class 'polisyos.core.canon.canon_json.CanonViolation'&gt;
+message = 'float forbidden in canonical JSON'
+
+    def _raise_violation(violation_type: type[ValueError], message: str) -&gt; NoReturn:
+&gt;       raise violation_type(message)
+E       polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON
+
+src/polisyos/common/canonical.py:67: CanonViolation</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_preserves_an_explicit_zero_point" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_keeps_missing_point_refusal" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_point[True]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">point_estimate = True
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_foundry_projection_typed_refuses_invalid_point(point_estimate: Any) -&gt; None:
+&gt;       with pytest.raises(ValueError, match="foundry_method_refused_value:point_invalid"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:271: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_point[nan]" time="0.001"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'foundry_method_refused_value:point_invalid'&#10;  Actual message: '2 validation errors for ValueOuterSet\nlower\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(nan,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error\nupper\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(nan,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error'">point_estimate = nan
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_foundry_projection_typed_refuses_invalid_point(point_estimate: Any) -&gt; None:
+        with pytest.raises(ValueError, match="foundry_method_refused_value:point_invalid"):
+&gt;           _project_foundry_value(
+                point_estimate=point_estimate,
+                confidence_interval=(-0.25, 0.25),
+            )
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:52: in _project_foundry_value
+    return generation_cycle._value_outer_set_from_foundry_result(
+src/polisyos/runtime/quality/generation_cycle.py:13064: in _value_outer_set_from_foundry_result
+    return ValueOuterSet.interval_box(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = &lt;class 'polisyos.core.contracts.value_outer_set.ValueOuterSet'&gt;
+
+    @classmethod
+    def interval_box(
+        cls,
+        *,
+        coordinates: tuple[str, ...],
+        lower: tuple[float, ...],
+        upper: tuple[float, ...],
+        identification_mode: str,
+        assumptions: tuple[str, ...],
+        assumption_status: ValueOuterSetAssumptionStatus,
+        calibration_scope: dict[str, str],
+        data_trust: DataTrust,
+        world_model_record_ref: str,
+        epoch: str,
+        representation_status: ValueOuterSetRepresentationStatus,
+    ) -&gt; ValueOuterSet:
+        """Build an implemented interval-box value set from an L5 mode."""
+    
+&gt;       return cls(
+            representation="interval_box",
+            coordinates=coordinates,
+            lower=lower,
+            upper=upper,
+            identification_status=cls.identification_status_for_l5_mode(
+                identification_mode
+            ),
+            assumptions=assumptions,
+            assumption_status=assumption_status,
+            calibration_scope=calibration_scope,
+            data_trust=data_trust,
+            world_model_record_ref=world_model_record_ref,
+            epoch=epoch,
+            representation_status=representation_status,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 2 validation errors for ValueOuterSet
+E       lower
+E         Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(nan,), input_type=tuple]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+E       upper
+E         Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(nan,), input_type=tuple]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/core/contracts/value_outer_set.py:295: ValidationError
+
+During handling of the above exception, another exception occurred:
+
+point_estimate = nan
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_foundry_projection_typed_refuses_invalid_point(point_estimate: Any) -&gt; None:
+&gt;       with pytest.raises(ValueError, match="foundry_method_refused_value:point_invalid"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'foundry_method_refused_value:point_invalid'
+E         Actual message: '2 validation errors for ValueOuterSet\nlower\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(nan,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error\nupper\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(nan,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error'
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:271: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_point[inf]" time="0.000"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'foundry_method_refused_value:point_invalid'&#10;  Actual message: '2 validation errors for ValueOuterSet\nlower\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(inf,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error\nupper\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(inf,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error'">point_estimate = inf
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_foundry_projection_typed_refuses_invalid_point(point_estimate: Any) -&gt; None:
+        with pytest.raises(ValueError, match="foundry_method_refused_value:point_invalid"):
+&gt;           _project_foundry_value(
+                point_estimate=point_estimate,
+                confidence_interval=(-0.25, 0.25),
+            )
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:52: in _project_foundry_value
+    return generation_cycle._value_outer_set_from_foundry_result(
+src/polisyos/runtime/quality/generation_cycle.py:13064: in _value_outer_set_from_foundry_result
+    return ValueOuterSet.interval_box(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = &lt;class 'polisyos.core.contracts.value_outer_set.ValueOuterSet'&gt;
+
+    @classmethod
+    def interval_box(
+        cls,
+        *,
+        coordinates: tuple[str, ...],
+        lower: tuple[float, ...],
+        upper: tuple[float, ...],
+        identification_mode: str,
+        assumptions: tuple[str, ...],
+        assumption_status: ValueOuterSetAssumptionStatus,
+        calibration_scope: dict[str, str],
+        data_trust: DataTrust,
+        world_model_record_ref: str,
+        epoch: str,
+        representation_status: ValueOuterSetRepresentationStatus,
+    ) -&gt; ValueOuterSet:
+        """Build an implemented interval-box value set from an L5 mode."""
+    
+&gt;       return cls(
+            representation="interval_box",
+            coordinates=coordinates,
+            lower=lower,
+            upper=upper,
+            identification_status=cls.identification_status_for_l5_mode(
+                identification_mode
+            ),
+            assumptions=assumptions,
+            assumption_status=assumption_status,
+            calibration_scope=calibration_scope,
+            data_trust=data_trust,
+            world_model_record_ref=world_model_record_ref,
+            epoch=epoch,
+            representation_status=representation_status,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 2 validation errors for ValueOuterSet
+E       lower
+E         Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(inf,), input_type=tuple]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+E       upper
+E         Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(inf,), input_type=tuple]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/core/contracts/value_outer_set.py:295: ValidationError
+
+During handling of the above exception, another exception occurred:
+
+point_estimate = inf
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_foundry_projection_typed_refuses_invalid_point(point_estimate: Any) -&gt; None:
+&gt;       with pytest.raises(ValueError, match="foundry_method_refused_value:point_invalid"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'foundry_method_refused_value:point_invalid'
+E         Actual message: '2 validation errors for ValueOuterSet\nlower\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(inf,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error\nupper\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(inf,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error'
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:271: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_point[-inf]" time="0.000"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'foundry_method_refused_value:point_invalid'&#10;  Actual message: '2 validation errors for ValueOuterSet\nlower\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(-inf,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error\nupper\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(-inf,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error'">point_estimate = -inf
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_foundry_projection_typed_refuses_invalid_point(point_estimate: Any) -&gt; None:
+        with pytest.raises(ValueError, match="foundry_method_refused_value:point_invalid"):
+&gt;           _project_foundry_value(
+                point_estimate=point_estimate,
+                confidence_interval=(-0.25, 0.25),
+            )
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:52: in _project_foundry_value
+    return generation_cycle._value_outer_set_from_foundry_result(
+src/polisyos/runtime/quality/generation_cycle.py:13064: in _value_outer_set_from_foundry_result
+    return ValueOuterSet.interval_box(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = &lt;class 'polisyos.core.contracts.value_outer_set.ValueOuterSet'&gt;
+
+    @classmethod
+    def interval_box(
+        cls,
+        *,
+        coordinates: tuple[str, ...],
+        lower: tuple[float, ...],
+        upper: tuple[float, ...],
+        identification_mode: str,
+        assumptions: tuple[str, ...],
+        assumption_status: ValueOuterSetAssumptionStatus,
+        calibration_scope: dict[str, str],
+        data_trust: DataTrust,
+        world_model_record_ref: str,
+        epoch: str,
+        representation_status: ValueOuterSetRepresentationStatus,
+    ) -&gt; ValueOuterSet:
+        """Build an implemented interval-box value set from an L5 mode."""
+    
+&gt;       return cls(
+            representation="interval_box",
+            coordinates=coordinates,
+            lower=lower,
+            upper=upper,
+            identification_status=cls.identification_status_for_l5_mode(
+                identification_mode
+            ),
+            assumptions=assumptions,
+            assumption_status=assumption_status,
+            calibration_scope=calibration_scope,
+            data_trust=data_trust,
+            world_model_record_ref=world_model_record_ref,
+            epoch=epoch,
+            representation_status=representation_status,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 2 validation errors for ValueOuterSet
+E       lower
+E         Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(-inf,), input_type=tuple]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+E       upper
+E         Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(-inf,), input_type=tuple]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/core/contracts/value_outer_set.py:295: ValidationError
+
+During handling of the above exception, another exception occurred:
+
+point_estimate = -inf
+
+    @pytest.mark.parametrize(
+        "point_estimate",
+        [True, float("nan"), float("inf"), -float("inf")],
+    )
+    def test_foundry_projection_typed_refuses_invalid_point(point_estimate: Any) -&gt; None:
+&gt;       with pytest.raises(ValueError, match="foundry_method_refused_value:point_invalid"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'foundry_method_refused_value:point_invalid'
+E         Actual message: '2 validation errors for ValueOuterSet\nlower\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(-inf,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error\nupper\n  Value error, value_outer_set_bounds_non_finite [type=value_error, input_value=(-inf,), input_type=tuple]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error'
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:271: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_interval[confidence_interval0]" time="0.000"><failure message="IndexError: tuple index out of range">confidence_interval = (0.0,)
+
+    @pytest.mark.parametrize(
+        "confidence_interval",
+        [
+            (0.0,),
+            (True, 1.0),
+            (float("nan"), 1.0),
+            (0.0, float("inf")),
+            (1.0, 0.0),
+            ("0.0", 1.0),
+        ],
+    )
+    def test_foundry_projection_typed_refuses_invalid_interval(
+        confidence_interval: Any,
+    ) -&gt; None:
+        with pytest.raises(
+            ValueError,
+            match="foundry_method_refused_value:uncertainty_invalid",
+        ):
+&gt;           _project_foundry_value(
+                point_estimate=0.5,
+                confidence_interval=confidence_interval,
+            )
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:296: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:52: in _project_foundry_value
+    return generation_cycle._value_outer_set_from_foundry_result(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _value_outer_set_from_foundry_result(
+        *,
+        method_result: object,
+        transport_receipt: ValueTransportReceipt,
+        calibration_receipt: ValueCalibrationReceipt,
+        world_record: object,
+        data_trust: DataTrust,
+    ) -&gt; ValueOuterSet:
+        report = _method_report(method_result)
+        if report is None:
+            raise ValueError("foundry_method_refused_value:report_missing")
+        point = getattr(report, "point_estimate", None)
+        interval = getattr(report, "confidence_interval", None)
+        if point is None or interval is None:
+            raise ValueError("foundry_method_refused_value:uncertainty_missing")
+        point_value = float(point)
+&gt;       lower_ci, upper_ci = (float(interval[0]), float(interval[1]))
+                                                        ^^^^^^^^^^^
+E       IndexError: tuple index out of range
+
+src/polisyos/runtime/quality/generation_cycle.py:13045: IndexError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_interval[confidence_interval1]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">confidence_interval = (True, 1.0)
+
+    @pytest.mark.parametrize(
+        "confidence_interval",
+        [
+            (0.0,),
+            (True, 1.0),
+            (float("nan"), 1.0),
+            (0.0, float("inf")),
+            (1.0, 0.0),
+            ("0.0", 1.0),
+        ],
+    )
+    def test_foundry_projection_typed_refuses_invalid_interval(
+        confidence_interval: Any,
+    ) -&gt; None:
+&gt;       with pytest.raises(
+            ValueError,
+            match="foundry_method_refused_value:uncertainty_invalid",
+        ):
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:292: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_interval[confidence_interval2]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">confidence_interval = (nan, 1.0)
+
+    @pytest.mark.parametrize(
+        "confidence_interval",
+        [
+            (0.0,),
+            (True, 1.0),
+            (float("nan"), 1.0),
+            (0.0, float("inf")),
+            (1.0, 0.0),
+            ("0.0", 1.0),
+        ],
+    )
+    def test_foundry_projection_typed_refuses_invalid_interval(
+        confidence_interval: Any,
+    ) -&gt; None:
+&gt;       with pytest.raises(
+            ValueError,
+            match="foundry_method_refused_value:uncertainty_invalid",
+        ):
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:292: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_interval[confidence_interval3]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">confidence_interval = (0.0, inf)
+
+    @pytest.mark.parametrize(
+        "confidence_interval",
+        [
+            (0.0,),
+            (True, 1.0),
+            (float("nan"), 1.0),
+            (0.0, float("inf")),
+            (1.0, 0.0),
+            ("0.0", 1.0),
+        ],
+    )
+    def test_foundry_projection_typed_refuses_invalid_interval(
+        confidence_interval: Any,
+    ) -&gt; None:
+&gt;       with pytest.raises(
+            ValueError,
+            match="foundry_method_refused_value:uncertainty_invalid",
+        ):
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:292: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_interval[confidence_interval4]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">confidence_interval = (1.0, 0.0)
+
+    @pytest.mark.parametrize(
+        "confidence_interval",
+        [
+            (0.0,),
+            (True, 1.0),
+            (float("nan"), 1.0),
+            (0.0, float("inf")),
+            (1.0, 0.0),
+            ("0.0", 1.0),
+        ],
+    )
+    def test_foundry_projection_typed_refuses_invalid_interval(
+        confidence_interval: Any,
+    ) -&gt; None:
+&gt;       with pytest.raises(
+            ValueError,
+            match="foundry_method_refused_value:uncertainty_invalid",
+        ):
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:292: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_foundry_projection_typed_refuses_invalid_interval[confidence_interval5]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">confidence_interval = ('0.0', 1.0)
+
+    @pytest.mark.parametrize(
+        "confidence_interval",
+        [
+            (0.0,),
+            (True, 1.0),
+            (float("nan"), 1.0),
+            (0.0, float("inf")),
+            (1.0, 0.0),
+            ("0.0", 1.0),
+        ],
+    )
+    def test_foundry_projection_typed_refuses_invalid_interval(
+        confidence_interval: Any,
+    ) -&gt; None:
+&gt;       with pytest.raises(
+            ValueError,
+            match="foundry_method_refused_value:uncertainty_invalid",
+        ):
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:292: Failed</failure></testcase></testsuite></testsuites>

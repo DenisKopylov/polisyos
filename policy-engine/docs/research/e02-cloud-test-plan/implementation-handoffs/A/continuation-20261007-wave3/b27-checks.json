@@ -1,0 +1,639 @@
+{
+  "schema": "policyos.e02.b27_check_evidence.v1",
+  "unit": "A",
+  "finding_id": "B27",
+  "bundle_id": "CYC-03",
+  "original_criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "blob_at_candidate_622": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "lines": "537-549",
+    "statement": "N6 may change the problem identity through runtime_hints while retaining the old cycle substrate context; the criterion asks for a coherent admissible second iteration with reissued/updated context, changed subject/population/model bindings not reusing old evidence, and shared retained original/revised request history. The criterion itself states the full second cycle was not run and hash change alone is not new knowledge.",
+    "root_decision": "OPEN; this bounded negative does not close the criterion."
+  },
+  "source_pins": {
+    "candidate_sha": "622f304abbdd5afc17fd91b30aa8871fca7a1182",
+    "candidate_tree_sha": "d7efbfcf071f73a421a447468aa0ea08f22ee875",
+    "focused_b27_test_commits": [
+      {
+        "sha": "d9fa8063b18fce5df2ccc62401a313ebe04df170",
+        "tree": "c7be367837750c9272b78c1328d7c03bea723eb7",
+        "role": "adds the bounded B27 test and fixture plumbing; two test files only"
+      },
+      {
+        "sha": "5994be2819c9efad2bdf808bb4bda2f0c61ca06a",
+        "tree": "36c5aa7e4f32aca1c890778e33fd170466edaa8a",
+        "role": "pins actual conditional N8 and ROI stop boundary; two test files only"
+      },
+      {
+        "sha": "622f304abbdd5afc17fd91b30aa8871fca7a1182",
+        "tree": "d7efbfcf071f73a421a447468aa0ea08f22ee875",
+        "role": "removes shadowed fixture.request assertion; relies on persisted compiled iteration-cap resolution"
+      }
+    ],
+    "focused_b27_changed_paths": [
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+        "blob": "c716cd89d9a16d96ba0a0113a25afe9a6e798a23"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "blob": "74d8f7972fa8d5c8d153dd1c30425dda5e34724f"
+      }
+    ],
+    "slice_base_sha": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+    "full_base_to_candidate_python_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "blob": "5d274319c2dfefd84d7e70ae8a988e5f7344c89c",
+        "note": "interleaved source work outside the focused B27 test commits"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+        "blob": "c716cd89d9a16d96ba0a0113a25afe9a6e798a23",
+        "note": "focused B27 test path"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+        "blob": "94a0630d7a6dcb83fa57f630ae674376140c35d4",
+        "note": "interleaved work outside focused B27 commits"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "blob": "74d8f7972fa8d5c8d153dd1c30425dda5e34724f",
+        "note": "focused fixture helper path"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+        "blob": "ab587ee423ba999bfe985b7baaf686ba93c7b0da",
+        "note": "interleaved estimator work outside focused B27 commits"
+      }
+    ],
+    "source_change_boundary": "The three focused B27 commits change only the two test paths above. The complete slice-base ancestry range also contains three interleaved Python paths listed separately; they are not attributed to the focused B27 test patch.",
+    "withdrawn_source_trial": {
+      "trial_sha": "3d9ff1c936dbfc1fe146669c016c14a0b9cca5aa",
+      "revert_sha": "81fd547cacaf6ce4be1f35198f1a4efeef73697d",
+      "disposition": "The source trial was reverted because its reentry bridge was unreachable; it is absent from candidate 622 and must not be treated as adopted behavior."
+    },
+    "test_source": {
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "test_name": "test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry",
+      "line_span": "12-181",
+      "blob": "c716cd89d9a16d96ba0a0113a25afe9a6e798a23"
+    },
+    "complete_range_path_census": {
+      "command": "git diff --name-only 65926cb5aa5364ff0e54741ea6689a16e9ed14b0 622f304abbdd5afc17fd91b30aa8871fca7a1182",
+      "total_changed_paths": 5,
+      "source_paths": 1,
+      "test_paths": 4,
+      "documentation_or_other_paths": 0,
+      "file_type_denominator": {
+        "python_paths": 5,
+        "all_paths": 5
+      },
+      "complete_path_list": "full_base_to_candidate_python_footprint"
+    },
+    "focused_b27_commit_path_census": {
+      "commit_set": [
+        "d9fa8063b18fce5df2ccc62401a313ebe04df170",
+        "5994be2819c9efad2bdf808bb4bda2f0c61ca06a",
+        "622f304abbdd5afc17fd91b30aa8871fca7a1182"
+      ],
+      "total_changed_paths": 2,
+      "source_paths": 0,
+      "test_paths": 2,
+      "documentation_or_other_paths": 0,
+      "file_type_denominator": {
+        "python_paths": 2,
+        "all_paths": 2
+      },
+      "complete_path_list": "focused_b27_changed_paths"
+    }
+  },
+  "bounded_property_result": {
+    "outcome": "PASS_BOUNDED_NEGATIVE_ONLY",
+    "interpretation": "The served, synthetic candidate-only job persisted a configured/effective recursive cap of two and stopped after its single actual cycle because ROI was below threshold. N6 retained a revised problem whose computed design_problem_ref differs from the original. The existing configured admission owner, called for the revised problem under the same issued test job/run/tenant/cell scope, returned None; the runtime did not execute a second N4/N5 or create a second context transition.",
+    "not_demonstrated": [
+      "The two-cycle capacity cap was not reached or enforced by this case.",
+      "No second context issuance/reissue was attempted or consumed.",
+      "No allowed second iteration, revised-context N5, or completed second-cycle result was demonstrated.",
+      "This bounded synthetic candidate lane is not evidence of production profile admission or production authority.",
+      "The full original B27 criterion remains OPEN by root decision."
+    ],
+    "root_decision": "OPEN",
+    "historical_full_queue_row": "limited; this receipt adds bounded negative evidence only and does not change the root decision."
+  },
+  "final_saved_run": {
+    "run_id": "b27-served-stop-persisted-cap",
+    "phase": "final immutable candidate",
+    "classification": "PASS for the bounded negative witness only. Configured/persisted max_iterations=2 was not reached: actual ROI rejection stopped after one N5/cycle, before a second context transition.",
+    "candidate_sha": "622f304abbdd5afc17fd91b30aa8871fca7a1182",
+    "candidate_tree_sha": "d7efbfcf071f73a421a447468aa0ea08f22ee875",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_origin",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "-q",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/junit.xml",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/pytest-basetemp",
+      "tests/integration/core_runtime/test_e02_revision_context_reentry.py"
+    ],
+    "environment": {
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "JAX_PLATFORMS": "cpu"
+    },
+    "exit_code": 0,
+    "wall_seconds": 20.87558250001166,
+    "launcher": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+      "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+    },
+    "junit_counts": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "test_cases": [
+      {
+        "classname": "tests.integration.core_runtime.test_e02_revision_context_reentry",
+        "name": "test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry",
+        "time_seconds": "17.013"
+      }
+    ],
+    "workspace_dirty_before": [
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/estimator-numeric-intake.json",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+    ],
+    "workspace_dirty_after": [
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/estimator-numeric-intake.json",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+    ],
+    "evidence_files": {
+      "stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/stdout.txt",
+        "bytes": 99,
+        "sha256": "236ed04d24612de15360bf018c998de9a001d1695c267095f9ea09b66994441f",
+        "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/stdout.txt"
+      },
+      "stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/stderr.txt"
+      },
+      "junit.xml": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/junit.xml",
+        "bytes": 456,
+        "sha256": "aa38d3d7e25dadf0c230df3708813ad2baa4a4fb1ca35c582ff3feaf7be519a8",
+        "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/junit.xml"
+      },
+      "receipt.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/receipt.json",
+        "bytes": 3619,
+        "sha256": "e8f6c518ab812a769691d16e39c6610703abc67045323b1eac22c7e21dfbedee",
+        "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/receipt.json"
+      },
+      "e02_origin.py": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/e02_origin.py",
+        "bytes": 656,
+        "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+        "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/e02_origin.py"
+      },
+      "origins.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-persisted-cap/origins.json",
+        "bytes": 1095,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+        "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/origins.json"
+      }
+    }
+  },
+  "prior_attempts": [
+    {
+      "run_id": "b27-served-stop-two-cap",
+      "phase": "initial setup attempt",
+      "classification": "SETUP_FAILURE; N4 setup reached a missing local production LEX DuckDB and job failed before the intended persisted candidate/N5 assertions. This is an unavailable-data prerequisite, not a B27 property result.",
+      "candidate_sha": "d9fa8063b18fce5df2ccc62401a313ebe04df170",
+      "candidate_tree_sha": "c7be367837750c9272b78c1328d7c03bea723eb7",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_revision_context_reentry.py"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "exit_code": 1,
+      "wall_seconds": 16.760828917031176,
+      "launcher": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "1151eae500ca3b78921269527bb5d1c294f3ce63ab4a21fbd797f851e323c8d9"
+      },
+      "junit_counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_cases": [
+        {
+          "classname": "tests.integration.core_runtime.test_e02_revision_context_reentry",
+          "name": "test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry",
+          "time_seconds": "13.065"
+        }
+      ],
+      "workspace_dirty_before": [
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/"
+      ],
+      "workspace_dirty_after": [
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/"
+      ],
+      "evidence_files": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/stdout.txt",
+          "bytes": 58990,
+          "sha256": "e0fbc8d0eb3d1f42a85a07bfb22fa370ee2387990b9f78dd7ed7ce5fc7476692",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/stdout.txt"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/stderr.txt"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/junit.xml",
+          "bytes": 23300,
+          "sha256": "0882b06dc2ae7021351fc144946791b92f60c61b209670fecb89a060e47bdb6d",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/junit.xml"
+        },
+        "receipt.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/receipt.json",
+          "bytes": 2945,
+          "sha256": "74e2a1c5ab3454ac7b5c43312a47eabaca7a837fd202fcf3e96b23afb7fb23bd",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/receipt.json"
+        },
+        "e02_origin.py": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/e02_origin.py"
+        },
+        "origins.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/origins.json"
+        }
+      }
+    },
+    {
+      "run_id": "b27-served-stop-bounded-reference",
+      "phase": "bounded fixture with controlled unavailable credal reference",
+      "classification": "TEST_ASSERTION_FAILURE after the bounded candidate path ran through N5: the assertion expected value_pending_n8, while the runtime returned value_conditional. The later test source corrected this stale status expectation; this was not evidence for a second iteration.",
+      "candidate_sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+      "candidate_tree_sha": "73e347e510d76f6af7d606916898b0cedb0c7ff5",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_revision_context_reentry.py"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "exit_code": 1,
+      "wall_seconds": 19.684744750033133,
+      "launcher": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "1151eae500ca3b78921269527bb5d1c294f3ce63ab4a21fbd797f851e323c8d9"
+      },
+      "junit_counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_cases": [
+        {
+          "classname": "tests.integration.core_runtime.test_e02_revision_context_reentry",
+          "name": "test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry",
+          "time_seconds": "15.644"
+        }
+      ],
+      "workspace_dirty_before": [
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+      ],
+      "workspace_dirty_after": [
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+      ],
+      "evidence_files": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/stdout.txt",
+          "bytes": 99804,
+          "sha256": "1c419c9c36c03d6f2ad74fbc0a624ae2331e086389b6725d2c611300ce5fa745",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/stdout.txt"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/stderr.txt"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/junit.xml",
+          "bytes": 48858,
+          "sha256": "0f657c7b23bee50257c441274755a4291c446103cfbcd4326a6d16bd7cfcc996",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/junit.xml"
+        },
+        "receipt.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/receipt.json",
+          "bytes": 3211,
+          "sha256": "26d150f5a55419626c8438d8b1c45da81b551131016f6871ff5836b10bee0060",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/receipt.json"
+        },
+        "e02_origin.py": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/e02_origin.py"
+        },
+        "origins.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/origins.json"
+        }
+      }
+    },
+    {
+      "run_id": "b27-served-stop-current-conditional",
+      "phase": "conditional N8 expectation plus persisted-cap assertions",
+      "classification": "TEST_ASSERTION_FAILURE: fixture.request had been rebound by the helper loop to a JointSimulationRequest, so reading max_iterations raised AttributeError. Final test removed this redundant alias assertion and checks requested/effective limits on the persisted compiled artifact.",
+      "candidate_sha": "5994be2819c9efad2bdf808bb4bda2f0c61ca06a",
+      "candidate_tree_sha": "36c5aa7e4f32aca1c890778e33fd170466edaa8a",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_revision_context_reentry.py"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "exit_code": 1,
+      "wall_seconds": 20.958890167006757,
+      "launcher": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+      },
+      "junit_counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_cases": [
+        {
+          "classname": "tests.integration.core_runtime.test_e02_revision_context_reentry",
+          "name": "test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry",
+          "time_seconds": "17.046"
+        }
+      ],
+      "workspace_dirty_before": [
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/estimator-numeric-intake.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+      ],
+      "workspace_dirty_after": [
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/estimator-numeric-intake.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+      ],
+      "evidence_files": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/stdout.txt",
+          "bytes": 57888,
+          "sha256": "1022a2bb1a7e496ce14b7e1fedc4d94dd20e641ab2cf08c3ebd0eeb66fb08bba",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/stdout.txt"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/stderr.txt"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/junit.xml",
+          "bytes": 6880,
+          "sha256": "ff7259eccc5a415442790dafef20f91d69c80583404a094a514416f5a91171db",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/junit.xml"
+        },
+        "receipt.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/receipt.json",
+          "bytes": 3444,
+          "sha256": "1e749bf55f8863b99f63b70e827e01f2b7c670494d441dafb6f585f3f858aaa6",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/receipt.json"
+        },
+        "e02_origin.py": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/e02_origin.py"
+        },
+        "origins.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "byte_exact_copy_of": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/origins.json"
+        }
+      }
+    }
+  ],
+  "persisted_readback": {
+    "local_cas_root": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/pytest-basetemp/test_served_candidate_profile_0/.polisyos/artifacts",
+    "compiled_run": {
+      "schema": "policyos.runtime.http.compiled_recursive_generation_cycle.v1",
+      "artifact_ref": "sha256:1cae7ce21174a081d8b2a39cf9dcb03b8ecda91d66f293d85b36f667afbdde00",
+      "content_hash": "sha256:16e37ff65dfe21a29a244b9e651de8eca5abd90c0b8325bbb777ddae3cacd485",
+      "compiled_artifact_local_blob": "policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/pytest-basetemp/test_served_candidate_profile_0/.polisyos/artifacts/sha256/1c/ae/1cae7ce21174a081d8b2a39cf9dcb03b8ecda91d66f293d85b36f667afbdde00.blob"
+    },
+    "job_run_scope": {
+      "job_id": "6c20b64763a14b0facf0939fee7cb7cf",
+      "run_id": "R_5f852f1cd03da96d",
+      "tenant_id": "tenant-fixture",
+      "cell_id": "cell-fixture",
+      "verified_nl_job_scope": "fixture asserts owner-issued and matching job/run; synthetic fixture scope only"
+    },
+    "budget": {
+      "requested_max_iterations": 2,
+      "effective_max_iterations": 2,
+      "recursive_max_cycles_per_leaf": 2,
+      "actual_cycles": 1,
+      "actual_n5_calls": 1,
+      "actual_stop_reason": "roi_below_threshold"
+    },
+    "original_and_revised_problem": {
+      "original_design_problem_ref": "sha256:89750d387013fa7d87291551ac4db4ab1d2808f9a8bfcce8a802a7e795349da9",
+      "revised_design_problem_ref": "sha256:bcd60f617de17c894a29ad50b830477240e54843566f7ef0d29948d33e484e30",
+      "source_counterexample_ref": "pdc://gy/n6/gy_n4_cgf_decisive_capture_1_20260704_092222_049411/counterexample/001",
+      "revision_strategy": "spec_gap_reframe",
+      "retained_in_persisted_cycle": true
+    },
+    "context_job": {
+      "artifact_ref": "sha256:eb4dd1dc9503c25c106b0a6608f785f0eeb37e14d0d4c9261a31f986a1861c73",
+      "content_hash": "sha256:72c2156f0c79a152e15382157865ab592fa5e0937e34fe5ceb51d1e3b8d76cc1",
+      "schema": "policyos.runtime.cycle_substrate_context_job_artifact.v3",
+      "problem_ref": "sha256:89750d387013fa7d87291551ac4db4ab1d2808f9a8bfcce8a802a7e795349da9",
+      "status": "candidate_limited",
+      "profile_admission_status": "not_established",
+      "s8_status": "blocked",
+      "authority_purpose": "cycle_input_candidate_only",
+      "limitation_codes": [
+        "design_problem_population_identity_missing",
+        "design_problem_time_roles_not_reconciled",
+        "owner_profile_admission_missing",
+        "s8_current_value_authority_missing"
+      ],
+      "interpretation": "The persisted context is content-bound to the original problem and matching synthetic fixture job scope; its own status explicitly withholds profile admission and S8 current-value authority. This is not a production currentness receipt."
+    },
+    "n4_n5_bindings": {
+      "n4_source_ref": "sha256:c7f22d0ae738f40057c0f6af85ff8a47d5da5f54d950afbb8f4c5da2022f32a7",
+      "n4_source_content_hash": "sha256:e996588b7eed996ce3ff7e5885ab5baf68f4f4417a8bb4015e38bcf12a264d57",
+      "n5_input_ref": "sha256:a06faac74b67e213430a01541490f18b92b37c5358283f42f6ef2c5dabcfbcf3",
+      "n5_input_content_hash": "sha256:8f7b15e605a0799f54172bd8b9b7f8fc87c34ee8ad00a8becd370aee0d779483",
+      "n5_execution_ref": "sha256:fcf2a5c9c3b8fb4d70008d5dc37e7e2f0d40b74aec8c0f14ef82b5cc1ab09de3",
+      "n5_execution_content_hash": "sha256:b85854d1d88b120a68dbacfd4ab6b9df84d0ea57d645a100d297d94c47a239de",
+      "n5_output_result_ref": "sha256:5b0b8ec29c8034f17d73e63f028700e34e4e9830269d44197859b31092d18e1b",
+      "n5_output_receipt_payload_hash": "sha256:3e18dda12a14e71be900cee984e39589c125677b97a7b61397186ec7fb780906",
+      "ncm_ref": "sha256:105eae5f93a63e41ab86a4b1d7789124ba457f3d6ad5880d32fc98daa45e4e1e",
+      "candidate_id": "candidate_8d01ccf84a8d97b3",
+      "candidate_content_hash": "sha256:7ad9ba3fe76c2bab4056c92058a7b20811b47c1cfd88f46442215f5c71dbb1d3",
+      "profile_ref": "runtime-config:candidate-simulation/r1.controlled.synthetic.procurement@sha256:090c1b90b2d5578f75e9d009b27ae0d0366330670a7ab6a270ee571d77efd552",
+      "profile_purpose": "synthetic_candidate_scenario",
+      "authority_purpose": "candidate_scenario_n5_only",
+      "n5_result_status": "joint_simulated",
+      "uncertainty_kind": "K_sim",
+      "authority_blocker": "simulation_only_k_sim_not_world_evidence",
+      "n8_value_status": "value_conditional",
+      "n8_grade": "low",
+      "n9": "not promoted; no N9 receipt; no certified summary"
+    },
+    "revised_problem_owner_probe": {
+      "owner_type": "ConfiguredCandidateSimulationContextAdmissionOwner",
+      "scope": "same verified fixture job/run/tenant/cell under tenant_scope",
+      "revised_profile_selection_ref": "different from the original profile selection ref",
+      "admit_context_result": null,
+      "second_context_artifact_created": false,
+      "second_n5_executed": false
+    },
+    "scheduler_stop": {
+      "next_action": "blocked",
+      "scheduler_action": "reject",
+      "scheduler_reason": "roi_below_threshold",
+      "decision_reason": "roi_below_threshold"
+    },
+    "path_boundary": "The reviewer noted the test name has minor wording precision debt (“capstops” while the cap is not reached). The assertions and this receipt describe the actual ROI stop after one cycle."
+  },
+  "independent_review": {
+    "reviewer": "n9_gate",
+    "decision": "GO for bounded negative witness only",
+    "candidate_sha": "622f304abbdd5afc17fd91b30aa8871fca7a1182",
+    "candidate_tree_sha": "d7efbfcf071f73a421a447468aa0ea08f22ee875",
+    "reviewer_edits": false,
+    "reviewer_tests_run": false,
+    "boundary": "Cap 2 configured/persisted but NOT reached; actual ROI STOP after one; no attempted second context transition. The test name has minor precision debt, not a source change. Original B27 criterion remains OPEN by root decision.",
+    "source_trial": "Withdrawn 3d9ff1c936dbfc1fe146669c016c14a0b9cca5aa and reverted by 81fd547cacaf6ce4be1f35198f1a4efeef73697d; no active resolver adoption at 622."
+  },
+  "pattern_and_boundary_notes": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "identified_proxy_divergence": "A requested/effective max_iterations=2 marker does not mean the cap was exercised; the actual persisted cycle count and N5 observation count are one, and the runtime stop reason is ROI rejection.",
+    "authority_boundary": "Synthetic candidate N5/K_sim remains low-grade; context profile admission is not established, S8 is blocked, and N9 did not promote.",
+    "clean_tree_claim": false
+  }
+}

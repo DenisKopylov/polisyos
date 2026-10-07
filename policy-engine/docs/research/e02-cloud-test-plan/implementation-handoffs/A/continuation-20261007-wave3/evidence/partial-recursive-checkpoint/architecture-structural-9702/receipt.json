@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check",
+    "--skip-generated-checks"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+  "candidate_tree": "7f3b2701c157a25b87f67873721cbfecf61cfadd",
+  "workspace_dirty_before": [
+    " M policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+    " M policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/N8-objective-intake.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/candidate-model-revision.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+    "?? policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py"
+  ],
+  "workspace_dirty_after": [
+    " M policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+    " M policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/N8-objective-intake.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/candidate-model-revision.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+    "?? policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py"
+  ],
+  "exit_code": 1,
+  "wall_s": 16.025662125030067,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 119898,
+      "sha256": "7f0d1509ccad762eb4b8ef9d0d1d64310b25f5ae87d131b2ca0a013d96a91d33"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

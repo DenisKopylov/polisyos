@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.222" timestamp="2026-10-07T18:58:31.436430+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_revision_context_reentry" name="test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry" time="13.065"><failure message="AssertionError: assert (ControlJobRecord(job_id='393d5257e19241909725802974aba23d', kind='natural_language_run', state='failed', run_id='R_8ea..._terminal_status': 'error', 'manifest_ref': 'sha256:631679e2780c2047b5c54dd9b363b455d6b9013b756ab685592e1d5719152be2'}) is not None and 'failed' == 'completed'&#10;  &#10;  - completed&#10;  + failed)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10de3b490&gt;
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/pytest-basetemp/test_served_candidate_profile_0')
+
+    @pytest.mark.asyncio
+    async def test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -&gt; None:
+        """A candidate-only profile cannot turn an N6 revision into a second N5."""
+    
+        from polisyos.core import canon
+        from polisyos.core.security import tenant_scope
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from tests._helpers.controlled_candidate_profile import (
+            _candidate_only_procurement_intervention_bundle,
+        )
+        from tests.unit.runtime.http.test_control_service_di import (
+            _run_controlled_simulate_only_job_fixture,
+        )
+    
+&gt;       fixture = await _run_controlled_simulate_only_job_fixture(
+            monkeypatch,
+            tmp_path,
+            max_iterations=2,
+            intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+        )
+
+tests/integration/core_runtime/test_e02_revision_context_reentry.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10de3b490&gt;
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/pytest-basetemp/test_served_candidate_profile_0')
+
+    async def _run_controlled_simulate_only_job_fixture(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path,
+        *,
+        proposal_source_persistence_failure: bool = False,
+        max_iterations: int = 1,
+        intervention_substrate: object | None = None,
+    ) -&gt; SimpleNamespace:
+        """Run a synthetic owner-bound N4 candidate through a served N5 request.
+    
+        The witness binds each observed N5 candidate to its same-run persisted N4
+        source and actual joint-engine request. It does not establish N5 source
+        resolution, real-data grounding, production profile admission, N9, S8, or
+        publication authority.
+        """
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security import (
+            get_current_access_scope_or_none,
+            tenant_scope,
+        )
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextOffer,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            CandidateSimulationSyntheticModelDeclarationV1,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextOwnerError,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.design_generation import (
+            N4CandidateScenarioProposalCandidate,
+            N4CandidateScenarioProposalRun,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            load_joint_simulation_result,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV3,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            JointSimulationHorizonController,
+        )
+        from tests._helpers.controlled_candidate_profile import (
+            _configured_procurement_profile,
+            _controlled_procurement_recording,
+            _current_compiler_problem,
+        )
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+        from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
+        from tools.quality.validation import (
+            check_layer3_gy_design_generation_contract as n4_contract,
+        )
+    
+        recording_id = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+        recording_matches = tuple(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == recording_id
+        )
+        assert len(recording_matches) == 1
+        recording = recording_matches[0]
+        problem = _current_compiler_problem(recording)
+        outcome_variable = problem.outcome_of_interest.target_variable
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=outcome_variable,
+        )
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        profile, model_declaration = _configured_procurement_profile(
+            recorded_problem=problem,
+            artifact_store=store,
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            intervention_substrate=intervention_substrate,
+        )
+        assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            service = _build_control_service(
+                tmp_path,
+                artifact_store=store,
+                candidate_simulation_profiles=(profile,),
+                candidate_simulation_model_declarations=(model_declaration,),
+            )
+        assert service._artifact_store is store
+        source_owner = service._cycle_substrate_context_admission_owner
+        assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
+        assert source_owner.store is service._artifact_store
+        problem_ref = cycle_job_design_problem_ref(problem)
+        admission_observations: list[tuple[dict[str, object], object]] = []
+        admission_attempts: list[tuple[object, dict[str, object]]] = []
+        original_admit = ConfiguredCandidateSimulationContextAdmissionOwner.admit_context
+    
+        def record_admission(owner, **kwargs):
+            admission_attempts.append((owner, dict(kwargs)))
+            offer = original_admit(owner, **kwargs)
+            if owner is source_owner:
+                admission_observations.append((dict(kwargs), offer))
+            return offer
+    
+        monkeypatch.setattr(
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            "admit_context",
+            record_admission,
+        )
+        owner_refs = []
+        owner_replays = []
+        owner_replay_refs = []
+        verified_scope_observations = []
+        n5_port_observations = []
+        n5_engine_requests = []
+        compiler_calls = []
+        compiled_runs = []
+        n4_organ_runs = []
+        n4_port_attempts = []
+        candidate_handoffs = []
+        execution_order: list[tuple[str, str]] = []
+        started_core_contexts = []
+    
+        from polisyos.core.run.context import RunContext
+        from polisyos.core.trace import TraceRecord
+    
+        original_core_start = RunContext.start
+    
+        def record_core_start(cls, *args, **kwargs):
+            context = original_core_start(*args, **kwargs)
+            trace_path = context.trace_path
+            assert trace_path is not None
+            records = [
+                TraceRecord.model_validate_json(line)
+                for line in trace_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            assert len(records) == 1
+            assert records[0].event == "RUN_STARTED"
+            assert records[0].run_id == context.run_manifest.run_id
+            execution_order.append(("RUN_STARTED", records[0].run_id))
+            started_core_contexts.append(context)
+            return context
+    
+        monkeypatch.setattr(RunContext, "start", classmethod(record_core_start))
+    
+        original_n4_port = N4GenerationPort.__call__
+    
+        async def record_n4_port(port, problem_for_cycle, *, cycle_index):
+            execution_order.append(("N4_ENTER", ""))
+            n4_port_attempts.append((problem_for_cycle, cycle_index))
+            return await original_n4_port(
+                port,
+                problem_for_cycle,
+                cycle_index=cycle_index,
+            )
+    
+        monkeypatch.setattr(N4GenerationPort, "__call__", record_n4_port)
+    
+        original_n5_port = JointSimulationPort.__call__
+        original_n5_engine = JointSimulationHorizonController.run
+    
+        def record_n5_port(port, *, candidate, problem, cycle_index, **kwargs):
+            execution_order.append(("N5_ENTER", ""))
+            observation = original_n5_port(
+                port,
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+                **kwargs,
+            )
+            n5_port_observations.append(
+                SimpleNamespace(
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_index=cycle_index,
+                    context=port._cycle_substrate_context,
+                    observation=observation,
+                    input_record=kwargs.get("candidate_simulation_input"),
+                    input_ref=kwargs.get("candidate_simulation_input_ref"),
+                )
+            )
+            return observation
+    
+        def record_n5_engine(controller, request):
+            n5_engine_requests.append(request)
+            return original_n5_engine(controller, request)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", record_n5_port)
+        monkeypatch.setattr(JointSimulationHorizonController, "run", record_n5_engine)
+    
+        async def compile_fixture_problem(**kwargs):
+            compiler_calls.append(kwargs)
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            compile_fixture_problem,
+        )
+    
+        context_persist_attempts = []
+        original_context_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
+    
+        def record_context_persist_attempt(owner, context, *, problem, verified_nl_job_scope=None):
+            context_persist_attempts.append((context, problem, verified_nl_job_scope))
+            return original_context_persist(
+                owner,
+                context,
+                problem=problem,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+    
+        monkeypatch.setattr(
+            CycleSubstrateContextArtifactOwner,
+            "persist_for_current_job",
+            record_context_persist_attempt,
+        )
+    
+        # Rebind the profile to a different active outcome while preserving all
+        # self-hashes. The exact configured owner must reject the mismatched model
+        # declaration before it persists a context or reaches N4/N5.
+        probe_outcome_variable = f"{outcome_variable}_negative_control"
+        probe_problem = problem.model_copy(
+            update={
+                "outcome_of_interest": problem.outcome_of_interest.model_copy(
+                    update={"target_variable": probe_outcome_variable}
+                )
+            }
+        )
+        probe_profile_fields = profile.model_dump(mode="json", exclude={"content_hash"})
+        probe_profile_fields["profile_selection_ref"] = cycle_job_profile_selection_ref(
+            probe_problem
+        )
+        probe_profile = CandidateSimulationScenarioProfile.model_validate(
+            {
+                **probe_profile_fields,
+                "content_hash": generation_cycle_service.gy_content_hash(
+                    probe_profile_fields
+                ),
+            }
+        )
+        probe_declaration_fields = model_declaration.model_dump(
+            mode="json", exclude={"content_hash"}
+        )
+        probe_declaration_fields.update(
+            {
+                "profile_config_ref": candidate_simulation_profile_ref(probe_profile),
+                "profile_content_hash": probe_profile.content_hash,
+                "profile_selection_ref": probe_profile.profile_selection_ref,
+            }
+        )
+        probe_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+            {
+                **probe_declaration_fields,
+                "content_hash": generation_cycle_service.gy_content_hash(
+                    probe_declaration_fields
+                ),
+            }
+        )
+        probe_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=(probe_profile,),
+            model_declarations=(probe_declaration,),
+            store=service._artifact_store,
+        )
+        with pytest.raises(CycleSubstrateContextOwnerError) as mismatch:
+            probe_owner.admit_context(
+                problem=probe_problem,
+                job_id="negative-control-job",
+                run_id="negative-control-run",
+                tenant_id="tenant-fixture",
+                cell_id="cell-fixture",
+            )
+        assert mismatch.value.code == "candidate_simulation_model_outcome_problem_mismatch"
+        assert len(admission_attempts) == 1
+        assert admission_attempts[0][0] is probe_owner
+        assert admission_attempts[0][1]["problem"] is probe_problem
+        assert admission_observations == []
+        assert context_persist_attempts == []
+        assert owner_refs == owner_replays == owner_replay_refs == verified_scope_observations == []
+        assert n5_port_observations == n5_engine_requests == []
+        assert n4_port_attempts == []
+        assert compiler_calls == compiled_runs == n4_organ_runs == []
+    
+        recorded_n4_client = n4_contract.RecordedGenerationReplayClient(controlled_recording)
+        source_persistence_failures: list[str] = []
+        if proposal_source_persistence_failure:
+            def refuse_n4_source_persist(repository, *, source_record):
+                source_persistence_failures.append(type(source_record).__name__)
+                raise OSError("controlled_fixture_source_persistence_failure")
+    
+            monkeypatch.setattr(
+                GenerationSourceRepository,
+                "persist_candidate_scenario_source_v2",
+                refuse_n4_source_persist,
+            )
+    
+        original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
+        original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
+    
+        def record_persist(owner, context, *, problem, verified_nl_job_scope=None):
+            assert owner._store is service._artifact_store
+            assert verified_nl_job_scope is not None
+            assert get_current_access_scope_or_none() is None
+            for changed_scope in (
+                verified_nl_job_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
+                verified_nl_job_scope.model_copy(update={"attempt": verified_nl_job_scope.attempt + 1}),
+                verified_nl_job_scope.model_copy(update={"actor_subject": "foreign-actor"}),
+            ):
+                assert changed_scope._was_issued_by_verified_nl_execution_owner
+                with pytest.raises(
+                    CycleSubstrateContextOwnerError,
+                    match="cycle_substrate_context_job_verified_scope_mismatch",
+                ):
+                    original_persist(
+                        owner,
+                        context,
+                        problem=problem,
+                        verified_nl_job_scope=changed_scope,
+                    )
+            verified_scope_observations.append(verified_nl_job_scope)
+            ref = original_persist(
+                owner,
+                context,
+                problem=problem,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+            owner_refs.append(ref)
+            return ref
+    
+        def record_resolve(owner, ref, *, problem, verified_nl_job_scope=None):
+            assert owner._store is service._artifact_store
+            assert verified_nl_job_scope is not None
+            assert get_current_access_scope_or_none() is None
+            verified_scope_observations.append(verified_nl_job_scope)
+            artifact = original_resolve(
+                owner,
+                ref,
+                problem=problem,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+            owner_replays.append(artifact)
+            owner_replay_refs.append(ref)
+            return artifact
+    
+        monkeypatch.setattr(
+            CycleSubstrateContextArtifactOwner,
+            "persist_for_current_job",
+            record_persist,
+        )
+        monkeypatch.setattr(
+            CycleSubstrateContextArtifactOwner,
+            "resolve_for_current_job",
+            record_resolve,
+        )
+    
+        original_controller_builder = (
+            generation_cycle_service.build_default_recursive_generation_cycle_controller
+        )
+    
+        def build_fixture_recursive_controller(**kwargs):
+            recursive = original_controller_builder(**kwargs)
+            original_run = recursive.run
+            assert recursive._cycle_controller_factory is None
+    
+            async def run_with_fixture_generation(*args, **run_kwargs):
+                contexts = run_kwargs["cycle_substrate_contexts_by_node"]
+                handoffs = run_kwargs["candidate_simulation_handoffs_by_node"]
+                currentness_resolvers = run_kwargs[
+                    "candidate_simulation_currentness_resolvers_by_node"
+                ]
+                assert contexts is not None and len(contexts) == 1
+                assert handoffs is not None and len(handoffs) == 1
+                assert currentness_resolvers is not None and len(currentness_resolvers) == 1
+                node_ref = next(iter(contexts))
+                resolved_context = contexts[node_ref]
+                handoff = handoffs[node_ref]
+                currentness_resolver = currentness_resolvers[node_ref]
+                assert callable(currentness_resolver)
+                assert handoff.context == resolved_context
+                assert handoff.profile == profile
+                assert handoff.model_declaration == model_declaration
+                candidate_handoffs.append(handoff)
+    
+                class _ControlledN4GenerationPort(N4GenerationPort):
+                    async def __call__(self, problem_for_cycle, *, cycle_index):
+                        proposal_run = await super().__call__(
+                            problem_for_cycle,
+                            cycle_index=cycle_index,
+                        )
+                        n4_organ_runs.append(proposal_run)
+                        return proposal_run
+    
+                generator = _ControlledN4GenerationPort(
+                    model_id=str(recording["model_id"]),
+                    llm_client=recorded_n4_client,
+                    repo_root=kwargs["repo_root"],
+                    cycle_substrate_context=resolved_context,
+                    candidate_simulation_handoff=handoff,
+                )
+                run_kwargs["n4_generation_ports_by_node"] = {node_ref: generator}
+                compiled = await original_run(*args, **run_kwargs)
+                compiled_runs.append(compiled)
+                return compiled
+    
+            recursive.run = run_with_fixture_generation
+            return recursive
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_default_recursive_generation_cycle_controller",
+            build_fixture_recursive_controller,
+        )
+    
+        service_transferred = False
+        try:
+            context_payload = {
+                "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                    mode="json"
+                )
+            }
+            request = NaturalLanguageRunRequest(
+                request=problem.nl_provenance.raw_request,
+                llm_model=str(recording["model_id"]),
+                context=context_payload,
+                max_iterations=max_iterations,
+            )
+            claims = _fixture_claims()
+            launch = await service.launch_nl_run(
+                request,
+                principal=RuntimePrincipal.from_user_claims(claims),
+                authorization_proof=bound_nl_authorization_proof(claims, request),
+            )
+            job = service._control_store.get_job(launch.job_id)
+            assert job is not None and job.run_id is not None
+            leased = service._control_store.lease_next_job(
+                worker_id="r1-fixture-worker",
+                lease_seconds=60,
+            )
+            assert leased is not None and leased.job_id == launch.job_id
+            assert leased.attempt == 1
+            with (
+                n4_contract._recorded_runtime_environment(recording),
+                service._control_store.job_execution_fence(
+                    job_id=leased.job_id,
+                    worker_id=leased.lease_owner,
+                    attempt=leased.attempt,
+                ),
+            ):
+                service._process_control_job(leased)
+    
+            completed = service._control_store.get_job(launch.job_id)
+&gt;           assert completed is not None and completed.state == "completed"
+E           AssertionError: assert (ControlJobRecord(job_id='393d5257e19241909725802974aba23d', kind='natural_language_run', state='failed', run_id='R_8ea..._terminal_status': 'error', 'manifest_ref': 'sha256:631679e2780c2047b5c54dd9b363b455d6b9013b756ab685592e1d5719152be2'}) is not None and 'failed' == 'completed'
+E             
+E             - completed
+E             + failed)
+
+tests/unit/runtime/http/test_control_service_di.py:2245: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,264 @@
+{
+  "schema": "policyos.e02.A.estimator_numeric_wave3_checks.v1",
+  "purpose": "Pin the estimator-shape source delta, the separate frozen-red and native-pass attempts, and their complete output evidence. This packet is a bounded numeric-input diagnostic, not a producer or calibration-readiness claim.",
+  "candidate": {
+    "sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+    "tree": "73e347e510d76f6af7d606916898b0cedb0c7ff5",
+    "parent": {
+      "sha": "9914b4540a1ab7f5d120df77c32ca6feb2418aa6",
+      "tree": "2239d4ec18b91f0caf12b73b0d4af49a96b1fb81",
+      "role": "source-old plus frozen-red tests"
+    },
+    "tested_source_commit": "9389e0df4b909b22513f3ad03caceacbb3f84cde"
+  },
+  "source_delta": {
+    "method": "git diff --numstat 9914b4540a1ab7f5d120df77c32ca6feb2418aa6 9389e0df4b909b22513f3ad03caceacbb3f84cde",
+    "path_count": 2,
+    "source_paths": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "base_blob": "9cb88715df8356bb0866443e09a0a1771ecd432a",
+        "candidate_blob": "5d274319c2dfefd84d7e70ae8a988e5f7344c89c",
+        "insertions": 24,
+        "deletions": 6,
+        "changed_lines": 30,
+        "behavior_refs": [
+          "candidate lines 12449-12455: an estimator interval must be a finite ordered pair",
+          "candidate lines 12475-12521: missing/invalid point and missing interval retain null width/relative width, with point_value_status missing/known/invalid",
+          "candidate lines 13045-13061: Foundry value projection rejects invalid point/interval before float projection"
+        ]
+      }
+    ],
+    "test_paths": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+        "base_blob": "a05fee10cc7968352595774a9dc02819dda51108",
+        "candidate_blob": "ab587ee423ba999bfe985b7baaf686ba93c7b0da",
+        "insertions": 41,
+        "deletions": 10,
+        "changed_lines": 51,
+        "test_refs": [
+          "candidate lines 117-168: missing, bool, NaN, infinity, zero, and absent interval diagnostics",
+          "candidate lines 175-187: shape diagnostics cannot clear value calibration",
+          "candidate lines 190-276: unknown and zero remain distinguishable after a generic test.json CAS write/read/recompute",
+          "candidate lines 278 onward: foundry point/interval projection controls"
+        ]
+      }
+    ],
+    "totals": {
+      "insertions": 65,
+      "deletions": 16,
+      "paths": 2
+    },
+    "scope_note": "The base-to-candidate diff is exactly the one source path and one test companion above. Other tracked or untracked paths in the worktree are not part of this source delta."
+  },
+  "scope": {
+    "bounded_property": "Unknown, invalid, zero, and finite ordered estimator shapes remain distinct. Missing or invalid point values do not acquire a numeric relative width; an absent interval does not acquire a width; invalid point/interval values are refused before value projection. Estimator shape alone still leaves calibration limited with denominator 0 and pass_rate null.",
+    "source_route": "_s10_calibration_evidence_from_report is defined at generation_cycle.py:12423 and is called by _build_real_s10_forecast_inputs at :12386; RealValueOwnerGateway.produce_forecast_inputs is defined in the module, but the complete tracked-source grep has no production call site to produce_forecast_inputs. The tests call these helpers directly.",
+    "source_census": {
+      "command": "git grep -n 'produce_forecast_inputs(' 9389e0df4b909b22513f3ad03caceacbb3f84cde -- policy-engine/src",
+      "result": "Only method definitions and their internal helper composition are present; there is no production caller in the tracked source tree.",
+      "interpretation": "The shape path is implemented but not orchestrated into a production consumer route. The test does not establish forecast readiness."
+    },
+    "persistence_boundary": "The test writes a synthetic payload under kind test.json / schema tests.E02EstimatorCandidate 1.0 using FileSystemCAS.put_bytes, then verifies and reads it back. This is a generic CAS test fixture, not the canonical empirical-calibration artifact, an admitted observation, or a persisted production estimator result.",
+    "nonclaims": [
+      "No real admitted source series, forecast profile, holdout, or production estimator output is supplied.",
+      "No empirical coverage, calibration accuracy, forecast readiness, or publishable/credible S10 result is established.",
+      "The new behavior does not provide a B18 or B31 primary-criterion mapping, alter either finding, or close any finding.",
+      "The native test wave is a bounded unit/control set; it is not a full application, served, or external-source integration check."
+    ]
+  },
+  "attempts": [
+    {
+      "id": "estimator-numeric-shapes-initial-dirty-red",
+      "role": "initial exploratory red; excluded from deciding pass/fail accounting",
+      "candidate": {
+        "sha": "d9fa8063b18fce5df2ccc62401a313ebe04df170",
+        "tree": "c7be367837750c9272b78c1328d7c03bea723eb7"
+      },
+      "runner_outcome": "FAIL; 24 tests, 16 failures, 8 passes",
+      "classification": "Exploratory attempt with a dirty/uncommitted test file and other dirty paths; do not treat as a frozen source/test comparison or add its counts to the frozen-red attempt.",
+      "dirty_inputs": [
+        "M policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+        "M policy-engine/tests/unit/remediation/test_emp_01.py",
+        "?? policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py"
+      ],
+      "evidence": {
+        "directory": "evidence/estimator-numeric-shapes-initial-dirty-red",
+        "receipt_sha256": "392d50cf5dd8ad3ec508457f313c9b406a684471b7b4c3734f9be6f65f1ff37f",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 28585, "sha256": "6efabbe17f1ff5ed8858fe667b93612ee1946076bc54ff8fe59f9efdc8bf56a0"},
+          {"path": "stderr.txt", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "junit.xml", "bytes": 32174, "sha256": "509f2c68d9594bb85b5283947e31166245012c792d42262918c11449a3c6fc7c"},
+          {"path": "e02_origin.py", "bytes": 656, "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"},
+          {"path": "origins.json", "bytes": 1095, "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"}
+        ]
+      }
+    },
+    {
+      "id": "estimator-numeric-shapes-frozen-red-9914",
+      "role": "frozen pre-fix red against source-old plus the initial tracked test revision",
+      "candidate": {
+        "sha": "9914b4540a1ab7f5d120df77c32ca6feb2418aa6",
+        "tree": "2239d4ec18b91f0caf12b73b0d4af49a96b1fb81"
+      },
+      "runner_outcome": "FAIL; 24 tests, 16 failures, 8 passes",
+      "failure_split": {
+        "semantic_failures": 15,
+        "test_setup_failure": 1,
+        "test_setup_failure_detail": "test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation called the canonical JSON artifact helper with floats; CanonViolation: float forbidden in canonical JSON. This is a fixture/API setup failure, not a product semantic result."
+      },
+      "comparison_limit": "The final candidate changes the CAS fixture API and schema to generic test.json using put_bytes. Therefore this is not an identical test-source paired red/green receipt, and the final pass must not be presented as one.",
+      "evidence": {
+        "directory": "evidence/estimator-numeric-shapes-frozen-red-9914",
+        "receipt_sha256": "70cb28f35cdb34a8b9476b12c29c492cae68dbdf7abd28068c2f6ac5017acb12",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 28624, "sha256": "1570d731c7ac801169af95ff30c60a316217e9de8fad34e202717eb42686b5fb"},
+          {"path": "stderr.txt", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "junit.xml", "bytes": 32213, "sha256": "2d16fb9f9bcced03e02b45dda2d4b038e06141ad2b41c1f9dcc17171229a00de"},
+          {"path": "e02_origin.py", "bytes": 656, "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"},
+          {"path": "origins.json", "bytes": 1095, "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"}
+        ]
+      }
+    },
+    {
+      "id": "estimator-numeric-shapes-native-9389",
+      "role": "native bounded candidate wave after the source and test changes",
+      "candidate": {
+        "sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+        "tree": "73e347e510d76f6af7d606916898b0cedb0c7ff5"
+      },
+      "runner_outcome": "PASS; 28 tests, 28 passed",
+      "included_controls": [
+        "All cases in tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py",
+        "test_finite_estimator_report_without_observations_cannot_pass_calibration",
+        "test_nominal_confidence_is_not_empirical_coverage_without_observations",
+        "test_s10_refusal_is_report_driven_by_bad_did_report"
+      ],
+      "observed_behavior": [
+        "Missing point is point_value_status=missing; bool/NaN/infinite points are invalid; explicit zero is known.",
+        "Relative interval width remains null for missing/invalid point and for missing interval; valid zero uses the defined scale floor.",
+        "Shape evidence leaves calibration_status=limit, denominator=0, pass_rate=null, and forecast support blocked.",
+        "The generic test.json payload is verified, reopened from a fresh FileSystemCAS instance, and the diagnostic is recomputed from the stored report."
+      ],
+      "runner": {
+        "exit_code": 0,
+        "wall_seconds": 14.1202946670237,
+        "junit_counts_from_complete_file": true
+      },
+      "evidence": {
+        "directory": "evidence/estimator-numeric-shapes-native-9389",
+        "receipt_sha256": "e9f934b00b1309e6004a231ca96176f96b015069113d735db7aeb00acc29dc66",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 100, "sha256": "256be53a3c012fe4b9f92815a61222755247e1c49b76a928e3aaeac32f74509b"},
+          {"path": "stderr.txt", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "junit.xml", "bytes": 5161, "sha256": "94c5a355f03becff61f4391afda15be7ce6514dec8e0576ad0ba90102b565199"},
+          {"path": "e02_origin.py", "bytes": 656, "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"},
+          {"path": "origins.json", "bytes": 1095, "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"}
+        ]
+      }
+    }
+  ],
+  "r1_attempts": [
+    {
+      "id": "s10-cas-width-r1-9389",
+      "role": "first R1 removal attempt; preserved as a harness error, not a property result",
+      "candidate": {
+        "sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+        "tree": "73e347e510d76f6af7d606916898b0cedb0c7ff5"
+      },
+      "target": "test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation",
+      "runner_outcome": "HARNESS_ERROR; pytest exited 1 during pytest_sessionfinish",
+      "classification": "The R1 evidence hook failed to serialize a JSON artifact-ID field from failure locals (last_loop_storage_ref_id). The target's removal assertion outcome is not accepted from this attempt.",
+      "evidence": {
+        "directory": "evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389",
+        "receipt_sha256": "851d8593503f88e7c9d65e1e4014e2b57f1fbb8287683395753c091e1f33b7b2",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 79, "sha256": "19c3754f8166449e6bb5953f24273574abf32ac365c52a15760066c836dbf29c"},
+          {"path": "stderr.txt", "bytes": 7180, "sha256": "5068c6fa1eaa050bf55656edf4f69b48daf3c93407d05c2dd8b6bb820ba8e375"},
+          {"path": "junit.xml", "bytes": 3784, "sha256": "53aef78197d6be1b569ed0cbec06161726b227079b80de61b2ed1a74787b77dc"},
+          {"path": "e02_origin.py", "bytes": 656, "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"},
+          {"path": "s10_cas_unknown_width_removal.py", "bytes": 17342, "sha256": "20798f0ccb8e39fe19e44c11a027a68849b54b67fb92f7710282a884b726b77f"}
+        ]
+      }
+    },
+    {
+      "id": "s10-cas-width-r1-fixed-json",
+      "role": "second R1 removal attempt; retained as unqualified harness/result, not a property pass",
+      "candidate": {
+        "sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+        "tree": "73e347e510d76f6af7d606916898b0cedb0c7ff5"
+      },
+      "target": "test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation",
+      "runner_outcome": "HARNESS_ERROR_OR_UNEXPECTED_RESULT; pytest exited 1",
+      "classification": "The target's stored-unknown-width assertion did fail after the mutation, but the evidence checker rejected the attempt: it expected exactly two helper calls while the actual consumer recomputation produced additional calls, and its CAS/result matching conditions were not satisfied. Do not classify this as a qualifying removal oracle or as a product/source failure.",
+      "observed_target_assertion": "The stored unknown case had relative_interval_width=0.5 rather than None under the mutation.",
+      "evidence_verdict": "r1_evidence.json records verdict=HARNESS_ERROR_OR_UNEXPECTED_RESULT, actual_distinct_cas_readbacks_valid=false, call_sequence_valid=false, and explicit_zero_width_unchanged_twice=false.",
+      "evidence": {
+        "directory": "evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389",
+        "receipt_sha256": "04db12c0aa15f1946665150198de0787f77fbecd124000d0126fd8cc29a5d709",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 3778, "sha256": "c9fc30348da1e702683d70ab9d4b66cac6c0c8c2378840cafdc3497ec21cbafa"},
+          {"path": "r1_evidence.json", "bytes": 29745, "sha256": "7380cebcc364afa3a9d240821d82a879e827045c7045949533804becb6054670"},
+          {"path": "stderr.txt", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "e02_origin.py", "bytes": 656, "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"},
+          {"path": "s10_cas_unknown_width_removal.py", "bytes": 17737, "sha256": "7e8bb31a88ea6b4d01ff4230601c89bedbfb23444da432c183ffc8331c675b9e"},
+          {"path": "junit.xml", "bytes": 3790, "sha256": "2a807ee448b0e9aeef9439021b9b566f7259c2e1f513dcdf1fa87b8e39593ab0"},
+          {"path": "origins.json", "bytes": 1095, "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"}
+        ]
+      }
+    },
+    {
+      "id": "s10-cas-width-r1-generic-lifecycle",
+      "role": "third R1 removal attempt; qualifying expected-falsifier witness",
+      "implementation_candidate": {
+        "sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+        "tree": "73e347e510d76f6af7d606916898b0cedb0c7ff5",
+        "source_blob": "5d274319c2dfefd84d7e70ae8a988e5f7344c89c",
+        "numeric_test_blob": "ab587ee423ba999bfe985b7baaf686ba93c7b0da"
+      },
+      "r1_target": {
+        "sha": "5994be2819c9efad2bdf808bb4bda2f0c61ca06a",
+        "tree": "36c5aa7e4f32aca1c890778e33fd170466edaa8a",
+        "relation": "The numeric source and numeric test blobs are byte-identical to implementation candidate 9389. The commit adds changes to only two unrelated B27 test paths (28 insertions/6 deletions total); it adds no numeric production-source or numeric-test changes.",
+        "independent_delta": [
+          "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+          "policy-engine/tests/unit/runtime/http/test_control_service_di.py"
+        ]
+      },
+      "target": "tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py::test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation",
+      "runner_outcome": "R1 checker verdict EXPECTED_FALSIFIER; pytest has one ordinary target failure under the mutation and exits 1, as expected for this removal probe",
+      "mutation": "For a missing point estimate with a finite interval, restore the removed proxy by changing only estimator_shape_diagnostics.relative_interval_width from None to 0.5; retain point_value_status=missing, blocked forecast, absent empirical coverage/calibration, and the S10 limitation.",
+      "qualifying_witness": {
+        "unknown_case": "The original diagnostic is None before persistence and after fresh CAS readback. Under mutation, the persisted unknown width becomes 0.5 and the unchanged assertion that it is None fails.",
+        "explicit_zero_control": "The explicit zero case remains known with relative width 0.5 before persistence and after fresh CAS readback.",
+        "cas_readback": "Two distinct CAS artifact IDs are reopened: unknown sha256:ed60ab5107af45c921593cabe5e1b0308fdf486510e1d2a5820a2d5feb4bef55 and explicit zero sha256:236671f6f2324f7b2c83d18f4a1dfb6c2a4792cc366df1414c27e9019218d27d.",
+        "observer_checks": "The R1 evidence validates four actual helper calls: unknown/missing-point twice and explicit-zero twice, once pre-persist and once after fresh CAS readback. It validates distinct CAS readbacks, blocked consumer outputs, lifecycle coverage, and unchanged non-target markers."
+      },
+      "evidence_verdict": "r1_evidence.json: EXPECTED_FALSIFIER; actual_distinct_cas_readbacks_valid=true; lifecycle_coverage_valid=true; all_calls_are_target_shapes=true; original_unknown_width_none_before_and_after_cas=true; explicit_zero_width_unchanged_before_and_after_cas=true; expected_unknown_stored_width_assertion_failure=true; failure_capture_error=null.",
+      "evidence": {
+        "directory": "evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389",
+        "receipt_sha256": "3cc0e0d8aee0af8bcd9664696f8c2da52c33b9ebc052a3118bd7a699ebfc27e2",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 3785, "sha256": "cee5c138f74d2a1f72551049b8f433cdf205f9e19e822892c6c2cf56b99c50f9"},
+          {"path": "r1_evidence.json", "bytes": 30275, "sha256": "b1d6dc9784898ffbbaaf2e245990a1817ec9fe72da670f081b584a9b3d67f991"},
+          {"path": "stderr.txt", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "e02_origin.py", "bytes": 656, "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"},
+          {"path": "s10_cas_unknown_width_removal.py", "bytes": 19775, "sha256": "f3775ca847209e10400dfd63f5ce98e4728c2fb0cbcb73176c5a94ec7b4e19b4"},
+          {"path": "junit.xml", "bytes": 3797, "sha256": "ed4249a370bbf8aa93d759ed1b0262d5f04c3b8823400d6b8898e4570d8806b7"},
+          {"path": "origins.json", "bytes": 1095, "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"}
+        ]
+      }
+    }
+  ],
+  "pending_checks": [],
+  "attempt_accounting": "The exploratory dirty red, frozen 24-case red, 28-case candidate pass, and three R1 attempts are separate receipts. Their counts are not summed. The frozen test revision and candidate test revision differ, including the generic CAS fixture API; no identical-source paired-red claim is made. The first two R1 attempts remain recorded as unqualified harness/result errors; only the third is a qualifying EXPECTED_FALSIFIER witness.",
+  "evidence_copy_policy": {
+    "copied_complete_receipt_outputs": true,
+    "hash_check": "Copied receipt outputs are checked against their recorded byte lengths and SHA-256 before the final packet is published.",
+    "excluded": [
+      "pytest-basetemp CAS blobs, manifests, and lock files",
+      "Any test-source snapshot not present in the corresponding receipt output set"
+    ]
+  }
+}

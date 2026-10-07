@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "B66-cost-scope-consumer",
+  "branch": "codex/e02-A-delivery-attached",
+  "slice_base_sha": "778e9f5214d04726f9369f7ae96013d37cd5f266",
+  "candidate_sha": "2297c974d90f5f69b866fbc6f205446af011374f",
+  "candidate_tree_sha": "eb97963972ba990368d6e4d746168ddc01c47b42",
+  "tested_source_commit": "2297c974d90f5f69b866fbc6f205446af011374f",
+  "implementation_commits": [
+    "ed5a074ffb3d3ad49380565c8124ba6efedc53f2",
+    "cefb2c2b138c1f2ec3dad2099889616968ada1f4",
+    "8f7ebd3662c7b2d8a6082072df34259d5c5d6f10",
+    "02aff519c3a2535819dfb5eb1ede1c7a43603851",
+    "7b85f564ca5bda5bae1706e82a07c6576eb4f701",
+    "2297c974d90f5f69b866fbc6f205446af011374f"
+  ],
+  "finding_ids": [
+    "B66"
+  ],
+  "finding_outcomes": {
+    "B66": "not_adjudicated"
+  },
+  "closure_ids": [],
+  "bundle_ids": [],
+  "baseline_cells": [],
+  "closure_status": "not_adjudicated; bounded A-side unknown-cost guard witness only",
+  "capability_state_or_finding_state": "bridge_missing",
+  "capability_scope_detail": "The A-side run-budget consumer preserves unknown cost and blocks starting the next queued variant in the exercised path. This packet does not wire or verify a B-owned settlement producer/ledger into that consumer, and does not establish B66 closure.",
+  "predicate_basis": "independently_reconciled",
+  "property": {
+    "statement": "For the exercised nonzero run-cap path, unknown cost remains unknown and does not authorize starting another queued model variant. The run is reported with unknown budget status, not as proven exhausted.",
+    "predicate_basis_detail": "The focused passing case's complete output/JUnit and the R1 removal falsifier are retained and hash-bound in the companion cost-checks artifact. The evidence is a simulated A consumer test, not external billing evidence.",
+    "property_divergence": "The tested predicate is whether the consumer starts a sibling variant after an unknown-cost result. The mechanism is the existing run-budget guard's treatment of unknown amount/status, not an assertion that the run has spent a measured amount. R1 replaces that treatment with zero at a nonzero cap; the second variant completes and the unchanged guard assertion fails.",
+    "negative_controls": [
+      "An explicit no-provider-call zero is separately represented on the skipped variant and is not conflated with the first variant's unknown cost.",
+      "The R1 target is an expected xfail under the mutation; the probe itself passes only when it observes that the target assertion goes red."
+    ]
+  },
+  "source_contracts": {
+    "B66_original_criterion": "PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L1689-L1708; original B66 concerns replayed cached LLM response usage/cost versus a new call and labels its numerical model illustrative, not actual billing.",
+    "historical_B66_closure_state": "closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a#/findings/191: historical partial; selected plan was not executed; closure_now=not_adjudicated.",
+    "producer_settlement_contract": "closure-decisions/B.md@58267726b4fb3a390c421c68130c788a0c6e90ee#L204 describes a producer-owned settlement event/idempotent ledger link and lost-ack uncertainty. This A-side test does not exercise that producer or ledger.",
+    "A_B11_separation": "continuation-20261007-progress.json@78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf#/finding_rows/10 carries forward B11 as partial with provisional limited outcome, criterion_check_state=UNRUN, and closure_now=not_adjudicated. It is outside this B66 consumer packet; no B11 outcome is changed here.",
+    "candidate_source_footprint": "continuation-20261007-wave3/cost-checks.json@sha256:59ae8604b123f624a52ed028244b04ade0440155ad093bd2e9858bcc97fb7e2a#/source_history"
+  },
+  "source_changed_paths": [
+    "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py"
+  ],
+  "test_changed_paths": [
+    "policy-engine/tests/unit/runtime/http/services/control/test_nl_pipeline_cost_projection.py",
+    "policy-engine/tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+    "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py"
+  ],
+  "production_source_changes": true,
+  "packet_source_changes": false,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/cost-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/invoke.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/run_probe.py"
+  ],
+  "companion_footprint": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3",
+    "checks_artifact": "cost-checks.json@sha256:59ae8604b123f624a52ed028244b04ade0440155ad093bd2e9858bcc97fb7e2a",
+    "evidence_directories": [
+      "evidence/cost-consumer-admitted-helper-7b85",
+      "evidence/cost-consumer-budget-decimal-2297",
+      "evidence/cost-r1-unknown-to-zero-2297"
+    ],
+    "copy_status": "complete output sets copied and verified against receipt byte lengths and SHA-256; pytest-basetemp CAS omitted"
+  },
+  "checks": [
+    {
+      "id": "cost-consumer-admitted-helper-7b85",
+      "classification": "A Decimal-vs-float test expectation mismatch at the final budget assertion; the unknown-cost guard assertions passed before it. This selected wave was not rerun after the correction.",
+      "evidence_ref": "continuation-20261007-wave3/cost-checks.json@sha256:59ae8604b123f624a52ed028244b04ade0440155ad093bd2e9858bcc97fb7e2a#/checks/0",
+      "result_detail": "HARNESS_ASSERTION_FAILURE; 52 passed, 1 failed",
+      "outcome": "FAIL",
+      "target_sha": "7b85f564ca5bda5bae1706e82a07c6576eb4f701",
+      "command": "continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/receipt.json#/argv",
+      "environment": "continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/receipt.json#/environment",
+      "input_closure": "Immutable candidate source/test pins and bounded fixture/mutation inputs recorded in continuation-20261007-wave3/cost-checks.json@sha256:59ae8604b123f624a52ed028244b04ade0440155ad093bd2e9858bcc97fb7e2a#/checks/0",
+      "output": "continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/stdout.txt; continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/stderr.txt; continuation-20261007-wave3/evidence/cost-consumer-admitted-helper-7b85/junit.xml"
+    },
+    {
+      "id": "cost-consumer-budget-decimal-2297",
+      "evidence_ref": "continuation-20261007-wave3/cost-checks.json@sha256:59ae8604b123f624a52ed028244b04ade0440155ad093bd2e9858bcc97fb7e2a#/checks/1",
+      "result_detail": "PASS; one focused case only",
+      "outcome": "PASS",
+      "target_sha": "2297c974d90f5f69b866fbc6f205446af011374f",
+      "command": "continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/receipt.json#/argv",
+      "environment": "continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/receipt.json#/environment",
+      "input_closure": "Immutable candidate source/test pins and bounded fixture/mutation inputs recorded in continuation-20261007-wave3/cost-checks.json@sha256:59ae8604b123f624a52ed028244b04ade0440155ad093bd2e9858bcc97fb7e2a#/checks/1",
+      "output": "continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/stdout.txt; continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/stderr.txt; continuation-20261007-wave3/evidence/cost-consumer-budget-decimal-2297/junit.xml"
+    },
+    {
+      "id": "cost-r1-unknown-to-zero-2297",
+      "evidence_ref": "continuation-20261007-wave3/cost-checks.json@sha256:59ae8604b123f624a52ed028244b04ade0440155ad093bd2e9858bcc97fb7e2a#/checks/2",
+      "result_detail": "CHECKER PASS; target assertion observed as expected xfail under mutation",
+      "outcome": "PASS",
+      "target_sha": "2297c974d90f5f69b866fbc6f205446af011374f",
+      "command": "continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/receipt.json#/argv",
+      "environment": "continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/receipt.json#/environment",
+      "input_closure": "Immutable candidate source/test pins and bounded fixture/mutation inputs recorded in continuation-20261007-wave3/cost-checks.json@sha256:59ae8604b123f624a52ed028244b04ade0440155ad093bd2e9858bcc97fb7e2a#/checks/2",
+      "output": "continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/stdout.txt; continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/stderr.txt; continuation-20261007-wave3/evidence/cost-r1-unknown-to-zero-2297/junit.xml"
+    }
+  ],
+  "attempt_accounting": "The three attempts are separate and non-additive. The 53-case wave was not rerun; the later PASS is one focused case. Older overlapping 50-case attempts are excluded.",
+  "limitations_and_next_owner": [
+    "This is an A-side simulated unknown-cost consumer witness. It does not establish provider-reported usage as actual billing, independently reconciled spend, or a real monetary debit.",
+    "The test uses an explicit nondefault callback under a store-issued job admission; production dispatch normally runs the NL branch inline. The run_experiment result payload is captured by a test callback rather than persisted as a cost-bearing result artifact.",
+    "No B-owned producer settlement event, durable ledger, BudgetMiddleware/FileBudgetLedger receipt, exactly-once debit, lost-ack recovery, cancellation survival, cache-hit reuse, sibling-run isolation, or D-owned ledger is exercised.",
+    "The run budget status remains unknown; the case does not show a measured cost or prove that a monetary cap was exhausted.",
+    "B11 is not evaluated or changed by this packet. Its current row remains partial/not_adjudicated pending its own criterion and owner inputs.",
+    "The test-time receipts captured five modified tracked paths and three untracked A handoff paths. The immutable candidate SHA/tree is pinned, but this packet makes no clean-working-tree claim."
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P05",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "application": "Do not promote unknown or estimated cost to actual billing authority (P05); preserve unknown status when the gate reads cost evidence (P37); R1 removes the unknown distinction while retaining the test assertion and makes the second variant start (P38); keep each attempt tied to its exact candidate, and separate runner outcomes from finding adjudication (P41).",
+    "acceptance_signal": "The focused positive case passes, the unknown-to-zero removal falsifier observes the original guard assertion go red, and no finding is closed by this evidence."
+  },
+  "pull_request": null
+}

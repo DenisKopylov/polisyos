@@ -1,0 +1,13 @@
+{
+  "expected_guard_assertion_observed": 1,
+  "first_completed_observed": 1,
+  "first_positive_tokens_observed": 1,
+  "first_unknown_cost_observed": 1,
+  "mutation_installed": 1,
+  "probe_status": "expected_failure_observed",
+  "pytest_exit_code": 0,
+  "second_completed_observed": 1,
+  "target_collected": 1,
+  "unexpected_target_failures": 0,
+  "unexpected_target_passes": 0
+}

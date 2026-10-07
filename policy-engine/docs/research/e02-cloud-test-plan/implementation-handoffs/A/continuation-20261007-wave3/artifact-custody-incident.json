@@ -1,0 +1,329 @@
+{
+  "schema": "policyos.e02.artifact_custody_incident.v1",
+  "unit": "A",
+  "incident": "helper_wrote_new_receipt_files_in_primary_checkout",
+  "source_checkout": "/Users/deniskopylov/polisyos",
+  "source_branch_observed": "docs/raw-evidence-ignore",
+  "destination_checkout": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos",
+  "destination_branch": "codex/e02-A-delivery-attached",
+  "files": [
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+      "bytes": 19593,
+      "sha256": "10d5ce412c283bed9562716af8ac201f9487387b9f7fab061350cc0c32af5cab"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+      "bytes": 83052,
+      "sha256": "0071084d0cbcfb1aa1ca7215cc09e90915db9a708e9e968d1e87e28de5b8f651"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/stdout.txt",
+      "bytes": 42839,
+      "sha256": "93155b47992f1ea19ab54abf2021526c43670f9235dbd57ddcd2130e40fbae3c"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/e02_origin.py",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/e02_origin.py",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/junit.xml",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/junit.xml",
+      "bytes": 54571,
+      "sha256": "65931da5f640d74a5291f51863e82da0a8ba0dcc825deb6b251a9f94a0582fc8"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/origins.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/origins.json",
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/receipt.json",
+      "bytes": 3487,
+      "sha256": "4b22f745d451ac13dc51b5088c6281b09a8fe6c1dddcf900d069e1d99bcd9e66"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/stdout.txt",
+      "bytes": 4699,
+      "sha256": "cba0382753c59431567630d1ade1578c169363f3aaa647fa13c58fafe3c2ed92"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/stderr.txt",
+      "bytes": 6755,
+      "sha256": "62c84383adfeb581aca67c2101396541d712b761ba874e119378b41ff107ac5d"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/receipt.json",
+      "bytes": 1840,
+      "sha256": "0344149a65e2594b4d5eed6fd05e51ab712e34760b2fb5d573023b00e87a8deb"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/stdout.txt",
+      "bytes": 119898,
+      "sha256": "7f0d1509ccad762eb4b8ef9d0d1d64310b25f5ae87d131b2ca0a013d96a91d33"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/receipt.json",
+      "bytes": 2462,
+      "sha256": "b229cd659cac45995e27400429b5e51de9658d90cff2911681ff35e3a6913d94"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/stdout.txt",
+      "bytes": 15121,
+      "sha256": "27d03d78849965ef67ca7e7be8e288702e53cef62d567fc693a062c34f7b7579"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/e02_origin.py",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/e02_origin.py",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/junit.xml",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/junit.xml",
+      "bytes": 15394,
+      "sha256": "f852805c266e8dbe2f7b3119958b593283bd3bd64dfecbf60e20f073ce1906d4"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/origins.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/origins.json",
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/receipt.json",
+      "bytes": 3448,
+      "sha256": "7dadb91227179222c34359ca72744e2dde3e862487e42151107eadb019e83b67"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/stdout.txt",
+      "bytes": 1286,
+      "sha256": "b93f2cca5ec40d2d5b084748ff2b80e785d640756bef199495d1c18b28c949d5"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/e02_origin.py",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/e02_origin.py",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/junit.xml",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/junit.xml",
+      "bytes": 1309,
+      "sha256": "8650354b40dee5d5faec804fe4d90cf1abcfdc2f621a5e43415ca6f1f38127c6"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/origins.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/origins.json",
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/receipt.json",
+      "bytes": 3259,
+      "sha256": "e34faf1af88924c01ac8e76bdb813a03ef6b6d398e6c494f35936f94be1ffd04"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/stdout.txt",
+      "bytes": 17592,
+      "sha256": "892af0ea3505be7157e19fa786b105a8bd8510b6ed7d6ac954eddf00f174d8e5"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/e02_origin.py",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/e02_origin.py",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/junit.xml",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/junit.xml",
+      "bytes": 18243,
+      "sha256": "c67f173fb956f66b3cc23b08607e5ed578ba9d03953da5a7af457e501ba762ea"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/origins.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/origins.json",
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/receipt.json",
+      "bytes": 3408,
+      "sha256": "8497f66f87f8336aacda7b1d4c2f7f4a0751e9ef0a5fa11c17ba9840e51de158"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/stdout.txt",
+      "bytes": 12613,
+      "sha256": "8523771d52bbc97c940ea63847c567017c5fb94ba980c79a235c57c48fef39f9"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/e02_origin.py",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/e02_origin.py",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/junit.xml",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/junit.xml",
+      "bytes": 13350,
+      "sha256": "4336042801cfbca601bc61518c10c7211dfae367848c61c7693d7950bc79cee3"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/origins.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/origins.json",
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/receipt.json",
+      "bytes": 2842,
+      "sha256": "159b7d33d640eeca96d9c8901e75b3a8981bc3d8f73c07b9963c7c41325d0371"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/stdout.txt",
+      "bytes": 99,
+      "sha256": "1c3a74a17a9ac794d014f898fee41f4b9ce6bd655eea3fd1f5653b0150d2a831"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/e02_origin.py",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/e02_origin.py",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/junit.xml",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/junit.xml",
+      "bytes": 446,
+      "sha256": "5b1508823d036a43bf0e6aefa4c5dd56d6558d6d1dc42d4d29c0aca2b026cf71"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/origins.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/origins.json",
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/receipt.json",
+      "bytes": 3312,
+      "sha256": "4782b8fc7945c43a1ae101356a05d8be51c1736e190c220a6bfcf4a457e047a2"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/stdout.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/stdout.txt",
+      "bytes": 8189,
+      "sha256": "066a1822ebc3b81567ba65576734cb94a5175fe8b8b73dd1e049296062444df1"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/n8_partial_v2_removal.py",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/n8_partial_v2_removal.py",
+      "bytes": 6294,
+      "sha256": "0610bbec106fef3c75241c3527faf58ecba4cfd657faff87bba7ee2185a3038c"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/r1_evidence.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/r1_evidence.json",
+      "bytes": 11848,
+      "sha256": "d52826a50087033e1bfeaadb81cee559585d1432e3d14953733f6d24bcfc48be"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/stderr.txt",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/e02_origin.py",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/e02_origin.py",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/junit.xml",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/junit.xml",
+      "bytes": 8270,
+      "sha256": "899a40f4423679af6daa072f421a40f6223e4a55be992a12b349c9a427d14ee2"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/origins.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/origins.json",
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    },
+    {
+      "source_absolute_path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/receipt.json",
+      "destination_repository_relative_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/receipt.json",
+      "bytes": 3860,
+      "sha256": "1ffde5f040592e1e06394a557c306e3e4b31b6310d86f4b07d9830394262e3e6"
+    }
+  ],
+  "source_files_retained": true,
+  "preexisting_user_files_overwritten": false,
+  "git_history_changed_by_helper": false,
+  "source_code_changed_by_helper": false,
+  "source_of_preexistence_claim": "helper initial inventory and primary Git readback: all52 paths untracked",
+  "root_action": "verified byte-exact copy into authorized A lane; no source checkout cleanup or Git repair"
+}

@@ -1,0 +1,83 @@
+{
+  "workspace_dirty_before": [
+    " M policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+    " M policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+  ],
+  "workspace_dirty_after": [
+    " M policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+    " M policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B66-cost-scope-consumer.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json"
+  ],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-cas-width-r1-fixed-json/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-cas-width-r1-fixed-json/pytest-basetemp",
+    "-p",
+    "s10_cas_unknown_width_removal",
+    "tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py::test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+  "candidate_tree": "73e347e510d76f6af7d606916898b0cedb0c7ff5",
+  "exit_code": 1,
+  "wall_s": 17.08386374998372,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-cas-width-r1-fixed-json:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {
+    "POLISYOS_S10_CAS_UNKNOWN_WIDTH_REMOVAL_EVIDENCE_PATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-cas-width-r1-fixed-json/r1_evidence.json"
+  },
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 3778,
+      "sha256": "c9fc30348da1e702683d70ab9d4b66cac6c0c8c2378840cafdc3497ec21cbafa"
+    },
+    "r1_evidence.json": {
+      "bytes": 29745,
+      "sha256": "7380cebcc364afa3a9d240821d82a879e827045c7045949533804becb6054670"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "s10_cas_unknown_width_removal.py": {
+      "bytes": 17737,
+      "sha256": "7e8bb31a88ea6b4d01ff4230601c89bedbfb23444da432c183ffc8331c675b9e"
+    },
+    "junit.xml": {
+      "bytes": 3790,
+      "sha256": "2a807ee448b0e9aeef9439021b9b566f7259c2e1f513dcdf1fa87b8e39593ab0"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

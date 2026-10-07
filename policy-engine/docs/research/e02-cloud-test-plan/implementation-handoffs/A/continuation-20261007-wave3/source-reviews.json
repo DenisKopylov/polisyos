@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.A.independent_source_reviews.v1",
+  "unit": "A",
+  "code_acceptance_by_G": "pending",
+  "finding_closure_is_separate": true,
+  "reviews": [
+    {
+      "id": "numeric-inputs",
+      "reviewer": "n5_intake",
+      "candidate_sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+      "candidate_tree_sha": "73e347e510d76f6af7d606916898b0cedb0c7ff5",
+      "judgment": "GO_bounded",
+      "scope": "Missing, invalid, explicit zero and ordered finite CI remain distinct; report-only diagnostics do not grant calibration.",
+      "limitations": [
+        "No production caller of produce_forecast_inputs; generic test.json CAS does not establish empirical admission."
+      ],
+      "execution_outcome": "UNRUN",
+      "reviewer_did_not_run_checks": true
+    },
+    {
+      "id": "partial-state",
+      "reviewer": "atomic_composition",
+      "candidate_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+      "candidate_tree_sha": "7f3b2701c157a25b87f67873721cbfecf61cfadd",
+      "judgment": "GO_bounded",
+      "scope": "V2 preserves budget stop/frontier, rejects forged positive internal-parent terminal, and keeps partial output non-authoritative.",
+      "limitations": [
+        "Internal-parent diagnostic truth not_established: no parent-scoped source predicate replay.",
+        "Ordinary POST multi-node producer not established; GET is over fixture-produced partial manually inserted through Core.",
+        "Leaf promotion DTO uses str rather than narrow status type."
+      ],
+      "execution_outcome": "UNRUN",
+      "reviewer_did_not_run_checks": true
+    },
+    {
+      "id": "B27-negative",
+      "reviewer": "n9_gate",
+      "candidate_sha": "622f304abbdd5afc17fd91b30aa8871fca7a1182",
+      "candidate_tree_sha": "d7efbfcf071f73a421a447468aa0ea08f22ee875",
+      "judgment": "GO_bounded",
+      "scope": "Persisted cap=2, one actual served N5/default conditional N8; ROI stops advance. Changed problem/profile retained and exact owner refuses changed selection.",
+      "limitations": [
+        "Cap is not reached and second context transition not attempted. B27 remains open.",
+        "Withdrawn 3d9 resolver is absent; 81fd is append-only revert."
+      ],
+      "execution_outcome": "UNRUN",
+      "reviewer_did_not_run_checks": true
+    },
+    {
+      "id": "compiler-local-aliases",
+      "reviewer": "atomic_composition",
+      "candidate_sha": "1a520b209ce4bac86204137d15e765de05c08a73",
+      "candidate_tree_sha": "1d4b7e814d72248ec96a0b0ec3ad90fe4f97eccb",
+      "judgment": "GO_bounded_NO_GO_all_rebindings",
+      "scope": "Ordinary imported reflection/import aliases and parameter/local assignment/competing-import shadows.",
+      "limitations": [
+        "Global/nonlocal assignments are skipped in binding collection; outer alias may be reported as an import call after runtime replacement. Conservative false positive, no actual tracked retired caller established.",
+        "Computed/external/non-Python/runtime-generated consumers remain unresolved; no absence authorization."
+      ],
+      "execution_outcome": "UNRUN",
+      "reviewer_did_not_run_checks": true
+    }
+  ],
+  "custody_reviews": [
+    {
+      "reviewer": "accepted_ancestry",
+      "scope": "Numeric and B66 canonical handoffs/output custody",
+      "judgment": "GO_bounded",
+      "statement": "All minimum fields, target/tree, source/test footprints, receipt/output hashes and JUnit summaries reconcile. Earlier harness errors retained; no aggregate suite claim.",
+      "execution_outcome": "UNRUN"
+    }
+  ]
+}

@@ -1,0 +1,1245 @@
+{
+  "consumer_positive": {
+    "asserted_projection": [
+      "GET returns partial status, pending frontier, completed design refs, stop node and root DesignProblem ref",
+      "root N9 is not_run; terminal/terminal_status and conditional simulation values are absent",
+      "persisted CAS resolves as RecursiveGenerationCyclePartialRunV2 with matching hash/frontier",
+      "foreign job projection is None; foreign-tenant GET is 403 run_tenant_mismatch"
+    ],
+    "bounded_setup": "The test obtains the budget-stopped partial V2 artifact by running `_run_recursive_fixture` through the actual recursive controller before POST. It then manually inserts that same artifact through the owned control-job path for Core/CAS persistence and fresh GET. The ordinary NL compiler builds a singleton graph here; this does not prove an ordinary POST/worker producer creates a multi-node partial checkpoint.",
+    "dirty_test_context": [
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py"
+    ],
+    "execution_boundary": {
+      "N5": "not_run_for_budget_stopped_leaf",
+      "N8": "not_run",
+      "publication": "not_run",
+      "root_N9": "not_run"
+    },
+    "result": "1 passed; fresh API context reopens Core/CAS and GET follows the owned Core output reference.",
+    "run": "partial-fresh-get-final-tenant-code",
+    "test": "tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+    "tree_claim": "No clean whole-tree claim: final receipts report the two dirty/untracked tests above and adjacent untracked docs before/after."
+  },
+  "evidence_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702"
+  ],
+  "independent_source_review": {
+    "not_established": [
+      "truth of router diagnostic blocker codes from parent-scoped source evidence",
+      "actual leaf terminal-status authority in normal producer run",
+      "ordinary multi-node producer path",
+      "root N9 execution/currentness",
+      "numerical simulation or physical graph-time semantics"
+    ],
+    "rationale": "The helper states blocker codes are router diagnostics, not recomputed predicates; V2 lacks enough owner evidence to re-establish them. It preserves a single recognized blocked shape with no acquisition, budget, or positive-authority fields.",
+    "result": "GO bounded to conservative blocked-state shape preservation for uncomposed partial parents.",
+    "reviewed_source_candidate": "9702b5a0f591359e009974febb1af263303a9f55",
+    "source_path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+  },
+  "property_removal": {
+    "evidence_run": "partial-v2-r1-6592",
+    "excluded_claim": "Prior purported fake-leaf negative is retracted: the existing parser/schema guard rejects that shape before the semantic property is exercised.",
+    "expected_failure_observed": true,
+    "helper_calls": 2,
+    "interpretation": "With only the uncomposed-parent fold removed, the canonical blocked terminal passes; a forged grounded-abstention internal-parent terminal with recomputed hash/schema/topology reaches pytest.raises and yields DID NOT RAISE. This is a source-property-removal witness, not a product PASS.",
+    "verdict": "EXPECTED_FALSIFIER"
+  },
+  "review_status": {
+    "closure_ids": [],
+    "finding_status": {
+      "B15": "limited",
+      "B29": "limited"
+    },
+    "source_bounded": "GO",
+    "temporal_semantic_closure": "NO_GO"
+  },
+  "shared_surface_checks": {
+    "architecture": "At 9702 architecture guardrails with --skip-generated-checks failed on structural import-creep findings; generated freshness was explicitly skipped.",
+    "attribution": "not_established; no P41 inherited-red claim or complete architecture/generated-freshness verdict.",
+    "classification": "Adjacent G/shared-surface checks, separate from the B29 semantic criterion.",
+    "evidence_runs": [
+      "runtime-api-9702",
+      "architecture-structural-9702"
+    ],
+    "runtime_api": "At 9702 runtime API contract check failed on OpenAPI drift (RecursiveCycleCheckpoint schema/response projection)."
+  },
+  "source_history": {
+    "base_to_candidate_source_paths": [
+      "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+    ],
+    "net_9702_to_659_production_source_paths": [],
+    "statement": "The net 9702-to-659 source diff is empty. Temporary B27 callback/context resolver commit 3d9ff1c936dbfc1fe146669c016c14a0b9cca5aa was reverted by 81fd547cacaf6ce4be1f35198f1a4efeef73697d. Append-only history remains; that patch is not in candidate net source and does not close B27.",
+    "reverted_source_patch": {
+      "commit": "3d9ff1c936dbfc1fe146669c016c14a0b9cca5aa",
+      "revert_commit": "81fd547cacaf6ce4be1f35198f1a4efeef73697d",
+      "candidate_net_source_effect": "none",
+      "B27_closure_claimed": false
+    }
+  },
+  "source_test_footprint": {
+    "additional_candidate_test_paths": [
+      "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+      "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+    ],
+    "adjacent_nl_lane_paths": [
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py"
+    ],
+    "base_to_candidate": {
+      "counts": {
+        "docs": 31,
+        "other": 0,
+        "source": 8,
+        "tests": 6
+      },
+      "denominator": "Complete git diff --name-status 33bad45c5b5001868046a1f27b6c7fc466631cf3..65926cb5aa5364ff0e54741ea6689a16e9ed14b0 path set.",
+      "extensions": {
+        ".json": 13,
+        ".py": 20,
+        ".txt": 8,
+        ".xml": 4
+      },
+      "total_paths": 45,
+      "canonical_changed_paths_ref": "#/changed_paths"
+    },
+    "delta_from_9702_to_659": {
+      "interpretation": "Five test/helper paths appended after 9702; no production source path changed in this delta.",
+      "source_change_count": 0,
+      "source_paths": [],
+      "test_change_count": 5,
+      "test_paths": [
+        "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+        "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+        "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+        "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+      ]
+    },
+    "original_recursive_source_test_paths": [
+      "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py"
+    ]
+  },
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "recursive-partial-checkpoint",
+  "closure_ids": [],
+  "primary_finding_ids": [
+    "B15",
+    "B29"
+  ],
+  "bundle_ids": [
+    "CYC-05"
+  ],
+  "slice_base_sha": "33bad45c5b5001868046a1f27b6c7fc466631cf3",
+  "slice_base_tree_sha": "b2539c482507c580ed17198191c5f918705617cf",
+  "implementation_commits": [
+    "01e465e25577eb285fefc06e4e8d3ce5dd430e86",
+    "02aff519c3a2535819dfb5eb1ede1c7a43603851",
+    "7b85f564ca5bda5bae1706e82a07c6576eb4f701",
+    "9702b5a0f591359e009974febb1af263303a9f55"
+  ],
+  "test_companion_commits": [
+    "2297c974d90f5f69b866fbc6f205446af011374f",
+    "289587c993821b86277a645dc1d50e7088287915",
+    "9e495b2955c1b662ddaaa1cde3e0e9fddd59f685",
+    "46b8a6de9728ec348443b5a7d4b6cbf25c862748",
+    "44a87edc0f7a0224924c08dbd6c51d89aee042cd",
+    "ace2847ad1bfad4dc377d02e3fccc91a91056c4c",
+    "65926cb5aa5364ff0e54741ea6689a16e9ed14b0"
+  ],
+  "documentation_commits": [
+    "1590f35b6817c46af484de818ba227517c5a8d1b"
+  ],
+  "net_zero_reverted_source_commits": {
+    "introduced_by": "3d9ff1c936dbfc1fe146669c016c14a0b9cca5aa",
+    "reverted_by": "81fd547cacaf6ce4be1f35198f1a4efeef73697d",
+    "net_source_effect_at_candidate": "none",
+    "B27_closure_claimed": false
+  },
+  "candidate_commit_count": 14,
+  "candidate_sha": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+  "candidate_parent_sha": "ace2847ad1bfad4dc377d02e3fccc91a91056c4c",
+  "candidate_tree_sha": "f6466a791e8af61513f39d1d0e3d953f750380b5",
+  "candidate_source_blob": "6eca8ad38bdd7ff12d8593863114431d35c0af48",
+  "candidate_test_blob": "02b7e91e4b30f14a09c5b0ad71532e96e16d4ba6",
+  "branch": "codex/e02-A-delivery-attached",
+  "branch_head_at_canonicalization": "622f304abbdd5afc17fd91b30aa8871fca7a1182",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/N8-objective-intake.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/candidate-model-revision.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/common-runner/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-bridge-red-e1b970/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-bridge-red-e1b970/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-bridge-red-e1b970/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-bridge-red-e1b970/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-bridge-red-e1b970/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-bridge-red-e1b970/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-native-01e465/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-native-01e465/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-native-01e465/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-native-01e465/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-native-01e465/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/model-revision-native-01e465/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-binding-removal-native/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-binding-removal-native/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-binding-removal-native/n8_binding_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-binding-removal-native/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-binding-removal-native/r1_evidence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-binding-removal-native/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-binding-removal-native/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-binding-removal-native/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-objective-binding-native-valid/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-objective-binding-native-valid/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-objective-binding-native-valid/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-objective-binding-native-valid/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-objective-binding-native-valid/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/evidence/n8-objective-binding-native-valid/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/source-reviews.json",
+    "policy-engine/src/polisyos/core/contracts/__init__.py",
+    "policy-engine/src/polisyos/core/contracts/runtime.py",
+    "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+    "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+    "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+    "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+    "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+    "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+  ],
+  "baseline_cells": [],
+  "criterion_and_finding_refs": [
+    {
+      "id": "B15",
+      "primary_bundle": "CYC-05",
+      "owner_bundle_ids": [
+        "CYC-05"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/12"
+      },
+      "historical_status_ref": "#/finding_rows/12/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/12/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/12/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B15",
+          "bundle_occurrence": "CYC-05",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            375,
+            386
+          ],
+          "criterion_block_sha256": "aee22bfdeaa32d69566dcb038984da712ead8849f625524bc4e6eb7e535fa3b1",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/12/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt",
+      "criterion_role_in_slice": "primary_original_criterion_under_review",
+      "criterion_summary": "Expose requested and effective resource limits and demonstrate two meaningful children through actual recursion; a budget stop must retain completed work without implying search completeness or invalidating all work.",
+      "historical_and_current_state": {
+        "historical_owner_tsv": "partial",
+        "historical_coverage_ledger": "partial",
+        "appendix_c_status_separate": "partial",
+        "provisional_outcome": "limited",
+        "provisional_state": "provisional_carried_forward_not_final",
+        "criterion_check_state": "UNRUN",
+        "coverage_closure_now": "not_adjudicated",
+        "coverage_capability_label": "verification_missing"
+      }
+    },
+    {
+      "id": "B29",
+      "primary_bundle": "CYC-05",
+      "owner_bundle_ids": [
+        "CYC-05"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/24"
+      },
+      "historical_status_ref": "#/finding_rows/24/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/24/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/24/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B29",
+          "bundle_occurrence": "CYC-05",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            565,
+            578
+          ],
+          "criterion_block_sha256": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/24/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt",
+      "criterion_role_in_slice": "primary_original_criterion_under_review",
+      "criterion_summary": "Keep frontier-stable, complete/partial, budget-exhausted, true abstention, and limited-candidate meanings distinct across representations; readback must not turn a successful bounded result into abstention.",
+      "historical_and_current_state": {
+        "historical_owner_tsv": "partial",
+        "historical_coverage_ledger": "partial",
+        "appendix_c_status_separate": "closed_bounded",
+        "provisional_outcome": "limited",
+        "provisional_state": "provisional_carried_forward_not_final",
+        "criterion_check_state": "UNRUN",
+        "coverage_closure_now": "not_adjudicated",
+        "coverage_capability_label": "verification_missing"
+      }
+    }
+  ],
+  "plan_context_only_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md#task-a6",
+      "role": "expanded plan context only; not the original B15/B29 criterion source"
+    }
+  ],
+  "check_catalogue_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+    "schema": "policyos.e02.partial_checks.v1",
+    "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+    "json_pointer": "#/test_lease_and_status/runs",
+    "run_ids": [
+      "partial-frontier-native-9702",
+      "partial-frontier-native-2895",
+      "partial-frontier-native-canonical-ids",
+      "partial-fresh-get-dto-schema",
+      "partial-frontier-frozen-active-identity",
+      "partial-fresh-get-final-tenant-code",
+      "partial-v2-r1-6592",
+      "runtime-api-9702",
+      "architecture-structural-9702"
+    ],
+    "note": "Detailed command/output/receipt/JUnit evidence is recorded once in this catalogue; no second path-set copy is embedded."
+  },
+  "checks": [
+    {
+      "id": "partial-frontier-native-9702",
+      "outcome": "ERROR",
+      "target_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/receipt.json",
+          "sha256": "e34faf1af88924c01ac8e76bdb813a03ef6b6d398e6c494f35936f94be1ffd04",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/receipt.json",
+          "sha256": "e34faf1af88924c01ac8e76bdb813a03ef6b6d398e6c494f35936f94be1ffd04",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "7f3b2701c157a25b87f67873721cbfecf61cfadd",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/receipt.json",
+          "sha256": "e34faf1af88924c01ac8e76bdb813a03ef6b6d398e6c494f35936f94be1ffd04",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+        "runtime_origins_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/origins.json",
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "json_pointer": "#/module_origins"
+        }
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/receipt.json",
+          "sha256": "e34faf1af88924c01ac8e76bdb813a03ef6b6d398e6c494f35936f94be1ffd04",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "stderr.txt",
+          "e02_origin.py",
+          "junit.xml",
+          "origins.json"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/0"
+      },
+      "result_detail": {
+        "exit_code": 2,
+        "wall_seconds": 14.755988959048409,
+        "disposition": "Collection error: ortools_cp_sat ModuleNotFoundError during universality preflight; nondeciding environment receipt.",
+        "junit_totals": {
+          "errors": 1,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0
+        },
+        "junit_cases": [
+          {
+            "name": "tests.integration.runtime_quality.test_e02_recursive_budget_frontier",
+            "outcome": "error"
+          }
+        ]
+      }
+    },
+    {
+      "id": "partial-frontier-native-2895",
+      "outcome": "FAIL",
+      "target_sha": "289587c993821b86277a645dc1d50e7088287915",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/receipt.json",
+          "sha256": "4b22f745d451ac13dc51b5088c6281b09a8fe6c1dddcf900d069e1d99bcd9e66",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/receipt.json",
+          "sha256": "4b22f745d451ac13dc51b5088c6281b09a8fe6c1dddcf900d069e1d99bcd9e66",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "455a088682ec1a8c52967246a27a7346edbf18fd",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/receipt.json",
+          "sha256": "4b22f745d451ac13dc51b5088c6281b09a8fe6c1dddcf900d069e1d99bcd9e66",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "289587c993821b86277a645dc1d50e7088287915",
+        "runtime_origins_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/origins.json",
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "json_pointer": "#/module_origins"
+        }
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/receipt.json",
+          "sha256": "4b22f745d451ac13dc51b5088c6281b09a8fe6c1dddcf900d069e1d99bcd9e66",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "stderr.txt",
+          "e02_origin.py",
+          "junit.xml",
+          "origins.json"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/1"
+      },
+      "result_detail": {
+        "exit_code": 1,
+        "wall_seconds": 15.605608500016388,
+        "disposition": "Four test failures from invalid generated fixture IDs (for example recursive_child-a violates canonical identifier syntax); nondeciding fixture failure.",
+        "junit_totals": {
+          "errors": 0,
+          "failed": 4,
+          "passed": 0,
+          "skipped": 0
+        },
+        "junit_cases": [
+          {
+            "name": "test_budget_stopped_child_keeps_completed_child_and_pending_sibling",
+            "outcome": "failed"
+          },
+          {
+            "name": "test_epistemic_abstention_does_not_truncate_recursive_sibling",
+            "outcome": "failed"
+          },
+          {
+            "name": "test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+            "outcome": "failed"
+          },
+          {
+            "name": "test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+            "outcome": "failed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "partial-frontier-native-canonical-ids",
+      "outcome": "FAIL",
+      "target_sha": "46b8a6de9728ec348443b5a7d4b6cbf25c862748",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/receipt.json",
+          "sha256": "159b7d33d640eeca96d9c8901e75b3a8981bc3d8f73c07b9963c7c41325d0371",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/receipt.json",
+          "sha256": "159b7d33d640eeca96d9c8901e75b3a8981bc3d8f73c07b9963c7c41325d0371",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "92bb5c979e8224acbbe2ddb6d4e149b4fb63592a",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/receipt.json",
+          "sha256": "159b7d33d640eeca96d9c8901e75b3a8981bc3d8f73c07b9963c7c41325d0371",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "46b8a6de9728ec348443b5a7d4b6cbf25c862748",
+        "runtime_origins_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/origins.json",
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "json_pointer": "#/module_origins"
+        }
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/receipt.json",
+          "sha256": "159b7d33d640eeca96d9c8901e75b3a8981bc3d8f73c07b9963c7c41325d0371",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "stderr.txt",
+          "e02_origin.py",
+          "junit.xml",
+          "origins.json"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/2"
+      },
+      "result_detail": {
+        "exit_code": 1,
+        "wall_seconds": 17.115722374990582,
+        "disposition": "Three generic recursive tests passed; fresh GET failed because the test expected compiled partial V2 schema while HTTP DTO returned recursive_cycle_checkpoint.v1.",
+        "junit_totals": {
+          "errors": 0,
+          "failed": 1,
+          "passed": 3,
+          "skipped": 0
+        },
+        "junit_cases": [
+          {
+            "name": "test_budget_stopped_child_keeps_completed_child_and_pending_sibling",
+            "outcome": "passed"
+          },
+          {
+            "name": "test_epistemic_abstention_does_not_truncate_recursive_sibling",
+            "outcome": "passed"
+          },
+          {
+            "name": "test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+            "outcome": "passed"
+          },
+          {
+            "name": "test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+            "outcome": "failed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "partial-fresh-get-dto-schema",
+      "outcome": "FAIL",
+      "target_sha": "44a87edc0f7a0224924c08dbd6c51d89aee042cd",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/receipt.json",
+          "sha256": "7dadb91227179222c34359ca72744e2dde3e862487e42151107eadb019e83b67",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/receipt.json",
+          "sha256": "7dadb91227179222c34359ca72744e2dde3e862487e42151107eadb019e83b67",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "55073dc82d2eaea2bcdde102a131ca59892b3aa7",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/receipt.json",
+          "sha256": "7dadb91227179222c34359ca72744e2dde3e862487e42151107eadb019e83b67",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "44a87edc0f7a0224924c08dbd6c51d89aee042cd",
+        "runtime_origins_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/origins.json",
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "json_pointer": "#/module_origins"
+        }
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/receipt.json",
+          "sha256": "7dadb91227179222c34359ca72744e2dde3e862487e42151107eadb019e83b67",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "stderr.txt",
+          "e02_origin.py",
+          "junit.xml",
+          "origins.json"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/3"
+      },
+      "result_detail": {
+        "exit_code": 1,
+        "wall_seconds": 18.279882792034186,
+        "disposition": "Fresh GET setup failed because jwt_auth_middleware had no build_fixture_identity_claims attribute; test setup failure, not product evidence.",
+        "junit_totals": {
+          "errors": 0,
+          "failed": 1,
+          "passed": 0,
+          "skipped": 0
+        },
+        "junit_cases": [
+          {
+            "name": "test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+            "outcome": "failed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "partial-frontier-frozen-active-identity",
+      "outcome": "FAIL",
+      "target_sha": "ace2847ad1bfad4dc377d02e3fccc91a91056c4c",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/receipt.json",
+          "sha256": "8497f66f87f8336aacda7b1d4c2f7f4a0751e9ef0a5fa11c17ba9840e51de158",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/receipt.json",
+          "sha256": "8497f66f87f8336aacda7b1d4c2f7f4a0751e9ef0a5fa11c17ba9840e51de158",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "dd220bbbac1bc4348573c6896c3c8c2605b0dc57",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/receipt.json",
+          "sha256": "8497f66f87f8336aacda7b1d4c2f7f4a0751e9ef0a5fa11c17ba9840e51de158",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "ace2847ad1bfad4dc377d02e3fccc91a91056c4c",
+        "runtime_origins_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/origins.json",
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "json_pointer": "#/module_origins"
+        }
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/receipt.json",
+          "sha256": "8497f66f87f8336aacda7b1d4c2f7f4a0751e9ef0a5fa11c17ba9840e51de158",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "stderr.txt",
+          "e02_origin.py",
+          "junit.xml",
+          "origins.json"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/4"
+      },
+      "result_detail": {
+        "exit_code": 1,
+        "wall_seconds": 20.571504042018205,
+        "disposition": "Three generic recursive tests passed; fresh GET alone failed because test expected tenant_not_found, actual code was run_tenant_mismatch.",
+        "junit_totals": {
+          "errors": 0,
+          "failed": 1,
+          "passed": 3,
+          "skipped": 0
+        },
+        "junit_cases": [
+          {
+            "name": "test_budget_stopped_child_keeps_completed_child_and_pending_sibling",
+            "outcome": "passed"
+          },
+          {
+            "name": "test_epistemic_abstention_does_not_truncate_recursive_sibling",
+            "outcome": "passed"
+          },
+          {
+            "name": "test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+            "outcome": "passed"
+          },
+          {
+            "name": "test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+            "outcome": "failed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "partial-fresh-get-final-tenant-code",
+      "outcome": "PASS",
+      "target_sha": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/receipt.json",
+          "sha256": "4782b8fc7945c43a1ae101356a05d8be51c1736e190c220a6bfcf4a457e047a2",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/receipt.json",
+          "sha256": "4782b8fc7945c43a1ae101356a05d8be51c1736e190c220a6bfcf4a457e047a2",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "f6466a791e8af61513f39d1d0e3d953f750380b5",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/receipt.json",
+          "sha256": "4782b8fc7945c43a1ae101356a05d8be51c1736e190c220a6bfcf4a457e047a2",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+        "runtime_origins_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/origins.json",
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "json_pointer": "#/module_origins"
+        }
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/receipt.json",
+          "sha256": "4782b8fc7945c43a1ae101356a05d8be51c1736e190c220a6bfcf4a457e047a2",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "stderr.txt",
+          "e02_origin.py",
+          "junit.xml",
+          "origins.json"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/5"
+      },
+      "result_detail": {
+        "exit_code": 0,
+        "wall_seconds": 19.421112709038425,
+        "disposition": "One fresh Core/CAS-backed GET test passed after expected tenant error code was corrected. The three generic tests were not rerun on this final test-only append.",
+        "junit_totals": {
+          "errors": 0,
+          "failed": 0,
+          "passed": 1,
+          "skipped": 0
+        },
+        "junit_cases": [
+          {
+            "name": "test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+            "outcome": "passed"
+          }
+        ],
+        "not_rerun_on_candidate_659": [
+          "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_budget_stopped_child_keeps_completed_child_and_pending_sibling",
+          "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_epistemic_abstention_does_not_truncate_recursive_sibling",
+          "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_partial_v2_rejects_self_asserted_internal_parent_terminal"
+        ]
+      }
+    },
+    {
+      "id": "partial-v2-r1-6592",
+      "outcome": "FAIL",
+      "target_sha": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/receipt.json",
+          "sha256": "1ffde5f040592e1e06394a557c306e3e4b31b6310d86f4b07d9830394262e3e6",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "captured",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/receipt.json",
+          "sha256": "1ffde5f040592e1e06394a557c306e3e4b31b6310d86f4b07d9830394262e3e6",
+          "json_pointer": "#/environment"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "f6466a791e8af61513f39d1d0e3d953f750380b5",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/receipt.json",
+          "sha256": "1ffde5f040592e1e06394a557c306e3e4b31b6310d86f4b07d9830394262e3e6",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+        "runtime_origins_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/origins.json",
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "json_pointer": "#/module_origins"
+        },
+        "source_property_removal_probe": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/n8_partial_v2_removal.py",
+          "sha256": "0610bbec106fef3c75241c3527faf58ecba4cfd657faff87bba7ee2185a3038c",
+          "bytes": 6294
+        }
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/receipt.json",
+          "sha256": "1ffde5f040592e1e06394a557c306e3e4b31b6310d86f4b07d9830394262e3e6",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "n8_partial_v2_removal.py",
+          "r1_evidence.json",
+          "stderr.txt",
+          "e02_origin.py",
+          "junit.xml",
+          "origins.json"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/6"
+      },
+      "result_detail": {
+        "exit_code": 1,
+        "wall_seconds": 14.82957920798799,
+        "disposition": "Intentional property-removal run failed exactly at expected DID NOT RAISE after two helper calls; EXPECTED_FALSIFIER, never a product PASS.",
+        "junit_totals": {
+          "errors": 0,
+          "failed": 1,
+          "passed": 0,
+          "skipped": 0
+        },
+        "junit_cases": [
+          {
+            "name": "test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+            "outcome": "failed"
+          }
+        ],
+        "expected_falsifier": true,
+        "falsifier_label": "EXPECTED_FALSIFIER",
+        "helper_calls": 2,
+        "interpretation": "Removing the uncomposed-parent fold allows the forged grounded-abstention internal parent to pass; the test fails with DID NOT RAISE. This is not a product PASS."
+      }
+    },
+    {
+      "id": "runtime-api-9702",
+      "outcome": "FAIL",
+      "target_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/receipt.json",
+          "sha256": "0344149a65e2594b4d5eed6fd05e51ab712e34760b2fb5d573023b00e87a8deb",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "not_recorded",
+        "absence_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/receipt.json",
+          "sha256": "0344149a65e2594b4d5eed6fd05e51ab712e34760b2fb5d573023b00e87a8deb",
+          "json_pointer": "#"
+        },
+        "missing_field": "environment"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "7f3b2701c157a25b87f67873721cbfecf61cfadd",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/receipt.json",
+          "sha256": "0344149a65e2594b4d5eed6fd05e51ab712e34760b2fb5d573023b00e87a8deb",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+        "runtime_origins_state": "not_recorded_in_this_receipt"
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/runtime-api-9702/receipt.json",
+          "sha256": "0344149a65e2594b4d5eed6fd05e51ab712e34760b2fb5d573023b00e87a8deb",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "stderr.txt"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/7"
+      },
+      "result_detail": {
+        "exit_code": 1,
+        "wall_seconds": 36.895328624988906,
+        "disposition": "Shared runtime API contract check failed on OpenAPI drift; separate from recursive semantic closure."
+      }
+    },
+    {
+      "id": "architecture-structural-9702",
+      "outcome": "FAIL",
+      "target_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+      "command": {
+        "argv_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/receipt.json",
+          "sha256": "b229cd659cac45995e27400429b5e51de9658d90cff2911681ff35e3a6913d94",
+          "json_pointer": "#/argv"
+        },
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "environment": {
+        "availability": "not_recorded",
+        "absence_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/receipt.json",
+          "sha256": "b229cd659cac45995e27400429b5e51de9658d90cff2911681ff35e3a6913d94",
+          "json_pointer": "#"
+        },
+        "missing_field": "environment"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "7f3b2701c157a25b87f67873721cbfecf61cfadd",
+        "workspace_dirty_before_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/receipt.json",
+          "sha256": "b229cd659cac45995e27400429b5e51de9658d90cff2911681ff35e3a6913d94",
+          "json_pointer": "#/workspace_dirty_before"
+        },
+        "candidate_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+        "runtime_origins_state": "not_recorded_in_this_receipt"
+      },
+      "output": {
+        "receipt_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/architecture-structural-9702/receipt.json",
+          "sha256": "b229cd659cac45995e27400429b5e51de9658d90cff2911681ff35e3a6913d94",
+          "json_pointer": "#/outputs"
+        },
+        "complete_output_names": [
+          "stdout.txt",
+          "stderr.txt"
+        ],
+        "evidence_manifest_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+          "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+          "json_pointer": "#/evidence_manifest"
+        }
+      },
+      "catalogue_run_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/partial-checks.json",
+        "sha256": "2d92917d0d2ab199dbd9a82cf58b96587875ee229982c62132ce8133655d9312",
+        "json_pointer": "#/test_lease_and_status/runs/8"
+      },
+      "result_detail": {
+        "exit_code": 1,
+        "wall_seconds": 16.025662125030067,
+        "disposition": "Architecture structural check failed with generated checks skipped; not a full freshness/architecture receipt."
+      }
+    }
+  ],
+  "property": {
+    "statement": "For budget-stopped recursive work, the real producer and consumer must preserve completed child output, a pending frontier, effective resource limits, and distinct partial/frontier/budget/abstention meanings through persistence and readback.",
+    "runtime_path": [
+      "`_run_recursive_fixture` invokes the actual recursive controller and returns the budget-stopped partial artifact before POST; this is bounded fixture/controller evidence, not an ordinary served worker producer.",
+      "The integration test manually inserts that same returned artifact through the owned tenant/job control path for the readback; the ordinary POST/worker route is not exercised.",
+      "Core/CAS persists the checkpoint and owned output reference.",
+      "A fresh run-details GET resolves the owned Core output and projects partial/frontier/stop/root problem fields."
+    ],
+    "bounded_candidate_behavior": "The bounded fixture invokes the real recursive controller to produce a budget-stopped partial artifact before POST, then the GET test manually inserts that same artifact through the owned control-job path. The candidate demonstrates persisted readback/projection and tenant isolation for this fixture; it does not demonstrate the ordinary served worker/POST path producing a multi-node checkpoint.",
+    "proxy_divergence": "A real recursive-controller fixture result followed by manual Core/CAS insertion is not evidence that the ordinary served worker/POST path produces two meaningful children, preserves an independent graph walk, or recomputes an internal-parent blocker from source evidence.",
+    "negative_controls": [
+      "Expected property-removal falsifier for a forged grounded-abstention internal parent; expected failure observed after two helper calls.",
+      "Foreign tenant GET is asserted to return 403 run_tenant_mismatch; foreign job projection is asserted absent."
+    ]
+  },
+  "predicate_basis": {
+    "typed_checkpoint_schema_hash_and_frontier_integrity": {
+      "classification": "recomputed",
+      "basis": "The runtime parses and hashes the manually supplied typed V2 artifact; the test checks the persisted CAS readback and frontier relationship."
+    },
+    "owned_fresh_get_projection_for_the_injected_artifact": {
+      "classification": "consumer_asserted",
+      "basis": "The integration test asserts partial status, frontier, completed refs, stop node, root problem, and absence of terminal promotion fields after reopening Core/CAS."
+    },
+    "synthetic_tenant_and_job_isolation": {
+      "classification": "consumer_asserted",
+      "basis": "The test checks the fixture owner projection and 403 run_tenant_mismatch for its foreign tenant."
+    },
+    "parent_blocker_truth_from_parent_scoped_source_evidence": {
+      "classification": "not_established",
+      "basis": "The helper treats blocker codes as router diagnostics; V2 lacks owner-scoped coupling/subdesign evidence required to independently recompute them."
+    },
+    "ordinary_served_multinode_producer_and_independent_graph_walk": {
+      "classification": "not_established",
+      "basis": "The bounded fixture invokes the actual recursive controller, but the GET persistence path manually inserts its returned partial before POST; it does not exercise the ordinary worker/served producer or an independent graph walk."
+    },
+    "actual_leaf_terminal_authority_and_N5_N8_root_N9_execution": {
+      "classification": "not_established",
+      "basis": "The positive fixture has N5 not_run_for_budget_stopped_leaf, N8 not_run, root N9 not_run, and publication not_run."
+    },
+    "physical_graph_time_numerical_or_time_grid_semantics": {
+      "classification": "not_established",
+      "basis": "This CYC-05 source/readback slice establishes no numerical simulation, physical graph-time, or owner-bound time-grid rule."
+    },
+    "bounded_fixture_recursive_controller_output": {
+      "classification": "recomputed",
+      "basis": "`_run_recursive_fixture` runs the actual recursive controller and returns the budget-stopped partial before POST in the bounded test fixture; persistence/readback then manually inserts that same object."
+    }
+  },
+  "capability_state_or_finding_state": "partial; bounded source review and injected-artifact readback are evidenced, but B15/B29 acceptance and finding-wide closure are not adjudicated",
+  "missing_capability_states": [
+    "verification_missing",
+    "semantic_test_missing"
+  ],
+  "limitations_and_next_owner": [
+    {
+      "finding_id": "B15",
+      "limitation": "No ordinary served two-child producer, one-child completion control, requested/effective cap and stop-reason witness, or independent graph walk is evidenced by the positive fixture.",
+      "next_owner": "CYC-05 owner; coverage identifies CYC-05 as the primary bundle owner."
+    },
+    {
+      "finding_id": "B29",
+      "limitation": "The complete same-run/API-history matrix for frontier-stable, complete/partial, budget-exhausted, true abstention, and limited-candidate distinctions is not exercised; the source-removal witness only covers the forged internal-parent boundary.",
+      "next_owner": "CYC-05 owner; keep B29 limited until the full matrix and consumer readback are exercised."
+    },
+    {
+      "limitation": "Parent blocker truth is not recomputed from owner-scoped coupling and subdesign evidence; the source review is bounded to conservative blocked-shape preservation.",
+      "next_owner": "Add/persist owner-scoped parent evidence and independently recompute before projecting an internal-parent terminal; no instance-only repair is claimed."
+    },
+    {
+      "limitation": "No numerical precision, physical graph-time interpretation, or owner-bound time-grid semantics is established by this slice.",
+      "next_owner": "Leave temporal semantics to the owning SIM/runtime contract; this CYC-05 handoff does not ratify a grid rule."
+    },
+    {
+      "limitation": "Three generic tests passed at 46b8/ace284 but were not rerun on 659; the only fresh 659 receipt is one selected GET test. No fresh 4-test all-PASS run exists.",
+      "next_owner": "If the complete B15/B29 test claim is needed, run the full focused set on a frozen candidate with exact receipts."
+    },
+    {
+      "limitation": "Shared runtime API and architecture checks failed at 9702; architecture generated freshness was skipped and P41 attribution is not established.",
+      "next_owner": "Shared G/runtime owner; do not use these checks as evidence for CYC-05 closure or as an inherited-red claim."
+    }
+  ],
+  "finding_outcomes": {
+    "B15": {
+      "outcome": "limited",
+      "state": "provisional_carried_forward_not_final",
+      "criterion_check_state": "UNRUN",
+      "closure_now": "not_adjudicated"
+    },
+    "B29": {
+      "outcome": "limited",
+      "state": "provisional_carried_forward_not_final",
+      "criterion_check_state": "UNRUN",
+      "closure_now": "not_adjudicated"
+    }
+  },
+  "code_acceptance": "not_submitted",
+  "review_and_acceptance": {
+    "independent_source_review": {
+      "decision": "GO_BOUNDED_SOURCE_REVIEW",
+      "reviewed_source_candidate": "9702b5a0f591359e009974febb1af263303a9f55",
+      "candidate_659_source_blob": "6eca8ad38bdd7ff12d8593863114431d35c0af48",
+      "scope": "Conservative blocked-state shape preservation for uncomposed partial parents only.",
+      "not_established": [
+        "truth of router diagnostic blocker codes from parent-scoped source evidence",
+        "actual leaf terminal-status authority in normal producer run",
+        "ordinary multi-node producer path",
+        "root N9 execution/currentness",
+        "numerical simulation or physical graph-time semantics"
+      ],
+      "rationale": "The helper states blocker codes are router diagnostics, not recomputed predicates; V2 lacks enough owner evidence to re-establish them. It preserves a single recognized blocked shape with no acquisition, budget, or positive-authority fields.",
+      "execution_outcome": "UNRUN",
+      "execution_detail": "Independent static source review only; no executable test command or reviewer test run is claimed here."
+    },
+    "temporal_semantic_closure": {
+      "decision": "NO_GO",
+      "scope": "This handoff does not close or ratify temporal/grid semantics.",
+      "not_established": [
+        "numerical simulation",
+        "physical graph-time interpretation",
+        "owner-bound time-grid semantics"
+      ]
+    },
+    "G_acceptance": "not_submitted; no G/G7 accepted-source receipt or aggregate-green claim is asserted by this handoff",
+    "formal_closure": false,
+    "closure_ids": []
+  },
+  "admission_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/review/accepted-ancestry-handoff.json",
+      "sha256": "ac0b42e7d50f36d3dac40aedcf9f9c63d2a88d3d4add511143436d4839f2ef99",
+      "verdict": "bounded_GO_after_pin_label_corrections",
+      "scope": "Ancestry/source candidate pins and copied output integrity for the reviewed admission; not code review, this 659 test result, or G acceptance."
+    }
+  ],
+  "artifact_custody_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/artifact-custody-incident.json",
+    "sha256": "5ef506b0db6c6be54d874de03e9ddc97e55872ab096e1749e02f6fef8129d787",
+    "incident": "helper_wrote_new_receipt_files_in_primary_checkout",
+    "prior_primary_copy": {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+      "bytes_before_canonicalization": 19593,
+      "sha256_before_canonicalization": "10d5ce412c283bed9562716af8ac201f9487387b9f7fab061350cc0c32af5cab",
+      "retained_and_not_modified_by_this_native_worktree_edit": true
+    },
+    "scope": "This canonicalization writes only the two native worktree JSON paths; it does not modify the primary checkout."
+  },
+  "candidate_branch_tip_note": "The immutable candidate is 65926cb; the native branch had advanced to 622f304abbdd5afc17fd91b30aa8871fca7a1182 when this documentation was canonicalized.",
+  "pattern_pass": {
+    "relevant": [
+      "P29",
+      "P32",
+      "P33",
+      "P34",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "result": "P29 removal probe is a semantic witness. P37/P38 remain bounded because internal-parent blocker truth is not recomputed from parent-scoped evidence. P40 classifies this as the same evidence/provenance class one level deeper; no instance patch is proposed. P41 is not claimed: shared-gate receipts are at 9702, one skips generated checks, and complete slice-base attribution was not replayed."
+  },
+  "semantic_boundary": {
+    "P40_bucket": {
+      "bounded_residual": "V2 preserves a conservative blocked shape, but the diagnostic is not recomputed from parent coupling/subdesign evidence; predicate status remains not_established.",
+      "class": "Same class one level deeper: provenance/recomputation of uncomposed internal-parent blocker truth.",
+      "no_second_instance_repair": true,
+      "smallest_missing_capability": "Persist/resolve owner-scoped parent coupling and subdesign-contract evidence, then independently recompute the blocker before projecting an internal-parent terminal."
+    },
+    "nonclaims": [
+      "No actual N5, N8, or root N9 execution in the positive fixture.",
+      "No ordinary served POST producer for a multi-node recursive partial checkpoint.",
+      "No one-child completion control or full B29 status/history matrix.",
+      "No numerical simulation oracle, temporal-unit rule, physical graph-time interpretation, or owner-bound time-grid semantics is established.",
+      "No B15/B29 finding closure; closure_ids remains empty."
+    ],
+    "positive_claim": "Owned Core/CAS persistence plus fresh run-details GET preserves bounded partial V2 readback and tenant isolation for a manually inserted contract-testing checkpoint."
+  },
+  "immutable_review_pin": true
+}

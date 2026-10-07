@@ -1,0 +1,16 @@
+{
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+  "module_origins": {
+    "polisyos.core.artifacts.store": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/core/artifacts/store.py",
+    "polisyos.runtime.quality.design_axes.coupling_composition": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+    "polisyos.runtime.quality.joint_simulation_horizon": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "polisyos.runtime.quality.generation_cycle": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+  },
+  "versions": {
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3"
+  }
+}

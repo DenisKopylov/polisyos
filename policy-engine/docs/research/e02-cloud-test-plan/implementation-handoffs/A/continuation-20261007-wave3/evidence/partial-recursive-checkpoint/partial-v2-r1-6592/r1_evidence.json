@@ -1,0 +1,87 @@
+{
+  "canonical_positive_constructed_with_markers": true,
+  "created_at_utc": "2026-10-07T15:57:19.025160+00:00",
+  "expected_did_not_raise_failure_observed": true,
+  "forged_grounded_abstention_reached_helper": true,
+  "head": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+  "head_tree": "f6466a791e8af61513f39d1d0e3d953f750380b5",
+  "helper_calls": [
+    {
+      "argument_type": "polisyos.pdc._impl.gy_waist.SearchTerminalState",
+      "input": {
+        "blocking_obligations": [
+          "subdesign_contract_denominator_missing"
+        ],
+        "budget_kind": null,
+        "costed_plan_present": false,
+        "data_need_spec_present": false,
+        "kind": "recursive_blocked"
+      },
+      "output": {
+        "blocking_obligations": [
+          "subdesign_contract_denominator_missing"
+        ],
+        "budget_kind": null,
+        "costed_plan_present": false,
+        "data_need_spec_present": false,
+        "kind": "recursive_blocked"
+      },
+      "returned_same_object": true
+    },
+    {
+      "argument_type": "polisyos.pdc._impl.gy_waist.SearchTerminalState",
+      "input": {
+        "blocking_obligations": [
+          "value_gate_pending_n8"
+        ],
+        "budget_kind": null,
+        "costed_plan_present": false,
+        "data_need_spec_present": false,
+        "kind": "grounded_abstention"
+      },
+      "output": {
+        "blocking_obligations": [
+          "value_gate_pending_n8"
+        ],
+        "budget_kind": null,
+        "costed_plan_present": false,
+        "data_need_spec_present": false,
+        "kind": "grounded_abstention"
+      },
+      "returned_same_object": true
+    }
+  ],
+  "interpretation": "The plugin returns each typed terminal unchanged after removing only the uncomposed parent fold. EXPECTED_FALSIFIER requires the canonical blocked parent to pass first, then a grounded-abstention parent with valid recomputed payload hash/schema/topology to reach the first pytest.raises and produce DID NOT RAISE. Other errors are not classified as the intended witness. This removal result is not a product PASS.",
+  "output_path_env": "POLISYOS_PARTIAL_V2_REMOVAL_EVIDENCE_PATH",
+  "output_path_was_explicit": true,
+  "plugin_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/partial-v2-r1-6592/n8_partial_v2_removal.py",
+  "plugin_sha256": "0610bbec106fef3c75241c3527faf58ecba4cfd657faff87bba7ee2185a3038c",
+  "purpose": "source-property-removal witness; never a product PASS",
+  "pytest_exitstatus": 1,
+  "schema": "policyos.e02.partial_v2_parent_terminal_removal_r1.v1",
+  "source_git_blob": "6eca8ad38bdd7ff12d8593863114431d35c0af48",
+  "source_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "source_sha256": "5036ca043b69b1ea1d7c48a95b87f42455b8e10793a5dd9c87fb289f272f6b89",
+  "target_nodeid": "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+  "target_reports": [
+    {
+      "longrepr": null,
+      "nodeid": "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+      "outcome": "passed",
+      "when": "setup"
+    },
+    {
+      "longrepr": "@pytest.mark.asyncio\n    async def test_partial_v2_rejects_self_asserted_internal_parent_terminal() -> None:\n        \"\"\"A completed uncomposed parent can retain only a conservative blocked fold.\"\"\"\n    \n        full_result, leaf_refs, _request, _full_factory = await _run_recursive_fixture(\n            budget_state=BudgetState(limits={\"run\": BudgetLimit(key=\"run\", max_usd=Decimal(\"5\"))})\n        )\n        assert type(full_result) is RecursiveGenerationCycleRun\n        full_nodes = {node.node_ref: node for node in full_result.nodes}\n    \n        internal_ref = \"design://e02/recursive-budget/completed-parent\"\n        budget_node_ref = \"design://e02/recursive-budget/budget-stopped-leaf\"\n        pending_node_ref = \"design://e02/recursive-budget/pending-leaf\"\n        budget_problem = _recursive_problem(budget_node_ref)\n        budget_problem_ref = gy_content_hash(budget_problem.model_dump(mode=\"json\"))\n        budget_factory = _CycleControllerFactory()\n        budget_leaf_controller = budget_factory(budget_node_ref, budget_problem)\n        budget_cycle_run: GenerationCycleRun = await budget_leaf_controller.run(\n            budget_problem,\n            budget_state=BudgetState(limits={\"run\": BudgetLimit(key=\"run\", max_usd=Decimal(\"0\"))}),\n            min_cycles=1,\n            max_cycles=1,\n            stable_design_problem_ref=budget_problem_ref,\n        )\n        assert generation_cycle_terminal_state(budget_cycle_run).kind is (\n            SearchTerminalKind.BUDGET_EXHAUSTED\n        )\n        assert len(budget_factory.promotion_calls) <= 1\n        assert bool(budget_factory.promotion_calls) == (\n            budget_cycle_run.promotion_port.status == \"promotion_pending_n9\"\n        )\n    \n        root_problem = _recursive_problem(full_result.root_node_ref)\n        root_problem_ref = gy_content_hash(root_problem.model_dump(mode=\"json\"))\n        internal_problem = _recursive_problem(internal_ref)\n        internal_problem_ref = gy_content_hash(internal_problem.model_dump(mode=\"json\"))\n        pending_problem = _recursive_problem(pending_node_ref)\n        pending_problem_ref = gy_content_hash(pending_problem.model_dump(mode=\"json\"))\n        module_refs = (\n            internal_ref,\n            *leaf_refs,\n            budget_node_ref,\n            pending_node_ref,\n        )\n        graph = derive_recursive_design_graph(\n            design_ref=full_result.root_node_ref,\n            module_refs=module_refs,\n            parent_child_edges=(\n                (full_result.root_node_ref, internal_ref),\n                (full_result.root_node_ref, budget_node_ref),\n                (full_result.root_node_ref, pending_node_ref),\n                (internal_ref, leaf_refs[0]),\n                (internal_ref, leaf_refs[1]),\n            ),\n            typed_dependency_edges=(),\n            rule_version_ref=\"repo://rules/e02-recursive-internal-parent-contract-test\",\n        )\n        routed_leaves = tuple(\n            full_nodes[leaf_ref].model_copy(update={\"parent_ref\": internal_ref, \"depth\": 2})\n            for leaf_ref in leaf_refs\n        )\n        internal_parent = RecursiveCycleNode(\n            node_ref=internal_ref,\n            parent_ref=full_result.root_node_ref,\n            depth=1,\n            child_refs=leaf_refs,\n            design_problem_ref=internal_problem_ref,\n            # The code is a route-emitted diagnostic. V2 only preserves a blocked\n            # shape here; it does not recompute the missing-subdesign predicate.\n            terminal=full_nodes[full_result.root_node_ref].terminal,\n        )\n        budget_stop = RecursiveCycleNode(\n            node_ref=budget_node_ref,\n            parent_ref=full_result.root_node_ref,\n            depth=1,\n            design_problem_ref=budget_problem_ref,\n            cycle_run=budget_cycle_run,\n            terminal=generation_cycle_terminal_state(budget_cycle_run),\n        )\n        root_pending = RecursiveCyclePendingNode(\n            node_ref=full_result.root_node_ref,\n            parent_ref=None,\n            depth=0,\n            child_refs=(internal_ref, budget_node_ref, pending_node_ref),\n            design_problem_ref=root_problem_ref,\n        )\n        frontier_pending = RecursiveCyclePendingNode(\n            node_ref=pending_node_ref,\n            parent_ref=full_result.root_node_ref,\n            depth=1,\n            design_problem_ref=pending_problem_ref,\n        )\n        nodes = (\n            root_pending,\n            internal_parent,\n            *routed_leaves,\n            budget_stop,\n            frontier_pending,\n        )\n        recursive_budget = RecursiveCycleBudget(\n            max_depth=2,\n            max_nodes=len(graph.node_refs),\n            min_cycles_per_leaf=1,\n            max_cycles_per_leaf=1,\n        )\n        payload: dict[str, object] = {\n            \"schema_version\": \"policyos.runtime.recursive_generation_cycle.partial.v2\",\n            \"run_id\": f\"recursive:{graph.graph_id}\",\n            \"controller_ref\": full_result.controller_ref,\n            \"authority_scope\": full_result.authority_scope,\n            \"recursive_graph\": graph.model_dump(mode=\"json\"),\n            \"recursive_graph_ref\": graph.graph_ref,\n            \"recursive_graph_content_hash\": gy_content_hash(graph.model_dump(mode=\"json\")),\n            \"root_node_ref\": full_result.root_node_ref,\n            \"root_design_problem_ref\": root_problem_ref,\n            \"recursive_budget\": recursive_budget.model_dump(mode=\"json\"),\n            \"observed_max_depth\": 2,\n            \"nodes\": [node.model_dump(mode=\"json\") for node in nodes],\n            \"traversal_status\": \"budget_stopped\",\n            \"traversal_stop_reason\": \"child_budget_exhausted\",\n            \"budget_stop_node_ref\": budget_node_ref,\n            \"frontier_node_refs\": [pending_node_ref],\n            \"terminal\": None,\n        }\n        checkpoint = RecursiveGenerationCyclePartialRunV2.model_validate(\n            {\n                **payload,\n                \"nodes\": nodes,\n                \"content_hash\": gy_content_hash(payload),\n            }\n        )\n        assert checkpoint.leaf_nodes\n        assert checkpoint.budget_stop_node_ref == budget_node_ref\n        assert internal_parent.child_refs == leaf_refs\n        assert internal_parent.cycle_run is None\n        assert internal_parent.joint_simulation is None\n        assert internal_parent.composition_certificate is None\n        assert internal_parent.terminal.kind is SearchTerminalKind.RECURSIVE_BLOCKED\n    \n        for forged_terminal, expected_error in (\n            (\n                routed_leaves[0].terminal.model_dump(mode=\"json\"),\n                \"recursive_partial_parent_not_conservatively_blocked\",\n            ),\n            (\n                {\n                    **internal_parent.terminal.model_dump(mode=\"json\"),\n                    \"budget_kind\": \"recursive\",\n                },\n                \"recursive_partial_parent_terminal_not_owner_derived\",\n            ),\n        ):\n            forged = checkpoint.model_dump(mode=\"json\")\n            internal_index = next(\n                index for index, node in enumerate(forged[\"nodes\"]) if node[\"node_ref\"] == internal_ref\n            )\n            forged[\"nodes\"][internal_index][\"terminal\"] = forged_terminal\n            forged_payload = {key: value for key, value in forged.items() if key != \"content_hash\"}\n            forged[\"content_hash\"] = gy_content_hash(forged_payload)\n>           with pytest.raises(ValidationError, match=expected_error):\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>\n\ntests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:565: Failed",
+      "nodeid": "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+      "outcome": "failed",
+      "when": "call"
+    },
+    {
+      "longrepr": null,
+      "nodeid": "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+      "outcome": "passed",
+      "when": "teardown"
+    }
+  ],
+  "verdict": "EXPECTED_FALSIFIER"
+}

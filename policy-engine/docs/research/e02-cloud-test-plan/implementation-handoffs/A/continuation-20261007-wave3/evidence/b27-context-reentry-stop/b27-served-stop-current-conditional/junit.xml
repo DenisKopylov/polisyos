@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="17.083" timestamp="2026-10-07T19:44:45.406193+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_revision_context_reentry" name="test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry" time="17.046"><failure message="AttributeError: 'JointSimulationRequest' object has no attribute 'max_iterations'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10d5eb490&gt;
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/pytest-basetemp/test_served_candidate_profile_0')
+
+    @pytest.mark.asyncio
+    async def test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -&gt; None:
+        """A candidate-only profile cannot turn an N6 revision into a second N5."""
+    
+        from dataclasses import replace
+    
+        from polisyos.core import canon
+        from polisyos.core.security import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality import design_generation, substrate_registry
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from tests._helpers.controlled_candidate_profile import (
+            _candidate_only_procurement_intervention_bundle,
+        )
+        from tests.unit.runtime.http.test_control_service_di import (
+            _run_controlled_simulate_only_job_fixture,
+        )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+        monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
+    
+        # Give the service's eager retrieval catalog a real, bounded Slice0 graph.
+        catalog_root = tmp_path / "candidate-context-revision-catalog"
+        catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+        curated_root = tmp_path / "candidate-context-revision-curated"
+        curated_root.mkdir()
+        monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+        monkeypatch.setattr(
+            catalog_api,
+            "default_acquisition_overlay_path",
+            lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+        )
+        default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+        repo_root = Path(__file__).resolve().parents[3]
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda root: (
+                replace(
+                    default_catalog_paths(root),
+                    l1_dcat_path=catalog_root / "catalog.duckdb",
+                )
+                if Path(root).resolve() == repo_root
+                else default_catalog_paths(root)
+            ),
+        )
+    
+        # The candidate-only N4 lane records an unavailable-reference limitation;
+        # it does not need the checkout's factual LEX-backed credal reference.
+        def bounded_candidate_reference_unavailable(
+            *args: object,
+            **kwargs: object,
+        ) -&gt; object:
+            del args, kwargs
+            raise ValueError("candidate_revision_fixture_has_no_credal_reference")
+    
+        monkeypatch.setattr(
+            design_generation,
+            "build_credal_reference",
+            bounded_candidate_reference_unavailable,
+        )
+    
+        fixture = await _run_controlled_simulate_only_job_fixture(
+            monkeypatch,
+            tmp_path,
+            max_iterations=2,
+            intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+        )
+        try:
+            assert fixture.job.state == "completed"
+&gt;           assert fixture.request.max_iterations == 2
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/core_runtime/test_e02_revision_context_reentry.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = JointSimulationRequest(world_model_record_ref='world_model_record_8aba86bb56c5c2d9', world_model_record=WorldModelReco...ng_graph=None, budget_ref='budget://r1/controlled-candidate-n5', seed=11, replications=2, world_credal_state_before={})
+item = 'max_iterations'
+
+    def __getattr__(self, item: str) -&gt; Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+&gt;                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'JointSimulationRequest' object has no attribute 'max_iterations'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError</failure></testcase></testsuite></testsuites>

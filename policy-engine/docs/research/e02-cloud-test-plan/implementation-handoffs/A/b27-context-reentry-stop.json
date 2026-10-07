@@ -1,0 +1,182 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "b27-context-reentry-stop",
+  "closure_ids": [
+    "B27"
+  ],
+  "bundle_ids": [
+    "CYC-03"
+  ],
+  "slice_base_sha": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+  "implementation_commits": [
+    "d9fa8063b18fce5df2ccc62401a313ebe04df170",
+    "5994be2819c9efad2bdf808bb4bda2f0c61ca06a",
+    "622f304abbdd5afc17fd91b30aa8871fca7a1182"
+  ],
+  "candidate_tree_sha": "d7efbfcf071f73a421a447468aa0ea08f22ee875",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+    "policy-engine/tests/unit/runtime/http/test_control_service_di.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap/pytest-basetemp tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "target_sha": "622f304abbdd5afc17fd91b30aa8871fca7a1182",
+      "candidate_tree_sha": "d7efbfcf071f73a421a447468aa0ea08f22ee875",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-persisted-cap:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": "Bounded synthetic candidate-only served control job; recorded N4 proposal/replay, configured test profile and local Slice0 fixture catalog; no production LEX credal reference; persisted compiled run and CAS artifacts read back by the test.",
+      "outcome": "PASS",
+      "scope": "PASS_BOUNDED_NEGATIVE_ONLY; actual ROI rejection after one cycle; configured/effective iteration cap 2 not reached.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/b27-checks.json#final_saved_run"
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/pytest-basetemp tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_revision_context_reentry.py"
+      ],
+      "target_sha": "d9fa8063b18fce5df2ccc62401a313ebe04df170",
+      "candidate_tree_sha": "c7be367837750c9272b78c1328d7c03bea723eb7",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": "Bounded synthetic candidate-only served control job; each attempt records its exact per-run fixture/data state in the captured receipt.",
+      "outcome": "FAIL",
+      "scope": "SETUP_FAILURE; N4 setup reached a missing local production LEX DuckDB and job failed before the intended persisted candidate/N5 assertions. This is an unavailable-data prerequisite, not a B27 property result.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/b27-checks.json#prior_attempts/0; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/stdout.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/junit.xml; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-two-cap/receipt.json"
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/pytest-basetemp tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_revision_context_reentry.py"
+      ],
+      "target_sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+      "candidate_tree_sha": "73e347e510d76f6af7d606916898b0cedb0c7ff5",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-bounded-reference:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": "Bounded synthetic candidate-only served control job; each attempt records its exact per-run fixture/data state in the captured receipt.",
+      "outcome": "FAIL",
+      "scope": "TEST_ASSERTION_FAILURE after the bounded candidate path ran through N5: the assertion expected value_pending_n8, while the runtime returned value_conditional. The later test source corrected this stale status expectation; this was not evidence for a second iteration.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/b27-checks.json#prior_attempts/1; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/stdout.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/junit.xml; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-bounded-reference/receipt.json"
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/pytest-basetemp tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_revision_context_reentry.py"
+      ],
+      "target_sha": "5994be2819c9efad2bdf808bb4bda2f0c61ca06a",
+      "candidate_tree_sha": "36c5aa7e4f32aca1c890778e33fd170466edaa8a",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-current-conditional:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": "Bounded synthetic candidate-only served control job; each attempt records its exact per-run fixture/data state in the captured receipt.",
+      "outcome": "FAIL",
+      "scope": "TEST_ASSERTION_FAILURE: fixture.request had been rebound by the helper loop to a JointSimulationRequest, so reading max_iterations raised AttributeError. Final test removed this redundant alias assertion and checks requested/effective limits on the persisted compiled artifact.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/b27-checks.json#prior_attempts/2; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/stdout.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/junit.xml; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/b27-context-reentry-stop/b27-served-stop-current-conditional/receipt.json"
+    }
+  ],
+  "property": {
+    "statement": "For this bounded candidate-only path, an N6 revision changes the problem content reference, but ROI rejects the run after exactly one N5. The existing configured context admission owner refuses the revised problem under the old exact profile selection, and the runtime has no demonstrated second-context reissue/second-cycle producer.",
+    "runtime_path": [
+      "bounded HTTP/control job fixture and synthetic candidate profile",
+      "persisted CompiledRecursiveGenerationCycleRun plus CAS N4 source, N5 input/execution/result, and candidate-limited context-job artifact",
+      "one N5 candidate simulation and low-grade conditional N8/ROI decision",
+      "N6 revision request retained with distinct revised problem reference",
+      "same configured admission owner probe returns None for revised problem; no second context/N5 occurs"
+    ],
+    "proxy_divergence": "Persisting requested_max_iterations=2 and effective_max_iterations=2 is only a cap configuration signal. The actual runtime counterfactual is one cycle and one N5, terminated by roi_below_threshold; the cap never fires.",
+    "negative_controls": [
+      "Revised problem ref sha256:bcd60f617de17c894a29ad50b830477240e54843566f7ef0d29948d33e484e30 differs from original sha256:89750d387013fa7d87291551ac4db4ab1d2808f9a8bfcce8a802a7e795349da9.",
+      "Same owner returns no context offer for the revised problem; no second context artifact or second N5 execution is recorded.",
+      "K_sim remains simulation_only_k_sim_not_world_evidence; N8 value status is conditional and grade low; N9 remains not promoted."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B27 remains OPEN by root decision. This run is bounded negative evidence only; the revised-context second-iteration producer/bridge remains missing. The historical full-queue row was limited before this bounded evidence and is not changed here.",
+  "limitations_and_next_owner": [
+    "Demonstrate an actual owner-admitted revised context and a second N4/N5 in the ordinary bounded runtime path, with changed basis bindings and the original/revised request retained in shared persisted history.",
+    "Do not treat the cap as enforced in this witness: actual ROI stop occurs after one N5, before max_iterations=2 is reached.",
+    "Production profile admission, factual L6/source bytes, production currentness, and production authority are not established by the synthetic candidate-only fixture; keep those predicates separately bounded.",
+    "The source reentry trial 3d9ff1c936dbfc1fe146669c016c14a0b9cca5aa was withdrawn and reverted; no active resolver adoption is present on candidate 622.",
+    "Only the focused test/helper paths are attributed to B27. The five-file ancestry footprint is itemized in b27-checks.json so interleaved source and unrelated tests are not misattributed."
+  ],
+  "source_pins_and_full_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/b27-checks.json",
+  "changed_path_census": {
+    "focused_b27_commit_set": {
+      "source_paths": 0,
+      "test_paths": 2,
+      "other_paths": 0,
+      "total_paths": 2,
+      "denominator": "all paths in the three focused B27 commits"
+    },
+    "full_slice_base_to_candidate_range": {
+      "source_paths": 1,
+      "test_paths": 4,
+      "other_paths": 0,
+      "total_paths": 5,
+      "denominator": "all paths in git diff 65926cb5aa5364ff0e54741ea6689a16e9ed14b0..622f304abbdd5afc17fd91b30aa8871fca7a1182; inventory in b27-checks.json"
+    }
+  }
+}

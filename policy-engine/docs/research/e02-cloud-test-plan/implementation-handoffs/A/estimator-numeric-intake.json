@@ -1,0 +1,192 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "estimator-numeric-intake",
+  "branch": "codex/e02-A-delivery-attached",
+  "slice_base_sha": "9914b4540a1ab7f5d120df77c32ca6feb2418aa6",
+  "slice_base_tree_sha": "2239d4ec18b91f0caf12b73b0d4af49a96b1fb81",
+  "candidate_sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+  "candidate_tree_sha": "73e347e510d76f6af7d606916898b0cedb0c7ff5",
+  "tested_source_commit": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+  "implementation_commits": [
+    "9389e0df4b909b22513f3ad03caceacbb3f84cde"
+  ],
+  "finding_ids": [],
+  "finding_outcomes": {},
+  "bundle_ids": [],
+  "primary_criterion_mapping": "not_established; this packet does not assign B18 or B31 as the primary criterion",
+  "closure_ids": [],
+  "closure_status": "not_adjudicated; bounded estimator-shape behavior and helper-level tests only",
+  "baseline_cells": [],
+  "capability_state_or_finding_state": "implemented_but_not_orchestrated",
+  "capability_scope_detail": "Finite/missing/invalid estimator-shape handling exists in the value-gateway source and is covered by direct unit tests, but the production source census has no call site to produce_forecast_inputs. The tested generic CAS payload is not the canonical empirical-calibration artifact or an admitted production observation.",
+  "predicate_basis": "recomputed",
+  "property": {
+    "statement": "Missing, invalid, explicit-zero, and finite ordered estimator inputs remain distinguishable in the bounded estimator diagnostic. Missing or invalid inputs do not acquire a numeric relative interval width, and estimator shape alone leaves calibration limited, with zero empirical denominator and no pass rate.",
+    "property_divergence": "The source derives point status, interval validity, and widths from the report fields. The test calls those helpers directly and reopens a synthetic generic test.json CAS payload; it does not show that a production consumer calls the helper or that a canonical empirical-evidence artifact is produced and admitted.",
+    "source_refs": {
+      "shape_diagnostic": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@5d274319c2dfefd84d7e70ae8a988e5f7344c89c#L12423-L12530",
+      "foundry_value_projection": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@5d274319c2dfefd84d7e70ae8a988e5f7344c89c#L13037-L13086",
+      "direct_test": "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py@ab587ee423ba999bfe985b7baaf686ba93c7b0da#L117-L276"
+    },
+    "negative_controls": [
+      "Missing interval: width and relative width stay null.",
+      "Boolean and nonfinite point/interval values are refused or marked invalid before value projection.",
+      "Explicit zero remains known and is not collapsed to missing.",
+      "Nominal confidence/estimator shape without observations cannot pass calibration; support remains blocked."
+    ]
+  },
+  "source_contracts": {
+    "canonical_source_test_delta": "wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/source_delta",
+    "production_call_census": "wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/scope/source_census",
+    "artifact_boundary": "wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/scope/persistence_boundary",
+    "review_status": "Independent source review GO for the exact 9389 source/test blobs was reported by root; a separate review receipt is not included in this packet.",
+    "mapping_boundary": "No primary B18/B31 finding mapping or outcome change is claimed. The separate estimator-shape packet must not be used to upgrade either finding.",
+    "G_acceptance_boundary": "No G acceptance of this A runtime source change is claimed."
+  },
+  "source_changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+  ],
+  "test_changed_paths": [
+    "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py"
+  ],
+  "production_source_changes": true,
+  "packet_source_changes": false,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/estimator-numeric-intake.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/wave3numeric-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-initial-dirty-red/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/s10_cas_unknown_width_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/r1_evidence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/s10_cas_unknown_width_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/r1_evidence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/s10_cas_unknown_width_removal.py"
+  ],
+  "companion_footprint": {
+    "checks_artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a",
+    "retained_attempts": [
+      "initial dirty exploratory red",
+      "frozen red at 9914",
+      "native candidate pass at 9389",
+      "first R1 harness-error attempt",
+      "second R1 unqualified harness/result attempt",
+      "third qualifying EXPECTED_FALSIFIER R1 attempt at 5994be2819c9efad2bdf808bb4bda2f0c61ca06a; numeric source/test blobs unchanged from 9389"
+    ],
+    "copy_status": "Complete receipts/stdout/stderr/JUnit/origin snapshots were copied for the listed attempts; pytest-basetemp CAS data was excluded."
+  },
+  "checks": [
+    {
+      "id": "estimator-numeric-shapes-frozen-red-9914",
+      "interpretation": "15 semantic failures and one generic-CAS fixture setup failure due canonical JSON rejecting floats. This is a frozen source-old/test revision red, but the later test changes the CAS API, so it is not an identical-source paired-red receipt.",
+      "evidence_ref": "continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/attempts/1",
+      "result_detail": "FAIL; 24 tests, 16 failures, 8 passes",
+      "outcome": "FAIL",
+      "target_sha": "9914b4540a1ab7f5d120df77c32ca6feb2418aa6",
+      "command": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/receipt.json#/argv",
+      "environment": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/receipt.json#/environment",
+      "input_closure": "Immutable candidate source/test pins and bounded fixture/mutation inputs recorded in continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/attempts/1",
+      "output": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/stdout.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/stderr.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-frozen-red-9914/junit.xml"
+    },
+    {
+      "id": "estimator-numeric-shapes-native-9389",
+      "interpretation": "Bounded helper/control wave only; source has no production call site for produce_forecast_inputs and the CAS fixture uses generic test.json.",
+      "evidence_ref": "continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/attempts/2",
+      "result_detail": "PASS; 28 tests, 28 passed",
+      "outcome": "PASS",
+      "target_sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+      "command": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/receipt.json#/argv",
+      "environment": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/receipt.json#/environment",
+      "input_closure": "Immutable candidate source/test pins and bounded fixture/mutation inputs recorded in continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/attempts/2",
+      "output": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/stdout.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/stderr.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-native-9389/junit.xml"
+    },
+    {
+      "id": "s10-cas-width-r1-9389",
+      "interpretation": "Evidence plugin failed in pytest_sessionfinish while serializing an artifact-ID field from failure locals. Later qualified attempt is retained separately; this attempt is ERROR.",
+      "evidence_ref": "continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/r1_attempts/0",
+      "result_detail": "HARNESS_ERROR; not accepted as an R1 property result",
+      "outcome": "ERROR",
+      "target_sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+      "command": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/receipt.json#/argv",
+      "environment": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/receipt.json#/environment",
+      "input_closure": "Immutable candidate source/test pins and bounded fixture/mutation inputs recorded in continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/r1_attempts/0",
+      "output": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/stdout.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/stderr.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-first-harness-error-9389/junit.xml"
+    },
+    {
+      "id": "s10-cas-width-r1-fixed-json",
+      "interpretation": "The stored unknown-width assertion failed under the mutation, but the checker rejected the attempt because its expected helper-call count and CAS/result matching conditions did not hold.",
+      "evidence_ref": "continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/r1_attempts/1",
+      "result_detail": "HARNESS_ERROR_OR_UNEXPECTED_RESULT; not accepted as a property result",
+      "outcome": "ERROR",
+      "target_sha": "9389e0df4b909b22513f3ad03caceacbb3f84cde",
+      "command": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/receipt.json#/argv",
+      "environment": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/receipt.json#/environment",
+      "input_closure": "Immutable candidate source/test pins and bounded fixture/mutation inputs recorded in continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/r1_attempts/1",
+      "output": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/stdout.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/stderr.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-cas-width-second-unqualified-9389/junit.xml"
+    },
+    {
+      "id": "s10-cas-width-r1-generic-lifecycle",
+      "interpretation": "The exact numeric implementation source and test blobs remain unchanged at R1 target 5994. The checker validates the actual pre-persist and fresh-CAS lifecycle for unknown and explicit zero, two distinct CAS refs, blocked consumer markers, and target-only mutation. The unchanged assertion that unknown width stays None fails after the mutation; the explicit-zero width stays 0.5. This is a successful removal oracle, not a product test pass or a production calibration claim.",
+      "evidence_ref": "continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/r1_attempts/2",
+      "result_detail": "EXPECTED_FALSIFIER; qualifying R1 removal witness (one ordinary target failure under mutation)",
+      "outcome": "FAIL",
+      "target_sha": "5994be2819c9efad2bdf808bb4bda2f0c61ca06a",
+      "command": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/receipt.json#/argv",
+      "environment": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/receipt.json#/environment",
+      "input_closure": "Immutable candidate source/test pins and bounded fixture/mutation inputs recorded in continuation-20261007-wave3/wave3numeric-checks.json@sha256:77be5e09fa930709bd1328cf3ff85d9e7e428939ba258f0902cc88d6b723c52a#/r1_attempts/2",
+      "output": "continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/stdout.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/stderr.txt; continuation-20261007-wave3/evidence/estimator-numeric-shapes-r1-generic-lifecycle-qualifying-9389/junit.xml"
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P04",
+      "P05",
+      "P10",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "application": "Preserve missing/known/invalid statuses rather than collapsing them (P04/P37); estimator shape and nominal confidence are not empirical calibration or authority (P05/P10); the qualifying third R1 attempt removes only the unknown-width distinction and observes the original CAS-backed assertion fail, while the two earlier harness/result errors remain explicitly nondeciding (P38/P41).",
+    "acceptance_signal": "The 28-case pinned native wave passes and the qualifying R1 evidence verifies two actual CAS readbacks, both lifecycle phases for unknown and zero, unchanged blocked/calibration markers, and the expected unknown-width assertion failure. This remains a bounded helper-level result with no forecast readiness or finding closure."
+  },
+  "limitations_and_next_owner": [
+    "Do not claim S10 forecast readiness, empirical calibration, real source admission, a canonical persisted empirical artifact, or a production consumer from these unit tests.",
+    "The source change is not mapped here as the primary criterion for B18 or B31; their existing adjudication states are not changed.",
+    "The first two R1 attempts remain preserved as unqualified harness/result errors; the third is the qualifying expected-falsifier receipt at 5994be2819c9efad2bdf808bb4bda2f0c61ca06a. Its numeric source/test blobs are byte-identical to implementation candidate 9389; the R1 commit adds only two unrelated B27 test paths.",
+    "An independent source-review GO was reported by root for the exact candidate blobs; no review artifact is included in this packet. No G acceptance is claimed."
+  ],
+  "pull_request": null
+}

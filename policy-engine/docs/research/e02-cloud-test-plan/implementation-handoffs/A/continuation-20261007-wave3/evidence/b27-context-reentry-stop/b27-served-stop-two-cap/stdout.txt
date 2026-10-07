@@ -1,0 +1,889 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10de3b490>
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/pytest-basetemp/test_served_candidate_profile_0')
+
+    @pytest.mark.asyncio
+    async def test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """A candidate-only profile cannot turn an N6 revision into a second N5."""
+    
+        from polisyos.core import canon
+        from polisyos.core.security import tenant_scope
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from tests._helpers.controlled_candidate_profile import (
+            _candidate_only_procurement_intervention_bundle,
+        )
+        from tests.unit.runtime.http.test_control_service_di import (
+            _run_controlled_simulate_only_job_fixture,
+        )
+    
+>       fixture = await _run_controlled_simulate_only_job_fixture(
+            monkeypatch,
+            tmp_path,
+            max_iterations=2,
+            intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+        )
+
+tests/integration/core_runtime/test_e02_revision_context_reentry.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10de3b490>
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b27-served-stop-two-cap/pytest-basetemp/test_served_candidate_profile_0')
+
+    async def _run_controlled_simulate_only_job_fixture(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path,
+        *,
+        proposal_source_persistence_failure: bool = False,
+        max_iterations: int = 1,
+        intervention_substrate: object | None = None,
+    ) -> SimpleNamespace:
+        """Run a synthetic owner-bound N4 candidate through a served N5 request.
+    
+        The witness binds each observed N5 candidate to its same-run persisted N4
+        source and actual joint-engine request. It does not establish N5 source
+        resolution, real-data grounding, production profile admission, N9, S8, or
+        publication authority.
+        """
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security import (
+            get_current_access_scope_or_none,
+            tenant_scope,
+        )
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextOffer,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            CandidateSimulationSyntheticModelDeclarationV1,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextOwnerError,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.design_generation import (
+            N4CandidateScenarioProposalCandidate,
+            N4CandidateScenarioProposalRun,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            load_joint_simulation_result,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV3,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            JointSimulationHorizonController,
+        )
+        from tests._helpers.controlled_candidate_profile import (
+            _configured_procurement_profile,
+            _controlled_procurement_recording,
+            _current_compiler_problem,
+        )
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+        from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
+        from tools.quality.validation import (
+            check_layer3_gy_design_generation_contract as n4_contract,
+        )
+    
+        recording_id = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+        recording_matches = tuple(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == recording_id
+        )
+        assert len(recording_matches) == 1
+        recording = recording_matches[0]
+        problem = _current_compiler_problem(recording)
+        outcome_variable = problem.outcome_of_interest.target_variable
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=outcome_variable,
+        )
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        profile, model_declaration = _configured_procurement_profile(
+            recorded_problem=problem,
+            artifact_store=store,
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            intervention_substrate=intervention_substrate,
+        )
+        assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            service = _build_control_service(
+                tmp_path,
+                artifact_store=store,
+                candidate_simulation_profiles=(profile,),
+                candidate_simulation_model_declarations=(model_declaration,),
+            )
+        assert service._artifact_store is store
+        source_owner = service._cycle_substrate_context_admission_owner
+        assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
+        assert source_owner.store is service._artifact_store
+        problem_ref = cycle_job_design_problem_ref(problem)
+        admission_observations: list[tuple[dict[str, object], object]] = []
+        admission_attempts: list[tuple[object, dict[str, object]]] = []
+        original_admit = ConfiguredCandidateSimulationContextAdmissionOwner.admit_context
+    
+        def record_admission(owner, **kwargs):
+            admission_attempts.append((owner, dict(kwargs)))
+            offer = original_admit(owner, **kwargs)
+            if owner is source_owner:
+                admission_observations.append((dict(kwargs), offer))
+            return offer
+    
+        monkeypatch.setattr(
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            "admit_context",
+            record_admission,
+        )
+        owner_refs = []
+        owner_replays = []
+        owner_replay_refs = []
+        verified_scope_observations = []
+        n5_port_observations = []
+        n5_engine_requests = []
+        compiler_calls = []
+        compiled_runs = []
+        n4_organ_runs = []
+        n4_port_attempts = []
+        candidate_handoffs = []
+        execution_order: list[tuple[str, str]] = []
+        started_core_contexts = []
+    
+        from polisyos.core.run.context import RunContext
+        from polisyos.core.trace import TraceRecord
+    
+        original_core_start = RunContext.start
+    
+        def record_core_start(cls, *args, **kwargs):
+            context = original_core_start(*args, **kwargs)
+            trace_path = context.trace_path
+            assert trace_path is not None
+            records = [
+                TraceRecord.model_validate_json(line)
+                for line in trace_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            assert len(records) == 1
+            assert records[0].event == "RUN_STARTED"
+            assert records[0].run_id == context.run_manifest.run_id
+            execution_order.append(("RUN_STARTED", records[0].run_id))
+            started_core_contexts.append(context)
+            return context
+    
+        monkeypatch.setattr(RunContext, "start", classmethod(record_core_start))
+    
+        original_n4_port = N4GenerationPort.__call__
+    
+        async def record_n4_port(port, problem_for_cycle, *, cycle_index):
+            execution_order.append(("N4_ENTER", ""))
+            n4_port_attempts.append((problem_for_cycle, cycle_index))
+            return await original_n4_port(
+                port,
+                problem_for_cycle,
+                cycle_index=cycle_index,
+            )
+    
+        monkeypatch.setattr(N4GenerationPort, "__call__", record_n4_port)
+    
+        original_n5_port = JointSimulationPort.__call__
+        original_n5_engine = JointSimulationHorizonController.run
+    
+        def record_n5_port(port, *, candidate, problem, cycle_index, **kwargs):
+            execution_order.append(("N5_ENTER", ""))
+            observation = original_n5_port(
+                port,
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+                **kwargs,
+            )
+            n5_port_observations.append(
+                SimpleNamespace(
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_index=cycle_index,
+                    context=port._cycle_substrate_context,
+                    observation=observation,
+                    input_record=kwargs.get("candidate_simulation_input"),
+                    input_ref=kwargs.get("candidate_simulation_input_ref"),
+                )
+            )
+            return observation
+    
+        def record_n5_engine(controller, request):
+            n5_engine_requests.append(request)
+            return original_n5_engine(controller, request)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", record_n5_port)
+        monkeypatch.setattr(JointSimulationHorizonController, "run", record_n5_engine)
+    
+        async def compile_fixture_problem(**kwargs):
+            compiler_calls.append(kwargs)
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            compile_fixture_problem,
+        )
+    
+        context_persist_attempts = []
+        original_context_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
+    
+        def record_context_persist_attempt(owner, context, *, problem, verified_nl_job_scope=None):
+            context_persist_attempts.append((context, problem, verified_nl_job_scope))
+            return original_context_persist(
+                owner,
+                context,
+                problem=problem,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+    
+        monkeypatch.setattr(
+            CycleSubstrateContextArtifactOwner,
+            "persist_for_current_job",
+            record_context_persist_attempt,
+        )
+    
+        # Rebind the profile to a different active outcome while preserving all
+        # self-hashes. The exact configured owner must reject the mismatched model
+        # declaration before it persists a context or reaches N4/N5.
+        probe_outcome_variable = f"{outcome_variable}_negative_control"
+        probe_problem = problem.model_copy(
+            update={
+                "outcome_of_interest": problem.outcome_of_interest.model_copy(
+                    update={"target_variable": probe_outcome_variable}
+                )
+            }
+        )
+        probe_profile_fields = profile.model_dump(mode="json", exclude={"content_hash"})
+        probe_profile_fields["profile_selection_ref"] = cycle_job_profile_selection_ref(
+            probe_problem
+        )
+        probe_profile = CandidateSimulationScenarioProfile.model_validate(
+            {
+                **probe_profile_fields,
+                "content_hash": generation_cycle_service.gy_content_hash(
+                    probe_profile_fields
+                ),
+            }
+        )
+        probe_declaration_fields = model_declaration.model_dump(
+            mode="json", exclude={"content_hash"}
+        )
+        probe_declaration_fields.update(
+            {
+                "profile_config_ref": candidate_simulation_profile_ref(probe_profile),
+                "profile_content_hash": probe_profile.content_hash,
+                "profile_selection_ref": probe_profile.profile_selection_ref,
+            }
+        )
+        probe_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+            {
+                **probe_declaration_fields,
+                "content_hash": generation_cycle_service.gy_content_hash(
+                    probe_declaration_fields
+                ),
+            }
+        )
+        probe_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=(probe_profile,),
+            model_declarations=(probe_declaration,),
+            store=service._artifact_store,
+        )
+        with pytest.raises(CycleSubstrateContextOwnerError) as mismatch:
+            probe_owner.admit_context(
+                problem=probe_problem,
+                job_id="negative-control-job",
+                run_id="negative-control-run",
+                tenant_id="tenant-fixture",
+                cell_id="cell-fixture",
+            )
+        assert mismatch.value.code == "candidate_simulation_model_outcome_problem_mismatch"
+        assert len(admission_attempts) == 1
+        assert admission_attempts[0][0] is probe_owner
+        assert admission_attempts[0][1]["problem"] is probe_problem
+        assert admission_observations == []
+        assert context_persist_attempts == []
+        assert owner_refs == owner_replays == owner_replay_refs == verified_scope_observations == []
+        assert n5_port_observations == n5_engine_requests == []
+        assert n4_port_attempts == []
+        assert compiler_calls == compiled_runs == n4_organ_runs == []
+    
+        recorded_n4_client = n4_contract.RecordedGenerationReplayClient(controlled_recording)
+        source_persistence_failures: list[str] = []
+        if proposal_source_persistence_failure:
+            def refuse_n4_source_persist(repository, *, source_record):
+                source_persistence_failures.append(type(source_record).__name__)
+                raise OSError("controlled_fixture_source_persistence_failure")
+    
+            monkeypatch.setattr(
+                GenerationSourceRepository,
+                "persist_candidate_scenario_source_v2",
+                refuse_n4_source_persist,
+            )
+    
+        original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
+        original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
+    
+        def record_persist(owner, context, *, problem, verified_nl_job_scope=None):
+            assert owner._store is service._artifact_store
+            assert verified_nl_job_scope is not None
+            assert get_current_access_scope_or_none() is None
+            for changed_scope in (
+                verified_nl_job_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
+                verified_nl_job_scope.model_copy(update={"attempt": verified_nl_job_scope.attempt + 1}),
+                verified_nl_job_scope.model_copy(update={"actor_subject": "foreign-actor"}),
+            ):
+                assert changed_scope._was_issued_by_verified_nl_execution_owner
+                with pytest.raises(
+                    CycleSubstrateContextOwnerError,
+                    match="cycle_substrate_context_job_verified_scope_mismatch",
+                ):
+                    original_persist(
+                        owner,
+                        context,
+                        problem=problem,
+                        verified_nl_job_scope=changed_scope,
+                    )
+            verified_scope_observations.append(verified_nl_job_scope)
+            ref = original_persist(
+                owner,
+                context,
+                problem=problem,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+            owner_refs.append(ref)
+            return ref
+    
+        def record_resolve(owner, ref, *, problem, verified_nl_job_scope=None):
+            assert owner._store is service._artifact_store
+            assert verified_nl_job_scope is not None
+            assert get_current_access_scope_or_none() is None
+            verified_scope_observations.append(verified_nl_job_scope)
+            artifact = original_resolve(
+                owner,
+                ref,
+                problem=problem,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+            owner_replays.append(artifact)
+            owner_replay_refs.append(ref)
+            return artifact
+    
+        monkeypatch.setattr(
+            CycleSubstrateContextArtifactOwner,
+            "persist_for_current_job",
+            record_persist,
+        )
+        monkeypatch.setattr(
+            CycleSubstrateContextArtifactOwner,
+            "resolve_for_current_job",
+            record_resolve,
+        )
+    
+        original_controller_builder = (
+            generation_cycle_service.build_default_recursive_generation_cycle_controller
+        )
+    
+        def build_fixture_recursive_controller(**kwargs):
+            recursive = original_controller_builder(**kwargs)
+            original_run = recursive.run
+            assert recursive._cycle_controller_factory is None
+    
+            async def run_with_fixture_generation(*args, **run_kwargs):
+                contexts = run_kwargs["cycle_substrate_contexts_by_node"]
+                handoffs = run_kwargs["candidate_simulation_handoffs_by_node"]
+                currentness_resolvers = run_kwargs[
+                    "candidate_simulation_currentness_resolvers_by_node"
+                ]
+                assert contexts is not None and len(contexts) == 1
+                assert handoffs is not None and len(handoffs) == 1
+                assert currentness_resolvers is not None and len(currentness_resolvers) == 1
+                node_ref = next(iter(contexts))
+                resolved_context = contexts[node_ref]
+                handoff = handoffs[node_ref]
+                currentness_resolver = currentness_resolvers[node_ref]
+                assert callable(currentness_resolver)
+                assert handoff.context == resolved_context
+                assert handoff.profile == profile
+                assert handoff.model_declaration == model_declaration
+                candidate_handoffs.append(handoff)
+    
+                class _ControlledN4GenerationPort(N4GenerationPort):
+                    async def __call__(self, problem_for_cycle, *, cycle_index):
+                        proposal_run = await super().__call__(
+                            problem_for_cycle,
+                            cycle_index=cycle_index,
+                        )
+                        n4_organ_runs.append(proposal_run)
+                        return proposal_run
+    
+                generator = _ControlledN4GenerationPort(
+                    model_id=str(recording["model_id"]),
+                    llm_client=recorded_n4_client,
+                    repo_root=kwargs["repo_root"],
+                    cycle_substrate_context=resolved_context,
+                    candidate_simulation_handoff=handoff,
+                )
+                run_kwargs["n4_generation_ports_by_node"] = {node_ref: generator}
+                compiled = await original_run(*args, **run_kwargs)
+                compiled_runs.append(compiled)
+                return compiled
+    
+            recursive.run = run_with_fixture_generation
+            return recursive
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_default_recursive_generation_cycle_controller",
+            build_fixture_recursive_controller,
+        )
+    
+        service_transferred = False
+        try:
+            context_payload = {
+                "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                    mode="json"
+                )
+            }
+            request = NaturalLanguageRunRequest(
+                request=problem.nl_provenance.raw_request,
+                llm_model=str(recording["model_id"]),
+                context=context_payload,
+                max_iterations=max_iterations,
+            )
+            claims = _fixture_claims()
+            launch = await service.launch_nl_run(
+                request,
+                principal=RuntimePrincipal.from_user_claims(claims),
+                authorization_proof=bound_nl_authorization_proof(claims, request),
+            )
+            job = service._control_store.get_job(launch.job_id)
+            assert job is not None and job.run_id is not None
+            leased = service._control_store.lease_next_job(
+                worker_id="r1-fixture-worker",
+                lease_seconds=60,
+            )
+            assert leased is not None and leased.job_id == launch.job_id
+            assert leased.attempt == 1
+            with (
+                n4_contract._recorded_runtime_environment(recording),
+                service._control_store.job_execution_fence(
+                    job_id=leased.job_id,
+                    worker_id=leased.lease_owner,
+                    attempt=leased.attempt,
+                ),
+            ):
+                service._process_control_job(leased)
+    
+            completed = service._control_store.get_job(launch.job_id)
+>           assert completed is not None and completed.state == "completed"
+E           AssertionError: assert (ControlJobRecord(job_id='393d5257e19241909725802974aba23d', kind='natural_language_run', state='failed', run_id='R_8ea..._terminal_status': 'error', 'manifest_ref': 'sha256:631679e2780c2047b5c54dd9b363b455d6b9013b756ab685592e1d5719152be2'}) is not None and 'failed' == 'completed'
+E             
+E             - completed
+E             + failed)
+
+tests/unit/runtime/http/test_control_service_di.py:2245: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 18:58:44.486 | ERROR    | polisyos.common.logger:_call:120 - Control job 393d5257e19241909725802974aba23d failed: IO Error: Cannot open database "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb" in read-only mode: database does not exist
+Traceback (most recent call last):
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__main__.py", line 9, in <module>
+    raise SystemExit(pytest.console_main())
+                     │      └ <function console_main at 0x105c97950>
+                     └ <module 'pytest' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3....
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 223, in console_main
+    code = main()
+           └ <function main at 0x105c977f0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199, in main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+         │                │      │    │                          └ <_pytest.config.Config object at 0x10b2602f0>
+         │                │      │    └ <HookCaller 'pytest_cmdline_main'>
+         │                │      └ <_pytest.config.compat.PathAwareHookProxy object at 0x10b260ec0>
+         │                └ <_pytest.config.Config object at 0x10b2602f0>
+         └ <enum 'ExitCode'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'config': <_pytest.config.Config object at 0x10b2602f0>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_cmdline_main'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_cmdline_main'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_cmdline_main'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'config': <_pytest.config.Config object at 0x10b2602f0>}
+           │    │               │          └ [<HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attach...
+           │    │               └ 'pytest_cmdline_main'
+           │    └ <function _multicall at 0x1058d5640>
+           └ <_pytest.config.PytestPluginManager object at 0x105eee7b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<_pytest.config.Config object at 0x10b2602f0>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attache...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365, in pytest_cmdline_main
+    return wrap_session(config, _main)
+           │            │       └ <function _main at 0x105dbc1a0>
+           │            └ <_pytest.config.Config object at 0x10b2602f0>
+           └ <function wrap_session at 0x105db3e20>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+    │       │            │    │       └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=1>
+    │       │            │    └ <_pytest.config.Config object at 0x10b2602f0>
+    │       │            └ <function _main at 0x105dbc1a0>
+    │       └ <ExitCode.OK: 0>
+    └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=1>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372, in _main
+    config.hook.pytest_runtestloop(session=session)
+    │      │    │                          └ <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=1>
+    │      │    └ <HookCaller 'pytest_runtestloop'>
+    │      └ <_pytest.config.compat.PathAwareHookProxy object at 0x10b260ec0>
+    └ <_pytest.config.Config object at 0x10b2602f0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'session': <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=1>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtestloop'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtestloop'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtestloop'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'session': <Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=1>}
+           │    │               │          └ [<HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attach...
+           │    │               └ 'pytest_runtestloop'
+           │    └ <function _multicall at 0x1058d5640>
+           └ <_pytest.config.PytestPluginManager object at 0x105eee7b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Session  exitstatus=<ExitCode.OK: 0> testsfailed=0 testscollected=1>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='main', plugin=<module '_pytest.main' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attache...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+    │    │                                        │              └ None
+    │    │                                        └ <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>
+    │    └ <member 'config' of 'Node' objects>
+    └ <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'item': <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>, 'nextitem': None}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtest_protocol'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtest_protocol'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtest_protocol'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'item': <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>, 'nextitem': None}
+           │    │               │          └ [<HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-at...
+           │    │               └ 'pytest_runtest_protocol'
+           │    └ <function _multicall at 0x1058d5640>
+           └ <_pytest.config.PytestPluginManager object at 0x105eee7b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>, None]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-att...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+    │               │              └ None
+    │               └ <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>
+    └ <function runtestprotocol at 0x105db1f30>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+    │       │      │               │             └ True
+    │       │      │               └ <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>
+    │       │      └ <function call_and_report at 0x105db28d0>
+    │       └ <method 'append' of 'list' objects>
+    └ [<TestReport 'tests/integration/core_runtime/test_e02_revision_context_reentry.py::test_served_candidate_profile_two_iteratio...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244, in call_and_report
+    call = CallInfo.from_call(
+           │        └ <classmethod(<function CallInfo.from_call at 0x105db3060>)>
+           └ <class '_pytest.runner.CallInfo'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353, in from_call
+    result: TResult | None = func()
+            │                └ <function call_and_report.<locals>.<lambda> at 0x10dec77f0>
+            └ +TResult
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245, in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            │                 │       └ {}
+            │                 └ <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>
+            └ <HookCaller 'pytest_runtest_call'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ False
+           │    │         │    │     │    │                  └ {'item': <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_runtest_call'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_runtest_call'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_runtest_call'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ False
+           │    │               │          │        └ {'item': <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>}
+           │    │               │          └ [<HookImpl plugin_name='threadexception', plugin=<module '_pytest.threadexception' from '/Users/deniskopylov/.codex/worktrees...
+           │    │               └ 'pytest_runtest_call'
+           │    └ <function _multicall at 0x1058d5640>
+           └ <_pytest.config.PytestPluginManager object at 0x105eee7b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='runner', plugin=<module '_pytest.runner' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-att...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179, in pytest_runtest_call
+    item.runtest()
+    │    └ <function PytestAsyncioFunction.runtest at 0x10c111dd0>
+    └ <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py", line 469, in runtest
+    super().runtest()
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720, in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    │    │                                   └ <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>
+    │    └ <property object at 0x105cc07c0>
+    └ <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           │    │         │    │     │    │                  │       └ True
+           │    │         │    │     │    │                  └ {'pyfuncitem': <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>}
+           │    │         │    │     │    └ <member '_hookimpls' of 'HookCaller' objects>
+           │    │         │    │     └ <HookCaller 'pytest_pyfunc_call'>
+           │    │         │    └ <member 'name' of 'HookCaller' objects>
+           │    │         └ <HookCaller 'pytest_pyfunc_call'>
+           │    └ <member '_hookexec' of 'HookCaller' objects>
+           └ <HookCaller 'pytest_pyfunc_call'>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           │    │               │          │        │       └ True
+           │    │               │          │        └ {'pyfuncitem': <Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>}
+           │    │               │          └ [<HookImpl plugin_name='python', plugin=<module '_pytest.python' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-at...
+           │    │               └ 'pytest_pyfunc_call'
+           │    └ <function _multicall at 0x1058d5640>
+           └ <_pytest.config.PytestPluginManager object at 0x105eee7b0>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+          │         │         └ [<Coroutine test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry>]
+          │         └ <member 'function' of 'HookImpl' objects>
+          └ <HookImpl plugin_name='python', plugin=<module '_pytest.python' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-att...
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166, in pytest_pyfunc_call
+    result = testfunction(**testargs)
+             │              └ {'monkeypatch': <_pytest.monkeypatch.MonkeyPatch object at 0x10de3b490>, 'tmp_path': PosixPath('/Users/deniskopylov/.codex/wo...
+             └ <function test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry at 0x10dec7950>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py", line 716, in inner
+    runner.run(coro, context=context)
+    │      │   │             └ <_contextvars.Context object at 0x10df31900>
+    │      │   └ <coroutine object test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry at 0x760afd1510>
+    │      └ <function Runner.run at 0x10b7a8ca0>
+    └ <asyncio.runners.Runner object at 0x10d5081a0>
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry() run...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x10b788f60>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x10d5081a0>
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x10b788eb0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x10b78afb0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 2046, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x10b696e50>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x10de9f160>()>
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle <_asyncio.TaskStepMethWrapper object at 0x10de9f160>()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle <_asyncio.TaskStepMethWrapper object at 0x10de9f160>()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x10de9f160>()>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py", line 36, in test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry
+    fixture = await _run_controlled_simulate_only_job_fixture(
+                    └ <function _run_controlled_simulate_only_job_fixture at 0x13fa6ecf0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/http/test_control_service_di.py", line 2242, in _run_controlled_simulate_only_job_fixture
+    service._process_control_job(leased)
+    │       │                    └ ControlJobRecord(job_id='393d5257e19241909725802974aba23d', kind='natural_language_run', state='running', run_id='R_8ea5d66a8...
+    │       └ <function ControlPlaneService._process_control_job at 0x13fc64250>
+    └ <polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneService object at 0x140fff230>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 5140, in _process_control_job
+    self._process_control_job_admitted(
+    │    └ <function ControlPlaneService._process_control_job_admitted at 0x13fc643b0>
+    └ <polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneService object at 0x140fff230>
+
+> File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 5679, in _process_control_job_admitted
+    compiled = async_tools.run_coro_sync(
+               │           └ <function run_coro_sync at 0x10d7f2140>
+               └ <module 'polisyos.common.async_tools' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engi...
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/common/async_tools.py", line 114, in run_coro_sync
+    return future.result(timeout=timeout + 1.0)
+           │      │              └ 240.0
+           │      └ <function Future.result at 0x10b59d9b0>
+           └ <Future at 0x1410f2b10 state=finished raised IOException>
+
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py", line 450, in result
+    return self.__get_result()
+           └ None
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+          └ None
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+             │   │   └ None
+             │   └ <function WorkerContext.run at 0x10c11ec40>
+             └ <concurrent.futures.thread.WorkerContext object at 0x1410cec10>
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+           │   │       └ {}
+           │   └ (functools.partial(<function _run_coro_in_fresh_loop at 0x10d7f1fe0>, <coroutine object ControlPlaneService.compile_and_run_r...
+           └ <built-in method run of _contextvars.Context object at 0x140bf2b00>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/common/async_tools.py", line 75, in _run_coro_in_fresh_loop
+    return loop.run_until_complete(asyncio.wait_for(task, timeout=timeout_seconds))
+           │    │                  │       │        │             └ 240.0
+           │    │                  │       │        └ <Task finished name='Task-2' coro=<_await_awaitable() done, defined at /Users/deniskopylov/.codex/worktrees/e02-a-delivery-at...
+           │    │                  │       └ <function wait_for at 0x10b77c5c0>
+           │    │                  └ <module 'asyncio' from '/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/_...
+           │    └ <function BaseEventLoop.run_until_complete at 0x10b788f60>
+           └ <_UnixSelectorEventLoop running=False closed=True debug=False>
+
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           │      └ <method 'result' of '_asyncio.Task' objects>
+           └ <Task finished name='Task-3' coro=<wait_for() done, defined at /Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-maco...
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+                 └ <Task finished name='Task-2' coro=<_await_awaitable() done, defined at /Users/deniskopylov/.codex/worktrees/e02-a-delivery-at...
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/common/async_tools.py", line 65, in _await_awaitable
+    return await awaitable
+                 └ <coroutine object ControlPlaneService.compile_and_run_recursive_generation_cycle at 0x1410c2560>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 2329, in compile_and_run_recursive_generation_cycle
+    return await compile_and_run_recursive_generation_cycle(
+                 └ <function compile_and_run_recursive_generation_cycle at 0x13f094bf0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py", line 1168, in compile_and_run_recursive_generation_cycle
+    recursive_run = await resolved_controller.run(
+                          │                   └ <function _run_controlled_simulate_only_job_fixture.<locals>.build_fixture_recursive_controller.<locals>.run_with_fixture_gen...
+                          └ <polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController object at 0x141151e80>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/http/test_control_service_di.py", line 2194, in run_with_fixture_generation
+    compiled = await original_run(*args, **run_kwargs)
+                     │             │       └ {'problems_by_node': {'design-problem://89750d387013fa7d87291551ac4db4ab1d2808f9a8bfcce8a802a7e795349da9': DesignProblem(sche...
+                     │             └ (RecursiveDesignGraph(schema_version='policyos.policy_design_case.layer2_s5_coupling_composition.v1', graph_id='layer2.s5.rec...
+                     └ <bound method RecursiveGenerationCycleController.run of <polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerat...
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py", line 1685, in run
+    root = await route(recursive_graph.root_design_ref)
+                 │     │               └ 'design-problem://89750d387013fa7d87291551ac4db4ab1d2808f9a8bfcce8a802a7e795349da9'
+                 │     └ RecursiveDesignGraph(schema_version='policyos.policy_design_case.layer2_s5_coupling_composition.v1', graph_id='layer2.s5.recu...
+                 └ <function RecursiveGenerationCycleController.run.<locals>.route at 0x13d1cd220>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py", line 1521, in route
+    cycle_run = await controller.run(
+                      │          └ <function GenerationCycleController.run at 0x13e992610>
+                      └ <polisyos.runtime.quality.generation_cycle.GenerationCycleController object at 0x141151fd0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py", line 6430, in run
+    cycle, cycle_summaries = await self._run_cycle(
+                                   │    └ <function GenerationCycleController._run_cycle at 0x13e992e50>
+                                   └ <polisyos.runtime.quality.generation_cycle.GenerationCycleController object at 0x141151fd0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py", line 7371, in _run_cycle
+    finished = await self._engine.run_async(state)
+                     │    │       │         └ {'problem': DesignProblem(schema_version='policyos.runtime.design_problem.v3', design_problem_id='gy_n4_cgf_decisive_capture_...
+                     │    │       └ <function SimpleLoopEngine.run_async at 0x13e87c250>
+                     │    └ <polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine object at 0x141152cf0>
+                     └ <polisyos.runtime.quality.generation_cycle.GenerationCycleController object at 0x141151fd0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/scientist/orchestration/workflows/engine_simple.py", line 53, in run_async
+    next_state = await next_state
+                       └ <coroutine object GenerationCycleController._generate_node at 0x140faa740>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py", line 8950, in _generate_node
+    result = await result
+                   └ <coroutine object _run_controlled_simulate_only_job_fixture.<locals>.build_fixture_recursive_controller.<locals>.run_with_fix...
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/http/test_control_service_di.py", line 2179, in __call__
+    proposal_run = await super().__call__(
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/http/test_control_service_di.py", line 1944, in record_n4_port
+    return await original_n4_port(
+                 └ <function N4GenerationPort.__call__ at 0x13e95da60>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py", line 2795, in __call__
+    return await generate_design_candidate_scenario_proposal_under_a(
+                 └ <function generate_design_candidate_scenario_proposal_under_a at 0x13f4bb320>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/design_generation.py", line 1041, in generate_design_candidate_scenario_proposal_under_a
+    result = await _run_design_generation_under_a(
+                   └ <function _run_design_generation_under_a at 0x13f4bb740>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/design_generation.py", line 1303, in _run_design_generation_under_a
+    organ_run = await _generate_design_candidate_bundle_under_a(
+                      └ <function _generate_design_candidate_bundle_under_a at 0x13f4bba00>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/design_generation.py", line 1403, in _generate_design_candidate_bundle_under_a
+    reference = build_credal_reference(
+                └ <function build_credal_reference at 0x13ec3a8d0>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/credal_reference.py", line 442, in build_credal_reference
+    for edge in _iter_l3_edges(root, as_of=as_of):
+                │              │           └ '2026-06-29'
+                │              └ PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine')
+                └ <function _iter_l3_edges at 0x13ec5d380>
+
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/credal_reference.py", line 1615, in _iter_l3_edges
+    con = duckdb.connect(str(db_path), read_only=True)
+          │      │           └ PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/production_data/lex/lex-amendm...
+          │      └ <built-in method connect of pybind11_builtins.pybind11_detail_function_record_v1_system_libcpp_abi1 object at 0x118e4cd70>
+          └ <module 'duckdb' from '/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3....
+
+_duckdb.IOException: IO Error: Cannot open database "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb" in read-only mode: database does not exist
+
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_revision_context_reentry.py::test_served_candidate_profile_two_iteration_cap_stops_before_revision_context_reentry
+1 failed in 13.23s

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.170" timestamp="2026-10-07T19:30:24.907148+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_e02_estimator_numeric_shapes" name="test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation" time="0.024"><failure message="assert 0.5 is None">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-cas-width-r1-fixed-json/pytest-basetemp/test_s10_cas_readback_preserve0')
+
+    def test_s10_cas_readback_preserves_unknown_vs_zero_diagnostics_and_limitation(
+        tmp_path: Path,
+    ) -&gt; None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.store import PutOptions
+    
+        store_root = tmp_path / "e02-estimator-candidate-cas"
+        store = FileSystemCAS(store_root)
+        cases: dict[str, dict[str, Any]] = {}
+        for label, point_estimate in (("unknown", None), ("zero", 0.0)):
+            report = _report(point_estimate=point_estimate)
+            evidence = generation_cycle._s10_calibration_evidence_from_report(report)
+            report_payload = {
+                "point_estimate": point_estimate,
+                "confidence_interval": [-0.25, 0.25],
+                "standard_error": 0.2,
+                "confidence_level": 0.95,
+                "diagnostics": [],
+                "sample_size": 100,
+                "n_treated": 50,
+                "n_control": 50,
+                "pre_periods": 4,
+                "post_periods": 4,
+                "method": "e02_numeric_shape_test",
+            }
+            candidate_payload = {
+                "report": report_payload,
+                "estimator_calibration_evidence": evidence,
+            }
+            candidate_bytes = json.dumps(
+                candidate_payload,
+                allow_nan=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+            ref = store.put_bytes(
+                candidate_bytes,
+                PutOptions(
+                    kind="test.json",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="tests.E02EstimatorCandidate", version="1.0"),
+                ),
+            )
+    
+            assert store.verify(ref.artifact_id).ok is True
+            read_store = FileSystemCAS(store_root)
+            loaded_bytes = read_store.get_bytes(ref.artifact_id)
+            loaded = json.loads(loaded_bytes.decode("utf-8"))
+            loaded_report = SimpleNamespace(**loaded["report"])
+            recomputed_evidence = generation_cycle._s10_calibration_evidence_from_report(
+                loaded_report
+            )
+            inputs, receipt = _s10_consumer_result(
+                report=loaded_report,
+                evidence=recomputed_evidence,
+            )
+            cases[label] = {
+                "stored_evidence": loaded["estimator_calibration_evidence"],
+                "evidence": recomputed_evidence,
+                "support": inputs["forecast_support"],
+                "calibration": inputs["forecast_calibration_record"],
+                "receipt": receipt,
+            }
+    
+        unknown = cases["unknown"]
+        zero = cases["zero"]
+&gt;       assert unknown["stored_evidence"]["estimator_shape_diagnostics"][
+            "relative_interval_width"
+        ] is None
+E       assert 0.5 is None
+
+tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py:257: AssertionError</failure></testcase></testsuite></testsuites>

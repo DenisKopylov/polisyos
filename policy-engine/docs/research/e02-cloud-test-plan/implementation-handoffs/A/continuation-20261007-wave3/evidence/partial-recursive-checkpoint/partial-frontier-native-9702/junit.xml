@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="11.437" timestamp="2026-10-07T18:31:08.061695+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="" name="tests.integration.runtime_quality.test_e02_recursive_budget_frontier" time="0.000"><error message="collection failure">tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:36: in &lt;module&gt;
+    from tests.unit.runtime.quality.test_depth_n_universality import (
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1342: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/runtime/quality/test_depth_n_universality.py:32: in &lt;module&gt;
+    assert_universality_preflight(REPO_ROOT)
+tools/quality/validation/universality_preflight.py:111: in assert_universality_preflight
+    raise CgSubstrateUnavailableError(
+E   tools.quality.validation.universality_preflight.CgSubstrateUnavailableError: cg_substrate_unavailable:ortools_cp_sat:ModuleNotFoundError</error></testcase></testsuite></testsuites>

@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "--extra",
+    "runtime",
+    "--extra",
+    "ml",
+    "polisyos-tools",
+    "runtime",
+    "check-runtime-api-contract"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "9702b5a0f591359e009974febb1af263303a9f55",
+  "candidate_tree": "7f3b2701c157a25b87f67873721cbfecf61cfadd",
+  "workspace_dirty_before": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/N8-objective-intake.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/candidate-model-revision.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/"
+  ],
+  "workspace_dirty_after": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/N8-objective-intake.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/candidate-model-revision.json",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/"
+  ],
+  "exit_code": 1,
+  "wall_s": 36.895328624988906,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 4699,
+      "sha256": "cba0382753c59431567630d1ade1578c169363f3aaa647fa13c58fafe3c2ed92"
+    },
+    "stderr.txt": {
+      "bytes": 6755,
+      "sha256": "62c84383adfeb581aca67c2101396541d712b761ba874e119378b41ff107ac5d"
+    }
+  }
+}

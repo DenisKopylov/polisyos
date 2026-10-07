@@ -1,0 +1,325 @@
+{
+  "schema": "policyos.e02.A.cost_scope_consumer_checks.v1",
+  "purpose": "Retain the bounded A-side unknown-cost consumer witness, the exact Decimal assertion repair, and the R1 unknown-to-zero removal falsifier. This packet is not a B66 settlement acceptance or an A B11 closure.",
+  "candidate": {
+    "sha": "2297c974d90f5f69b866fbc6f205446af011374f",
+    "tree": "eb97963972ba990368d6e4d746168ddc01c47b42",
+    "role": "immutable tested source candidate; the receipts do not claim a clean working tree",
+    "parent": {
+      "sha": "7b85f564ca5bda5bae1706e82a07c6576eb4f701",
+      "tree": "0c211f6f8e8afe2fc2790ceaa6638b12c0f92c48"
+    },
+    "tested_source_commit": "2297c974d90f5f69b866fbc6f205446af011374f"
+  },
+  "source_history": {
+    "source_base_before_ed5": {
+      "sha": "778e9f5214d04726f9369f7ae96013d37cd5f266",
+      "tree": "f8971ba3f099d1e8d0758b14f66e0954dbbb76ab",
+      "relation": "direct parent of ed5a074ffb3d3ad49380565c8124ba6efedc53f2"
+    },
+    "focused_commit_refs": [
+      {
+        "sha": "ed5a074ffb3d3ad49380565c8124ba6efedc53f2",
+        "tree": "ea66871d717833ba442418eee93df1bf60398767",
+        "role": "preserve unknown cost and typed monetary provenance in A consumers"
+      },
+      {
+        "sha": "cefb2c2b138c1f2ec3dad2099889616968ada1f4",
+        "tree": "b275e165fac016296ab9453da88d5f2fb920186d",
+        "role": "preserve unknown usage and normalize legacy cost projections"
+      },
+      {
+        "sha": "8f7ebd3662c7b2d8a6082072df34259d5c5d6f10",
+        "tree": "cb58be7268b5e0fe70763e6f2a8a91714c8bfadc",
+        "role": "retain observed legacy counts without upgrading usage provenance"
+      },
+      {
+        "sha": "02aff519c3a2535819dfb5eb1ede1c7a43603851",
+        "tree": "45eade5cd712264b11b469591c64b68c2bccdf01",
+        "role": "carry live worker admission into the NL diagnostic consumer"
+      },
+      {
+        "sha": "7b85f564ca5bda5bae1706e82a07c6576eb4f701",
+        "tree": "0c211f6f8e8afe2fc2790ceaa6638b12c0f92c48",
+        "role": "keep NL lane provenance from asserting promotability"
+      },
+      {
+        "sha": "2297c974d90f5f69b866fbc6f205446af011374f",
+        "tree": "eb97963972ba990368d6e4d746168ddc01c47b42",
+        "role": "compare the admitted run budget as an exact Decimal in the focused consumer test"
+      }
+    ],
+    "focused_commit_path_union": {
+      "method": "git diff-tree --no-commit-id --name-status -r for each focused commit, then unique path union",
+      "path_count": 7,
+      "source_path_count": 3,
+      "test_path_count": 4,
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py",
+        "policy-engine/tests/unit/runtime/http/services/control/test_nl_pipeline_cost_projection.py",
+        "policy-engine/tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py"
+      ]
+    },
+    "complete_source_base_to_candidate_footprint": {
+      "recompute_command": "git diff --name-only 778e9f5214d04726f9369f7ae96013d37cd5f266 2297c974d90f5f69b866fbc6f205446af011374f",
+      "path_count": 101,
+      "repo_root_counts": {
+        "policy-engine/docs": 80,
+        "policy-engine/src": 11,
+        "policy-engine/tests": 10,
+        "other": 0
+      },
+      "file_suffix_counts": {
+        ".json": 29,
+        ".py": 36,
+        ".xml": 9,
+        ".txt": 21,
+        ".md": 6
+      },
+      "source_and_test_paths": [
+        "policy-engine/src/polisyos/core/contracts/__init__.py",
+        "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py",
+        "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "policy-engine/tests/integration/runtime_quality/test_e02_candidate_model_revision.py",
+        "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+        "policy-engine/tests/unit/runtime/http/services/control/test_nl_pipeline_cost_projection.py",
+        "policy-engine/tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+        "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+        "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py"
+      ],
+      "scope_note": "The 101-path ancestry range includes other A work. It is the complete pinned base-to-candidate denominator, not a claim that every path implements B66. The focused seven-path union above isolates the named cost-consumer commit set."
+    },
+    "candidate_blobs": {
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py": "09f1d3ab8b1f0e2daef0f022e3d56f090a08ccc1",
+      "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py": "d9def16f689e51f7c5dccd330754b6d6cbc178a9",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py": "3129a8063d881779c84300f4225f9f7319b6105c",
+      "policy-engine/tests/unit/runtime/http/services/control/test_nl_pipeline_cost_projection.py": "a22e1b45f911b5115f16d64e3c1b5cf49bf5e8d7",
+      "policy-engine/tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py": "1df3a86cfb9a00b9ef067288e6b920bb7c8b36fb",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py": "833a201a50c95c994b8882fa5267c49457af8495",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py": "8e642c12c759ae6d966513226ee7ca9bf187c13f"
+    }
+  },
+  "scope": {
+    "property": "With a nonzero run cap, missing cost evidence must remain unknown and must not be interpreted as zero in order to start another queued model variant.",
+    "consumer_path": "A NL run-budget queue in nl_pipeline.py: _budget_cost_amount -> _advance_run_budget -> sequential model-variant admission; summary projects run_cost_usd and run_budget_status.",
+    "test_path": "test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_network in tests/unit/runtime/http/test_nl_pipeline_materialization.py:3150-3310.",
+    "test_route": "The test launches a real control-plane job and dispatches it under the store-issued job admission, then calls the NL helper through an explicit nondefault callback. The test itself notes production dispatch normally runs the NL branch inline. It checks A runtime diagnostic-event scope/readback, but it patches run_experiment to capture the payload in memory.",
+    "observed_bounded_case": {
+      "configured_run_budget": "Decimal('0.10')",
+      "first_variant": {
+        "status": "completed",
+        "prompt_tokens": "positive in the simulated result; usage_status remains missing",
+        "completion_tokens": "positive in the simulated result; usage_status remains missing",
+        "cost_usd": null,
+        "cost_status": "missing",
+        "cost_origin": "unknown"
+      },
+      "second_variant": {
+        "status": "skipped_budget_guard",
+        "reason": "run_budget_guard_prevented_start",
+        "cost_basis": "no_provider_call"
+      },
+      "run_projection": {
+        "run_cost_usd": null,
+        "run_cost_status": "missing",
+        "run_budget_status": "unknown"
+      }
+    },
+    "source_mechanism_refs": {
+      "budget_cost_amount": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@09f1d3ab8b1f0e2daef0f022e3d56f090a08ccc1#L1662-L1690",
+      "advance_run_budget": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@09f1d3ab8b1f0e2daef0f022e3d56f090a08ccc1#L1799",
+      "variant_queue": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@09f1d3ab8b1f0e2daef0f022e3d56f090a08ccc1#L6829-L6864",
+      "run_cost_projection": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@09f1d3ab8b1f0e2daef0f022e3d56f090a08ccc1#L7606-L7664",
+      "typed_usage_summary": "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py@d9def16f689e51f7c5dccd330754b6d6cbc178a9#L44-L93,L424-L483"
+    },
+    "dirty_workspace_at_test_time": {
+      "clean_tree_claim": false,
+      "paths_recorded_by_receipts": [
+        "M policy-engine/src/polisyos/core/contracts/runtime.py",
+        "M policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "M policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "M policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "M policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/N8-objective-intake.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/candidate-model-revision.json",
+        "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/"
+      ],
+      "interpretation": "The receipt pins the candidate commit/tree and these partial working-tree paths. No clean-checkout claim is made; run_lifecycle.py was among the five modified paths when the control job was launched."
+    },
+    "nonclaims": [
+      "No provider invoice or independently reconciled billing was measured; the case uses simulated LLMs and an unknown/untyped cost result.",
+      "No B-owned producer settlement event or BudgetMiddleware/FileBudgetLedger receipt is read or written by this A test.",
+      "No exactly-once debit, lost-ack recovery, cancellation survival, sibling-run isolation, cache-hit reuse accounting, or D-owned ledger is demonstrated.",
+      "Only the captured run payload and job progress/diagnostic event are checked; the patched run_experiment does not persist a full cost-bearing result artifact.",
+      "The R1 probe checks the unknown-cost-to-zero property only; it does not establish a general end-to-end B66 capability or B11 criterion.",
+      "The older overlapping 50-case attempts are excluded and their counts are not aggregated with these receipts."
+    ]
+  },
+  "checks": [
+    {
+      "id": "cost-consumer-admitted-helper-7b85",
+      "role": "broader selected native consumer wave before the Decimal-only expectation correction",
+      "candidate": {
+        "sha": "7b85f564ca5bda5bae1706e82a07c6576eb4f701",
+        "tree": "0c211f6f8e8afe2fc2790ceaa6638b12c0f92c48"
+      },
+      "command_ref": "evidence/cost-consumer-admitted-helper-7b85/receipt.json#/argv",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "outcome": "HARNESS_ASSERTION_FAILURE; 52 passed, 1 failed",
+      "counts": {
+        "tests": 53,
+        "passed": 52,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deciding_failure": {
+        "test": "test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_network",
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py:3280 at the 7b85 snapshot",
+        "actual": "Decimal('0.1')",
+        "expected": "0.10 as float",
+        "classification": "test expectation type mismatch, not a cost-guard product failure; the unknown-cost and skipped-variant assertions precede it"
+      },
+      "runner": {
+        "exit_code": 1,
+        "wall_seconds": 19.587275207974017,
+        "junit_counts_from_complete_file": true
+      },
+      "evidence": {
+        "directory": "evidence/cost-consumer-admitted-helper-7b85",
+        "receipt_sha256": "4cbbdd0afdfe56a736cbda936a6c0d80619dbc8f6ce094524d0a57ce99449dfd",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 9838, "sha256": "e257adc6f252b07351e2848de7b4cbb9fc2075610ae171521be7e8aed609b364"},
+          {"path": "stderr.txt", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "junit.xml", "bytes": 19018, "sha256": "3ef3575f6f7aa6e18fd7498f0ed6532a907a5dbe63bc8692e4d922f2b364b1d8"},
+          {"path": "e02_origin.py", "bytes": 656, "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"},
+          {"path": "origins.json", "bytes": 1095, "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"}
+        ]
+      }
+    },
+    {
+      "id": "cost-consumer-budget-decimal-2297",
+      "role": "focused positive consumer case after fixing the assertion to compare exact Decimal values",
+      "candidate": {
+        "sha": "2297c974d90f5f69b866fbc6f205446af011374f",
+        "tree": "eb97963972ba990368d6e4d746168ddc01c47b42"
+      },
+      "command_ref": "evidence/cost-consumer-budget-decimal-2297/receipt.json#/argv",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "outcome": "PASS; one focused case only",
+      "counts": {
+        "tests": 1,
+        "passed": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "observed_assertions": [
+        "First simulated variant completes with positive token fields but usage_status=missing, cost_usd=null, cost_status=missing, cost_origin=unknown.",
+        "Second queued variant is skipped with run_budget_guard_prevented_start.",
+        "The run cost stays null/missing and the budget status stays unknown.",
+        "The skipped variant records cost_basis=no_provider_call; that zero means no call was started, not provider spend of zero.",
+        "The control job progress and owner-scoped diagnostic event are read back; the run_experiment payload itself is captured by a test callback."
+      ],
+      "runner": {
+        "exit_code": 0,
+        "wall_seconds": 21.437116332992446,
+        "junit_counts_from_complete_file": true
+      },
+      "evidence": {
+        "directory": "evidence/cost-consumer-budget-decimal-2297",
+        "receipt_sha256": "04a9028dfa9e17e404a3d7115569bd0f2f96816f903fc2c9cb1b279fc21f9277",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 98, "sha256": "6f2bffa6e2a5e4485cf91c46141a323a91086c501d3c99613962b77472659e42"},
+          {"path": "stderr.txt", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "junit.xml", "bytes": 438, "sha256": "9b756a303548f269abce28ee681151ed59afa1b6e7134e01d008b44aead8bf4b"},
+          {"path": "e02_origin.py", "bytes": 656, "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"},
+          {"path": "origins.json", "bytes": 1095, "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"}
+        ]
+      }
+    },
+    {
+      "id": "cost-r1-unknown-to-zero-2297",
+      "role": "R1 removal falsifier for the unknown-cost budget guard",
+      "candidate": {
+        "sha": "2297c974d90f5f69b866fbc6f205446af011374f",
+        "tree": "eb97963972ba990368d6e4d746168ddc01c47b42"
+      },
+      "command_ref": "evidence/cost-r1-unknown-to-zero-2297/receipt.json#/argv",
+      "mutation": "The test plugin replaces the consumer's budget-advance behavior so a missing amount with missing status and unknown origin is treated as 0.0.",
+      "outcome": "CHECKER PASS; the unchanged target assertion is observed as an expected xfail under the removal",
+      "counts": {
+        "target_cases": 1,
+        "target_xfailed": 1,
+        "unexpected_target_failures": 0,
+        "unexpected_target_passes": 0
+      },
+      "witness_counters": {
+        "target_collected": 1,
+        "mutation_installed": 1,
+        "first_completed_observed": 1,
+        "first_positive_tokens_observed": 1,
+        "first_unknown_cost_observed": 1,
+        "second_completed_observed": 1,
+        "expected_guard_assertion_observed": 1,
+        "probe_status": "expected_failure_observed",
+        "pytest_exit_code": 0
+      },
+      "interpretation": "Under the mutated consumer, the second variant actually completes; the unchanged assertion expecting skipped_budget_guard fails. The harness marks that expected target red as xfail and exits 0. This is a property falsifier, not a product run result.",
+      "runner": {
+        "exit_code": 0,
+        "wall_seconds": 18.407787583011668,
+        "junit_counts_from_complete_file": true
+      },
+      "evidence": {
+        "directory": "evidence/cost-r1-unknown-to-zero-2297",
+        "receipt_sha256": "67b960f2b4ac7da3d39a1abafe1c04f27acfeefb575237d0cbe5da71b90886e7",
+        "outputs": [
+          {"path": "stdout.txt", "bytes": 99, "sha256": "e12b962ba20b30859376776b7144a80fd537d232c3ea4e2dba86be8a90317c11"},
+          {"path": "result.json", "bytes": 379, "sha256": "548abaf578b74e2c80720de26dfc8e59528efa5c55f8a289358da06960bf33f3"},
+          {"path": "stderr.txt", "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "junit.xml", "bytes": 567, "sha256": "7f3e9b68fa537ac44e12dbc7e151da2dd64c43810373847aa67fc633c9e4ea48"},
+          {"path": "invoke.py", "bytes": 624, "sha256": "10592e6ca7550f67c6f04ba0d3da62c8eb692161cafb4743ca3c86d856a99ed4"},
+          {"path": "run_probe.py", "bytes": 8368, "sha256": "1fc12298195ce3cad2283f200ed678e1e0490c7f5435ebfd36e46e4ce720afe4"}
+        ]
+      }
+    }
+  ],
+  "review_context": {
+    "independent_source_review": {
+      "outcome": "GO as reported by root",
+      "source_range": [
+        "02aff519c3a2535819dfb5eb1ede1c7a43603851",
+        "7b85f564ca5bda5bae1706e82a07c6576eb4f701"
+      ],
+      "reviewer_relation": "independent of the source author",
+      "persistent_review_artifact": "not supplied in this two-document lease; this JSON records the reported result rather than claiming an attached review receipt",
+      "scope_limit": "The source review is separate from the bounded cost consumer test and does not establish B66 or B11 closure."
+    },
+    "attempt_accounting": "The 53-case, one-case, and R1 receipts are separate attempts. The focused correction did not rerun the 53-case selection; no overlapping older 50-case result is added to these counts."
+  },
+  "evidence_copy_policy": {
+    "copied_complete_outputs": true,
+    "hash_check": "Every copied receipt output was checked against its recorded byte length and SHA-256.",
+    "excluded": [
+      "pytest-basetemp CAS blobs/manifests and lock files; these are not needed to establish the output counts or failure classification.",
+      "Older overlapping 50-case attempt outputs; they are not deciding evidence for this packet."
+    ]
+  }
+}

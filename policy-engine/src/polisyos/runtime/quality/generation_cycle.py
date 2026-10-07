@@ -12369,13 +12369,15 @@ def _build_s10_forecast_inputs(
         outcome_distribution_refs=[f"distribution://{report_ref}"],
         welfare_comparison_ref=f"welfare://{problem.design_problem_id}",
         forecast_tier=effective_forecast_tier,
-        forecast_authority_disposition_reason=str(
-            evidence.get("forecast_authority_disposition_reason")
-            or (
-                "S10 estimator diagnostics retained; empirical calibration evidence is "
-                "not established."
-                if empirical_evidence_error is None and not calibration_bound
-                else "S10 owner forecast over Foundry method output"
+        forecast_authority_disposition_reason=(
+            str(
+                evidence.get("forecast_authority_disposition_reason")
+                or (
+                    "S10 estimator diagnostics retained; empirical calibration evidence is "
+                    "not established."
+                    if empirical_evidence_error is None and not calibration_bound
+                    else "S10 owner forecast over Foundry method output"
+                )
             )
             + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
         ),

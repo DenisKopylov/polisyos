@@ -1,0 +1,88 @@
+FFFFFFFFFFF.......F.....                                                 [100%]
+=================================== FAILURES ===================================
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[schema_version] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e932e90>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[canonical_contract] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e933510>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[coordination_mode] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e9339f0>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[revision] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e933030>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[updated_at] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e933ed0>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[recent_mutations] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e933e00>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[state] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'accepted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e804c70>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[state.limits] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'accepted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e805560>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[state.spent] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e805be0>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[state.provider_spent] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e8075e0>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[state.reserved] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e804520>)
+_ test_each_independently_named_wire_field_is_required_by_real_consumers[recent_mutations.0.committed_at] _
+tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py:125: in test_each_independently_named_wire_field_is_required_by_real_consumers
+    assert all(v["status"] == "refused" and v["unchanged"] for v in observed.values()), observed
+E   AssertionError: {'load': {'status': 'accepted', 'unchanged': True}, 'middleware': {'status': 'exhausted', 'unchanged': False}, 'record_spend': {'status': 'accepted', 'unchanged': False}}
+E   assert False
+E    +  where False = all(<generator object test_each_independently_named_wire_field_is_required_by_real_consumers.<locals>.<genexpr> at 0x7fa25e8041e0>)
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[schema_version]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[canonical_contract]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[coordination_mode]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[revision]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[updated_at]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[recent_mutations]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[state]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[state.limits]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[state.spent]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[state.provider_spent]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[state.reserved]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py::test_each_independently_named_wire_field_is_required_by_real_consumers[recent_mutations.0.committed_at]
+12 failed, 12 passed in 4.85s

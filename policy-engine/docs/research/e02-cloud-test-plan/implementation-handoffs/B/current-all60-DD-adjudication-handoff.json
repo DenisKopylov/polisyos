@@ -1,0 +1,577 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "all60-DD-independent-adjudication-proposal",
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "DUR-01",
+    "DUR-02",
+    "EXE-01",
+    "EXE-02",
+    "JIT-01",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "RES-01",
+    "RES-02",
+    "RES-03",
+    "RES-04",
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "STA-01",
+    "STA-02",
+    "WIRE-01"
+  ],
+  "finding_ids": [
+    "B13",
+    "B14",
+    "B24",
+    "B37",
+    "B38",
+    "B39",
+    "B40",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B49",
+    "B50",
+    "B51",
+    "B52",
+    "B53",
+    "B55",
+    "B57",
+    "B58",
+    "B59",
+    "B60",
+    "B61",
+    "B62",
+    "B63",
+    "B64",
+    "B65",
+    "B66",
+    "B67",
+    "B68",
+    "B69",
+    "B70",
+    "B71",
+    "B72",
+    "B73",
+    "B74",
+    "B75",
+    "B76",
+    "B77",
+    "B78",
+    "B87",
+    "B89",
+    "B90",
+    "B91",
+    "B92",
+    "B93",
+    "B94",
+    "B95",
+    "B96",
+    "B148",
+    "B149",
+    "B150",
+    "B151",
+    "B152",
+    "B153",
+    "B154",
+    "B155",
+    "LA-057"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "fcd9fe50e504582736f9a012a145587d69b1dadf",
+  "implementation_commits": [
+    "b7b6033a4af188ed7e79dca7488d46940be4e723"
+  ],
+  "candidate_sha": "b7b6033a4af188ed7e79dca7488d46940be4e723",
+  "candidate_tree_sha": "bc5819c62a3486c676cd55a15b754e63d44fa859",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-evidence/reconcile.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-evidence/reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json"
+  ],
+  "source_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "baseline_navigation": {
+    "role": "Candidate source-reported navigation only; no imported PASS establishes a new fix. Full exact189cells/561routes/60IDs/25bundles resolve via proposal denominator sourcecut and query recipes. No duplicated recomputable catalogue.",
+    "denominator_basis": {
+      "commit": "b7b6033a4af188ed7e79dca7488d46940be4e723",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json",
+      "bytes": 163774,
+      "sha256": "fd5c3edf97829c25e4635d41fde724a5b20fe4afb1fde3383fe5fe8f4487ab23"
+    }
+  },
+  "checks": [
+    {
+      "id": "frozen-Git-XML-criterion-custody-reconciliation",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-evidence/reconcile.source.txt"
+      ],
+      "target_sha": "b7b6033a4af188ed7e79dca7488d46940be4e723",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "cwd": "/workspace/e02-B-current-durability",
+        "mode": "stdlib/Git/XML metadata only; no product imports/pytest/gates"
+      },
+      "input_closure": {
+        "proposal": {
+          "commit": "b7b6033a4af188ed7e79dca7488d46940be4e723",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json",
+          "bytes": 163774,
+          "sha256": "fd5c3edf97829c25e4635d41fde724a5b20fe4afb1fde3383fe5fe8f4487ab23"
+        },
+        "driver": {
+          "commit": "b7b6033a4af188ed7e79dca7488d46940be4e723",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-evidence/reconcile.source.txt",
+          "bytes": 5591,
+          "sha256": "6f42eea79f2d4d17a503dc18f759da68da6ab763a66389204b2d7299243b34e7"
+        },
+        "external_evidence": "Exactly30 immutable Gitobjects and51 DD test-source objects indexed once in proposal; committed DD full XML/stdout/profile/wrapper atc581, canonical cards697, owner/routes/cells/source-context basefcd. No source imports/pytest/gates/new checkout.",
+        "raw_qualification": "Full phase inventory/selector lineage/partition not transferred to G; published full moderate XML/stdout and specific body inputs are the available deciding evidence. A decision depending on missing raw requires exact rerun."
+      },
+      "outcome": "PASS",
+      "output": {
+        "commit": "b7b6033a4af188ed7e79dca7488d46940be4e723",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-evidence/reconciliation.json",
+        "bytes": 7901,
+        "sha256": "8b7ab9a4c3968adf689613e5e1d3c2710c424223212431a05312d566078f0773"
+      },
+      "execution": {
+        "command": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-evidence/reconcile.source.txt"
+        ],
+        "target_sha": "b7b6033a4af188ed7e79dca7488d46940be4e723",
+        "target_tree": "bc5819c62a3486c676cd55a15b754e63d44fa859",
+        "environment": {
+          "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+          "cwd": "/workspace/e02-B-current-durability",
+          "mode": "stdlib/Git/XML metadata only; no product imports/pytest/gates"
+        },
+        "exit_code": 0,
+        "wall_s": 0.4743103020009585,
+        "rss_kib": 35124,
+        "stdout_bytes": 7901,
+        "stdout_sha256": "8b7ab9a4c3968adf689613e5e1d3c2710c424223212431a05312d566078f0773",
+        "stderr_bytes": 0,
+        "source_before_after": true,
+        "branch_before_after": true,
+        "tracked_dirty_after": ""
+      },
+      "qualification": "Initial precommit run used exact new docs bytes while ownHEADfcd; frozen replay atb7 is byte-identical to committed full output. Initial draft verifier root-path setup ERROR was nondeciding/unpinned tool output only; corrected exact Git-root lookup is frozen and executed."
+    }
+  ],
+  "property": {
+    "statement": "Provide independent manual complete60-ID proposed criterion decisions, with exact DD source/input/case evidence and separately pinned negatives/owner laws, without importing blanket PASS or self-accepting DUR code.",
+    "runtime_path": [
+      "canonical full25 cards and source-only map",
+      "producer/test-body source at exactDD",
+      "complete published native XML/stdout and profile",
+      "manual per-criterion consumer/negative analysis",
+      "root/G independent closure and successor source/consumer admission"
+    ],
+    "proxy_divergence": "A PASS prefix/exit/case count can coexist with C process cleanup ownership failure, B65 required audit gap, B66 unknown network amount zero, six missing owner laws or a missing actual served/publisher consumer.",
+    "negative_controls": [
+      "B65 actualDD known.02 protected audit fault2PASS2FAIL with provider2/ledger.04; later13 actualFAIL pins qualified separately",
+      "B66 actualDD missing/invalid SDK usage/cost16=8PASS8FAIL, unknown zero is distinct from known reported0",
+      "B87 actualDD real EventStream/C process8=7PASS1FAIL, retained cleanup owner despite available permit",
+      "RowP38 smallest distinguishing case plus remaining verification/capability are explicit for all60"
+    ],
+    "countercase_to_form": "XML/hash agreement verifies custody; it does not independently ratify fixture institutional premises or proposal semantics."
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": "Registered five labels and scope are explicit in proposal.per_quantity_P37. Operational fixture assumptions remain consumer_asserted; six institutional laws and formal closure authority not_established. Own lower9f implementation remains independently unaccepted here.",
+  "capability_state_or_finding_state": "prepared_manual_proposal_not_formal_closure; DD43boundedclosed/8limited/6held/3open are independently authored proposals, no targetcount; source/code acceptance remains RED and successor rejoin pending.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B13",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B13"
+    },
+    {
+      "finding_id": "B14",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B14"
+    },
+    {
+      "finding_id": "B24",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B24"
+    },
+    {
+      "finding_id": "B37",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B37"
+    },
+    {
+      "finding_id": "B38",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B38"
+    },
+    {
+      "finding_id": "B39",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B39"
+    },
+    {
+      "finding_id": "B40",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B40"
+    },
+    {
+      "finding_id": "B42",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B42"
+    },
+    {
+      "finding_id": "B43",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B43"
+    },
+    {
+      "finding_id": "B44",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B44"
+    },
+    {
+      "finding_id": "B45",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B45"
+    },
+    {
+      "finding_id": "B46",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B46"
+    },
+    {
+      "finding_id": "B47",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B47"
+    },
+    {
+      "finding_id": "B48",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B48"
+    },
+    {
+      "finding_id": "B49",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B49"
+    },
+    {
+      "finding_id": "B50",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B50"
+    },
+    {
+      "finding_id": "B51",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B51"
+    },
+    {
+      "finding_id": "B52",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B52"
+    },
+    {
+      "finding_id": "B53",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B53"
+    },
+    {
+      "finding_id": "B55",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B55"
+    },
+    {
+      "finding_id": "B57",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B57"
+    },
+    {
+      "finding_id": "B58",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B58"
+    },
+    {
+      "finding_id": "B59",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B59"
+    },
+    {
+      "finding_id": "B60",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B60"
+    },
+    {
+      "finding_id": "B61",
+      "proposed_state": "held",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B61"
+    },
+    {
+      "finding_id": "B62",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B62"
+    },
+    {
+      "finding_id": "B63",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B63"
+    },
+    {
+      "finding_id": "B64",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B64"
+    },
+    {
+      "finding_id": "B65",
+      "proposed_state": "open",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B65"
+    },
+    {
+      "finding_id": "B66",
+      "proposed_state": "open",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B66"
+    },
+    {
+      "finding_id": "B67",
+      "proposed_state": "held",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B67"
+    },
+    {
+      "finding_id": "B68",
+      "proposed_state": "held",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B68"
+    },
+    {
+      "finding_id": "B69",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B69"
+    },
+    {
+      "finding_id": "B70",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B70"
+    },
+    {
+      "finding_id": "B71",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B71"
+    },
+    {
+      "finding_id": "B72",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B72"
+    },
+    {
+      "finding_id": "B73",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B73"
+    },
+    {
+      "finding_id": "B74",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B74"
+    },
+    {
+      "finding_id": "B75",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B75"
+    },
+    {
+      "finding_id": "B76",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B76"
+    },
+    {
+      "finding_id": "B77",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B77"
+    },
+    {
+      "finding_id": "B78",
+      "proposed_state": "held",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B78"
+    },
+    {
+      "finding_id": "B87",
+      "proposed_state": "open",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B87"
+    },
+    {
+      "finding_id": "B89",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B89"
+    },
+    {
+      "finding_id": "B90",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B90"
+    },
+    {
+      "finding_id": "B91",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B91"
+    },
+    {
+      "finding_id": "B92",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B92"
+    },
+    {
+      "finding_id": "B93",
+      "proposed_state": "held",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B93"
+    },
+    {
+      "finding_id": "B94",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B94"
+    },
+    {
+      "finding_id": "B95",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B95"
+    },
+    {
+      "finding_id": "B96",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B96"
+    },
+    {
+      "finding_id": "B148",
+      "proposed_state": "held",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B148"
+    },
+    {
+      "finding_id": "B149",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B149"
+    },
+    {
+      "finding_id": "B150",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B150"
+    },
+    {
+      "finding_id": "B151",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B151"
+    },
+    {
+      "finding_id": "B152",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B152"
+    },
+    {
+      "finding_id": "B153",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B153"
+    },
+    {
+      "finding_id": "B154",
+      "proposed_state": "limited",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B154"
+    },
+    {
+      "finding_id": "B155",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.B155"
+    },
+    {
+      "finding_id": "LA-057",
+      "proposed_state": "closed",
+      "formal_closure": false,
+      "decision_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-DD-adjudication-proposal.json#all60_manual_rows.LA-057"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Root/G alone decide final criteria closure and code acceptance after full source/evidence review; closure_ids stays empty.",
+    "B65/B66 current source class repair/actual newer17positive not transplanted into DD; root must inspect exact future composed source and affected consumers. B87 C actual cleanup ownership remains open.",
+    "B61/B67/B68/B78/B93/B148 six precise semantic owner laws stay held; operational fixtures cannot invent them.",
+    "B13 actual A served readonly catalog/history consumer and B154 A all-confirmations publisher remain missing/limited. Protected A generation/lifecycle and C streaming sources are not edited.",
+    "B43 actual serialized effective-plan verification is absent here; root now assigns mechanism repair and CAS independent oracle. B53 stochastic/warmup separation and B52 p95/p99/cache-cost measurements are verification_missing, not new unsupported source-bug claims. Their prospective repair/oracles are not DD evidence.",
+    "Original root-provided lanes have admission; historical oracle4/adapters2/CASbase36 precreation_custody_not_established qualifications remain bound to original packets. No blanket checkout admission.",
+    "Seven DD code gates are separate: runtime API PASS, sixFAIL; no P41 inherited-red waiver without exact slice-base replay and zero input denominator intersection.",
+    "Moderate deciding outputs already committed at exactrefs; large recomputable raw inventory/partition remains ignored with hash and explicit G availability limit. No production data transfer or new native/gate run."
+  ],
+  "created_at_utc": "2026-10-06T21:02:33.075185+00:00"
+}

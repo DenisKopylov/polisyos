@@ -1,0 +1,36 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "sync",
+    "--frozen",
+    "--extra",
+    "lint",
+    "--extra",
+    "test",
+    "--extra",
+    "runtime",
+    "--extra",
+    "ml",
+    "--extra",
+    "docs",
+    "--python",
+    "/workspace/polisyos/policy-engine/.venv/bin/python"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "tree": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+  "head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "wall_s": 12.415941186001874,
+  "process_rusage_maxrss_kib": 120536,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current99-isolated-contributor-docs-environment.txt",
+  "output_sha256": "e2b10ac635d17f296fb17e9fac00274c85b2ddda2b933fcae3f51603e3282004",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": null,
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

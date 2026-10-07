@@ -9,30 +9,35 @@ skipping already-completed work.
 
 How it works
 ------------
-1. Before executing each node, a checkpoint is written to disk if the node
-   index is a multiple of ``checkpoint_every`` or if this is the last node.
+1. After a successful node, a checkpoint is written if the node index is a
+   multiple of ``checkpoint_every`` or if this is the last node.
 2. On resume, the executor reads the checkpoint, validates the chain digest
    matches, and fast-forwards past already-completed nodes.
-3. The chain digest (SHA-256 of the ordered FQN list) guards against resuming
-   a checkpoint from a different chain definition.
+3. The structural chain digest and effective execution digest guard the
+   compiled plan, parameters, initial state and seed used for the checkpoint.
 
 Checkpoint format
 -----------------
-Each checkpoint is a JSON file containing:
-
-- ``chain_digest``: hex SHA-256 of the execution order FQN list.
-- ``completed_fqns``: list of FQNs completed so far.
-- ``node_results``: list of ``{node_uid, method_fqn, wall_time_ms}`` dicts.
-- ``intermediate_state``: JSON-serialisable state dict after last completed node.
-- ``created_at``: ISO-8601 UTC timestamp.
+The public checkpoint file is an atomic JSON pointer to one immutable UUID
+generation. Its SHA-256 binds the complete snapshot: execution identity,
+completed frontier, state and original per-node result history. NumPy state
+and history arrays live in that generation and carry content, dtype and shape
+bindings. Writers hold one filesystem lock through publication or rollback.
+Existing direct-JSON checkpoints remain readable; resuming them still requires
+the effective execution identity and honest history completeness.
 
 Limitations
 -----------
-- State values must be JSON-serialisable (or numpy arrays, which are
-  serialised as base64-encoded bytes).  Arbitrary Python objects in state
-  will cause a ``CheckpointSerializationError``.
-- NumPy arrays are serialised with ``np.save`` to a companion ``.npy`` sidecar
-  file; the checkpoint JSON contains a ``__npy_ref__`` pointer.
+- State values must be JSON-serialisable or non-object NumPy arrays. Mapping
+  keys must be strings; ``__npy_ref__`` is reserved for array references. Arrays
+  use ``np.save`` sidecars and are loaded without pickle.
+- A parent-directory fsync failure after pointer replacement raises
+  ``CheckpointPublicationUncertainError`` and preserves the visible generation;
+  it does not acknowledge durable success.
+- Retained and interrupted orphan generations are not garbage-collected.
+  Readers and writers must use this API on a local filesystem supporting flock,
+  atomic replacement and directory fsync. Power-loss and hostile filesystem
+  mutation are outside this execution protocol.
 
 Usage
 -----
@@ -56,8 +61,10 @@ import hashlib
 import json
 import logging
 import os
+import shutil
+import sys
 import time
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -66,12 +73,28 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_projection,
+    artifact_manifest_profile_sha256,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.observability import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
+from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
+from polisyos.foundry.methods.artifacts import (
+    SourceIdentityUnavailableError,
+    implementation_identity_projection,
+)
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,
+    _collect_node_inputs,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
@@ -80,19 +103,27 @@ from polisyos.foundry.methods.backends.protocol import (
     ReproducibilityInfo,
     SolverStatus,
 )
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
+    capture_versions,
+)
 from polisyos.foundry.methods.backends.validated import (
     ValidatedBound,
     ValidatedMethodFamily,
     ValidatedStatus,
 )
+from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 __all__ = [
     "ChainCheckpoint",
+    "CheckpointArtifactContext",
     "CheckpointDigestMismatchError",
     "CheckpointError",
     "CheckpointIssue",
+    "CheckpointIdentityError",
     "CheckpointLoadError",
+    "CheckpointPublicationUncertainError",
     "CheckpointSaveError",
     "CheckpointSerializationError",
     "CheckpointingChainExecutor",
@@ -119,12 +150,46 @@ class CheckpointSaveError(CheckpointError):
     """Raised when a checkpoint cannot be written atomically."""
 
 
+class CheckpointPublicationUncertainError(CheckpointSaveError):
+    """The new manifest is visible but its directory durability is uncertain."""
+
+
 class CheckpointLoadError(CheckpointError):
     """Raised when a checkpoint cannot be loaded or validated."""
 
 
 class CheckpointDigestMismatchError(CheckpointError):
     """Raised when a checkpoint's chain_digest doesn't match the current chain."""
+
+
+class CheckpointIdentityError(CheckpointError):
+    """Required source, scope or exact artifact identity cannot be established."""
+
+
+class CheckpointArtifactContext(BaseModel):
+    """Declared artifact lineage, reconciled through the supplied guarded store.
+
+    This declaration supplies identity premises, not authorization or a data
+    decoder. Every reference selects an exact manifest profile. The caller
+    supplies the actual initial state independently; its content is also bound.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    input_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
+    config_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
+    origin_ref: ArtifactRef | None = None
+    dependency_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
+    cache_refs: dict[UUID, ArtifactRef] = Field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class _ExecutionMethods:
+    """Resolve each actual method once for one checkpoint-bound execution."""
+
+    methods: Mapping[str, type]
+
+    def get(self, fqn: str) -> type:
+        return self.methods[fqn]
 
 
 @dataclass(frozen=True, slots=True)
@@ -176,6 +241,7 @@ class ChainCheckpoint:
     execution_digest: str | None = None
     node_results: list[dict[str, Any]] = field(default_factory=list)
     history_complete: bool = False
+    identity_snapshot: dict[str, Any] | None = None
     checkpoint_path: Path | None = field(default=None, compare=False, repr=False)
 
     # ------------------------------------------------------------------
@@ -183,71 +249,126 @@ class ChainCheckpoint:
     # ------------------------------------------------------------------
 
     def save(self, path: Path) -> None:
-        """Serialise to *path* (JSON + optional .npy sidecars)."""
+        """Publish one immutable snapshot generation through an atomic pointer."""
+        path = path.parent.resolve() / path.name
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp_paths: list[Path] = []
-        published_sidecars: list[Path] = []
-        try:
-            with _checkpoint_write_lock(path):
-                generation = _checkpoint_generation(path, self.intermediate_state)
-                stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
-                force_encoded = generation is not None
-                payload, sidecars = _serialise_state(
-                    self.intermediate_state,
-                    stem,
-                    force_encoded=force_encoded,
+        with _checkpoint_write_lock(path):
+            generation_dir = path.parent / f".{path.name}.generations" / uuid4().hex
+            tmp_paths: list[Path] = []
+            manifest_published = False
+            generation_created = False
+
+            def mark_manifest_published() -> None:
+                nonlocal manifest_published
+                manifest_published = True
+                self.checkpoint_path = path
+
+            try:
+                generation_dir = _resolve_checkpoint_member_path(
+                    path.parent, str(generation_dir.relative_to(path.parent))
                 )
-                history_payload: dict[str, Any] | None = None
-                if self.history_complete:
-                    history_payload, history_sidecars = _serialise_state(
-                        {"node_results": self.node_results},
-                        stem,
-                        force_encoded=True,
-                    )
-                    sidecars.update(history_sidecars)
+                generation_dir.mkdir(parents=True, exist_ok=False)
+                generation_created = True
+                if not isinstance(self.intermediate_state, Mapping):
+                    raise CheckpointSerializationError("Checkpoint state root must be a mapping.")
+                snapshot_values: dict[str, Any] = {"intermediate_state": self.intermediate_state}
+                if self.node_results:
+                    snapshot_values["node_results"] = self.node_results
+                # Encode the whole logical snapshot once: each array identity
+                # includes its semantic root as well as its structural path.
+                # User state can therefore contain arbitrary history-like keys.
+                snapshot_payload, sidecars = _serialise_state(
+                    snapshot_values, "snapshot", force_encoded=True
+                )
                 data = {
                     "chain_digest": self.chain_digest,
                     "completed_fqns": self.completed_fqns,
                     "completed_node_ids": self.completed_node_ids,
-                    "intermediate_state": payload,
+                    **snapshot_payload,
                     "node_timing_ms": self.node_timing_ms,
                     "created_at": self.created_at,
                     "execution_digest": self.execution_digest,
                     "history_complete": self.history_complete,
+                    "identity_snapshot": self.identity_snapshot,
                 }
-                if history_payload is not None:
-                    data["node_results"] = history_payload["node_results"]
-
                 for sidecar_name, arr in sidecars.items():
-                    sidecar_path = path.parent / sidecar_name
-                    published_sidecars.append(sidecar_path)
+                    sidecar_path = generation_dir / sidecar_name
                     tmp_sidecar = _tmp_path_for(sidecar_path)
                     tmp_paths.append(tmp_sidecar)
                     _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
                     tmp_paths.remove(tmp_sidecar)
 
-                json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                snapshot_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                snapshot_path = generation_dir / "snapshot.json"
+                tmp_snapshot = _tmp_path_for(snapshot_path)
+                tmp_paths.append(tmp_snapshot)
+                _atomic_write_bytes(tmp_snapshot, snapshot_path, snapshot_bytes)
+                tmp_paths.remove(tmp_snapshot)
+                # The immutable generation and its parent entry must precede
+                # the pointer that lets a reader select them.
+                _fsync_dir(generation_dir.parent)
+                _fsync_dir(path.parent)
+                pointer = {
+                    "checkpoint_format": "generation-v1",
+                    "snapshot_ref": str(snapshot_path.relative_to(path.parent)),
+                    "snapshot_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+                }
+                json_bytes = json.dumps(pointer, indent=2, sort_keys=True).encode("utf-8")
                 tmp_json = _tmp_path_for(path)
                 tmp_paths.append(tmp_json)
-                _atomic_write_bytes(tmp_json, path, json_bytes)
+                _atomic_write_bytes(tmp_json, path, json_bytes, on_publish=mark_manifest_published)
                 tmp_paths.remove(tmp_json)
-                self.checkpoint_path = path
-        except (OSError, TypeError, ValueError, CheckpointSerializationError) as exc:
-            _cleanup_paths(tmp_paths)
-            _cleanup_paths(published_sidecars)
-            raise CheckpointSaveError(f"Failed to save checkpoint at {path}: {exc}") from exc
+            except (
+                OSError,
+                TypeError,
+                ValueError,
+                CheckpointSerializationError,
+                CheckpointLoadError,
+            ) as exc:
+                # Cleanup remains in the same actual writer lock. Only this
+                # unpublished UUID generation belongs to the failed writer.
+                _cleanup_paths(tmp_paths)
+                if not manifest_published:
+                    if generation_created:
+                        try:
+                            shutil.rmtree(generation_dir)
+                        except OSError:
+                            _logger.debug(
+                                "checkpoint_generation_cleanup_failed path=%s", generation_dir
+                            )
+                    raise CheckpointSaveError(
+                        f"Failed to save checkpoint at {path}: {exc}"
+                    ) from exc
+                raise CheckpointPublicationUncertainError(
+                    f"Checkpoint manifest was replaced at {path}, but its directory "
+                    f"durability is uncertain: {exc}"
+                ) from exc
 
     @classmethod
     def load(cls, path: Path) -> ChainCheckpoint:
         """Deserialise from *path*."""
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-            state = _deserialise_state(data.pop("intermediate_state"), path.parent)
+            if not isinstance(data, dict):
+                raise CheckpointLoadError("Checkpoint manifest must be a JSON object.")
+            snapshot_base = path.parent
+            if "checkpoint_format" in data:
+                if data["checkpoint_format"] != "generation-v1":
+                    raise CheckpointLoadError("Unsupported checkpoint manifest format.")
+                snapshot_path = _resolve_checkpoint_member_path(path.parent, data["snapshot_ref"])
+                snapshot_bytes = snapshot_path.read_bytes()
+                if hashlib.sha256(snapshot_bytes).hexdigest() != data["snapshot_sha256"]:
+                    raise CheckpointLoadError("Checkpoint generation snapshot content mismatch.")
+                data = json.loads(snapshot_bytes)
+                if not isinstance(data, dict):
+                    raise CheckpointLoadError("Checkpoint snapshot must be a JSON object.")
+                snapshot_base = snapshot_path.parent
+            state = _deserialise_state(data.pop("intermediate_state"), snapshot_base)
             node_results: list[dict[str, Any]] = []
             if "node_results" in data:
                 node_results_payload = _deserialise_state(
                     {"node_results": data.pop("node_results")},
-                    path.parent,
+                    snapshot_base,
                 )
                 node_results = node_results_payload["node_results"]
             return cls(
@@ -259,7 +380,8 @@ class ChainCheckpoint:
                 created_at=data.get("created_at", 0.0),
                 execution_digest=data.get("execution_digest"),
                 node_results=node_results,
-                history_complete=bool(data.get("history_complete", False)),
+                history_complete=data.get("history_complete") is True,
+                identity_snapshot=data.get("identity_snapshot"),
                 checkpoint_path=path,
             )
         except (
@@ -313,6 +435,7 @@ class CheckpointingChainExecutor:
         registry: MethodRegistry | None = None,
         dispatcher: MethodDispatcher | None = None,
         fail_on_checkpoint_error: bool = True,
+        artifact_store: ArtifactStore | None = None,
     ) -> None:
         self._checkpoint_dir = checkpoint_dir
         self._checkpoint_every = max(1, checkpoint_every)
@@ -320,6 +443,7 @@ class CheckpointingChainExecutor:
         self._dispatcher = dispatcher
         self._fail_on_checkpoint_error = fail_on_checkpoint_error
         self._checkpoint_issues: list[CheckpointIssue] = []
+        self._artifact_store = artifact_store
 
     # ------------------------------------------------------------------
     # Public API
@@ -333,6 +457,7 @@ class CheckpointingChainExecutor:
         *,
         checkpoint: ChainCheckpoint | None = None,
         seed: int = 0,
+        artifact_context: CheckpointArtifactContext | None = None,
     ) -> ChainExecutionResult:
         """
         Execute *chain*, optionally resuming from *checkpoint*.
@@ -358,15 +483,32 @@ class CheckpointingChainExecutor:
         reg = self._registry or get_registry()
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_per_node = params_per_node or {}
+        if artifact_context is not None:
+            artifact_context = _validated_artifact_context(artifact_context)
 
         chain_digest = _compute_chain_digest(chain)
         execution_digest = None
-        if checkpoint is not None or self._checkpoint_dir is not None:
+        identity_snapshot = None
+        if (
+            checkpoint is not None
+            or self._checkpoint_dir is not None
+            or artifact_context is not None
+        ):
+            reg = _ExecutionMethods(
+                {
+                    chain.get_node(node_id).method_fqn: reg.get(chain.get_node(node_id).method_fqn)
+                    for node_id in chain.execution_order
+                }
+            )
+            identity_snapshot = _capture_execution_identity(
+                chain, reg, artifact_context, self._artifact_store, seed=seed
+            )
             execution_digest = _compute_execution_digest(
                 chain,
                 initial_state=initial_state,
                 params_per_node=params_per_node,
                 seed=seed,
+                identity_snapshot=identity_snapshot,
             )
         execution_order: list[UUID] = chain.execution_order
 
@@ -374,6 +516,9 @@ class CheckpointingChainExecutor:
         skip_until: int = 0
         state = dict(initial_state)
         all_node_results: list[tuple[UUID, MethodResult]] = []
+        node_slot_outputs: dict[UUID, dict[str, Any]] = {}
+        missing_history_node_ids: tuple[UUID, ...] = ()
+        history_complete = True
 
         if checkpoint is not None:
             if checkpoint.chain_digest != chain_digest:
@@ -393,48 +538,79 @@ class CheckpointingChainExecutor:
                     "Checkpoint execution identity does not match the effective "
                     "chain plan, inputs, parameters, or seed."
                 )
+            if checkpoint.identity_snapshot != identity_snapshot:
+                raise CheckpointDigestMismatchError(
+                    "Checkpoint source, scope or selected artifact view does not match."
+                )
             skip_until = checkpoint.n_completed
             state = dict(checkpoint.intermediate_state)
-            if checkpoint.history_complete:
-                if len(checkpoint.node_results) != skip_until:
+            prefix_ids = execution_order[:skip_until]
+            restored_by_id: dict[UUID, MethodResult] = {}
+            for snapshot in checkpoint.node_results:
+                restored_id, restored_result = _restore_node_result(snapshot, checkpoint)
+                if (
+                    restored_id not in prefix_ids
+                    or restored_id in restored_by_id
+                    or snapshot.get("method_fqn") != chain.get_node(restored_id).method_fqn
+                ):
                     raise CheckpointLoadError(
-                        "Checkpoint marks node history complete but the saved "
-                        "per-node result count does not match completed prefix."
+                        "Checkpoint per-node history does not match the execution prefix."
                     )
-                for index, snapshot in enumerate(checkpoint.node_results):
-                    restored = _restore_node_result(snapshot, checkpoint)
-                    expected_node_id = execution_order[index]
-                    expected_fqn = chain.get_node(expected_node_id).method_fqn
-                    if (
-                        restored[0] != expected_node_id
-                        or snapshot.get("method_fqn") != expected_fqn
-                    ):
-                        raise CheckpointLoadError(
-                            "Checkpoint per-node history does not match the execution prefix."
-                        )
-                    all_node_results.append(restored)
+                restored_by_id[restored_id] = restored_result
+            missing_history_node_ids = tuple(
+                node_id for node_id in prefix_ids if node_id not in restored_by_id
+            )
+            history_complete = (
+                checkpoint.history_complete
+                and not missing_history_node_ids
+                and all(
+                    "history_incomplete" not in result.warnings
+                    for result in restored_by_id.values()
+                )
+            )
+            for node_id in prefix_ids:
+                if node_id in restored_by_id:
+                    restored_result = restored_by_id[node_id]
+                    all_node_results.append((node_id, restored_result))
+                    node_slot_outputs[node_id] = dict(restored_result.slot_outputs)
 
         # Execute remaining nodes
         for idx, node_id in enumerate(execution_order):
             if idx < skip_until:
                 continue
 
-            node = chain.get_node(node_id)
-            node_params = dict(node.params)
-            node_params.update(params_per_node.get(node_id, {}))
-            node_params.setdefault("seed", seed)
-
-            method_class = reg.get(node.method_fqn)
+            signature = chain.get_signature(node_id)
+            method_class, materialized_state, signature, node_params = _collect_node_inputs(
+                chain=chain,
+                node_id=node_id,
+                reg=reg,
+                node_slot_outputs=node_slot_outputs,
+                fx_rate_provider=None,
+                current_state=state,
+                signature=signature,
+                current_context=state,
+                params_per_node=params_per_node,
+            )
+            if artifact_context is not None:
+                _validate_dispatch_identity(
+                    method_class, signature.fqn, identity_snapshot, seed=seed
+                )
             result = disp.dispatch(
                 method_class=method_class,
-                signature=method_class.signature,
-                state=state,
+                signature=signature,
+                state=materialized_state,
                 params=node_params,
                 seed=seed,
             )
+            if artifact_context is not None:
+                _validate_dispatch_identity(
+                    method_class, signature.fqn, identity_snapshot, seed=seed
+                )
+            node_slot_outputs[node_id] = dict(result.slot_outputs)
             if isinstance(result.output, dict):
                 state.update(result.output)
             all_node_results.append((node_id, result))
+            history_complete = history_complete and "history_incomplete" not in result.warnings
 
             # Save checkpoint if needed
             should_checkpoint = self._checkpoint_dir is not None and (
@@ -450,15 +626,25 @@ class CheckpointingChainExecutor:
                     all_node_results=all_node_results,
                     state=state,
                     execution_digest=execution_digest,
+                    history_provenance_complete=history_complete,
+                    identity_snapshot=identity_snapshot,
                 )
 
+        reproducibility_contract = _build_chain_reproducibility_contract(
+            all_node_results,
+            composition_kind="serial",
+        )
+        reproducibility_contract.update(
+            history_complete=history_complete,
+            completed_node_count=len(execution_order),
+            missing_history_node_ids=[str(node_id) for node_id in missing_history_node_ids],
+        )
         return ChainExecutionResult(
             final_state=state,
             node_results=tuple(all_node_results),
-            reproducibility_contract=_build_chain_reproducibility_contract(
-                all_node_results,
-                composition_kind="serial",
-            ),
+            reproducibility_contract=reproducibility_contract,
+            missing_history_node_ids=missing_history_node_ids,
+            history_provenance_complete=history_complete,
         )
 
     def find_latest_checkpoint(self, chain: Any) -> ChainCheckpoint | None:
@@ -498,6 +684,8 @@ class CheckpointingChainExecutor:
         all_node_results: list[tuple[UUID, MethodResult]],
         state: dict[str, Any],
         execution_digest: str | None = None,
+        history_provenance_complete: bool = True,
+        identity_snapshot: dict[str, Any] | None = None,
     ) -> None:
         if self._checkpoint_dir is None:
             raise CheckpointSaveError("checkpoint_dir is not configured")
@@ -505,19 +693,26 @@ class CheckpointingChainExecutor:
         filename = f"checkpoint_{chain_digest[:8]}_{completed_up_to_idx:04d}_{timestamp}.json"
         path = self._checkpoint_dir / filename
 
-        completed_node_ids = [str(nid) for nid, _ in all_node_results]
-        completed_fqns = [chain.get_node(nid).method_fqn for nid, _ in all_node_results]
+        completed_prefix = list(execution_order[: completed_up_to_idx + 1])
+        completed_node_ids = [str(nid) for nid in completed_prefix]
+        completed_fqns = [chain.get_node(nid).method_fqn for nid in completed_prefix]
         timing_ms = [r.timing.wall_time_ms for _, r in all_node_results]
-        history_complete = all(
-            isinstance(result, MethodResult) and "history_incomplete" not in result.warnings
-            for _, result in all_node_results
+        history_complete = (
+            history_provenance_complete
+            and [nid for nid, _ in all_node_results] == completed_prefix
+            and all(
+                isinstance(result, MethodResult) and "history_incomplete" not in result.warnings
+                for _, result in all_node_results
+            )
         )
+        if not history_complete:
+            timing_ms = []
         node_results = (
             [
                 _snapshot_node_result(node_id, chain.get_node(node_id).method_fqn, result)
                 for node_id, result in all_node_results
             ]
-            if history_complete
+            if all(isinstance(result, MethodResult) for _, result in all_node_results)
             else []
         )
 
@@ -530,6 +725,7 @@ class CheckpointingChainExecutor:
             execution_digest=execution_digest,
             node_results=node_results,
             history_complete=history_complete,
+            identity_snapshot=identity_snapshot,
         )
         try:
             chk.save(path)
@@ -561,6 +757,180 @@ class CheckpointingChainExecutor:
 # ---------------------------------------------------------------------------
 
 
+def _source_identity(value: Any, *, strict: bool) -> Any:
+    try:
+        return implementation_identity_projection(value, strict=strict)
+    except SourceIdentityUnavailableError as exc:
+        raise CheckpointIdentityError("Strict checkpoint " + str(exc)) from exc
+
+
+def _checkpoint_scope() -> dict[str, str | None]:
+    tenant = get_current_tenant_id_or_none()
+    cell = get_current_cell_id()
+    access = get_current_access_scope_or_none()
+    if access is not None:
+        if tenant is not None and tenant != access.tenant_id:
+            raise CheckpointIdentityError(
+                "Active checkpoint tenant scope disagrees with access scope."
+            )
+        if cell is not None and access.cell_id is not None and cell != access.cell_id:
+            raise CheckpointIdentityError(
+                "Active checkpoint cell scope disagrees with access scope."
+            )
+        tenant = tenant or access.tenant_id
+        cell = cell if cell is not None else access.cell_id
+    if cell is not None and tenant is None:
+        raise CheckpointIdentityError("Checkpoint cell scope lacks a tenant.")
+    return {"tenant_id": tenant, "cell_id": cell}
+
+
+def _capture_execution_identity(
+    chain: Any,
+    registry: MethodRegistry | _ExecutionMethods,
+    context: CheckpointArtifactContext | None,
+    store: ArtifactStore | None,
+    *,
+    seed: int,
+) -> dict[str, Any]:
+    strict = context is not None
+    methods: dict[str, Any] = {}
+    for node_id in chain.execution_order:
+        fqn = chain.get_node(node_id).method_fqn
+        if fqn in methods:
+            continue
+        method = registry.get(fqn)
+        methods[fqn] = _method_identity(method, fqn, strict=strict, seed=seed)
+    snapshot: dict[str, Any] = {
+        "profile": "artifact-source-v1" if strict else "legacy-request-source-v1",
+        "methods": methods,
+    }
+    if context is None:
+        return snapshot
+    if store is None:
+        raise CheckpointIdentityError("Artifact context requires a guarded artifact store.")
+    # Copy/validate nested mutable ref maps before reads; a frozen Pydantic
+    # model alone does not freeze its maps or the individual ArtifactRefs.
+    context = _validated_artifact_context(context)
+    if not set(context.cache_refs).issubset(set(chain.execution_order)):
+        raise CheckpointIdentityError(
+            "Checkpoint cache reference does not name a chain occurrence."
+        )
+    snapshot["scope"] = _checkpoint_scope()
+    snapshot["python"] = sys.version
+    snapshot["artifacts"] = {}
+    groups = {
+        "input_refs": context.input_refs,
+        "config_refs": context.config_refs,
+        "dependency_refs": context.dependency_refs,
+        "cache_refs": {str(key): ref for key, ref in context.cache_refs.items()},
+        "origin_ref": {} if context.origin_ref is None else {"origin": context.origin_ref},
+    }
+    for group, refs in groups.items():
+        resolved = {}
+        for name, ref in sorted(refs.items()):
+            if ref.manifest_profile_sha256 is None:
+                raise CheckpointIdentityError(
+                    f"Exact selected manifest view is required: {group}/{name}"
+                )
+            try:
+                data = store.get_bytes(ref)
+                manifest = store.get_manifest(ref)
+                content_hash = hashlib.sha256(data).hexdigest()
+                if (
+                    content_hash != ref.artifact_id.hex
+                    or manifest.artifact_id != ref.artifact_id
+                    or manifest.integrity.sha256 != content_hash
+                    or manifest.byte_size != len(data)
+                    or manifest.kind != ref.kind
+                    or manifest.media_type != ref.media_type
+                    or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+                ):
+                    raise CheckpointIdentityError(
+                        f"Artifact bytes or selected manifest disagree: {group}/{name}"
+                    )
+            except CheckpointIdentityError:
+                raise
+            except Exception as exc:
+                raise CheckpointIdentityError(
+                    f"Guarded artifact identity read failed: {group}/{name}: {type(exc).__name__}"
+                ) from exc
+            resolved[name] = {
+                "ref": list(artifact_ref_identity_key(ref)),
+                "manifest_profile": artifact_manifest_profile_projection(manifest),
+                "content_sha256": content_hash,
+            }
+        snapshot["artifacts"][group] = resolved
+    if snapshot["scope"] != _checkpoint_scope():
+        raise CheckpointIdentityError("Active scope changed during artifact identity reads.")
+    return snapshot
+
+
+def _validated_artifact_context(context: CheckpointArtifactContext) -> CheckpointArtifactContext:
+    try:
+        return CheckpointArtifactContext.model_validate(context.model_dump(mode="python"))
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise CheckpointIdentityError("Artifact context is not a valid typed declaration.") from exc
+
+
+def _method_identity(method: type, fqn: str, *, strict: bool, seed: int) -> dict[str, Any]:
+    signature = getattr(method, "signature", None)
+    digest = getattr(signature, "stable_digest", None)
+    if strict and (digest is None or not callable(getattr(method, "pure_step", None))):
+        raise CheckpointIdentityError(f"Current method ABI or implementation is unavailable: {fqn}")
+    entry = {
+        "signature_digest": digest() if digest is not None else None,
+        "class_source": _source_identity(method, strict=strict),
+        "callbacks": {
+            name: _source_identity(callback, strict=strict)
+            for name in (
+                "pure_step",
+                "materialize_input",
+                "dematerialize_output",
+                "postprocess_output",
+            )
+            if callable(callback := getattr(method, name, None))
+        },
+    }
+    if strict:
+        posture = capture_backend_runtime_fingerprint(
+            signature.backend, method_class=method, seed=seed
+        )
+        if not posture.available:
+            raise CheckpointIdentityError(f"Current backend identity is unavailable: {fqn}")
+        if any(
+            not capture_versions(base_packages=(), runtime_stack=(package,))
+            for package in posture.runtime_stack
+        ):
+            raise CheckpointIdentityError(
+                f"Declared runtime dependency version is unavailable: {fqn}"
+            )
+        entry["runtime"] = {
+            "backend": posture.backend.value,
+            "runtime_stack": list(posture.runtime_stack),
+            "library_versions": dict(posture.library_versions),
+            "execution_device": posture.execution_device,
+            "runtime_backend": posture.runtime_backend,
+            "route_key": dict(posture.route_key),
+            "determinism_tier": None
+            if posture.determinism_tier is None
+            else posture.determinism_tier.value,
+        }
+    return entry
+
+
+def _validate_dispatch_identity(
+    method: type, fqn: str, snapshot: dict[str, Any], *, seed: int
+) -> None:
+    """Fence actual source/scope around dispatch without rereading large CAS inputs."""
+    if (
+        _method_identity(method, fqn, strict=True, seed=seed) != snapshot["methods"][fqn]
+        or _checkpoint_scope() != snapshot["scope"]
+    ):
+        raise CheckpointIdentityError(
+            "Strict checkpoint identity changed during execution or dispatch."
+        )
+
+
 def _compute_chain_digest(chain: Any) -> str:
     """SHA-256 of the execution-order FQN list."""
     fqns = []
@@ -576,6 +946,7 @@ def _compute_execution_digest(
     initial_state: Mapping[str, Any],
     params_per_node: Mapping[UUID, Mapping[str, Any]],
     seed: int,
+    identity_snapshot: Mapping[str, Any] | None = None,
 ) -> str:
     """Bind a checkpoint to the effective execution request.
 
@@ -663,6 +1034,7 @@ def _compute_execution_digest(
             },
             "initial_state": dict(initial_state),
             "seed": seed,
+            "identity_snapshot": identity_snapshot,
         }
     )
 
@@ -817,16 +1189,6 @@ def _restore_bound_payload(value: Any) -> float | tuple[float, ...] | None:
     return float(value)
 
 
-def _checkpoint_generation(path: Path, state: Mapping[str, Any]) -> str | None:
-    """Return a unique sidecar generation when a checkpoint path is reused."""
-    if path.exists():
-        return uuid4().hex
-    for sidecar_name in _legacy_sidecar_names(state, path.stem).values():
-        if (path.parent / sidecar_name).exists():
-            return uuid4().hex
-    return None
-
-
 @contextmanager
 def _checkpoint_write_lock(path: Path) -> Iterator[None]:
     """Serialize writers for one manifest without deleting a peer generation."""
@@ -854,15 +1216,17 @@ def _iter_array_paths(value: Any, path: tuple[str, ...] = ()):
 
 def _legacy_sidecar_names(state: Mapping[str, Any], stem: str) -> dict[tuple[str, ...], str]:
     """Build the historical flat names used by first-generation checkpoints."""
-    return {
-        path: f"{stem}_{'_'.join(path)}.npy" for path in _iter_array_paths(state)
-    }
+    return {path: f"{stem}_{'_'.join(path)}.npy" for path in _iter_array_paths(state)}
 
 
 def _encoded_sidecar_name(stem: str, path: tuple[str, ...]) -> str:
-    encoded = base64.urlsafe_b64encode(
-        json.dumps(list(path), ensure_ascii=True, separators=(",", ":")).encode("utf-8")
-    ).decode("ascii").rstrip("=")
+    encoded = (
+        base64.urlsafe_b64encode(
+            json.dumps(list(path), ensure_ascii=True, separators=(",", ":")).encode("utf-8")
+        )
+        .decode("ascii")
+        .rstrip("=")
+    )
     return f"{stem}__{encoded}.npy"
 
 
@@ -889,11 +1253,7 @@ def _serialise_state(
     legacy_values = list(legacy_names.values())
     use_encoded = force_encoded or len(legacy_values) != len(set(legacy_values))
     sidecar_names = {
-        path: (
-            _encoded_sidecar_name(stem, path)
-            if use_encoded
-            else legacy_name
-        )
+        path: (_encoded_sidecar_name(stem, path) if use_encoded else legacy_name)
         for path, legacy_name in legacy_names.items()
     }
     sidecars: dict[str, np.ndarray] = {}
@@ -911,9 +1271,15 @@ def _serialise_state(
         if isinstance(value, (bool, int, float, str, type(None))):
             return value
         if isinstance(value, Mapping):
-            return {
-                key: encode(child, path + (str(key),)) for key, child in value.items()
-            }
+            if any(not isinstance(key, str) for key in value):
+                raise CheckpointSerializationError(
+                    "Checkpoint mapping keys must be strings at " + repr(path)
+                )
+            if "__npy_ref__" in value:
+                raise CheckpointSerializationError(
+                    "Checkpoint mapping uses reserved array reference tag at " + repr(path)
+                )
+            return {key: encode(child, path + (str(key),)) for key, child in value.items()}
         if isinstance(value, (list, tuple)):
             return [encode(child, path + (str(index),)) for index, child in enumerate(value)]
         try:
@@ -941,9 +1307,7 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
         try:
             array = np.load(sidecar_path, allow_pickle=False)
         except (EOFError, OSError, ValueError) as exc:
-            raise CheckpointLoadError(
-                f"Checkpoint sidecar is unreadable: {sidecar_path}"
-            ) from exc
+            raise CheckpointLoadError(f"Checkpoint sidecar is unreadable: {sidecar_path}") from exc
         if not isinstance(array, np.ndarray):
             raise CheckpointLoadError(f"Checkpoint sidecar is not a NumPy array: {sidecar_path}")
         expected_shape = payload.get("__npy_shape__")
@@ -958,9 +1322,7 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
                 f"Checkpoint sidecar content binding is missing: {sidecar_path}"
             )
         if list(array.shape) != expected_shape or array.dtype.str != expected_dtype:
-            raise CheckpointLoadError(
-                f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}"
-            )
+            raise CheckpointLoadError(f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}")
         if _array_content_digest(array) != expected_digest:
             raise CheckpointLoadError(f"Checkpoint sidecar content mismatch: {sidecar_path}")
         return array
@@ -973,7 +1335,11 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
 
 def _resolve_sidecar_path(base_dir: Path, payload: Mapping[str, Any]) -> Path:
     """Resolve a sidecar only within the checkpoint directory, without links."""
-    reference = payload.get("__npy_ref__")
+    return _resolve_checkpoint_member_path(base_dir, payload.get("__npy_ref__"))
+
+
+def _resolve_checkpoint_member_path(base_dir: Path, reference: Any) -> Path:
+    """Admit a snapshot or array only within its owning directory, without links."""
     if not isinstance(reference, str) or not reference:
         raise CheckpointLoadError("Checkpoint sidecar reference must be a non-empty string")
     relative = Path(reference)
@@ -1015,13 +1381,21 @@ def _atomic_save_numpy(tmp_path: Path, final_path: Path, arr: np.ndarray) -> Non
     _fsync_dir(final_path.parent)
 
 
-def _atomic_write_bytes(tmp_path: Path, final_path: Path, data: bytes) -> None:
+def _atomic_write_bytes(
+    tmp_path: Path,
+    final_path: Path,
+    data: bytes,
+    *,
+    on_publish: Callable[[], None] | None = None,
+) -> None:
     tmp_path.parent.mkdir(parents=True, exist_ok=True)
     with tmp_path.open("wb") as fh:
         fh.write(data)
         fh.flush()
         os.fsync(fh.fileno())
     tmp_path.replace(final_path)
+    if on_publish is not None:
+        on_publish()
     _fsync_dir(final_path.parent)
 
 

@@ -1,0 +1,10 @@
+........................................................................ [ 40%]
+........................................................................ [ 81%]
+.................................                                        [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_retry.py: 43 warnings
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=148982) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+177 passed, 43 warnings in 19.42s

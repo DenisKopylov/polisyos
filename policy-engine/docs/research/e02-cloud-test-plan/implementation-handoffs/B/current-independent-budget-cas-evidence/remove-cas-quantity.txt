@@ -1,0 +1,16 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[same_size] _
+tests/unit/core/artifacts/test_put_consumer_oracle.py:77: in test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer
+    with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError'>
+_ test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[short] _
+tests/unit/core/artifacts/test_put_consumer_oracle.py:77: in test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer
+    with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError'>
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_put_consumer_oracle.py::test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[same_size]
+FAILED tests/unit/core/artifacts/test_put_consumer_oracle.py::test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[short]
+2 failed in 0.14s

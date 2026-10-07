@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/composition_ambiguous_consumer_probe.py"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "8886f198f2e031277448f762cdf19d157ea4ce1b",
+  "tree": "c5598f09c42a4f6a143be594b2298c6b2ae1fef8",
+  "head_after": "8886f198f2e031277448f762cdf19d157ea4ce1b",
+  "wall_s": 1.1964604929962661,
+  "process_rusage_maxrss_kib": 135212,
+  "exit_code": 1,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current888-composition-ambiguity054.txt",
+  "output_sha256": "52fb8e4537c0b0321d8d38bcd274bd38f26344e6a56f13e2c0df209520e38bf0",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

@@ -1,0 +1,421 @@
+{
+  "schema": "policyos.e02.foreign_oracle_review.v1",
+  "reviewer": "/root/run_writer",
+  "review_kind": "read-only full source and deciding data review; no runtime replay",
+  "source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "DUR": {
+    "test_ref": {
+      "git_sha": "f4e8422232ce3b61ef28c5c1928a65df5038a3fe",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+      "bytes": 13157,
+      "sha256": "cfd4fcc24702ab87c8411f91dd83c5a5d520f279888559024b5325af67d912b7",
+      "git_blob": "407c58f7ac7639e9eba517347bbbfeda09b70627"
+    },
+    "author_handoff": {
+      "git_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery.json",
+      "bytes": 29809,
+      "sha256": "22fbee9975f390fb5c0627fb6ed3c1d77734d3df3cf5c09dcf1f8853fb35066e",
+      "git_blob": "0afce1c1d300484196c7d28d353abb98a95795ab"
+    },
+    "deciding_refs": [
+      {
+        "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/native.txt",
+        "bytes": 151711,
+        "sha256": "30ef600084246e319ceb5e59104e75c9e618ef89abf4cbf25e099bf684ea7459",
+        "git_blob": "8848bb11a8b7af6ee5bc552b63a05f8fba2ed6ae"
+      },
+      {
+        "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/native.xml",
+        "bytes": 628,
+        "sha256": "6237d351f6f4a037215ee9625b67e104e9bd2dd2f3084182dd14e64b4c9677c1",
+        "git_blob": "adbf40c1d6b4205c5bb7a0f61013b03847f551d7"
+      },
+      {
+        "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/wrapper.json",
+        "bytes": 2120,
+        "sha256": "edc298534014d9221a575dfab2032e5ff386ab81902a6efb1dc3050a33e203a3",
+        "git_blob": "9fd77fd46edf1e62e9a7fc253382bf4d2b1f800d"
+      },
+      {
+        "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal.txt",
+        "bytes": 33301,
+        "sha256": "bca16bdb598fff51475e64ab2795165a16468bc65a9262464d10b8c0829a52e5",
+        "git_blob": "b1148357843dcd9cd493b13c17a5c24ed2def406"
+      },
+      {
+        "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal.xml",
+        "bytes": 4037,
+        "sha256": "b12da257f25ce658d4443020dccec250bcbcef2380c453acc45623e7f521181a",
+        "git_blob": "db54ae2d1e32e32c89679e83b9ec2a8e2c5ced68"
+      },
+      {
+        "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/removal-wrapper.json",
+        "bytes": 2279,
+        "sha256": "1211a3cdfa1654e12b2d2b67fe46dcb8cf132e777d61fd1a31151289513b3839",
+        "git_blob": "80367082a7046af2da7b0d03b68935a124e9737c"
+      },
+      {
+        "git_sha": "e246c3028d0ae19086db975c8a937cd411fe20ca",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery-evidence/source-inputs.json",
+        "bytes": 3707,
+        "sha256": "9a20f3029baacaa65117a889e437e65a3e17d41321e842e61c0ef09920f904c7",
+        "git_blob": "4b392df7dc4ffe8cdeacdfa46edd080d1ac4113a"
+      }
+    ],
+    "independently_recomputed_rows": {
+      "native": {
+        "actual_rows": [
+          {
+            "mode": "healthy",
+            "effect_physical_requests": 1,
+            "phase": [
+              "provider_in_flight"
+            ],
+            "reserved": {
+              "run": "0.00015000000000000001"
+            },
+            "caller_cancelled": false,
+            "owner_spent": {
+              "run": "0.02"
+            },
+            "owner_COMMITTED": 1,
+            "fresh_calls": 2,
+            "fresh_pending": 0,
+            "fresh_receipts": 2,
+            "freshstatus": "accepted",
+            "refusal_bytes_unchanged": false,
+            "fresh_source_origins": 7
+          },
+          {
+            "mode": "cancel",
+            "effect_physical_requests": 1,
+            "phase": [
+              "provider_in_flight"
+            ],
+            "reserved": {
+              "run": "0.00015000000000000001"
+            },
+            "caller_cancelled": true,
+            "owner_spent": {
+              "run": "0.02"
+            },
+            "owner_COMMITTED": 1,
+            "fresh_calls": 2,
+            "fresh_pending": 0,
+            "fresh_receipts": 2,
+            "freshstatus": "accepted",
+            "refusal_bytes_unchanged": false,
+            "fresh_source_origins": 7
+          },
+          {
+            "mode": "kill",
+            "effect_physical_requests": 1,
+            "phase": [
+              "provider_in_flight"
+            ],
+            "reserved": {
+              "run": "0.00015000000000000001"
+            },
+            "caller_cancelled": false,
+            "owner_spent": null,
+            "owner_COMMITTED": null,
+            "fresh_calls": 1,
+            "fresh_pending": 1,
+            "fresh_receipts": 0,
+            "freshstatus": "refused",
+            "refusal_bytes_unchanged": true,
+            "fresh_source_origins": 7
+          }
+        ],
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 0
+      },
+      "removal": {
+        "actual_rows": [
+          {
+            "mode": "kill",
+            "effect_physical_requests": 1,
+            "phase": [
+              "provider_in_flight"
+            ],
+            "reserved": {
+              "run": "0.00015000000000000001"
+            },
+            "caller_cancelled": false,
+            "owner_spent": null,
+            "owner_COMMITTED": null,
+            "fresh_calls": 2,
+            "fresh_pending": 2,
+            "fresh_receipts": 0,
+            "freshstatus": "refused",
+            "refusal_bytes_unchanged": false,
+            "fresh_source_origins": 7
+          }
+        ],
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0
+      }
+    },
+    "verdict": "NONBLOCKING for finite process interruption and owned post-cancellation completion; not powerloss, physical invoice, stopped-provider or formalclosure",
+    "negative_adequacy": "Removal reaches physical SDK2/newintent2/bytesmutation even though eventual LLMAccountingError refuses; exception type alone is an inadequate proxy."
+  },
+  "observer": {
+    "source_refs": [
+      {
+        "git_sha": "72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "bytes": 22420,
+        "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104",
+        "git_blob": "1a470d4824e4719d31b4445eed1687cc1c8537aa"
+      },
+      {
+        "git_sha": "72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-journal-probe.py",
+        "bytes": 6034,
+        "sha256": "f934af2505ca7860b6271d8bfc5c6cdd3fe7e9522c65801c1ee1556b80a9777d",
+        "git_blob": "853a20787c43d3528b7bc88b47ef13d34cbe60ee"
+      }
+    ],
+    "actual_probe_files": [
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/oracle.json",
+        "bytes": 3596,
+        "sha256": "5f4caa290be5998bec369f1a0f942b0983237c4483f63378b65a12b6728fe718"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/current_cohort_inventory.py",
+        "bytes": 22420,
+        "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+        "bytes": 135,
+        "sha256": "fa51a8abe4f1b9ff320980fe1a32f197b1ae5609bedc49155a0fd210aa3ed5bd"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/stdout.txt",
+        "bytes": 1094,
+        "sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/inventory.json",
+        "bytes": 7725,
+        "sha256": "748140a60fbe78f8c6ab395530ae05227eb9149fc861da1e055b82c8ab675251"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/stdout.txt",
+        "bytes": 1102,
+        "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/inventory.json",
+        "bytes": 7606,
+        "sha256": "9994c04b2f709867a456b377dccd5ae172a6bd59433545fb18fa07a5147fdf3d"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/reports.jsonl",
+        "bytes": 3015,
+        "sha256": "56262daf90bc7a13a9de1ff7042564fc783588d7f75067ff2e898164af2bd7e2"
+      }
+    ],
+    "actual_reports": [
+      {
+        "nodeid": ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_first",
+        "outcome": "passed",
+        "location": [
+          ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+          1,
+          "test_first"
+        ],
+        "longrepr_type": "NoneType",
+        "longrepr_utf8_bytes": 0,
+        "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+        "when": "setup",
+        "duration": 0.00034459700691513717,
+        "start": 1791358717.1567225,
+        "stop": 1791358717.157067,
+        "classification": "passed",
+        "has_wasxfail": false,
+        "evaluated_xfail": false,
+        "evaluated_xfail_strict": null,
+        "call_had_exception": false
+      },
+      {
+        "nodeid": ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_first",
+        "outcome": "passed",
+        "location": [
+          ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+          1,
+          "test_first"
+        ],
+        "longrepr_type": "NoneType",
+        "longrepr_utf8_bytes": 0,
+        "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+        "when": "call",
+        "duration": 0.00018206200911663473,
+        "start": 1791358717.157334,
+        "stop": 1791358717.157516,
+        "classification": "passed",
+        "has_wasxfail": false,
+        "evaluated_xfail": false,
+        "evaluated_xfail_strict": null,
+        "call_had_exception": false
+      },
+      {
+        "nodeid": ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_first",
+        "outcome": "passed",
+        "location": [
+          ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+          1,
+          "test_first"
+        ],
+        "longrepr_type": "NoneType",
+        "longrepr_utf8_bytes": 0,
+        "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+        "when": "teardown",
+        "duration": 0.00012189897825010121,
+        "start": 1791358717.157785,
+        "stop": 1791358717.157907,
+        "classification": "passed",
+        "has_wasxfail": false,
+        "evaluated_xfail": false,
+        "evaluated_xfail_strict": null,
+        "call_had_exception": false
+      },
+      {
+        "nodeid": ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_explicit_death",
+        "outcome": "passed",
+        "location": [
+          ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+          3,
+          "test_explicit_death"
+        ],
+        "longrepr_type": "NoneType",
+        "longrepr_utf8_bytes": 0,
+        "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+        "when": "setup",
+        "duration": 0.00010274298256263137,
+        "start": 1791358717.1581244,
+        "stop": 1791358717.1582274,
+        "classification": "passed",
+        "has_wasxfail": false,
+        "evaluated_xfail": false,
+        "evaluated_xfail_strict": null,
+        "call_had_exception": false
+      }
+    ],
+    "oracle": {
+      "source_sha": "72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+      "source_tree": "38bca96997cacfc24f985a1a74f74aa1018f8bbf",
+      "instrument_sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104",
+      "oracle": "actual four phase reports before explicit process death; missing journal control retains none",
+      "finding_closure": false,
+      "claim_boundary": "Process-death flushed report prefix, not power-loss durability or whole-session completion",
+      "runs": [
+        {
+          "label": "journal",
+          "command": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "-m",
+            "pytest",
+            "-p",
+            "current_cohort_inventory",
+            "-vv",
+            "-o",
+            "addopts=",
+            "-o",
+            "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/cache",
+            "--rootdir",
+            "/workspace/e02-B-current-coordination",
+            "--basetemp",
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/pytest",
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination",
+          "exit": -9,
+          "stdout_bytes": 1094,
+          "stdout_sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d",
+          "stderr_bytes": 0,
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "collected_cases": 2,
+          "preserved_runtime_phases": 4,
+          "completed_cases": 1,
+          "incomplete_case": "test_explicit_death",
+          "terminal_status_partition": "not_established",
+          "signal_sender": "explicit test os.kill(self, SIGKILL)",
+          "artifact_directory": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal"
+        },
+        {
+          "label": "without-journal",
+          "command": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "-m",
+            "pytest",
+            "-p",
+            "current_cohort_inventory",
+            "-vv",
+            "-o",
+            "addopts=",
+            "-o",
+            "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/cache",
+            "--rootdir",
+            "/workspace/e02-B-current-coordination",
+            "--basetemp",
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/pytest",
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination",
+          "exit": -9,
+          "stdout_bytes": 1102,
+          "stdout_sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+          "stderr_bytes": 0,
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "collected_cases": 2,
+          "preserved_runtime_phases": 0,
+          "completed_cases": "not_established",
+          "incomplete_case": "test_explicit_death",
+          "terminal_status_partition": "not_established",
+          "signal_sender": "explicit test os.kill(self, SIGKILL)",
+          "artifact_directory": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal"
+        }
+      ]
+    },
+    "verdict": "NONBLOCKING for serial actual flushed native phase prefix; no completed session/statuspartition",
+    "source_review": "Ignored root-contained O_EXCL path, optional journal preserves outcomes; worker suffix prevents intended filename conflict; append write+flush each actual logreport. Final inventory is separately fsynced. Journal itself is not fsynced and makes no powerloss claim.",
+    "limitations": [
+      "Native probe serial; xdist worker suffix source-reviewed, not executed.",
+      "Observed flush surviving explicit SIGKILL is process-death preservation only; partial/truncated lastrecord remainspossible if interruption occursduringwrite.",
+      "Missingjournal control reports0; this doesnot claim test_first didnotrun.",
+      "Probe fixture itself sends SIGKILL, unlike old wholeB unknownsender. No productfindingclosure.",
+      "Native plugins/conftest/environment arenot universalcaptured readsets; only declared observer fixture/process outputs reconciled."
+    ]
+  },
+  "formal_closure": false,
+  "predicate_basis_by_quantity": {
+    "localsource/fullbytes/reportcounts/physicalJSONrows": "recomputed",
+    "externalbilling/powerloss/fullBsessioncompletion": "not_established"
+  }
+}

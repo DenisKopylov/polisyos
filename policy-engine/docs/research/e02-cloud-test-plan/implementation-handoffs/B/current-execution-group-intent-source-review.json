@@ -1,0 +1,261 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "current-execution-group-intent-source-review",
+  "reviewer": "cmp_res_probe",
+  "author": "exe_state_writer",
+  "branch": "codex/e02-B-current-composition",
+  "related_finding_ids": [],
+  "closure_ids": [],
+  "formal_finding_closure": false,
+  "reviewer_workspace_base_sha": "8d01c7b07976ae1b500c8c07e73a120fdebb82dd",
+  "reviewer_workspace_base_tree": "1c4c383dfada0ad1e74abb367ed331bcb13719af",
+  "delta_base_sha": "73da66660015866691248e8414ae03c26c3be298",
+  "delta_base_tree": "0385bde442e5d4d0060a5dfc0eab1a07b3054040",
+  "reviewed_source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+  "reviewed_tree_sha": "b5bddf937eb2ebe30b5d2e1f34028a3ee9d39431",
+  "prior_full_graph_review": {
+    "reviewed_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+    "receipt_sha": "9df976bf7151914333b05a8a9a7513265da4fa68",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-execution-graph-source-review.json",
+    "qualification": "Prior source-only finite graph review remains separate; this receipt reviews tiny delta and relevant complete canonical/replay context. No prior runtime inherited."
+  },
+  "source_custody": {
+    "kind": "local_immutable_git_objects",
+    "author_frozen_source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+    "source_remote_ancestry": "not_established_at_this_review",
+    "qualification": "Author supplies frozen source and normal-push successor is pending. All deciding source bytes/tree/blob independently resolved locally. This does not attest remote source publication."
+  },
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py"
+  ],
+  "changed_bindings": [
+    {
+      "base": {
+        "source_sha": "73da66660015866691248e8414ae03c26c3be298",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+        "git_blob": "f28ec3a6c15f559e4f261e0d3c6483537333a81a",
+        "bytes": 5484,
+        "sha256": "0e1d67e854a059105584ab4f3d7f903c4103f96b77e786ce310cc3a8f46b538b"
+      },
+      "candidate": {
+        "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+        "git_blob": "02999c512a23e60b7cf7cd0e3938627082643b7e",
+        "bytes": 5584,
+        "sha256": "305183133560b78eb46fee16942fbbd5382d279c2a0bb744c7c08de70ae05d27"
+      }
+    },
+    {
+      "base": {
+        "source_sha": "73da66660015866691248e8414ae03c26c3be298",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "git_blob": "db5a1be4d840477ed7da7da6bea82375e23b95f3",
+        "bytes": 38028,
+        "sha256": "0135438ec1ea934bade609dc8ed5ccce5d6e7166204e651b24f3508ad1267b3f"
+      },
+      "candidate": {
+        "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "git_blob": "6f5bd398af2b70cae72754a782e224b990638541",
+        "bytes": 38234,
+        "sha256": "70c99ff156d658302be6dfbc04fcaf875cb63bb822641eeec03c9924f25cd03b"
+      }
+    },
+    {
+      "base": {
+        "source_sha": "73da66660015866691248e8414ae03c26c3be298",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "git_blob": "1632974aae1a84f0e96c6f42a805de502cade937",
+        "bytes": 28087,
+        "sha256": "ee90f8936dfa1e8bcbb55aa5b11856a5200fd5db762e79bed40d3df382068a34"
+      },
+      "candidate": {
+        "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "git_blob": "0d90d0c94ec7ccc58e1e9f916df8f4c2beb7ce0f",
+        "bytes": 32478,
+        "sha256": "8caba8a940ecd756bbd47f7fb97e7695c8e45fc3cd258c392170b0ae2cdfd53c"
+      }
+    }
+  ],
+  "context_source_bindings": [
+    {
+      "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "git_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "bytes": 10154,
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+    },
+    {
+      "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    {
+      "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "git_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    },
+    {
+      "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "git_blob": "854aec5c890f52b20bacce7461c532b8d064d3ff",
+      "bytes": 34274,
+      "sha256": "3f8cb9bef47dbaf1a242fda929a4d71f4276ca4c0761b7392fef34e80c81e996"
+    },
+    {
+      "source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "git_blob": "5a5eb75880148ddd4cb7d9824085a96f2b22dedb",
+      "bytes": 23952,
+      "sha256": "527e5f610530165ffc5275eda52d3595a74e93c600d3dfbaf78d8c5ca1c3180c"
+    }
+  ],
+  "verified_scope": {
+    "tiny_delta_complete_paths": 3,
+    "tiny_delta_production_paths": 1,
+    "context_base_candidate_identical": true,
+    "prior_a175_to_target_entire_production_changed_paths": [
+      "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py"
+    ],
+    "bound_additional_context_paths": 5,
+    "read_scope_by_context": {
+      "policy-engine/src/polisyos/common/canonical.py": "entire shared canonical encoder/decoder/spec source",
+      "policy-engine/src/polisyos/core/canon/canon_json.py": "entire facade/profile source",
+      "policy-engine/src/polisyos/core/canon/__init__.py": "entire public exports source",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py": "complete related DTO/spec/proof reconstruction and read/put/get/load_entry admission method contexts; original full graph review separate",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py": "complete related grouped current-target dedup and staged-write/value-restore contexts; original full graph review separate"
+    }
+  },
+  "verdict": "NO_SOURCE_BLOCKER_WITHIN_EXISTING_TYPED_CANONICAL_PROFILE",
+  "runtime_verdict": "UNRUN_BY_THIS_REVIEWER",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Manual source contracts and exact Git identity only; no runtime semantic property/closure inferred.",
+  "scope": "Complete three-path base73da to frozened13 delta read. StateMutation DTO/group validator and actual cache replay/admission/physical-target dedup context reviewed; entire common canonical implementation, complete Core facade/export and CanonSpec read. No producer-module import, tests, probes, collection or gates executed. No helpers/worktrees/author source writes.",
+  "complete_intent_fields": [
+    "operation",
+    "value",
+    "value_kind",
+    "index",
+    "start",
+    "stop",
+    "step",
+    "target_presence",
+    "target_kind"
+  ],
+  "excluded_intent_fields": [
+    "path",
+    "operation_group"
+  ],
+  "review_matrix": [
+    {
+      "property": "Generic complete group identity",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:442",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:139"
+      ],
+      "conclusion": "Each grouped operation model_dump includes every existing validated DTO intent field; only alias path and operation_group labels are excluded. The first canonical byte sequence per strict nonnegative group is retained and every peer is compared against it. Any mismatch raises existing ValueError. No bool-specific/nested-case branch or field allowlist weakens the comparison. Null-group operations retain existing ungrouped behavior.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "Scalar and nested bool/int distinctions",
+      "refs": [
+        "policy-engine/src/polisyos/common/canonical.py:185",
+        "policy-engine/src/polisyos/common/canonical.py:95",
+        "policy-engine/src/polisyos/common/canonical.py:208",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:31"
+      ],
+      "conclusion": "Canonical dispatch checks bool before int, preserving true/false versus integer tokens. Every mapping value and sequence element recurses through the same encoder, so nested False/0 intent differences remain different byte sequences. Group equality is bytes equality and does not fall back to recursive Python value equality.",
+      "runtime": "UNRUN; source inference only"
+    },
+    {
+      "property": "Float/null and full profile configuration",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:31",
+        "policy-engine/src/polisyos/common/canonical.py:49",
+        "policy-engine/src/polisyos/common/canonical.py:189",
+        "policy-engine/src/polisyos/common/canonical.py:239"
+      ],
+      "conclusion": "Intent spec overrides forbid_floats=False and exclude_none=False while retaining sorted keys, compact separators, ensure_ascii=False, forbid_nan_inf=True and depth128. Integers remain JSON integers; floats use existing typed float representation. Null values are retained in intent dictionaries and nested supported model/dataclass encoding. Encoding uses allow_nan=False.",
+      "qualification": "Existing canonical float normalization equates signed float zero; this is established Core profile identity, not all Python bit/object identity. No new tag normalization or bool/int coercion was added.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "Same existing canonical owner, reserved tags and supported boundary",
+      "refs": [
+        "policy-engine/src/polisyos/core/canon/canon_json.py:1",
+        "policy-engine/src/polisyos/core/canon/__init__.py:1",
+        "policy-engine/src/polisyos/common/canonical.py:95",
+        "policy-engine/src/polisyos/common/canonical.py:254"
+      ],
+      "conclusion": "New group check delegates existing public Core to_canonical_bytes; common algorithm and typed-tag set are unchanged. String mapping keys are required, unknown reserved _type fails, supported Core values use existing canonical tags. There is no from_canonical_obj roundtrip in the comparison, no new numeric casts/tag decoding/value_kind rewriting, and no per-witness coercion.",
+      "qualification": "Intent identity is the validated decoded DTO in the existing Core reserved-tag profile, not arbitrary raw JSON/Python class identity or a promise that every unsupported object is serializable. Existing DTO validation may already normalize non-value typed fields; this delta does not widen validation.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "Refusal before cache replay admission",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:560",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:733"
+      ],
+      "conclusion": "Existing _replay_proof_valid calls mutation_journal_from_operations before accepting proof; ValueError includes Core CanonViolation and rejects inconsistent/unsupported canonical intent. load_entry returns false before indexing a proof-invalid entry; get discards a proof-invalid entry before attaching its replay journal. Producer put and admitted journal reconstruction use this same validator. No cache proof/epoch/schema/algorithm migration or physical-target dedup code changes in tiny delta.",
+      "qualification": "Immutable CAS integrity and producer-shaped hashes remain separate from semantic same-intent admission. No physical artifact/runtime refusal actually executed by this reviewer.",
+      "runtime": "UNRUN"
+    },
+    {
+      "property": "Native companion and release contract",
+      "refs": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:620",
+        "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml:21"
+      ],
+      "conclusion": "Read all five new native parameter cases and complete actual producer/CAS/reopened-reader consumer body: sameFalse/sameNull positives, False0/nestedFalse0/intFloat negatives, integrity/proof recomputation distinct from semantic admission, healthy original ref preserved and current neighbor retained on successful replay. Release fragment describes complete typed canonical intent. Tests were read, not run or adopted as author runtime evidence.",
+      "runtime": "UNRUN"
+    }
+  ],
+  "checks": [
+    {
+      "kind": "independent_manual_source_review",
+      "target_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "outcome": "PASS",
+      "qualification": "SOURCE REVIEW ONLY; no runtime PASS or formal finding closure."
+    },
+    {
+      "kind": "source_identity_reconciliation",
+      "target_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "outcome": "PASS",
+      "qualification": "Exact tree/blob/byte hashes, complete changed paths, unchanged five contexts and only-state_branching production delta versus a175."
+    },
+    {
+      "kind": "runtime_probes_tests_gates",
+      "target_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "outcome": "UNRUN",
+      "reason": "Parent assigned source-only review; RUN owns unchanged real CAS malformed-group oracle."
+    }
+  ],
+  "parent_reported_negative_context": {
+    "status": "separate_parent_message_only_not_independent_deciding_output",
+    "description": "Parent reported prior actual valid-CAS malformed False/0 and nestedFalse/0 group oracle2FAIL plus healthy control3/3. These results are not reproduced, byte-bound, or inherited by this source review. RUN retains actual original and successor deciding packets."
+  },
+  "limitations": [
+    "No actual malformed artifact, CAS producer/readback or merge executed here. RUN supplies independent unchanged oracle at exact source.",
+    "All observations concern canonical validated DTO identity within existing finite Core profile, not arbitrary Python object identity or raw wire coercion proof.",
+    "No full cohort, static/type/architecture gate, child process or resource/readset closure claimed.",
+    "No own source edit, new test, helper agent, worktree or shared README mutation. Root owns shared README/generator/final-cohort acceptance."
+  ],
+  "pattern_pass": {
+    "P29": "No source-only/author runtime outcome becomes actual reviewer runtime PASS.",
+    "P35": "Complete tiny3-path delta and declared5-file source context identity retained.",
+    "P37": "Actual replay gate is read; payload integrity alone is not semantic group acceptance.",
+    "P38": "Typed canonical intent is labeled as validated profile identity, not raw artifact/object universality.",
+    "P40": "Generic group byte comparison through existing owner; no per-case bool/nested patch.",
+    "P41": "No inherited-red attribution or waiver."
+  },
+  "next_owner": "Root source acceptance and RUN exact unchanged CAS oracle; final frozen source/environment/cohort reconciliation remains independently required."
+}

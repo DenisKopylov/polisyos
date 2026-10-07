@@ -1,0 +1,17 @@
+Images space usage:
+
+REPOSITORY   TAG         IMAGE ID       CREATED       SIZE      SHARED SIZE   UNIQUE SIZE   CONTAINERS
+postgres     17-alpine   79bd7c99e923   2 weeks ago   297MB     0B            297.2MB       0
+
+Containers space usage:
+
+CONTAINER ID   IMAGE     COMMAND   LOCAL VOLUMES   SIZE      CREATED   STATUS    NAMES
+
+Local Volumes space usage:
+
+VOLUME NAME                        LINKS     SIZE
+e02-b38-pg-20261006-143b68a-data   0         0B
+
+Build cache usage: 0B
+
+CACHE ID   CACHE TYPE   SIZE      CREATED   LAST USED   USAGE     SHARED

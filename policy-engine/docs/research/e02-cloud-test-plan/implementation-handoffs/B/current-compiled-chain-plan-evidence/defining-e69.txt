@@ -1,0 +1,47 @@
+..........F........                                                      [100%]
+=================================== FAILURES ===================================
+____ test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement _____
+
+tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-e69/test_repeated_fqn_occurrences_0')
+
+    def test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement(tmp_path):
+        fixture = _chain()
+        composer = MethodComposer(registry=fixture.registry)
+        first = composer.add(fixture.classes[0].signature.fqn, factor=3)
+        dependent = composer.add(fixture.classes[1].signature.fqn, offset=5)
+        second = composer.add(fixture.classes[0].signature.fqn, factor=3)
+        original = composer.build()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = store_compiled_chain_plan(cas, CompiledChainPlan.from_chain(original))
+        restored = load_compiled_chain_plan(
+            FileSystemCAS(tmp_path / "cas"), ref, registry=fixture.registry
+        )
+        assert restored.dag.predecessors[dependent.id] == frozenset({first.id})
+        assert restored.get_node(first.id).instance_index == 0
+        assert restored.get_node(second.id).instance_index == 1
+        assert restored.execution_order == original.execution_order
+        result = restored.execute_heterogeneous(state={"x": 4}, registry=fixture.registry)
+        assert result.final_state["total"] == 17
+>       assert [name for name, _params in fixture.calls] == ["produce", "consume", "produce"]
+E       AssertionError: assert ['produce', '...e', 'consume'] == ['produce', '...e', 'produce']
+E         
+E         At index 1 diff: 'produce' != 'consume'
+E         Use -v to get more diff
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:206: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:22:35 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.produce@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+2026-10-06 21:22:35 [info     ] method_registered              backend=numpy fqn=tests.compiled_plan.consume@1.0.0 lazy=False namespace=tests.compiled_plan override=False tags=[] version=1.0.0
+2026-10-06 21:22:35 [info     ] chain_start                    total_nodes=3
+2026-10-06 21:22:35 [debug    ] method_dispatch_start          backend=numpy fqn=tests.compiled_plan.produce@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 21:22:35 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.06 fqn=tests.compiled_plan.produce@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 21:22:35 [debug    ] chain_node_complete            fqn=tests.compiled_plan.produce@1.0.0 node_index=1 total_nodes=3 wall_time_ms=0.0
+2026-10-06 21:22:35 [debug    ] method_dispatch_start          backend=numpy fqn=tests.compiled_plan.produce@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 21:22:35 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.03 fqn=tests.compiled_plan.produce@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 21:22:35 [debug    ] chain_node_complete            fqn=tests.compiled_plan.produce@1.0.0 node_index=2 total_nodes=3 wall_time_ms=0.0
+2026-10-06 21:22:35 [debug    ] method_dispatch_start          backend=numpy fqn=tests.compiled_plan.consume@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 21:22:35 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.48 fqn=tests.compiled_plan.consume@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 21:22:35 [debug    ] chain_node_complete            fqn=tests.compiled_plan.consume@1.0.0 node_index=3 total_nodes=3 wall_time_ms=0.0
+2026-10-06 21:22:35 [info     ] chain_complete                 total_nodes=3 total_wall_time_ms=69.34
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py::test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement

@@ -1,0 +1,122 @@
+{
+  "sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+    "--product-root",
+    "/workspace/e02-B-current-coordination/policy-engine",
+    "--uv",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "--suite",
+    "verify",
+    "--execute",
+    "--expected-source",
+    "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "--",
+    "--backend-only"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "inputs": {
+    "installed_wheel_profile": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/cohort-input-environment.json",
+    "installed_wheel_profile_sha256": "fa6946d8d1e9a0a0bfe92e7f5d461e0d166cdf09bec6b18f9d6c020b0dfd2bda",
+    "installed_wheel_inputs": {
+      "E02_LA057_WHEEL_PATH": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheels/policy_engine-0.1.0-py3-none-any.whl",
+      "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env/lib/python3.14/site-packages",
+      "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+      "E02_LA057_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env/bin/python",
+      "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+      "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+    },
+    "wheel_sha256": "1e7a013683f0343d058f3a30c8d3ca91b4218cba5b7fbc2438586bfcb7f884e7",
+    "postgres_private_dsn_file": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+    "postgres_driver_root": "/tmp/e02-B38-pg-profile",
+    "postgres_driver_distribution_profile": "Task-only psycopg and psycopg-binary 3.3.2; inherited 194-distribution environment unchanged",
+    "postgres_dsn_values": "Private credentials passed only to actual fixture consumers; omitted from public profiles",
+    "postgres_existing_optional_native_profile": "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; unavailable backend is a failure, not a silent skip"
+  },
+  "resources_before": {
+    "storage": {
+      "/workspace": {
+        "total": 33770192896,
+        "used": 32064724992,
+        "free": 0
+      },
+      "/tmp": {
+        "total": 9441349632,
+        "used": 7158001664,
+        "free": 2283347968
+      },
+      "/dev/shm": {
+        "total": 9441349632,
+        "used": 7115980800,
+        "free": 2325368832
+      }
+    },
+    "memory.events": "low 0\nhigh 0\nmax 469626\noom 15\noom_kill 11\noom_group_kill 0\n",
+    "memory.current": "16779927552\n",
+    "attribution": "observed counters; signal sender/causality not established"
+  },
+  "output_relocation": "deciding stdout/receipt in a NEW preserved /tmp namespace; canonical gate cwd/argv/assertions/backends unchanged",
+  "harness_environment_deltas": [
+    "omit former empty fresh tools PYTHONPATH suffix; no observer is loaded for these backend gates",
+    "explicit ordinary E02_REMOVE_PROTECTION=0 rather than ambient value"
+  ],
+  "selected_environment": {
+    "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_DUR_PROCESS_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+    "E02_DUR_PROCESS_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "E02_MONEY_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+    "E02_MONEY_SOURCE_SHA": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "E02_REMOVE_PROTECTION": "0"
+  },
+  "numeric_caps_absent": {
+    "OMP_NUM_THREADS": true,
+    "OPENBLAS_NUM_THREADS": true,
+    "MKL_NUM_THREADS": true,
+    "NUMEXPR_NUM_THREADS": true,
+    "VECLIB_MAXIMUM_THREADS": true,
+    "BLIS_NUM_THREADS": true
+  },
+  "launcher_sha256": "3fe86143a9b124b78d89fdafe42757d7f521680aea99de731e20ab2c5a6f82d9",
+  "utc_start": "2026-10-07T08:59:10.046506+00:00",
+  "child_pid": 768004,
+  "harness_state": "EXECUTED",
+  "exec_setup_error": null,
+  "exit_code": 1,
+  "process_rusage_maxrss_kib": 105008,
+  "wall_s": 1.3487424330087379,
+  "utc_end": "2026-10-07T08:59:11.395411+00:00",
+  "resources_after": {
+    "storage": {
+      "/workspace": {
+        "total": 33770192896,
+        "used": 32064724992,
+        "free": 0
+      },
+      "/tmp": {
+        "total": 9441349632,
+        "used": 7158022144,
+        "free": 2283327488
+      },
+      "/dev/shm": {
+        "total": 9441349632,
+        "used": 7115980800,
+        "free": 2325368832
+      }
+    },
+    "memory.events": "low 0\nhigh 0\nmax 470067\noom 15\noom_kill 11\noom_group_kill 0\n",
+    "memory.current": "17092521984\n",
+    "attribution": "observed counters; signal sender/causality not established"
+  },
+  "head_after": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "output_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/verify/stdout.txt",
+  "output_bytes": 11929,
+  "output_sha256": "aaef65cff6a336618cbf333c3dcb047379b0cd224600366bc7eb92d0b1c511cd"
+}

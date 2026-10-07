@@ -1,0 +1,324 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-worker-accounting-source-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "LLM-01"
+  ],
+  "finding_ids": [
+    "B65",
+    "B66"
+  ],
+  "slice_base_sha": "ad6ced47ba3262c7bd772a7d1d7f1641a6120a7a",
+  "implementation_commits": [
+    "af17567389e255ae561cf86db6f068e385b5a9da"
+  ],
+  "candidate_sha": "af17567389e255ae561cf86db6f068e385b5a9da",
+  "candidate_tree_sha": "c9c783825708867af0ffee19759475017cbafce6",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/author-base-control.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/author-base-control.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/author-check-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/author-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/review.json"
+  ],
+  "baseline_cells": [],
+  "baseline_cells_qualification": "Foreign source-contract review only. Exact historical navigation is retained by DUR c85 receipt /baseline_cells and its original3ec locators; no baseline summary or historical PASS is candidate evidence.",
+  "review_target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "review_target_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+  "foreign_source_base_sha": "90d2e869ae1e78b06932f8b2349848d41588def8",
+  "production_test_config_delta": "ZERO_DIFF in reviewer lane; seven documentation/data artifacts only",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.source.txt"
+      ],
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "git": "git version 2.52.0",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "profile": "Git immutable source/stdlibAST/XML and published-byte inspection only"
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.source.txt",
+          "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+          "bytes": 5709,
+          "sha256": "667cf7552dcde1e316e21dbcf069eeb816af2d155c5ee9fff8505f9261148ae7"
+        },
+        "source_base": "90d2e869ae1e78b06932f8b2349848d41588def8",
+        "all_source_inputs": [
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-policy-worker-accounting.toml",
+            "bytes": 1854,
+            "sha256": "2312633268736b1b6d917be14abdbd30bc2dc96c14fb955989896a707c90281f",
+            "git_blob": "f1626c737c4778e5bce8c4834a924348b5651c19"
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/policy_design/README.md",
+            "bytes": 3370,
+            "sha256": "0baac80416762708d4c2535eeec4a4d792e945622c0cfbb234067618d71c1467",
+            "git_blob": "87487ecbc74baf43346574b2d2ef61d427bc64e7"
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+            "bytes": 2087,
+            "sha256": "c6c8ebf138fcdeb0610fb9a95082e9fa9fca3ececd3a8af265558bf08198232a",
+            "git_blob": "2beecf08fcc874d1408662ff2f1b42452a390570",
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+            "bytes": 16143,
+            "sha256": "563f03f061d3b3ed5d26b936b840b3d3cdd48b25dbd27e837ef447dc3f6edde3",
+            "git_blob": "4aed06a564237d42a70be6714cb00f8c677562ca",
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+            "bytes": 16508,
+            "sha256": "ed8d6b29e3c3ebaef73a780d07c8fb7b8180b2151d40f72b89ddb91a5567b232",
+            "git_blob": "dd223bb6d8f2431e92d1f6e26ec6ae4627dc7355",
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+            "bytes": 11777,
+            "sha256": "7f7bd9d73237ddc63dfda0dd5ebceb5a442215ebe19978db68b84e9edaad69f3",
+            "git_blob": "e54433cde268024ed5771a8ec57b831a2e03736c",
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+            "bytes": 5528,
+            "sha256": "d374fd3b01165efd691fb8620e75da5a063c90c59e7645825cfe6b2e25a292ea",
+            "git_blob": "bddfc565f08c39944148c976efacd9b09ea84548",
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+            "bytes": 6159,
+            "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+            "git_blob": "1a2fbb73bb87d60674d168791a214f882e79347f",
+            "unchanged_from_source_base": true,
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "bytes": 10751,
+            "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+            "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+            "unchanged_from_source_base": true,
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "bytes": 59381,
+            "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+            "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+            "unchanged_from_source_base": true,
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+            "bytes": 58032,
+            "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a",
+            "git_blob": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+            "unchanged_from_source_base": true,
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+            "bytes": 9508,
+            "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+            "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+            "unchanged_from_source_base": true,
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+            "bytes": 37572,
+            "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+            "git_blob": "df786193b548215d84b4e7b1707c73272416d618",
+            "unchanged_from_source_base": true,
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+            "bytes": 12216,
+            "sha256": "c2b79cfc2b61a279502f92abf7b406996b555f3acac019ac58b91f8b8012da8f",
+            "git_blob": "c1fb2e25f718dbebfc631e688a645ac0b0857b3b",
+            "unchanged_from_source_base": true,
+            "stdlib_ast_parsed": true
+          },
+          {
+            "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+            "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+            "bytes": 55516,
+            "sha256": "a9045842cbfe78123f42d702317f4c65b979ebbc2c3ce46ef192d1472f51412e",
+            "git_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+            "unchanged_from_source_base": true,
+            "stdlib_ast_parsed": true
+          }
+        ],
+        "external_packet": {
+          "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+          "bytes": 32317,
+          "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd",
+          "git_blob": "c42cf51b50473a84a3392a9c19187b1bea73432e"
+        },
+        "external_test": {
+          "source_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+          "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+          "bytes": 13669,
+          "sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+          "git_blob": "61c8bfe60148100accaac114ca744e3bef814fde"
+        },
+        "mode": "No project imports, factory/provider/native/collection/style/mypy/generator/gate execution"
+      },
+      "outcome": "PASS",
+      "outcome_scope": "Source/input/AST/hash/JUnit-data reconciliation only, not runtime or all-finding closure",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.stdout.json",
+        "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+        "bytes": 12827,
+        "sha256": "ecfbbea8d18370b76ec470855ccf49b53d08cdb96bd7105c1a5924af8bb6728f"
+      }
+    },
+    {
+      "command": "UNRUN by reviewer: worker native, provider, full scientific suite, proper-import mypy and future composed root cohort/gates",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "git": "git version 2.52.0",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "profile": "Git immutable source/stdlibAST/XML and published-byte inspection only"
+      },
+      "input_closure": "Author4b source and new admission tests; independent DUR test5902 separate projection. Published native14PASS/2FAIL/2FAIL remain DUR source4b/test5902; author19 report remains separate, not reviewer replay.",
+      "outcome": "UNRUN",
+      "output": "No reviewer runtime; independently inspected literal author current13-error mypy output and source-equivalent exported-predecessor13-error control retained as full byte artifacts, no inherited P41 waiver."
+    }
+  ],
+  "property": {
+    "statement": "Both B-owned policy workers preserve the single initialized durable accounting-owner boundary before factory and obtained accounting-error identity before scientific fallback, within the explicit constructor-owned budget contour.",
+    "runtime_path": [
+      "caller supplied initialized BudgetMiddleware/FileBudgetLedger",
+      "canonical worker_budget_state current-owner read at constructor/entry",
+      "real gateway factory/cache/Traced/enforcer atomic provider-intent admission (UNRUN by reviewer)",
+      "obtained LLMAccountingError propagated or current scientific output/fallback with truthful accounting status"
+    ],
+    "proxy_divergence": "Raw BudgetState, readable owner marker or propagated error alone cannot prove durable provider settlement. Owner read does not grant institutional permission or certify every pending phase; actual enforcer and independent filesystem oracle are separate. Source review is not native PASS.",
+    "negative_controls": [
+      "NOT EXECUTED by reviewer: source and defining tests refuse raw-only/mixed/same-state/ledgerless inputs before the observed real factory; current ledger bytes/reservation/receipt quantities are unchanged.",
+      "NOT EXECUTED by reviewer: disappeared/corrupt actual owner after construction refuses without selecting path or bootstrapping replacement; active-loop sync entry performs same guard before existing fallback.",
+      "NOT EXECUTED by reviewer: obtained LLMAccountingError bare re-raise distinguishes mandatory accounting from ordinary scientific fallback. Exact independent DUR c85 packet contains separate actual admission/propagation removals, not author4b test-tree cases."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_qualifications": {
+    "foreign_source_contract": "independently_reconciled",
+    "AST/input/XML/hash_data": "recomputed",
+    "author_whole19_report": "institutionally_supplied",
+    "reviewer_runtime": "not_established",
+    "future_composed_cohort": "not_established"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING finite initialized-owner worker source profile; runtime UNRUN by reviewer; closure_ids[]",
+  "limitations_and_next_owner": [
+    {
+      "owner": "root/G",
+      "action": "Integrate exact4b owner source and separate5902 independent test projection; current release reference absent in author tree is qualified, not silently claimed present. Complete final composed consumer and gate adjudication remains required."
+    },
+    {
+      "owner": "root/ADAPTER",
+      "action": "Retain current proper-import mypy13FAIL and finite exported-predecessor13FAIL typing control without P41 waiver. Helper/import denominator intersects; no clean baseline/native claim. Scientific reported18PASS1FAIL remains actual separate author outcome pending immutable receipt."
+    },
+    {
+      "owner": "root",
+      "action": "Neither accounting input remains explicit unbudgeted non-durable contour. No worker-selected ledger, external billing law, cost-unknown resolver, powerloss/multihost guarantee or institutional permission is invented."
+    }
+  ],
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/review.json",
+    "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+    "bytes": 15480,
+    "sha256": "0404c0717593252b53d1405f1274bf135ae6ed45fee9dee3e1a622f3a07ff791"
+  },
+  "evidence_objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/author-base-control.json",
+      "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+      "bytes": 3032,
+      "sha256": "dd923c7980d5f21dcdf03db5da0e511ccb685127616807022888f0b8c1c4902a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/author-base-control.txt",
+      "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+      "bytes": 3686,
+      "sha256": "f5a520e7fb0025d01af356790ba963e133ecd2619b8d9c27322cee33326a1402"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/author-check-2.txt",
+      "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+      "bytes": 3612,
+      "sha256": "2cc75a9a69a154db872c30e157ea99e319948184517ddff99de2268f7fc24c46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/author-checks.json",
+      "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+      "bytes": 2514,
+      "sha256": "cdee87e67eac2a9eed778a68978632cd49b365a1a9d44c813cd68cd27994c5be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.source.txt",
+      "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+      "bytes": 5709,
+      "sha256": "667cf7552dcde1e316e21dbcf069eeb816af2d155c5ee9fff8505f9261148ae7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/census.stdout.json",
+      "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+      "bytes": 12827,
+      "sha256": "ecfbbea8d18370b76ec470855ccf49b53d08cdb96bd7105c1a5924af8bb6728f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-source-review-evidence/review.json",
+      "commit": "af17567389e255ae561cf86db6f068e385b5a9da",
+      "bytes": 15480,
+      "sha256": "0404c0717593252b53d1405f1274bf135ae6ed45fee9dee3e1a622f3a07ff791"
+    }
+  ],
+  "independent_runtime_receipt": {
+    "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+    "bytes": 32317,
+    "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd",
+    "git_blob": "c42cf51b50473a84a3392a9c19187b1bea73432e"
+  },
+  "publication_status": "Local committed evidence; normal topic push and exact fresh readback follow separately."
+}

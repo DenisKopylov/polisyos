@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="3.669" timestamp="2026-10-06T11:54:48.362292+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_cancel_preserves_actual_finished_item_and_explicit_abort" time="0.102"><failure message="AssertionError: assert ('complete' == 'aborted'&#10;  &#10;  - aborted&#10;  + complete)">tests/unit/core/artifacts/test_batch_completion_admission.py:97: in test_cancel_preserves_actual_finished_item_and_explicit_abort
+    assert report.state == "aborted" and report.abort_reason == "cancelled"
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)</failure></testcase><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_deadline_stops_lazy_inventory_before_more_real_verification" time="0.944"><failure message="AssertionError: assert ('complete' == 'aborted'&#10;  &#10;  - aborted&#10;  + complete)">tests/unit/core/artifacts/test_batch_completion_admission.py:125: in test_deadline_stops_lazy_inventory_before_more_real_verification
+    assert report.state == "aborted" and report.abort_reason == "deadline"
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)</failure></testcase><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_cancel_interrupts_actual_default_name_census" time="0.092"><failure message="AssertionError: assert ('complete' == 'aborted'&#10;  &#10;  - aborted&#10;  + complete)">tests/unit/core/artifacts/test_batch_completion_admission.py:186: in test_cancel_interrupts_actual_default_name_census
+    assert report.state == "aborted" and report.abort_reason == "cancelled"
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)</failure></testcase><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_late_real_signer_cannot_start_signature_publication" time="0.882"><failure message="AssertionError: assert ('complete' == 'aborted'&#10;  &#10;  - aborted&#10;  + complete)">tests/unit/core/artifacts/test_batch_completion_admission.py:314: in test_late_real_signer_cannot_start_signature_publication
+    assert report.state == "aborted" and report.abort_reason == "deadline"
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)</failure></testcase><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_duplicate_intake_obeys_each_supplied_item_budget[cancel-verify]" time="0.085"><failure message="AssertionError: assert ('complete' == 'aborted'&#10;  &#10;  - aborted&#10;  + complete)">tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)</failure></testcase><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_duplicate_intake_obeys_each_supplied_item_budget[cancel-sign]" time="0.084"><failure message="AssertionError: assert ('complete' == 'aborted'&#10;  &#10;  - aborted&#10;  + complete)">tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)</failure></testcase><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_duplicate_intake_obeys_each_supplied_item_budget[deadline-verify]" time="0.682"><failure message="AssertionError: assert ('complete' == 'aborted'&#10;  &#10;  - aborted&#10;  + complete)">tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)</failure></testcase><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_duplicate_intake_obeys_each_supplied_item_budget[deadline-sign]" time="0.683"><failure message="AssertionError: assert ('complete' == 'aborted'&#10;  &#10;  - aborted&#10;  + complete)">tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)</failure></testcase></testsuite></testsuites>

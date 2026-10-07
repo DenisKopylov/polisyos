@@ -1,0 +1,220 @@
+{
+  "schema": "policyos.e02.environment_readiness.v1",
+  "unit": "B",
+  "state": "verified_bounded_browser_dependency_ready",
+  "closure_ids": [],
+  "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "target_tree_sha": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+  "root_head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "root_tree_after": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+  "root_status_porcelain": "",
+  "own_head_after": "7b2d5344a3b1c032e73755634350bb69d96c2f63",
+  "canonical_consumer": "policy-engine/tools/devx/workspace/doctor.py:_check_playwright\u2192node-e PLAYWRIGHT_SMOKE cwd apps/runtime-dashboard\u2192localPlaywright1.59.1\u2192innercore1.59.1\u2192actualheadlessbinary1217",
+  "versions": {
+    "node": "22.22.0",
+    "pnpm": "10.33.2",
+    "playwright": "1.59.1",
+    "actual_inner_playwright_core": "1.59.1",
+    "chromium": "147.0.7727.15",
+    "chromium_revision": "1217",
+    "ffmpeg_revision": "1011"
+  },
+  "checks": [
+    {
+      "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "from dataclasses import asdict; import json; from tools.devx.workspace import doctor; print(json.dumps({\"doctor_file\":doctor.__file__,\"frontend_root\":str(doctor.FRONTEND_ROOT),\"smoke\":doctor.PLAYWRIGHT_SMOKE})); result=doctor._check_playwright(); print(json.dumps(asdict(result))); raise SystemExit(0 if result.ok else 1)"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "node_path": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+        "node_version": "22.22.0",
+        "pnpm_version": "10.33.2",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PLAYWRIGHT_BROWSERS_PATH": null,
+        "no_process_or_numeric_quota_added": true
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.38467030799074564,
+      "output_path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/doctor-playwright-before.txt",
+      "output_bytes": 1862,
+      "output_sha256": "2f26717dbc2af156559c1f49ee29feaafb0b80fc5ed0969093ed36e100a60850",
+      "identity_output": {
+        "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/browser-identity-before.txt",
+        "sha256": "92a8aeb3ffce4ef81cbf9d1d7c6c7f497221d5464444f9d5799df76911308af4"
+      },
+      "input_hashes": {
+        "tools/devx/workspace/doctor.py": "6d71f9367e0680b0b3799e94df7b0b6249c4ca41f669d62a6982c924dcdeb58b",
+        "tools/devx/workspace/_common.py": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+        "package.json": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+        "apps/runtime-dashboard/package.json": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+        "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+      }
+    },
+    {
+      "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "command": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "playwright",
+        "install",
+        "chromium"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 114.55838990199845,
+      "output_path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/chromium-install.txt",
+      "output_sha256": "1975334f43865588ee29e87fa598e4b8e5427872c0046404c4dcb6c89ce65417",
+      "output_bytes": 6813,
+      "policy": "Existing pinnedPlaywright CLI; only Chromium family/required auxiliaries; no npm dependency updates/source/lock changes; inherited proxy/CA preserved"
+    },
+    {
+      "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "from dataclasses import asdict; import json; from tools.devx.workspace import doctor; print(json.dumps({\"doctor_file\":doctor.__file__,\"frontend_root\":str(doctor.FRONTEND_ROOT),\"smoke\":doctor.PLAYWRIGHT_SMOKE})); result=doctor._check_playwright(); print(json.dumps(asdict(result))); raise SystemExit(0 if result.ok else 1)"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "node_path": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+        "node_version": "22.22.0",
+        "pnpm_version": "10.33.2",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PLAYWRIGHT_BROWSERS_PATH": null,
+        "no_process_or_numeric_quota_added": true
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.9456546620058361,
+      "output_path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/doctor-playwright-after.txt",
+      "output_bytes": 514,
+      "output_sha256": "873d8f74ef1e7eaef354aa8eb59ecd5ee97b2c12733242f7b4dd2ee4486ff82b"
+    },
+    {
+      "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "command": [
+        "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+        "-e",
+        "const {chromium}=require('playwright'); (async()=>{const browser=await chromium.launch({headless:true}); try {const page=await browser.newPage();await page.setContent('<!doctype html><title>e02-doctor-readiness</title><p id=\"probe\">actual Chromium DOM</p>');const title=await page.title();const value=await page.evaluate(()=>document.getElementById('probe').textContent);if(title!=='e02-doctor-readiness'||value!=='actual Chromium DOM')throw new Error('Actual DOM mismatch');console.log(JSON.stringify({browserVersion:browser.version(),connected:browser.isConnected(),title,value,node:process.version,execPath:process.execPath,cwd:process.cwd()}));} finally {await browser.close();}})().catch(e=>{console.error(e);process.exit(1)});"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+      "environment": {
+        "node_path": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+        "node_version": "22.22.0",
+        "pnpm_version": "10.33.2",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PLAYWRIGHT_BROWSERS_PATH": null,
+        "no_process_or_numeric_quota_added": true
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.41335224999056663,
+      "output_path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/chromium-dom-after.txt",
+      "output_bytes": 307,
+      "output_sha256": "eeb363d2e3faad2d75530bf66210cd845cb1b0652bf7433253b8dba9e87deda8"
+    }
+  ],
+  "input_closure": {
+    "root_source": "Exact initial/final rootSHA/tree unchanged; doctor/_common/package+dashboardpackage/pnpm-lock hashes in before wrapper and packageclosure. Actual cli/core nested dependency resolution and complete133/465 installed package file manifests recorded.",
+    "tool_archive_provenance": "pnpm-lock records exact SHA512 npm archive integrity for playwright/core/test1.59.1. Full installed content manifests independently recomputed; no claim that an npm tar was re-fetched/independently matched to SHA512.",
+    "browser_archive_provenance": "Pinned browsers.json SHA469f17a82348978f79738981bc8af9b4e8516aac5a020018911fff39b755fe60 binds1217/147.0.7727.15. Officialinstaller fullURLs/progress/version captured, inherited CA/proxy used. Full extracted browser content hashed; temporary zip container bytes are not retained or independently checksum-verified.",
+    "network_policy": "Managed environment current/enforced/unrestricted; executor policy v1 vpn_configuredfalse; no credentials read or proxy/CA bypass",
+    "smoke_fixture": "One actual Playwright launch/close plus independent actualbrowser DOM/version response; no app server/liveAPI/fullfrontend suite"
+  },
+  "predicate_basis": "recomputed",
+  "proxy_divergence": "Executable path/module availability was green while actual native doctor launch failed missing headlessshell1217. Same doctor consumer passes after actual pinned browser install. Ambient direct core1.62.1 was rejected as actual dependency identity; localinnercore1.59.1 decided.",
+  "companion_files": [
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/doctor-playwright-before.txt",
+      "sha256": "2f26717dbc2af156559c1f49ee29feaafb0b80fc5ed0969093ed36e100a60850",
+      "bytes": 1862
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/doctor-playwright-before.json",
+      "sha256": "1dbe0862d3ceee308c5bf6880a5765cb9c8b8e72daedc031915aeff693c3dafe",
+      "bytes": 3316
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/browser-identity.cjs",
+      "sha256": "003a39d26933756081c915201b1bf79190a3e051e0802d07a780a614566e6d8f",
+      "bytes": 1066
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/browser-identity-before.txt",
+      "sha256": "92a8aeb3ffce4ef81cbf9d1d7c6c7f497221d5464444f9d5799df76911308af4",
+      "bytes": 2115
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/chromium-install.txt",
+      "sha256": "1975334f43865588ee29e87fa598e4b8e5427872c0046404c4dcb6c89ce65417",
+      "bytes": 6813
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/chromium-install.json",
+      "sha256": "4c3b5a9e61f1237f177efa3b2925101b49e93d5a332a61eceb0341c9aa495fad",
+      "bytes": 806
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/doctor-playwright-after.txt",
+      "sha256": "873d8f74ef1e7eaef354aa8eb59ecd5ee97b2c12733242f7b4dd2ee4486ff82b",
+      "bytes": 514
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/doctor-playwright-after.json",
+      "sha256": "6347db3f31241f7917ac86adac3b9a9a13b670d83dc940ccceaac28f24c6419f",
+      "bytes": 1337
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/chromium-dom-probe.cjs",
+      "sha256": "d9f09a9aa27b29f486cde6ece12e6fa1099249c1b856fc31d718b6d5ae264763",
+      "bytes": 733
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/chromium-dom-after.txt",
+      "sha256": "eeb363d2e3faad2d75530bf66210cd845cb1b0652bf7433253b8dba9e87deda8",
+      "bytes": 307
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/chromium-dom-after.json",
+      "sha256": "fe1646e61b70fd384b20a4ec06d9d36db1f42684824eb711651245ecce29603f",
+      "bytes": 1792
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/browser-identity-after.txt",
+      "sha256": "74bae2a8b4ad96af8bdfba97d5ade80a05a1bfb799f381da834c529e7f85fb94",
+      "bytes": 2114
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/playwright-package-closure.json",
+      "sha256": "b1a08f3fb28dfc23aad825aa92233d60706da9b2488e60647f48a7e427108bfa",
+      "bytes": 112550
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/browser-installed-content-closure.json",
+      "sha256": "d1088483d3a0f3fa9640727892af5c192a4f03e740ce5f81916f7157bd9ea672",
+      "bytes": 119881
+    }
+  ],
+  "cleanup_candidates": [
+    "/home/agent/.cache/ms-playwright/chromium-1217",
+    "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217",
+    "/home/agent/.cache/ms-playwright/ffmpeg-1011"
+  ],
+  "cleanup": "Browsercache retained for root upcoming gates; nativeTrashabsent per session contract. No manual permanent deletion; future cleanup root-owned.",
+  "limitations": [
+    "Readiness for pinned headless Chromium on this Linux environment only; no frontendcoverage/build/Storybook/a11y/e2e success claim.",
+    "Fullfrontendgate expected actualdirectVitest uncapped per root/CAS audit; no frontendconfig/source edits or worker/numeric limits by this subtask.",
+    "Archive container hash verification not established; exact locked archive IDs, observed download/version and complete extracted content are retained separately without an inflated supply-chain assertion.",
+    "Root owns Git transfer of moderate deciding outputs; ignoredfullpackage/browser file manifests stay local with exactSHA/size."
+  ]
+}

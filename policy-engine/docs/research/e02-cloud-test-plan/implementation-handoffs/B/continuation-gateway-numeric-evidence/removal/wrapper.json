@@ -1,0 +1,54 @@
+{
+  "schema": "e02-independent-native-capture/v1",
+  "state": "EXECUTED",
+  "setup_failure": null,
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+    "child",
+    "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+    "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/profile.json",
+    "-v",
+    "-s",
+    "--tb=short",
+    "--cache-clear",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/pytest-cache",
+    "--basetemp=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/fixtures",
+    "--junitxml=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/native.xml",
+    "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "target_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+  "head_after": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "tree_after": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+  "status_before": "",
+  "status_after": "",
+  "actual_exit": 1,
+  "wall_s": 1.8823611559928395,
+  "max_rss_kib": 109756,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "driver_sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596",
+  "outputs": {
+    "native.txt": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/native.txt",
+      "sha256": "026b79b70ee853d8f6b75d053ed1b999eda90a109f5ca6845b67ee6e5dcfc71a",
+      "bytes": 17238
+    },
+    "native.xml": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/native.xml",
+      "sha256": "6018a037c1349a5600f4f3aebdbea1d5f3619b4c5a5e28d994690e3557cca00f",
+      "bytes": 20647
+    },
+    "profile.json": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/profile.json",
+      "sha256": "0cdac3f2d5dc4092dbaf89602e33b205892366231b4ea50acdfb55399f9dc57d",
+      "bytes": 57474
+    }
+  }
+}

@@ -1,0 +1,2855 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-terminal-run-consumer-independent-review",
+  "reviewer": "RUN writer /root/run_writer data-only independent root-execution reconciliation; owner source retention, no self-independent source-fix review",
+  "slice_base_sha": "a243edc5ba1ef850ddc4e79657be4c66277728a6",
+  "implementation_commits": [
+    "55936eea168f57a3a0792d6275da77bdc25e862e"
+  ],
+  "candidate_tree_sha": "661f37eed07ef464233fbc6e25c3034b46c61f70",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/native-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/premise-diagnostics.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/source-retention.json"
+  ],
+  "receipt_companion_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/review.json",
+  "candidate_production_changed_paths": [],
+  "candidate_tests_changed_paths": [],
+  "closure_ids": [],
+  "finding_ids": [
+    "B14",
+    "B24",
+    "B39",
+    "B40",
+    "B69",
+    "B95",
+    "B96",
+    "LA-057"
+  ],
+  "bundle_ids": [
+    "RUN-01",
+    "RUN-02",
+    "RUN-03"
+  ],
+  "runtime_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "runtime_source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "runtime_namespace": "terminal-final; firstrepairedhistoricalexecution, notnextfinalfreeze",
+  "metadata_candidate_qualification": "55936 freezes selectedsaved bytes; actualnativechild ranROOT456. Data-onlyjoin ran ownattacheda243 ignoreddriver againstsaved456 artifacts. No claimnativeexecution ofownmetadata tree.",
+  "evidence_companions": [
+    {
+      "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/capture.json",
+      "git_blob": "19b04157fc9f72f63db700c71997fe89e46f038d",
+      "bytes": 9808,
+      "sha256": "2cafacb8c40b3a66e75f818d2f34feff89afef2590fa216bb7013f0bc9b7f2c8"
+    },
+    {
+      "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/native-profile.json",
+      "git_blob": "01c30a077b9aa6808da6d4f99e06b2c5eefa0e0a",
+      "bytes": 18280,
+      "sha256": "31a9a4d2953c5206d2cbca516164d6a1f66ad8bc67385246e325e66feea39dba"
+    },
+    {
+      "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/native-wrapper.json",
+      "git_blob": "061c047989b962da9958f6c0e028bfc95562768d",
+      "bytes": 2977,
+      "sha256": "5d1bb970219aed1ab7119e9141a08548d07fbad505f7ff54583edbb6490e5349"
+    },
+    {
+      "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/premise-diagnostics.json",
+      "git_blob": "802aae3d0eb40754e9f46ef1fc9994b4be85c77e",
+      "bytes": 199255,
+      "sha256": "e96757bca7aa884eecdb14941d43f36851bcc375d77741c280d655c8dd842cf7"
+    },
+    {
+      "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/reconciliation.json",
+      "git_blob": "e6e7d3e1dfa6330771367df73a22bdc21fe275a0",
+      "bytes": 278188,
+      "sha256": "5ebd24923a646c2014ea0fd8a10d455dee61f3d78ca3fb8364882e5f10503f1e"
+    },
+    {
+      "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/source-retention.json",
+      "git_blob": "a2c570863253de2b24b3aa87031b5b8eb8ec0e0c",
+      "bytes": 5985,
+      "sha256": "7d27b740be4805c58d7664a2d3bfb04fbdee7393799a51d5e456a9e84c4d912b"
+    }
+  ],
+  "prior_producer_handoff": {
+    "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry.json",
+    "git_blob": "7b93b4d6c77332764e0976ca98ffd564774a02f1",
+    "bytes": 107722,
+    "sha256": "ea7e481b64f0d4ec32e7c9e084651d6a50909a9dbabdc6e32107f133db17f784"
+  },
+  "baseline_cells": [
+    {
+      "id": "F01-P008",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "FAILED",
+      "collected": "52",
+      "calls": "52",
+      "call_pass": "49",
+      "call_failed": "3",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.83",
+      "rss_kib": "135056",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "125",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "125"
+      }
+    },
+    {
+      "id": "F03-P083",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.97",
+      "rss_kib": "87436.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "213",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "213"
+      }
+    },
+    {
+      "id": "F05-P104",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.19",
+      "rss_kib": "100588",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "514",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "514"
+      }
+    },
+    {
+      "id": "F06-P021",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "PASS",
+      "collected": "35",
+      "calls": "35",
+      "call_pass": "35",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.529636859893799",
+      "rss_kib": "112348",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "205",
+      "extra_json": "{\"reason\":\"null\"}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "205"
+      }
+    },
+    {
+      "id": "F09-P017",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "FAILED",
+      "collected": "52",
+      "calls": "52",
+      "call_pass": "49",
+      "call_failed": "3",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "10.86",
+      "rss_kib": "144420",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "133",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "133"
+      }
+    },
+    {
+      "id": "F09-P084",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.14",
+      "rss_kib": "100964",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "200",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "200"
+      }
+    },
+    {
+      "id": "F10-P012",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "PASS",
+      "collected": "35",
+      "calls": "35",
+      "call_pass": "35",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.24",
+      "rss_kib": "118808",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "132",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "132"
+      }
+    },
+    {
+      "id": "F10-P080",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.93",
+      "rss_kib": "114868",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "200",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "200"
+      }
+    },
+    {
+      "id": "F15-P012",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "FAILED",
+      "collected": "52",
+      "calls": "52",
+      "call_pass": "49",
+      "call_failed": "3",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "10.86",
+      "rss_kib": "141924",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "167",
+      "extra_json": "{\"reason\":\"null\"}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "167"
+      }
+    },
+    {
+      "id": "F15-P096",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.05",
+      "rss_kib": "102856",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "251",
+      "extra_json": "{\"reason\":\"null\"}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "251"
+      }
+    },
+    {
+      "id": "F03-P092",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.33",
+      "rss_kib": "115456.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "222",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F03-P092",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F03-P092",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "222"
+      }
+    },
+    {
+      "id": "F04-P105",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.773",
+      "rss_kib": "559040",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "315",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F04-P105",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F04-P105",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "315"
+      }
+    },
+    {
+      "id": "F06-P122",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "37.05731272697449",
+      "rss_kib": "1394624",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "306",
+      "extra_json": "{\"reason\":\"null\"}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F06-P122",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F06-P122",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "306"
+      }
+    },
+    {
+      "id": "F07-P098",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "36.08620238304138",
+      "rss_kib": "1381720.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "104",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F07-P098",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F07-P098",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "104"
+      }
+    },
+    {
+      "id": "F09-P094",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.39",
+      "rss_kib": "125452",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "210",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F09-P094",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F09-P094",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "210"
+      }
+    },
+    {
+      "id": "F11-P098",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "33.006",
+      "rss_kib": "1388536",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "227",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F11-P098",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F11-P098",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "227"
+      }
+    },
+    {
+      "id": "F14-P107",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.119340536999516",
+      "rss_kib": "134908",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "457",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F14-P107",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F14-P107",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "457"
+      }
+    },
+    {
+      "id": "F14-P123",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "30.901992692999556",
+      "rss_kib": "1427016",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "473",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F14-P123",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F14-P123",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "473"
+      }
+    }
+  ],
+  "baseline_source_environment_input_contexts": {
+    "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+    "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+    "bytes": 97442,
+    "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+  },
+  "baseline_qualification": "Exact18priorresolvedbaseline cells/sourceRef/environment/inputcontext locators retained forcriteria navigation only; historiccompactsummary states are not evidence of thisnewconsumer/source fix or old456native outcome. New evidence derives terminalphase/XML/partition+source bytes.",
+  "checks": [
+    {
+      "id": "savedterminal-native-consumer-join",
+      "command": [
+        "/usr/bin/python3",
+        ".polisyos/e02-B-current-runtime/final-run-consumer-review/derive-native-review.py",
+        "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/terminal-final-root-case-partition-3cd.json",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "environment": {
+        "metadata_interpreter": {
+          "executable": "/usr/bin/python3",
+          "version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+          "role": "metadata-only stdlib JSON/hash; nativepytestchild uses pinned root3.14.2 separateprofile"
+        },
+        "native_source_environment": {
+          "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/native-profile.json",
+          "git_blob": "01c30a077b9aa6808da6d4f99e06b2c5eefa0e0a",
+          "bytes": 18280,
+          "sha256": "31a9a4d2953c5206d2cbca516164d6a1f66ad8bc67385246e325e66feea39dba"
+        },
+        "native_wait4wrapper": {
+          "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/native-wrapper.json",
+          "git_blob": "061c047989b962da9958f6c0e028bfc95562768d",
+          "bytes": 2977,
+          "sha256": "5d1bb970219aed1ab7119e9141a08548d07fbad505f7ff54583edbb6490e5349"
+        },
+        "no_product_imports_or_native_by_reviewer": true
+      },
+      "input_closure": {
+        "exactdriver_bytes": 4345,
+        "exactdriver_sha256": "064fb290359e12528d7a29edf0fbdf3ce626b9e84aeeb6893b0c69f29e28a063",
+        "driver_source_field": "capture.driver_source_utf8",
+        "capture": {
+          "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/capture.json",
+          "git_blob": "19b04157fc9f72f63db700c71997fe89e46f038d",
+          "bytes": 9808,
+          "sha256": "2cafacb8c40b3a66e75f818d2f34feff89afef2590fa216bb7013f0bc9b7f2c8"
+        },
+        "savedfullrefs": [
+          {
+            "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/terminal-final-root-case-partition-3cd.json",
+            "bytes": 6907511,
+            "sha256": "5f648ded17057e7c8339aaf045faa1334351d82bef5da033f2a638ba1868aee4",
+            "custody": "complete ignored runtime artifact; moderate selectedcase/diagnostics slices committed here; not whole raw transportedproof"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-inventory.json",
+            "bytes": 20097609,
+            "sha256": "9d8ab52071bb88523755aa80c55a954223ceca47e693a1626dca2b2750b0faa4",
+            "custody": "complete ignored runtime artifact; moderate selectedcase/diagnostics slices committed here; not whole raw transportedproof"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+            "bytes": 3583926,
+            "sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b",
+            "custody": "complete ignored runtime artifact; moderate selectedcase/diagnostics slices committed here; not whole raw transportedproof"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+            "bytes": 3611397,
+            "sha256": "675ebace8ab28945f3b97f4fb37374f1ae3832f15e0475cad58e392fed54abf5",
+            "custody": "complete ignored runtime artifact; moderate selectedcase/diagnostics slices committed here; not whole raw transportedproof"
+          }
+        ],
+        "partition_source": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+        "stable_saved_reads": {
+          "partition": {
+            "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/terminal-final-root-case-partition-3cd.json",
+            "bytes": 6907511,
+            "sha256": "5f648ded17057e7c8339aaf045faa1334351d82bef5da033f2a638ba1868aee4",
+            "stable_at_read": true
+          },
+          "wrapper": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+            "bytes": 2977,
+            "sha256": "5d1bb970219aed1ab7119e9141a08548d07fbad505f7ff54583edbb6490e5349",
+            "stable_at_read": true
+          },
+          "profile": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json",
+            "bytes": 18280,
+            "sha256": "31a9a4d2953c5206d2cbca516164d6a1f66ad8bc67385246e325e66feea39dba",
+            "stable_at_read": true
+          }
+        },
+        "scope": "Complete3578casesaveddata denominator; selectedexactfourfile194cases + lexical44cancelcases. Fullraw6.9Mpartition/20Minventory nativebytes ignored; moderatedecidingfullselected refs/diagnostics/nativeprofile/wrapper committed."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": {
+        "complete_saved_join": {
+          "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/reconciliation.json",
+          "git_blob": "e6e7d3e1dfa6330771367df73a22bdc21fe275a0",
+          "bytes": 278188,
+          "sha256": "5ebd24923a646c2014ea0fd8a10d455dee61f3d78ca3fb8364882e5f10503f1e"
+        },
+        "complete_concise_output": {
+          "selected_unique_cases": 194,
+          "selected_counts": {
+            "PASS": 86,
+            "ERROR": 108
+          },
+          "full_root_counts": {
+            "PASS": 2177,
+            "FAIL": 85,
+            "ERROR": 1314,
+            "XFAIL": 0,
+            "SKIP": 2,
+            "UNRUN": 0
+          },
+          "native_wait4_exit_code": 1,
+          "all_native_XFAIL": 0,
+          "lexical_cancel_cases": 44,
+          "lexical_cancel_counts": {
+            "PASS": 29,
+            "ERROR": 15
+          }
+        }
+      },
+      "check_grade": "Metadata reconciler PASS, actualnative retainswait4exit1/85FAIL1314ERROR; no nativegreenclaim."
+    },
+    {
+      "id": "source-retention-effective-Git-identity-check",
+      "command": [
+        "/usr/bin/python3",
+        "-c",
+        "import hashlib,json,subprocess\nv=json.loads(subprocess.check_output(['/usr/bin/git','show','55936eea168f57a3a0792d6275da77bdc25e862e:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/source-retention.json']))\nfor row in v['rows']:\n for entry in [row['origin'],row['current']]:\n  b=subprocess.check_output(['/usr/bin/git','show',entry['at_sha']+':'+entry['path']])\n  assert len(b)==entry['bytes'] and hashlib.sha256(b).hexdigest()==entry['sha256']\n  assert subprocess.check_output(['/usr/bin/git','rev-parse',entry['at_sha']+':'+entry['path']]).decode().strip()==entry['git_blob']\n assert row['origin']['git_blob']==row['current']['git_blob'] and row['byte_equal']\nprint(json.dumps({'declared_path_set':len(v['rows']),'Git_source_identity_mismatches':0,'source_target':v['target'],'native_calls_by_source_audit':0}))\n"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "environment": "Metadata-only /usr/bin/python3 3.13.5 + fixedread-only/usr/bin/git, no PolicyOS/pytestimports/runtime.",
+      "input_closure": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-terminal-run-consumer-independent-review/source-retention.json",
+        "git_blob": "a2c570863253de2b24b3aa87031b5b8eb8ec0e0c",
+        "bytes": 5985,
+        "sha256": "7d27b740be4805c58d7664a2d3bfb04fbdee7393799a51d5e456a9e84c4d912b"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "{\"declared_path_set\": 7, \"Git_source_identity_mismatches\": 0, \"source_target\": {\"sha\": \"456f34938731b1ef11555d8333d011d3552574ec\", \"tree\": \"d3bae9a9502b701e2ed73d9ffab07ba6a0883502\"}, \"native_calls_by_source_audit\": 0}\n",
+      "source_retention_command_qualification": "Captured source-retention.json command label names originalprototype source-audit.py; actualterminalvariant source-audit-terminal.py pinned456. OriginalcapturedJSONbytes preserved. Current literalGitidentitycheck above independently revalidates all14origin/currentrefs/7path pairs; it is effective replay, not hypotheticalexecution ofoldprototypelabel."
+    }
+  ],
+  "classification": "PASS bounded data/sourcecustody reconciliation of historicalfailedROOT456 native wave; actual selected194=86PASS108ERROR, no fullRUN/deadlinefindingclosure.",
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Old456 nativeERROR/FAIL literalretained,108selectedERROR bodypremise notestablished; B40/B52 checkpoint future6af consumer pending; no new aggregatefindingclosure.",
+  "native_actual_cases": {
+    "complete_root_counts": {
+      "PASS": 2177,
+      "FAIL": 85,
+      "ERROR": 1314,
+      "XFAIL": 0,
+      "SKIP": 2,
+      "UNRUN": 0
+    },
+    "complete_root_denominators": {
+      "requested_whole_files": 229,
+      "session_item_entries": 3578,
+      "unique_nodeids": 3578,
+      "collection_file_types_item_entries": {
+        ".py": 3578
+      },
+      "definition_path_file_types_item_entries": {
+        ".py": 3578
+      },
+      "distinct_collection_files": 229,
+      "distinct_definition_paths": 229,
+      "distinct_collection_file_types": {
+        ".py": 229
+      },
+      "distinct_definition_path_file_types": {
+        ".py": 229
+      },
+      "phase_reports": 9420,
+      "collection_reports": 385,
+      "deselected_item_entries": 0,
+      "junit_representations": 3578
+    },
+    "selected_files": {
+      "tests/unit/common/test_async_tools.py": {
+        "case_denominator": 20,
+        "counts": {
+          "PASS": 20
+        },
+        "all_exact_case_refs": "reconciliation.groups[tests/unit/common/test_async_tools.py].case_refs"
+      },
+      "tests/unit/scientist/orchestration/engine/test_retry.py": {
+        "case_denominator": 148,
+        "counts": {
+          "PASS": 57,
+          "ERROR": 91
+        },
+        "all_exact_case_refs": "reconciliation.groups[tests/unit/scientist/orchestration/engine/test_retry.py].case_refs"
+      },
+      "tests/unit/remediation/test_run_03.py": {
+        "case_denominator": 9,
+        "counts": {
+          "PASS": 9
+        },
+        "all_exact_case_refs": "reconciliation.groups[tests/unit/remediation/test_run_03.py].case_refs"
+      },
+      "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+        "case_denominator": 17,
+        "counts": {
+          "ERROR": 17
+        },
+        "all_exact_case_refs": "reconciliation.groups[tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py].case_refs"
+      }
+    },
+    "xfail_denominator": 0,
+    "lexical_cancel_name_filter": {
+      "predicate": "'cancel' in actual unique nodeid.lower(); lexical filter, not complete cancellation-mechanism census",
+      "counts": {
+        "PASS": 29,
+        "ERROR": 15
+      },
+      "case_denominator": 44,
+      "nonpassing_cases": [
+        {
+          "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_partial_or_cancelled_send_never_emits_completed_receipt",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              6925
+            ],
+            "call": [],
+            "teardown": [
+              6926
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            2497
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[cancel-trace]",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              7872
+            ],
+            "call": [],
+            "teardown": [
+              7873
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            2930
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[cancel-checkpoint]",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              7874
+            ],
+            "call": [],
+            "teardown": [
+              7875
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            2931
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_publication_trace_requires_completed_verified_storage[cancel]",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              7902
+            ],
+            "call": [],
+            "teardown": [
+              7903
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            2945
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_queued_admission_preserves_slots_and_completed_prefix[cancel]",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              8486
+            ],
+            "call": [],
+            "teardown": [
+              8487
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3198
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_tree_on_async_caller_cancellation",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              8774
+            ],
+            "call": [],
+            "teardown": [
+              8775
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3318
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_retry.py::test_queued_async_thread_attempt_never_enters_body_after_termination[cancellation]",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              8886
+            ],
+            "call": [],
+            "teardown": [
+              8887
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3373
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_retry.py::test_unbounded_thread_cancellation_revokes_owned_writes_but_cannot_stop_raw_effects",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              8902
+            ],
+            "call": [],
+            "teardown": [
+              8903
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3381
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.workflow_spec]",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              9105
+            ],
+            "call": [],
+            "teardown": [
+              9106
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3459
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.experiment_state]",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              9107
+            ],
+            "call": [],
+            "teardown": [
+              9108
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3460
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.workflow_report]",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              9109
+            ],
+            "call": [],
+            "teardown": [
+              9110
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3461
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              9119
+            ],
+            "call": [],
+            "teardown": [
+              9120
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3466
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_settles_actual_ledger_before_cache_publication",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              9325
+            ],
+            "call": [],
+            "teardown": [
+              9326
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3535
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              9331
+            ],
+            "call": [],
+            "teardown": [
+              9332
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3538
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner",
+          "state": "ERROR",
+          "reason": "observed setup/teardown failure",
+          "complete": true,
+          "assignment_ambiguous": false,
+          "phase_report_indexes": {
+            "setup": [
+              9343
+            ],
+            "call": [],
+            "teardown": [
+              9344
+            ]
+          },
+          "phase_states": {
+            "setup": [
+              "ERROR"
+            ],
+            "call": [
+              "UNRUN"
+            ],
+            "teardown": [
+              "PASS"
+            ]
+          },
+          "junit_representation_indexes": [
+            3544
+          ],
+          "unexpected_success_nonstrict": false,
+          "unexpected_success_strict": false
+        }
+      ]
+    },
+    "root_collection_errors": 0,
+    "root_collection_skips": 0,
+    "qualifier": "ERRORsetups remain innativecase denominator even when body notentered; no XFAIL waiver, no inferredtimeline/originallatencycause."
+  },
+  "B69_defining_consumer_controls": [
+    {
+      "nodeid": "tests/unit/common/test_async_tools.py::test_done_callbacks_hold_physical_capacity_and_refuse_nested_work",
+      "state": "PASS",
+      "reason": "complete normal all-passed attempt",
+      "complete": true,
+      "assignment_ambiguous": false,
+      "phase_report_indexes": {
+        "setup": [
+          66
+        ],
+        "call": [
+          67
+        ],
+        "teardown": [
+          68
+        ]
+      },
+      "phase_states": {
+        "setup": [
+          "PASS"
+        ],
+        "call": [
+          "PASS"
+        ],
+        "teardown": [
+          "PASS"
+        ]
+      },
+      "junit_representation_indexes": [
+        22
+      ],
+      "unexpected_success_nonstrict": false,
+      "unexpected_success_strict": false
+    },
+    {
+      "nodeid": "tests/unit/common/test_async_tools.py::test_worker_body_refuses_nested_work_when_physically_full",
+      "state": "PASS",
+      "reason": "complete normal all-passed attempt",
+      "complete": true,
+      "assignment_ambiguous": false,
+      "phase_report_indexes": {
+        "setup": [
+          69
+        ],
+        "call": [
+          70
+        ],
+        "teardown": [
+          71
+        ]
+      },
+      "phase_states": {
+        "setup": [
+          "PASS"
+        ],
+        "call": [
+          "PASS"
+        ],
+        "teardown": [
+          "PASS"
+        ]
+      },
+      "junit_representation_indexes": [
+        23
+      ],
+      "unexpected_success_nonstrict": false,
+      "unexpected_success_strict": false
+    },
+    {
+      "nodeid": "tests/unit/common/test_async_tools.py::test_nested_callback_uses_an_actual_spare_worker",
+      "state": "PASS",
+      "reason": "complete normal all-passed attempt",
+      "complete": true,
+      "assignment_ambiguous": false,
+      "phase_report_indexes": {
+        "setup": [
+          72
+        ],
+        "call": [
+          73
+        ],
+        "teardown": [
+          74
+        ]
+      },
+      "phase_states": {
+        "setup": [
+          "PASS"
+        ],
+        "call": [
+          "PASS"
+        ],
+        "teardown": [
+          "PASS"
+        ]
+      },
+      "junit_representation_indexes": [
+        24
+      ],
+      "unexpected_success_nonstrict": false,
+      "unexpected_success_strict": false
+    },
+    {
+      "nodeid": "tests/unit/common/test_async_tools.py::test_late_callback_refuses_nested_work_under_new_full_workers",
+      "state": "PASS",
+      "reason": "complete normal all-passed attempt",
+      "complete": true,
+      "assignment_ambiguous": false,
+      "phase_report_indexes": {
+        "setup": [
+          75
+        ],
+        "call": [
+          76
+        ],
+        "teardown": [
+          77
+        ]
+      },
+      "phase_states": {
+        "setup": [
+          "PASS"
+        ],
+        "call": [
+          "PASS"
+        ],
+        "teardown": [
+          "PASS"
+        ]
+      },
+      "junit_representation_indexes": [
+        25
+      ],
+      "unexpected_success_nonstrict": false,
+      "unexpected_success_strict": false
+    },
+    {
+      "nodeid": "tests/unit/common/test_async_tools.py::test_proxy_queue_cancellation_notifies_waiters_and_never_executes",
+      "state": "PASS",
+      "reason": "complete normal all-passed attempt",
+      "complete": true,
+      "assignment_ambiguous": false,
+      "phase_report_indexes": {
+        "setup": [
+          78
+        ],
+        "call": [
+          79
+        ],
+        "teardown": [
+          80
+        ]
+      },
+      "phase_states": {
+        "setup": [
+          "PASS"
+        ],
+        "call": [
+          "PASS"
+        ],
+        "teardown": [
+          "PASS"
+        ]
+      },
+      "junit_representation_indexes": [
+        26
+      ],
+      "unexpected_success_nonstrict": false,
+      "unexpected_success_strict": false
+    },
+    {
+      "nodeid": "tests/unit/common/test_async_tools.py::test_proxy_callback_order_exception_context_and_late_registration",
+      "state": "PASS",
+      "reason": "complete normal all-passed attempt",
+      "complete": true,
+      "assignment_ambiguous": false,
+      "phase_report_indexes": {
+        "setup": [
+          81
+        ],
+        "call": [
+          82
+        ],
+        "teardown": [
+          83
+        ]
+      },
+      "phase_states": {
+        "setup": [
+          "PASS"
+        ],
+        "call": [
+          "PASS"
+        ],
+        "teardown": [
+          "PASS"
+        ]
+      },
+      "junit_representation_indexes": [
+        27
+      ],
+      "unexpected_success_nonstrict": false,
+      "unexpected_success_strict": false
+    },
+    {
+      "nodeid": "tests/unit/common/test_async_tools.py::test_proxy_future_preserves_asyncio_result_exception_and_context",
+      "state": "PASS",
+      "reason": "complete normal all-passed attempt",
+      "complete": true,
+      "assignment_ambiguous": false,
+      "phase_report_indexes": {
+        "setup": [
+          84
+        ],
+        "call": [
+          85
+        ],
+        "teardown": [
+          86
+        ]
+      },
+      "phase_states": {
+        "setup": [
+          "PASS"
+        ],
+        "call": [
+          "PASS"
+        ],
+        "teardown": [
+          "PASS"
+        ]
+      },
+      "junit_representation_indexes": [
+        28
+      ],
+      "unexpected_success_nonstrict": false,
+      "unexpected_success_strict": false
+    },
+    {
+      "nodeid": "tests/unit/common/test_async_tools.py::test_shutdown_cancel_callback_can_submit_without_a_lock_cycle",
+      "state": "PASS",
+      "reason": "complete normal all-passed attempt",
+      "complete": true,
+      "assignment_ambiguous": false,
+      "phase_report_indexes": {
+        "setup": [
+          87
+        ],
+        "call": [
+          88
+        ],
+        "teardown": [
+          89
+        ]
+      },
+      "phase_states": {
+        "setup": [
+          "PASS"
+        ],
+        "call": [
+          "PASS"
+        ],
+        "teardown": [
+          "PASS"
+        ]
+      },
+      "junit_representation_indexes": [
+        29
+      ],
+      "unexpected_success_nonstrict": false,
+      "unexpected_success_strict": false
+    }
+  ],
+  "property": {
+    "statement": "Retain exactsource and phase evidence when classifying runtime/deadline consumers; physicallyentered/barrier premise must be established before treating a failure as a mechanism counterexample.",
+    "runtime_path": [
+      "ROOT456 actualpytestchild wait4 and observer sessionitem/runtimephase inventory",
+      "ADAPTER3cd data-only native9JUnit/phase/item identity partition",
+      "IndependentfullfourfileRUN/deadline percase join andcomplete108setupdiagnostics",
+      "CanonicalRUN producer retainedsource common/retry plusforeignEXEdeadline consumer sourcepoint"
+    ],
+    "proxy_divergence": "A testname containing cancellation/deadline or177priorPASS cannot establish thiswave behavior: current selected108cases error beforecall at tmp_path allocation, no targetentrant/body. Source remains byteidentical andcommon20physicalcontrols pass, while freshdeepersupervisor/deadlinecontrols are notestablished. These propertypremise limits do not erase nativeERROR or transform old4e callFAIL.",
+    "negative_controls": [
+      "Allselected108ERROR exactphase setupfailed/no call and matchingXML tmp_path numbereddirectorydiagnostics preserved in fullmoderatepremise-diagnostics.",
+      "B69 callbackfullpool/bodyfullpool/spareworker/latecallback/queuecancel/nativefuturesemantics/shutdownlock controls actualPASS nativephase67/70/73/76/79/82/85/88 plusXML22–29.",
+      "Historicalroot4e deadlineexperiment_state actualcallFAIL retained separately; previousreader showed targetentry notestablished, narrowenteredreplayPASS is separatelyattributed not replacement.",
+      "Complete3578 savedactualdenominator/cancel44 lexicalfilter/nativeXFAIL0 prevent source-only markerabsence/countsummary from becomingclosure."
+    ],
+    "authority_purpose": "Observation/reconciliation ofoperationalruntime/deadline boundaries, no Gfinalclosure/data/tenant/billingauthority."
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "B14",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "LIMITED",
+      "state_scope": "This historical savedroot456 execution reconciliation only; no findingclosure authority or mutation of originalproducer disposition",
+      "previous_producer_state": "LIMITED",
+      "previous_producer_source_profile": "common fd0 byte-exact through final; retry46 byte-exact through final; final native test inpute187",
+      "canonical_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 363
+      },
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "baseline_contexts": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+        "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+        "bytes": 97442,
+        "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+      },
+      "current_wave_evidence": "Fresh physicalprocess/caller/threadqueue file-backedcontrols mostly setupERROR, no body; common termination controls pass. PriorLinux/cooperative/lateunknown boundaries retained, no newfullclosure.",
+      "limitation": "Already-running arbitrary threads/cooperative shielded coroutines may continue raw external effects; entered writes cannot be preempted. No hard real-time, external billing, or native macOS claim.",
+      "next_owner": "ROOT newsource freeze/jointconsumer acceptance; G exactlocal/nativeplatform/data-dependent decision; EXE checkpoint6af consumer forB40",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py",
+      "replay_cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "replay_qualification": "Replayrequiresfresh admitted exacttarget checkout/PYTHONPATH andsufficient owned/tmpfixture space. Reviewer executesno native. Thisoldcommand reproducesproducer family scope, not newcheckpointconsumer acceptance."
+    },
+    {
+      "finding_id": "B24",
+      "bundle_ids": [
+        "RUN-02"
+      ],
+      "state": "LIMITED",
+      "state_scope": "This historical savedroot456 execution reconciliation only; no findingclosure authority or mutation of originalproducer disposition",
+      "previous_producer_state": "LIMITED",
+      "previous_producer_source_profile": "common fd0 byte-exact through final; retry46 byte-exact through final; final native test inpute187",
+      "canonical_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 489
+      },
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F06-P021",
+        "F09-P017",
+        "F10-P012",
+        "F15-P012"
+      ],
+      "baseline_contexts": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+        "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+        "bytes": 97442,
+        "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+      },
+      "current_wave_evidence": "All selected realframedprocess/grandchild/delivery/firsthandle faultcontrols setupERROR. Physicalprocessproperty not remeasured by thisfullwave; retained producer evidence separate.",
+      "limitation": "Linux/procfs/libc owned supervisor boundary only. Escaped ancestors outside kernel ownership census and non-Linux adopted-child recovery remain unknown. Multithread fork warnings retained.",
+      "next_owner": "ROOT newsource freeze/jointconsumer acceptance; G exactlocal/nativeplatform/data-dependent decision; EXE checkpoint6af consumer forB40",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py",
+      "replay_cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "replay_qualification": "Replayrequiresfresh admitted exacttarget checkout/PYTHONPATH andsufficient owned/tmpfixture space. Reviewer executesno native. Thisoldcommand reproducesproducer family scope, not newcheckpointconsumer acceptance."
+    },
+    {
+      "finding_id": "B39",
+      "bundle_ids": [
+        "RUN-03"
+      ],
+      "state": "LIMITED",
+      "state_scope": "This historical savedroot456 execution reconciliation only; no findingclosure authority or mutation of originalproducer disposition",
+      "previous_producer_state": "CLOSED",
+      "previous_producer_source_profile": "common fd0 byte-exact through final; retry46 byte-exact through final; final native test inpute187",
+      "canonical_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 736
+      },
+      "baseline_cell_ids": [
+        "F03-P092",
+        "F04-P105",
+        "F06-P122",
+        "F07-P098",
+        "F09-P094",
+        "F11-P098",
+        "F14-P107",
+        "F14-P123"
+      ],
+      "baseline_contexts": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+        "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+        "bytes": 97442,
+        "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+      },
+      "current_wave_evidence": "RUN03 permanent/category/logicalbaseline controls and basicretry passed; file-backed finiteIPC/errorparity controls setupERROR. No currentcallFAIL, no newfulltypedboundary closure.",
+      "limitation": "Scoped tracked runtime profiles. Arbitrary exception-class reconstruction is unsupported; missing/malformed typed delivery is terminal rather than guessed from strings.",
+      "next_owner": "ROOT newsource freeze/jointconsumer acceptance; G exactlocal/nativeplatform/data-dependent decision; EXE checkpoint6af consumer forB40",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py",
+      "replay_cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "replay_qualification": "Replayrequiresfresh admitted exacttarget checkout/PYTHONPATH andsufficient owned/tmpfixture space. Reviewer executesno native. Thisoldcommand reproducesproducer family scope, not newcheckpointconsumer acceptance."
+    },
+    {
+      "finding_id": "B40",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "LIMITED",
+      "state_scope": "This historical savedroot456 execution reconciliation only; no findingclosure authority or mutation of originalproducer disposition",
+      "previous_producer_state": "LIMITED",
+      "previous_producer_source_profile": "common fd0 byte-exact through final; retry46 byte-exact through final; final native test inpute187",
+      "canonical_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 752
+      },
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "baseline_contexts": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+        "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+        "bytes": 97442,
+        "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+      },
+      "current_wave_evidence": "Deadline17cases setupERROR, targetentrant notestablished; canonicalcheckpoint defaultcap source456 remains identified, new6af futureacceptance not inferred. Ordinary helper explicitunbounded controls pass.",
+      "limitation": "Producer verified; root-owned EXE workflow absolute-deadline/shared async-store integration and final joint consumer wave pending. Cleanup/drain has declared finite grace, not an unlimited extension or hard real-time result promise.",
+      "next_owner": "ROOT newsource freeze/jointconsumer acceptance; G exactlocal/nativeplatform/data-dependent decision; EXE checkpoint6af consumer forB40",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py",
+      "replay_cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "replay_qualification": "Replayrequiresfresh admitted exacttarget checkout/PYTHONPATH andsufficient owned/tmpfixture space. Reviewer executesno native. Thisoldcommand reproducesproducer family scope, not newcheckpointconsumer acceptance."
+    },
+    {
+      "finding_id": "B69",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "LIMITED",
+      "state_scope": "This historical savedroot456 execution reconciliation only; no findingclosure authority or mutation of originalproducer disposition",
+      "previous_producer_state": "CLOSED",
+      "previous_producer_source_profile": "common fd0 byte-exact through final; retry46 byte-exact through final; final native test inpute187",
+      "canonical_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 1749
+      },
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "baseline_contexts": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+        "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+        "bytes": 97442,
+        "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+      },
+      "current_wave_evidence": "Eight defining sharedproxy physical/logical/callback/queue/shutdown controls are actualPASS at native phase/XML refs; allcommon20PASS. Bounded ownedcapacity contract only, no foreignexecutor guarantee.",
+      "limitation": "Exact owned shared executor contract, not a universal guarantee for foreign executors or arbitrary user blocking outside admission. Dynamic production capacity bound retained.",
+      "next_owner": "ROOT newsource freeze/jointconsumer acceptance; G exactlocal/nativeplatform/data-dependent decision; EXE checkpoint6af consumer forB40",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py",
+      "replay_cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "replay_qualification": "Replayrequiresfresh admitted exacttarget checkout/PYTHONPATH andsufficient owned/tmpfixture space. Reviewer executesno native. Thisoldcommand reproducesproducer family scope, not newcheckpointconsumer acceptance."
+    },
+    {
+      "finding_id": "B95",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "LIMITED",
+      "state_scope": "This historical savedroot456 execution reconciliation only; no findingclosure authority or mutation of originalproducer disposition",
+      "previous_producer_state": "CLOSED",
+      "previous_producer_source_profile": "common fd0 byte-exact through final; retry46 byte-exact through final; final native test inpute187",
+      "canonical_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 2493
+      },
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "baseline_contexts": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+        "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+        "bytes": 97442,
+        "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+      },
+      "current_wave_evidence": "Common coroutine/context and asyncsharedbridge controls pass, deeper actualattemptfile context matrices setupERROR. Prioractualartifactconsumer/context evidence remains separatelybound.",
+      "limitation": "Context value transfer does not create actor/tenant permissions or renew leases. Fork tested Linux only, forced non-fork branch is an actual thread capability test rather than native macOS deployment proof.",
+      "next_owner": "ROOT newsource freeze/jointconsumer acceptance; G exactlocal/nativeplatform/data-dependent decision; EXE checkpoint6af consumer forB40",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py",
+      "replay_cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "replay_qualification": "Replayrequiresfresh admitted exacttarget checkout/PYTHONPATH andsufficient owned/tmpfixture space. Reviewer executesno native. Thisoldcommand reproducesproducer family scope, not newcheckpointconsumer acceptance."
+    },
+    {
+      "finding_id": "B96",
+      "bundle_ids": [
+        "RUN-03"
+      ],
+      "state": "LIMITED",
+      "state_scope": "This historical savedroot456 execution reconciliation only; no findingclosure authority or mutation of originalproducer disposition",
+      "previous_producer_state": "CLOSED",
+      "previous_producer_source_profile": "common fd0 byte-exact through final; retry46 byte-exact through final; final native test inpute187",
+      "canonical_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 2507
+      },
+      "baseline_cell_ids": [
+        "F03-P092",
+        "F04-P105",
+        "F06-P122",
+        "F07-P098",
+        "F09-P094",
+        "F11-P098",
+        "F14-P107",
+        "F14-P123"
+      ],
+      "baseline_contexts": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+        "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+        "bytes": 97442,
+        "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+      },
+      "current_wave_evidence": "RUN03 actualdurabletrace/result failedspend two controls and terminalordinarymutation projection pass; deeper finite known-spend matrix setupERROR. Knownon-time quantities only, late/externalbilling unknown.",
+      "limitation": "Known typed state-budget values only; external actions are not rolled back, late/cancelled spend remains unknown, no independent vendor financial billing authority. Continuation requires its own checkpoint contract.",
+      "next_owner": "ROOT newsource freeze/jointconsumer acceptance; G exactlocal/nativeplatform/data-dependent decision; EXE checkpoint6af consumer forB40",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py",
+      "replay_cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "replay_qualification": "Replayrequiresfresh admitted exacttarget checkout/PYTHONPATH andsufficient owned/tmpfixture space. Reviewer executesno native. Thisoldcommand reproducesproducer family scope, not newcheckpointconsumer acceptance."
+    },
+    {
+      "finding_id": "LA-057",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "LIMITED",
+      "state_scope": "This historical savedroot456 execution reconciliation only; no findingclosure authority or mutation of originalproducer disposition",
+      "previous_producer_state": "LIMITED",
+      "previous_producer_source_profile": "common fd0 byte-exact through final; retry46 byte-exact through final; final native test inpute187",
+      "canonical_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 4172
+      },
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "baseline_contexts": {
+        "source_sha": "55936eea168f57a3a0792d6275da77bdc25e862e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+        "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+        "bytes": 97442,
+        "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+      },
+      "current_wave_evidence": "Nativefunctiontypeparameter+import-first controls pass. Thisnewreview doesnot recompute fullsyntax/import/reflection corpus; priora625 fullroot6444 vsproduct6442 explicitlysamepoint/denominatorqualification.",
+      "limitation": "No new deletion claimed. Finite tracked corpus does not establish arbitrary computed imports/reflection or opaque installed external distribution contracts; packaging/data/native local obligations remain G97.",
+      "next_owner": "ROOT newsource freeze/jointconsumer acceptance; G exactlocal/nativeplatform/data-dependent decision; EXE checkpoint6af consumer forB40",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py",
+      "replay_cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "replay_qualification": "Replayrequiresfresh admitted exacttarget checkout/PYTHONPATH andsufficient owned/tmpfixture space. Reviewer executesno native. Thisoldcommand reproducesproducer family scope, not newcheckpointconsumer acceptance."
+    }
+  ],
+  "source_retention_scope": {
+    "currentsource_refs": [
+      {
+        "origin": {
+          "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+          "path": "policy-engine/src/polisyos/common/async_tools.py",
+          "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+          "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+          "bytes": 11846
+        },
+        "current": {
+          "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+          "path": "policy-engine/src/polisyos/common/async_tools.py",
+          "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+          "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+          "bytes": 11846
+        },
+        "byte_equal": true
+      },
+      {
+        "origin": {
+          "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+          "git_blob": "00c18c9a11fdaf69331651ee291fe0fec334e5ab",
+          "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+          "bytes": 79312
+        },
+        "current": {
+          "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+          "git_blob": "00c18c9a11fdaf69331651ee291fe0fec334e5ab",
+          "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+          "bytes": 79312
+        },
+        "byte_equal": true
+      },
+      {
+        "origin": {
+          "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+          "path": "policy-engine/tests/unit/common/test_async_tools.py",
+          "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+          "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+          "bytes": 15730
+        },
+        "current": {
+          "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+          "path": "policy-engine/tests/unit/common/test_async_tools.py",
+          "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+          "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+          "bytes": 15730
+        },
+        "byte_equal": true
+      },
+      {
+        "origin": {
+          "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+          "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+          "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+          "bytes": 79749
+        },
+        "current": {
+          "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+          "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+          "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+          "bytes": 79749
+        },
+        "byte_equal": true
+      },
+      {
+        "origin": {
+          "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+          "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+          "git_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+          "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c",
+          "bytes": 14399
+        },
+        "current": {
+          "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+          "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+          "git_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+          "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c",
+          "bytes": 14399
+        },
+        "byte_equal": true
+      },
+      {
+        "origin": {
+          "at_sha": "bcfc9c82615965578ed250effa6108a763f5dea9",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+          "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+          "bytes": 102653
+        },
+        "current": {
+          "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+          "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+          "bytes": 102653
+        },
+        "byte_equal": true
+      },
+      {
+        "origin": {
+          "at_sha": "bcfc9c82615965578ed250effa6108a763f5dea9",
+          "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+          "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+          "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+          "bytes": 7518
+        },
+        "current": {
+          "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+          "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+          "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+          "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+          "bytes": 7518
+        },
+        "byte_equal": true
+      }
+    ],
+    "complete_declared_path_set": 7,
+    "all_byte_equal": true,
+    "scope": "RUN authorbytecustody only, notnewindependent codefix review; originalroot/EXE sourceacceptance separate. Foreignasync_executor/async_store retainedfrombcfc9 at456; upcoming6af modifiesasync_executor/checkpoint, no retentioncarry tofuturefullB.",
+    "LA_denominator_qualification": "a625 full-root tracked census6444; preliminary product-cwd census6442 omitted two repo-root Python paths. Retained function-local generic semantics only; this audit does not recompute final full-tree consumers."
+  },
+  "P37_qualification": {
+    "fixturebody": "All108selectederrors failedtmp_pathbeforecall; entrant/cancellation/process/barrier input notestablished, completeexactdiagnostics preserved. Rootlive df showedoverlay0available separately; genericnumbereddirerror doesnotitselfproveerrno.",
+    "baseline": "Historicalbaselinecells andsource summaries onlynavigation; thiswave rootorigin/profile phase/XML decidingrefs exact.",
+    "B69": "All eight physical/logical sharedexecutor control bodies reachedcall andpassed; no failedbarrierpremise. Ownerauthor doesnotselfclaim independentimplementation review."
+  },
+  "P38_qualification": {
+    "grades": "DatajoinPASS is check ofrecordedFAILED/ERRORexecution; nativewait4exit1 andcrossfamilyFAIL85/ERROR1314 preserved. Root45minwall andpytestcase time aredifferenttimingroles.",
+    "no_runtime_by_reviewer": "No tests/collection/gates/importedproduct, no artificialthread/process quota orscopebatch native rerun."
+  },
+  "historical4e": {
+    "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "source_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+    "actual_counts": {
+      "PASS": 1970,
+      "FAIL": 25,
+      "ERROR": 252,
+      "SKIP": 6,
+      "XFAIL": 0,
+      "UNRUN": 0
+    },
+    "RUN_three_files_actual177PASS": "Historicalonly, notsubstitute456current86PASS91ERRORRUNfamilies",
+    "deadline_file": "Historical16PASS1callFAIL deadlineexperiment_state; exactoriginaltrace refs in rootcurrent-deadline-cohort-investigation.json@456, targetentrynotestablished, separateunchangednarrowenteredPASSnotwholewave.",
+    "investigation": {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation.json",
+      "git_blob": "7687c4fa433f6df36a45c4acc21f72302cc08daa",
+      "bytes": 88707,
+      "sha256": "2268474875d4f0f00b03e988a9358e3ac3536b0dbcc34db031a85341e9ab7224"
+    }
+  },
+  "limitations_and_next_owner": [
+    "ROOT: first456 execution is literalhistoricFAIL/ERROR, futuremerged5eceCAS/6afcheckpoint source needsnewfreeze/acceptance withowned sufficientFSfixtures, preferablyunique/tmp namespace. No rerun by reviewer.",
+    "EXE/CMP/DUR: neworiginaldeadline canonicalcheckpoint producer/independentpatch/oracle acceptance separate; opaquehooks/enteredheadpublicationunknown preserved.",
+    "G: exactlocalnativeplatform/productionhistory/evaluator obligations remainlocal; thiscloudsaveddata doesnotestablishnativeMac/reparentoutsidekernelownership/fullfinancialbilling.",
+    "Fullrootraw artifacts ignored withpath@sha; selectedmoderateproof is Gittransported, completeall3578runtimebytes must bearchivedbyroot or recomputedexact ifGrequireslargerboundary.",
+    "NativeERROR retained in completecase census despite bodypremise failure; no inherited/flake/P41automatic waiver."
+  ]
+}

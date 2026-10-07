@@ -1,0 +1,191 @@
+{
+  "schema": "policyos.e02.foreign_source_custody.v1",
+  "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+  "comparison_refs": [
+    "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "8aa69009572bdec3b4906257208c601bed4fd9a6",
+    "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640"
+  ],
+  "authored_slice_base_sha": "e82ac5834ee481051f905edfe0bd68ba19dcc6ad",
+  "authored_slice_base_tree": "aa8ac79b65490ca876f09a6c197186dc896d702e",
+  "root6fa_comparison": "Selected four-file source/input projection only; no whole foreign branch equals root6fa claim.",
+  "source_inputs": [
+    {
+      "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "git_blob": "9e8d63ab8c629cde236089cfec6e6b6b16997812",
+      "bytes": 14990,
+      "sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73"
+    },
+    {
+      "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "git_blob": "6462287a9d93453a8485b3c45d5e37a296929931",
+      "bytes": 7177,
+      "sha256": "c5a8f96a576ad697c096e6829dcefe5f87e23f17151dade9f1c43609e7da0ba0"
+    },
+    {
+      "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+      "git_blob": "80fefb5d041f8ef7b8693fe7a7f4ce66bbe88cd8",
+      "bytes": 893,
+      "sha256": "48704507cd68ce61535ff224ca2b540b799ae604cfbe8d27b071c61ae1082f4d"
+    },
+    {
+      "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "git_blob": "1e15f2cc3351038b558234a152f950cb66102c3a",
+      "bytes": 14768,
+      "sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50"
+    },
+    {
+      "source_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "source_tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "git_blob": "76b17a3591e07fd174344525f0e947183026faff",
+      "bytes": 19571,
+      "sha256": "03123c47088cc6d07526088252e6ff2d0f12fa7d27e786e682a1b06647bfb96f"
+    },
+    {
+      "source_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "source_tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "git_blob": "7584668d22f2cb9afd34f48a8a8b13e662c5c2d4",
+      "bytes": 8076,
+      "sha256": "63b9435c97c7d8db7f9a4e72d8160268e1a0a4a54b48d35028c2fbdb05b71e30"
+    },
+    {
+      "source_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "source_tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+      "git_blob": "a4d1209c9bfc2d20e71628c094e987f4e9fdc93d",
+      "bytes": 1083,
+      "sha256": "744bcc484954cb894bd182408bc41f96a09fbc55955f96548bd45a3623a002d2"
+    },
+    {
+      "source_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "source_tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "git_blob": "e131633d0e61ee38d39bdd4a21843ffd14317c7c",
+      "bytes": 17379,
+      "sha256": "4a1879659f4c946481d6af875216e57ea31a35ff5935d1aebc76aaee68a88155"
+    },
+    {
+      "source_sha": "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+      "source_tree": "ab2050dd1606edf90fa9771dce76b6a368eeff8e",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "git_blob": "5700b57ef68e3b86f72b80697f1222af87d51402",
+      "bytes": 20313,
+      "sha256": "f3b5be00320519e56c8cdd5543bc7f9c54cf0a68f997ad90f8a80025316a38e6"
+    },
+    {
+      "source_sha": "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+      "source_tree": "ab2050dd1606edf90fa9771dce76b6a368eeff8e",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "git_blob": "7584668d22f2cb9afd34f48a8a8b13e662c5c2d4",
+      "bytes": 8076,
+      "sha256": "63b9435c97c7d8db7f9a4e72d8160268e1a0a4a54b48d35028c2fbdb05b71e30"
+    },
+    {
+      "source_sha": "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+      "source_tree": "ab2050dd1606edf90fa9771dce76b6a368eeff8e",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+      "git_blob": "a4d1209c9bfc2d20e71628c094e987f4e9fdc93d",
+      "bytes": 1083,
+      "sha256": "744bcc484954cb894bd182408bc41f96a09fbc55955f96548bd45a3623a002d2"
+    },
+    {
+      "source_sha": "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+      "source_tree": "ab2050dd1606edf90fa9771dce76b6a368eeff8e",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "git_blob": "bb8efdff31d2eb8bd7d3e109c59da18f3cfe8fee",
+      "bytes": 17782,
+      "sha256": "1689788c2ce78ded8e8b9c52d19da99c96b162e9b0f23436ede7762c4c338704"
+    },
+    {
+      "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "git_blob": "5c974e0c1ff455802de497f3771d19868aeddbba",
+      "bytes": 20387,
+      "sha256": "ee5db9c9900ea31f14dd3c47b56c75a2d4a1c7f44cac8cede95476da21fe1830"
+    },
+    {
+      "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "git_blob": "bf0468d4b88cafc0e45d94412d645b385c299e26",
+      "bytes": 8353,
+      "sha256": "b5c125a65d619797fc94265a5dbdb54589796b7dca8c555b1c87f81f1bee4e75"
+    },
+    {
+      "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+      "git_blob": "431951499591e10baec58007c15cff91ea176879",
+      "bytes": 1177,
+      "sha256": "92f9b37faf4d02425bf267cddfc7b7065907dce1421bf3877971bb8d60d269aa"
+    },
+    {
+      "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "git_blob": "398532879ce64958a43707e14f9687e55feb6f0d",
+      "bytes": 18035,
+      "sha256": "2d0968aa5c4adb65c735e5b69e4b85d635587fc8ac214330f529d79379deb77c"
+    }
+  ],
+  "full_owned_slice_delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "preserved_guard_function_ast_equal": {
+    "_instructions": true,
+    "_function_captures": true,
+    "_module_paths": true,
+    "_module_capture": true,
+    "_external_member_boundary": true,
+    "_unavailable": true,
+    "_version": true,
+    "implementation_identity_projection": true
+  },
+  "final_root_scope_predicates": [
+    "        if scope.get_type() == symtable.SymbolTableType.FUNCTION",
+    "        and scope.get_name() == definition.name",
+    "        and scope.get_lineno() == definition.lineno",
+    "        if scopes[0].lookup(parameter).is_assigned() or scopes[0].lookup(parameter).is_imported()"
+  ],
+  "test_input_classification": {
+    "exception_binding": "real current registered source; strict typed intake refuses before dispatcher calls",
+    "generic_type_parameters": "same real registered source; unsupported table refuses via existing typed boundary",
+    "finite_alias_numeric": "existing actual builtin alias and immutable fields; JAX/non-JAX cold/warm numerical consumers",
+    "known_frame_counterexample": "remaining admitted returned-context identity gap, not xfail or closure"
+  },
+  "verdict": "NONBLOCKING source-only within declared ordinary-function finite getter profile",
+  "reviewer_runtime": "UNRUN",
+  "scope_limits": [
+    "Actual root FUNCTION/name/line selected before parameter lookup; no generic scope support inferred.",
+    "Assignment/import census widens ordinary binding class; Store/Del/comprehension checks retained.",
+    "Every actual builtin alias use must be a direct supported call with complete immutable public selectors.",
+    "Runtime target types, descriptors, returned contexts and opaque numerical internals remain unproved.",
+    "B74 LIMITED remains; no all-B, code-quality, runtime, finding or publication-authority acceptance."
+  ],
+  "actual_review_checkout": {
+    "head_before": "a058426e743e8ce8c88c0b4469451b3180458915",
+    "head_after": "a058426e743e8ce8c88c0b4469451b3180458915",
+    "status_before": "",
+    "status_after": ""
+  },
+  "metadata_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "read_only_git_environment": {
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/e02-B-jit-data-getattr-20261007/git-objects:/workspace/polisyos/.git/objects"
+  },
+  "audit_errors": []
+}

@@ -1,0 +1,172 @@
+"""Preserve full exact-source observations; no runtime execution or gate waiver."""
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+RAW = ROOT / '.polisyos/e02-B-current/raw'
+TASK = Path('/tmp/e02-B-continuation-external-6fa9b7142ba5')
+OUT = TASK / 'final-evidence'
+SOURCE = '6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+TREE = 'f53c67ae337db3f2125bf851ce3ee318356bcd68'
+REL = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-final-20261007-evidence'
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def save(name: str, data: bytes) -> dict:
+    target = OUT / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(data)
+    return {'path': f'{REL}/{name}', 'bytes': len(data), 'sha256': digest(data)}
+
+
+def js(value: object) -> bytes:
+    return (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode()
+
+
+def copy(name: str, path: Path, *, lossless_text: bool = False) -> dict:
+    data = path.read_bytes()
+    identity = {'cloud_path': str(path), 'bytes': len(data), 'sha256': digest(data)}
+    if lossless_text:
+        text = data.decode('utf-8')
+        assert text.encode('utf-8') == data
+        result = save(name, js({'schema': 'policyos.e02.lossless_text.v1', 'source': identity,
+                               'encoding': 'utf-8', 'text': text}))
+        result['native_bytes'] = identity
+        assert json.loads((OUT / name).read_text())['text'].encode() == data
+        return result
+    result = save(name, data)
+    result['native_bytes'] = identity
+    return result
+
+
+def main() -> None:
+    OUT.mkdir(parents=True, exist_ok=True)
+    outputs = []
+    checks = []
+    gate_outcomes = {'ruff': 'FAIL', 'format': 'FAIL', 'mypy': 'ERROR',
+                     'runtime-api': 'ERROR', 'production-invocation': 'ERROR',
+                     'architecture': 'UNRUN'}
+    for name in ['admitted-native', 'wheel', *gate_outcomes]:
+        prefix = f'continuation-6fa9b7142ba5-{name}'
+        receipt_path = RAW / 'review' / f'{prefix}.json'
+        receipt = json.loads(receipt_path.read_text())
+        assert receipt['head'] == SOURCE and receipt['tree'] == TREE
+        assert receipt['head_after'] == SOURCE
+        log_path = RAW / 'review' / f'{prefix}.txt'
+        assert digest(log_path.read_bytes()) == receipt['output_sha256']
+        log = copy(f'{name}/stdout.lossless.json', log_path, lossless_text=True)
+        wrapper = copy(f'{name}/wrapper.json', receipt_path)
+        outputs.extend([log, wrapper])
+        outcome = 'FAIL' if name == 'admitted-native' else 'PASS' if name == 'wheel' else gate_outcomes[name]
+        checks.append({'name': name, 'outcome': outcome, 'target_sha': SOURCE, 'target_tree': TREE,
+                       'command': receipt['command'], 'cwd': receipt['cwd'],
+                       'environment': receipt['source_environment'],
+                       'exit': receipt['exit_code'], 'wall_s': receipt['wall_s'],
+                       'child_maxrss_kib': receipt['process_rusage_maxrss_kib'],
+                       'output': log, 'wrapper': wrapper,
+                       'P41_inherited': 'not_established',
+                       'signal_sender_and_cause': 'not_established' if receipt['exit_code'] in [-9, 137] else 'not_applicable'})
+    for name in ['verify', 'parity']:
+        scope = TASK / name
+        receipt = json.loads((scope / 'receipt.json').read_text())
+        refs = [copy(f'{name}/receipt.json', scope / 'receipt.json'),
+                copy(f'{name}/profile-before-exec.json', scope / 'profile-before-exec.json'),
+                copy(f'{name}/stdout.lossless.json', scope / 'stdout.txt', lossless_text=True)]
+        outputs.extend(refs)
+        checks.append({'name': name, 'outcome': 'FAIL', 'target_sha': SOURCE,
+                       'target_tree': TREE, 'receipt': refs[0], 'profile': refs[1], 'output': refs[2],
+                       'planned_expanded_constituents': 15 if name == 'verify' else 35,
+                       'doctor': 'FAIL', 'remaining_constituents': 'UNRUN',
+                       'remaining_count': 14 if name == 'verify' else 34,
+                       'P41_inherited': 'not_established',
+                       'profile_delta': ['output capture in /tmp after workspace ENOSPC',
+                                         'omit empty observer-tools path; no native observer needed',
+                                         'explicit E02_REMOVE_PROTECTION=0'],
+                       'no_assertion_or_backend_weakening': True})
+    native = RAW / 'continuation-6fa9b7142ba5-admitted/native'
+    for name, path, text in [
+        ('native/junit.lossless.json', native / 'native.xml', True),
+        ('native/whole-files.args', native / 'whole-files.args', False),
+        ('native/profile.json', native / 'profile.json', False),
+        ('native/resource-after.json', native / 'resource-after.json', False),
+        ('native/cases.json', TASK / 'native-partition/cases.json', False),
+        ('native/summary.json', TASK / 'native-partition/summary.json', False),
+        ('selector/final.json', RAW / 'continuation-20261007/selector-6fa9b7142ba5-final.json', False),
+        ('selector/first-admission-error.json', RAW / 'continuation-20261007/selector-first-admission-error.json', False),
+        ('runtime-environment.json', TASK / 'runtime-environment.json', False),
+        ('native/changed-consumer-partitions.json', TASK / 'native-changed-consumer-partitions.json', False),
+        ('cloud-cleanup/receipt.json', TASK / 'cloud-cleanup-receipt.json', False),
+        ('cloud-cleanup/independent-admission.json', Path('/tmp/e02-B-cleanup-candidate-delta-20261007/verified-tmp-environment.json'), False),
+        ('cloud-cleanup/cleanup.py.source.txt', TASK / 'cleanup_unused_cloud_environment.py', False),
+        ('cloud-cleanup/overlay-cache-receipt.json', TASK / 'cloud-overlay-cache-cleanup-receipt.json', False),
+        ('workspace/final-coordination-resume.json', TASK / 'final-coordination-resume.json', False),
+        ('external-gates.py.source.txt', TASK / 'external-gates.py', False),
+    ]:
+        outputs.append(copy(name, path, lossless_text=text))
+    wheel = Path('/tmp/e02-B-continuation-wheel-6fa9b7142ba5')
+    # The fresh wheel evidence directory is already complete; retain all moderate output/profile files.
+    for path in sorted(wheel.iterdir()):
+        if path.is_file() and not path.is_symlink() and path.suffix in ['.json', '.txt', '.xml']:
+            if path.stat().st_size > 8_000_000:
+                continue
+            outputs.append(copy('wheel/fresh/' + str(path.relative_to(wheel)) + ('.lossless.json' if path.suffix in ['.txt','.xml'] else ''),
+                                path, lossless_text=path.suffix in ['.txt','.xml']))
+    outputs.append(save('native/protection-mode-provenance.json', js({
+        'source_sha': SOURCE, 'caller_environment': {'E02_REMOVE_PROTECTION': '0'},
+        'profile_projection_limit': 'Initial launcher whitelist omits this key; no claim that native profile alone records it.',
+        'independent_actual_process_sample': {
+            'git_sha': '9b57328d57cce174da8a2953e6db0e77c1ad1fee',
+            'path': 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-selector-readback-20261007.json',
+            'provenance': 'Two live processes capture+pytest sampled with value0; tool-output provenance qualified. Later after-exit no-live assertion FAILED and retained.'},
+        'native_behavior': 'B93 three actual PASS and removedFalse observations; no inferred process observation from later collection.'})))
+    raw = json.loads((TASK / 'preserved-raw-inventory.json').read_text())
+    for row in raw:
+        path = Path(row['path'])
+        assert path.stat().st_size == row['bytes'] and digest(path.read_bytes()) == row['sha256']
+        row['custody'] = 'preserved deciding output; excluded from newly authorized cloud cleanup'
+        row['transfer_role'] = 'large ignored raw path@sha; full moderate stdout and JUnit also transferred losslessly in Git'
+    outputs.append(save('large-raw-custody.json', js(raw)))
+    packet = {'schema': 'policyos.e02.frozen_observation_packet.v1', 'unit': 'B',
+              'source_sha': SOURCE, 'source_tree': TREE,
+              'formal_closure': False, 'closure_ids': [],
+              'native': {'outcome': 'FAIL', 'collected': 3986, 'PASS': 1326, 'FAIL': 10,
+                         'ERROR': 2650, 'SKIP': 0, 'XFAIL': 0, 'deselected': 0,
+                         'runtime_phase_reports': 9308, 'JUnit_cases': 3986,
+                         'terminal': 'session_finished', 'exit': 1,
+                         'literal_failures': {'JIT_01': 9, 'RES03_served_catalog': 1},
+                         'literal_setup_error': 'numbered_tmpdir_refusal',
+                         'ERROR_cause_limit': 'No direct errno28 in every diagnostic. Workspace available=0 separately observed; no per-case direct ENOSPC causality claim.',
+                         'unentered_test_bodies': 2650},
+              'wheel': {'outcome': 'PASS', 'outer_case_PASS': 1, 'separate_installed_child_PASS': 8,
+                        'all_nine_stage_exits': 0, 'backend': 'fresh real build/install; no old wheel reused'},
+              'checks': checks, 'outputs': outputs,
+              'selector': {'whole_files': 261, 'tracked_files': 260, 'external_source_inputs': 1,
+                           'static_current_derive_files': 258, 'absent_named_navigation_refs': 21,
+                           'case_denominator': 'actual native 3986, not static files/nodeid collection alone',
+                           'first_attempt': 'selector admission error and pre-pytest FileNotFoundError: UNRUN'},
+              'independent_audit': {'git_sha': '91e343e0fa79ff77ff08fa0fae6fd3f035633190',
+                                    'path': 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-output-independent-audit.json',
+                                    'reviewer': 'CAS, distinct from root launcher/packet author',
+                                    'native_join_errors': 0},
+              'postfreeze_JIT_repair': 'Separately published exact successor and bounded affected consumers only; this full wave never restamped as successor.',
+              'changed_consumer_native_partition': {'changed_files': 6, 'JUnit_cases': 69, 'PASS': 30, 'ERROR': 39,
+                                                    'body_entry_limit': '39 setup ERROR bodies unentered; defining/independent targeted receipts retain their actual earlier or successor source identities.'},
+              'P37_basis': 'recomputed and independently reconciled actual terminal outputs; code/finding acceptance still G-owned',
+              'P38_divergence': 'Collection/progress or cached prior PASS cannot establish runtime completion; installed wheel outer and child cases are separate; setup ERROR means body unentered.',
+              'P41': 'not_established for all red/incomplete global gates; no inherited waiver',
+              'power_loss_or_multi_host': 'not_established',
+              'cleanup': 'Cloud deletion newly authorized by human; deciding raw, code and active fixtures excluded.',
+              'no_process_or_CPU_quota': True}
+    save('packet.json', js(packet))
+    print(json.dumps({'packet': str(OUT / 'packet.json'), 'payloads': len(outputs),
+                      'payload_bytes': sum(row['bytes'] for row in outputs), 'sha256': digest((OUT / 'packet.json').read_bytes())}))
+
+
+if __name__ == '__main__':
+    main()

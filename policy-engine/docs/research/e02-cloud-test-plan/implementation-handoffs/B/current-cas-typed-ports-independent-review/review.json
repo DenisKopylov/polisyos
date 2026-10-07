@@ -1,0 +1,435 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-cas-typed-ports-independent-review",
+  "reviewer": "RUN /root/run_writer independent foreign patch reviewer",
+  "author": "CAS /root/cas_probe sole writer",
+  "slice_base_sha": "92f3103019f7345acb70fc29b299e6e5a6cfdfe3",
+  "implementation_commits": [
+    "0aaf2d4205b369a8c0dc9df6a80eed6ca1e38aae"
+  ],
+  "candidate_tree_sha": "9e2b3656e4571cd743241a461d736192074cbb50",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-typed-ports-independent-review/audit.json"
+  ],
+  "receipt_companion_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-typed-ports-independent-review/review.json",
+  "candidate_production_changed_paths": [],
+  "candidate_tests_changed_paths": [],
+  "author_implementation_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+  "author_implementation_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+  "author_slice_base_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "author_slice_base_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "author_publication_sha": "d021a262a54eae8558fb81b6ae89d02049277d2e",
+  "author_publication_tree": "0fd0fb9fcdfcdaa830738c0c4c1e278a818e43a1",
+  "author_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-typed-ports.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py"
+  ],
+  "author_handoff": {
+    "source_sha": "d021a262a54eae8558fb81b6ae89d02049277d2e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports.json",
+    "git_blob": "70ba4f6070a67c7ece4d4e585ae4240965b99bc7",
+    "bytes": 39293,
+    "sha256": "4a69d450136ff08f606fb7d2648c04a62ad591c26b4c0d9a2e323d80c2eabb9d"
+  },
+  "audit": {
+    "source_sha": "0aaf2d4205b369a8c0dc9df6a80eed6ca1e38aae",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-typed-ports-independent-review/audit.json",
+    "git_blob": "8bb6b13a9c9742c74301502006a519693cf90835",
+    "bytes": 56133,
+    "sha256": "51c05efe208ba7eb8287e0b9019d5190b5b9cdb5c279427c274ee2afe405d61f"
+  },
+  "source_refs": [
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-typed-ports.toml",
+      "git_blob": "45b1aaadf415831e3d8e4327e057c726c6293590",
+      "bytes": 1603,
+      "sha256": "7f210b34a55e572981e21e91d0036a014e125fcce166c8c5a973594455bee79b"
+    },
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "git_blob": "5c92c04e69c7680884509069ce6e499edc14ca44",
+      "bytes": 10282,
+      "sha256": "83795e353c185c7e512407d926c749f0652242212323c4f148d352d307244892"
+    },
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "git_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+      "bytes": 46449,
+      "sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7"
+    },
+    {
+      "source_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "git_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+      "bytes": 190227,
+      "sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f"
+    }
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03"
+  ],
+  "finding_context": [
+    "B148",
+    "B149",
+    "B150",
+    "B151",
+    "B152",
+    "B153",
+    "B154",
+    "B155"
+  ],
+  "baseline_cells": [],
+  "baseline_qualification": "Fresh quality slice: exactcleanbase mypy7errors is actualauthornegative, not historical E02 baseline summary; no new semanticfinding closure. Canonical baseline source/cell/environment bindings remain in author priorreceipts; this review reads finaltypebatch and capturednativecontrols only.",
+  "runtime_execution_by_reviewer": false,
+  "classification": "PASS bounded complete type-only patch and immutable author output review; no blocker within two leased production paths.",
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Concrete internal typing mismatch repaired; B148 publicownerlawHELD and B154 Aconsumer_missing remain. No overallCAScriterion closure.",
+  "checks": [
+    {
+      "id": "immutable-CAS-patch-and-output-reconciliation",
+      "command": [
+        "/usr/bin/python3",
+        "/tmp/e02-run-cas-type-review.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "environment": "Metadata read-only Git + stdlib JSON/hashlib/ElementTree only; no productimports/nativepytest/collection/gates byreviewer. Embedded exactexecuted driver bytes+hash in audit; source/output custody0aaf is separatefromexecutedauthor5ece tree.",
+      "input_closure": {
+        "driver": {
+          "embedded_source_field": "reconciliation_driver_utf8",
+          "source_bytes": 6261,
+          "source_sha256": "865165e031bbf7bdd75371ef6c68d67ac5702546723f0e4219222e4426fe1582",
+          "container": {
+            "source_sha": "0aaf2d4205b369a8c0dc9df6a80eed6ca1e38aae",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-typed-ports-independent-review/audit.json",
+            "git_blob": "8bb6b13a9c9742c74301502006a519693cf90835",
+            "bytes": 56133,
+            "sha256": "51c05efe208ba7eb8287e0b9019d5190b5b9cdb5c279427c274ee2afe405d61f"
+          }
+        },
+        "author_handoff": {
+          "source_sha": "d021a262a54eae8558fb81b6ae89d02049277d2e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports.json",
+          "git_blob": "70ba4f6070a67c7ece4d4e585ae4240965b99bc7",
+          "bytes": 39293,
+          "sha256": "4a69d450136ff08f606fb7d2648c04a62ad591c26b4c0d9a2e323d80c2eabb9d"
+        },
+        "artifact_commit": "be787fd402d70a3917c55e39238f400a7e104d21",
+        "all23refs": "audit.all_artifact_refs",
+        "all9check_profiles": "audit.check_reconciliation",
+        "actualnativeconfigenvironment": "author evidence/native.json source_and_native_input_identity+environment, clean5ece pre/post",
+        "scope": "Complete23objects247310B, full9capturedcheckprofiles/logs, all102XMLrecords and sevenunchangedtestfileGitblobs. No universaltransitive/import/resource read-set."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": {
+        "full_committed_report": {
+          "source_sha": "0aaf2d4205b369a8c0dc9df6a80eed6ca1e38aae",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-typed-ports-independent-review/audit.json",
+          "git_blob": "8bb6b13a9c9742c74301502006a519693cf90835",
+          "bytes": 56133,
+          "sha256": "51c05efe208ba7eb8287e0b9019d5190b5b9cdb5c279427c274ee2afe405d61f"
+        },
+        "complete_concise_output": {
+          "exit_code": 0,
+          "artifact_denominator": {
+            "files": 23,
+            "bytes": 247310
+          },
+          "xml_cases": 102,
+          "xml_outcomes": {
+            "PASS": 102
+          },
+          "check_count": 9,
+          "mismatches": []
+        }
+      }
+    }
+  ],
+  "author_checks": [
+    {
+      "name": "base-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "clean slice base",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 1.6214197840017732,
+      "maxrss_kib": 174872,
+      "output_bytes": 1458,
+      "output_sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+    },
+    {
+      "name": "overlay-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 1.2511297909950372,
+      "maxrss_kib": 168380,
+      "output_bytes": 914,
+      "output_sha256": "5649d97c6198a5599c76d5c88df4d4d22311738d6eab29a7a0bc0fb3b912e34e"
+    },
+    {
+      "name": "refined-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 1.2260139720019652,
+      "maxrss_kib": 166264,
+      "output_bytes": 43,
+      "output_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "name": "ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.12783303899050225,
+      "maxrss_kib": 34368,
+      "output_bytes": 512,
+      "output_sha256": "44bb601aface00d20336c94daf5e8afe7395f93cee61d0ab93b83c7ff8a82713"
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "target_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "source_qualification": "dirty precommit overlay at actual base HEAD; executed bytes pinned individually in input_closure profile",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.14075468700320926,
+      "maxrss_kib": 28912,
+      "output_bytes": 107,
+      "output_sha256": "5e50b2cab4ba840e6041565f5fec19959d57430cbc44d93f3eb66d62e41dec0e"
+    },
+    {
+      "name": "final-mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_qualification": "clean frozen implementation",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 1.2823001790093258,
+      "maxrss_kib": 165628,
+      "output_bytes": 43,
+      "output_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "name": "final-ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_qualification": "clean frozen implementation",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.204044022000744,
+      "maxrss_kib": 34508,
+      "output_bytes": 19,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "final-format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_qualification": "clean frozen implementation",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.14746368299529422,
+      "maxrss_kib": 22100,
+      "output_bytes": 26,
+      "output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "name": "native",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "--basetemp",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/cas-typed-ports/native-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/cas-typed-ports/native-cache",
+        "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/cas-typed-ports/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "target_tree_sha": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+      "source_qualification": "clean frozen implementation",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 38.413511078004376,
+      "maxrss_kib": 885524,
+      "output_bytes": 16677,
+      "output_sha256": "db2f0d4a9d8f4e28f7b401d5a626ab10befcc1bdfe9a822086889fe65239828b"
+    }
+  ],
+  "author_evidence_qualification": "Everyoriginal7/3typeerror andRuff/formatFAIL retained. Finalmypy/ruff/format and102native cleanfrozen5ece are distinctchecks; 32.15s pytestsessiontime and38.4135s wrapperwall separatetimerroles. Intermediate dirtysourceoverlay doesnot claim wholebase execution.",
+  "actual_native_case_quantity": {
+    "testcases": 102,
+    "outcomes": {
+      "PASS": 102
+    },
+    "complete_grouped_counts": {
+      "tests.unit.core.artifacts.test_put_integrity_retry": 5,
+      "tests.unit.core.artifacts.test_import_admission_noop": 34,
+      "tests.unit.core.artifacts.test_transfer_generation_publication": 25,
+      "tests.unit.core.artifacts.test_verification_failure_snapshot_report": 14,
+      "tests.unit.core.artifacts.test_cas_integrity_report": 1,
+      "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol": 5,
+      "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip": 6,
+      "tests.unit.core.artifacts.test_multi_tenant_shared_cas": 12
+    },
+    "complete_case_refs": "audit.complete_xml_case_refs",
+    "native_stdout_ref": {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.txt",
+      "git_blob": "36c492868ed4b48f06b0c6f6b8174b4b2c13a6cc",
+      "bytes": 16677,
+      "sha256": "db2f0d4a9d8f4e28f7b401d5a626ab10befcc1bdfe9a822086889fe65239828b"
+    },
+    "native_xml_ref": {
+      "source_sha": "be787fd402d70a3917c55e39238f400a7e104d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-typed-ports-evidence/native.xml",
+      "git_blob": "05481cfd3d76a801ea182d330c04a627fe7df64f",
+      "bytes": 18283,
+      "sha256": "a999c366ab970846e1701ddfe1cfbd672cf387627cd09aef4bd84391d486d8f3"
+    }
+  },
+  "source_review": {
+    "required_true": "Two new overloads reflect unchangedimplementation: required and notowner raises ArtifactOwnershipError before return; LiteralTrue guarantees concrete str, optionalcell kept. Dynamicbool path remains str|None.",
+    "complete_owner_representation": "Four guardedconstructor sites exactlyretain same tenant/celldict; existing _require_bound_context_for_owner and _require_import_input_owners null/context/input checks retained. No trust cast or tenant coerce.",
+    "same_owner_values": "Defaultmanifest admission uses owner[tenant_id]/owner[cell_id] derived from same locals under samelease; nullablecell remains exactNone, notwildcard.",
+    "prior_intent": "Directif uses unchanged prior!=None and _committed_intent_matches_current_state conjunction; removes only aliasedbool, operation_id indexed under guard. No new decoder/admissionbranch.",
+    "transfer_callbacks": "Private _TransferMemberKind has onlyblob/manifest/signature; actual archive/directory helpers call those literals. Publicstoreexport full ownershipchecks unchanged; callbacks simply typedto accepted actualdomain.",
+    "immutable_read_surface": "CASMemberReceipt getterfields match actualfrozendataclass, CASMemberStream getter size/receipt match _VerifiedCASMemberStream. Exportonlyreads after leasedstreamfinishes/validates actualdigest+size; no write capability.",
+    "escape_and_scope": "No newAny/cast/ignore/typewaiver, tests or _integrity_ops changes. Authordocs/release describe internalchange and explicitheldlimits; no publicwire/facade migration."
+  },
+  "property": {
+    "statement": "Express owneridentity/verified membermeasurement already guaranteed by existing runtime guards without widening allowedwrite/import/transfer behavior.",
+    "runtime_path": [
+      "FileSystemCAS requiredownerresolution and scopedput/signature/importguards",
+      "Sameexact ownerintent replay/currentstate confirmation under artifactleases",
+      "Ownerheld actual verifiedCASmemberstream with frozenreceipt",
+      "Archive/directoryexport + fresh import/no-op/inventory/faultconsumers"
+    ],
+    "proxy_divergence": "A greenmypy could conceal loosened tenant/context guard or invalidexport. Independent fullchangedguard review finds thoseguards retained; actual34import/noop cases include foreign/unbound/Nonecellrefusal,25transfer cases actualsyscallfailure/completegeneration. Typingalone is not semanticclosure.",
+    "negative_controls": [
+      "Exactcleanbase7mypyerrors; partialoverlay3errors; initialRuff/formatFAIL preserveoriginaloutcomes.",
+      "Native same/differenttenant/cell/unbound imports refuse beforestage/claim; passiveunscopedcache is separateconsumer, boundunclaimedexactretry and sameowner no-op remain.",
+      "Native streamedwrite/replace/exchange/fsyncfaults retain completeprevious/newgeneration and actualpinnedreader properties.",
+      "Native corrupt/wrongsize/damage inputs retainactualsnapshot/refusal and repairedreopenedretry, including14failure/capturecontrols."
+    ],
+    "authority_purpose": "No new authority; preserve existing concrete tenant/cell/write/admission law and measuredCASintegrity. Publicownerpolicy ratification outsidetype repair."
+  },
+  "P37_qualification": {
+    "premise": "Seven definingfiles byteidentical456→5ece; actualclean5ece source/profile/inputs match allpublishedGitrefs andtest102records. RealFileSystemCAS/streams/syscallfaults retained, notaddedconstructormirror tests.",
+    "closure": "Authorprofile explicittracked source/native/config/PYTHONPATH and exactwait4; fulltransitivebackend/resource read-set notestablished. Getterprotocol/source review doesnot establish heldpolicy."
+  },
+  "P38_qualification": {
+    "runtime": "Complete102XMLPASS and fullstdoutrows agree wait4exit0; nativeerrors/faults are assertedrefusalnegativecases, not XFAILconverted. No additionalreviewer runtime.",
+    "limits": "No broadcohortacceptance oftypebatch inferred; first456rootwave retains nativeFAIL/ERROR as predecessor. Root owns nextmerge/freeze/gates."
+  },
+  "limitations_and_next_owner": [
+    "ROOT: accept/reject narrowCASbatch after independentreviews; exactnewsourcewholecohort needed, no rootmain edit/push byreviewer.",
+    "G/CAS governance owner: B148HELD finitefail-closedimport doesnot ratify publiccross-tenanttransferlaw.",
+    "A: B154 actualall-signature-confirmations consumer missing; access_audit producerownercontext failures remain external totyperepair, no cellguard relaxation.",
+    "Source/output proof only; no helper/newcheckout/native/collection/gates byreviewer.",
+    "ENOSPC blockedinitialdirectorywrite afteraudit completed; actualreconciliation preserved/tmp, latermetadataonlypublication onceROOTrestored585MB withoutsource/tests/envcleanup. No nativeFAIL erased or propertywaived."
+  ]
+}

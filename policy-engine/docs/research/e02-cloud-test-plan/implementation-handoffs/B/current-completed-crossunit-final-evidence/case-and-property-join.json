@@ -1,0 +1,1519 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "actual_child_returncode": 1,
+  "collected_exact_nodeids": 10,
+  "phase_events": 30,
+  "call_outcomes": {
+    "PASS": 8,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "zero_collection_errors": true,
+  "case_join": [
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.027760346012655646,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.2579016740055522,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.0006147639942355454,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "FAIL"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.02196960200672038,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+          "when": "call",
+          "outcome": "passed",
+          "duration": 0.24788881999847945,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.0004116640047868714,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy]",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy]",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.022882766992552206,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy]",
+          "when": "call",
+          "outcome": "passed",
+          "duration": 0.05293587800406385,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy]",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.000258695989032276,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure]",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure]",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.0220942460000515,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure]",
+          "when": "call",
+          "outcome": "passed",
+          "duration": 0.006533939013024792,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure]",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.00023221599985845387,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.02235693701368291,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+          "when": "call",
+          "outcome": "passed",
+          "duration": 0.007155528001021594,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.000241864996496588,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure]",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure]",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.021741841002949513,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure]",
+          "when": "call",
+          "outcome": "passed",
+          "duration": 0.011579136989894323,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure]",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.00023776700254529715,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel]",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel]",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.022089785008574836,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel]",
+          "when": "call",
+          "outcome": "passed",
+          "duration": 0.00676035501237493,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel]",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.0002573039964772761,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.02166210999712348,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+          "when": "call",
+          "outcome": "passed",
+          "duration": 0.00620906800031662,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.00021237900364212692,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.02230940799927339,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+          "when": "call",
+          "outcome": "failed",
+          "duration": 0.052083475995459594,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.0003088709927396849,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "FAIL"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+      "phase_reports": [
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+          "when": "setup",
+          "outcome": "passed",
+          "duration": 0.022560771001735702,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+          "when": "call",
+          "outcome": "passed",
+          "duration": 0.0011642790050245821,
+          "wasxfail": null
+        },
+        {
+          "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup",
+          "when": "teardown",
+          "outcome": "passed",
+          "duration": 0.0004710369976237416,
+          "wasxfail": null
+        }
+      ],
+      "case_outcome": "PASS"
+    }
+  ],
+  "over_cap_actual_events": [
+    "acquire",
+    "release",
+    "acquire",
+    "poll",
+    "poll",
+    "poll",
+    "commit",
+    "poll",
+    "flush",
+    "commit",
+    "release"
+  ],
+  "over_cap_earliest_assertion": "Required before-consumer-effects refusal is false. Later failure-nonnull, exact lease-counter and unchanged-checkpoint assertions were not reached and are not granted PASS.",
+  "cleanup_observations": [
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e",
+          "1820843c-5fd2-4741-88c3-c00316323d4f"
+        ],
+        "disconnect_calls": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e",
+          "1820843c-5fd2-4741-88c3-c00316323d4f"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.195,
+          "created_at": "2026-10-06 23:00:46.091968+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e"
+        ],
+        "disconnect_calls": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.195,
+          "created_at": "2026-10-06 23:00:46.091968+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e"
+        ],
+        "disconnect_calls": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.195,
+          "created_at": "2026-10-06 23:00:46.091968+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "1820843c-5fd2-4741-88c3-c00316323d4f"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e"
+        ],
+        "disconnect_calls": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.195,
+          "created_at": "2026-10-06 23:00:46.091968+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": 2,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e",
+          "1820843c-5fd2-4741-88c3-c00316323d4f"
+        ],
+        "disconnect_calls": [
+          "9d3b9faf-5e3f-49d4-9432-477f70be309e",
+          "1820843c-5fd2-4741-88c3-c00316323d4f"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.195,
+          "created_at": "2026-10-06 23:00:46.091968+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": false,
+      "primary_exception_type": null,
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "healthy"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f",
+          "5c2e9e57-7930-48d9-8c74-c5c13491fbea"
+        ],
+        "disconnect_calls": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f",
+          "5c2e9e57-7930-48d9-8c74-c5c13491fbea"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.166,
+          "created_at": "2026-10-06 23:00:46.233375+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"
+        ],
+        "disconnect_calls": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.166,
+          "created_at": "2026-10-06 23:00:46.233375+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"
+        ],
+        "disconnect_calls": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.166,
+          "created_at": "2026-10-06 23:00:46.233375+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "5c2e9e57-7930-48d9-8c74-c5c13491fbea"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"
+        ],
+        "disconnect_calls": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.166,
+          "created_at": "2026-10-06 23:00:46.233375+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f",
+          "5c2e9e57-7930-48d9-8c74-c5c13491fbea"
+        ],
+        "disconnect_calls": [
+          "2ae36b6a-22d8-4f32-aa34-39bc806c6a7f",
+          "5c2e9e57-7930-48d9-8c74-c5c13491fbea"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.166,
+          "created_at": "2026-10-06 23:00:46.233375+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "primary_exception_is_injected": true,
+      "primary_exception_type": "ConnectorStageError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "subscribe-failure"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83",
+          "c71f6e97-f9e7-4cea-88a3-d489c2e51655"
+        ],
+        "disconnect_calls": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83",
+          "c71f6e97-f9e7-4cea-88a3-d489c2e51655"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.217,
+          "created_at": "2026-10-06 23:00:46.327607+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83"
+        ],
+        "disconnect_calls": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.217,
+          "created_at": "2026-10-06 23:00:46.327607+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83"
+        ],
+        "disconnect_calls": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.217,
+          "created_at": "2026-10-06 23:00:46.327607+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "c71f6e97-f9e7-4cea-88a3-d489c2e51655"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83"
+        ],
+        "disconnect_calls": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.217,
+          "created_at": "2026-10-06 23:00:46.327607+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83",
+          "c71f6e97-f9e7-4cea-88a3-d489c2e51655"
+        ],
+        "disconnect_calls": [
+          "7f8e39cf-148a-471a-be10-5184cd030c83",
+          "c71f6e97-f9e7-4cea-88a3-d489c2e51655"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.217,
+          "created_at": "2026-10-06 23:00:46.327607+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": false,
+      "primary_exception_type": "CursorStoreError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "checkpoint-read-failure"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186",
+          "3ba69b6c-c2d6-487f-a1c4-387e581a648e"
+        ],
+        "disconnect_calls": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186",
+          "3ba69b6c-c2d6-487f-a1c4-387e581a648e"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.231,
+          "created_at": "2026-10-06 23:00:46.424715+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186"
+        ],
+        "disconnect_calls": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.231,
+          "created_at": "2026-10-06 23:00:46.424715+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186"
+        ],
+        "disconnect_calls": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.231,
+          "created_at": "2026-10-06 23:00:46.424715+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "3ba69b6c-c2d6-487f-a1c4-387e581a648e"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186"
+        ],
+        "disconnect_calls": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.231,
+          "created_at": "2026-10-06 23:00:46.424715+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186",
+          "3ba69b6c-c2d6-487f-a1c4-387e581a648e"
+        ],
+        "disconnect_calls": [
+          "01be6946-c6df-4a27-b90d-051f13ca2186",
+          "3ba69b6c-c2d6-487f-a1c4-387e581a648e"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.231,
+          "created_at": "2026-10-06 23:00:46.424715+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": true,
+      "primary_exception_type": "ConnectorStageError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "rewind-failure"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33",
+          "9ae44860-1b0d-4195-863d-e7f0b2781b10"
+        ],
+        "disconnect_calls": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33",
+          "9ae44860-1b0d-4195-863d-e7f0b2781b10"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.157,
+          "created_at": "2026-10-06 23:00:46.519462+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"
+        ],
+        "disconnect_calls": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.157,
+          "created_at": "2026-10-06 23:00:46.519462+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"
+        ],
+        "disconnect_calls": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.157,
+          "created_at": "2026-10-06 23:00:46.519462+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "9ae44860-1b0d-4195-863d-e7f0b2781b10"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"
+        ],
+        "disconnect_calls": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.157,
+          "created_at": "2026-10-06 23:00:46.519462+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33",
+          "9ae44860-1b0d-4195-863d-e7f0b2781b10"
+        ],
+        "disconnect_calls": [
+          "7b4944f0-d7ba-4b61-95bb-1fb3debd0a33",
+          "9ae44860-1b0d-4195-863d-e7f0b2781b10"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.157,
+          "created_at": "2026-10-06 23:00:46.519462+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": false,
+      "primary_exception_type": "CancelledError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "caller-cancel"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "88856ae8-035e-4ece-b57b-36ff02762a61"
+        ],
+        "disconnect_calls": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "88856ae8-035e-4ece-b57b-36ff02762a61"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.154,
+          "created_at": "2026-10-06 23:00:46.611455+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"
+        ],
+        "disconnect_calls": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.154,
+          "created_at": "2026-10-06 23:00:46.611455+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"
+        ],
+        "available_permits": 0,
+        "confirmed_disconnects": [],
+        "disconnect_calls": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173": {
+            "closed": false,
+            "pending_permit": true,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 1,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.154,
+          "created_at": "2026-10-06 23:00:46.611455+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "88856ae8-035e-4ece-b57b-36ff02762a61"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"
+        ],
+        "disconnect_calls": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.154,
+          "created_at": "2026-10-06 23:00:46.611455+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "88856ae8-035e-4ece-b57b-36ff02762a61"
+        ],
+        "disconnect_calls": [
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "08ec9094-c3a7-4fa7-8f96-15d8b8e73173",
+          "88856ae8-035e-4ece-b57b-36ff02762a61"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.154,
+          "created_at": "2026-10-06 23:00:46.611455+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "primary_exception_is_injected": true,
+      "primary_exception_type": "ConnectorStageError",
+      "primary_notes": [
+        "stream subscription pool close failed: RuntimeError('Connection cleanup remains pending for the closed pool')",
+        "stream subscription release failed: RuntimeError('Connection cleanup is pending for the released owner')",
+        "stream session startup cleanup remains pending after retry: RuntimeError('Connection cleanup is pending for the released owner')"
+      ],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "startup-owner-retry"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "6c4b1967-4089-480e-ae66-6975d3727c30"
+        ],
+        "disconnect_calls": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c",
+          "6c4b1967-4089-480e-ae66-6975d3727c30"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c": {
+            "closed": false,
+            "pending_permit": false,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.16699999999999998,
+          "created_at": "2026-10-06 23:00:46.704394+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [],
+        "disconnect_calls": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c": {
+            "closed": false,
+            "pending_permit": false,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.16699999999999998,
+          "created_at": "2026-10-06 23:00:46.704394+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [],
+        "disconnect_calls": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c": {
+            "closed": false,
+            "pending_permit": false,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.16699999999999998,
+          "created_at": "2026-10-06 23:00:46.704394+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c",
+          "6c4b1967-4089-480e-ae66-6975d3727c30"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [],
+        "disconnect_calls": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c": {
+            "closed": false,
+            "pending_permit": false,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.16699999999999998,
+          "created_at": "2026-10-06 23:00:46.704394+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "6c4b1967-4089-480e-ae66-6975d3727c30",
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+        ],
+        "disconnect_calls": [
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c",
+          "6c4b1967-4089-480e-ae66-6975d3727c30",
+          "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+        ],
+        "jsonl_fd_observation": "observed",
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.16699999999999998,
+          "created_at": "2026-10-06 23:00:46.704394+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": false,
+      "primary_exception_type": "RuntimeError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "process-disconnect-failure"
+    }
+  ],
+  "proxy_divergence": {
+    "available_permits": 1,
+    "physical_unconfirmed": [
+      "2c2c3313-cde4-4bd6-abaf-887996061b3c"
+    ],
+    "pending_permit_flag": false,
+    "registry_pending_owner_count": 0,
+    "fresh_process_simultaneous_unconfirmed_handles": [
+      "2c2c3313-cde4-4bd6-abaf-887996061b3c",
+      "6c4b1967-4089-480e-ae66-6975d3727c30"
+    ],
+    "observer_rescue_after_measurement": []
+  },
+  "positive_scope": "Cap3 whole control verifies actual [1,2],[3] windows, canonical CAS contribution refs, third restart exhausted. Other seven cleanup/direct-session controls pass whole assertions. No all-window-policy/general-network or descriptor-leak claim."
+}

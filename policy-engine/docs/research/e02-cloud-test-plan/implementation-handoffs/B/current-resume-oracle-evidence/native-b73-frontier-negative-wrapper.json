@@ -1,0 +1,58 @@
+{
+  "source_sha": "e56bd6aae203256dca4687b828353d3cced76671",
+  "source_tree": "136d279ec9aecd2fbf56e87bd83160b3d5e48ab9",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b73-frontier-negative/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b73-frontier-negative/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b73-frontier-negative/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b73-frontier-negative/input-closure.json",
+    "sha256": "4a64462f9f4af925dea1c5dc2c2523771591c70574d02d541fa1d208d442e555",
+    "paths": 2732,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T10:50:24.910779+00:00",
+  "end_utc": "2026-10-06T10:50:44.364710+00:00",
+  "wall_s": 19.357096136009204,
+  "max_rss_kib": 669120,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b73-frontier-negative/cohort.xml",
+      "sha256": "25123814b1eaf51c18fd58f959c1d0b9099fa3771307b7b1a8138fe6d4d21cd8",
+      "bytes": 6366
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b73-frontier-negative/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b73-frontier-negative/input-closure.json",
+      "sha256": "4a64462f9f4af925dea1c5dc2c2523771591c70574d02d541fa1d208d442e555",
+      "bytes": 519026
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-b73-frontier-negative/native.txt",
+      "sha256": "13ee1a7e582a90f478e3d9166fb967f7e4733e37dee73f6b5f8d30fcb8c58d03",
+      "bytes": 6181
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "source": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "selected_whole_files": 261,
+  "unique_cases": 3986,
+  "runtime_phases": 9308,
+  "case_counts": {
+    "PASS": 1326,
+    "FAIL": 10,
+    "ERROR": 2650
+  },
+  "phase_counts": {
+    "setup:passed": 1336,
+    "call:passed": 1326,
+    "teardown:passed": 3986,
+    "call:failed": 10,
+    "setup:failed": 2650
+  },
+  "error_diagnostic_buckets": {
+    "numbered_tmpdir_refusal_without_literal_errno28": 2650
+  },
+  "audit_errors": [],
+  "output": "/tmp/e02-B-cas-output-audit-20261007/native-audit-final.json",
+  "bytes": 110351,
+  "sha256": "8ee6a25c212823f70607766cbb3f3a5a6f775e1d2ecfac457943f3d72239fe30"
+}

@@ -1,0 +1,437 @@
+....FFFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+______________ test_timeout_cleans_owned_process_descendant[sync] ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-145/test_timeout_cleans_owned_proc0')
+ctx = <MagicMock id='139840734256432'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+mode = 'sync'
+
+    @pytest.mark.skipif(
+        "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    )
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:
+        """Timeout cleanup owns the worker group and does not leave descendants."""
+        pid_path = tmp_path / "descendant-pid"
+        node = _DescendantProcessNode(pid_path)
+        descendant_pid: int | None = None
+    
+        try:
+    
+            def invoke():
+                kwargs = {
+                    "retry_policy": RetryPolicy(),
+                    "timeout_s": 0.5,
+                    "alias": "descendant-cleanup",
+                }
+                if mode == "sync":
+                    execute_with_retry_sync(node, ctx, state, **kwargs)
+                else:
+                    asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+    
+            with pytest.raises(NodeTimeoutError):
+                invoke()
+            assert pid_path.exists()
+            descendant_pid = int(pid_path.read_text())
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1177: Failed
+_____________ test_timeout_cleans_owned_process_descendant[async] ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-145/test_timeout_cleans_owned_proc1')
+ctx = <MagicMock id='139840734259792'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+mode = 'async'
+
+    @pytest.mark.skipif(
+        "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    )
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:
+        """Timeout cleanup owns the worker group and does not leave descendants."""
+        pid_path = tmp_path / "descendant-pid"
+        node = _DescendantProcessNode(pid_path)
+        descendant_pid: int | None = None
+    
+        try:
+    
+            def invoke():
+                kwargs = {
+                    "retry_policy": RetryPolicy(),
+                    "timeout_s": 0.5,
+                    "alias": "descendant-cleanup",
+                }
+                if mode == "sync":
+                    execute_with_retry_sync(node, ctx, state, **kwargs)
+                else:
+                    asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+    
+            with pytest.raises(NodeTimeoutError):
+                invoke()
+            assert pid_path.exists()
+            descendant_pid = int(pid_path.read_text())
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1177: Failed
+_______________ test_cleanup_kills_descendant_after_worker_exit ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-145/test_cleanup_kills_descendant_0')
+ctx = <MagicMock id='139840733678288'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    @pytest.mark.skipif(
+        "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    )
+    def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> None:
+        """Cleanup must still reap an owned group after its worker has exited."""
+        pid_path = tmp_path / "exited-worker-descendant-pid"
+        node = _ExitedWorkerWithDescendantNode(pid_path)
+        descendant_pid: int | None = None
+    
+        try:
+            with pytest.raises(NodeTimeoutError):
+                retry_module._execute_with_timeout_process(
+                    node,
+                    ctx,
+                    state,
+                    timeout_s=0.5,
+                )
+            assert pid_path.exists()
+            descendant_pid = int(pid_path.read_text())
+            for _ in range(20):
+                try:
+                    os.kill(descendant_pid, 0)
+                except ProcessLookupError:
+                    break
+                _time.sleep(0.05)
+            else:
+>               pytest.fail("owned descendant survived worker cleanup")
+E               Failed: owned descendant survived worker cleanup
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1225: Failed
+____ test_owned_supervisor_reaps_real_new_session_grandchild[returned-sync] ____
+
+owned_tree_dir = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_re0')
+ctx = <MagicMock id='139840733679296'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+mode = 'sync', finish = True
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux child subreaper contract")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("finish", [True, False], ids=["returned", "expired"])
+    def test_owned_supervisor_reaps_real_new_session_grandchild(
+        owned_tree_dir, ctx, state, mode, finish
+    ):
+        tmp_path = owned_tree_dir
+        original_flag = _caller_subreaper_flag()
+        node = _OwnedProcessTreeNode(tmp_path, finish=finish)
+        kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 0.3, "alias": "actual-tree"}
+        if finish:
+            outcome = (
+                execute_with_retry_sync(node, ctx, state, **kwargs)
+                if mode == "sync"
+                else asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+            )
+            assert outcome.status == "ok"
+        else:
+    
+            def invoke():
+                if mode == "sync":
+                    return execute_with_retry_sync(node, ctx, state, **kwargs)
+                return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+    
+            with pytest.raises(NodeTimeoutError) as expired:
+                invoke()
+>       _assert_real_tree_reaped(tmp_path)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_re0')
+
+    def _assert_real_tree_reaped(directory):
+        import json
+    
+        pids = json.loads((directory / "process-identities.json").read_text())
+        assert len(pids) == 3 and len(set(pids)) == 3
+        for pid in pids:
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1314: Failed
+___ test_owned_supervisor_reaps_real_new_session_grandchild[returned-async] ____
+
+owned_tree_dir = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_re1')
+ctx = <MagicMock id='139840733682992'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+mode = 'async', finish = True
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux child subreaper contract")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("finish", [True, False], ids=["returned", "expired"])
+    def test_owned_supervisor_reaps_real_new_session_grandchild(
+        owned_tree_dir, ctx, state, mode, finish
+    ):
+        tmp_path = owned_tree_dir
+        original_flag = _caller_subreaper_flag()
+        node = _OwnedProcessTreeNode(tmp_path, finish=finish)
+        kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 0.3, "alias": "actual-tree"}
+        if finish:
+            outcome = (
+                execute_with_retry_sync(node, ctx, state, **kwargs)
+                if mode == "sync"
+                else asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+            )
+            assert outcome.status == "ok"
+        else:
+    
+            def invoke():
+                if mode == "sync":
+                    return execute_with_retry_sync(node, ctx, state, **kwargs)
+                return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+    
+            with pytest.raises(NodeTimeoutError) as expired:
+                invoke()
+>       _assert_real_tree_reaped(tmp_path)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_re1')
+
+    def _assert_real_tree_reaped(directory):
+        import json
+    
+        pids = json.loads((directory / "process-identities.json").read_text())
+        assert len(pids) == 3 and len(set(pids)) == 3
+        for pid in pids:
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1314: Failed
+____ test_owned_supervisor_reaps_real_new_session_grandchild[expired-sync] _____
+
+owned_tree_dir = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_re2')
+ctx = <MagicMock id='139840733686016'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+mode = 'sync', finish = False
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux child subreaper contract")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("finish", [True, False], ids=["returned", "expired"])
+    def test_owned_supervisor_reaps_real_new_session_grandchild(
+        owned_tree_dir, ctx, state, mode, finish
+    ):
+        tmp_path = owned_tree_dir
+        original_flag = _caller_subreaper_flag()
+        node = _OwnedProcessTreeNode(tmp_path, finish=finish)
+        kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 0.3, "alias": "actual-tree"}
+        if finish:
+            outcome = (
+                execute_with_retry_sync(node, ctx, state, **kwargs)
+                if mode == "sync"
+                else asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+            )
+            assert outcome.status == "ok"
+        else:
+    
+            def invoke():
+                if mode == "sync":
+                    return execute_with_retry_sync(node, ctx, state, **kwargs)
+                return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+    
+            with pytest.raises(NodeTimeoutError) as expired:
+                invoke()
+>       _assert_real_tree_reaped(tmp_path)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_re2')
+
+    def _assert_real_tree_reaped(directory):
+        import json
+    
+        pids = json.loads((directory / "process-identities.json").read_text())
+        assert len(pids) == 3 and len(set(pids)) == 3
+        for pid in pids:
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1314: Failed
+____ test_owned_supervisor_reaps_real_new_session_grandchild[expired-async] ____
+
+owned_tree_dir = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_re3')
+ctx = <MagicMock id='139840733689376'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+mode = 'async', finish = False
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux child subreaper contract")
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    @pytest.mark.parametrize("finish", [True, False], ids=["returned", "expired"])
+    def test_owned_supervisor_reaps_real_new_session_grandchild(
+        owned_tree_dir, ctx, state, mode, finish
+    ):
+        tmp_path = owned_tree_dir
+        original_flag = _caller_subreaper_flag()
+        node = _OwnedProcessTreeNode(tmp_path, finish=finish)
+        kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 0.3, "alias": "actual-tree"}
+        if finish:
+            outcome = (
+                execute_with_retry_sync(node, ctx, state, **kwargs)
+                if mode == "sync"
+                else asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+            )
+            assert outcome.status == "ok"
+        else:
+    
+            def invoke():
+                if mode == "sync":
+                    return execute_with_retry_sync(node, ctx, state, **kwargs)
+                return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+    
+            with pytest.raises(NodeTimeoutError) as expired:
+                invoke()
+>       _assert_real_tree_reaped(tmp_path)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_re3')
+
+    def _assert_real_tree_reaped(directory):
+        import json
+    
+        pids = json.loads((directory / "process-identities.json").read_text())
+        assert len(pids) == 3 and len(set(pids)) == 3
+        for pid in pids:
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1314: Failed
+________ test_owned_supervisor_reaps_tree_on_async_caller_cancellation _________
+
+owned_tree_dir = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_tr0')
+ctx = <MagicMock id='139840733004864'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux child subreaper contract")
+    def test_owned_supervisor_reaps_tree_on_async_caller_cancellation(owned_tree_dir, ctx, state):
+        tmp_path = owned_tree_dir
+        original_flag = _caller_subreaper_flag()
+    
+        async def exercise():
+            task = asyncio.create_task(
+                execute_with_retry_async(
+                    _OwnedProcessTreeNode(tmp_path, finish=False),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=5,
+                    alias="cancel-tree",
+                )
+            )
+            deadline = _time.monotonic() + 2
+            effects = tmp_path / "grandchild-effects.txt"
+            while not effects.exists() or not effects.stat().st_size:
+                assert _time.monotonic() < deadline
+                await asyncio.sleep(0.002)
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+    
+        asyncio.run(exercise())
+>       _assert_real_tree_reaped(tmp_path)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1407: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-agent/pytest-145/test_owned_supervisor_reaps_tr0')
+
+    def _assert_real_tree_reaped(directory):
+        import json
+    
+        pids = json.loads((directory / "process-identities.json").read_text())
+        assert len(pids) == 3 and len(set(pids)) == 3
+        for pid in pids:
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1314: Failed
+_ test_real_process_start_failure_preserves_original_error_and_no_body_effect __
+
+_process = <ForkProcess name='ForkProcess-13' parent=112382 initial daemon>
+
+    def denied(_process):
+>       raise OSError("actual process start denied")
+E       OSError: actual process start denied
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1437: OSError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-145/test_real_process_start_failur0')
+ctx = <MagicMock id='139840733007888'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2f353f8e90>
+
+    def test_real_process_start_failure_preserves_original_error_and_no_body_effect(
+        tmp_path, ctx, state, monkeypatch
+    ):
+        entered = tmp_path / "entered.txt"
+    
+        class Node:
+            def execute(self, _ctx, passed_state):
+                entered.write_text("physical body")
+                return _ok_outcome(passed_state)
+    
+        def denied(_process):
+            raise OSError("actual process start denied")
+    
+        monkeypatch.setattr(mp.get_context("fork").Process, "start", denied)
+        with pytest.raises(OSError, match="actual process start denied"):
+>           retry_module._execute_with_timeout_process(Node(), ctx, state, timeout_s=0.1)
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1441: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../_build/e02-current-runtime/process-replay-base/overlay/base_retry.py:1244: in _execute_with_timeout_process
+    _close_worker_process(process)
+../_build/e02-current-runtime/process-replay-base/overlay/base_retry.py:1066: in _close_worker_process
+    process.join(timeout=0.0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <ForkProcess name='ForkProcess-13' parent=112382 initial daemon>
+timeout = 0.0
+
+    def join(self, timeout=None):
+        '''
+        Wait until child process terminates
+        '''
+        self._check_closed()
+        assert self._parent_pid == os.getpid(), 'can only join a child process'
+>       assert self._popen is not None, 'can only join a started process'
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: can only join a started process
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py:155: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant[sync]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant[async]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_cleanup_kills_descendant_after_worker_exit
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_real_new_session_grandchild[returned-sync]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_real_new_session_grandchild[returned-async]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_real_new_session_grandchild[expired-sync]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_real_new_session_grandchild[expired-async]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_tree_on_async_caller_cancellation
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_process_start_failure_preserves_original_error_and_no_body_effect
+9 failed, 4 passed, 47 deselected in 9.73s

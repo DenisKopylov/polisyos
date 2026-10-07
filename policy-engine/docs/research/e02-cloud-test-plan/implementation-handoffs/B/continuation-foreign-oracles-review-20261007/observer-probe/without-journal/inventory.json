@@ -1,0 +1,193 @@
+{
+  "schema": "policyos.e02.pytest_inventory.v1",
+  "state": "collection_finished_runtime_pending",
+  "predicate_basis": "recomputed",
+  "claim_grade": "runtime_observation_not_finding_admission",
+  "pytest_version": "9.0.2",
+  "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "rootpath": "/workspace/e02-B-current-coordination",
+  "worker_id": null,
+  "selectors": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py"
+  ],
+  "ini_path": null,
+  "ini_addopts": [],
+  "junit_path": null,
+  "runtime_report_journal": null,
+  "git_at_start": {
+    "repo": "/workspace/e02-B-current-coordination",
+    "read_operations": [
+      {
+        "args": [
+          "rev-parse",
+          "HEAD"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 41,
+        "stdout_sha256": "463fd9896e701de4754c9338a0d29dceb563e42d5d569b0e2c76f2ec2133155b",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "rev-parse",
+          "HEAD^{tree}"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 41,
+        "stdout_sha256": "4634a3b4334d536d2bfab34608af85a181c508340b329f4a3ac9b7d2d7d4f0ac",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "symbolic-ref",
+          "-q",
+          "HEAD"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 44,
+        "stdout_sha256": "bfde8247cb81ff2593f7bf5cc01fe7b50fbaf2863cea0890e1f7762d93244f49",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "rev-parse",
+          "--show-object-format"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "335277ee77cfc8d51d6602e4137232cf6041aac2bc663777e384b90d5ae74d51",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "status",
+          "--porcelain=v1",
+          "--untracked-files=no"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "rev-parse",
+          "--show-toplevel"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 38,
+        "stdout_sha256": "9eddf2e0113e73bece768c8be80383b366cf2016bc78e9b36bcb64816aac56ef",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "check-ignore",
+          "--quiet",
+          "--no-index",
+          "--",
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/inventory.json"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "head": "72965ae4d665db7d57ba0a2dbd7c050e5795492b",
+    "tree": "38bca96997cacfc24f985a1a74f74aa1018f8bbf",
+    "branch": "refs/heads/codex/e02-B-current-coordination",
+    "object_format": "sha1",
+    "tracked_status": ""
+  },
+  "session_items_before_execution": [
+    {
+      "nodeid": ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_first",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+      "location": [
+        ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+        1,
+        "test_first"
+      ],
+      "originalname": "test_first",
+      "markers": [],
+      "fixture_names": [
+        "event_loop_policy"
+      ],
+      "has_callspec": false,
+      "parameter_values": "not_serialized; actual parameterization is retained in nodeid"
+    },
+    {
+      "nodeid": ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_explicit_death",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+      "location": [
+        ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+        3,
+        "test_explicit_death"
+      ],
+      "originalname": "test_explicit_death",
+      "markers": [],
+      "fixture_names": [
+        "event_loop_policy"
+      ],
+      "has_callspec": false,
+      "parameter_values": "not_serialized; actual parameterization is retained in nodeid"
+    }
+  ],
+  "collection_reports": [
+    {
+      "nodeid": "",
+      "outcome": "passed",
+      "location": null,
+      "longrepr_type": "NoneType",
+      "longrepr_utf8_bytes": 0,
+      "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+      "result_nodeids": [
+        ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py"
+      ]
+    },
+    {
+      "nodeid": ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+      "outcome": "passed",
+      "location": null,
+      "longrepr_type": "NoneType",
+      "longrepr_utf8_bytes": 0,
+      "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+      "result_nodeids": [
+        ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_first",
+        ".polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_explicit_death"
+      ]
+    }
+  ],
+  "deselected_items": [],
+  "runtime_phase_reports": [],
+  "xdist_worker_collection_reports": [],
+  "counts": {
+    "session_items": 2,
+    "collect_reports": 2,
+    "collection_failed": 0,
+    "collection_skipped": 0,
+    "deselected": 0,
+    "runtime_phase_reports": 0
+  },
+  "unresolved_by_construction": [
+    "No universal import read-set: sys.modules origins are a finish-time snapshot.",
+    "File hashes observe backing bytes, not loader reads or in-memory substitutions.",
+    "Transient/removed and child modules plus resources/services are unmeasured.",
+    "Nodeid/collection presence never proves PASS, property adequacy or closure.",
+    "Abrupt death may leave only the pre-execution checkpoint or a partial JSON write.",
+    "Environment values, mark/parameter arguments, locals and streams are omitted.",
+    "Diagnostic text is hash-bound here; full native stdout/JUnit remains separate.",
+    "Pytest9 evaluated-xfail stash is an explicit version-bound diagnostic dependency.",
+    "xdist worker artifacts are separate; controller modules do not cover workers."
+  ]
+}

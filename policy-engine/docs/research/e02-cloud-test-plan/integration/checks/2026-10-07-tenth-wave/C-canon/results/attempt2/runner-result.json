@@ -1,0 +1,46 @@
+{
+  "candidate_sha": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+  "candidate_tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+  "selectors": [
+    "tests/unit/core/artifacts/test_ir_adapter.py",
+    "tests/unit/ir/analytics/test_ncm.py",
+    "tests/unit/fabric/test_entity_resolution.py::test_probabilistic_entity_resolution_is_explainable_and_reversible"
+  ],
+  "pytest_argv": [
+    "--noconftest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/attempt2/pytest.junit.xml",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/attempt2/pytest-temp",
+    "tests/unit/core/artifacts/test_ir_adapter.py",
+    "tests/unit/ir/analytics/test_ncm.py",
+    "tests/unit/fabric/test_entity_resolution.py::test_probabilistic_entity_resolution_is_explainable_and_reversible"
+  ],
+  "pytest_exit": 0,
+  "pytest_wall_seconds": 10.596341457974631,
+  "pytest_junit_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/attempt2/pytest.junit.xml",
+  "probe": {
+    "public_typed_manifest_roundtrip": "PASS",
+    "json_mapping_profile_roundtrip": "FAIL",
+    "typed_manifest_type": "polisyos.core.artifacts.manifest.ArtifactManifest",
+    "CanonInfo_model_dump_mode_json_separators": [
+      ",",
+      ":"
+    ],
+    "CanonInfo_json_separators_type": "list",
+    "json_mapping_exception_type": "polisyos.ir.model_layer.canon.CanonViolation",
+    "json_mapping_exception": "unsupported_ir_canon_profile",
+    "cas_artifact_id": "sha256:3d119a70170d7d2786ad81bbfd6567f5907fe1f8b7eba4711174d0f6b5eb03d0",
+    "real_cas_manifest_profile_type": "CanonInfo",
+    "actual_file_cas_bytes": "{\"profile_probe\":\"canonical-ir-json-mapping\",\"value\":17}"
+  },
+  "loaded_polisyos_module_count": 1460,
+  "all_loaded_polisyos_modules_candidate_exact": true,
+  "origin_violation_count": 0,
+  "origin_violation_preview": []
+}

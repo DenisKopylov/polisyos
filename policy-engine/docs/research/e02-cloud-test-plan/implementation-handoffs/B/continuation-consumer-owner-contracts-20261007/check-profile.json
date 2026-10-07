@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/e02-B-runtime-continuation-20261007/check_c_transfer.py"
+  ],
+  "cwd": "/workspace/e02-B-current-runtime",
+  "actual_metadata_interpreter": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "outcome": "PASS",
+  "output": "243 distinct full tracked inputs/249 fixture files equal; original10=8PASS2FAIL; no native replay",
+  "evidence": "c-input-equality.json",
+  "instrument": "check-c-equality.source.txt",
+  "claim_boundary": "Source/data equality only; runtime environment and proposed semantic contracts are separately qualified"
+}

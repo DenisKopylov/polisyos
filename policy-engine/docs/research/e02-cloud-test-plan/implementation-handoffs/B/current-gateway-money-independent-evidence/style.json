@@ -1,0 +1,31 @@
+[
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py"
+    ],
+    "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": "",
+    "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62"
+  },
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py"
+    ],
+    "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+    "exit_code": 0,
+    "stdout": "1 file already formatted\n",
+    "stderr": "",
+    "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62"
+  }
+]

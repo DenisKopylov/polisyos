@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "count": 11,
+  "bytes": 141644,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/active-receipts.json",
+      "bytes": 1383,
+      "sha256": "fbae0c3467a6dc0ccbe16b25dfdadb1a5047de9b42d691257c197192dc30b697"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-companions.py.txt",
+      "bytes": 5040,
+      "sha256": "788184eae8bb9e911d18b6c1e2f5fb511607fc26fd6e81468743f3787cd5c65c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-explicit-graph.py.txt",
+      "bytes": 7446,
+      "sha256": "c4c5f8f2916d6379ff07a6901c8f5e4c747dcc6cb73cdb5c96c6532dbbd6471c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-source.py.txt",
+      "bytes": 14984,
+      "sha256": "d63df61f9393c83394bed33465f4dbc91e82eea0886d4738feabb14e1775cc6c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/companion-full-stdout.json",
+      "bytes": 3892,
+      "sha256": "5ed686d06b792e12f131e6190d0770eb2af92b60c2b6a0e238c0f89dd431a163"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/graph-full-stdout.json",
+      "bytes": 27976,
+      "sha256": "82ba18aca79681ad75d5de8e70766db41f4748808747a15eea74c8db4086f419"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/initial-parser-full-stderr.txt",
+      "bytes": 7345,
+      "sha256": "89680b26351242a430653643ee4c4216a5b1646d7fa6b3056a3afe6535de1d61"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/initial-parser-full-stdout.json",
+      "bytes": 44754,
+      "sha256": "a1af8775fd2b1bb9f4c07407c3fc174ed1e29cf684bb8f5ee452e4120f2e764b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/review.json",
+      "bytes": 3535,
+      "sha256": "3a0ce4a0a151d23c63e11fac367e82dfbf9711d2f164756fcd6f4e2adbdd182c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/scope-qualification.json",
+      "bytes": 10432,
+      "sha256": "2be6772283354ea393534a9a950bfbce965fc1aad6640629cc84ccc8589c8452"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/source-full-stdout.json",
+      "bytes": 14857,
+      "sha256": "6354e324faa75972f2937e8c9a5bb8b17dfd4f0932362506f88ade7a7e27388a"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.335" timestamp="2026-10-07T07:45:47.904580+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.backends.test_imported_module_checkpoint_identity" name="test_dynamic_import_is_refused_before_any_checkpoint_consumer_effect" time="0.264"><failure message="Failed: Dynamic import was admitted and resumed changed imported implementation">tmp_path = PosixPath('/tmp/e02-B-cas-b74-20261007/dynamic-first-5bb/pytest/test_dynamic_import_is_refused0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f0d32ea7100&gt;
+
+    def test_dynamic_import_is_refused_before_any_checkpoint_consumer_effect(tmp_path, monkeypatch):
+        monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _original_increment, raising=False)
+        effects = tmp_path / "dynamic-effects.txt"
+        try:
+            original, chain, params, context, checkpoint, path, reopened = _saved_prefix(
+                tmp_path, _DynamicImportConsumer, effects
+            )
+        except CheckpointIdentityError as error:
+            # The declared static graph has no identity for namespace-producing
+            # runtime lookup. Correct refusal must precede every physical body.
+            assert "source identity is unavailable" in str(error)
+            assert not effects.exists()
+            assert not (tmp_path / "checkpoints").exists()
+            return
+        # Keep the real checkpoint/resume discriminator when the unsupported cold
+        # intake was incorrectly admitted. This is not a module marker assertion.
+        assert original.final_state["total"] == 7
+        pointer = path.read_bytes()
+        monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _replacement_increment)
+        try:
+            resumed = reopened.execute(
+                chain,
+                initial_state={"x": 3},
+                params_per_node=params,
+                checkpoint=checkpoint,
+                seed=7,
+                artifact_context=context,
+            )
+        except (CheckpointDigestMismatchError, CheckpointIdentityError):
+            pytest.fail("Dynamic namespace cold intake ran despite the static-only identity profile")
+        assert path.read_bytes() == pointer
+        # Retain the counterexample's real return value and physical effects.
+        print("DYNAMIC_RESUMED_TOTAL", resumed.final_state["total"])  # noqa: T201
+        print("DYNAMIC_EFFECTS", effects.read_text().splitlines())  # noqa: T201
+&gt;       pytest.fail("Dynamic import was admitted and resumed changed imported implementation")
+E       Failed: Dynamic import was admitted and resumed changed imported implementation
+
+tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py:284: Failed</failure></testcase></testsuite></testsuites>

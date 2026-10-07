@@ -1,0 +1,66 @@
+from pathlib import Path
+import hashlib,json,shutil,subprocess
+ROOT=Path('/workspace/e02-B-current-execution-state')
+SCRATCH=Path('/tmp/e02-B-gateway-D-controller')
+BASE=ROOT/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-D-controller-evidence'
+BASE.mkdir(exist_ok=False)
+def blob(data): return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def git(sha,path): return subprocess.check_output(['git','-C',str(ROOT),'show',f'{sha}:{path}'])
+x=json.loads((SCRATCH/'deciding-15/observations.json').read_bytes())
+wrapper=ROOT/'.polisyos/e02-B-current/raw/review/money-D-controller-290.json'
+artifacts=[]
+def retain(source,name):
+ data=source.read_bytes(); target=BASE/name; target.parent.mkdir(parents=True,exist_ok=True); target.write_bytes(data)
+ artifacts.append({'path':str(target.relative_to(ROOT)),'source_absolute':str(source),**blob(data)})
+ return artifacts[-1]
+retain(SCRATCH/'probe.py','probe.py.source.txt')
+retain(SCRATCH/'premise-driver.source.txt','premise-driver.source.txt')
+retain(SCRATCH/'premise-zero.txt','premise-zero.txt')
+retain(wrapper,'wrapper.json')
+retain(wrapper.with_suffix('.txt'),'native.txt')
+closure={}; profiles=[]; failed=[]
+for row in x['observations']:
+ a=row['actual']; d=a['ledger']; original=row['input_ref']; raw=git(original['sha'],original['path'])
+ assert blob(raw)=={k:original[k] for k in ['bytes','sha256']}
+ assert a['ledger_before']==blob(raw)==a['ledger_after']
+ assert row['child_exit']==0
+ for source in a['d_loaded_sources']+a['b_loaded_sources']:
+  key=(source['source_sha'],source['path'])
+  assert blob(git(*key))=={k:source[k] for k in ['bytes','sha256']}
+  if key not in closure: closure[key]={**source,'observed_profiles':[]}
+  closure[key]['observed_profiles'].append(row['profile'])
+ state=d['state']; obligations=d['completion_obligations']; expected_known=row['known_amount'] is not None
+ if not expected_known:
+  assert len(obligations)==1 and not d['spend_receipts']
+  obligation=next(iter(obligations.values()))
+  assert obligation['phase']=='cost_unknown'
+  assert obligation['event_payload']['amount'] is None
+  assert obligation['event_payload']['cost_origin']=='unknown'
+  assert a['canonical_pre_check_error']=='BudgetLedgerCompletionRequiredError'
+ profiles.append({'profile':row['profile'],'input_ref':original,'child_pid':a['pid'],'command':row['command'],
+  'known_amount':row['known_amount'],'predicate_outcome':'PASS' if row['expected_unknown_is_unavailable_or_known_is_available'] else 'FAIL',
+  'ledger_before':a['ledger_before'],'ledger_after':a['ledger_after'],'actual_completion_obligations':obligations,
+  'actual_spend_receipts':d['spend_receipts'],'actual_spent':state['spent'],'actual_reserved':state['reserved'],
+  'canonical_pre_check_error':a['canonical_pre_check_error'],'controller_budget_available':a['controller_budget_available'],
+  'controller_budget_snapshot':a['controller_budget_snapshot'],'controller_budget_evidence':a['controller_budget_evidence'],
+  'actual_stopping_decision':a['stopping']})
+summary={'schema':'policyos.e02.B.external_reader_review.v1','target_b_sha':x['b_sha'],'external_d_sha':x['d_sha'],'input_artifact_sha':x['input_sha'],
+ 'predicate_basis':'independently_reconciled','profile_count':x['profile_count'],'predicate_pass':x['predicate_pass'],'predicate_fail':x['predicate_fail'],
+ 'new_provider_calls':0,'all_loaded_source_hashes_match_git':True,'ledger_bytes_unchanged_all15':True,
+ 'public_claim_boundary':'Actual native _refresh_budget_snapshot and actual CostBudgetStopping component composition only; not a full default factory/service/served search execution.',
+ 'profiles':profiles,'raw_complete_observations':{'path':str(SCRATCH/'deciding-15/observations.json'),**blob((SCRATCH/'deciding-15/observations.json').read_bytes()),'full_content_in_committed_native_stdout':True},
+ 'input_qualification':{'own_head_at_execution':'29024b9537b46376957350c9e12f648c0bfb2d63','own_tree':'86bc69364bfe45cabf9f1069d440b34942957aa7',
+ 'production_zero_delta_from_f796':True,'external_d_not_integrated':True,'source_before_after_checks':'Every actual loaded Bmodule matched Git290; every actual Dmodule Git8f; fresh ledger copies matched actual E7 HTTP artifacts at Gitb82.',
+ 'initial_premise_side_effect':'Initial zero control used retained donor directly and created its native zero-byte .lock; donor bytes unchanged; lock preserved in this implementation, no cleanup.'},
+ 'contract_to_D_G':{'existing_expected_invariant':'A pending cost_unknown completion obligation must remain unavailable to stopping/action budget consumers, while actual acknowledged zero remains available.',
+ 'canonical_owner':'D scientific methods search controller budget snapshot reader; B monetary decoder unchanged and independently verified at E7.',
+ 'candidate_input':'ExactD8f controller647-710/CostBudgetStopping and each retainedE7ledger sourceb82; native15 has10 unknown vs5 acknowledged numeric controls.',
+ 'negative_case':'Real ledger cost_unknown amountNone/no receipt/positive reservation and Bpre_check refusal is observed simultaneously with D snapshot0 available and stopFalse.',
+ 'suggested_minimal_existing_contract':'Read canonical completion-aware middleware admission/status before marking configured-owner spend available; retain exact existing knownzero/ordinarypositive controls. D owner decides how exceptions/unknown status enter snapshot.',
+ 'no_invented_authority':'No new billing fact, default invoice, zero settlement or provider retry is authorized by this projection.'}}
+summary_path=SCRATCH/'summary.json';summary_path.write_text(json.dumps(summary,indent=2)+'\n');retain(summary_path,'summary.json')
+closure_path=SCRATCH/'loaded-input-closure.json';closure_path.write_text(json.dumps({'sources':list(closure.values()),'source_count':len(closure),'all_git_hashes_match':True},indent=2)+'\n');retain(closure_path,'loaded-input-closure.json')
+retain(Path(__file__),'package.py.source.txt')
+index={'artifacts':artifacts,'artifact_count':len(artifacts),'payload_bytes':sum(a['bytes'] for a in artifacts)}
+(BASE/'index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({'artifact_count':index['artifact_count'],'payload_bytes':index['payload_bytes'],'closure_sources':len(closure),'profiles':len(profiles),'unknown_fail':summary['predicate_fail']}))

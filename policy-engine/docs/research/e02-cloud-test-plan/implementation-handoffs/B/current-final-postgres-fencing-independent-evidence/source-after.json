@@ -1,0 +1,124 @@
+{
+  "identity": {
+    "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "tracked_status": "",
+    "matched_expected_clean": true
+  },
+  "declared_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "bytes": 22656,
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "bytes": 10553,
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021,
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664,
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/conftest.py",
+      "sha256": "85147d4db3518969cdfa50bd10f84c0f5bab79f72dd8e00123cd49722af37ab3",
+      "bytes": 99,
+      "git_blob": "3d23664091fec4bdaacf6eaeb562e84940485e5b",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/conftest.py",
+      "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce",
+      "bytes": 74,
+      "git_blob": "1ad9ada96b7a081059ce11785e70b8cb55b1b923",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "bytes": 56431,
+      "git_blob": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/artifacts.py",
+      "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf",
+      "bytes": 9046,
+      "git_blob": "7bbf2cd7ef2d8b97455788aa3560bed5cd19d664",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/observability.py",
+      "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8",
+      "bytes": 2392,
+      "git_blob": "745c3fd6f8531f6f76339b153a9b6667e230ee55",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80",
+      "bytes": 16407,
+      "git_blob": "0993916d9cc5b7db21170147af8c3c3a5614fac2",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/__init__.py",
+      "sha256": "d6474a142b132ec6e07ec482dfb42f68c21c794a19b655bf19d4ac231d7203a7",
+      "bytes": 735,
+      "git_blob": "0954e0d75c2d8a8a5c9daaaf681cea51ea3f9258",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+      "bytes": 209996,
+      "git_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+      "bytes": 13613,
+      "git_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+      "bytes": 20260,
+      "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+      "git_bytes_match": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "sha256": "ce79be8c2a247a6dfe3bd543bc1898ca969d60d2b1012f8f8d735e521a1798db",
+      "bytes": 33768,
+      "git_blob": "58267726b4fb3a390c421c68130c788a0c6e90ee",
+      "git_bytes_match": true
+    }
+  ],
+  "declared_bytes_stable": true,
+  "loaded_tracked_bytes_match": true
+}

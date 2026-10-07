@@ -5,11 +5,15 @@ and topology for CAS-backed provenance (Law J).
 
 from __future__ import annotations
 
+import graphlib
+import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from uuid import UUID, uuid5
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
@@ -21,11 +25,13 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
 )
 from polisyos.core.canon import (
-    content_hash as compute_content_hash,
-)
-from polisyos.core.canon import (
+    CanonSpec,
+    from_canonical_bytes,
     to_canonical_bytes,
     truncated_hash,
+)
+from polisyos.core.canon import (
+    content_hash as compute_content_hash,
 )
 
 from ._fingerprint import (
@@ -40,9 +46,11 @@ from ._records import ChainNodeRecord, SlotBindingRecord
 
 if TYPE_CHECKING:
     from ..components.composer import CompiledMethodChain, MethodNode
+    from ..selection.registry import MethodRegistry
 
 __all__ = [
     "ChainArtifact",
+    "CompiledChainPlan",
 ]
 
 logger = get_logger(__name__)
@@ -304,3 +312,309 @@ class ChainArtifact:
     def has_warnings(self) -> bool:
         """Whether chain has validation warnings."""
         return len(self.warnings) > 0
+
+
+# Legacy ChainArtifact remains a provenance recipe. The distinct wire below
+# carries a reversible executable plan without changing that recipe's identity.
+_PLAN_CANON = CanonSpec(forbid_floats=False, exclude_none=False)
+
+
+class _PlanNode(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    node_id: str
+    method_fqn: str
+    signature_abi: str
+    instance_index: int = Field(ge=0)
+    insertion_order: int = Field(ge=0)
+    commutes_with: list[str]
+    static_params_json: str
+    params_json: str
+
+
+class _PlanBinding(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    source_slot: str
+    target_slot: str
+    conversion_factor_hex: str | None
+    requires_fx_rate: bool
+
+
+class _PlanEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    source_id: str
+    target_id: str
+    bindings: list[_PlanBinding]
+
+
+class _PlanPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    schema_version: Literal["1.0.0"]
+    nodes: list[_PlanNode]
+    data_flow: list[_PlanEdge]
+    predecessors: dict[str, list[str]]
+    execution_order: list[str]
+    cache_keys: dict[str, str]
+    warnings: list[str]
+
+
+def _plain_json(value: Any, active: set[int] | None = None) -> None:
+    """Refuse non-JSON values and reserved canonical tags without coercion."""
+    if value is None or type(value) in (bool, int, str):
+        return
+    if type(value) is float and math.isfinite(value):
+        return
+    if type(value) in (list, dict):
+        ancestors = set() if active is None else active
+        if id(value) in ancestors:
+            raise ValueError("Compiled plan parameters cannot contain JSON cycles")
+        ancestors.add(id(value))
+        try:
+            if type(value) is list:
+                for item in value:
+                    _plain_json(item, ancestors)
+            else:
+                for key, item in value.items():
+                    if type(key) is not str or key == "_type":
+                        raise ValueError(
+                            "Compiled plan parameters require untagged string JSON keys"
+                        )
+                    _plain_json(item, ancestors)
+        finally:
+            ancestors.remove(id(value))
+        return
+    raise ValueError("Compiled plan parameters must be finite plain JSON values")
+
+
+def _params_bytes(params: Mapping[str, Any]) -> bytes:
+    values = dict(params)
+    _plain_json(values)
+    return to_canonical_bytes(values, _PLAN_CANON)
+
+
+def _read_params(encoded: str) -> dict[str, Any]:
+    values = from_canonical_bytes(encoded.encode("utf-8"))
+    if type(values) is not dict:
+        raise ValueError("Compiled plan parameters must be a JSON object")
+    _plain_json(values)
+    if _params_bytes(values) != encoded.encode("utf-8"):
+        raise ValueError("Compiled plan parameter encoding is not canonical")
+    return values
+
+
+def _binding_payload(binding: Any) -> dict[str, Any]:
+    factor = binding.conversion_factor
+    return {
+        "source_slot": binding.source_slot,
+        "target_slot": binding.target_slot,
+        "conversion_factor_hex": float(factor).hex() if factor is not None else None,
+        "requires_fx_rate": binding.requires_fx_rate,
+    }
+
+
+def _decode_plan(content: bytes) -> _PlanPayload:
+    payload = _PlanPayload.model_validate(from_canonical_bytes(content))
+    if to_canonical_bytes(payload.model_dump(), _PLAN_CANON) != content:
+        raise ValueError("Compiled plan bytes must use the canonical wire encoding")
+    ids = {node.node_id for node in payload.nodes}
+    if len(ids) != len(payload.nodes):
+        raise ValueError("Compiled plan has duplicate node UUIDs")
+    for node in payload.nodes:
+        if str(UUID(node.node_id)) != node.node_id:
+            raise ValueError("Compiled plan node ID must be a canonical UUID")
+        _read_params(node.static_params_json)
+        _read_params(node.params_json)
+    if set(payload.predecessors) != ids or set(payload.cache_keys) != ids:
+        raise ValueError("Compiled plan must cover every concrete node")
+    if set(payload.execution_order) != ids or len(payload.execution_order) != len(ids):
+        raise ValueError("Compiled plan execution order must cover every concrete node once")
+    for parents in payload.predecessors.values():
+        if len(parents) != len(set(parents)) or not set(parents).issubset(ids):
+            raise ValueError("Compiled plan has duplicate or missing predecessor occurrences")
+    try:
+        graphlib.TopologicalSorter(payload.predecessors).prepare()
+    except graphlib.CycleError as exc:
+        from polisyos.foundry.methods.exceptions import CyclicDependencyError
+
+        fqns = {node.node_id: node.method_fqn for node in payload.nodes}
+        cycle = exc.args[1] if len(exc.args) > 1 else list(ids)
+        raise CyclicDependencyError([fqns[node_id] for node_id in cycle]) from exc
+    positions = {node_id: index for index, node_id in enumerate(payload.execution_order)}
+    for node_id, parents in payload.predecessors.items():
+        if any(positions[parent] >= positions[node_id] for parent in parents):
+            raise ValueError("Compiled plan order violates its effective predecessors")
+    pairs: set[tuple[str, str]] = set()
+    for edge in payload.data_flow:
+        pair = (edge.source_id, edge.target_id)
+        if edge.source_id not in ids or edge.target_id not in ids or pair in pairs:
+            raise ValueError("Compiled plan has duplicate or missing data-flow occurrences")
+        pairs.add(pair)
+        for binding in edge.bindings:
+            factor = binding.conversion_factor_hex
+            if factor is not None and not math.isfinite(float.fromhex(factor)):
+                raise ValueError("Compiled plan conversion factor must be finite")
+    return payload
+
+
+@dataclass(frozen=True, slots=True)
+class CompiledChainPlan:
+    """Byte-immutable, reversible cold execution plan in wire version 1.0.0.
+
+    This internal artifact API selects the current registry implementation and
+    reconciles its ABI. It attests neither historical source code nor cached
+    results, checkpoint prefixes, scientific validity or permission to execute.
+    Parameters support finite plain JSON values with string keys; arbitrary
+    Python values and the canonical ``_type`` parameter key are unsupported.
+    """
+
+    content: bytes
+    SCHEMA_VERSION: ClassVar[str] = "1.0.0"
+
+    def __post_init__(self) -> None:
+        if type(self.content) is not bytes:
+            raise TypeError("CompiledChainPlan content must be immutable bytes")
+        _decode_plan(self.content)
+
+    @classmethod
+    def from_chain(cls, chain: CompiledMethodChain) -> CompiledChainPlan:
+        """Capture concrete nodes, data flow and the frozen effective graph."""
+        successors: dict[UUID, set[UUID]] = {node_id: set() for node_id in chain.dag.nodes}
+        for node_id, parents in chain.dag.predecessors.items():
+            for parent in parents:
+                if parent not in successors or node_id not in successors:
+                    raise ValueError("Compiled plan has an unknown effective occurrence")
+                successors[parent].add(node_id)
+        if successors != {node_id: set(ids) for node_id, ids in chain.dag.successors.items()}:
+            raise ValueError("Compiled plan effective adjacency disagrees")
+        bindings = []
+        for (source, target), link in chain.dag.edges.items():
+            if (
+                source not in chain.dag.nodes
+                or target not in chain.dag.nodes
+                or link.source_id != source
+                or link.target_id != target
+                or link.source_fqn != chain.signatures[source].fqn
+                or link.target_fqn != chain.signatures[target].fqn
+            ):
+                raise ValueError("Compiled plan data-flow identity disagrees")
+            for binding in link.bindings:
+                if binding.source_node_id != source or binding.target_node_id != target:
+                    raise ValueError("Compiled plan binding occurrence disagrees")
+                bindings.append(binding)
+        bindings.sort(
+            key=lambda binding: (
+                str(binding.target_node_id),
+                binding.target_slot,
+                str(binding.source_node_id),
+                binding.source_slot,
+            )
+        )
+        if tuple(bindings) != chain.bindings:
+            raise ValueError("Compiled plan flat bindings disagree with data flow")
+        nodes = []
+        for node_id, node in chain.dag.nodes.items():
+            signature = chain.signatures[node_id]
+            if node.id != node_id or node.method_fqn != signature.fqn:
+                raise ValueError("Compiled plan node/signature identity disagrees")
+            nodes.append(
+                {
+                    "node_id": str(node_id),
+                    "method_fqn": node.method_fqn,
+                    "signature_abi": signature.abi_digest(),
+                    "instance_index": node.instance_index,
+                    "insertion_order": node._insertion_order,
+                    "commutes_with": sorted(node.commutes_with),
+                    "static_params_json": _params_bytes(node.static_params).decode("utf-8"),
+                    "params_json": _params_bytes(node.params).decode("utf-8"),
+                }
+            )
+        payload = {
+            "schema_version": cls.SCHEMA_VERSION,
+            "nodes": nodes,
+            "data_flow": [
+                {
+                    "source_id": str(source),
+                    "target_id": str(target),
+                    "bindings": [_binding_payload(binding) for binding in link.bindings],
+                }
+                for (source, target), link in chain.dag.edges.items()
+            ],
+            "predecessors": {
+                str(node_id): sorted(str(parent) for parent in parents)
+                for node_id, parents in chain.dag.predecessors.items()
+            },
+            "execution_order": [str(node_id) for node_id in chain.execution_order],
+            "cache_keys": {str(node_id): key for node_id, key in chain.cache_keys.items()},
+            "warnings": list(chain.warnings),
+        }
+        return cls(to_canonical_bytes(payload, _PLAN_CANON))
+
+    @classmethod
+    def from_canonical_bytes(cls, content: bytes) -> CompiledChainPlan:
+        """Validate persisted plan bytes without executing any method body."""
+        return cls(content)
+
+    def to_canonical_bytes(self) -> bytes:
+        """Return the immutable canonical wire bytes for persistence."""
+        return self.content
+
+    def to_chain(self, *, registry: MethodRegistry | None = None) -> CompiledMethodChain:
+        """Rebuild and reconcile the plan through the current canonical owners.
+
+        Raises:
+            ValueError: Payload, ABI, binding, graph or order differs from the
+                canonical current composition. Existing composer/linker typed
+                refusals propagate before this function returns a runnable chain.
+        """
+        from ..components.composer import MethodComposer, MethodNode, SemanticValidationLevel
+        from ..selection.registry import MethodRegistry
+
+        payload = _decode_plan(self.content)
+        current = registry if registry is not None else MethodRegistry.get_instance()
+        restored = []
+        for record in payload.nodes:
+            signature = current.get(record.method_fqn).signature
+            if signature.abi_digest() != record.signature_abi:
+                raise ValueError(f"Compiled plan current signature ABI mismatch: {record.node_id}")
+            restored.append(
+                MethodNode(
+                    id=UUID(record.node_id),
+                    method_fqn=record.method_fqn,
+                    params=_read_params(record.params_json),
+                    static_params=_read_params(record.static_params_json),
+                    instance_index=record.instance_index,
+                    commutes_with=frozenset(record.commutes_with),
+                    _insertion_order=record.insertion_order,
+                )
+            )
+        composer = MethodComposer.from_nodes(restored, registry=current)
+        nodes_by_id = composer.dag.nodes
+        for edge in payload.data_flow:
+            mapping = {binding.source_slot: binding.target_slot for binding in edge.bindings}
+            if len(mapping) != len(edge.bindings):
+                raise ValueError("Compiled plan repeats a source slot within one connection")
+            actual = composer.connect(
+                nodes_by_id[UUID(edge.source_id)], nodes_by_id[UUID(edge.target_id)], mapping
+            )
+            if [_binding_payload(binding) for binding in actual.bindings] != [
+                binding.model_dump() for binding in edge.bindings
+            ]:
+                raise ValueError("Compiled plan binding compatibility mismatch")
+        chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+        for record in payload.nodes:
+            if chain.signatures[UUID(record.node_id)].abi_digest() != record.signature_abi:
+                raise ValueError(f"Compiled plan restored signature ABI mismatch: {record.node_id}")
+        actual_parents = {
+            str(node_id): sorted(str(parent) for parent in parents)
+            for node_id, parents in chain.dag.predecessors.items()
+        }
+        if actual_parents != payload.predecessors:
+            raise ValueError("Compiled plan effective dependency mismatch")
+        if [str(node_id) for node_id in chain.execution_order] != payload.execution_order:
+            raise ValueError("Compiled plan execution order mismatch")
+        if {str(node_id): key for node_id, key in chain.cache_keys.items()} != payload.cache_keys:
+            raise ValueError("Compiled plan composition cache-key mismatch")
+        return chain

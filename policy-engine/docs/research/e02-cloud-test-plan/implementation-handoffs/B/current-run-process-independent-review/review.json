@@ -1,0 +1,313 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "exe_state_writer",
+  "author": "run_writer",
+  "reviewed_source_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+  "reviewed_tree_sha": "eb4646dc02024da20d7c27dd30427803a623e5dc",
+  "reviewed_source_refs": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": {
+      "git_sha256": "57a1ea6a58c8287935eed7d17679d229970c00c09be12cb3028cd808526014ba",
+      "git_blob": "99976e751edc45c2ee7650501a808785d0260449",
+      "own_dependency_bytes_equal": false
+    },
+    "policy-engine/src/polisyos/common/async_tools.py": {
+      "git_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "own_dependency_bytes_equal": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": {
+      "git_sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7",
+      "git_blob": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+      "own_dependency_bytes_equal": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/error_classifier.py": {
+      "git_sha256": "6f1ba7482543e0dd5b8e072264660eb72a71b70b1657ba8c6265894afb522838",
+      "git_blob": "0b24e540c7ffedd3c451dfdca058d9d78a9e44e6",
+      "own_dependency_bytes_equal": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/errors.py": {
+      "git_sha256": "41736e82315c56cad6dcbda2b5289300e495e57a7df7215e46c42e0dd97c168f",
+      "git_blob": "fd35b1b532df61801ce6e4d334e968d720dac7bb",
+      "own_dependency_bytes_equal": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py": {
+      "git_sha256": "b38481eec549e4bb999937c52f9fedc4269a78709f850adaa23b64f0032fba76",
+      "git_blob": "260f34e3a52fcf3b82aec43023f45a392b5bdf6f",
+      "own_dependency_bytes_equal": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/context.py": {
+      "git_sha256": "af6ed089cbc85b13730b640dfe089504f61dfa2a21d296744ede3f18920c7375",
+      "git_blob": "938e25daf571f2b95e50f40b421fe16f3f21892e",
+      "own_dependency_bytes_equal": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state.py": {
+      "git_sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+      "git_blob": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+      "own_dependency_bytes_equal": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": {
+      "git_sha256": "68f3d342ccb9a565e51999609171d2cc501c02328d5c1b48523f30d07ee81cfb",
+      "git_blob": "08760b26aae2a489b54441b20b3a90fcd040888d",
+      "own_dependency_bytes_equal": true
+    }
+  },
+  "own_admitted_lane_source_sha": "79b2a7095b15f159d0ca168e8c15a8f94727b685",
+  "source_review": {
+    "full_retry_lines_read": [
+      1,
+      1881
+    ],
+    "classification": "BLOCKED_SETUP_DESCRIPTOR_LIFETIME",
+    "physical_boundary": "Linux supervisor-only PR_SET_CHILD_SUBREAPER; validated process group; kernel PPID census plus pinned pidfd kill; actual adoption and waitpid reap before result publication",
+    "transport": "nonblocking raw framed Pipe readers; drain producer before join; one compute deadline, one delivery grace from completion mark; malformed/EOF outcomes fail closed",
+    "exception_route": "typed category/code travels across IPC without arbitrary exception reconstruction; explicit fatal/validation classification prevents retry; provider TimeoutError alias parity and whole invocation retry budget remain declared pending",
+    "cancellation": "parent cancellation enters finite owned-process terminate/reap finalizer; no async event-loop responsiveness over synchronous cleanup is asserted",
+    "platform_limit": "Linux/procfs/libc prctl+pidfd only; descendants outside kernel-owned census, arbitrary uncooperative thread/coroutine effects and non-Linux reaping not established"
+  },
+  "blocking_findings": [
+    {
+      "id": "RUN_SETUP_PIPE_LIFETIME",
+      "source_lines": {
+        "sync": [
+          1422,
+          1445
+        ],
+        "async": [
+          1521,
+          1544
+        ]
+      },
+      "property": "All first-created owned result descriptors close on setup error before caller sees exception, even while original traceback is retained.",
+      "actual": "Real RLIMIT_NOFILE exhaustion occurs after Pipe creation but before try/finally at mp.Event lazy import. Original OSError retained; both matching pipe descriptors remain live. Physical node body did not enter.",
+      "sync_new_fd_targets": {
+        "5": "pipe:[426503]",
+        "6": "pipe:[426503]"
+      },
+      "async_new_fd_targets": {
+        "8": "pipe:[425648]",
+        "9": "pipe:[425648]"
+      },
+      "suggested_boundary": "Acquire/register the first resource inside an encompassing owner finalizer (and protect Pipe constructor after both Connection handles exist); initialize optional handles before acquisition; close only acquired resources; preserve primary setup exception."
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/current-execution-state/run-review-3f/setup_probe.py",
+        "--mode",
+        "sync"
+      ],
+      "target_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+      "cwd": "/workspace/e02-B-current-execution-state",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python": "3.14.2",
+        "platform": "Linux"
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+          "sha256": "5fef7f566232664e94cac68831a5adbe73277108db6cf208a50d844366ff778a",
+          "bytes": 2861
+        },
+        "source_refs": {
+          "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": {
+            "git_sha256": "57a1ea6a58c8287935eed7d17679d229970c00c09be12cb3028cd808526014ba",
+            "git_blob": "99976e751edc45c2ee7650501a808785d0260449",
+            "own_dependency_bytes_equal": false
+          },
+          "policy-engine/src/polisyos/common/async_tools.py": {
+            "git_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+            "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": {
+            "git_sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7",
+            "git_blob": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/runner/error_classifier.py": {
+            "git_sha256": "6f1ba7482543e0dd5b8e072264660eb72a71b70b1657ba8c6265894afb522838",
+            "git_blob": "0b24e540c7ffedd3c451dfdca058d9d78a9e44e6",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/errors.py": {
+            "git_sha256": "41736e82315c56cad6dcbda2b5289300e495e57a7df7215e46c42e0dd97c168f",
+            "git_blob": "fd35b1b532df61801ce6e4d334e968d720dac7bb",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py": {
+            "git_sha256": "b38481eec549e4bb999937c52f9fedc4269a78709f850adaa23b64f0032fba76",
+            "git_blob": "260f34e3a52fcf3b82aec43023f45a392b5bdf6f",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/context.py": {
+            "git_sha256": "af6ed089cbc85b13730b640dfe089504f61dfa2a21d296744ede3f18920c7375",
+            "git_blob": "938e25daf571f2b95e50f40b421fe16f3f21892e",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/state.py": {
+            "git_sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+            "git_blob": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": {
+            "git_sha256": "68f3d342ccb9a565e51999609171d2cc501c02328d5c1b48523f30d07ee81cfb",
+            "git_blob": "08760b26aae2a489b54441b20b3a90fcd040888d",
+            "own_dependency_bytes_equal": true
+          }
+        },
+        "fault": "isolated subprocess RLIMIT_NOFILE soft=max(existing_fds)+3; original hard limit restored before output; original exception traceback retained"
+      },
+      "outcome": "DISTINGUISHING_RED: two matching real pipe FDs remain live; original OSError preserved; physical body=false",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-sync.txt",
+        "sha256": "660de4a968ced81db03beabdb5fbeb44ba8d03b5b10595fcb980d3390a875624",
+        "bytes": 2103
+      },
+      "structured_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-sync.json",
+        "sha256": "9b8e23bdbac9aec98e1e4ad93c784c5686bb1e236f6b8b86d834132da3b61b2a",
+        "bytes": 1046
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/current-execution-state/run-review-3f/setup_probe.py",
+        "--mode",
+        "async"
+      ],
+      "target_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+      "cwd": "/workspace/e02-B-current-execution-state",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python": "3.14.2",
+        "platform": "Linux"
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+          "sha256": "5fef7f566232664e94cac68831a5adbe73277108db6cf208a50d844366ff778a",
+          "bytes": 2861
+        },
+        "source_refs": {
+          "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": {
+            "git_sha256": "57a1ea6a58c8287935eed7d17679d229970c00c09be12cb3028cd808526014ba",
+            "git_blob": "99976e751edc45c2ee7650501a808785d0260449",
+            "own_dependency_bytes_equal": false
+          },
+          "policy-engine/src/polisyos/common/async_tools.py": {
+            "git_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+            "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": {
+            "git_sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7",
+            "git_blob": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/runner/error_classifier.py": {
+            "git_sha256": "6f1ba7482543e0dd5b8e072264660eb72a71b70b1657ba8c6265894afb522838",
+            "git_blob": "0b24e540c7ffedd3c451dfdca058d9d78a9e44e6",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/errors.py": {
+            "git_sha256": "41736e82315c56cad6dcbda2b5289300e495e57a7df7215e46c42e0dd97c168f",
+            "git_blob": "fd35b1b532df61801ce6e4d334e968d720dac7bb",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py": {
+            "git_sha256": "b38481eec549e4bb999937c52f9fedc4269a78709f850adaa23b64f0032fba76",
+            "git_blob": "260f34e3a52fcf3b82aec43023f45a392b5bdf6f",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/context.py": {
+            "git_sha256": "af6ed089cbc85b13730b640dfe089504f61dfa2a21d296744ede3f18920c7375",
+            "git_blob": "938e25daf571f2b95e50f40b421fe16f3f21892e",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/state.py": {
+            "git_sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+            "git_blob": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+            "own_dependency_bytes_equal": true
+          },
+          "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": {
+            "git_sha256": "68f3d342ccb9a565e51999609171d2cc501c02328d5c1b48523f30d07ee81cfb",
+            "git_blob": "08760b26aae2a489b54441b20b3a90fcd040888d",
+            "own_dependency_bytes_equal": true
+          }
+        },
+        "fault": "isolated subprocess RLIMIT_NOFILE soft=max(existing_fds)+3; original hard limit restored before output; original exception traceback retained"
+      },
+      "outcome": "DISTINGUISHING_RED: two matching real pipe FDs remain live; original OSError preserved; physical body=false",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-async.txt",
+        "sha256": "50b7208274945b42e5c455c81924cba0317d5dc1e0469fadab5baab4439dc773",
+        "bytes": 2305
+      },
+      "structured_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-async.json",
+        "sha256": "a7ed676e1a1d4bcf5c01bd1d05999c4169a0c55fd4a8b8a4d2fdc395f65eeaa2",
+        "bytes": 1090
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-async.json",
+      "sha256": "a7ed676e1a1d4bcf5c01bd1d05999c4169a0c55fd4a8b8a4d2fdc395f65eeaa2",
+      "bytes": 1090
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-async.txt",
+      "sha256": "50b7208274945b42e5c455c81924cba0317d5dc1e0469fadab5baab4439dc773",
+      "bytes": 2305
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-sync.json",
+      "sha256": "9b8e23bdbac9aec98e1e4ad93c784c5686bb1e236f6b8b86d834132da3b61b2a",
+      "bytes": 1046
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-sync.txt",
+      "sha256": "660de4a968ced81db03beabdb5fbeb44ba8d03b5b10595fcb980d3390a875624",
+      "bytes": 2103
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-unrun.json",
+      "sha256": "85a34de9c1d4ed1b7e4558f404ff0222b6234f00509a865c52e8eb2207cca928",
+      "bytes": 942
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-unrun.txt",
+      "sha256": "85a34de9c1d4ed1b7e4558f404ff0222b6234f00509a865c52e8eb2207cca928",
+      "bytes": 942
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+      "sha256": "5fef7f566232664e94cac68831a5adbe73277108db6cf208a50d844366ff778a",
+      "bytes": 2861
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_unrun.py",
+      "sha256": "ec475e0f07e7b345f3381fe2c4c4f5b9b4d266388507a648693bc986c8028915",
+      "bytes": 2024
+    }
+  ],
+  "author_checks_navigation": {
+    "receipt_sha": "a6ffe8598708e9b3fbd0904d94fcf17e37dc4aa0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process.json",
+    "actual_author_counts": "base same13 4PASS9FAIL; candidate13PASS; full89PASS; not independently rerun by this review"
+  },
+  "limitations": [
+    "Focused immutable Git-pinned retry module with relevant own dependency bytes compared to reviewed source; no new checkout/worktree, no full reviewed-tree pytest claim.",
+    "Prior malformed ExperimentState fixture never reached runtime; retained as UNRUN in unrun files.",
+    "Real EMFILE is an adversarial setup input, not a cloud-wide resource policy or artificial worker quota.",
+    "Source review otherwise found no blocking issue in finite Linux supervisor/result boundary; acceptance remains blocked until producer owns setup resources from first acquisition."
+  ]
+}

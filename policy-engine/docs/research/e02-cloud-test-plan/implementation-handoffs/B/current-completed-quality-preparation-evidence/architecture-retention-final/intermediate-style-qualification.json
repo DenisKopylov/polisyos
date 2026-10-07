@@ -1,0 +1,7 @@
+{
+  "source": "10639d9dfca7c9966ec3d1166cecc140c714d987",
+  "author_ruff": "One actual E501 cache_selection text line101 observed before sourcecommit; be836 wraps same constant AST-identically",
+  "source_custody": "Author precommit observation, not immutable deciding gate run",
+  "future_runtime": "UNRUN",
+  "no_waiver": "Final literal Ruff PASS; S108 only documents prescribed retained path with canonical exclusive creation"
+}

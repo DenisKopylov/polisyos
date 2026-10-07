@@ -1,0 +1,664 @@
+{
+  "B43_boundary": {
+    "criterion": "Canonical CMP-01 B43 explicitly includes serialization of the plan and substantial-edge change. Existing in-memory build/freeze/runtime requires controls do not prove this clause.",
+    "future_defining_cases": [
+      "genuine build/freeze -> canonicalserialize -> actual typedload -> existing requires-only executor with real numeric/order effect",
+      "substantial required-edge deletion/missing occurrence/cycle refused before scientific bodies",
+      "independent sibling remains eligible for parallelism via existing runtime consumer"
+    ],
+    "next_owner": "CMP sole writer produces/loads actual reversible typed effective plan, then this independent test author exercises reopen and pre-body negatives. No test-local decoder/pickle surrogate accepted as closure.",
+    "read_owner_source_paths": [
+      "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+      "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py"
+    ],
+    "scope": "CompiledMethodChain/FrozenCompositionDAG owned classes and actual ChainArtifact recipe emission. Current ChainArtifact stores nodes/bindings/execution_order, not full effective adjacency; no claimed public typed artifact-to-executable-plan consumer is supplied by this current owner. Source/class scope only, not repository-wide absence from a search zero.",
+    "state": "verification_missing and missing executable serialized plan intake/emission capability within inspected owner"
+  },
+  "claim_grade": "Independent actual bounded JAX scientific transformation, preparation/runtime separation and seed-repetition consumer; no independent JAX RNG distribution validation, own mechanism verdict or formalclosure.",
+  "formal_closure_ids": [],
+  "predicate_basis": "recomputed",
+  "production_byte_projection_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "production_projection_qualification": "Actual83b7 attached own checkout; every loaded polisyos module origin/canonical Git byte content checked equal to DD before/after. This is not a DD checkout or current composed successor proof.",
+  "runs": {
+    "initial-collection-error": {
+      "actual_result": {
+        "artifacts": [
+          {
+            "bytes": 37,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/.gitignore",
+            "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/CACHEDIR.TAG",
+            "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+          },
+          {
+            "bytes": 302,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/README.md",
+            "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+          },
+          {
+            "bytes": 85,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/v/cache/lastfailed",
+            "sha256": "7e2101f9a18c561f1aba6951c7295a5f936b4c7ad09bf5431a76184324a07726"
+          },
+          {
+            "bytes": 110,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/v/cache/nodeids",
+            "sha256": "836c83f9a1914b2714f86af256cbb2b7237529d5340a2b294a83b8dcbb3b9863"
+          },
+          {
+            "bytes": 70161,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/module-origins.jsonl",
+            "sha256": "c263cc58b1657df38ff3635de61566d01a0ccb4433baaf086a5fb1b0b3826016"
+          },
+          {
+            "bytes": 3172,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/native-stdout.txt",
+            "sha256": "f0f496b2048f59e707fa075e4f620e7d50d89411ea3a964807307f9e0bc6bfdf"
+          },
+          {
+            "bytes": 1248,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/native.xml",
+            "sha256": "d8c35e5c49d831db121b538f1c1d052eb150e364961450315640100f99aaf0d8"
+          },
+          {
+            "bytes": 15251,
+            "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/profile.json",
+            "sha256": "3bd99024a3b4b63c6db024c8f210df40269d7fd2212905069e8bce376db64582"
+          }
+        ],
+        "counts": {
+          "actual_cases": 1,
+          "error": 1,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0
+        },
+        "elapsed_seconds": 3.621298725003726,
+        "finished_utc": "2026-10-06T20:58:39Z",
+        "returncode": 2,
+        "rusage_exact_pytest_pid": {
+          "maxrss_kib": 236704,
+          "pid": 483682,
+          "system_seconds": 0.5980019999999999,
+          "user_seconds": 3.299502
+        },
+        "source_after": {
+          "head": "cd337675930d7c1822671a27102b83025e57e95a",
+          "status": "",
+          "tree": "53397ed853aa3cdb2cc491aa06f0912809148449"
+        },
+        "source_before": {
+          "head": "cd337675930d7c1822671a27102b83025e57e95a",
+          "status": "",
+          "tree": "53397ed853aa3cdb2cc491aa06f0912809148449"
+        }
+      },
+      "junit_cases": [
+        {
+          "id": "::tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+          "status": "ERROR"
+        }
+      ],
+      "qualification": "Original fixture collectionERROR: zero defining/native bodies reached; JUnit synthetic collection entry is not one scientific runtime case."
+    },
+    "native": {
+      "actual_result": {
+        "artifacts": [
+          {
+            "bytes": 37,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/cache/.gitignore",
+            "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/cache/CACHEDIR.TAG",
+            "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+          },
+          {
+            "bytes": 302,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/cache/README.md",
+            "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+          },
+          {
+            "bytes": 937,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/cache/v/cache/nodeids",
+            "sha256": "340e3a9c404f3d4c4f1c8ffe804fd5ae019e7ed32e07343e047761ec66d00794"
+          },
+          {
+            "bytes": 70412,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/module-origins.jsonl",
+            "sha256": "42d8a43adafaae6f30c4a105a6068e5085b293581aeec16ff06ac6dfcd1e5207"
+          },
+          {
+            "bytes": 2917,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/native-stdout.txt",
+            "sha256": "1146fe2466fb4b9779086c19cdb77f2504b265bb3a2d0253538004616ab975fa"
+          },
+          {
+            "bytes": 1393,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/native.xml",
+            "sha256": "de3bb4ad96d56781cabc2bf7a880e649b39cca89599b74d9725b3e0ca4b0b3e9"
+          },
+          {
+            "bytes": 15251,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/profile.json",
+            "sha256": "9ab8a001edcf28bb4b43b7901a72b96d46f3b5f7c111cbf47f0328f97ce55686"
+          },
+          {
+            "bytes": 1316,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_cold_warm_preparation_pre0/numerical-observations.json",
+            "sha256": "f24c6b6a3e9f6f50baee1701ee0da69d81ed1c1ac8f0950295a450a481b70ac8"
+          },
+          {
+            "bytes": 1312,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_cold_warm_preparation_pre1/numerical-observations.json",
+            "sha256": "0849802fdf5742a88e24bd9562e3c732e1d0aedbdc6c21dff87c3b706b1f5395"
+          },
+          {
+            "bytes": 1315,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_cold_warm_preparation_pre2/numerical-observations.json",
+            "sha256": "0a95e6599477cc435e7af0e48d66d880673f5da8c88741a28b79084643e495b0"
+          },
+          {
+            "bytes": 1311,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_cold_warm_preparation_pre3/numerical-observations.json",
+            "sha256": "ae6a6ba45435f0f3daad810551da82ad9589a509b764c61d2183b5869328accc"
+          },
+          {
+            "bytes": 532,
+            "path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_explicit_numerical_warmup0/numerical-observations.json",
+            "sha256": "965a1600fdfaa5f5f720619ea7313dde628fab405679862cc55866c0634f3620"
+          }
+        ],
+        "counts": {
+          "actual_cases": 6,
+          "error": 0,
+          "failed": 0,
+          "passed": 6,
+          "skipped": 0
+        },
+        "elapsed_seconds": 10.509610471999622,
+        "finished_utc": "2026-10-06T21:00:09Z",
+        "returncode": 0,
+        "rusage_exact_pytest_pid": {
+          "maxrss_kib": 319400,
+          "pid": 486177,
+          "system_seconds": 0.742023,
+          "user_seconds": 10.48242
+        },
+        "source_after": {
+          "head": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+          "status": "",
+          "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18"
+        },
+        "source_before": {
+          "head": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+          "status": "",
+          "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18"
+        }
+      },
+      "junit_cases": [
+        {
+          "id": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-False]",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-True]",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-False]",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle::test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds",
+          "status": "PASS"
+        },
+        {
+          "id": "tests.unit.remediation.test_jit_01::test_chain_shape_inference_refuses_unknown_data_dependent_shape",
+          "status": "PASS"
+        }
+      ],
+      "qualification": "Actual6PASS = newwholefile5 plus reused actualunknownshape negative1."
+    },
+    "preparation-removal": {
+      "actual_result": {
+        "artifacts": [
+          {
+            "bytes": 37,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/.gitignore",
+            "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/CACHEDIR.TAG",
+            "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+          },
+          {
+            "bytes": 302,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/README.md",
+            "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+          },
+          {
+            "bytes": 175,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/v/cache/lastfailed",
+            "sha256": "9ff8ddd1d236b15ac3badd72ef70f4774253ffbfd0dfc01d9ed7d00696582530"
+          },
+          {
+            "bytes": 169,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/v/cache/nodeids",
+            "sha256": "a41db361ab17e4df0ca368669d66eff89dd1d42cbcab57e5428f1ba96970d93a"
+          },
+          {
+            "bytes": 70412,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/module-origins.jsonl",
+            "sha256": "42d8a43adafaae6f30c4a105a6068e5085b293581aeec16ff06ac6dfcd1e5207"
+          },
+          {
+            "bytes": 4378,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/native-stdout.txt",
+            "sha256": "c2afb7b302e5db4aed5c192ebfeff19c7a6fb12ad38316427611b5718986a254"
+          },
+          {
+            "bytes": 2118,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/native.xml",
+            "sha256": "f5f5927848c7cf092ee36d84829f2c0c5822844e5aea0235687e732fb3a74209"
+          },
+          {
+            "bytes": 15532,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/profile.json",
+            "sha256": "3e22ab8dc0b183ee67d664abbcf0efc360c24b9bc0f7c4ecf8c8c74742836959"
+          },
+          {
+            "bytes": 310,
+            "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/property-removal-effects.jsonl",
+            "sha256": "0ec9de77c52ff2c1694015008c85b3e6f005d8e5cc1a9517a50114d4779d1d55"
+          }
+        ],
+        "counts": {
+          "actual_cases": 1,
+          "error": 0,
+          "failed": 1,
+          "passed": 0,
+          "skipped": 0
+        },
+        "elapsed_seconds": 4.3591494239954045,
+        "finished_utc": "2026-10-06T21:01:19Z",
+        "returncode": 1,
+        "rusage_exact_pytest_pid": {
+          "maxrss_kib": 295708,
+          "pid": 487471,
+          "system_seconds": 0.538071,
+          "user_seconds": 3.898282
+        },
+        "source_after": {
+          "head": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+          "status": "",
+          "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18"
+        },
+        "source_before": {
+          "head": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+          "status": "",
+          "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18"
+        }
+      },
+      "junit_cases": [
+        {
+          "id": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]",
+          "status": "FAIL"
+        }
+      ],
+      "qualification": "Original exact defining test FAIL after in-memory property removal; actual scientific outputs retained."
+    },
+    "seed-removal": {
+      "actual_result": {
+        "artifacts": [
+          {
+            "bytes": 37,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/cache/.gitignore",
+            "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+          },
+          {
+            "bytes": 191,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/cache/CACHEDIR.TAG",
+            "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+          },
+          {
+            "bytes": 302,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/cache/README.md",
+            "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+          },
+          {
+            "bytes": 175,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/cache/v/cache/lastfailed",
+            "sha256": "9ff8ddd1d236b15ac3badd72ef70f4774253ffbfd0dfc01d9ed7d00696582530"
+          },
+          {
+            "bytes": 169,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/cache/v/cache/nodeids",
+            "sha256": "a41db361ab17e4df0ca368669d66eff89dd1d42cbcab57e5428f1ba96970d93a"
+          },
+          {
+            "bytes": 70412,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/module-origins.jsonl",
+            "sha256": "42d8a43adafaae6f30c4a105a6068e5085b293581aeec16ff06ac6dfcd1e5207"
+          },
+          {
+            "bytes": 5045,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/native-stdout.txt",
+            "sha256": "8b3c3d6f93bc23c3b2db35d8bc3ed3b5ff71c19f7095a3006133bad6aba8fca8"
+          },
+          {
+            "bytes": 2890,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/native.xml",
+            "sha256": "db5392b912f3082ddbe3b4642831441e5192ee7a657a8c5ed13722ec56f8c259"
+          },
+          {
+            "bytes": 15511,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/profile.json",
+            "sha256": "3f1d6a26d1a7caae4c477e9829ba20a428728e1614def6a9ee0ed73d00630e1c"
+          },
+          {
+            "bytes": 480,
+            "path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/property-removal-effects.jsonl",
+            "sha256": "9aa97536f4b64c75ebc5e576bfccccf97da6cfab29d93f256e444a0859ce5dba"
+          }
+        ],
+        "counts": {
+          "actual_cases": 1,
+          "error": 0,
+          "failed": 1,
+          "passed": 0,
+          "skipped": 0
+        },
+        "elapsed_seconds": 4.618351856988738,
+        "finished_utc": "2026-10-06T21:01:20Z",
+        "returncode": 1,
+        "rusage_exact_pytest_pid": {
+          "maxrss_kib": 305984,
+          "pid": 487470,
+          "system_seconds": 0.654664,
+          "user_seconds": 4.067004
+        },
+        "source_after": {
+          "head": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+          "status": "",
+          "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18"
+        },
+        "source_before": {
+          "head": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+          "status": "",
+          "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18"
+        }
+      },
+      "junit_cases": [
+        {
+          "id": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]",
+          "status": "FAIL"
+        }
+      ],
+      "qualification": "Original exact defining test FAIL after in-memory property removal; actual scientific outputs retained."
+    }
+  },
+  "schema": "policyos.e02.compiled_preparation_consumer_observations.v1",
+  "test_source_sha": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+  "test_source_tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18",
+  "transfer_manifest": [
+    {
+      "bytes": 70161,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/module-origins.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/initial-collection-error/module-origins.jsonl",
+      "sha256": "c263cc58b1657df38ff3635de61566d01a0ccb4433baaf086a5fb1b0b3826016"
+    },
+    {
+      "bytes": 3172,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/native-stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/initial-collection-error/native-stdout.txt",
+      "sha256": "f0f496b2048f59e707fa075e4f620e7d50d89411ea3a964807307f9e0bc6bfdf"
+    },
+    {
+      "bytes": 1248,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/initial-collection-error/native.xml",
+      "sha256": "d8c35e5c49d831db121b538f1c1d052eb150e364961450315640100f99aaf0d8"
+    },
+    {
+      "bytes": 15251,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/initial-collection-error/profile.json",
+      "sha256": "3bd99024a3b4b63c6db024c8f210df40269d7fd2212905069e8bce376db64582"
+    },
+    {
+      "bytes": 2463,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/initial-collection-error/result.json",
+      "sha256": "55927f7b47bbde7c7fa9b207b0d08f455e10190a6c29f2a54637133f29184ac7"
+    },
+    {
+      "bytes": 70412,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/module-origins.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/module-origins.jsonl",
+      "sha256": "42d8a43adafaae6f30c4a105a6068e5085b293581aeec16ff06ac6dfcd1e5207"
+    },
+    {
+      "bytes": 2917,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/native-stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/native-stdout.txt",
+      "sha256": "1146fe2466fb4b9779086c19cdb77f2504b265bb3a2d0253538004616ab975fa"
+    },
+    {
+      "bytes": 1393,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/native.xml",
+      "sha256": "de3bb4ad96d56781cabc2bf7a880e649b39cca89599b74d9725b3e0ca4b0b3e9"
+    },
+    {
+      "bytes": 15251,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/profile.json",
+      "sha256": "9ab8a001edcf28bb4b43b7901a72b96d46f3b5f7c111cbf47f0328f97ce55686"
+    },
+    {
+      "bytes": 1316,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_cold_warm_preparation_pre0/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/pytest/test_cold_warm_preparation_pre0/numerical-observations.json",
+      "sha256": "f24c6b6a3e9f6f50baee1701ee0da69d81ed1c1ac8f0950295a450a481b70ac8"
+    },
+    {
+      "bytes": 1312,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_cold_warm_preparation_pre1/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/pytest/test_cold_warm_preparation_pre1/numerical-observations.json",
+      "sha256": "0849802fdf5742a88e24bd9562e3c732e1d0aedbdc6c21dff87c3b706b1f5395"
+    },
+    {
+      "bytes": 1315,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_cold_warm_preparation_pre2/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/pytest/test_cold_warm_preparation_pre2/numerical-observations.json",
+      "sha256": "0a95e6599477cc435e7af0e48d66d880673f5da8c88741a28b79084643e495b0"
+    },
+    {
+      "bytes": 1311,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_cold_warm_preparation_pre3/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/pytest/test_cold_warm_preparation_pre3/numerical-observations.json",
+      "sha256": "ae6a6ba45435f0f3daad810551da82ad9589a509b764c61d2183b5869328accc"
+    },
+    {
+      "bytes": 532,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest/test_explicit_numerical_warmup0/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/pytest/test_explicit_numerical_warmup0/numerical-observations.json",
+      "sha256": "965a1600fdfaa5f5f720619ea7313dde628fab405679862cc55866c0634f3620"
+    },
+    {
+      "bytes": 3481,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-aaa4386f3960/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/native/result.json",
+      "sha256": "723ab248322083fd1b342fdece8384943389b0c9597a43c007593cae789e1f48"
+    },
+    {
+      "bytes": 70412,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/module-origins.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/preparation-removal/module-origins.jsonl",
+      "sha256": "42d8a43adafaae6f30c4a105a6068e5085b293581aeec16ff06ac6dfcd1e5207"
+    },
+    {
+      "bytes": 4378,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/native-stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/preparation-removal/native-stdout.txt",
+      "sha256": "c2afb7b302e5db4aed5c192ebfeff19c7a6fb12ad38316427611b5718986a254"
+    },
+    {
+      "bytes": 2118,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/preparation-removal/native.xml",
+      "sha256": "f5f5927848c7cf092ee36d84829f2c0c5822844e5aea0235687e732fb3a74209"
+    },
+    {
+      "bytes": 15532,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/preparation-removal/profile.json",
+      "sha256": "3e22ab8dc0b183ee67d664abbcf0efc360c24b9bc0f7c4ecf8c8c74742836959"
+    },
+    {
+      "bytes": 310,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/property-removal-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/preparation-removal/property-removal-effects.jsonl",
+      "sha256": "0ec9de77c52ff2c1694015008c85b3e6f005d8e5cc1a9517a50114d4779d1d55"
+    },
+    {
+      "bytes": 2664,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/preparation-removal/result.json",
+      "sha256": "e24c8d59b39c14f61addafb56f7400ee63ed01373c72ec0611c97092f708f66a"
+    },
+    {
+      "bytes": 70412,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/module-origins.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/seed-removal/module-origins.jsonl",
+      "sha256": "42d8a43adafaae6f30c4a105a6068e5085b293581aeec16ff06ac6dfcd1e5207"
+    },
+    {
+      "bytes": 5045,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/native-stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/seed-removal/native-stdout.txt",
+      "sha256": "8b3c3d6f93bc23c3b2db35d8bc3ed3b5ff71c19f7095a3006133bad6aba8fca8"
+    },
+    {
+      "bytes": 2890,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/seed-removal/native.xml",
+      "sha256": "db5392b912f3082ddbe3b4642831441e5192ee7a657a8c5ed13722ec56f8c259"
+    },
+    {
+      "bytes": 15511,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/seed-removal/profile.json",
+      "sha256": "3f1d6a26d1a7caae4c477e9829ba20a428728e1614def6a9ee0ed73d00630e1c"
+    },
+    {
+      "bytes": 480,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/property-removal-effects.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/seed-removal/property-removal-effects.jsonl",
+      "sha256": "9aa97536f4b64c75ebc5e576bfccccf97da6cfab29d93f256e444a0859ce5dba"
+    },
+    {
+      "bytes": 2663,
+      "copy_is_exact": true,
+      "original_path": "/tmp/e02-B-compiled-preparation-39f1cfde9b22/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/seed-removal/result.json",
+      "sha256": "4120461215d18b741c5248fd1df13015dab13e94f4a00859aa59804cb9f00fb2"
+    },
+    {
+      "bytes": 4535,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/run.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/instruments/run.py.txt",
+      "sha256": "eac1d8ed8eff405c0367556c84843e867157b9329d5515af77c4572e5aba8105"
+    },
+    {
+      "bytes": 4533,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/run83.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/instruments/run83.py.txt",
+      "sha256": "a7226b7ebbf511ba3ac99296c528c50381be531da6d63e1b6cabb1ba6c47d164"
+    },
+    {
+      "bytes": 1063,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/origin_guard.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/instruments/origin_guard.py.txt",
+      "sha256": "40aebc66fb49e213fb3769f4f5a6094268560a48c77db9e880589281e0ca5e24"
+    },
+    {
+      "bytes": 4683,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/run-removal-preparation.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/instruments/run-removal-preparation.py.txt",
+      "sha256": "4eac2a2df636121ae42077f00841cca1f32f3fe88d14c894b57a1d181d96e011"
+    },
+    {
+      "bytes": 4669,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/run-removal-seed.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/instruments/run-removal-seed.py.txt",
+      "sha256": "cadf6d9cf37b22ddd8bc60c4f3f39feeaa84f0eda375ec2e86eab24a60568f3b"
+    },
+    {
+      "bytes": 713,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/removal_preparation.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/instruments/removal_preparation.py.txt",
+      "sha256": "8ffc25daf6afd3c1cbf38f3e651a8d40831d54bd01ed440151bd0e04f27beb8c"
+    },
+    {
+      "bytes": 866,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/removal_seed.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/instruments/removal_seed.py.txt",
+      "sha256": "0cb721fd8c228710f8c0c7d0d74dc3e414661b089d7edd74fd3be536b9488527"
+    },
+    {
+      "bytes": 5204,
+      "copy_is_exact": true,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/publish.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-preparation-consumer-evidence/instruments/publish.py.txt",
+      "sha256": "83ab7944a599c12af9c15f21cfd70a89ae55a758e09e0651916726589d6e51e0"
+    }
+  ]
+}

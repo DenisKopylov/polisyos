@@ -1,0 +1,860 @@
+{
+  "finding": "B74",
+  "canonical_card_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+  "query_command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding B74 --details --job-context --limit 1000 --block-limit 1000",
+  "query_source_head": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "matching_cells": 8,
+  "cells": [
+    {
+      "id": "F01-P044",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.89",
+      "rss_kib": "174068",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "161",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P065",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.04",
+      "rss_kib": "165492.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "195",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P065",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.67",
+      "rss_kib": "259996",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "475",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P041",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.371877431869507",
+      "rss_kib": "259564.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "47",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P059",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.220776319503784",
+      "rss_kib": "255460.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "65",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F12-P052",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.00252217599973",
+      "rss_kib": "246516.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "637",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F14-P054",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.704198632000043",
+      "rss_kib": "271952",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "404",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P077",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.841175300000032",
+      "rss_kib": "269232",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "427",
+      "extra_json": "{}"
+    }
+  ],
+  "routes": [
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F01-P044",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F03-P065",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F05-P065",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_execution_base",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F07-P041",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F07-P059",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F12-P052",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F14-P054",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    },
+    {
+      "finding_id": "B74",
+      "unit": "B",
+      "cell_id": "F14-P077",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B74"
+    }
+  ],
+  "jobs": [
+    {
+      "job": "F01",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "source_file_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "metadata_lines": [
+        4,
+        114
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "manifest_sha256": "a6ad0dad1bbad671dbf5a9efb3892d4a55c5445573e0060c0eac27c85f097527",
+      "environment": {
+        "environment": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "arch": "x86_64",
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "disk_initial_free_bytes": 32026370048,
+          "disk_after_profile_free_bytes": 23258984448,
+          "installed_distributions": 253,
+          "post_series_distributions_match": true,
+          "lock_version_mismatches": 0,
+          "threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "profile_changes_after_native_start": 0,
+          "gnu_time_version": "time (GNU Time) UNKNOWN",
+          "gnu_time_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+          "gnu_time_probe": "child exit=7 and wall/user/sys/RSS verified",
+          "base_frozen_sync_exit": 0,
+          "node_frozen_install_exit": 0,
+          "union_frozen_sync_exit": 0
+        },
+        "selected_extras": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "agent-sim",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        },
+        "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4"
+      },
+      "raw_archive": "missing; source-reported observations only"
+    },
+    {
+      "job": "F03",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_file_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "metadata_lines": [
+        6,
+        128
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "manifest_sha256": "b5a8936a67d7e05869331c2ec7ad0c9b36148ec7b9fa7ea00e8f210d4d9a87b0",
+      "environment": {
+        "profile": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "pnpm": "10.33.2",
+          "frozen": true,
+          "execution_device": "cpu",
+          "distributions": 253,
+          "extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "vector-search",
+            "solvers",
+            "search_bo",
+            "agent-sim",
+            "causal-discovery-scale"
+          ],
+          "unchanged": true
+        },
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        },
+        "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4"
+      },
+      "raw_archive": "missing; source-reported observations only"
+    },
+    {
+      "job": "F05",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "source_file_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "metadata_lines": [
+        7,
+        408
+      ],
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+      "manifest_sha256": "9f736f1d425b5eba2a5eafd45d759488f178ac3236a61a8e24b45384cd64f312",
+      "environment": {
+        "environment_compact": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "architecture": "x86_64",
+          "cgroup": {
+            "cpu.max": "400000 100000",
+            "cpuset.cpus.effective": "0-4",
+            "memory.max": "17179869184"
+          },
+          "python": {
+            "executable": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/.venv/bin/python",
+            "resolved": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/python-runtime/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+            "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+          },
+          "toolchain": {
+            "uv": {
+              "argv": [
+                "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv",
+                "--version"
+              ],
+              "exit": 0,
+              "stdout": "uv 0.9.21\n",
+              "stderr": "",
+              "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv"
+            },
+            "node": {
+              "argv": [
+                "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/node",
+                "--version"
+              ],
+              "exit": 0,
+              "stdout": "v22.22.0\n",
+              "stderr": "",
+              "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/node"
+            },
+            "pnpm": {
+              "argv": [
+                "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/corepack",
+                "pnpm",
+                "--version"
+              ],
+              "exit": 0,
+              "stdout": "10.33.2\n",
+              "stderr": "",
+              "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/corepack"
+            },
+            "compiler": {
+              "argv": [
+                "g++",
+                "--version"
+              ],
+              "exit": 0,
+              "stdout": "g++ (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+              "stderr": "",
+              "path": "/usr/bin/g++"
+            }
+          },
+          "disk_free_bytes": 31589965824,
+          "disk_after_setup_bytes": 20976594944,
+          "native_execution_start": "2026-10-05T08:04:17.853653Z",
+          "budget_last_new_cell_deadline": "2026-10-05T11:13:00Z"
+        },
+        "profile": {
+          "extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "search_bo",
+            "solvers",
+            "vector-search"
+          ],
+          "argv": [
+            "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv",
+            "sync",
+            "--frozen",
+            "--python",
+            "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/python-runtime/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+            "--extra",
+            "lint",
+            "--extra",
+            "test",
+            "--extra",
+            "runtime",
+            "--extra",
+            "ml",
+            "--extra",
+            "analytics",
+            "--extra",
+            "bayesian",
+            "--extra",
+            "optimization-advanced",
+            "--extra",
+            "sensitivity",
+            "--extra",
+            "causal-discovery",
+            "--extra",
+            "search_bo",
+            "--extra",
+            "solvers",
+            "--extra",
+            "vector-search"
+          ]
+        },
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+          "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "raw_archive": "missing; source-reported observations only"
+    },
+    {
+      "job": "F07",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_file_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "metadata_lines": [
+        5,
+        5
+      ],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": null,
+      "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+      "manifest_sha256": "d7fb66fc3665474c59f11b0463c741b1b05c1b7c8646897c9b4b7d455a68c40f",
+      "environment": {
+        "environment": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "arch": "x86_64",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "versions": [
+            {
+              "argv": [
+                ".venv/bin/python",
+                "--version"
+              ],
+              "version": "Python 3.14.2",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/uv-tool/bin/uv",
+                "--version"
+              ],
+              "version": "uv 0.9.21",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "node",
+                "--version"
+              ],
+              "version": "v22.23.3",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "corepack",
+                "--version"
+              ],
+              "version": "0.36.0",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "corepack",
+                "pnpm",
+                "--version"
+              ],
+              "version": "10.33.2",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/gnu-time/usr/bin/time",
+                "--version"
+              ],
+              "version": "time (GNU Time) UNKNOWN\nCopyright (C) 2018 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David Keppel, David MacKenzie, and Assaf Gordon.",
+              "exit": 0
+            }
+          ],
+          "python_executable": "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/.venv/bin/python",
+          "installed_distributions": 238,
+          "distributions_unchanged_after_series": true,
+          "node_workspace_links_ref": "setup/node-workspace-links.json",
+          "GNU_time_package": {
+            "package_metadata": "Package: time\nVersion: 1.9-0.2\nArchitecture: amd64\n",
+            "exit": 0,
+            "deb_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23",
+            "extracted_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea"
+          },
+          "disk_before_sync_final_bytes": 28581031936,
+          "disk_floor_bytes": 21474836480
+        },
+        "profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers",
+          "search_bo"
+        ],
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+          "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "raw_archive": "missing; source-reported observations only"
+    },
+    {
+      "job": "F12",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+      "source_file_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "metadata_lines": [
+        5,
+        194
+      ],
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+      "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+      "environment": {
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2"
+        },
+        "platform": {
+          "os_arch": "Linux x86_64",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "execution": "CPU"
+        },
+        "native_profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers",
+          "search_bo",
+          "agent-sim",
+          "causal-discovery-scale"
+        ],
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+          "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        },
+        "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4"
+      },
+      "raw_archive": "missing; source-reported observations only"
+    },
+    {
+      "job": "F12",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+      "source_file_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "metadata_lines": [
+        346,
+        527
+      ],
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+      "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+      "environment": {
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2"
+        },
+        "platform": {
+          "os_arch": "Linux x86_64",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184
+        },
+        "native_profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers",
+          "search_bo",
+          "agent-sim",
+          "causal-discovery-scale"
+        ],
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+          "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        },
+        "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4"
+      },
+      "raw_archive": "missing; source-reported observations only"
+    },
+    {
+      "job": "F14",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+      "source_file_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "metadata_lines": [
+        4,
+        113
+      ],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+      "environment": {
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "corepack_pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpu_quota": 4,
+          "cpuset_effective": "0-4",
+          "memory_max_bytes": 17179869184,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "profile_segment": "frozen-union-1",
+          "selected_extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "vector-search",
+            "solvers",
+            "search_bo",
+            "agent-sim",
+            "causal-discovery-scale"
+          ],
+          "native_property_controls": "all three removal controls absent in actual children",
+          "distribution_origins_ref": "environment.json",
+          "raw_transfer_missing": true
+        },
+        "lock_hashes": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "raw_archive": "missing; source-reported observations only"
+    },
+    {
+      "job": "F14",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+      "source_file_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "metadata_lines": [
+        220,
+        348
+      ],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+      "environment": {
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "corepack_pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpu_quota": 4,
+          "cpuset_effective": "0-4",
+          "memory_max_bytes": 17179869184,
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu",
+          "UV_NO_BUILD_PACKAGE": "pillow",
+          "profile_segment": "frozen-union-1",
+          "native_property_removal_controls": "absent in actual child processes"
+        },
+        "selected_extras": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers",
+          "search_bo",
+          "agent-sim",
+          "causal-discovery-scale"
+        ],
+        "source_hashes": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "raw_archive": "missing; source-reported observations only"
+    }
+  ],
+  "limitations": "All eight source-reportedPASS cells are navigation and do not establish imported-member identity. No raw archive received; no baseline summary is a new fix receipt."
+}

@@ -1,0 +1,97 @@
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+repo=Path('/workspace/e02-B-current-runtime')
+root=Path('/workspace/e02-B-current-coordination')
+sha='8142b14162f6417045ccbc560588da4341ac93ce'
+old='dd9584728bd96f204983615216efdbc58117e713'
+folder=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B')
+out=repo/folder/'current-opa-ci-backend-evidence'
+out.mkdir()
+prep=Path('/tmp/e02-B-opa-latest-preparation-1db95544')
+rawroot=root/'.polisyos/e02-B-current/raw/review'
+
+def git(*args):return subprocess.check_output(['/usr/bin/git','-C',str(repo),*args])
+def ref(at,path):
+ data=git('show',at+':'+str(path))
+ return {'source_ref':at+':'+str(path),'git_blob':git('rev-parse',at+':'+str(path)).decode().strip(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+
+def write(name,value): (out/name).write_text(json.dumps(value,indent=2)+'\n')
+
+for name in ['latest.json','opa_linux_amd64_static.sha256','version.txt','profile.json']:
+ shutil.copyfile(prep/name,out/name)
+headers=[]
+for name in ['latest.headers.txt','binary.headers.txt','checksum.headers.txt']:
+ data=(prep/name).read_bytes()
+ lines=data.decode(errors='replace').splitlines(keepends=True)
+ removed=[]
+ for i,line in enumerate(lines):
+  key=line.split(':',1)[0].lower()
+  if key=='location' or key.startswith('x-oauth') or key=='github-authentication-token-expiration':
+   removed.append({'line':i+1,'header':key})
+   lines[i]=key+': [redacted transport authorization/redirect; complete raw remains local]\r\n'
+ sanitized=''.join(lines).encode()
+ (out/(name+'.sanitized.txt')).write_bytes(sanitized)
+ headers.append({'raw_local_path':str(prep/name),'raw_bytes':len(data),'raw_sha256':hashlib.sha256(data).hexdigest(),'committed_sanitized_file':name+'.sanitized.txt','sanitized_bytes':len(sanitized),'sanitized_sha256':hashlib.sha256(sanitized).hexdigest(),'redacted_headers':removed,'qualification':'Full raw transport retained locally; signed redirect/authentication metadata not published, no changing binary/metadata/checksum/version bytes'})
+write('transport-qualification.json',headers)
+shutil.copyfile(rawroot/'opa-latest-parity-8142b14162f6.txt',out/'native.txt')
+shutil.copyfile(rawroot/'opa-latest-parity-8142b14162f6.json',out/'native-wrapper.json')
+shutil.copyfile('/tmp/e02-B-opa-parity-8142b14162f6/native.xml',out/'native.xml')
+wrapper=json.loads((out/'native-wrapper.json').read_bytes())
+assert wrapper['head']==sha==wrapper['head_after']
+assert wrapper['tree']=='c9089aea682ca12a44633cb8e114c8d95a662780'
+assert wrapper['exit_code']==1 and wrapper['exec_setup_error'] is None
+x=ET.fromstring((out/'native.xml').read_bytes());rows=[];counts={}
+for i,case in enumerate(x.iter('testcase')):
+ status='ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+ counts[status]=counts.get(status,0)+1
+ failures=[{'tag':node.tag,'attributes':node.attrib,'full_text_sha256':hashlib.sha256((node.text or '').encode()).hexdigest(),'text_bytes':len((node.text or '').encode())} for node in case if node.tag in ['error','failure','skipped']]
+ rows.append({'case_index':i,'nodeid':'tests/unit/runtime/http/test_runtime_rego_authorization_parity.py::'+case.attrib['name'],'xml_attributes':case.attrib,'state':status,'diagnostics':failures,'property_grade':'setup premise not_established; retained literal native ERROR' if status=='ERROR' else 'bounded actual canonical test assertions; no institutional authority proof'})
+assert len(rows)==24 and counts=={'PASS':8,'ERROR':16}
+assert all('catalog_fetch_source_unreadable' in row['diagnostics'][0]['attributes']['message'] for row in rows if row['state']=='ERROR')
+interpretation_path=folder/'current-dd-terminal-evidence/interpretation.json'
+interpretation_bytes=git('show',sha+':'+str(interpretation_path));oldrows=[r for r in json.loads(interpretation_bytes)['nonpass_reason_rows'] if r['reason_category']=='required_opa_backend_unavailable']
+assert len(oldrows)==7
+now={row['nodeid']:row for row in rows}
+joins=[{'old_case':row,'new_case':now[row['nodeid']]} for row in oldrows]
+assert all(row['new_case']['state']=='PASS' for row in joins)
+write('case-quantities.json',{'executed_source_sha':sha,'executed_source_tree':wrapper['tree'],'native_case_count':len(rows),'native_counts':counts,'rows':rows,'old_dd_execution_sha':old,'old_interpretation_custody':ref(sha,interpretation_path),'old_full_json_bytes_read':len(interpretation_bytes),'old_nonpass_reason_rows':len(json.loads(interpretation_bytes)['nonpass_reason_rows']),'exact_old_seven_to_new_join':joins,'grade':'Seven actual old missing-OPA rows now PASS; all16 setup ERROR retained; no fresh full-cohort or finding closure'})
+fixed=[
+ 'policy-engine/tests/unit/runtime/http/test_runtime_rego_authorization_parity.py',
+ 'policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py',
+ 'policy-engine/tests/unit/runtime/http/conftest.py','policy-engine/tests/conftest.py',
+ 'policy-engine/tests/_helpers/runtime_http.py','policy-engine/tests/_helpers/artifacts.py',
+ 'policy-engine/tests/_helpers/observability.py','policy-engine/tests/quarantine.toml',
+ 'policy-engine/pyproject.toml','policy-engine/uv.lock',
+ 'policy-engine/src/polisyos/runtime/http/permissions.py','policy-engine/src/polisyos/runtime/http/opa_input.py',
+ 'policy-engine/src/polisyos/runtime/http/authorization.py','policy-engine/src/polisyos/runtime/http/resource_binding.py',
+ 'policy-engine/src/polisyos/runtime/http/security.py','policy-engine/src/polisyos/core/security/access_scope.py',
+ 'policy-engine/src/polisyos/core/security/authz.py','policy-engine/src/polisyos/core/security/identity.py',
+ 'policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py',
+ str(folder/'final-root-evidence/capture_frozen.py'),
+ 'policy-engine/ops/ci/templates/workflows/repository-hygiene.yml','policy-engine/ops/policy/README.md',
+]
+allpaths=git('ls-tree','-r','--name-only',sha).decode().splitlines()
+policies=sorted(p for p in allpaths if p.startswith('policy-engine/ops/policy/policies/') and p.endswith('.rego'))
+assert len(policies)==16
+inputs=[]
+for path in fixed+policies:
+ data=git('show',sha+':'+path)
+ actual=(root/path).read_bytes()
+ assert actual==data
+ before=git('show',old+':'+path)
+ inputs.append({'candidate':ref(sha,path),'old_dd':ref(old,path),'byte_equal_dd':data==before,'actual_postread_byte_equal_candidate':True,'read_state':'READ_COMPLETE_BYTES','role':'Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph'})
+write('source-inputs.json',{'source_sha':sha,'tree':wrapper['tree'],'inputs':inputs,'policy_rego_count':len(policies),'all_policy_rego_v1':all(b'import rego.v1' in git('show',sha+':'+p) for p in policies),'initial_source_admission':'Actual root HEAD/tree/clean verified before child launch','head_before_after':wrapper['head']==wrapper['head_after'],'concurrent_generated_overlay':{'path':'policy-engine/schemas/runtime_api_v1.openapi.json','actual_output_bytes':2812414,'actual_output_sha256':'5309d53ad805a8a1cdefab108d5f8c1bc867a640ffeb03f646fe5bd6baa7d4a3','basis':'Root generation owner reports actual output overlay; post-child git diff names observed exactly this path','qualification':'Root whole checkout is not claimed clean after check; explicit38 selected source/test/config/policy files actual bytes matched immutable8142 after child; no module-import census'},'limitations':['Source filenames/full bytes/config are tracked and bound, no runtime sys.modules origin capture in this native profile','Seven tests use configured synthetic principal/ownership fields; actual institutional grants/source law not established','Exact sixteen setup errors refer to absent local production catalog; no source data synthesized']})
+commands=[{'phase':'official-latest-metadata','argv':['curl','--fail','--location','--silent','--show-error','--dump-header',str(prep/'latest.headers.txt'),'--output',str(prep/'latest.json'),'https://api.github.com/repos/open-policy-agent/opa/releases/latest'],'observed_exit_code':0}, {'phase':'official-binary','argv':['curl','--fail','--location','--silent','--show-error','--dump-header',str(prep/'binary.headers.txt'),'--output',str(prep/'opa_linux_amd64_static'),'https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static'],'observed_exit_code':0},{'phase':'official-checksum','argv':['curl','--fail','--location','--silent','--show-error','--dump-header',str(prep/'checksum.headers.txt'),'--output',str(prep/'opa_linux_amd64_static.sha256'),'https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static.sha256'],'observed_exit_code':0},{'phase':'version','argv':[str(prep/'bin/opa'),'version'],'observed_exit_code':0},{'phase':'whole-canonical-parity-file','argv':wrapper['command'],'cwd':wrapper['cwd'],'observed_exit_code':wrapper['exit_code']}]
+write('executed-commands.json',{'commands':commands,'curl_stdout_stderr':'Actual successful silent calls yielded no output; full HTTP transport headers retained locally at disclosed hashes, sanitized publications qualified','native_capture_argv':['/workspace/polisyos/policy-engine/.venv/bin/python','-B',str(root/folder/'final-root-evidence/capture_frozen.py'),'--repo',str(root),'--tag','opa-latest-parity-8142b14162f6','--',*wrapper['command']],'source_environment':wrapper['source_environment'],'binary_checksum_verification':'Both assets full byte SHA+length matched metadata digest and independent checksum content before executing version/native','no_other_runtime':'No OPA server/container/global install, no separate rego test suite or repeated pytest selectors'})
+shutil.copyfile(__file__,out/'package-evidence.source.txt')
+items=[]
+for path in sorted(out.iterdir()):
+ data=path.read_bytes();items.append({'path':path.relative_to(repo).as_posix(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+write('index.json',{'files':items,'count':len(items),'bytes':sum(r['bytes'] for r in items),'scope':'Complete moderate official metadata/checksum/version/profile/commands and full actual native outputs; large official binary and raw signed transport remain local qualified'})
+print(json.dumps({'count':len(items),'bytes':sum(r['bytes'] for r in items),'native_counts':counts,'joined_old_seven':'7PASS','inputs':len(inputs),'source':sha}))

@@ -1,0 +1,37 @@
+{
+  "actual_cases": 4,
+  "cases": [
+    {
+      "profile": "initial-not-established",
+      "case_index": 0,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+      "native_status": "FAIL",
+      "failure_message": "requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+      "property_grade": "not_established_before_provider_admission"
+    },
+    {
+      "profile": "initial-not-established",
+      "case_index": 1,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+      "native_status": "FAIL",
+      "failure_message": "requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+      "property_grade": "not_established_before_provider_admission"
+    },
+    {
+      "profile": "initial-not-established",
+      "case_index": 2,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+      "native_status": "FAIL",
+      "failure_message": "requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+      "property_grade": "not_established_before_provider_admission"
+    },
+    {
+      "profile": "initial-not-established",
+      "case_index": 3,
+      "native_case_name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+      "native_status": "FAIL",
+      "failure_message": "requests.exceptions.ProxyError: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+      "property_grade": "not_established_before_provider_admission"
+    }
+  ]
+}

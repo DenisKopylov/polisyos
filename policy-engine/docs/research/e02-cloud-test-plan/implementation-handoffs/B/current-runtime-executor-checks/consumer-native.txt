@@ -1,0 +1,118 @@
+..........................................................FFF..          [100%]
+=================================== FAILURES ===================================
+______________ test_timeout_cleans_owned_process_descendant[sync] ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-120/test_timeout_cleans_owned_proc0')
+ctx = <MagicMock id='140232837793840'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+mode = 'sync'
+
+    @pytest.mark.skipif(
+        "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    )
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:
+        """Timeout cleanup owns the worker group and does not leave descendants."""
+        pid_path = tmp_path / "descendant-pid"
+        node = _DescendantProcessNode(pid_path)
+        descendant_pid: int | None = None
+    
+        try:
+            with pytest.raises(NodeTimeoutError):
+                kwargs = {
+                    "retry_policy": RetryPolicy(),
+                    "timeout_s": 0.5,
+                    "alias": "descendant-cleanup",
+                }
+                if mode == "sync":
+                    execute_with_retry_sync(node, ctx, state, **kwargs)
+                else:
+                    asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+            assert pid_path.exists()
+            descendant_pid = int(pid_path.read_text())
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1177: Failed
+_____________ test_timeout_cleans_owned_process_descendant[async] ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-120/test_timeout_cleans_owned_proc1')
+ctx = <MagicMock id='140232837799216'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+mode = 'async'
+
+    @pytest.mark.skipif(
+        "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    )
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:
+        """Timeout cleanup owns the worker group and does not leave descendants."""
+        pid_path = tmp_path / "descendant-pid"
+        node = _DescendantProcessNode(pid_path)
+        descendant_pid: int | None = None
+    
+        try:
+            with pytest.raises(NodeTimeoutError):
+                kwargs = {
+                    "retry_policy": RetryPolicy(),
+                    "timeout_s": 0.5,
+                    "alias": "descendant-cleanup",
+                }
+                if mode == "sync":
+                    execute_with_retry_sync(node, ctx, state, **kwargs)
+                else:
+                    asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+            assert pid_path.exists()
+            descendant_pid = int(pid_path.read_text())
+>           with pytest.raises(ProcessLookupError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ProcessLookupError'>
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1177: Failed
+_______________ test_cleanup_kills_descendant_after_worker_exit ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-120/test_cleanup_kills_descendant_0')
+ctx = <MagicMock id='140232837805600'>
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    @pytest.mark.skipif(
+        "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    )
+    def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> None:
+        """Cleanup must still reap an owned group after its worker has exited."""
+        pid_path = tmp_path / "exited-worker-descendant-pid"
+        node = _ExitedWorkerWithDescendantNode(pid_path)
+        descendant_pid: int | None = None
+    
+        try:
+            with pytest.raises(NodeTimeoutError):
+                retry_module._execute_with_timeout_process(
+                    node,
+                    ctx,
+                    state,
+                    timeout_s=0.5,
+                )
+            assert pid_path.exists()
+            descendant_pid = int(pid_path.read_text())
+            for _ in range(20):
+                try:
+                    os.kill(descendant_pid, 0)
+                except ProcessLookupError:
+                    break
+                _time.sleep(0.05)
+            else:
+>               pytest.fail("owned descendant survived worker cleanup")
+E               Failed: owned descendant survived worker cleanup
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1227: Failed
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_retry.py: 13 warnings
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=93868) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant[sync]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant[async]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_cleanup_kills_descendant_after_worker_exit

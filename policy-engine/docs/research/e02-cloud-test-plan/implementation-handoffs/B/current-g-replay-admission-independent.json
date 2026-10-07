@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-g-replay-admission-independent",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "0b0a524c7e51cf714102374d8d2a715a9bedc5e9",
+  "implementation_commits": [
+    "97e62e6f71460676b8e4252cd07ea4c02311d3e4"
+  ],
+  "candidate_tree_sha": "9b38ee2a4576ef6ff3135b0ce976682ff2d2cb40",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.stdout.json"
+  ],
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-independent.json",
+  "source_target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_target_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "recipe_subject_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+  "recipe_subject_tree_sha": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+  "baseline_cells": [],
+  "baseline_grade": "No new finding disposition or runtime repair claimed; structural G replay input portability only. Historical baseline/native/gate grades remain in their original source-bound receipts.",
+  "checks": [
+    {
+      "id": "static-literal-recipe-input-audit",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/g-replay-admission/inspect.py",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/contract.json#review_environment",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/contract.json#input_refs + complete_selector_static_verification + observed_recipe_custody",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.stdout.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.stdout.json",
+        "commit": "97e62e6f71460676b8e4252cd07ea4c02311d3e4",
+        "git_blob": "32c300c4227a581b1c0bcc19d1b5bae2e744e9d1",
+        "bytes": 768,
+        "sha256": "bdde66df99d7b61c1809453c58a5911f570d1898740c8e8dad03bd126b42e4a7"
+      },
+      "definition": "PASS applies only to the actual stdlib/Git metadata audit. Complete250 Git identities and23 immutable root recipe blobs matched; source/test diff1862 to10e and observed ebecab is zero. No product import/backend/native/build/gate/cache/collection executed.",
+      "actual_observed_root_snapshot": {
+        "head": "ebecab2d4376f28285293808e5952de519932a53",
+        "tree": "f3898bbee9cdc5d0d95198cf15e96faa184d6d7b",
+        "branch": "codex/e02-B-current-coordination",
+        "status": ""
+      },
+      "exact_driver_source_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.source.txt",
+        "commit": "97e62e6f71460676b8e4252cd07ea4c02311d3e4",
+        "git_blob": "662a923c0c2a956bb9c4345d5c327a559600c610",
+        "bytes": 19943,
+        "sha256": "b3fb26900e16c7d02de9fc00e1d2c260145863e6a4be87d6cc902aa6fe8da670"
+      },
+      "replay_qualification": "This is the actual recorded audit command and captured input snapshot, not a claim a later root HEAD or G path satisfies the same guard. Documentary inspect.source.txt may be extracted only into fresh admitted metadata scratch; root recipe portability is separately qualified in contract."
+    },
+    {
+      "id": "prospective-local-G-replay",
+      "command": "No executable local-G command issued: actual source checkout, platform, backend, private input paths and fresh output namespace must first be admitted. Complete real historical argv and concrete prepared cloud argv are committed in contract.json#recorded_commands.",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": "not_established for localG; contract.json#input_dependency_contract records exact tool/platform/privatebackend/input prerequisites",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/contract.json#recorded_commands",
+      "outcome": "UNRUN",
+      "output": "No local-G runtime output; source-only admission predicates and path adaptations are recorded. Neither replay PASS nor sufficient resources nor backend liveness is claimed."
+    }
+  ],
+  "property": {
+    "statement": "Transfer a source-bound, whole-input replay recipe without silently relabelling runtime1862 as metadata10e/ebecab, losing isolated installed-wheel children, forwarding private PostgreSQL credentials, or presenting Linux capture/backend recipes as native-Darwin path-only replay.",
+    "runtime_path": [
+      "root exact250 selector and candidate whole-file identities",
+      "prepared file-backed whole-cohort driver imports immutable admission/capture/observer recipes",
+      "fresh wheel nine phases generate seven public inputs; one outer testcase owns eight isolated installed-child cases",
+      "private real PostgreSQL/driver, OPA/tokenizer/backend and resource/output prerequisites must independently admit future G execution"
+    ],
+    "proxy_divergence": "Metadata HEAD with identical production/tests is insufficient: stock driver still requires literal HEAD==1862, selector source/tree1862 and wheel SOURCE_SHA1862. An existing DSN file, driver directory or declared cache/version also fails to prove service liveness, compatible native backend, actual bytes or sufficient resources.",
+    "negative_controls": [
+      "Static source countercase: supplied sha1862 with metadata10e/observed ebecab fails exact HEAD guard; choosing current metadata SHA fails old selector/wheel identities. This was traced/read, not launched as a native test.",
+      "Static platform countercase: capture_frozen os.pipe2 plus LinuxKiB wait4 labeling and recorded Linuxamd64 musl PostgreSQL cannot honestly become unchanged native macOS replay by changing paths.",
+      "External B93 packet is absent from reviewed root10e and is fetched separately from0b0a; no hidden251st file or eight direct helper items are added to source250. No semantic self-review of the authored B93 probe."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "per_premise_basis": {
+    "whole250_source_and23_recipe_blob_custody": "recomputed",
+    "literal_driver_guard_and_platform_source_trace": "independently_reconciled from full immutable source; runtime negative UNRUN",
+    "future_G_backend_privateinputs_resources_and_authority": "not_established",
+    "B93_property_semantic_acceptance": "outside_this_review; foreign/root/G receipts remain authoritative"
+  },
+  "capability_state_or_finding_state": "SOURCE_ONLY_REPLAY_RECIPE_AUDIT_COMPLETE; LOCAL_G_REPLAY_ADMISSION_NOT_ESTABLISHED",
+  "artifact_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/contract.json",
+      "commit": "97e62e6f71460676b8e4252cd07ea4c02311d3e4",
+      "git_blob": "e117d12e92335034be7538b69bde03fb9bc9e5e0",
+      "bytes": 52734,
+      "sha256": "cbaf3c7b77fa4fc74c9611b80514cbd7dd9448e539130a938948f3bcbb7a9faf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.source.txt",
+      "commit": "97e62e6f71460676b8e4252cd07ea4c02311d3e4",
+      "git_blob": "662a923c0c2a956bb9c4345d5c327a559600c610",
+      "bytes": 19943,
+      "sha256": "b3fb26900e16c7d02de9fc00e1d2c260145863e6a4be87d6cc902aa6fe8da670"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.stdout.json",
+      "commit": "97e62e6f71460676b8e4252cd07ea4c02311d3e4",
+      "git_blob": "32c300c4227a581b1c0bcc19d1b5bae2e744e9d1",
+      "bytes": 768,
+      "sha256": "bdde66df99d7b61c1809453c58a5911f570d1898740c8e8dad03bd126b42e4a7"
+    }
+  ],
+  "implementation_footprint": {
+    "tracked_paths": 3,
+    "production": 0,
+    "tests": 0,
+    "metadata_documentary_sources": 3,
+    "future_receipt_excluded": true
+  },
+  "authority_purpose": "Technical Git/source/input portability; no institutional grant, financial settlement authority, backend liveness or global integration acceptance.",
+  "provenance": {
+    "reviewer": "/root/run_writer",
+    "root_recipe_owner": "/root",
+    "own_B93_boundary": "Read only portability; author does not re-review or re-accept own B93 behavior.",
+    "time_roles": "Source before/after Git snapshots are custody observations, not runtime timing or future admission; all actual recorded runtime histories remain separately bound."
+  },
+  "limitations_and_next_owner": [
+    "G must fetch exact source1862 plus metadata10e recipes and external0b0a B93 input refs. Current metadata checkout cannot invoke stock driver against1862; use independently admitted exact clean/attached1862 runtime checkout, or actually derive fresh selector and wheel against a declared new candidate.",
+    "Path changes must cover outer driver and imported run_successor ROOT/PRODUCT/SCRATCH/executables together and accurately declare the branch guard. Preserve full adapted source/diff; native Darwin additionally needs independently reviewed truthful capture/platform profile or an admitted Linux backend.",
+    "Fresh nine-phase wheel build/install must generate all seven fields against exact admitted candidate. Existing cloud wheel/profile/installed site paths are not portable artifacts; ordinary outer1 and isolated child8 denominators stay distinct.",
+    "Provision fresh real PostgreSQL role/database/port and compatible psycopg3.3.2, owner-only private DSN path and authentic source/backend/tokenizer/OPA inputs; cloud path existence is not G readiness. Secret bytes were not read and remain uncommitted.",
+    "Preserve whole250 input identities/order,14 canonical required and7 incidental absent references, isolated observer namespace and all terminal native phases. Historical interrupted3882 collection is not a final partition or PASS.",
+    "Do not reuse O_EXCL output tags or old scratch; prepared file-backed UNRUN does not prove storage/RAM sufficiency. No native/cache/build/backend/gate/root/source edits were performed by this review.",
+    "Root/G own any eventual runtime replay, prerequisite/resource admission and acceptance. All previous global RED, SIGKILL and unavailable-transfer limits remain explicit and unwaived."
+  ],
+  "pattern_pass": {
+    "P35": "Complete250 source identities,26 immutable input refs,23 root recipe equivalences and complete src/tests diff audited; no runtime collection denominator invented.",
+    "P37": "Future readiness fail-closed not_established; path/hash/version proxy separated from real platform/backend/authority/resources.",
+    "P38": "Literal exact HEAD/selector/wheel and platform countercases source traced with no fabricated runtime negative.",
+    "P41": "No inherited red waiver or future replay claim."
+  }
+}

@@ -1,0 +1,9 @@
+# Imported module checkpoint consumer oracle
+
+This independent B74 test calls the real strict Foundry executor, actual CAS guarded selected input, immutable checkpoint save, fresh checkpoint load and fresh CAS reader. A completed numeric producer yields6; a remaining consumer resolves a Python helper from the real imported math module. Replacing that helper keeps the imported module and Python version, but changes the consumer result7→107 and writes a real replacement filesystem effect.
+
+The original immutable f796 production source with the independently committed f4 test gives2PASS/1FAIL: unchanged imported helper and imported math.fabs builtin have real cold/resume parity; replacement resume DIDNOTRAISE and retained events are original/replacement. This is an actual source defect in the imported-member identity quantity, not a marker/hash-only oracle. Baseline stdout, stderr(combined), JUnit, exact command/profile/rusage and imported repository module origins are retained unchanged. The complete6251 before/after tracked source/test/product/config bytes match; their set derives from actualHEAD, rather than storing two duplicate source tables.
+
+The baseline transferred8 cells/job contexts are navigation only. Their exact source refs/SHA/environment/manifest/config closure and source locators remain explicit; raw archives were never transferred. A current supplied runtime version or historical wholefilePASS does not bind a mutable imported member.
+
+CMP owns artifacts/_implementation_identity.py and any canonical checkpoint changes. This author owns only the independent mirrored test and evidence. New candidate runtime and property-removal results will append with their own immutable source/input identity. Dynamic/reflection/opaque third-party graph profiles must be bounded by the canonical owner, not inferred from this tiny ordinary Python/static-module consumer. ROOT/G decides formal closure; closure_ids remains empty.

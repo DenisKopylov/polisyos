@@ -1,0 +1,120 @@
+{
+  "schema": "policyos.e02.g_focused_check.v1",
+  "candidate_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+  "candidate_tree": "894501580e379d140108a58cc87b7739cdb52400",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/common/test_async_tools.py",
+    "tests/unit/core/artifacts/test_async_store.py",
+    "tests/unit/runtime/http/test_resilience_guards.py",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/results/current-b-executor.junit.xml",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/results/tmp-current-b-executor",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/results/pytest-cache-current-b-executor"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-executor/policy-engine",
+  "environment": {
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "versions": {
+      "anyio": "4.12.0",
+      "httpx": "0.28.1",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2"
+    },
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-executor/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-executor/policy-engine",
+    "numeric_threads": 1,
+    "platform": "macOS arm64"
+  },
+  "timeout_seconds": 120,
+  "outcome": "PASS",
+  "counts": {
+    "tests": 31,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "wall_seconds": 22.962,
+  "max_child_rss_bytes": 980484096,
+  "import_origins": [
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-executor/policy-engine/src/polisyos/common/async_tools.py",
+      "module": "polisyos.common.async_tools",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-executor/policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "module": "polisyos.core.artifacts.async_store",
+      "sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-executor/policy-engine/src/polisyos/runtime/http/resilience.py",
+      "module": "polisyos.runtime.http.resilience",
+      "sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0",
+      "under_candidate": true
+    }
+  ],
+  "source_and_test_hashes_before_after_unchanged": {
+    "release-fragments/unreleased/e02-current-runtime.toml": {
+      "bytes": 1163,
+      "sha256": "b023625a879b7e69d2a4fa7f549c9b720f6740708c9bbb1af53f483e3cc2d002"
+    },
+    "src/polisyos/common/async_tools.py": {
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    "src/polisyos/core/artifacts/async_store.py": {
+      "bytes": 6366,
+      "sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    "src/polisyos/runtime/http/resilience.py": {
+      "bytes": 15123,
+      "sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0"
+    },
+    "tests/unit/common/test_async_tools.py": {
+      "bytes": 15730,
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+    },
+    "tests/unit/core/artifacts/test_async_store.py": {
+      "bytes": 2279,
+      "sha256": "dda8d14da68846e8c2df061c18ee678d6efe0154959370b97e5473b7a037a2f4"
+    },
+    "tests/unit/runtime/http/test_resilience_guards.py": {
+      "bytes": 5722,
+      "sha256": "83b37541592c28e5b949618c2d4052b88de17e09ec954d2eb9119f8ab5f7ab88"
+    }
+  },
+  "production_data_used": false,
+  "dependencies_installed": false,
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/b-executor.stdout",
+      "sha256": "7be486bc539954d94b22a5eb391de3d72b69a10837ca03dccd34516fc119b5ef",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/b-executor.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/b-executor.junit.xml",
+      "sha256": "bb344f95e99882903d21a7d6c93c5e91e5af229adfffdf42fdbd1006c523505b",
+      "bytes": 4591
+    }
+  ],
+  "finding_closure": false,
+  "broad_replay": false
+}

@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import importlib.metadata,json,sys;print(json.dumps({'python':sys.executable,'version':sys.version,'distributions':{d.metadata['Name']:d.version for d in importlib.metadata.distributions()}},sort_keys=True))"
+  ],
+  "cwd": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5",
+  "start_utc": "2026-10-07T08:37:45.597336+00:00",
+  "end_utc": "2026-10-07T08:37:45.731242+00:00",
+  "wall_s": 0.13391540001612157,
+  "child_maxrss_platform_units": 14592,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "exit": 0,
+  "output": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/consumer-environment.txt",
+  "output_bytes": 297,
+  "output_sha256": "561e1aa983bff8fbfe67459b5e8fe4e247b17a4f860bae09661402274e5709a1",
+  "source": {
+    "head": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "status": ""
+  }
+}

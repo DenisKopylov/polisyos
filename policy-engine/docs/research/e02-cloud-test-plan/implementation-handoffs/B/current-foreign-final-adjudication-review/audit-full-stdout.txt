@@ -1,0 +1,104 @@
+INVOCATION {"argv": [".polisyos/foreign-final-adjudication/audit.py.txt", "--proposal-sha", "d1efd64136815a04a96a534e1be8003783f444fe", "--proposal-hash", "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1", "--cost-input-dir", ".polisyos/foreign-final-adjudication", "--out", ".polisyos/foreign-final-adjudication/audit.json"], "cwd": "/workspace/e02-B-current-cas-generation", "metadata_reader_head_before": "6b0e917207af2001754d6fe352ec75ac47485461", "utc": "2026-10-06T23:46:43.648392+00:00", "execution_profile": "stdlib+Git only; no project imports/native/gates"}
+{
+  "scope": {
+    "bundles": [
+      "CMP-01",
+      "CMP-02",
+      "CMP-03",
+      "RES-03",
+      "RES-04",
+      "JIT-01"
+    ],
+    "cross_family": {
+      "B52": "EXE-01"
+    },
+    "findings": [
+      "B13",
+      "B42",
+      "B43",
+      "B44",
+      "B45",
+      "B46",
+      "B47",
+      "B48",
+      "B49",
+      "B50",
+      "B52",
+      "B53",
+      "B74",
+      "B75",
+      "B76"
+    ],
+    "counts": {
+      "proposed_bounded_closed": 13,
+      "limited": 2,
+      "formal_closure": 0
+    }
+  },
+  "current_case_counts": [
+    {
+      "finding_id": "B42",
+      "counts": {
+        "PASS": 4
+      }
+    },
+    {
+      "finding_id": "B43",
+      "counts": {
+        "PASS": 34
+      }
+    },
+    {
+      "finding_id": "B44",
+      "counts": {
+        "PASS": 53
+      }
+    },
+    {
+      "finding_id": "B52",
+      "counts": {
+        "PASS": 2
+      }
+    },
+    {
+      "finding_id": "B53",
+      "counts": {
+        "PASS": 15
+      }
+    }
+  ],
+  "costs": [
+    {
+      "payload_bytes": 1024,
+      "cold_workflow_return_cost_ns": 46407445,
+      "warm_observations": 12,
+      "neighbour_observations": 262,
+      "neighbour_wait_p95_ns": 3232576,
+      "neighbour_wait_p99_ns": 7805515,
+      "warm_workflow_return_cost_p95_ns": 56545771,
+      "warm_workflow_return_cost_p99_ns": 56545771,
+      "serialized_cache_put_bytes": 5545,
+      "raw_individual_measurements": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_real_async_cache_costs_an0/individual-costs.json",
+      "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated."
+    },
+    {
+      "payload_bytes": 65536,
+      "cold_workflow_return_cost_ns": 56855002,
+      "warm_observations": 12,
+      "neighbour_observations": 297,
+      "neighbour_wait_p95_ns": 1716105,
+      "neighbour_wait_p99_ns": 7587663,
+      "warm_workflow_return_cost_p95_ns": 62300180,
+      "warm_workflow_return_cost_p99_ns": 62300180,
+      "serialized_cache_put_bytes": 199085,
+      "raw_individual_measurements": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/pytest/test_real_async_cache_costs_an1/individual-costs.json",
+      "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated."
+    }
+  ],
+  "source_changed_paths_vs_DD": [
+    "policy-engine/src/polisyos/foundry/methods/components/composer.py"
+  ],
+  "conclusion": "No foreign-row status blocker after the B52 per-quantity wording qualification.13 bounded criterion proposals and2 explicit LIMITED remain nonformal. Full cohort incomplete and global gates RED preserved; ROOT/G decides formal closure.",
+  "outcome": "PASS"
+}
+REPORT_BYTES 137258 REPORT_SHA256 1dfd98992a612b65d398628392b18bff6f04a2cd8dab2d453f980e7312f14ead

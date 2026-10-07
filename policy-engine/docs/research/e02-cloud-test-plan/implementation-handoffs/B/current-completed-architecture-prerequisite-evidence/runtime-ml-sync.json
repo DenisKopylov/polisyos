@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "sync",
+    "--frozen",
+    "--extra",
+    "runtime",
+    "--extra",
+    "ml"
+  ],
+  "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+  "exit_code": 0,
+  "wall_seconds": 3.87483532600163,
+  "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "clean_after": true,
+  "output": {
+    "path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/sync.txt",
+    "bytes": 4116,
+    "sha256": "e526eb8c56335d507e2e7406146d1f72be574ea82f32af3a4955ff1b7d2c5b9a"
+  }
+}

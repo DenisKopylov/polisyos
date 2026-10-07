@@ -1,0 +1,85 @@
+{
+  "schema": "e02.gateway_numeric.quality_checks/v1",
+  "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "checks": [
+    {
+      "id": "ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "outcome": "PASS",
+      "output": "ruff.txt",
+      "exit_basis": "completed literal All checks passed; initial combined Ruff check+format shell exit0"
+    },
+    {
+      "id": "format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "outcome": "PASS",
+      "output": "format.txt",
+      "actual_exit": 0
+    },
+    {
+      "id": "mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "MYPYPATH": "src"
+      },
+      "outcome": "FAIL",
+      "actual_exit": 1,
+      "output": "mypy.txt",
+      "detail": "Found110errors31files checked1sourcefile; no exact slice-base full-input isolation, no inherited/P41 waiver"
+    },
+    {
+      "id": "production_invocation",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "--receipt",
+        "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/production-invocation.json"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine"
+      },
+      "outcome": "ERROR",
+      "actual_shell_exit": 137,
+      "output": "production-invocation.txt",
+      "tool_output": "/bin/bash: line 1: 660548 Killed Python production_invocation; no complete receipt emitted",
+      "diagnostic_receipt_exists": false,
+      "resource_observation": {
+        "pid": 660548,
+        "rss_kib_at_single_observation": 983976,
+        "after_memory_max": "17179869184",
+        "after_memory_events": "low 0\nhigh 0\nmax 278344\noom 8\noom_kill 6\noom_group_kill 0\n",
+        "before_counters": "not_measured",
+        "peak_rss": "not_measured",
+        "signalcause": "not_established"
+      },
+      "detail": "Incomplete diagnostic execution does not establish either source regression or staticPASS; ready native checks ran concurrently without supplied quotas"
+    }
+  ]
+}

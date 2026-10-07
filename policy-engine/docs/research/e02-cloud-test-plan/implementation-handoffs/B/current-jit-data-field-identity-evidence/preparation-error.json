@@ -1,0 +1,19 @@
+{
+  "action": "metadata packaging source closure only, not a native/gate invocation",
+  "actual_exit": 1,
+  "reasons": [
+    "initial stdin packaging omitted alternate Git environment; git show0903:path failed before canonical source-byte check",
+    "next preparation used nonexistent methods/_method.py; actual owner is methods/artifacts/_method.py"
+  ],
+  "correction": "Use recorded alternate object directory/index and actual canonical path; all16 source-file checks now exact0903 Git matches. No source changes or runtime rerun.",
+  "ordinary_git_commit_first_attempt": {
+    "outcome": "ERROR",
+    "actual_exit": 1,
+    "hook": "lefthook pre-commit tried git checkout --force to hide absent unstaged documentation; ENOSPC prevented parent-directory creation",
+    "accepted_source_or_test_change": false,
+    "original_returned_tool_stdout_truncated": true,
+    "full_original_stdout_custody": "not_established",
+    "no_hook_or_check_bypass": true,
+    "correction": "root conservatively removed only obsolete ignored own mypy cache after preserving warmcopy; ordinary docs are now materialized and normal hook retried"
+  }
+}

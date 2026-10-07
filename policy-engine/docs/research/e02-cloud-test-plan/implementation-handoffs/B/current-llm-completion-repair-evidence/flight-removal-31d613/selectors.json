@@ -1,0 +1,7 @@
+{
+  "actual_selectors": [
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-False]",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-True]"
+  ],
+  "execution_overlay": "Only original LLMBudgetEnforcer._observe_flight function code is replaced by no-op inside isolated interpreter, restored after pytest. Actual emitter registration, source files, typed context and ledger/provider filesystem effects remain."
+}

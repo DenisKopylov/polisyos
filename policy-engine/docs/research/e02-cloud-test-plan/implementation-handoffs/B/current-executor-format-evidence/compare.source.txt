@@ -1,0 +1,65 @@
+"""Compare complete immutable Python syntax after a one-file format repair.
+
+Only standard-library AST/Git reads are executed. No product imports, native
+tests, collection or gate commands run through this instrument.
+"""
+
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+import subprocess
+
+BASE = "8537cda8bde4c60d0274cb5edfc1cc1c305adf40"
+TARGET = "19ce51076cf910d34ad9b49e2964d9c18900c52b"
+DD = "dd9584728bd96f204983615216efdbc58117e713"
+PATH = "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py"
+
+
+def git(*argv: str) -> bytes:
+    return subprocess.check_output(["git", *argv])
+
+
+def main() -> None:
+    before = git("show", f"{BASE}:{PATH}")
+    after = git("show", f"{TARGET}:{PATH}")
+    assert before == git("show", f"{DD}:{PATH}")
+    paths = git("diff", "--name-only", BASE, TARGET).decode().splitlines()
+    assert paths == [PATH]
+    left = ast.parse(before)
+    right = ast.parse(after)
+    left_dump = ast.dump(left, include_attributes=False)
+    right_dump = ast.dump(right, include_attributes=False)
+    assert left_dump == right_dump
+    definitions = [
+        n.name
+        for n in ast.walk(right)
+        if isinstance(n, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
+    print(json.dumps({
+        "base_sha": BASE,
+        "candidate_sha": TARGET,
+        "candidate_tree": git("rev-parse", f"{TARGET}^{{tree}}").decode().strip(),
+        "source_path": PATH,
+        "source_before_byte_equal_to_DD": True,
+        "before_sha256": hashlib.sha256(before).hexdigest(),
+        "after_sha256": hashlib.sha256(after).hexdigest(),
+        "before_bytes": len(before),
+        "after_bytes": len(after),
+        "full_ast_equal": True,
+        "full_ast_sha256": hashlib.sha256(right_dump.encode()).hexdigest(),
+        "definition_count": len(definitions),
+        "public_and_private_signatures_annotations_defaults_decorators_docstrings_body": "all included in complete AST comparison",
+        "definition_names": definitions,
+        "changed_paths": paths,
+        "predicate_scope": "complete Python syntax identity excluding source positions; line/column metadata may change with formatting",
+        "product_imports": "UNRUN",
+        "native": "UNRUN",
+        "collection": "UNRUN",
+        "full_quality_gates": "UNRUN",
+    }, indent=2))
+
+
+if __name__ == "__main__":
+    main()

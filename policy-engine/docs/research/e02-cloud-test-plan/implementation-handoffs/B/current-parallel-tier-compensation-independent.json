@@ -1,0 +1,230 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-parallel-tier-compensation-independent",
+  "reviewer": "dur_probe; productionwriterEXE is separate",
+  "closure_ids": [],
+  "finding_ids": [
+    "B73"
+  ],
+  "bundle_ids": [
+    "RES-02"
+  ],
+  "slice_base_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+  "implementation_commits": [
+    "50b2400df392b26afc24b755f6b6e777cc0c5a4d",
+    "2b0e836a095e6fe6224726f6be3fc8f8502a2352"
+  ],
+  "candidate_tree_sha": "8a74d0cb45e56f3472e177cc3b893191dcb4e8fa",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py"
+  ],
+  "production_changed_paths": [],
+  "input_freeze_qualification": "50b preliminaryinput was not executed;2b forwardcorrects declaredactual A read of params.seed before firstnativeexecution. No propertyassertion weakened. Source6af/84 production is externalEXEowner; own implementation changes only thisnativeoracle.",
+  "baseline_cells": [],
+  "baseline_navigation": {
+    "git_sha": "69592e5ca095011bfd724a01da1e1f44cfb9f9d4",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-adjudication.json",
+    "locators": [
+      "#findings/B73",
+      "#check_index"
+    ],
+    "source_cut": "99af508a5282854f3e609c5a94bc19ac55893dde results cells/events/sources and finding-routes",
+    "meaning": "Resolved baseline navigation only, never proof of thiscandidate."
+  },
+  "canonical_criterion": {
+    "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-02.md",
+    "finding_id": "B73",
+    "card_lines": [
+      74,
+      93
+    ],
+    "original_lines": [
+      1921,
+      1938
+    ],
+    "raw_source_block_sha256": "5d7c44528f1e1d6845265d8bf932cf121cd2959bf2d144348d6b404066f8d8f4",
+    "digest_convention": {
+      "git_sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-criterion-digest-qualification.json"
+    },
+    "statement": "Committed tier state/fullcomplete-set/results and rollback decision agree; fail_fast/continue compensation/outputcache/seedrefs are coherent, and a stopped/resumed successful peer is not physically rerun."
+  },
+  "execution_source": {
+    "sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+    "tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+    "head_after": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+    "clean_after": true,
+    "observed_module_origins": {
+      "polisyos.scientist.orchestration.engine.async_executor": {
+        "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+      },
+      "polisyos.scientist.orchestration.engine.checkpoint": {
+        "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "sha256": "9640210bbe273c3ce14898ac4683539298198b6628898e5d5c057ccc4eee7cdd"
+      },
+      "polisyos.scientist.orchestration.engine.compensation": {
+        "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/compensation.py",
+        "sha256": "40f03b4b12715533ea7e1c1c1f54768ac125e1648f42fd699cf02fcde50eddf7"
+      },
+      "polisyos.scientist.orchestration.engine.idempotency": {
+        "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "sha256": "3f8cb9bef47dbaf1a242fda929a4d71f4276ca4c0761b7392fef34e80c81e996"
+      }
+    },
+    "qualification": "Bothcases literalEXEsrc/product PYTHONPATH and --noconftest, importedfourmodules recordedinside actualtestchild and matched immutableGit84 bytes. No source overlay or production edit."
+  },
+  "checks": [
+    {
+      "id": "parallel-compensation-real-cas",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "--noconftest",
+        "/workspace/e02-B-current-durability/policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+        "-c",
+        "/workspace/e02-B-current-execution-state/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--basetemp",
+        "/tmp/e02-B-dur-b73-compensation-20261006-2b0e836/pytest-scratch-first",
+        "--junitxml",
+        "/tmp/e02-B-dur-b73-compensation-20261006-2b0e836/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state/policy-engine",
+        "caps_absent": [
+          "OMP_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS",
+          "BLIS_NUM_THREADS"
+        ],
+        "conftest": "disabled; builtinfixtures only",
+        "fixture_mount": "actual/tmp tmpfs; no physicaldiskdurability claim"
+      },
+      "input_closure": "Real registered seed/Aok/Bfirstfail/suffix async producers, actual RunContext/defaultregistrybundle, AsyncWorkflowExecutor with actual CASCheckpointHook and typed compensation callback. fail_fast/continue realstate/frontier/CASoutput/cache readback; freshFileSystemCAS/publicresume with explicit observedtransientB nowhealthy, A/seedbody0 B1 suffix1. Isolated filesystem fixture only; no productiondataset/externalDB.",
+      "test_input": {
+        "path": "/workspace/e02-B-current-durability/policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+        "git_sha": "2b0e836a095e6fe6224726f6be3fc8f8502a2352",
+        "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7",
+        "bytes": 12237
+      },
+      "outcome": "PASS",
+      "actual_exit": 0,
+      "actual_junit_counts": {
+        "cases": 2,
+        "passed": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_s": 11.441840379004134,
+      "process_rusage_maxrss_kib": 720492,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-parallel-tier-compensation-independent-evidence/native.txt",
+      "output_sha256": "d86c58d9378b6a5e0f94484833c8bad068d2e506df67dab594bc7869e73d8d7d",
+      "output_bytes": 4114,
+      "xml": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-parallel-tier-compensation-independent-evidence/native.xml",
+        "sha256": "f2178b20bfc139b146f4d40b9c110d139a7335a01875269835b2ccb90aca651c",
+        "bytes": 507
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-parallel-tier-compensation-independent-evidence/native-wrapper.json",
+        "sha256": "03012e59217eb789a2a072fd7dd1e992f62f74b63489042584857ffafc1688a1",
+        "bytes": 3027
+      }
+    }
+  ],
+  "prior_deciding_evidence": [
+    {
+      "git_sha": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+      "locators": [
+        "#checks/23",
+        "#checks/24",
+        "#b73_fresh_readback",
+        "#b73_readback_driver"
+      ],
+      "actual_source": "bd490ea81ac5addb78a3f35532558a5b8042dcdb / productiona175392fb4b49d19189152609d93e2ec149a4704",
+      "meaning": "45actualPASScollector includes four realspawn publication beforehead/afterhead +fail_fast/continue profiles; source-pinned samefrontierinput removalactual1materialFAIL. read_b73_complete actualCAS/cache/content/journal/nativeapplyreadback distinguishes retainedsuccessfulresult from rolledbackstate. Theseold executions are NOTnew84 reruns."
+    },
+    {
+      "git_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-candidate.json",
+      "locators": [
+        "#checks",
+        "#property"
+      ],
+      "actual_source": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "meaning": "Independent enteredIO/no-latehead/GC/originalbudget controls7PASS/4materialremovalFAIL. EnteredI/O typedunknown is distinctfrom rollback/acceptedworkflowfrontier, not a B73physicalkillcondition."
+    }
+  ],
+  "property": {
+    "statement": "Actual Aok/Bfail parallel fail_fast emits exactlyone typedcompensation event containing priorseedfrontier and restoredseedstate, while durablehead staysseed. Continue emitsnone and commits only A. A physicalproducerartifact and realCAScacheentry survive rollback. FreshFileSystemCAS/publicresume executes no seed/A body and only failedB plus suffix, producing completeconsistenthead/history/state.",
+    "runtime_path": [
+      "genuine registered async seed/A/B/suffix producers with declaredactual reads/writes",
+      "actual AsyncWorkflowExecutor tier savepoint/commit/rollback",
+      "typed RollbackCompensationHook callback consumes actualevent +restoredstate",
+      "actualCASCheckpointHook/FileSystemCAS artifact/head/history and NodeCacheEntry",
+      "freshFileSystemCAS/publicresume before/after sameprocess with freshregistry",
+      "actualproducer bodycounts and retainedoutput/cache verify/readback"
+    ],
+    "proxy_divergence": "A completedfrontier marker or successfulproducerartifact alone cannot prove rollbackcoherence. Prior same-input omission keeps fullmergedstate/cachebytes but omitsleft and materiallyFAILs. New actualcallback must occur once with seedonly pre-tierfrontier/restoredstate onfail_fast; continue mustnotcall it. ActualfreshA body0 demonstrates norerun even when state rollsback; no literal n++ addition invented.",
+    "negative_controls": [
+      "Aok/Bfirstfail mutates itsfailed branch b999; thatvalue neverleaks into returnedstate/head.",
+      "continue is actualnegative for compensation callback (mustremainzero), with Acommitted.",
+      "Priorbd490 samefrontierremoval actual1FAIL remains evidence of discriminator; not claimedexecuted at84."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_classification": [
+    {
+      "quantity": "Actual2case execution, importedsource/hash guard, typedcallback invocation/event/restoredstate, fullstate/head/CAScontent/cacheverification, freshresume/bodycounts",
+      "basis": "recomputed",
+      "scope": "Observedby independentDURexecutor; root independentreadback acceptance separate."
+    },
+    {
+      "quantity": "Deterministicseed29,A1,Bfirstfail+laterhealthyB2,suffixA+B, declarednativegraph/policy",
+      "basis": "consumer_asserted",
+      "scope": "Explicitfixtureinputs; no external/institutional authority claimed."
+    },
+    {
+      "quantity": "Formerresidual requiring physicalpreemption/cancelleddurablehead guarantee",
+      "basis": "not_established",
+      "scope": "Not required by canonicalB73. Already-enteredI/O can finish coherently withtypedunknown; nophysicalkillclaim."
+    }
+  ],
+  "capability_state_or_finding_state": "B73 parallelcompensationverification gap filled in finiteactualnativeFileSystemCAS profile. Conditionalclosed_bounded recommendation; finalrootcohort/statusadjudication pending, formalclosure[].",
+  "finding_dispositions": [
+    {
+      "finding_id": "B73",
+      "technical_property_proposal": "closed",
+      "finding_status_proposal": "closed_bounded_conditional_final_cohort",
+      "formal_closure": false,
+      "remaining_intrinsic_scope": "No intrinsic remaining B73 gap identified for canonicalnativeparallel localFileSystemCAS producer/consumer. UninterruptibleI/O/physicalpowerloss/allbackend conformance are not automaticcanonicalblocking criteria.",
+      "remaining_verification": "Rootacceptedsource/newwholecohort definingB73cases stillpending. Prioroldsource processcut/removal and currentnewcallback checks remainseparatesource identities.",
+      "next_owner": "root/G finalcriterion reconciliation; EXE sourceowner only if true source falsifier appears."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Newcheck reopens freshFileSystemCAS and freshregistry within sameprocess; actualfreshspawn publicationcuts remain priorbd490 evidence, not mislabeled84 childreruns.",
+    "No new broad/gate/35s rerun; rootcombinedcohort and codeacceptance separate.",
+    "One literalpolicy test input withtwo actualcases, not an allworkflow/backend claim; fullproductiondataset is unnecessary for thisgenericcallback/frontier invariant.",
+    "Originalall15 check16 failures remainretained; check23 correctedfixture45PASS is actualseparateexecution, never inheritedsummary."
+  ],
+  "evidence_publication_git_sha": "f5c5f92a8d8cb397643cc1231694b440bbcc4794"
+}

@@ -31,6 +31,12 @@ before they enter the main workflow runtime.
 
 ## Common Commands
 
+Multi-pass critique normalization retains a traced client's configured accounting owner and
+pending state. A different critique model calls the typed `TracedLLMClient.with_model` boundary:
+mandatory accounting/active settlement composition refuses retargeting before provider work,
+because this path has no admitted owner-transfer contract. An unchanged model preserves the
+same client; unmanaged model views retain their ordinary tracing configuration.
+
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist.agent import ProblemFrame, DraftResult; print(ProblemFrame.__name__, DraftResult.__name__)"`

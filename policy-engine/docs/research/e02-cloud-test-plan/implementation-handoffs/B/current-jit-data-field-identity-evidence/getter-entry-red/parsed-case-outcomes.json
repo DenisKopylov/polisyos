@@ -1,0 +1,21 @@
+{
+  "cases": 1,
+  "counts": {
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "testcases": [
+    {
+      "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+      "name": "test_recursive_global_capture_cannot_authorize_other_root_bindings[GetterCollisionSource]",
+      "outcome": "FAIL",
+      "time": "0.115"
+    }
+  ],
+  "actual_child_exit": 1,
+  "hook_time_observed_module_count": 166,
+  "all_origin_bytes_reconciled": true,
+  "universal_readset": false
+}

@@ -1,0 +1,82 @@
+from pathlib import Path
+import ast
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import xml.etree.ElementTree as ET
+
+OWN = Path('/workspace/e02-B-current-runtime')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-candidate-evidence'
+DEST = OWN / PREFIX
+DEST.mkdir(parents=True, exist_ok=False)
+TEST = 'policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py'
+SOURCE = 'a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9'
+INPUTS = {
+    'record-vector-premise': ('682174fc76ec6911dd758c807551c8b9ff4013ec', Path('/tmp/e02-B65-recovery-a2-native')),
+    'qualified-record-vector': ('8ea92be02458941e4bf8a1d1c16f2fbeee60f26c', Path('/tmp/e02-B65-recovery-a2-qualified-native')),
+}
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=OWN)
+
+def write(path, value):
+    (DEST / path).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n')
+
+runs = []
+for label, (input_sha, raw) in INPUTS.items():
+    target = DEST / label
+    target.mkdir()
+    for filename in ['native.txt', 'native.xml', 'wrapper.json', 'source-context.json', 'child.source.txt']:
+        shutil.copyfile(raw / filename, target / filename)
+    actual = target / 'actual-files'
+    actual.mkdir()
+    for path in sorted((raw / 'pytest-tmp').rglob('*')):
+        if path.is_file() and not path.is_symlink():
+            result = actual / path.relative_to(raw / 'pytest-tmp')
+            result.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(path, result)
+    records = []
+    for line in (raw / 'native.txt').read_text().splitlines():
+        match = re.search(r'B65_([A-Z_]+) (\{.*\})', line)
+        if match:
+            records.append({'tag': match.group(1), 'value': json.loads(match.group(2))})
+    cases = []
+    for item in ET.parse(raw / 'native.xml').getroot().iter('testcase'):
+        failure, error, skipped = item.find('failure'), item.find('error'), item.find('skipped')
+        grade = 'ERROR' if error is not None else 'FAIL' if failure is not None else 'SKIP' if skipped is not None else 'PASS'
+        diagnostic = error if error is not None else failure if failure is not None else skipped
+        qualification = 'Actual full native case PASS with genuine protected local sink and ledger effects.'
+        if grade == 'FAIL':
+            qualification = 'Native FAIL retained. New test assertion mistook immutable original COMMITTED admission identity vector for outstanding aggregate reserve. Canonical lower transition preserves reserved_amounts; actual BudgetState reserved is0. Correction only asserts exact earlier real RESERVED entry amount and actual aggregate0. No source repair or weakened current-money predicate.'
+        cases.append({'native_xml_attributes': item.attrib, 'native_grade': grade, 'input_context_nodeid': TEST + '::' + item.attrib['name'], 'diagnostic_message': diagnostic.attrib.get('message') if diagnostic is not None else None, 'full_native_diagnostic': diagnostic.text if diagnostic is not None else None, 'qualification': qualification})
+    counts = {key: sum(row['native_grade'] == key for row in cases) for key in ['PASS', 'FAIL', 'ERROR', 'SKIP']}
+    counts['cases'] = len(cases)
+    expected = {'PASS': 15, 'FAIL': 2, 'ERROR': 0, 'SKIP': 0, 'cases': 17} if label == 'record-vector-premise' else {'PASS': 17, 'FAIL': 0, 'ERROR': 0, 'SKIP': 0, 'cases': 17}
+    assert counts == expected, counts
+    for filename, value in [('case-join.json', {'input_sha': input_sha, 'runtime_source_sha': SOURCE, 'xml_cases': cases, 'actual_counts': counts}), ('observations.json', {'actual_records': records, 'tag_counts': {tag: sum(row['tag'] == tag for row in records) for tag in sorted({row['tag'] for row in records})}})]:
+        (target / filename).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n')
+    runs.append({'label': label, 'input_sha': input_sha, 'counts': counts, 'wrapper': json.loads((raw / 'wrapper.json').read_text()), 'loaded_module_denominator': json.loads((raw / 'source-context.json').read_text())['complete_loaded_polisyos_module_denominator'], 'tag_counts': {tag: sum(row['tag'] == tag for row in records) for tag in sorted({row['tag'] for row in records})}})
+
+shutil.copyfile('/tmp/e02-B65-recovery-run.py', DEST / 'run-native.source.txt')
+(DEST / 'input-13-to-17.diff.txt').write_bytes(git('diff', '31003278961d27b84603d28c26dc38bd44f0a84d', '682174fc76ec6911dd758c807551c8b9ff4013ec', '--', TEST))
+(DEST / 'input-record-vector-premise.diff.txt').write_bytes(git('diff', '682174fc76ec6911dd758c807551c8b9ff4013ec', '8ea92be02458941e4bf8a1d1c16f2fbeee60f26c', '--', TEST))
+source_paths = ['policy-engine/src/polisyos/core/llm/settlement.py', 'policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py']
+(DEST / 'reviewed-source-delta.diff.txt').write_bytes(git('diff', 'a391e0c1f5bec81e6033675e4d48dd1cbe8e194d', SOURCE, '--', *source_paths))
+old_ast = ast.parse(git('show', '9c76d54cf10255ab5b926dfd961dcb3e07711ff4:' + TEST).decode())
+new_ast = ast.parse(git('show', '8ea92be02458941e4bf8a1d1c16f2fbeee60f26c:' + TEST).decode())
+def function(tree, name):
+    return next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == name)
+original_equal = {name: ast.dump(function(old_ast, name), include_attributes=False) == ast.dump(function(new_ast, name), include_attributes=False) for name in ['_call', 'test_protected_audit_reconciliation_precedes_next_provider']}
+assert all(original_equal.values())
+write('summary.json', {'runtime_source_sha': SOURCE, 'runtime_tree_sha': 'f5fb536b70b7d8d57b19c78570b3addd798083dd', 'lower_source_dependency_sha': '9f2a31c8869525ecf55fa55d0f5b08027c09a988', 'runs': runs, 'original4_function_AST_equal_to_qualified_DD_input': original_equal, 'input_qualification': 'Root ratified independent17 whole-file input: baseline4 + RESERVED/CHECK/RELEASED/COMMITTED two routes8 + wrong binding3 + EXCEEDED healthy/fault2. Historical corrected310 whole13 and botha39113FAIL packets unchanged at9b. New682 native15PASS2FAIL is preserved; narrow13-line qualified8ea correction separates immutable admission identity from actual outstanding BudgetState reserve. Samea2 source in both17 runs; no future custody.', 'source_review': 'Full exacta391→a2 production delta read. Receipt JSON projection uses admitted BaseModel.model_dump(mode=json), exact Decimal strings, no moneyfloat/default guess. Generic audit-only coordinate vector retains every configured budgetkey includingknown0; False admission clears values rather than keys. Narrow fixes directly address actual13 source boundaries, no decoder/audit source changes or authority widening.', 'finite_consumer_result': 'Qualified17 nativePASS proves actual sameowner protected local definite-directory-refusal recovery and persisted freshconstructor barrier across five budget actions. Original positive RESERVED/CHECK reservations become aggregate0 without charge/provider repetition; known completed .02 receipts remain unchanged; wrong hash-valid event/payload/owner bindings refuse before effects. EXCEEDED is real positive-budget refusal and unmanaged audit completion, not known monetary0.', 'limitations': ['No closure_ids: broad B65 criterion and production dataset remain parent/G acceptance.', 'Definitely missing original append only; ambiguous postappend fsync/powerloss must not use blind duplicate append.', 'Configured genuine ChainedAuditLog profile; optional metrics/replicas/Noop nonproduction not made mandatory.', 'Fresh FileBudgetLedger/newconstructor proves persisted admission barrier, not process crash or arbitrary owner authority.', 'Constructor-trusted resolver is finite configured local owner composition; observed SHA reference is diagnostic, hash-bound entry unsigned.', 'DD original whole/gates do not cover new source/test; historical original2PASS2FAIL and tokenizer-premise4FAIL retained.']})
+write('source-input-custody.json', {'runtime_source_sha': SOURCE, 'runtime_source_tree': 'f5fb536b70b7d8d57b19c78570b3addd798083dd', 'all_runs': {label: {'input_sha': sha, 'input_tree': git('rev-parse', sha + '^{tree}').decode().strip(), 'test_sha256': hashlib.sha256(git('show', sha + ':' + TEST)).hexdigest(), 'source_context': PREFIX + '/' + label + '/source-context.json', 'wrapper': PREFIX + '/' + label + '/wrapper.json'} for label, (sha, _) in INPUTS.items()}, 'source_ownership': 'LLM production exclusively ADAPTER, durable completion exclusivelyDUR; RUN changes sole test and moderate docs/evidence. Actual samechild complete concrete polisyos module origins and byte/hash/blob identities guard all executed imports; no local product fallback.', 'original13_red_receipt': {'commit': '9b4167a1d481aa06b49794f01896df954917a4a8', 'path': 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red.json'}, 'test_delta': 'New4cases and live-vs-historical reserve predicates disclosed. Whole file not claimed byte-identical to old13; original4 test/call function AST remains exact9c.'})
+shutil.copyfile('/tmp/e02-B65-package-candidate.py', DEST / 'package.source.txt')
+entries = []
+for path in sorted(DEST.rglob('*')):
+    if path.is_file():
+        raw = path.read_bytes()
+        entries.append({'path': path.relative_to(OWN).as_posix(), 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()})
+write('index.json', {'count_excluding_index': len(entries), 'bytes_excluding_index': sum(row['bytes'] for row in entries), 'entries': entries, 'retention_reason': 'Full deciding both17 stdout/JUnit/environment/commands/origins and all moderate actual filesystem provider/audit/ledger bytes. Original15/2 literal grades retained; authoritative complete per-run XML joins stored. No truncated outputs, future custody, private dataset, raw wheel or copiedproduction source.'})
+print(json.dumps({'path': PREFIX, 'files_including_index': len(entries) + 1, 'bytes_excluding_index': sum(row['bytes'] for row in entries), 'runs': [{key: row[key] for key in ['label', 'counts', 'loaded_module_denominator', 'tag_counts']} for row in runs]}, indent=2))

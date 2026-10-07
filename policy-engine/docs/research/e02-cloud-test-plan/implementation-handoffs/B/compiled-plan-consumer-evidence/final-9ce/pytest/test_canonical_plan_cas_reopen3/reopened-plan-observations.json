@@ -1,0 +1,35 @@
+{
+  "mode": "compiled",
+  "ref": {
+    "artifact_id": "sha256:2993a45a6d4c40926777da63d285675c49bb5ea3bff5d249684297dc67f65f0f",
+    "kind": "foundry.compiled_chain_plan",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25"
+  },
+  "wire_sha256": "2993a45a6d4c40926777da63d285675c49bb5ea3bff5d249684297dc67f65f0f",
+  "execution_order": [
+    "6bc2c232-6d70-4750-a4de-0101df5b4e70",
+    "0997592e-a5bf-4ad7-8f9e-fc443099aebe"
+  ],
+  "actual_node_result_order": [
+    "6bc2c232-6d70-4750-a4de-0101df5b4e70",
+    "0997592e-a5bf-4ad7-8f9e-fc443099aebe"
+  ],
+  "predecessors": {
+    "0997592e-a5bf-4ad7-8f9e-fc443099aebe": [
+      "6bc2c232-6d70-4750-a4de-0101df5b4e70"
+    ],
+    "6bc2c232-6d70-4750-a4de-0101df5b4e70": []
+  },
+  "data_flow_edge_count": 0,
+  "seed": 23,
+  "offset": 0.75,
+  "draws": [
+    1.3008755415434043,
+    -1.9778433608335724,
+    0.7514766167148266,
+    3.387237365093085
+  ],
+  "total": 18.39223560753119,
+  "oracle_total": 18.392235607531195
+}

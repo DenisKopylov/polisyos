@@ -1,0 +1,31 @@
+[
+  {
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py"
+    ],
+    "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+    "target_sha": "9c76d54cf10255ab5b926dfd961dcb3e07711ff4",
+    "exit": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py"
+    ],
+    "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+    "target_sha": "9c76d54cf10255ab5b926dfd961dcb3e07711ff4",
+    "exit": 0,
+    "stdout": "1 file already formatted\n",
+    "stderr": ""
+  }
+]

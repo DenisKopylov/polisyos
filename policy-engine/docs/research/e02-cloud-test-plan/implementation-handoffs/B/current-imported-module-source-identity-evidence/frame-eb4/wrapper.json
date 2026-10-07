@@ -1,0 +1,43 @@
+{
+  "started_at": "2026-10-07T08:17:10.368882+00:00",
+  "finished_at": "2026-10-07T08:17:13.469188+00:00",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-eb4/module-origins.json",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-falsifier.py",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-B-module-frame-eb4-747353",
+    "--junitxml",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-eb4/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "164d7267628f83866c3440df3128352b181fe313",
+    "tree": "d473ccc81b8b76a3f005d9d3917f61808e50c3c7",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "164d7267628f83866c3440df3128352b181fe313",
+    "tree": "d473ccc81b8b76a3f005d9d3917f61808e50c3c7",
+    "status": ""
+  },
+  "exit_code": 1,
+  "wait4_status": 256,
+  "signal": null,
+  "wall_seconds": 3.1003170629846863,
+  "max_rss_kib": 169128,
+  "user_cpu_seconds": 2.8276589999999997,
+  "system_cpu_seconds": 0.549787,
+  "stdout": {
+    "bytes": 9242,
+    "sha256": "9ed75e9140adbdc66c73ec3efdaf457e9676ad70f66ad01a9a3f38a898434374"
+  }
+}

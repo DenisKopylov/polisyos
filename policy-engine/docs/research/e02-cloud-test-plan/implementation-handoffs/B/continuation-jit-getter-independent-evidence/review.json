@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.independent_consumer_review.v1",
+  "source_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+  "source_tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+  "result": "NONBLOCKING finite direct NamedTuple numeric/getter consumer and captured-module refusal profile",
+  "closure_ids": [],
+  "actual_native": {
+    "PASS": 3,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "actual_case_properties": [
+    "Two JIT modes compute independent vector affine difference and two output slots through actual aliased builtin getter/immutable public names. Cold defaults, warm rebound defaults, explicit dynamic override and old cold handle produce distinct correct values.",
+    "Warm/cold share actual compiled kernel while numeric output follows each handle defaults; output equality alone is not cache/reuse authority.",
+    "Captured real math ModuleType reflective alias raises typed CompilationError before filesystem body effect; no body file exists. This is operational refused path, not a constructor/marker check."
+  ],
+  "expected_numeric": {
+    "cold_score": [
+      3.25,
+      12.25,
+      -4.75
+    ],
+    "warm_score": [
+      2.25,
+      0.0,
+      4.25
+    ],
+    "override_score": [
+      5.0,
+      23.0,
+      -11.0
+    ],
+    "spread": [
+      4.5,
+      10.0,
+      -1.5
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "fixture_math_role": "independent Python arithmetic fixture, not scientific/institutional authority",
+  "actual_source_origins": {
+    "count": 152,
+    "mismatch": 0,
+    "profile": "profile.json",
+    "role": "all file-backed loaded polisyos modules in this child; not borrowed author167 or universal external input closure"
+  },
+  "original_attempts": [
+    {
+      "namespace": "initial-index-premise",
+      "outcome": "ERROR precollection/sourceguard",
+      "property": "not_established; alternate objects supplied but actual constructor index omitted; wrong standard index returned MM. No native bodies entered; original bytes retained."
+    },
+    {
+      "namespace": "recording-property-premise",
+      "actual_native": "2FAIL1PASS",
+      "property": "Numeric, dynamic/default and shared-kernel assertions all completed; positive observer then invoked cache.stats property as callable, TypeError. Correct only .stats() -> .stats and fresh basetemp; no property assertion changed. Original literal FAIL/XML/source retained."
+    }
+  ],
+  "source_custody": "Actual alternate objects+index exact owner supplied clean8aa/e6bf before=after. Standard HEAD object resolution initially unavailable; no checkout/merge or source edit. New symtable successor not executed by this packet.",
+  "boundaries": [
+    "Runtime target type/descriptor/internals not bound by classifier; positive is ordinary direct NamedTuple datafield profile only.",
+    "No scientific validity, arbitrary descriptor, runtime reflection/namespace transport, cold checkpoint historical authority or repaired remaining returned-frame B74 claim.",
+    "No broad JIT/root cohort/gate replay. Known B74 frame107FAIL remains separate actual evidence; owner successor needs its own source/consumer binding."
+  ],
+  "next_owner": "CMP canonical classifier owns rebound/source closure; root/G integrates with exact final source and native/gates separately."
+}

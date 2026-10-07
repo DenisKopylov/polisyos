@@ -1,0 +1,122 @@
+[
+  {
+    "mode": "pool",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "pool"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.5247430989984423
+  },
+  {
+    "mode": "registry",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "registry"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.2717419959953986
+  },
+  {
+    "mode": "wire",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "wire"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.2461052919970825
+  },
+  {
+    "mode": "settlement",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "settlement"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.5902347399969585
+  },
+  {
+    "mode": "permission",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "permission"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.3837650579953333
+  },
+  {
+    "mode": "mandatory",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "mandatory"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.269737784008612
+  },
+  {
+    "mode": "deadline",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "deadline"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.4518469690083293
+  },
+  {
+    "mode": "emission",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "emission"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.3371759069996187
+  },
+  {
+    "mode": "rate",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "rate"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.5881745480000973
+  },
+  {
+    "mode": "issuer",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "issuer"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.7569267679937184
+  },
+  {
+    "mode": "physical",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "physical"
+    ],
+    "exit_code": 1,
+    "wall_s": 2.5127480959927198
+  },
+  {
+    "mode": "control",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-B-current-adapters/raw/property-removal-final.py",
+      "control"
+    ],
+    "exit_code": 0,
+    "wall_s": 2.9579781130014453
+  }
+]

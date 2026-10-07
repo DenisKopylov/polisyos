@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completed-cohort-instrument",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "8a489d08a007fdc3dfbb85703447b3ad9f5c7a03",
+  "implementation_commits": [
+    "4703d19296998d93bac94bfcafc0934a37901126",
+    "4b95c876bcc3b053f746fdc09637a202549fc950"
+  ],
+  "candidate_tree_sha": "ebb30a0c3e6f9180aa35e72bcd902925ef02667a",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-cohort-instrument-evidence/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-cohort-instrument-evidence/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-cohort-instrument-evidence/style-and-source.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py"
+      ],
+      "target_sha": "1176dc2acb586d65ff4f71698ba5c0682e9c6774",
+      "environment": "Cloud Linux; frozen root Python194-distribution environment; read-only instrument source",
+      "input_closure": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+          "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+          "source_sha": "4703d19296998d93bac94bfcafc0934a37901126"
+        }
+      ],
+      "outcome": "PASS",
+      "output": "All checks passed!\n",
+      "full_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-cohort-instrument-evidence/ruff.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py"
+      ],
+      "target_sha": "1176dc2acb586d65ff4f71698ba5c0682e9c6774",
+      "environment": "Cloud Linux; frozen root Python194-distribution environment; read-only instrument source",
+      "input_closure": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+          "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+          "source_sha": "4703d19296998d93bac94bfcafc0934a37901126"
+        }
+      ],
+      "outcome": "PASS",
+      "output": "1 file already formatted\n",
+      "full_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-cohort-instrument-evidence/format.txt"
+    },
+    {
+      "command": "Foreign full170L source review with stock run_successor/capture_frozen/inventory contracts and literal Git input identities",
+      "target_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "environment": "Cloud Linux; EXE independent reviewer; source-only, no native imports or execution",
+      "input_closure": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-cohort-launcher-review.json@020ff5599a1089110f0b0a42fd5649f66e719559"
+      ],
+      "outcome": "PASS",
+      "output": "Finite NONBLOCKING for declared workflow. Local selector SHA/tree/unique-count guards do not independently prove completeness; final independent exact selector bytes/hash and all25/60/source inputs reconciliation is a required workflow premise. Complete foreign review is in the pinned Git packet."
+    },
+    {
+      "command": "run_completed_cohort.py --sha exact-composed-future-source --selector independently-reviewed-new-selector --scratch unused-absolute-directory --wheel-input exact-new-source-installed-wheel-profile",
+      "target_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "environment": "UNRUN; future exact composed root and verification inputs are not yet frozen",
+      "input_closure": [],
+      "outcome": "UNRUN",
+      "output": "No native cohort/collection/gates launched by this preparation slice. The literal future command with resolved actual values will be recorded at final freeze."
+    }
+  ],
+  "property": {
+    "statement": "Launch full exact-source B selector with strictly matched installed-wheel and real private PostgreSQL inputs through the unchanged native observer/capture, preserving older deciding runs and complete new output custody.",
+    "runtime_path": [
+      "independent canonical full25/60 selector derivation and exact bytes review",
+      "new installed wheel seven-field candidate admission and real PostgreSQL input",
+      "complete whole-file native pytest argv",
+      "stock hook-time inventory and wait4 full-output capture"
+    ],
+    "proxy_divergence": "A self-consistent selector source/tree/count can omit files. Completeness comes from the independently reconciled full selector input denominator, never from those local field checks or process exit alone.",
+    "negative_controls": [
+      "Fresh absolute unused scratch and exclusive profile/inventory/log/wrapper destinations refuse reuse; source/type/input identity divergence refuses admission. These source-reviewed guards are not reported as executed runtime controls."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "instrument_source_and_style_reviewed_native_UNRUN_no_finding_closure",
+  "limitations_and_next_owner": [
+    "Root must freeze composed source, derive and independently review exact selector, rebuild/install the exact new source wheel, and run one complete native B cohort.",
+    "Observer hook-time modules are not a full import read set, child/transient module census or ambient dependency law.",
+    "Runtime code acceptance and all60 finding decisions require separate exact-candidate evidence; older DD outputs remain historical.",
+    "No native Trash; preserve all used scratch/environments and enumerate exact cleanup candidates in final handoff."
+  ]
+}

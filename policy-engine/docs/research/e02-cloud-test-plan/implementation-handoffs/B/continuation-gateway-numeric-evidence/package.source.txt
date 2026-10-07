@@ -1,0 +1,38 @@
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path('/workspace/e02-B-current-adapters')
+RAW = ROOT / '.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric'
+PREFIX = Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence')
+TARGET = ROOT / PREFIX
+TARGET.mkdir(exist_ok=False)
+assert subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip() == 'e7c5182bf9d37f62a87e1effd003ee9732c20c32'
+paths = ['capture-original.source.txt','capture.py','source-context.json','status-partition.json','runtime-closure.json','quality-checks.json','ruff.txt','format.txt','mypy.txt','production-invocation.txt']
+for label in ('before','candidate','removal','affected','affected-qualified'):
+    paths.extend(f'{label}/{name}' for name in ('native.txt','native.xml','wrapper.json','profile.json'))
+rows=[]
+for name in paths:
+    source=RAW/name
+    data=source.read_bytes()
+    relative=Path(name)
+    if relative.name == 'capture.py':
+        relative=Path('capture-current.source.txt')
+    if relative.suffix == '.txt' and relative.name not in ('capture-original.source.txt','capture-current.source.txt'):
+        relative=relative.with_suffix('.utf8.json')
+        stored=(json.dumps({'schema':'e02.lossless_utf8/v1','original_name':name,'original_bytes':len(data),'original_sha256':hashlib.sha256(data).hexdigest(),'text':data.decode('utf-8')},ensure_ascii=False,indent=2)+'\n').encode()
+        assert json.loads(stored)['text'].encode() == data
+    else:
+        stored=data
+    output=TARGET/relative
+    output.parent.mkdir(exist_ok=True,parents=True)
+    output.write_bytes(stored)
+    rows.append({'source_path':str(source),'original_sha256':hashlib.sha256(data).hexdigest(),'original_bytes':len(data),'path':str(PREFIX/relative),'sha256':hashlib.sha256(stored).hexdigest(),'bytes':len(stored),'representation':'lossless_utf8_wrapper' if stored!=data else 'exact_bytes'})
+script=Path(__file__).read_bytes(); (TARGET/'package.source.txt').write_bytes(script)
+rows.append({'path':str(PREFIX/'package.source.txt'),'sha256':hashlib.sha256(script).hexdigest(),'bytes':len(script),'representation':'exact_bytes'})
+(TARGET/'index.json').write_text(json.dumps({'schema':'e02.gateway_numeric.evidence_index/v1','source_target':'e7c5182bf9d37f62a87e1effd003ee9732c20c32','slice_base':'f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1','files':rows,'payload_count':len(rows),'stored_payload_bytes':sum(row['bytes'] for row in rows),'source_custody_boundary':'Observed module census at end of pytest.main; no arbitrary live resource/child external readset claim'},indent=2)+'\n')
+for row in rows:
+    assert hashlib.sha256((ROOT/row['path']).read_bytes()).hexdigest() == row['sha256']
+print(json.dumps({'prefix':str(PREFIX),'files':len(rows),'stored_bytes':sum(row['bytes'] for row in rows)}))

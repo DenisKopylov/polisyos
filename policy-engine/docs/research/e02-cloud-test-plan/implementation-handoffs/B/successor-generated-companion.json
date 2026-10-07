@@ -1,0 +1,422 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "successor-generated-companion",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "7ba5b49ce1ae3dfdcb985e6a339787414e9eb6b4",
+  "slice_base_tree_sha": "b33275d3a49e7eaa3ad083df0451bd5c1769625b",
+  "published_scope_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+    "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+  ],
+  "candidate_tree_sha": "f4b1034169356f57a9a3eba67165a57b23eca498",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-launch.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/full-recursive-diff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-launch.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync-launch.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml",
+    "policy-engine/schemas/runtime_api_v1.openapi.json"
+  ],
+  "baseline_cells": [],
+  "baseline_role": "Generated freshness companion; no baseline finding closure predicate",
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/devx/architecture/guardrails.py",
+        "sync",
+        "--skip-deep-import-baseline"
+      ],
+      "target_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_tree": "2c50e068a79f0a57de8d4349b5ee00b5a298d821",
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.json",
+          "bytes": 2106,
+          "sha256": "a0882ee78fd28a6674f01298d4e8674d259face65d8f867a5e8cf75abdee5a31",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "canonical_generator": "policy-engine/tools/devx/architecture/guardrails.py",
+        "execution_qualification": "public-surface sync leaves deep-import baseline untouched"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.txt",
+        "bytes": 44,
+        "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+        "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+      },
+      "wall_s": 12.486283820006065,
+      "maxrss_kib": 79776,
+      "head_after": "02ff9d0467423a99c2b4c737329da0c629e6b869"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/tmp/e02-B-successor-openapi-02ff/after.json",
+        "--scratch-root",
+        "/tmp/e02-B-successor-openapi-02ff/runtime-cas"
+      ],
+      "target_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_tree": "2c50e068a79f0a57de8d4349b5ee00b5a298d821",
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.json",
+          "bytes": 2269,
+          "sha256": "8daa9f106086bc0638a9c9b3d1547b84dc281f0f4848d5c4a2f7e16a793aebbd",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "canonical_generator": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+        "execution_qualification": "Own194 UV --no-sync, retained explicit task CAS scratch"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.txt",
+        "bytes": 6800,
+        "sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26",
+        "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+      },
+      "wall_s": 49.839998826006195,
+      "maxrss_kib": 1190576,
+      "head_after": "02ff9d0467423a99c2b4c737329da0c629e6b869"
+    },
+    {
+      "command": [
+        "corepack",
+        "pnpm",
+        "--dir",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client",
+        "exec",
+        "openapi-typescript",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "-o",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "target_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.json",
+          "bytes": 2314,
+          "sha256": "522582f0d167d4cf5d552ce0d2eff1b8b2f488b0c547ddb685a2f990c67ee54c",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "canonical_generator": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+        "execution_qualification": "Registered generator constituent; own194 Python replaces hardcoded .venv and original destructive scratch trap is replaced by retained exact task directory"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.txt",
+        "bytes": 226,
+        "sha256": "cb299935d7449081b4081a0c0abb488c063695f53bd5e0e10915815e858594d3",
+        "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+      },
+      "wall_s": 1.9363678340014303,
+      "maxrss_kib": 219536,
+      "head_after": "42172721bbe1fdb27f6e37fc8acccdd30464380d"
+    },
+    {
+      "command": [
+        "node",
+        "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+        "--types",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "target_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.json",
+          "bytes": 2151,
+          "sha256": "ced4159f2ffbe20a6cf292a038501f6f31aa86aaa54904abc43984749d423532",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "canonical_generator": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+        "execution_qualification": "Registered generator constituent; own194 Python replaces hardcoded .venv and original destructive scratch trap is replaced by retained exact task directory"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+      },
+      "wall_s": 0.6527155939984368,
+      "maxrss_kib": 164068,
+      "head_after": "42172721bbe1fdb27f6e37fc8acccdd30464380d"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "tools/ops_runners/runtime/generate_runtime_client.py",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--out-ts",
+        "/tmp/e02-B-successor-client-421/runtimeApiClient.ts",
+        "--out-js",
+        "/tmp/e02-B-successor-client-421/runtimeApiClient.js"
+      ],
+      "target_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.json",
+          "bytes": 2360,
+          "sha256": "d718dd2e41de66c97107320fbc5799e144bf568bf54aed6376623039e7df6aa1",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "canonical_generator": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+        "execution_qualification": "Registered generator constituent; own194 Python replaces hardcoded .venv and original destructive scratch trap is replaced by retained exact task directory"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.txt",
+        "bytes": 104,
+        "sha256": "6e09243b29671e6f6a7eb312f4512c9d801a627c9f380d4be9efdbdc729dd7a5",
+        "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+      },
+      "wall_s": 0.0933247590000974,
+      "maxrss_kib": 26132,
+      "head_after": "42172721bbe1fdb27f6e37fc8acccdd30464380d"
+    },
+    {
+      "command": [
+        "node",
+        "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--client",
+        "/tmp/e02-B-successor-client-421/runtimeApiClient.ts",
+        "--out-ts",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "--runtime-js",
+        "/tmp/e02-B-successor-client-421/runtimeApiClient.js",
+        "--out-js",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "target_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.json",
+          "bytes": 2564,
+          "sha256": "4596311b1c2cccbdd6b7db0fb3cfa44fddcb7cb81e08064bc101f0252d2382f2",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "canonical_generator": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+        "execution_qualification": "Registered generator constituent; own194 Python replaces hardcoded .venv and original destructive scratch trap is replaced by retained exact task directory"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+      },
+      "wall_s": 0.6342558570031542,
+      "maxrss_kib": 139812,
+      "head_after": "42172721bbe1fdb27f6e37fc8acccdd30464380d"
+    },
+    {
+      "command": [
+        "standard-library full before/after JSON recursion and exact canonical-source/Git joins"
+      ],
+      "target_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "environment": "Independent CMP stdlib/Git source and immutable completed generator output review; no independent product generation/test",
+      "input_closure": {
+        "before_git": "02ff9d0467423a99c2b4c737329da0c629e6b869:policy-engine/schemas/runtime_api_v1.openapi.json",
+        "after_sha256": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693",
+        "review_commit": "1ae9ee932fba588dbab0e175012dcfc38d41051f",
+        "full_review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json",
+          "bytes": 85126,
+          "sha256": "0e1f598213d28433c176098ddbea399c01d01715add03e26f9f694c2c1bcd251",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_diff": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/full-recursive-diff.json",
+          "bytes": 4387,
+          "sha256": "88493c0421c4999a21c98cc08d2e107c6a8d32558f8c84e1ce608052acd67132",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "result": "10 scalar leaves in one existing200 example; complete JSON outside that example equal;573schemas/111paths/113operations equal; projection hashes and replay addresses independently recomputed; worker receipt hash binding coherent but its unavailable full dependency map not independently recomputed"
+      }
+    },
+    {
+      "command": [
+        "Read complete three generated outputs and compare to exact42172721bbe1fdb27f6e37fc8acccdd30464380d Git blobs after all four producer commands"
+      ],
+      "target_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "environment": "Actual Node22.22.0/pnpm10.33.2/openapi-typescript7.13.0 and own194 Python3.14.2; no numeric caps introduced",
+      "input_closure": {
+        "result": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-result.json",
+          "bytes": 3121,
+          "sha256": "56a59b9df1be715e3123d92ec2512414c40ca98b323bdc7c0366ca0b00bf7a86",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "literal_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-launch.source.txt",
+          "bytes": 3317,
+          "sha256": "13c8bd67b05746dc4135a48199fc247a5ff759f33ae5dfbeda4df133b52a5ab9",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "registered_generator": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh@42172721bbe1fdb27f6e37fc8acccdd30464380d"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-result.json",
+          "bytes": 3121,
+          "sha256": "56a59b9df1be715e3123d92ec2512414c40ca98b323bdc7c0366ca0b00bf7a86",
+          "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+        },
+        "result": "All3completeoutputfiles byteequal; HEADunchanged/checkoutclean; scratch retained"
+      }
+    }
+  ],
+  "property": {
+    "statement": "The committed canonical RuntimeAPI example carries the current consulted dependency basis, coherent replay/projection identities, and the registered generated client family is regenerated against those exact bytes.",
+    "runtime_path": [
+      "actual create_runtime_api_app→OpenAPI augmentation",
+      "actual ConfidenceLedgerRiskSpendProjectionService owner validation worker",
+      "typed AvailableConfidenceLedgerRiskSpendPacket → coherent projection/replay metadata",
+      "canonical export_runtime_openapi JSON writer",
+      "registered complete client generator constituents → full canonical client files"
+    ],
+    "proxy_divergence": "Matching route/schema counts alone misses stale example dependency and replay identities; full recursive data comparison finds10changed leaves despite all573schemas/111paths/113operations retaining complete contracts. Successful generation alone does not establish arbitrary route execution or finding closure.",
+    "negative_controls": [
+      "Original complete source02ff committed snapshot differs at10example leaves; complete masked JSON is equal",
+      "Full projection semantic identity and replay URL recomputed independently for before and after; unavailable worker map is not silently assumed",
+      "Exact complete3generatedclientbytes compared after actual4orderedcommands rather than claiming freshness from constructor or file existence"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "actual_canonical_generator_and_client_execution": "consumer_asserted",
+    "complete_data_identity_and_independent_semantic_pin_reconciliation": "independently_reconciled",
+    "individual1502worker_dependency_membership_and_hash_recomputation": "not_established",
+    "institutional_projection_authority": "not_established"
+  },
+  "capability_state_or_finding_state": "Required finite generated companion updated; code/finding closure[]; final frozen whole-B and all8gates still UNRUN on this source.",
+  "limitations_and_next_owner": [
+    "No route/DTO/wire/schema-version/owner-authority or semantic confidence ledger payload change; existing registered owner metadata and canonical N11source artifacts remain unchanged.",
+    "Exact producer source02ff differs by subsequent metadata/canonicalexample companions only; no future-source generation/test PASS claimed. Final runtime/API gate recomputes on frozen source.",
+    "All prior IRsnapshot/manifest and other global gate FAIL/ERROR/UNRUN remain actual; P41not_established with no inherited waiver.",
+    "No complete1502dependency map in generator output; aggregate/count/pin coherence only. G can rerun actual canonical generator on exact candidate.",
+    "Original registered shell scratch cleanup permanently deletes a repeatable directory. User requires nativeTrash only; actual constituent wrapper retains /tmp/e02-B-successor-client-421 and /tmp/e02-B-successor-openapi-02ff/runtime-cas as exact cleanup candidates. No directories/environments/unique data deleted."
+  ],
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/index.json",
+    "bytes": 6724,
+    "sha256": "2b921dc767303b23a58238b3e2f5d3268ddaf06f94ff34d330f2c7d05fd758f5",
+    "commit": "e3281cacd2f978f4aba0931850c537d782f5d8c4"
+  },
+  "protected_owner_source_diff": []
+}

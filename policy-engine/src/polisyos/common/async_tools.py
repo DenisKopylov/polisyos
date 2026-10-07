@@ -22,6 +22,152 @@ _DEFAULT_TIMEOUT_SECONDS = max(
 )
 
 
+class SharedExecutorReentrancyError(RuntimeError):
+    """Reject nested work that requires an already occupied shared worker."""
+
+
+class _SharedFuture[T](concurrent.futures.Future[T]):
+    """Keep job ownership through worker completion and synchronous callbacks."""
+
+    def __init__(self, executor: _SharedExecutor) -> None:
+        super().__init__()
+        self._executor = executor
+        self._worker_future: concurrent.futures.Future[None] | None = None
+        self._work_finished = False
+        self._callbacks_active = 0
+        self._slot_held = True
+
+    def _release_if_finished(self) -> None:
+        # The caller holds the admission lock; Future.done() is not capacity.
+        if self._slot_held and self._work_finished and not self._callbacks_active:
+            self._slot_held = False
+            self._executor._outstanding_jobs -= 1
+
+    def _finish_work(self) -> None:
+        with self._executor._admission_lock:
+            self._work_finished = True
+            self._release_if_finished()
+
+    def _bind_worker(self, future: concurrent.futures.Future[None]) -> None:
+        with self._condition:
+            self._worker_future = future
+        # Immediate completion/cancellation callbacks never run under admission.
+        future.add_done_callback(self._worker_finished)
+        if self.cancelled():
+            future.cancel()
+
+    def _worker_finished(self, future: concurrent.futures.Future[None]) -> None:
+        if future.cancelled():
+            super().cancel()
+            # A removed queue item has no worker to notify wait()/as_completed().
+            self.set_running_or_notify_cancel()
+            self._finish_work()
+
+    def cancel(self) -> bool:
+        """Cancel unstarted work and synchronously revoke its queue entry."""
+        cancelled = super().cancel()
+        if cancelled:
+            with self._condition:
+                worker_future = self._worker_future
+            if worker_future is not None:
+                worker_future.cancel()
+        return cancelled
+
+    def add_done_callback(self, fn: Callable[[concurrent.futures.Future[T]], object]) -> None:
+        """Preserve Future callback order/thread and mark late callbacks too."""
+        executor = self._executor
+
+        def invoke(future: concurrent.futures.Future[T]) -> None:
+            with executor._admission_lock:
+                if not self._slot_held:
+                    self._slot_held = True
+                    executor._outstanding_jobs += 1
+                self._callbacks_active += 1
+            previous = getattr(executor._worker_context, "active", False)
+            executor._worker_context.active = True
+            try:
+                fn(future)
+            finally:
+                executor._worker_context.active = previous
+                with executor._admission_lock:
+                    self._callbacks_active -= 1
+                    self._release_if_finished()
+
+        super().add_done_callback(invoke)
+
+
+class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
+    """Own physical workers and callback reservations separately from Future state.
+
+    External callers may queue ordinary work. A worker or callback cannot submit
+    nested work when worker capacity is fully reserved or occupied. A completed proxy retains
+    its logical reservation until its callable wrapper and synchronous callbacks
+    return. Running arbitrary user code is cooperative and cannot be interrupted.
+    """
+
+    def __init__(
+        self, *, max_workers: int, thread_name_prefix: str = "polisyos-run-coro-sync"
+    ) -> None:
+        super().__init__(max_workers=max_workers, thread_name_prefix=thread_name_prefix)
+        self._admission_lock = threading.Lock()
+        self._worker_context = threading.local()
+        self._physical_workers = 0
+        self._outstanding_jobs = 0
+        self._admission_closed = False
+
+    def submit[T](
+        self, fn: Callable[..., T], /, *args: object, **kwargs: object
+    ) -> concurrent.futures.Future[T]:
+        with self._admission_lock:
+            if self._admission_closed:
+                raise RuntimeError("cannot schedule new futures after shutdown")
+            if getattr(self._worker_context, "active", False) and (
+                self._outstanding_jobs >= self._max_workers
+                or self._physical_workers >= self._max_workers
+            ):
+                raise SharedExecutorReentrancyError("shared executor worker capacity is reserved")
+            self._outstanding_jobs += 1
+            future: _SharedFuture[T] = _SharedFuture(self)
+        context = contextvars.copy_context()
+
+        def invoke() -> None:
+            if not future.set_running_or_notify_cancel():
+                return
+            try:
+                result = fn(*args, **kwargs)
+            except BaseException as exc:
+                future.set_exception(exc)
+            else:
+                future.set_result(result)
+
+        def run() -> None:
+            previous = getattr(self._worker_context, "active", False)
+            self._worker_context.active = True
+            with self._admission_lock:
+                self._physical_workers += 1
+            try:
+                context.run(invoke)
+            finally:
+                self._worker_context.active = previous
+                with self._admission_lock:
+                    self._physical_workers -= 1
+                future._finish_work()
+
+        try:
+            worker_future = super().submit(run)
+        except BaseException:
+            future._finish_work()
+            raise
+        future._bind_worker(worker_future)
+        return future
+
+    def shutdown(self, wait: bool = True, *, cancel_futures: bool = False) -> None:
+        """Close admission before base shutdown invokes queued cancel callbacks."""
+        with self._admission_lock:
+            self._admission_closed = True
+        super().shutdown(wait=wait, cancel_futures=cancel_futures)
+
+
 def _get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
     global _RUN_CORO_SYNC_EXECUTOR
     if _RUN_CORO_SYNC_EXECUTOR is not None:
@@ -29,7 +175,7 @@ def _get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
     with _EXECUTOR_LOCK:
         if _RUN_CORO_SYNC_EXECUTOR is None:
             max_workers = max(4, min(32, (os.cpu_count() or 1)))
-            _RUN_CORO_SYNC_EXECUTOR = concurrent.futures.ThreadPoolExecutor(
+            _RUN_CORO_SYNC_EXECUTOR = _SharedExecutor(
                 max_workers=max_workers,
                 thread_name_prefix="polisyos-run-coro-sync",
             )
@@ -40,17 +186,17 @@ def shutdown_run_coro_sync_executor() -> None:
     """Shutdown the shared executor used by `run_coro_sync`."""
     global _RUN_CORO_SYNC_EXECUTOR
     with _EXECUTOR_LOCK:
-        if _RUN_CORO_SYNC_EXECUTOR is None:
-            return
-        _RUN_CORO_SYNC_EXECUTOR.shutdown(wait=False, cancel_futures=True)
+        executor = _RUN_CORO_SYNC_EXECUTOR
         _RUN_CORO_SYNC_EXECUTOR = None
+    if executor is not None:
+        executor.shutdown(wait=False, cancel_futures=True)
 
 
 atexit.register(shutdown_run_coro_sync_executor)
 
 
 def get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
-    """Return the shared executor used for sync-over-async bridge operations."""
+    """Return the callback-owning executor used for sync-over-async bridges."""
     return _get_shared_executor()
 
 
@@ -126,10 +272,19 @@ async def run_blocking_async[T](
     /,
     *args: object,
     timeout_seconds: float | None = None,
+    unbounded: bool = False,
     **kwargs: object,
 ) -> T:
-    """Run a blocking call in the shared executor without stalling the event loop."""
-    timeout = _normalize_timeout(timeout_seconds)
+    """Run a blocking call without stalling the loop.
+
+    Omitted/None timeouts retain the helper default. An owner with no configured
+    deadline must explicitly pass ``unbounded=True``; combining it with a float
+    timeout is rejected before admission. Cancellation stops queued work, while
+    an already running callable retains its physical worker until it returns.
+    """
+    if unbounded and timeout_seconds is not None:
+        raise ValueError("unbounded cannot be combined with timeout_seconds")
+    timeout = None if unbounded else _normalize_timeout(timeout_seconds)
     loop = asyncio.get_running_loop()
     call = functools.partial(func, *args, **kwargs)
     context = contextvars.copy_context()

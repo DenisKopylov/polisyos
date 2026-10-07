@@ -1,0 +1,18 @@
+{
+  "schema": "policyos.e02.cloud_cleanup_execution.v1",
+  "human_authorization": "2026-10-07 cloud removal of unneeded results/environments permitted; Trash local-only",
+  "deleted_path": "/workspace/e02-B-current-composition/policy-engine/_cache/mypy",
+  "kind": "generated ignored old mypy cache",
+  "file_count": 4837,
+  "apparent_bytes": 175507857,
+  "allocated_namespace_bytes": 188334080,
+  "active_guard_matches": [],
+  "source_before_after": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_after": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "preserved_fresh_cache": "/tmp/e02-B-jit-data-getattr-20261007/mypy-warm-cache",
+  "deciding_logs": "CMP final actual0903 normal-import mypy PASS fullstdout/wrapper preserved separately, not deleted",
+  "overlay_available_before_bytes": 0,
+  "overlay_available_after_bytes": 157900800,
+  "wall_s": 0.0814504623413086,
+  "no_source_fixture_or_unique_evidence_removal": true
+}

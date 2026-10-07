@@ -17,6 +17,7 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
     SchemaInfo,
 )
+from polisyos.core.artifacts.ownership import ArtifactTransactionPendingError
 from polisyos.core.artifacts.signing import (
     Ed25519Signer,
     Ed25519Verifier,
@@ -51,11 +52,7 @@ def _artifact_member_paths(store: FileSystemCAS, artifact_id: ArtifactID) -> set
 
 def _disk_member_paths(root: Path) -> set[str]:
     """Return every regular member currently present in a directory export."""
-    return {
-        path.relative_to(root).as_posix()
-        for path in root.rglob("*")
-        if path.is_file()
-    }
+    return {path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file()}
 
 
 def _blob_member(store: FileSystemCAS, artifact_id: ArtifactID) -> str:
@@ -134,9 +131,7 @@ def test_import_verifies_before_publication_and_preserves_prior_generation(
     assert target_ref.artifact_id == source_ref.artifact_id
     prior_manifest = target.get_manifest_bytes(target_ref.artifact_id)
 
-    requested = tmp_path / (
-        f"incoming-{label}" if not compress else f"incoming-{label}.tar.gz"
-    )
+    requested = tmp_path / (f"incoming-{label}" if not compress else f"incoming-{label}.tar.gz")
     export_report = source.export_subgraph(
         [source_ref.artifact_id],
         requested,
@@ -199,12 +194,12 @@ def test_failed_reused_directory_export_preserves_prior_complete_generation(
         if path.is_file()
     }
 
-    def fail_replacement_copy(*_args: object, **_kwargs: object) -> None:
-        raise OSError("injected replacement copy failure")
+    def fail_replacement_exchange(*_args: object, **_kwargs: object) -> None:
+        raise OSError("injected replacement exchange failure")
 
-    monkeypatch.setattr(transfer_ops.shutil, "copy2", fail_replacement_copy)
+    monkeypatch.setattr(transfer_ops, "_exchange_directory_generation", fail_replacement_exchange)
 
-    with pytest.raises(OSError, match="replacement copy"):
+    with pytest.raises(OSError, match="replacement exchange"):
         source.export_subgraph([artifact_b.artifact_id], export_root, compress=False)
 
     current_members = {
@@ -213,6 +208,12 @@ def test_failed_reused_directory_export_preserves_prior_complete_generation(
         if path.is_file()
     }
     assert current_members == prior_members
+    reopened = FileSystemCAS(tmp_path / "reopened-export")
+    report = reopened.import_subgraph(export_root, verify_integrity=True)
+    assert not report.verification_failed
+    assert reopened.get_bytes(artifact_a) == PAYLOAD_A
+    assert reopened.verify(artifact_a).ok
+    assert not reopened.has(artifact_b)
 
 
 def test_reused_directory_export_preserves_unowned_non_file_entries(
@@ -353,9 +354,7 @@ def test_import_preserves_distinct_manifest_profile_as_selected_view(tmp_path: P
     report = target.import_subgraph(export.output_path, verify_integrity=True)
 
     assert report.verification_failed == []
-    imported_ref = next(
-        ref for ref in report.imported_refs if ref.kind == "tests.cas02.transfer"
-    )
+    imported_ref = next(ref for ref in report.imported_refs if ref.kind == "tests.cas02.transfer")
     assert imported_ref.manifest_profile_sha256 is not None
     assert target.get_manifest_bytes(target_ref.artifact_id) == prior_manifest
     assert target.get_bytes(target_ref.artifact_id) == PAYLOAD_A
@@ -557,11 +556,11 @@ def test_import_rejects_malformed_or_mismatched_signature(
     assert not target.has(artifact.artifact_id)
 
 
-def test_import_rolls_back_new_generation_on_mid_publication_failure(
+def test_import_refuses_pending_generation_and_recovers_exactly_after_publication_failure(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A failed write cannot leave a partially accepted multi-artifact generation."""
+    """Actual partial publication remains deny-only until exact transaction recovery."""
     source = FileSystemCAS(tmp_path / "source")
     first = source.put_bytes(PAYLOAD_A, _options())
     second = source.put_bytes(PAYLOAD_B, _options())
@@ -570,20 +569,36 @@ def test_import_rolls_back_new_generation_on_mid_publication_failure(
         tmp_path / "mid-publication.tar.gz",
     )
     target = FileSystemCAS(tmp_path / "target")
-    original_write_once = target._files.write_once
+    original_publish = target._publish_transaction_member
     writes = 0
 
-    def fail_on_third_write(path: Path, data: bytes) -> bool:
+    def fail_after_first_blob(
+        stage_path: Path | None, final_path: Path, *, expected_sha256: str
+    ) -> bool:
         nonlocal writes
         writes += 1
-        if writes == 3:
+        if writes == 2:
             raise OSError("injected mid-publication failure")
-        return original_write_once(path, data)
+        return original_publish(stage_path, final_path, expected_sha256=expected_sha256)
 
-    monkeypatch.setattr(target._files, "write_once", fail_on_third_write)
+    monkeypatch.setattr(target, "_publish_transaction_member", fail_after_first_blob)
 
     with pytest.raises(OSError, match="mid-publication"):
         target.import_subgraph(export.output_path, verify_integrity=True)
 
-    assert not target.has(first.artifact_id)
-    assert not target.has(second.artifact_id)
+    interrupted, unprocessed = sorted([first, second], key=lambda ref: ref.artifact_id.hex)
+    with pytest.raises(ArtifactTransactionPendingError):
+        target.has(interrupted)
+    with pytest.raises(ArtifactTransactionPendingError):
+        FileSystemCAS(target.root).get_bytes(interrupted)
+    assert not target.has(unprocessed)
+    assert not target._ownership_index.has_any_tenant_claim(interrupted.artifact_id)
+
+    monkeypatch.setattr(target, "_publish_transaction_member", original_publish)
+    report = target.import_subgraph(export.output_path, verify_integrity=True)
+    assert not report.verification_failed
+    reopened = FileSystemCAS(target.root)
+    for ref, payload in [(first, PAYLOAD_A), (second, PAYLOAD_B)]:
+        assert reopened.get_bytes(ref) == payload
+        assert reopened.get_manifest_bytes(ref) == source.get_manifest_bytes(ref)
+        assert reopened.verify(ref).ok

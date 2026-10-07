@@ -1,0 +1,2 @@
+usage: validate_coverage.py [-h] [--coverage COVERAGE] [--self-check]
+validate_coverage.py: error: unrecognized arguments: --check

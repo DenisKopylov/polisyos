@@ -1,0 +1,60 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "B EXE writer; RUN author different",
+  "target_sha": "46a0bcd1ac035503ae8dec8b6df5dd4fcf794849",
+  "target_tree": "298a6132d30bd70b3dc0521fe9d51ed254d2e896",
+  "target_source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "target_source_sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+  "other_source_sha": "b25a06ffd146b340851de41edd47b9c450953c0d",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "_build/current-execution-state/failed_spend46_extended.py"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "clock_info": "namespace(implementation='clock_gettime(CLOCK_MONOTONIC)', monotonic=True, adjustable=False, resolution=1e-09)"
+  },
+  "input_closure": {
+    "other_source_paths": "git ls-tree -r --name-only 89e2faad985250b02853a94718a126bdabc07641; policy-engine/src/**/*.py actual bytes",
+    "candidate_retry_override": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py@46a0bcd1ac035503ae8dec8b6df5dd4fcf794849",
+    "fixture_inputs": "Known state-budget llm_spent_usd 5 + failed2 + success1 =8, first provider raises retryable TimeoutError on time; ordinary failed params excluded",
+    "thread_platform_branch_forced": true,
+    "scratch": "per route isolated real FileSystemCAS/run/actual attempt log, no production dataset",
+    "source_manifest_qualification": "All other source imports own admitted normal-merged b25 tracked tree; retry-only Git override candidate46. Pinned Git objects and original same-input script authoritative; no reused old closure hash.",
+    "source_sha": "b25a06ffd146b340851de41edd47b9c450953c0d",
+    "same_input_equivalence": "Byte-identical executable to original eight-route except two source/output binding constants; assertion evaluated before this review. All provider state/budget/errors/route/config/gates unchanged."
+  },
+  "outcome": "PASS: same eight provider inputs all preserve known5+failed2+success1=8, ordinary failed writes absent; original f04 six failed-transfer profiles retained",
+  "finding_ids": [
+    "B39",
+    "B40"
+  ],
+  "limitations": [
+    "Retry-only immutable source imported from Git, not candidate whole-tree runtime admission",
+    "Explicitly forced non-fork capability for actual thread/future path",
+    "Known typed state mutation does not establish vendor financial billing authority or unknown cancelled provider spend"
+  ],
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/observations-settled.json",
+      "sha256": "f034b2925289e7992b48ca532b2fa0bcf30143dc6a9e120c7da4fff04f3caecf",
+      "bytes": 8449
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/output-settled.txt",
+      "sha256": "f034b2925289e7992b48ca532b2fa0bcf30143dc6a9e120c7da4fff04f3caecf",
+      "bytes": 8449
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-settled.py",
+      "sha256": "1bf7370afc58c0954edcb2051c9c52ea2bbde11b9ecac6ef7b57275607f2c975",
+      "bytes": 5688
+    }
+  ],
+  "source_review": "Canonical retry delta wraps only completed local failure, preserves original local exception/category/code, bounded fork budget-only typed versioned codec enforces current run and positive *_spent_usd. Existing owner absolute deadline remains original. Already-entered late/unknown provider failure and financial vendor settlement are outside this proof.",
+  "source_review_no_blocker": true
+}

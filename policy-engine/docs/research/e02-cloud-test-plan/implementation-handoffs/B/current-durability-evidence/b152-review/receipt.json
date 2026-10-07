@@ -1,0 +1,408 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe, independent from CAS author",
+  "finding_id": "B152",
+  "bundle_id": "CAS-03",
+  "review_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+  "review_source_tree_sha": "7673862194915392886cc83c8843398b4667caa4",
+  "published_source_companion_sha": "6b0e799678e3538bb8940b8a4fd6374c6249a3f3",
+  "slice_base_sha": "d53d147aacec22628eda54864c6f4a06bc7b214f",
+  "root_cohort_reference": {
+    "sha": "64d0fa76831469b73a576bce87bbe95ce48d4aba",
+    "meaning": "not a whole-tree ancestor of CAS source; five production CAS delta paths byte-identical to d53 base; no unrelated whole-tree footprint attribution"
+  },
+  "execution_target_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+  "execution_target_tree_sha": "89cb1d0fc34d87b1d72d8fbf94f14fad7eee51e4",
+  "execution_binding": "Normal append-only merge of frozenCAS publication into existing root-admittedDUR topic. ReviewedCASsource/test/runtimeimporter bytes asserted equalb6; wholeactualcheckout2456 also contains unchangedDURsource. Author uncommittedB154/B155 files never executed.",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-verification-snapshot.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+    "policy-engine/src/polisyos/core/artifacts/protocol.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py",
+    "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py",
+    "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py"
+  ],
+  "source_identity": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+      "bytes": 10425,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+      "bytes": 14543,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/_signature_ops.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "c3425f30443b55fcabe44adde78bd7cd5373e7424eae1dd1a6a9ad6d4a4260d1",
+      "bytes": 5262,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5",
+      "bytes": 5769,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/protocol.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+      "bytes": 185595,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/store.py"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "cabb8b449999c0153d9f67cd65621404437c0df1f890a82b733fa3d54acf16eb",
+      "bytes": 1326,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc",
+      "bytes": 5578,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+      "bytes": 27542,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/signing.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c",
+      "bytes": 3471,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/__init__.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+      "bytes": 98037,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/ownership.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+      "bytes": 12758,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/manifest.py"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "ce9b5e61ece01e348c83159af48911c1502e767a72c3645ddbd601a9970f437f",
+      "bytes": 31370,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/remediation/test_cas_03.py"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_artifact_surface_safety.py",
+      "execution_source": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "review_source": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "sha256": "57d5eaed359901cc5e1b434bfa57bf6ec17c61ace3269e5b5f0da7cb07f299a8",
+      "bytes": 29234,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/tools/quality/validation/check_layer3_artifact_surface_safety.py"
+    }
+  ],
+  "admission": {
+    "profile": "existing root-admitted writer, normal merge only, no newcheckout",
+    "receipts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-create.json",
+        "sha256": "bbb3151d41db5dd15348cf096ec60a7dd4ecdaccf92ba71ed52ca29952b59648",
+        "bytes": 104983
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-resume.json",
+        "sha256": "978e5f2932f960829dcd2ab67e649ab89d1de5f41a87151dcfbd89209d17f269",
+        "bytes": 111127
+      }
+    ],
+    "pre_merge_checkpoint": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/pre-merge.json",
+      "sha256": "2f6eb96e161fcef7d4aac2b837fbed66623b4e7c51e76edd4f8e0b2f128338de",
+      "bytes": 725
+    }
+  },
+  "verdict": "PASS bounded concrete FileSystemCAS snapshot/report/signature profile; no blocking source findings",
+  "specification_verdict": "PASS for B152 one locally verified retained blob/manifest pair projected through liveverify, private-stageverify, actualEd25519signature and actualqualityreport consumer",
+  "engineering_verdict": "PASS: optional typed snapshot port preserves ArtifactStore mandatoryinterface; publicfacade exports unchanged; actual current tenant/key authority and corruptedfreshread controls retain fail-closed behavior",
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/remediation/test_cas_03.py::test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot",
+        "tests/unit/remediation/test_cas_03.py::test_verify_signature_records_corrupt_manifest_and_preserves_valid_control",
+        "-q",
+        "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b152/native-tmp-2456",
+        "--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b152/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "target_tree_sha": "89cb1d0fc34d87b1d72d8fbf94f14fad7eee51e4",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "os_profile": "local Linux POSIX filesystem; actual regular/symlink/dangling/FIFO/AF_UNIX socket children",
+        "source_checkout": "/workspace/e02-B-current-durability",
+        "no_new_checkout": true,
+        "no_source_test_edits": true,
+        "no_process_quota": true,
+        "actual_checked_source_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+        "reviewed_CAS_subset_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+        "source_identity_ref": "top-level source_identity, exact reviewed/executed bytes"
+      },
+      "input_closure": "Exact new9 native snapshot/report controls and two real Ed25519 controls from immutableCAS b6. Actual filesystem same-size corrupt blob, selected size mismatch, audit manifest replacement and staged digest→size race; four separately imported OS child cases for symlink/dangling/FIFO/socket. Unique retained pytestbasetemp. Ownership disabled only in native byte-predicate fixtures; actual owned tenant admission independently checked below. Native unittest source is unmodified.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "actual_cases": 11,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/native.txt",
+        "sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869",
+        "bytes": 80
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/native.xml",
+        "sha256": "25bca826098e70d56601f94b4645a6cc075bffb180a52f6331e2c5bb555f39ba",
+        "bytes": 2049
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/native-wrapper.json",
+        "sha256": "f9a016fc0e36cce461095384fe90e00db195aed9ac78094a898378c79b7c81c2",
+        "bytes": 1384
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b152/probe.py",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b152/probe-tmp-2456"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "target_tree_sha": "89cb1d0fc34d87b1d72d8fbf94f14fad7eee51e4",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "os_profile": "local Linux POSIX filesystem; actual regular/symlink/dangling/FIFO/AF_UNIX socket children",
+        "source_checkout": "/workspace/e02-B-current-durability",
+        "no_new_checkout": true,
+        "no_source_test_edits": true,
+        "no_process_quota": true,
+        "actual_checked_source_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+        "reviewed_CAS_subset_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+        "source_identity_ref": "top-level source_identity, exact reviewed/executed bytes"
+      },
+      "input_closure": "Committed independent driver: actual FileSystemCAS signed snapshot and random real Ed25519keypair; delegate actual FDread then physically replace blob same-size. Existing signature validates retained exactdata, fresh corrupted reopen/report refuses; restored exactbytes revalidate. Same stored signature rechecks current trust/revocation/strictidentity, corrupt cryptographic signature bytes and restoration. Actual two persistedtenant stores test snapshot/report foreignowner refusal. Actual toolsquality _write_authority_payload→_build_cas_payload uses concreteFileSystemCAS3reports; no externalservices/productiondataset.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "actual_semantic_groups": 4,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.txt",
+        "sha256": "acdd807d1648abdbb29b153d41dd66a4a29667eaee56fd62f3bde0846c914ec1",
+        "bytes": 5913
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.py",
+        "sha256": "d9ac8f35f72ca8cd2777aa817df8affaa1419eefeadaa84d087c475db2d689e9",
+        "bytes": 6518
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe-wrapper.json",
+        "sha256": "d939d560a491b0563e50a19735ff24ebde3a71760f326dde46b6019c999d4a3c",
+        "bytes": 974
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b152/census.py"
+      ],
+      "cwd": "/workspace/e02-B-current-durability",
+      "target_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+      "target_tree_sha": "89cb1d0fc34d87b1d72d8fbf94f14fad7eee51e4",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "os_profile": "local Linux POSIX filesystem; actual regular/symlink/dangling/FIFO/AF_UNIX socket children",
+        "source_checkout": "/workspace/e02-B-current-durability",
+        "no_new_checkout": true,
+        "no_source_test_edits": true,
+        "no_process_quota": true,
+        "actual_checked_source_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+        "reviewed_CAS_subset_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+        "source_identity_ref": "top-level source_identity, exact reviewed/executed bytes"
+      },
+      "input_closure": "Complete literal AST import/call/definition census of3144Python files under policy-engine/src and policy-engine/tools; zero parseerrors,5matching files. Tests/docs excluded; not a reflection/alias-universal or all-backend conformance proof.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/importer-census.json",
+        "sha256": "981e9fe781c7feaf8247497248a33df3ce4c29e5c94ae81c304c2eca2a588454",
+        "bytes": 2843
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/census.py",
+        "sha256": "23425be103bef6b81f03409f40b6f2a38d7d35f82e8e435fac5880d4e4c2cc25",
+        "bytes": 1769
+      }
+    }
+  ],
+  "review_matrix": [
+    {
+      "criterion": "Single immutable blob/manifest pair, locally recomputed hash, actual digest and size",
+      "result": "PASS source + native selectedview/read-count/stagedrace/same-size/sizecorruption controls. Store integrity computes its local digest once; Ed25519 verifier separately rechecks statement hashes of the same retained bytes, preserving cryptographic predicate."
+    },
+    {
+      "criterion": "Report metadata derives from same verified bytes",
+      "result": "PASS actual manifest replacement nativecontrol; source report uses retained snapshot.manifest and actual digest, no separate reopenedget_manifest/verify."
+    },
+    {
+      "criterion": "Signature uses same pair and current authority",
+      "result": "PASS actual Ed25519 native+independent swap; current revoked/untrusted/identity/cryptographic-byte negatives, restorationpositive."
+    },
+    {
+      "criterion": "Filesystem/process and owner admission",
+      "result": "PASS actual symlink/dangling/FIFO/socket children reject without originalbytes mutation; independent current foreigntenant snapshot/report refusal."
+    },
+    {
+      "criterion": "Facade/protocol/importer closure",
+      "result": "PASS finite literal source/tools census3144 files; oneactual reportcall in toolsqualityvalidator invoked against concreteFileSystemCAS. Optional VerifiedSnapshotArtifactStore does not assert all-backend capability."
+    }
+  ],
+  "baseline_navigation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/baseline-navigation.json",
+    "sha256": "0e8f4f9ad4be2333140859a480d9bc1e8731af7b8d30b951eee5379d4c6638a9",
+    "bytes": 10058
+  },
+  "draft_harness_error": {
+    "meaning": "Initial independentdriver imported non-existent artifacts.errors; failed before anycase. Corrected to actual ownership module, complete decidingdriverPASS; no product failure attribution",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-error.txt",
+      "sha256": "c28e95fc53003544a442aa850fef46113b79daa012939ab2f5ce033aa21c0029",
+      "bytes": 297
+    },
+    "wrapper": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-wrapper.json",
+      "sha256": "4a7c24c75cca255c648724accacf4e8bf83649e752455dfe66b385e37beb8059",
+      "bytes": 973
+    },
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-probe.py",
+      "sha256": "6b4eb9150b48383bc6db9200012924d555bc4895a0cc48a102eb2a68cf7cf703",
+      "bytes": 6515
+    }
+  },
+  "limitations": [
+    "No allbackend snapshot/signature conformance, allqualityvalidator/HTTProute acceptance, B154/B155 batchsemantic or physicalpowerloss/multihost guarantee claimed.",
+    "No whole83test repetition; actual11native and4independent semanticgroups only. Genericproperty requires no productiondataset; concreteinputs are realgenerated bytes/manifests/keypair/owners.",
+    "Baseline3routed PASScells are compactsource navigation with unavailable rawarchives; not evidence for candidate correction or historicalclosure.",
+    "No independent inherited-red or architecture/typecheckclaim; finalmergedcohort/staticgates remain root/G responsibility.",
+    "ActualDURproductionfiles and canonicala2receipt preserved; no source or test authored by reviewer."
+  ],
+  "closure_ids": [],
+  "closure_authority": "root/G exact finalcohort; this independent packet supplies bounded proof, not finding closure",
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/native.txt",
+      "sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869",
+      "bytes": 80
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/native.xml",
+      "sha256": "25bca826098e70d56601f94b4645a6cc075bffb180a52f6331e2c5bb555f39ba",
+      "bytes": 2049
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/native-wrapper.json",
+      "sha256": "f9a016fc0e36cce461095384fe90e00db195aed9ac78094a898378c79b7c81c2",
+      "bytes": 1384
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.py",
+      "sha256": "d9ac8f35f72ca8cd2777aa817df8affaa1419eefeadaa84d087c475db2d689e9",
+      "bytes": 6518
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.txt",
+      "sha256": "acdd807d1648abdbb29b153d41dd66a4a29667eaee56fd62f3bde0846c914ec1",
+      "bytes": 5913
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe-wrapper.json",
+      "sha256": "d939d560a491b0563e50a19735ff24ebde3a71760f326dde46b6019c999d4a3c",
+      "bytes": 974
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/census.py",
+      "sha256": "23425be103bef6b81f03409f40b6f2a38d7d35f82e8e435fac5880d4e4c2cc25",
+      "bytes": 1769
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/importer-census.json",
+      "sha256": "981e9fe781c7feaf8247497248a33df3ce4c29e5c94ae81c304c2eca2a588454",
+      "bytes": 2843
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/pre-merge.json",
+      "sha256": "2f6eb96e161fcef7d4aac2b837fbed66623b4e7c51e76edd4f8e0b2f128338de",
+      "bytes": 725
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-error.txt",
+      "sha256": "c28e95fc53003544a442aa850fef46113b79daa012939ab2f5ce033aa21c0029",
+      "bytes": 297
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-wrapper.json",
+      "sha256": "4a7c24c75cca255c648724accacf4e8bf83649e752455dfe66b385e37beb8059",
+      "bytes": 973
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-probe.py",
+      "sha256": "6b4eb9150b48383bc6db9200012924d555bc4895a0cc48a102eb2a68cf7cf703",
+      "bytes": 6515
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/baseline-navigation.json",
+      "sha256": "0e8f4f9ad4be2333140859a480d9bc1e8731af7b8d30b951eee5379d4c6638a9",
+      "bytes": 10058
+    }
+  ]
+}

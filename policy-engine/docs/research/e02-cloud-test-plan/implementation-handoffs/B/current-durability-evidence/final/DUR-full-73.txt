@@ -1,0 +1,2442 @@
+........................................................................ [ 34%]
+........................................................................ [ 69%]
+.....FFFFFFFFFFFFFFFFFFFF.....................................           [100%]
+=================================== FAILURES ===================================
+_ test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati0')
+guarded = False
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    def test_completed_proof_publication_preserves_progress_and_journals_exact_attempt(
+        tmp_path: Path,
+        guarded: bool,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={
+                    "phase": "completed",
+                    "unrelated": {"retained": True},
+                    "artifacts_index": {"search_exit_contract_ref": "search-ref"},
+                    "quality_scorecard": {"evidence_refs": {"search_exit_contract_ref": "search-ref"}},
+                },
+            )
+            completed = store.current_execution_completed_job_record()
+            proof_ref = "sha256:" + "7" * 64
+            proof = {
+                "job_id": job.job_id,
+                "run_id": job.run_id,
+                "worker_id": "worker-execution-admission",
+                "observed_job_state": "completed",
+                "control_store_state_transitions": store.list_job_state_transitions(job.job_id),
+            }
+>           raw.upsert_progress(
+                job_id=job.job_id,
+                progress={**completed.progress, "sibling_update": {"retained": True}},
+            )
+
+tests/unit/runtime/http/test_control_plane_store.py:1644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3307: in upsert_progress
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3516e21be0>
+resource = <sqlite3.Connection object at 0x7f3516e4a980>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati1')
+guarded = True
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    def test_completed_proof_publication_preserves_progress_and_journals_exact_attempt(
+        tmp_path: Path,
+        guarded: bool,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={
+                    "phase": "completed",
+                    "unrelated": {"retained": True},
+                    "artifacts_index": {"search_exit_contract_ref": "search-ref"},
+                    "quality_scorecard": {"evidence_refs": {"search_exit_contract_ref": "search-ref"}},
+                },
+            )
+            completed = store.current_execution_completed_job_record()
+            proof_ref = "sha256:" + "7" * 64
+            proof = {
+                "job_id": job.job_id,
+                "run_id": job.run_id,
+                "worker_id": "worker-execution-admission",
+                "observed_job_state": "completed",
+                "control_store_state_transitions": store.list_job_state_transitions(job.job_id),
+            }
+>           raw.upsert_progress(
+                job_id=job.job_id,
+                progress={**completed.progress, "sibling_update": {"retained": True}},
+            )
+
+tests/unit/runtime/http/test_control_plane_store.py:1644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3307: in upsert_progress
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3516ba10a0>
+resource = <sqlite3.Connection object at 0x7f3516e4bd30>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati2')
+guarded = False, mutation = 'completion_owner'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+>               raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+
+tests/unit/runtime/http/test_control_plane_store.py:1716: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3220: in append_event
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3516ba1010>
+resource = <sqlite3.Connection object at 0x7f3516bd9120>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati3')
+guarded = True, mutation = 'completion_owner'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+>               raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+
+tests/unit/runtime/http/test_control_plane_store.py:1716: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3220: in append_event
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3516e20dd0>
+resource = <sqlite3.Connection object at 0x7f3516dfa5c0>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati4')
+guarded = False, mutation = 'attempt'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+>               raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+
+tests/unit/runtime/http/test_control_plane_store.py:1726: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3516e21010>
+resource = <sqlite3.Connection object at 0x7f3516df9300>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati5')
+guarded = True, mutation = 'attempt'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+>               raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+
+tests/unit/runtime/http/test_control_plane_store.py:1726: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3517081910>
+resource = <sqlite3.Connection object at 0x7f3516f78130>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati6')
+guarded = False, mutation = 'restarted'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+>               raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+
+tests/unit/runtime/http/test_control_plane_store.py:1730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3538: in mark_running
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3517640710>
+resource = <sqlite3.Connection object at 0x7f35170b2f20>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati7')
+guarded = True, mutation = 'restarted'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+>               raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+
+tests/unit/runtime/http/test_control_plane_store.py:1730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3538: in mark_running
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f35176415b0>
+resource = <sqlite3.Connection object at 0x7f3516f78b80>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati8')
+guarded = False, mutation = 'lease_owner'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+>               raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+
+tests/unit/runtime/http/test_control_plane_store.py:1732: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3517640ef0>
+resource = <sqlite3.Connection object at 0x7f3516dfb790>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati9')
+guarded = True, mutation = 'lease_owner'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+>               raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+
+tests/unit/runtime/http/test_control_plane_store.py:1732: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3517640290>
+resource = <sqlite3.Connection object at 0x7f35170b3970>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati10')
+guarded = False, mutation = 'lease_expiry'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+>               raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+
+tests/unit/runtime/http/test_control_plane_store.py:1737: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f35176400e0>
+resource = <sqlite3.Connection object at 0x7f35170b16c0>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati11')
+guarded = True, mutation = 'lease_expiry'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+>               raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+
+tests/unit/runtime/http/test_control_plane_store.py:1737: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f35175879b0>
+resource = <sqlite3.Connection object at 0x7f35173f1d50>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati12')
+guarded = False, mutation = 'proof_basis'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+>               raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+
+tests/unit/runtime/http/test_control_plane_store.py:1742: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3307: in upsert_progress
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3517587c80>
+resource = <sqlite3.Connection object at 0x7f35173f0b80>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati13')
+guarded = True, mutation = 'proof_basis'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+>               raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+
+tests/unit/runtime/http/test_control_plane_store.py:1742: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3307: in upsert_progress
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f35176c3a40>
+resource = <sqlite3.Connection object at 0x7f3517553970>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati14')
+guarded = False, mutation = 'proof_basis_primitive_type'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+                )
+            elif mutation == "proof_basis_primitive_type":
+>               raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+
+tests/unit/runtime/http/test_control_plane_store.py:1747: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3307: in upsert_progress
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f35176c2570>
+resource = <sqlite3.Connection object at 0x7f351751b880>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati15')
+guarded = True, mutation = 'proof_basis_primitive_type'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+                )
+            elif mutation == "proof_basis_primitive_type":
+>               raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+
+tests/unit/runtime/http/test_control_plane_store.py:1747: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3307: in upsert_progress
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f351a3e56d0>
+resource = <sqlite3.Connection object at 0x7f351751a3e0>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati16')
+guarded = False, mutation = 'proof_basis_key_presence'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+                )
+            elif mutation == "proof_basis_primitive_type":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+                )
+            elif mutation == "proof_basis_key_presence":
+>               raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "authority_path": None},
+                )
+
+tests/unit/runtime/http/test_control_plane_store.py:1752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3307: in upsert_progress
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f351a98a3c0>
+resource = <sqlite3.Connection object at 0x7f3516bd85e0>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati17')
+guarded = True, mutation = 'proof_basis_key_presence'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+                )
+            elif mutation == "proof_basis_primitive_type":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+                )
+            elif mutation == "proof_basis_key_presence":
+>               raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "authority_path": None},
+                )
+
+tests/unit/runtime/http/test_control_plane_store.py:1752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3307: in upsert_progress
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f3517522a80>
+resource = <sqlite3.Connection object at 0x7f3516bdae30>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati18')
+guarded = False, mutation = 'history'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+                )
+            elif mutation == "proof_basis_primitive_type":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+                )
+            elif mutation == "proof_basis_key_presence":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "authority_path": None},
+                )
+            else:
+>               raw.append_event(
+                    job_id=job.job_id, event_type="job_progress", payload={"state": "pending"}
+                )
+
+tests/unit/runtime/http/test_control_plane_store.py:1757: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3220: in append_event
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f351687f800>
+resource = <sqlite3.Connection object at 0x7f3516bdbe20>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+_ test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/DUR-full-73/test_completed_proof_publicati19')
+guarded = True, mutation = 'history'
+
+    @pytest.mark.parametrize("guarded", [False, True])
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "completion_owner",
+            "attempt",
+            "restarted",
+            "lease_owner",
+            "lease_expiry",
+            "proof_basis",
+            "proof_basis_primitive_type",
+            "proof_basis_key_presence",
+            "history",
+        ],
+    )
+    def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+        tmp_path: Path,
+        guarded: bool,
+        mutation: str,
+    ) -> None:
+        raw = _make_store(tmp_path)
+        store = guard_runtime_control_store(raw) if guarded else raw
+        job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+        with _fence_leased_execution(store, job=job):
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+            )
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                raw.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                raw._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+                )
+            elif mutation == "restarted":
+                raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            elif mutation == "lease_owner":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                raw._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+                )
+            elif mutation == "proof_basis_primitive_type":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+                )
+            elif mutation == "proof_basis_key_presence":
+                raw.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "authority_path": None},
+                )
+            else:
+>               raw.append_event(
+                    job_id=job.job_id, event_type="job_progress", payload={"state": "pending"}
+                )
+
+tests/unit/runtime/http/test_control_plane_store.py:1757: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_plane_store.py:3220: in append_event
+    self._execute(
+src/polisyos/runtime/http/services/control_plane_store.py:5128: in _execute
+    with self._job_transaction():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control_plane_store.py:5097: in _job_transaction
+    with self._bound_transaction_admission(conn, purpose=purpose):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.http.services.control_plane_store.ControlPlaneStore object at 0x7f351687fc80>
+resource = <sqlite3.Connection object at 0x7f3516e49300>
+
+    @contextmanager
+    def _bound_transaction_admission(
+        self,
+        resource: Any,
+        *,
+        purpose: Literal["execution", "completed_proof"],
+    ) -> Iterator[None]:
+        """Resolve the bound source job while holding the publication transaction.
+    
+        The admission belongs to this exact connection/cursor and handler identity.
+        Its internal terminal writes may clear the lease and still publish their
+        progress, event and outbox rows atomically. A later public call admits
+        again; completed proof has its existing, narrower completion-owner law.
+        """
+        bound = self._job_execution_fence.get()
+        prior = getattr(self._human_decision_transaction, "job_admission", None)
+        if prior is not None:
+            if prior.resource is not resource or prior.identity != bound:
+                raise ControlJobLeaseLostError("control job transaction identity changed")
+            self._validate_transaction_admission(prior)
+            yield
+            return
+        if bound is None:
+            yield
+            return
+        job_id, worker_id, attempt = bound
+        if purpose == "completed_proof":
+            self._require_current_job_completion_record()
+            expires_at = None
+        else:
+            where, params = self._job_fence_where(
+                job_id=job_id, fence=(worker_id, attempt), now=_utc_now()
+            )
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}", params
+            )
+            if row is None:
+>               raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+E               polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_execution_admission
+
+src/polisyos/runtime/http/services/control_plane_store.py:5068: ControlJobLeaseLostError
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-True]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-False]
+FAILED tests/unit/runtime/http/test_control_plane_store.py::test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-True]
+20 failed, 186 passed in 189.04s (0:03:09)

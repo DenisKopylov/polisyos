@@ -1,0 +1,51 @@
+[
+  {
+    "pid": 762209,
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "--repo",
+      "/workspace/e02-B-current-coordination",
+      "--tag",
+      "continuation-6fa9b7142ba5-admitted-native",
+      "--",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "-vv",
+      "-p",
+      "current_cohort_inventory",
+      "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+      "--continue-on-collection-errors",
+      "--basetemp",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/pytest",
+      "-o",
+      "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/cache",
+      "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml"
+    ],
+    "E02_REMOVE_PROTECTION": "0",
+    "present": true,
+    "cwd": "/workspace/e02-B-current-coordination"
+  },
+  {
+    "pid": 762212,
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "-vv",
+      "-p",
+      "current_cohort_inventory",
+      "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+      "--continue-on-collection-errors",
+      "--basetemp",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/pytest",
+      "-o",
+      "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/cache",
+      "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml"
+    ],
+    "E02_REMOVE_PROTECTION": "0",
+    "present": true,
+    "cwd": "/workspace/e02-B-current-coordination/policy-engine"
+  }
+]

@@ -1,0 +1,351 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-jit-leader-terminal-verification",
+  "closure_ids": [],
+  "finding_ids": [
+    "B50"
+  ],
+  "bundle_ids": [
+    "JIT-01"
+  ],
+  "slice_base_sha": "29dbecef14f077cfc4cefffdf3bc6f29379e6ab0",
+  "implementation_commits": [
+    "a8af9d0fcdc55436f008f065941ed1cfa5069502"
+  ],
+  "candidate_sha": "a8af9d0fcdc55436f008f065941ed1cfa5069502",
+  "candidate_tree_sha": "47a5a80e55439479e10de3e25666aaea3dd74814",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py"
+  ],
+  "production_changed_paths": [],
+  "runtime_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "runtime_source_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "baseline_cells": [
+    {
+      "id": "F01-P003",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler.py",
+      "state": "PASS",
+      "collected": "47",
+      "calls": "47",
+      "call_pass": "47",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.29",
+      "rss_kib": "246004",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "120",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F01-P084",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.37",
+      "rss_kib": "212736",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "201",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F02-P078",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/mirror_contracts/test_specialization.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.77",
+      "rss_kib": "96616",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "206",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P086",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "6.0156190395355225",
+      "rss_kib": "305148",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "209",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F13-P097",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.7",
+      "rss_kib": "311972",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "224",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/baseline-navigation.json",
+    "bytes": 16438,
+    "sha256": "d0c5808dc58fdec3883aad27ecc56f78ddeaaca6374183853ef1a5ac3bcc077d"
+  },
+  "checks": [
+    {
+      "id": "native-leader-terminal-three-ports",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-q",
+        "-s",
+        "/workspace/e02-B-current-adapters/policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "--rootdir=/workspace/e02-B-current-coordination/policy-engine",
+        "--basetemp=/tmp/e02-B-current-adapters-b50-native-a8/fixtures",
+        "-o",
+        "cache_dir=/tmp/e02-B-current-adapters-b50-native-a8/pytest-cache",
+        "--junitxml=/tmp/e02-B-current-adapters-b50-native-a8/native.xml"
+      ],
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "test_input_sha": "a8af9d0fcdc55436f008f065941ed1cfa5069502",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "compiler_file": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "compiler_sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029",
+        "fixture_storage": "/tmp/e02-B-current-adapters-b50-native-a8/fixtures",
+        "fixture_storage_profile": "separate /tmp mount; kernel/flight property, not durability",
+        "actual_versions": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/environment.json",
+          "bytes": 522,
+          "sha256": "7cda834a1b193954b3b7da2f244983ca32f3a15fa36b9375c603b4cc2ba839b6"
+        }
+      },
+      "input_closure": {
+        "source_context": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/source-context.json",
+          "bytes": 3278,
+          "sha256": "b946829a78cdaa65f5c3b6edd9b4b33f5d5fde0849e456252ef80e11c1c31071"
+        },
+        "frozen_test": {
+          "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+          "bytes": 8277,
+          "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+        },
+        "execution_overlay": "Own frozen new test only; actual root456 imports via PYTHONPATH, --noconftest, no production mutations",
+        "actual_faults": "Leader CancelledError/SystemExit from build; RuntimeError from publication; real follower barrier and canonical wait; real JAX healthy retry/warm consume",
+        "temporary_storage": "unique separate /tmp mount; no DB/ports; kernel/flight property, not durability"
+      },
+      "outcome": "PASS",
+      "actual_case_counts": {
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_child_exit": 0,
+      "wall_seconds": 2.431042479001917,
+      "peak_rss_kib": 270044,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/native.txt",
+        "bytes": 2278,
+        "sha256": "db049d62ed416e1cd7ba89dc965c4fae31f00a190358c03a0858000e0570c27d"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/native.xml",
+        "bytes": 645,
+        "sha256": "6eea89305c4bba4754e606a428547ffc764ec5cbd07ea8357a28965f3e20020f"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/native.json",
+        "bytes": 2116,
+        "sha256": "91c240cdfa049acecbee74e26b9d77e86876adf65656ea4b525f3f61f1f626e4"
+      }
+    },
+    {
+      "id": "literal-new-test-static",
+      "command": [
+        [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "/workspace/e02-B-current-adapters/policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py"
+        ],
+        [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "/workspace/e02-B-current-adapters/policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py"
+        ]
+      ],
+      "target_sha": "a8af9d0fcdc55436f008f065941ed1cfa5069502",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "pytest": "9.0.2",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "ruff": "0.14.10"
+        },
+        "measurement_boundary": "Separate post-native metadata process in unchanged shared root environment; native compiler __file__/SHA printed in each actual deciding case; not whole import or child/resource readset."
+      },
+      "input_closure": {
+        "frozen_test": {
+          "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+          "bytes": 8277,
+          "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+        },
+        "behavior": "Ruff static/format only; no runtime property inference"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/static.json",
+        "bytes": 747,
+        "sha256": "e6bebf0d539b8b862898724a8e57149ae28afa7799bb21a39a74597f6ace08e2"
+      }
+    }
+  ],
+  "property": {
+    "statement": "At supported canonical compilation/publication fault ports, real single-flight is retired with logical terminal error before follower wake; fresh canonical retry compiles once and consumes native JAX.",
+    "runtime_path": [
+      "MethodCompiler.compile claim",
+      "real _compile_method or publish_flight fault",
+      "CompilationCache.complete_flight under lock then event",
+      "genuinely joined _wait_for_flight",
+      "fresh canonical compile and warm kernel consumer"
+    ],
+    "proxy_divergence": "An empty map or unused cancellation flag does not show a joined follower terminates; all3 cases gate actual wait entry and real numerical recovery.",
+    "negative_controls": [
+      "CancelledError leader/follower exact same BaseException identity",
+      "SystemExit leader/follower exact same BaseException identity",
+      "RuntimeError publication has CompilationError cause/reason and no cached result"
+    ],
+    "healthy_control": "JAX outputs20/30/20; warm kernel identity same, immutable old handle preserved; buildentries2 includes initial fault plus one healthyretry."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Three supported terminal ports runtime verified; formal B50 admission belongs to root/G.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B50",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "deciding_checks": [
+        "native-leader-terminal-three-ports"
+      ],
+      "new_evidence": "Missing leader BaseException/publication-fault witness now available for finite supported flow, actual follower termination and JAX retry.",
+      "next_owner": "B root independent review and G criterion admission combine canonical supported-port contract and prior concurrent-generation evidence."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Synchronous public compile; cancel_event cooperates with follower wait, no physical XLA cancellation claim.",
+    "Healthy work delegates canonical source; no fake compiled payload or marker-only evidence.",
+    "No arbitrary asynchronous KeyboardInterrupt at every post-claim bytecode, custom cache failure law, XLA hard kill or all-backend claim.",
+    "Separate source456 full-cohort storage failures remain bound; independent /tmp3cases do not certify wholecohort.",
+    "No production edits, inherited-red attribution or formal closure."
+  ],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/native.json",
+      "bytes": 2116,
+      "sha256": "91c240cdfa049acecbee74e26b9d77e86876adf65656ea4b525f3f61f1f626e4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/native.xml",
+      "bytes": 645,
+      "sha256": "6eea89305c4bba4754e606a428547ffc764ec5cbd07ea8357a28965f3e20020f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/environment.json",
+      "bytes": 522,
+      "sha256": "7cda834a1b193954b3b7da2f244983ca32f3a15fa36b9375c603b4cc2ba839b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/baseline-navigation.json",
+      "bytes": 16438,
+      "sha256": "d0c5808dc58fdec3883aad27ecc56f78ddeaaca6374183853ef1a5ac3bcc077d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/native.txt",
+      "bytes": 2278,
+      "sha256": "db049d62ed416e1cd7ba89dc965c4fae31f00a190358c03a0858000e0570c27d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/source-context.json",
+      "bytes": 3278,
+      "sha256": "b946829a78cdaa65f5c3b6edd9b4b33f5d5fde0849e456252ef80e11c1c31071"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal-evidence/static.json",
+      "bytes": 747,
+      "sha256": "e6bebf0d539b8b862898724a8e57149ae28afa7799bb21a39a74597f6ace08e2"
+    }
+  ]
+}

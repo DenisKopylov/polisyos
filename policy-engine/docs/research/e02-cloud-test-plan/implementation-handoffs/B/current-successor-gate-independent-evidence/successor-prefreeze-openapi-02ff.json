@@ -1,0 +1,44 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "run",
+    "--no-sync",
+    "--extra",
+    "runtime",
+    "--extra",
+    "ml",
+    "python",
+    "tools/ops_runners/runtime/export_runtime_openapi.py",
+    "--output",
+    "/tmp/e02-B-successor-openapi-02ff/after.json",
+    "--scratch-root",
+    "/tmp/e02-B-successor-openapi-02ff/runtime-cas"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+  "tree": "2c50e068a79f0a57de8d4349b5ee00b5a298d821",
+  "head_after": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+  "wall_s": 49.839998826006195,
+  "process_rusage_maxrss_kib": 1190576,
+  "exit_code": 0,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt",
+  "output_sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

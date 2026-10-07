@@ -1,0 +1,318 @@
+{
+  "schema": "policyos.e02.disposition_delta_navigation.v1",
+  "unit": "B",
+  "slice": "continuation-disposition-delta-20261007",
+  "mode": "read-only criterion/evidence navigation; no runtime, service, setup, canonical edit or formal closure recommendation",
+  "closure_ids": [],
+  "formal_closure": false,
+  "closure_authority": false,
+  "slice_base_sha": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+  "observed_root_snapshot": {
+    "sha": "fae38a6b8ceceabec2967aebe02df9fdccd67509",
+    "tree": "1dbb7308076cc28b8b40cfa17bd324954ae068b2",
+    "role": "read-only navigation snapshot; not selected frozen root candidate or new runtime proof"
+  },
+  "all60_resolution": {
+    "original": "old_all60",
+    "row_array_pointer": "/all60_manual_rows",
+    "match_key": "finding_id",
+    "count": 60,
+    "bundle_count": 25,
+    "effective_technical_disposition": "For each exact original finding_id use original proposed_status; the fifteen delta rows restate that bounded technical state with updated evidence/remaining scope. Other45 rows are not rereviewed or newly executed.",
+    "criterion_and_baseline_locator": "Each original row supplies canonical raw SOURCE capture hash/range and bundle; original denominator supplies immutable routes/cells/source context refs and exact query recipe. Do not duplicate imported cell inventories or treat baseline as candidate proof.",
+    "formal_rule": "formal_closure=false and closure_authority=false for every inherited or overlaid row; original CLOSED is a bounded technical proposal, not ledger ratification or current root runtime."
+  },
+  "evidence_index": {
+    "old_all60": {
+      "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+      "bytes": 199636,
+      "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+    },
+    "process": {
+      "git_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-llm-process-recovery.json",
+      "bytes": 29809,
+      "sha256": "22fbee9975f390fb5c0627fb6ed3c1d77734d3df3cf5c09dcf1f8853fb35066e"
+    },
+    "process_foreign": {
+      "git_sha": "920fed5d97c2a7572e4073f556c51f5b8a190977",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007.json",
+      "bytes": 27088,
+      "sha256": "e9326333abbfc57d5fc82b1e88b9a0f6ad4c85ca22d7d6349e91cd0c7b6d8fa7"
+    },
+    "http_numeric": {
+      "git_sha": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric.json",
+      "bytes": 142264,
+      "sha256": "1e4553f6a101ad327f614085687bff8de88e5956d2aefbe2bea12c23cf9db191"
+    },
+    "imported_source": {
+      "git_sha": "e82ac5834ee481051f905edfe0bd68ba19dcc6ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity.json",
+      "bytes": 110777,
+      "sha256": "fa486b858446d25315598be0087f223693dd53279336c6657fda2728c9381693"
+    },
+    "imported_consumer": {
+      "git_sha": "ed4fca3916562b56ff293fc93ccb3464b7a30e0b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle.json",
+      "bytes": 49062,
+      "sha256": "5925dc8151b4aa1ee20d9ec26f50fc88851b5e663ed8dcb4914b51ea5cdefaaf"
+    },
+    "B_A_consumer": {
+      "git_sha": "23f8e44e75b74d950b432c225bdb049d4572a212",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007.json",
+      "bytes": 13248,
+      "sha256": "4e715c3c5de187c8a1a6d700a4436acd460121166b6e4c4417873f29b69ebab5"
+    },
+    "readiness": {
+      "git_sha": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.handoff.json",
+      "bytes": 20206,
+      "sha256": "7542e8c979220614faf82e60e7c46cb76ee9ffb94a673c3dd8a39d52e8ff9078"
+    }
+  },
+  "source_dependencies": {
+    "unchanged_lower_and_bridge": "process testf4e and source-inputs exact seven production blob matches to1862; foreign process review independently reconciles these cuts, not an entire checkout equivalence.",
+    "http_execution_source": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+    "imported_graph_source": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "imported_consumer_execution": "1970df7b049c6f70b918d453d7051d497f73aa21",
+    "B_A_consumer_execution": "2c7a6398efc773a18bf04abd7d119b6462a8809b (productf796; two separate physical provider operations per profile)",
+    "future_root_source": "6fa9b7142ba590c3173f1cd3be097286db5acc4d frozen per parent; actual checks pending. No packet execution is restamped as fae38 or6fa9."
+  },
+  "delta_rows": [
+    {
+      "finding_id": "B37",
+      "bundle_id": "DUR-01",
+      "original_row_pointer": "/all60_manual_rows/3",
+      "technical_disposition": "closed",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "supplemental_real_consumer_no_lower_change",
+      "delta": "Wire/atomic-persistence criterion stays at the original strict old/new-or-typed-recovery basis. New full Traced/cache/enforcer process witness consumes the same lower source, retains provider_in_flight after physical SDK request then SIGKILL, and fresh same-key consumer refuses before another request. No lower mechanism escape observed; no second ledger introduced.",
+      "continuation_evidence": [
+        "process#/checks/0",
+        "process#/checks/1",
+        "process_foreign#/checks/0"
+      ],
+      "remaining_or_missing_input": "Original strict sparse-versus-explicit-unlimited, nullable omission, complete legacy migration and publication fault proofs retain exact old sources. A new combined frozen-source affected-consumer rejoin is not executed by this navigation slice. SIGKILL is process interruption, not power loss or multihost proof.",
+      "next_owner": "ROOT/G accepts transferred source-bound lower evidence and chooses final exact cohort; DUR owns lower only if a new actual escape appears."
+    },
+    {
+      "finding_id": "B65",
+      "bundle_id": "LLM-01",
+      "original_row_pointer": "/all60_manual_rows/28",
+      "technical_disposition": "closed",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "supplemental_owned_completion_process_control",
+      "delta": "Healthy and caller-cancel cases each complete one actual producer, .02 durable receipt and required BUDGET_COMMITTED with valid whole audit chain; fresh legitimate second call yields .04/two receipts. SIGKILL leaves no ACK or COMMITTED and one durable unknown intent. Predicate removal produces SDK call2/intent2/changedbytes despite eventual typed refusal: refusal status alone is insufficient.",
+      "continuation_evidence": [
+        "process#/checks/0",
+        "process#/checks/1",
+        "process_foreign#/checks/0"
+      ],
+      "remaining_or_missing_input": "Known SDK .02 is fixture-reported operational cost, not invoice authority. Required audit resolver and actual initialized ledger are explicit constructor-owned premises. No pending-intent crash is auto-cleared and no fresh external reconciliation authority is invented. No new all-B/cohort or deployed-factory claim.",
+      "next_owner": "ROOT/G formal acceptance; ADAPTER owns upper audit/producer bridge, DUR supplies unchanged lower contract."
+    },
+    {
+      "finding_id": "B66",
+      "bundle_id": "LLM-01",
+      "original_row_pointer": "/all60_manual_rows/29",
+      "technical_disposition": "limited",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "transport_numeric_repair_and_actual_A_residual",
+      "delta": "Successful HTTP JSON float lexemes decode to Decimal before monetary admission: actual nonzero +/-1e-1000 stays invalid/unknown rather than a known-zero ACK. Own real HTTP 30PASS vs baseline/removal20FAIL10PASS; foreign 15PASS vs baseline13PASS2FAIL and removal2FAIL. Caller-cancel durable settlement process3PASS/removal1FAIL is separate source-bound evidence. New real B-to-A helper four cases3PASS1FAIL reproduce actual observer None -> A scalar0.0 while separate mandatory ledger retains cost_unknown and blocks the next provider.",
+      "continuation_evidence": [
+        "http_numeric#/checks/1",
+        "http_numeric#/checks/2",
+        "http_numeric#/foreign_independent_handoff",
+        "B_A_consumer#/checks/0",
+        "B_A_consumer#/owner_packet",
+        "process#/checks/0"
+      ],
+      "remaining_or_missing_input": "A helper failure is actual; served recursive NL/cycle later admission is UNRUN and cannot be inferred from legacy helper. Need authenticated admitted NL fixture, configured model/preflight and N4 response composition/served readback. Legitimate reported zero and disclosed estimate from valid observed usage/configured price remain allowed; monetary API remains float|None, no arbitrary-precision billing or unknown-as-zero.",
+      "next_owner": "A/G owns response_shapes/nl_pipeline/protected served cycle and exact owner input. ADAPTER owns Gateway/normalizer/cache; DUR lower unchanged. D external reader remains separately scoped."
+    },
+    {
+      "finding_id": "B74",
+      "bundle_id": "RES-04",
+      "original_row_pointer": "/all60_manual_rows/37",
+      "technical_disposition": "limited",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "static_member_repair_with_actual_remaining_namespace_failure",
+      "delta": "Former module-name/version proxy is replaced by strict supported-code-graph-v2 statically selected imported members including nested Python code references. Actual fresh CAS checkpoint load/resume on1970 (canonical eb4 projection) four casesPASS; selected-member-only removal1FAIL resumes107 and physically executes replacement despite unchanged ref/history/module version. Intermediate dynamic __import__ false admission107FAIL is retained; final unsupported dynamic cold intake refuses before bodies. New genuine returned-frame namespace case remains FAIL on815c: original/unchanged resume7, same history_complete and pointer, changed resume107 and physical replacement through sys._getframe().f_globals[math], without typed refusal. Original eb4 frame probe also FAIL; both actual outputs remain separate.",
+      "continuation_evidence": [
+        "imported_source#/property",
+        "imported_consumer#/checks/2",
+        "imported_consumer#/checks/3",
+        "imported_consumer#/checks/6",
+        "imported_source#/checks/12",
+        "imported_source#/checks/13",
+        "imported_source#/current_known_criterion_failure"
+      ],
+      "remaining_or_missing_input": "Actual code/mechanism residual: builtin-returned frame namespace reaches changed imported helper despite strict graphv2. This is executed FAIL, not an arbitrary unexecuted falsifier. Canonical owner needs generic declared-dependency or typed-refusal strategy, then same real CAS save/reopen/resume property replay. Static profile4PASS/removal1FAIL and old109PASS remain exact eb4 support only; opaque installed-callable/state/history/served boundaries remain explicit. Graphv2 does not retroactively authorize priorv1 snapshots.",
+      "next_owner": "CMP owns canonical dependency/source identity; G replays exact mirrored test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect after actual generic repair; A/G supplies served/history inputs separately."
+    },
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "original_row_pointer": "/all60_manual_rows/42",
+      "technical_disposition": "open",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "unchanged_actual_C_consumer_defect",
+      "delta": "No continuation cleanup fix or new C consumer execution supplied. Original real process-final disconnect failure remains: same old pending physical handle, registry retryowner0, freepermit1, and fresh production session creates a second unconfirmed handle. This is an ownership gap, not an occupied-slot/OS-FD claim.",
+      "continuation_evidence": [],
+      "remaining_or_missing_input": "C must implement production cleanup-owner transfer/retry and replay actual process_stream_dataset fault plus healthy control on selected final source. The separate restored frontier cap3->cap1 failure is a distinct C budget contract.",
+      "next_owner": "C owns streaming.py/session/process cleanup; B supplies pool contract; G supplies exact local stream consumer."
+    },
+    {
+      "finding_id": "B89",
+      "bundle_id": "NET-01",
+      "original_row_pointer": "/all60_manual_rows/43",
+      "technical_disposition": "limited",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "unchanged_cross_consumer_lifecycle_limit",
+      "delta": "Direct B-owned pool permit/handle accounting proofs are inherited exactly, but unresolved C process-final physical owner still limits full lifecycle law. New process LLM evidence does not prove stream cleanup.",
+      "continuation_evidence": [],
+      "remaining_or_missing_input": "C owner-transfer repair and real cleanup failure/control rejoin required. Available permit1 does not prove completed disconnect or retained production owner.",
+      "next_owner": "C/G lifecycle consumer with B pool contract."
+    },
+    {
+      "finding_id": "B13",
+      "bundle_id": "RES-03",
+      "original_row_pointer": "/all60_manual_rows/0",
+      "technical_disposition": "limited",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "unchanged_missing_served_simulation_input",
+      "delta": "No new served post-simulation partial-result consumer evidence. Foundry preservation and CAS output existence remain the original finite producer/artifact proofs.",
+      "continuation_evidence": [],
+      "remaining_or_missing_input": "Exact readonly catalog/acquisition/history and actual served HTTP later-failure readback, with scopes/error retained. Full production data remains local; generic lower tests need no dataset.",
+      "next_owner": "A owns generation_cycle.py/run_lifecycle.py and actual route; G supplies local readonly inputs."
+    },
+    {
+      "finding_id": "B154",
+      "bundle_id": "CAS-03",
+      "original_row_pointer": "/all60_manual_rows/57",
+      "technical_disposition": "limited",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "unchanged_missing_all_confirmations_publisher",
+      "delta": "No new real A all-confirmations governed publisher consumer. Typed complete/localfailure/aborted batch and report consumers do not authorize protected publication.",
+      "continuation_evidence": [],
+      "remaining_or_missing_input": "A actual publisher must consume exact full valid report and refuse failed/aborted required rows before publication. Producer exposure cellNone/require_complete_valid constructor alone is not this consumer.",
+      "next_owner": "A publisher/lifecycle owner and G signature admission; CAS supplies exact typed report contract."
+    },
+    {
+      "finding_id": "B61",
+      "bundle_id": "STA-02",
+      "original_row_pointer": "/all60_manual_rows/24",
+      "technical_disposition": "held",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "held_owner_law_unchanged",
+      "delta": "New imported code identity does not supply actually consumed SKG snapshot/version/permission/run-immutability law.",
+      "continuation_evidence": [],
+      "remaining_or_missing_input": "Ratified immutable consumed SKG epoch/version and reissue/permission contract; readable CAS or unconsumed metadata is not owner authority.",
+      "next_owner": "SKG/causal source owner and G; EXE consumes ratified law."
+    },
+    {
+      "finding_id": "B67",
+      "bundle_id": "LLM-02",
+      "original_row_pointer": "/all60_manual_rows/30",
+      "technical_disposition": "held",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "held_owner_law_unchanged",
+      "delta": "Gateway numeric and durable intent proofs do not grant reuse permission or institutional epoch atomicity.",
+      "continuation_evidence": [],
+      "remaining_or_missing_input": "Actual principal/scope/purpose/current permission/epoch owner decision at read/publication; fixture readability/agent cacheable flag remains operational input only.",
+      "next_owner": "Institutional evidence/source owner and G; ADAPTER integrates exact decision."
+    },
+    {
+      "finding_id": "B68",
+      "bundle_id": "LLM-02",
+      "original_row_pointer": "/all60_manual_rows/31",
+      "technical_disposition": "held",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "held_dependent_admission_law_unchanged",
+      "delta": "Process cancellation proves completion survives caller loss, not that intended independent repetitions may be coalesced. Dependency on B67 remains.",
+      "continuation_evidence": [
+        "process#/checks/0"
+      ],
+      "remaining_or_missing_input": "B67 permission/epoch law plus intended experiment/repetition ownership; no new grant inferred from identical bytes or temperature0.",
+      "next_owner": "Institutional reuse owner/B67 with ADAPTER/DUR bridge; ROOT/G final scoped admission."
+    },
+    {
+      "finding_id": "B148",
+      "bundle_id": "CAS-02",
+      "original_row_pointer": "/all60_manual_rows/51",
+      "technical_disposition": "held",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "held_import_ownership_law_unchanged",
+      "delta": "No new cross-tenant/first_for_tenant ownership ratification. Integrity/private staging proofs remain original exact evidence.",
+      "continuation_evidence": [],
+      "remaining_or_missing_input": "Source owner decides scoped same-view retry and unbound/cross-tenant import authority before publication; valid digest is not tenant ownership.",
+      "next_owner": "CAS ownership/security source owner and G."
+    },
+    {
+      "finding_id": "B14",
+      "bundle_id": "RUN-01",
+      "original_row_pointer": "/all60_manual_rows/1",
+      "technical_disposition": "limited",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "Linux_owned_scope_and_thread_boundary_unchanged",
+      "delta": "New Linux SIGKILL LLM witness is bounded process admission evidence, not universal physical cancellation. Original owned state fencing and Linux supervised descendant/delivery proofs remain exact.",
+      "continuation_evidence": [
+        "process#/checks/0"
+      ],
+      "remaining_or_missing_input": "Already-entered arbitrary threads/unowned external effects can continue; non-Linux owned process recovery needs actual platform verification, no Linux PASS transplant.",
+      "next_owner": "RUN effect/executor owner and G native platform profile."
+    },
+    {
+      "finding_id": "B24",
+      "bundle_id": "RUN-02",
+      "original_row_pointer": "/all60_manual_rows/2",
+      "technical_disposition": "limited",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "Linux_delivery_profile_unchanged",
+      "delta": "New tiny process SDK protocol does not reprove original small/1MiB framed result transport. Exact original fork/Pipe delivery and compute-vs-send failure controls remain inherited.",
+      "continuation_evidence": [],
+      "remaining_or_missing_input": "Actual macOS/non-Linux adopted-child transport/recovery remains verification_missing. Installed-wheel common bridge8 cases are a separate property/profile.",
+      "next_owner": "RUN/G platform executor consumer on exact selected source."
+    },
+    {
+      "finding_id": "B78",
+      "bundle_id": "DUR-02",
+      "original_row_pointer": "/all60_manual_rows/41",
+      "technical_disposition": "closed",
+      "disposition_role": "bounded technical navigation proposal; formal_closure=false",
+      "delta_kind": "local_typed_unknown_vs_external_resolver_unchanged",
+      "delta": "New killed provider intent is consistent with unknown-not-zero, but is not a Ray/Temporal primary fallback status probe. Original local effect count/typedPrimaryExecutionOutcomeUnknownError clause stays source-bound closed; authoritative external reconciliation remains a held extension.",
+      "continuation_evidence": [
+        "process#/checks/0"
+      ],
+      "remaining_or_missing_input": "Actual external operation status/idempotency owner contract before any reconciliation/reissue. No fabricated operation ID, connection-error permission or exactly-once external guarantee.",
+      "next_owner": "ROOT/G local clause acceptance; primary external status/idempotency owner supplies held authoritative capability."
+    }
+  ],
+  "external_D_B120": {
+    "unit_owner": "D",
+    "formal_closure": false,
+    "closure_authority": false,
+    "evidence": "http_numeric#/finding_dispositions/2",
+    "state": "bounded guarded external reader verified; default D factory/controller/raw-snapshot contour not_established",
+    "next_owner": "D/G consumes exact foreign15 B pre_check admission+CostBudgetStopping evidence; no B120 upgrade/formal D closure and no conflation with D137 absence-to-zero residual"
+  },
+  "P37_qualification": {
+    "navigation_reconciliation": "independently_reconciled",
+    "own_process_observations": "recomputed at exactf4e by DUR; foreign reviewer process check independently_reconciled; no own lower mechanism acceptance",
+    "declared_fixture_cost_authority": "consumer_asserted known SDK .02/usage/pricing fixture, never verified invoice or institutional permission",
+    "held_owner_laws_and_unexecuted_final_root": "not_established"
+  },
+  "P38_P40": "Physical second provider/changed persistedbytes distinguishes eventual typed refusal from pre-admission fencing; actual A numeric0 distinguishes reported zero from unknown; same-version replacement107 distinguishes selected member graph from module/version markers. These are generic classes, not helper-name/marker closure.",
+  "global_acceptance": "No new root runtime/gate outcome. Old interrupted whole-cohort/code-gate evidence remains at original immutable sources; new source packet diagnostics stay exact and unwaived. Required final frozen-source readiness/native/gates are ROOT-owned and pending.",
+  "readiness_navigation": "readiness contains actual prior tool/PG stopped-state/resource observations and new-source wheel input plan only; it is not proof inputs remain ready or services were started.",
+  "new_root_freeze_notice": {
+    "sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "basis": "parent supplied exact freeze after read-only fae38 navigation snapshot",
+    "native_and_gate_state": "RUNNING per parent; no new outcome or product/runtime verification performed by this slice",
+    "role": "future consumer join target only; old d1efd and continuation checks retain literal executed sources"
+  }
+}

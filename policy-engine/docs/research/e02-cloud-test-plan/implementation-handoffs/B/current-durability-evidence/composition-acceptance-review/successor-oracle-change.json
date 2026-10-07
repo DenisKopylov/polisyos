@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.independent_oracle_change.v1",
+  "reviewer": "/root/dur_probe",
+  "finding_ids": [
+    "B42",
+    "B43",
+    "B45",
+    "B46",
+    "B47",
+    "B48"
+  ],
+  "author_production_edits": false,
+  "old_packet_sha": "755155f9fe20b80614a397ed8be00823f0f16660",
+  "old_driver": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+    "sha256": "6a62bd58d2b4c84f4297ec54d8c394b135b9ecd5925be3a128cd71de2140b7c5",
+    "bytes": 13846,
+    "retained_unchanged": true
+  },
+  "successor_driver": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+    "sha256": "e4a70b6ee91cdee86f2269eef3f37f92ef47f24f31304eee1c8637914775f53a",
+    "bytes": 13913
+  },
+  "change": "Only partial completeness negative calls actual connect then actual build inside the refusal try. Unit/shape per-edge negatives unchanged; actual full two-source arithmetic and semantic gates unchanged. Exception must occur before any actual source/target body.",
+  "reason": "Canonical CMP-03 B48 says completeness for a target is checked over the whole set of incoming bindings rather than separately on each source edge. Correct composition may admit incomplete intermediate assembly; build must refuse incomplete final graph. Direct standalone strict pair linker behavior is separate.",
+  "authorization": "Root explicitly approved successor test-only oracle change in current task; retain original6a62/initial049 evidence and publish changed input separately.",
+  "execution_status": "NOT_RUN; awaiting author immutable production freeze and own admitted append-only merge, with exact actual target/source environment binding before replay.",
+  "counts": "Same15collected semantic cases as final original6a62; no new product result, closure, or inherited pass claimed.",
+  "closure_ids": [],
+  "created_at": "2026-10-06T12:15:01.649791+00:00",
+  "criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md",
+    "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "line": 90,
+    "text": "Для multi-source DAG полноту проверять по всем входным привязкам, а не требовать, чтобы каждое отдельное ребро снабжало все входы."
+  }
+}

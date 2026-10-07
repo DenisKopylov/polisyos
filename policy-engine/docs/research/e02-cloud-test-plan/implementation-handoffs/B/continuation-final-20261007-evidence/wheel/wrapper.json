@@ -1,0 +1,49 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+    "--source-root",
+    "/workspace/e02-B-current-coordination/policy-engine",
+    "--source-sha",
+    "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "--test-path",
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+    "--test-sha256",
+    "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+    "--consumer-sha256",
+    "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+    "--task-root",
+    "/tmp/e02-B-continuation-wheel-6fa9b7142ba5",
+    "--python",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "--uv",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "head_after": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "wall_s": 10.798878486006288,
+  "process_rusage_maxrss_kib": 50032,
+  "exit_code": 0,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-wheel.txt",
+  "output_sha256": "308ad1ec828eab96cad894d8b9e3c450fc3b4caed9de19ab1d0dce919e02e604",
+  "source_environment": {
+    "PYTHONPATH": null,
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": null,
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

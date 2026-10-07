@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
@@ -19,7 +20,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
 )
 
-from ._chain import ChainArtifact
+from ._chain import ChainArtifact, CompiledChainPlan
 from ._evidence import ExecutionEvidence, _to_artifact_id
 from ._fingerprint import (
     ARTIFACTS_VERSION,
@@ -33,6 +34,9 @@ from ._records import ChainNodeRecord, DeviceInfo, MethodTiming, SlotBindingReco
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
 
+    from ..components.composer import CompiledMethodChain
+    from ..selection.registry import MethodRegistry
+
 __version__ = ARTIFACTS_VERSION
 logger = get_logger(__name__)
 
@@ -40,6 +44,7 @@ logger = get_logger(__name__)
 __all__ = [
     "ChainArtifact",
     "ChainNodeRecord",
+    "CompiledChainPlan",
     "DeviceInfo",
     "ExecutionEvidence",
     "MethodArtifact",
@@ -48,6 +53,8 @@ __all__ = [
     "SourceFingerprint",
     "compute_source_fingerprint",
     "compute_source_hash",
+    "load_compiled_chain_plan",
+    "store_compiled_chain_plan",
     "store_chain_artifact",
     "store_execution_evidence",
     "store_method_artifact",
@@ -107,6 +114,64 @@ def store_chain_artifact(
             ],
         ),
     )
+
+
+def store_compiled_chain_plan(
+    cas: FileSystemCAS,
+    plan: CompiledChainPlan,
+) -> ArtifactRef:
+    """Persist one cold executable plan through the normal guarded CAS writer."""
+    from polisyos.core.artifacts.store import PutOptions
+
+    ref = cas.put_bytes(
+        plan.to_canonical_bytes(),
+        PutOptions(
+            kind="foundry.compiled_chain_plan",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.foundry.compiled_chain_plan",
+                version=CompiledChainPlan.SCHEMA_VERSION,
+            ),
+            producer=ProducerInfo(component="foundry.artifacts", version=__version__),
+        ),
+    )
+    manifest = cas.get_manifest(ref)
+    return ArtifactRef(
+        artifact_id=ref.artifact_id,
+        kind=ref.kind,
+        media_type=ref.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+    )
+
+
+def load_compiled_chain_plan(
+    cas: FileSystemCAS,
+    ref: ArtifactRef,
+    *,
+    registry: MethodRegistry | None = None,
+) -> CompiledMethodChain:
+    """Guard-read a selected plan view and rebuild its current cold chain.
+
+    The exact reference is retained for both public CAS reads. Its manifest and
+    blob verification grant no authority over method code or execution policy.
+    """
+    if (
+        not isinstance(ref, ArtifactRef)
+        or ref.kind != "foundry.compiled_chain_plan"
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+    manifest = cas.get_manifest(ref)
+    schema = manifest.artifact_schema
+    if (
+        schema is None
+        or schema.name != "polisyos.foundry.compiled_chain_plan"
+        or schema.version != CompiledChainPlan.SCHEMA_VERSION
+    ):
+        raise ValueError("Compiled plan manifest schema mismatch")
+    content = cas.get_bytes(ref)
+    return CompiledChainPlan.from_canonical_bytes(content).to_chain(registry=registry)
 
 
 def store_execution_evidence(

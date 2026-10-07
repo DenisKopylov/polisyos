@@ -1,0 +1,495 @@
+{
+  "kind": "checkpoint_literal_surface_git_ast_census",
+  "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "command": "/workspace/polisyos/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+  "cwd": "/workspace/e02-B-current-runtime",
+  "interpreter": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "denominator": {
+    "complete_tracked_python_paths": 6602,
+    "literal_hook_token_matching_files": 16,
+    "parsed_matching_files": 16,
+    "matching_definitions": 20,
+    "literal_direct_calls_or_getattr_hooks": 28
+  },
+  "matched_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+      "bytes": 3207,
+      "sha256": "cec9977c3949b79a72714f46f69ab09555953d74ab82434965203b450bf1d6f4",
+      "git_blob": "32cf098aada27567ac828063ce316b8b4b6e8bf0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+      "bytes": 6096,
+      "sha256": "7bafee7e503bc1ca60e9820664c18e79d9ac4a2b1e6409fc59ff82f3afe8f003",
+      "git_blob": "e3584c84f4711b7e1c676f0bc5bb2c0b13607cb2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+      "bytes": 3207,
+      "sha256": "9820e1e78b5c8b16b2f0b199af56762ee2787d2719e1617379f1aa9ec8969db1",
+      "git_blob": "45735da66e46883eca7b3a116446f17abf25840a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "bytes": 102653,
+      "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+      "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "bytes": 87102,
+      "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21",
+      "git_blob": "a6a5b6cb483abe855225bdbf3860ef8475a7134a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "bytes": 77010,
+      "sha256": "7dd103dcaf4deed17d3f5612d96f3b0283991096922518cbf929bd91e3e6c520",
+      "git_blob": "abcede045da1496a8338f8206f960b0a06155709"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/distributed_tier.py",
+      "bytes": 12654,
+      "sha256": "794a7aec8002275d486ea2022f0a020d48981be2ed8e44705523bc56dbb8364f",
+      "git_blob": "287035cb935b873f5fd66e6c40f44bff09436aaf"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "bytes": 68820,
+      "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2",
+      "git_blob": "82a92d8923e0db8ec8717b410f74cb42591e5451"
+    },
+    {
+      "path": "policy-engine/tests/performance/test_scientist_runtime_paths.py",
+      "bytes": 17331,
+      "sha256": "b7658c6cece8b69e65de84ae123eeacea638f101a90fbc21f5995e4dab63c3ea",
+      "git_blob": "26d13a20e2d4b56a92174bdaad3f8ddd2d285b8f"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+      "bytes": 14175,
+      "sha256": "1a8d8c7d305fe66bd8fcf261ec7423be61b37df27354e752152b001ef729d0aa",
+      "git_blob": "3ebec124bf38ea64bf20465cff44501795281fe2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+      "bytes": 24213,
+      "sha256": "4322bf9c7d8f2f994783fc9d312934f9b9dac454bc9922e2ab0d480f42685293",
+      "git_blob": "180e4cd1d503cfe4f6465d8f1ec5ad6ee245f623"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "bytes": 20275,
+      "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+      "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "bytes": 33109,
+      "sha256": "1e06eddf3a53bb96da51b5b233e8a5eb3421886585c114c36fcc8d29b122620c",
+      "git_blob": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py",
+      "bytes": 13876,
+      "sha256": "6ab236b2adc0cf7880f823dc3a4234b5673d4c221e46e2d97540aaf32e44f437",
+      "git_blob": "a9003256c5146536284f215e5aa237ee255c8d70"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "bytes": 17286,
+      "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+      "git_blob": "58b2fcd7be1be931d3bf12f5481ef3e1490dfe6b"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/core_runtime_long_soak.py",
+      "bytes": 25825,
+      "sha256": "d314d9342a741be519c6a0a14b56b15a265bc4045bc0f381b7498f94f9763703",
+      "git_blob": "4835dd281d9abb781d80c4d5aa477a4734ff9f6e"
+    }
+  ],
+  "definitions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+      "line": 23,
+      "end_line": 31,
+      "qualname": "probe.Hook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+      "line": 38,
+      "end_line": 43,
+      "qualname": "probe.Hook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+      "line": 23,
+      "end_line": 31,
+      "qualname": "probe.Hook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 336,
+      "end_line": 346,
+      "qualname": "CheckpointHook.on_node_complete",
+      "async": false,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_ref: ArtifactRef | None",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 348,
+      "end_line": 358,
+      "qualname": "CheckpointHook.on_tier_complete",
+      "async": false,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_refs: list[ArtifactRef]",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 364,
+      "end_line": 374,
+      "qualname": "AsyncCheckpointHook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_ref: ArtifactRef | None",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 376,
+      "end_line": 386,
+      "qualname": "AsyncCheckpointHook.on_tier_complete_async",
+      "async": true,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_refs: list[ArtifactRef]",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 896,
+      "end_line": 916,
+      "qualname": "CASCheckpointHook.on_node_complete",
+      "async": false,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_ref: ArtifactRef | None",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 935,
+      "end_line": 982,
+      "qualname": "CASCheckpointHook.on_tier_complete",
+      "async": false,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_refs: list[ArtifactRef]",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 984,
+      "end_line": 1004,
+      "qualname": "CASCheckpointHook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_ref: ArtifactRef | None",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 1006,
+      "end_line": 1054,
+      "qualname": "CASCheckpointHook.on_tier_complete_async",
+      "async": true,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_refs: list[ArtifactRef]",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "line": 661,
+      "end_line": 681,
+      "qualname": "_StopAfterTierCheckpoint.on_tier_complete_async",
+      "async": true,
+      "arguments": "self, *, state: ExperimentState, alias: str, node_id: str, completed_nodes: list[str], workflow_id: str, workflow_fingerprint: str, cache_entry_refs: list[ArtifactRef]",
+      "accepts_arbitrary_kwargs": false
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "line": 691,
+      "end_line": 693,
+      "qualname": "_NodeOnlyCASCheckpointHook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs: Any",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+      "line": 55,
+      "end_line": 56,
+      "qualname": "_RecordingCheckpointHook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs: Any",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+      "line": 58,
+      "end_line": 59,
+      "qualname": "_RecordingCheckpointHook.on_tier_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs: Any",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+      "line": 67,
+      "end_line": 76,
+      "qualname": "_AsyncOnlyLegacyCheckpointHook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs: Any",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+      "line": 175,
+      "end_line": 179,
+      "qualname": "_TierCheckpointRecorder.on_tier_complete",
+      "async": false,
+      "arguments": "self, **kwargs",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+      "line": 181,
+      "end_line": 183,
+      "qualname": "_TierCheckpointRecorder.on_node_complete",
+      "async": false,
+      "arguments": "self, **kwargs",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "line": 431,
+      "end_line": 437,
+      "qualname": "test_startup_and_body_share_one_absolute_workflow_deadline.DelayedCheckpointHook.on_tier_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs",
+      "accepts_arbitrary_kwargs": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "line": 396,
+      "end_line": 404,
+      "qualname": "test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication.SuppressingHook.on_node_complete_async",
+      "async": true,
+      "arguments": "self, **kwargs",
+      "accepts_arbitrary_kwargs": true
+    }
+  ],
+  "calls": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "line": 2075,
+      "end_line": 2075,
+      "scope": "AsyncWorkflowExecutor._handle_tier_checkpoint",
+      "expression": "getattr(self._checkpoint_hook, 'on_tier_complete_async', None)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "line": 2076,
+      "end_line": 2076,
+      "scope": "AsyncWorkflowExecutor._handle_tier_checkpoint",
+      "expression": "getattr(self._checkpoint_hook, 'on_tier_complete', None)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "line": 2152,
+      "end_line": 2152,
+      "scope": "AsyncWorkflowExecutor._require_atomic_tier_checkpoint",
+      "expression": "getattr(self._checkpoint_hook, 'on_tier_complete_async', None)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "line": 2154,
+      "end_line": 2154,
+      "scope": "AsyncWorkflowExecutor._require_atomic_tier_checkpoint",
+      "expression": "getattr(self._checkpoint_hook, 'on_tier_complete', None)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "line": 2172,
+      "end_line": 2172,
+      "scope": "AsyncWorkflowExecutor._handle_checkpoint",
+      "expression": "getattr(self._checkpoint_hook, 'on_node_complete_async', None)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 908,
+      "end_line": 916,
+      "scope": "CASCheckpointHook.on_node_complete",
+      "expression": "self.on_tier_complete(state=state, alias=alias, node_id=node_id, completed_nodes=completed_nodes, workflow_id=workflow_id, workflow_fingerprint=workflow_fingerprint, cache_entry_refs=[cache_entry_ref] if cache_entry_ref is not None else [])"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 996,
+      "end_line": 1004,
+      "scope": "CASCheckpointHook.on_node_complete_async",
+      "expression": "self.on_tier_complete_async(state=state, alias=alias, node_id=node_id, completed_nodes=completed_nodes, workflow_id=workflow_id, workflow_fingerprint=workflow_fingerprint, cache_entry_refs=[cache_entry_ref] if cache_entry_ref is not None else [])"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "line": 1661,
+      "end_line": 1669,
+      "scope": "WorkflowExecutor.execute",
+      "expression": "self._checkpoint_hook.on_node_complete(state=state, alias=alias, node_id=node_id, completed_nodes=list(completed_nodes), workflow_id=workflow.workflow_id, workflow_fingerprint=workflow_fingerprint, cache_entry_ref=cache_entry_ref)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/distributed_tier.py",
+      "line": 264,
+      "end_line": 264,
+      "scope": "merge_and_checkpoint_tier",
+      "expression": "getattr(checkpoint_hook, 'on_tier_complete', None)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/distributed_tier.py",
+      "line": 282,
+      "end_line": 282,
+      "scope": "merge_and_checkpoint_tier",
+      "expression": "getattr(checkpoint_hook, 'on_node_complete', None)"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "line": 672,
+      "end_line": 680,
+      "scope": "_StopAfterTierCheckpoint.on_tier_complete_async",
+      "expression": "super().on_tier_complete_async(state=state, alias=alias, node_id=node_id, completed_nodes=completed_nodes, workflow_id=workflow_id, workflow_fingerprint=workflow_fingerprint, cache_entry_refs=cache_entry_refs)"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "line": 693,
+      "end_line": 693,
+      "scope": "_NodeOnlyCASCheckpointHook.on_node_complete_async",
+      "expression": "self._delegate.on_node_complete_async(**kwargs)"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "line": 1012,
+      "end_line": 1020,
+      "scope": "_seed_parallel_checkpoint",
+      "expression": "hook.on_node_complete(state=seeded.state, alias='seed', node_id=str(workflow.nodes[0].node_id), completed_nodes=['seed'], workflow_id=workflow.workflow_id, workflow_fingerprint=compute_workflow_fingerprint(workflow), cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/performance/test_scientist_runtime_paths.py",
+      "line": 161,
+      "end_line": 171,
+      "scope": "test_scientist_async_checkpoint_io_hot_path._write_checkpoint_async._exercise",
+      "expression": "hook.on_node_complete_async(state=state.model_copy(update={'params': {**state.params, 'step': index, 'phase': 'SIMULATION'}}), alias=f'async_{index}', node_id=f'scientist.node_async_{index}@1.0.0', completed_nodes=[f'async_{item}' for item in range(index + 1)], workflow_id='scientist_benchmark', workflow_fingerprint='a' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/performance/test_scientist_runtime_paths.py",
+      "line": 190,
+      "end_line": 200,
+      "scope": "test_scientist_async_checkpoint_io_soak_smoke._exercise",
+      "expression": "hook.on_node_complete_async(state=state.model_copy(update={'params': {**state.params, 'step': index, 'phase': 'SIMULATION'}}), alias=f'async_soak_{index}', node_id=f'scientist.node_async_soak_{index}@1.0.0', completed_nodes=[f'async_soak_{item}' for item in range(index + 1)], workflow_id='scientist_benchmark', workflow_fingerprint='b' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/performance/test_scientist_runtime_paths.py",
+      "line": 222,
+      "end_line": 232,
+      "scope": "test_scientist_async_checkpoint_restore_cycle_soak_smoke._exercise",
+      "expression": "current_hook.on_node_complete_async(state=state.model_copy(update={'params': {**state.params, 'step': index, 'phase': 'SIMULATION'}}), alias=f'restore_soak_{index}', node_id=f'scientist.node_restore_soak_{index}@1.0.0', completed_nodes=[f'restore_soak_{item}' for item in range(index + 1)], workflow_id='scientist_benchmark', workflow_fingerprint='c' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/performance/test_scientist_runtime_paths.py",
+      "line": 262,
+      "end_line": 281,
+      "scope": "test_scientist_async_checkpoint_concurrent_restore_cycle_long_soak_smoke._exercise_run",
+      "expression": "current_hook.on_node_complete_async(state=state.model_copy(update={'params': {**state.params, 'step': index, 'phase': 'SIMULATION', 'run_index': run_index}}), alias=f'concurrent_restore_{run_index}_{index}', node_id=f'scientist.node_concurrent_restore_{run_index}_{index}@1.0.0', completed_nodes=[f'concurrent_restore_{run_index}_{item}' for item in range(index + 1)], workflow_id='scientist_benchmark', workflow_fingerprint=f'{run_index:x}'.rjust(64, 'd'), cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+      "line": 178,
+      "end_line": 178,
+      "scope": "_TierCheckpointRecorder.on_tier_complete",
+      "expression": "self._delegate.on_tier_complete(**kwargs)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "line": 437,
+      "end_line": 437,
+      "scope": "test_startup_and_body_share_one_absolute_workflow_deadline.DelayedCheckpointHook.on_tier_complete_async",
+      "expression": "super().on_tier_complete_async(**kwargs)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "line": 208,
+      "end_line": 216,
+      "scope": "test_checkpoint_hook_async_repeated_writes_soak_smoke._exercise",
+      "expression": "hook.on_node_complete_async(state=state, alias=f'step_{index}', node_id=f'scientist.node_step_{index}@1.0.0', completed_nodes=[f'step_{item}' for item in range(index + 1)], workflow_id='wf_checkpoint', workflow_fingerprint='b' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "line": 589,
+      "end_line": 597,
+      "scope": "test_checkpoint_hook_disabled_by_policy",
+      "expression": "hook.on_node_complete(state=ExperimentState(run_id='R_off'), alias='start', node_id='scientist.node_noop@1.0.0', completed_nodes=['start'], workflow_id='wf_checkpoint', workflow_fingerprint='c' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "line": 622,
+      "end_line": 630,
+      "scope": "test_checkpoint_hook_gc_failure_does_not_rollback_commit_bookkeeping",
+      "expression": "hook.on_node_complete(state=ExperimentState(run_id=run_id, params={'phase': 'PLAN', 'step': 1}), alias='step1', node_id='scientist.node_step_one@1.0.0', completed_nodes=['step1'], workflow_id='wf_checkpoint', workflow_fingerprint='e' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "line": 631,
+      "end_line": 639,
+      "scope": "test_checkpoint_hook_gc_failure_does_not_rollback_commit_bookkeeping",
+      "expression": "hook.on_node_complete(state=ExperimentState(run_id=run_id, params={'phase': 'EXECUTE', 'step': 2}), alias='step2', node_id='scientist.node_step_two@1.0.0', completed_nodes=['step1', 'step2'], workflow_id='wf_checkpoint', workflow_fingerprint='e' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "line": 667,
+      "end_line": 675,
+      "scope": "test_checkpoint_hook_runtime_metadata_roundtrip_preserves_sequence",
+      "expression": "hook.on_node_complete(state=ExperimentState(run_id=run_id, params={'phase': 'PLAN', 'step': 1}), alias='step1', node_id='scientist.node_step_one@1.0.0', completed_nodes=['step1'], workflow_id='wf_checkpoint', workflow_fingerprint='f' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "line": 690,
+      "end_line": 698,
+      "scope": "test_checkpoint_hook_runtime_metadata_roundtrip_preserves_sequence",
+      "expression": "restored.on_node_complete(state=ExperimentState(run_id=run_id, params={'phase': 'EXECUTE', 'step': 2}), alias='step2', node_id='scientist.node_step_two@1.0.0', completed_nodes=['step1', 'step2'], workflow_id='wf_checkpoint', workflow_fingerprint='f' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "line": 773,
+      "end_line": 781,
+      "scope": "test_checkpoint_hook_async_path_uses_async_artifact_store_adapter",
+      "expression": "hook.on_node_complete_async(state=state, alias='start', node_id='scientist.node_noop@1.0.0', completed_nodes=['start'], workflow_id='wf_checkpoint', workflow_fingerprint='f' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py",
+      "line": 312,
+      "end_line": 323,
+      "scope": "test_bounded_retention_operational_signal",
+      "expression": "hook.on_node_complete(state=ExperimentState(run_id=run_id, params={'phase': 'EXECUTE', 'step': index}), alias=f'step_{index}', node_id=f'scientist.step_{index}@1.0.0', completed_nodes=[f'step_{item}' for item in range(index + 1)], workflow_id='wf_bounded_retention', workflow_fingerprint='f' * 64, cache_entry_ref=None)"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/core_runtime_long_soak.py",
+      "line": 452,
+      "end_line": 460,
+      "scope": "_checkpoint_long_soak._exercise",
+      "expression": "current_hook.on_node_complete_async(state=_build_benchmark_state(index), alias=f'async_checkpoint_{index}', node_id=f'scientist.node_async_checkpoint_{index}@1.0.0', completed_nodes=[f'async_checkpoint_{item}' for item in range(index + 1)], workflow_id='scientist_benchmark', workflow_fingerprint='e' * 64, cache_entry_ref=None)"
+    }
+  ],
+  "parse_errors": [],
+  "scope": "Complete declared tracked Python filename corpus and literal hook surface; not an external distribution, computed method lookup, dynamic third-party implementation or runtime reachability proof. Files without a literal hook token are not AST-parsed; signature compatibility is bounded by the declared Protocol rather than inferred from zero external matches."
+}

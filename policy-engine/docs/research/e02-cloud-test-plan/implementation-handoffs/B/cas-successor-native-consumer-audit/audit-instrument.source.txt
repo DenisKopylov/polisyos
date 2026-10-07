@@ -1,0 +1,277 @@
+"""Read-only source/input/native observation reconciliation; never executes pytest."""
+
+import argparse
+import ast
+import collections
+import datetime
+import hashlib
+import json
+import os
+import platform
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+OWN = Path('/workspace/e02-B-current-cas-generation')
+SHA = 'dd9584728bd96f204983615216efdbc58117e713'
+TREE = '7bf4be4a117762c8d37d4babcc214a2b28c2113e'
+RAW = ROOT / '.polisyos/e02-B-current/raw'
+NATIVE = Path('/tmp/e02-B-successor-final/raw/review')
+INV = RAW / 'review/successor-final-B-cohort-inventory.json'
+PROFILE = NATIVE / 'successor-final-B-cohort-profile.json'
+SELECTOR = RAW / 'successor-final-selector.json'
+STDOUT = RAW / 'review/successor-final-B-cohort.txt'
+XML = NATIVE / 'successor-final-B-cohort.xml'
+
+EXTERNAL = {
+ 'tests/unit/runtime/quality/test_chronology_proof.py': 'B150/B152 actual chronology reader and selected-profile consumers',
+ 'tests/unit/foundry/methods/backends/test_checkpoint_identity.py': 'CMP-owned exact ref/profile checkpoint consumer; no automatic CAS closure',
+ 'tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py': 'EXE-owned cache/ref custody consumer; no automatic CAS closure',
+ 'tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py': 'EXE-owned actual required-artifact resume/read consumer',
+ 'tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py': 'HTTP artifact admission facade consumer',
+ 'tests/unit/runtime/http/test_artifact_inspector_api.py': 'HTTP actual manifest/content/lineage consumer',
+ 'tests/unit/runtime/http/test_artifact_inspector_service.py': 'HTTP preview/redaction consumer',
+ 'tests/unit/runtime/http/test_artifact_surface_safety.py': 'HTTP governed raw/manifest/export consumer',
+ 'tests/unit/runtime/http/test_depth_n_route_projection_artifact.py': 'HTTP route projection artifact consumer',
+ 'tests/unit/runtime/http/test_runtime_authorization_access_audit.py': 'A-owned human-decision authority producer and audit receipt consumer; exact cell mismatch preserved',
+ 'tests/unit/runtime/http/test_served_unknown_target_scope.py': 'HTTP served scope fail-closed consumer',
+}
+SOURCE_PATHS = [
+ 'policy-engine/src/polisyos/core/artifacts/store.py',
+ 'policy-engine/src/polisyos/core/artifacts/_integrity_ops.py',
+ 'policy-engine/src/polisyos/core/artifacts/_signature_ops.py',
+ 'policy-engine/src/polisyos/core/artifacts/_transfer_ops.py',
+ 'policy-engine/src/polisyos/core/artifacts/signing.py',
+ 'policy-engine/src/polisyos/core/artifacts/ownership.py',
+ 'policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py',
+ 'policy-engine/src/polisyos/core/artifacts/backends/caching_store.py',
+ 'policy-engine/src/polisyos/core/components/_cli_crypto.py',
+ 'policy-engine/src/polisyos/core/contracts/chronology.py',
+ 'policy-engine/src/polisyos/runtime/quality/chronology_proof.py',
+ 'policy-engine/src/polisyos/runtime/http/access_audit.py',
+ 'policy-engine/src/polisyos/runtime/http/services/control/artifacts.py',
+ 'policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py',
+ 'policy-engine/src/polisyos/runtime/quality/generation_cycle.py',
+]
+
+
+def sha256(b):
+ return hashlib.sha256(b).hexdigest()
+
+
+def git(*argv, cwd=ROOT):
+ return subprocess.check_output(['git', *argv], cwd=cwd)
+
+
+def ident_bytes(b):
+ return {'bytes': len(b), 'sha256': sha256(b)}
+
+
+def source(path):
+ b = git('show', SHA + ':' + path)
+ return b, {'source_sha': SHA, 'path': path, 'git_blob': git('rev-parse', SHA + ':' + path).decode().strip(), **ident_bytes(b)}
+
+
+def artifact(path):
+ if not path.exists():
+  return {'path': str(path), 'state': 'absent'}
+ with path.open('rb') as f:
+  before = os.fstat(f.fileno())
+  b = f.read()
+  after = os.fstat(f.fileno())
+ return {'path': str(path), **ident_bytes(b), 'stable_size_mtime_during_read': (before.st_size, before.st_mtime_ns) == (after.st_size, after.st_mtime_ns)}
+
+
+def central(path):
+ return path.startswith(('tests/unit/core/artifacts/', 'tests/unit/core/phase0/', 'tests/unit/remediation/test_cas_'))
+
+
+def tags(path, name):
+ out=[]
+ if path.endswith('test_import_admission_noop.py') or path.endswith('test_multi_tenant_shared_cas.py'):
+  out.append('B148')
+ if path.endswith('test_transfer_generation_publication.py'):
+  out.append('B148' if 'import_archive_binds' in name else 'B149')
+ if path.endswith('test_put_integrity_retry.py') or path.endswith('test_put_consumer_oracle.py'):
+  out.append('B151')
+ if path.endswith(('test_verification_failure_snapshot_report.py','test_verification_snapshot_report.py','test_cas_integrity_report.py','test_signed_evidence.py')):
+  out.append('B152')
+ if path.endswith('test_caching_write_through_exact_bytes.py') or path.endswith('backends/test_caching_store.py'):
+  out.append('B150')
+ if path.endswith('test_cas_01.py'):
+  if name in {'test_concurrent_writers_publish_only_the_persisted_first_writer_profile','test_exception_releases_same_id_lock_for_scoped_view_waiter','test_lock_registry_is_bounded_without_evicting_active_waiters','test_colliding_lock_stripe_keeps_distinct_cas_bytes_and_manifests'}:
+   out.append('B153')
+  elif name == 'test_existing_corrupt_blob_is_not_confirmed_by_successful_retry':
+   out.append('B151')
+  else:
+   out.append('B150')
+ if path.endswith('test_cas_02.py'):
+  out.append('B149' if 'directory_export' in name else 'B148')
+ if path.endswith('test_cas_03.py'):
+  if name.startswith('test_verify_signature_'):
+   out.append('B152')
+  elif any(k in name for k in ('window','cancel','generator','source','inventory','default_batch','foreign_tenant','unique_default')):
+   out.extend(['B154','B155'])
+  else:
+   out.append('B154')
+ if path.endswith('test_batch_completion_admission.py'):
+  out.append('B154')
+  if any(k in name for k in ('cancel','deadline','census','pending','duplicate','intake','late_real_signer')):
+   out.append('B155')
+ if path.endswith('test_artifact_store.py') and name in {'test_corruption_detection','test_get_bytes_raises_typed_integrity_error_on_corruption'}:
+  out.append('B152')
+ if path.endswith('test_artifact_store.py') and name == 'test_concurrent_put_creates_single_valid_manifest':
+  out.append('B153')
+ if path.endswith(('test_signing.py','test_store_signing.py','test_cli_signing.py')):
+  out.append('B152')
+ if path.endswith('test_chronology_proof.py'):
+  if any(k in name for k in ('corrupt','relo','raw_bytes','verifier')):
+   out.append('B152')
+  if any(k in name for k in ('manifest','first_writer','selected')):
+   out.append('B150')
+ return sorted(set(out))
+
+
+def xml_key(item):
+ path=item['location'][0]
+ tail=item['nodeid'].removeprefix(path+'::')
+ base, bracket, parameter=tail.partition('[')
+ parts=base.split('::')
+ classname=path.removesuffix('.py').replace('/', '.')
+ if len(parts)>1:
+  classname+='.'+'.'.join(parts[:-1])
+ return classname, parts[-1]+bracket+parameter
+
+
+def observed(phases):
+ if any(p['outcome']=='failed' for p in phases if p['when'] in {'setup','teardown'}):
+  return 'ERROR'
+ call=[p for p in phases if p['when']=='call']
+ if call:
+  cls=call[-1].get('classification',call[-1]['outcome'])
+  return {'passed':'PASS','failed':'FAIL','skipped':'SKIP','xfail':'XFAIL','xpass':'XPASS','strict_xpass':'STRICT_XPASS'}.get(cls, 'UNCLASSIFIED')
+ if any(p['outcome']=='skipped' for p in phases):
+  return 'SKIP'
+ return 'UNRUN'
+
+
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('--require-terminal',action='store_true');args=parser.parse_args()
+ profile=json.loads(PROFILE.read_bytes()); inv=json.loads(INV.read_bytes()); selector=json.loads(SELECTOR.read_bytes())
+ assert profile['sha']==SHA and profile['tree']==TREE
+ assert inv['git_at_start']['head']==SHA and inv['git_at_start']['tree']==TREE and not inv['git_at_start']['tracked_status']
+ assert selector['root_snapshot_sha']==SHA and selector['root_snapshot_tree']==TREE
+ assert sha256(SELECTOR.read_bytes())==profile['inputs']['selector_sha256']
+ assert git('rev-parse',SHA+'^{tree}').decode().strip()==TREE
+ test_paths=profile['inputs']['test_paths'];assert test_paths==selector['test_paths']
+ assert set(inv['selectors'])==set(test_paths)
+ args_path=Path(next(a[1:] for a in profile['argv'] if a.startswith('@')))
+ assert args_path.read_text().splitlines()==test_paths
+ launcher_path=Path(profile['launcher_path']).relative_to(ROOT).as_posix()
+ launcher, launcher_ref=source(launcher_path)
+ assert sha256(launcher)==profile['launcher_sha256']
+ observer_path='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py'
+ observer, observer_ref=source(observer_path)
+ loaded_observer=ROOT/'.polisyos/e02-B-current/tools/current_cohort_inventory.py'
+ assert loaded_observer.read_bytes()==observer
+ identities={r['path']:r for r in selector['candidate_whole_file_identities']}
+ all_inputs_verified=[]
+ for path in test_paths:
+  b,ref=source('policy-engine/'+path); expected=identities[ref['path']]
+  assert all(ref[k]==expected[k] for k in ['git_blob','bytes','sha256'])
+  all_inputs_verified.append(ref)
+ relevant=[v for v in inv['session_items_before_execution'] if central(v['location'][0]) or v['location'][0] in EXTERNAL]
+ phases=collections.defaultdict(list)
+ for p in inv['runtime_phase_reports']: phases[p['nodeid']].append(p)
+ terminal=inv['state']=='session_finished'
+ if args.require_terminal: assert terminal, 'Native inventory still not terminal'
+ junit=collections.defaultdict(list)
+ if terminal:
+  assert XML.exists()
+  for x in ET.parse(XML).iter('testcase'):
+   junit[x.attrib['classname'],x.attrib['name']].append(x)
+ prefix=[]
+ for line in STDOUT.read_text(errors='replace').splitlines():
+  m=re.match(r'^(tests/.+)\s+(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)(?:\s+\[.*\])?$',line)
+  if m:prefix.append((m[1],m[2]))
+ prefixdict=collections.defaultdict(list)
+ for node,status in prefix:prefixdict[node].append(status)
+ cases=[];test_blocks={}; failures=[]
+ for item in relevant:
+  path=item['location'][0];name=item['originalname']
+  if path not in test_blocks:
+   b,ref=source('policy-engine/'+path);text=b.decode();lines=text.splitlines(keepends=True);blocks={}
+   for node in ast.walk(ast.parse(text)):
+    if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)) and node.name.startswith('test_'):
+     begin=min([node.lineno]+[d.lineno for d in node.decorator_list]);end=node.end_lineno
+     blocks.setdefault(node.name,[]).append({'line_begin':begin,'line_end':end,'block_sha256':sha256(''.join(lines[begin-1:end]).encode())})
+   test_blocks[path]={'source':ref,'functions':blocks}
+  ps=phases.get(item['nodeid'],[]);result=observed(ps) if terminal else 'NOT_TERMINAL'
+  function_blocks=[b for b in test_blocks[path]['functions'].get(name,[]) if b['line_begin']<=item['location'][1]+1<=b['line_end']]
+  assert len(function_blocks)==1, ('Ambiguous native test function source',item['nodeid'],item['location'],function_blocks)
+  row={'nodeid':item['nodeid'],'file':path,'originalname':name,'native_location':item['location'],'findings_property_map_only':tags(path,name),'scope':'central_whole_file_compatibility' if central(path) else EXTERNAL[path], 'status':result,'body_entered':any(p['when']=='call' for p in ps) if terminal else 'not_yet_observed_by_final_inventory','phases':[{k:p.get(k) for k in ('when','outcome','classification','duration','longrepr_sha256','longrepr_utf8_bytes')} for p in ps], 'prefix_display_only':prefixdict.get(item['nodeid'],[]),'test_function_source':function_blocks[0]}
+  if terminal:
+   xs=junit[xml_key(item)];assert xs, ('JUnit missing',item['nodeid'],xml_key(item))
+   row['junit']=[{'classname':x.attrib['classname'],'name':x.attrib['name'],'time':x.attrib.get('time'),'failures':len(x.findall('failure')),'errors':len(x.findall('error')),'skips':len(x.findall('skipped'))} for x in xs]
+   if result not in {'PASS','SKIP','XFAIL'}:
+    failures.append({'nodeid':item['nodeid'],'status':result,'body_entered':row['body_entered'],'diagnostics':[{'kind':n.tag,'message':n.attrib.get('message'),'text':n.text,'sha256':sha256((n.text or '').encode())} for x in xs for n in x if n.tag in {'failure','error','skipped'}]})
+  cases.append(row)
+ groups={}
+ for key,predicate in {'central':lambda p:central(p),'artifacts':lambda p:p.startswith('tests/unit/core/artifacts/'),'phase0':lambda p:p.startswith('tests/unit/core/phase0/'),'remediation':lambda p:p.startswith('tests/unit/remediation/test_cas_'),'external_consumers':lambda p:p in EXTERNAL}.items():
+  rows=[r for r in cases if predicate(r['file'])];groups[key]={'files':len({r['file'] for r in rows}),'cases':len(rows),'outcomes':dict(collections.Counter(r['status'] for r in rows))}
+ canonical=[]
+ for r in selector['canonical_cards']:
+  if r['bundle_id'] not in {'CAS-01','CAS-02','CAS-03'}:continue
+  b,ref=source(r['identity']['path']);assert all(ref[k]==r['identity'][k] for k in ['git_blob','bytes','sha256']);canonical.append({'bundle_id':r['bundle_id'],'findings':r['finding_ids'],'source':ref})
+ original_path='policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md'
+ original, original_ref=source(original_path); original_lines=original.decode().splitlines(keepends=True)
+ criteria=[]
+ for r in selector['finding_criterion_refs']:
+  if r['id'] not in {f'B{i}' for i in range(148,156)}:continue
+  for cr in r['criterion_refs']:
+   lo,hi=cr['lines'];block=''.join(original_lines[lo-1:hi]).encode();assert sha256(block)==cr['sha256'];criteria.append({**r,'source':original_ref})
+ source_refs=[source(p)[1] for p in SOURCE_PATHS]
+ source_refs.append(source('policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md')[1])
+ native_origins=[]
+ if terminal:
+  finish=inv['git_at_finish']
+  assert finish['head']==SHA and finish['tree']==TREE and not finish['tracked_status']
+  origins=inv['module_origin_snapshot']
+  assert origins['loaded_instrument_source_git_byte_match'] is True
+  bypath={v['repository_path']:v for v in origins['observed_file_backends'] if v.get('repository_path')}
+  for ref in source_refs:
+   if not ref['path'].endswith('.py'):continue
+   v=bypath.get(ref['path'])
+   if v is not None:
+    assert v['source_git_byte_match'] is True
+    assert v['expected_git_blob_oid']==ref['git_blob']
+   native_origins.append({'source':ref,'origin_observed':v is not None,'observed_file_backend':v})
+ result={
+  'schema':'policyos.e02.cas_actual_native_consumer_audit.v1',
+  'created_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+  'role':'CAS author source/input/actual-case data audit; independent code reviewers remain CMP965744 and RUNa243ed',
+  'source_sha':SHA,'source_tree':TREE,'own_actual_head':git('rev-parse','HEAD',cwd=OWN).decode().strip(),
+  'environment':{'executable':sys.executable,'python':sys.version,'platform':platform.platform()},
+  'native_state':inv['state'],'terminal_adjudication':terminal,
+  'artifacts':{k:artifact(p) for k,p in {'profile':PROFILE,'inventory':INV,'selector':SELECTOR,'stdout':STDOUT,'junit':XML,'argument_file':args_path,'literal_instrument':Path(__file__)}.items()},
+  'native_profile':profile,
+  'checks':{'exact_source_tree':True,'profile_observer_selector_source_agree':True,'profile_selector_hash_matches':True,'all_native_whole_file_inputs_verified_git':len(all_inputs_verified),'argument_file_exact_selector_order':True,'literal_launcher_source_sha256_matches':True,'loaded_observer_copy_equals_tracked_source':True,'no_own_pytest_gates_collection':True,'no_private_dsn_read':True},
+  'collection':{'whole_file_selectors':len(test_paths),'actual_session_cases':len(inv['session_items_before_execution']),'unique_nodeids':len({r['nodeid'] for r in inv['session_items_before_execution']}),'collection_failed':inv['counts']['collection_failed'],'deselected':inv['counts']['deselected'],'phase_report_count':len(inv['runtime_phase_reports'])},
+  'groups':groups,'files':[{'file':p,'case_count':sum(r['file']==p for r in cases),'source':v['source']} for p,v in sorted(test_blocks.items())],
+  'canonical_cards':canonical,'criterion_refs':criteria,'baseline_cells_navigation_only':{k:v for k,v in selector['cells_by_finding_navigation_only'].items() if k in {f'B{i}' for i in range(148,156)}},
+  'source_points':source_refs,'literal_native_launcher':launcher_ref,'literal_native_observer':observer_ref,'native_relevant_file_origins':native_origins,'cases':cases,'nonpassed_relevant_cases':failures,
+  'formal_closure_ids':[],
+  'limits':['Prefix PASSED/FAILED status lines do not establish completed phase/JUnit proof.', 'Whole native compatibility files are not 430 unique defining finding controls.', 'External ownership/authority consumers retain their actual owner; no B guard/law relaxation.', 'B148 normative cross-tenant decision remains HELD.', 'B154 real scientific all-signature-confirmations publisher remains consumer_missing; importer integrity gate and CLI do not substitute.', 'No universal runtime/import/service read-set is claimed; observer unresolved_by_construction remains explicit.', 'No product-native or gate replay was performed by this audit author.'],
+  'observer_unresolved_by_construction':inv['unresolved_by_construction'],
+ }
+ if terminal:
+  result['native_git_at_finish']=inv.get('git_at_finish')
+  result['native_finish_keys']=[k for k in inv if k not in {'session_items_before_execution','runtime_phase_reports','collection_reports','module_origin_snapshot'}]
+ print(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False))
+
+
+if __name__ == '__main__':
+ main()

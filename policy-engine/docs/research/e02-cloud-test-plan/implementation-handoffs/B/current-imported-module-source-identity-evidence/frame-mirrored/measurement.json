@@ -1,0 +1,17 @@
+{
+  "original": 7,
+  "unchanged_resume": 7,
+  "before_effects": [
+    "original",
+    "original"
+  ],
+  "refusal": null,
+  "changed_resume": 107,
+  "history_complete": true,
+  "pointer_unchanged": true,
+  "actual_effects": [
+    "original",
+    "original",
+    "replacement"
+  ]
+}

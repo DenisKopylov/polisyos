@@ -1,0 +1,103 @@
+{
+  "scope": "All60 technical per-criterion dispositions; G formal closure and code acceptance remain separate.",
+  "frozen_runtime_source": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "proposal_exact_Git_ref": {
+    "commit": "d1efd64136815a04a96a534e1be8003783f444fe",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json"
+  },
+  "foreign_reviews_exact_Git_refs": [
+    {
+      "commit": "df945de549d9d31ca56c5b3b7fab6a1e29d09361",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent.json"
+    },
+    {
+      "commit": "e6f947151a4837578e5263aca5ab2fd2dab2876d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review.json"
+    }
+  ],
+  "root_review": "All60 complete canonical criterion/manual rows read, with source/tree/env/189 baseline navigation cells and actual independent deciding inputs resolved. Source-reported baseline is never a candidate result.",
+  "states": {
+    "closed": [
+      "B37",
+      "B38",
+      "B39",
+      "B40",
+      "B42",
+      "B43",
+      "B44",
+      "B45",
+      "B46",
+      "B47",
+      "B48",
+      "B49",
+      "B50",
+      "B51",
+      "B52",
+      "B53",
+      "B55",
+      "B57",
+      "B58",
+      "B59",
+      "B60",
+      "B62",
+      "B63",
+      "B64",
+      "B65",
+      "B69",
+      "B70",
+      "B71",
+      "B72",
+      "B73",
+      "B75",
+      "B76",
+      "B77",
+      "B78",
+      "B90",
+      "B91",
+      "B92",
+      "B93",
+      "B94",
+      "B95",
+      "B96",
+      "B149",
+      "B150",
+      "B151",
+      "B152",
+      "B153",
+      "B155",
+      "LA-057"
+    ],
+    "limited": [
+      "B13",
+      "B14",
+      "B24",
+      "B66",
+      "B74",
+      "B89",
+      "B154"
+    ],
+    "held": [
+      "B61",
+      "B67",
+      "B68",
+      "B148"
+    ],
+    "open": [
+      "B87"
+    ]
+  },
+  "state_counts": {
+    "closed": 48,
+    "limited": 7,
+    "held": 4,
+    "open": 1
+  },
+  "formal_closure_ids": [],
+  "code_acceptance": "BLOCKED; latest8 quality6FAIL/1ERROR/1PASS, fullnative250 aborted without finalpartition.",
+  "author_does_not_self_review": "Foreign source/negative/consumer reviews are Git-bound in leaf receipts; CMP foreign14 and CAS foreign15 review outside their own writer families. Root final metadata review is separate from EXE source acceptance.",
+  "manual_rows_single_custody": "Full60 rows remain in referenced immutable DUR proposal; no mixed mutable draft or duplicate large deciding dataset.",
+  "P37": "Finite reconstructed/independently reconciled receipts versus missing institutional law remain explicit per premise.",
+  "P38": "Each full row states real consumer divergence and bounded falsifier; collection/marker/summary never replaces deciding bytes.",
+  "P40": "Repeated scanner resource escape and imported-helper identity have finite boundaries and exact falsifiers; no endless single-case patches.",
+  "P41": "Inherited red not_established without exact slice-base replay and zero full-input overlap; no universal four-base replay or waiver."
+}

@@ -1,0 +1,46 @@
+{
+  "source_merge": "9c989f7877bd25fea38416cbd10d4c8b2511d10e",
+  "code_author": "A source topic; original history retained",
+  "independent_tester": "checks_planner",
+  "reviewers_did_not_author_A_test_or_C_candidate": "true; G numerical harness author is distinct from its document/evidence reviewers",
+  "decisions": [
+    {
+      "reviewer": "ci_admission",
+      "scope": "A exact installed test and evidence code acceptance",
+      "decision": "GO_bounded_no_finding_closure",
+      "local_report_path": "policy-engine/_build/e02-g-continuation-20261006/R/1700-Acompiler-evidence-review.md",
+      "local_report_sha256": "c6a381102167cafa52186bc6b04428b22db5b3bc6df83afd947b6768de97d693",
+      "local_report_availability": "G-only ignored navigation, not remote evidence dependency"
+    },
+    {
+      "reviewer": "git_admission",
+      "scope": "checkpoint11/full deciding pack",
+      "decision": "GO_bounded_no_finding_closure",
+      "local_report_path": "policy-engine/_build/e02-g-continuation-20261006/R/1700-checkpoint11-independent-review.md",
+      "local_report_sha256": "342a0347aa557ad1cb45bcb18dd5085616b6faabe30d53c8f3fb88da0c20d9db",
+      "local_report_availability": "G-only ignored navigation, not remote evidence dependency"
+    },
+    {
+      "reviewer": "input_integrity",
+      "scope": "A/B/C actions, overview; B87 routing delta rechecked",
+      "decision": "GO_bounded_no_finding_closure",
+      "local_report_path": "policy-engine/_build/e02-g-continuation-20261006/1700-ABC-doc-independent-review.md",
+      "local_report_sha256": "f525574fc04b184fc87a8153bfe66f321ab88ae4348d5f71b42651664a531d79",
+      "local_report_availability": "G-only ignored navigation, not remote evidence dependency"
+    },
+    {
+      "reviewer": "risk_backtest",
+      "scope": "D/E/F actions, overview; E prompt/audit and F proposal-label delta rechecked",
+      "decision": "GO_bounded_no_finding_closure",
+      "local_report_path": "policy-engine/_build/e02-g-continuation-20261006/R/1700-DEF-doc-independent-review.md",
+      "local_report_sha256": "a80995d77a10c99a7de1cff5c4718b1b0c09dcf1993b10b27cc863723afa06cb",
+      "local_report_availability": "G-only ignored navigation, not remote evidence dependency"
+    }
+  ],
+  "record_deltas": [
+    "C actions route B87 to canonical streaming writer",
+    "F proposed graph closure distinguished from G ledger",
+    "E prompt and dependent audit narrow blanket nominal-callback veto to original stochastic-law property"
+  ],
+  "findings_closed": []
+}

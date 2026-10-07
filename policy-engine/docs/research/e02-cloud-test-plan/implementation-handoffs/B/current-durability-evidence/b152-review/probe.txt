@@ -1,0 +1,124 @@
+{
+  "target_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+  "tree": "89cb1d0fc34d87b1d72d8fbf94f14fad7eee51e4",
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "store_module": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/core/artifacts/store.py",
+    "quality_consumer": "/workspace/e02-B-current-durability/policy-engine/tools/quality/validation/check_layer3_artifact_surface_safety.py"
+  },
+  "cases": [
+    {
+      "case": "signature retained exact bytes after actual same-size filesystem swap",
+      "status": "valid",
+      "reads": {
+        "blob": 1,
+        "manifest": 1,
+        "signature": 1
+      },
+      "fresh_corrupt_reopen": "ERROR/report ValueError",
+      "manifest_unchanged": true
+    },
+    {
+      "case": "same stored snapshot rechecks current key authority and actual Ed25519 bytes",
+      "statuses": [
+        "valid",
+        "revoked",
+        "untrusted",
+        "invalid_identity",
+        "valid_fresh_trust",
+        "invalid_signature",
+        "valid_restored"
+      ]
+    },
+    {
+      "case": "actual optional snapshot/report port preserves current tenant admission",
+      "positive_owner": "A",
+      "unclaimed_B_snapshot_and_report": "ArtifactOwnershipError"
+    },
+    {
+      "case": "actual quality _build_cas_payload invokes public concrete FileSystemCAS report port",
+      "dedup": {
+        "first_ref": "sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+        "second_ref": "sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+        "same_digest": true
+      },
+      "tamper": {
+        "artifact_ref": "sha256:c17d3ad8cbe7e9c6e3027d506115253e7054ba8d5f3b69c97856f21a8d84ac1b",
+        "result": "rejected:sha256 mismatch"
+      },
+      "gc": {
+        "authority_missing": [],
+        "not_retained": [],
+        "unreferenced_authority_probe": {
+          "artifact_ref": "sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+          "result": "blocked"
+        }
+      },
+      "report_count": 3,
+      "full_reports": [
+        {
+          "artifact_ref": "sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+          "payload_digest": "168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+          "canonicalization_rule_ref": "polisyos.canon.json@0.2.0",
+          "blob_uri": "cas-blob://sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+          "manifest_ref": "cas-manifest://sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+          "authority_manifest_ref": "sha256:73117a8146ce9c6cfa50455e7a3636238b4241d1f61f0b1bec910a1aa583a317",
+          "duplicate_group_id": "sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+          "referrers": [
+            "workspace://gy-f2/168ea4c3ae10"
+          ],
+          "report_index_refs": [
+            "report-index://layer3-gy-f2"
+          ],
+          "lineage_refs": [
+            "lineage://sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2"
+          ],
+          "tamper_probe_result": "verify_passed",
+          "mutation_probe_result": "duplicate_write_same_digest:True",
+          "gc_retain_reason": "authority_referenced_by:report_index,lineage,workspace",
+          "gc_dry_run_result": "retain"
+        },
+        {
+          "artifact_ref": "sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+          "payload_digest": "a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+          "canonicalization_rule_ref": "polisyos.canon.json@0.2.0",
+          "blob_uri": "cas-blob://sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+          "manifest_ref": "cas-manifest://sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+          "authority_manifest_ref": "sha256:25b6e6691d54416f92291a50ac05ed73074bc49fc71c91bb53f53c469df030ea",
+          "duplicate_group_id": "sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+          "referrers": [],
+          "report_index_refs": [],
+          "lineage_refs": [],
+          "tamper_probe_result": "verify_passed",
+          "mutation_probe_result": "immutable_payload_ref",
+          "gc_retain_reason": "authority_missing_referrer",
+          "gc_dry_run_result": "blocked"
+        },
+        {
+          "artifact_ref": "sha256:c17d3ad8cbe7e9c6e3027d506115253e7054ba8d5f3b69c97856f21a8d84ac1b",
+          "payload_digest": "c17d3ad8cbe7e9c6e3027d506115253e7054ba8d5f3b69c97856f21a8d84ac1b",
+          "canonicalization_rule_ref": "polisyos.canon.json@0.2.0",
+          "blob_uri": "cas-blob://sha256:c17d3ad8cbe7e9c6e3027d506115253e7054ba8d5f3b69c97856f21a8d84ac1b",
+          "manifest_ref": "cas-manifest://sha256:c17d3ad8cbe7e9c6e3027d506115253e7054ba8d5f3b69c97856f21a8d84ac1b",
+          "authority_manifest_ref": "sha256:26c50892078e2ca6ade8fb7ef4c4581c22349926b92c6c10060249e8ed62cd30",
+          "duplicate_group_id": "sha256:c17d3ad8cbe7e9c6e3027d506115253e7054ba8d5f3b69c97856f21a8d84ac1b",
+          "referrers": [
+            "workspace://gy-f2/c17d3ad8cbe7"
+          ],
+          "report_index_refs": [
+            "report-index://layer3-gy-f2"
+          ],
+          "lineage_refs": [
+            "lineage://sha256:c17d3ad8cbe7e9c6e3027d506115253e7054ba8d5f3b69c97856f21a8d84ac1b"
+          ],
+          "tamper_probe_result": "rejected:sha256 mismatch",
+          "mutation_probe_result": "immutable_payload_ref",
+          "gc_retain_reason": "authority_referenced_by:report_index,lineage,workspace",
+          "gc_dry_run_result": "retain"
+        }
+      ]
+    }
+  ],
+  "result": "PASS; finite concrete FileSystemCAS consumer profile; no generic backend conformance"
+}

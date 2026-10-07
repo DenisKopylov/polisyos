@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "run",
+    "--no-sync",
+    "--extra",
+    "runtime",
+    "--extra",
+    "ml",
+    "polisyos-tools",
+    "runtime",
+    "check-runtime-api-contract"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+  "head_after": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "wall_s": 70.75966360699385,
+  "process_rusage_maxrss_kib": 1217200,
+  "exit_code": 1,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-runtime-api.txt",
+  "output_sha256": "4f380edaa2ff19a888dc257be21e718a0ef89ee3775cec99b1f3280f8e950d33",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

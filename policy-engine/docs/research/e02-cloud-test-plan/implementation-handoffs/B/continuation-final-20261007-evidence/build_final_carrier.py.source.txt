@@ -1,0 +1,238 @@
+"""Append exact evidence and a separate v1 handoff to original B Git history."""
+from __future__ import annotations
+
+from collections import Counter
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+
+ROOT = '/workspace/e02-B-current-coordination'
+TASK = Path('/tmp/e02-B-continuation-external-6fa9b7142ba5')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B'
+BASE = 'f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1'
+FROZEN = '6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+PROPOSAL = 'd1efd64136815a04a96a534e1be8003783f444fe'
+BRANCH = 'codex/e02-B-current-coordination'
+PR = 'https://github.com/DenisKopylov/polisyos/pull/55'
+
+
+def git(*args: str, data: bytes | None = None) -> bytes:
+    return subprocess.check_output(['git', *args], cwd=ROOT, input=data)
+
+
+def sgit(*args: str, data: bytes | None = None) -> str:
+    return git(*args, data=data).decode().strip()
+
+
+def js(value: object) -> bytes:
+    return (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode()
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def blob(parent: str, path: str) -> dict | None:
+    proc = subprocess.run(['git', 'show', parent + ':' + path], cwd=ROOT, capture_output=True)
+    if proc.returncode:
+        return None
+    return {'git_blob_sha1': sgit('rev-parse', parent + ':' + path),
+            'bytes': len(proc.stdout), 'sha256': sha(proc.stdout)}
+
+
+def stage(path: str, data: bytes) -> dict:
+    object_id = sgit('hash-object', '-w', '--stdin', data=data)
+    sgit('update-index', '--add', '--cacheinfo', '100644', object_id, path)
+    return {'path': path, 'bytes': len(data), 'sha256': sha(data), 'git_blob_sha1': object_id}
+
+
+def read(parent: str, path: str) -> dict:
+    return json.loads(git('show', parent + ':' + path))
+
+
+def main() -> None:
+    os.environ['GIT_INDEX_FILE'] = str(TASK / 'final-carrier-index')
+    custody = json.loads((TASK / 'metadata-merge-custody.json').read_text())
+    parent = custody['cursor']
+    assert sgit('merge-base', '--is-ancestor', FROZEN, parent) == ''
+    final_source = json.loads((TASK / 'final-source-readback.json').read_text())
+    assert final_source['status'] == 'SOURCE_AND_OWNED_FOOTPRINT_VERIFIED'
+    getter_source = final_source['getter_source']['sha']
+    getter_foreign = final_source['getter_foreign']['sha']
+    getter_review = final_source['getter_review']['sha']
+    final_controls = final_source['final_targeted_controls']
+    source_production = sgit('diff', '--name-only', FROZEN, parent, '--', 'policy-engine/src')
+    assert source_production.splitlines() == [
+        'policy-engine/src/polisyos/foundry/methods/artifacts/README.md',
+        'policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py']
+    original_path = PREFIX + '/current-all60-final-criterion-proposal.json'
+    original = read(PROPOSAL, original_path)
+    assert len(original['all60_manual_rows']) == 60
+    delta_sha = 'b61ed83242bb88fd2e1101751793f2a042545c1e'
+    delta_path = PREFIX + '/continuation-disposition-delta-20261007.json'
+    delta = read(delta_sha, delta_path)
+    overlays = {r['finding_id']: r for r in delta['delta_rows']}
+    source_guard = {
+        'B13': ('limited', 'A/G: real served simulation recovery on exact local read-only catalog/acquisition/history',
+                'Full frozen6fa served case actual FAIL catalog_fetch_source_unreadable; no producer-only served-route proof.'),
+        'B14': ('limited', 'G: native Mac runtime owner', 'Linux proof retained; native Mac receipt absent.'),
+        'B24': ('limited', 'G: native Mac process/cancellation owner', 'Linux proof retained; native Mac receipt absent.'),
+        'B61': ('held', 'SKG/causal source owner + G', 'Consumed versioned immutable SKG snapshot/epoch and permission law not supplied.'),
+        'B66': ('limited', 'A/G: response_shapes, protected served NL/cycle budget-admission route',
+                'B durable producer/ACK controls and exact HTTP decoder repaired; A real helper still maps unknown None to0.0:3PASS1FAIL; real served downstream admission remains UNRUN.'),
+        'B67': ('held', 'Institutional evidence/reuse authorization owner + G', 'Actor/scope/purpose/epoch/evidence-bound permission law absent; readability/hash/fixture grants no authority.'),
+        'B68': ('held', 'Institutional reuse owner/B67 + G', 'B67 authorization plus intended independent repetition/scoped single-flight contract absent.'),
+        'B74': ('limited', 'CMP canonical graph owner + G real checkpoint/served consumer',
+                'Static imported member identity is repaired; actual returned-frame namespace permits changed member effect107 and remains FAIL. Ordinary-function constant public data-field getter profile is finite; no universal runtime descriptor/namespace closure.'),
+        'B87': ('open', 'C: streaming.py and production process-final cleanup owner; G consumer',
+                'Actual pending old physical handle loses production retry owner while permitfree=1 and next session creates another handle. Transfer exact failed pool to production retry owner; independent late cleanup is insufficient.'),
+        'B89': ('limited', 'C/G: stream/cursor/checkpoint and process lifecycle, B pool contract',
+                'Separate cap3 two-row checkpoint→restart cap1 real budget failure persists; budget/cleanup conditions distinct. Requires typed C acceptance before poll/flush/commit or agreed exact contract.'),
+        'B148': ('held', 'CAS tenant/security source owner + G', 'Cross-tenant/first-for-tenant ownership law absent; exact bytes/hash do not grant tenant ownership.'),
+        'B154': ('limited', 'A/G: actual all-confirmations governed publisher',
+                 'B typed full-batch partial/aborted report and obligations available; real served publisher refusal/recovery on exact local read-only input unproved.'),
+    }
+    for fid in ['B49', 'B50', 'B53']:
+        source_guard[fid] = ('closed', 'G code acceptance; JIT/CMP canonical writer for a new finite-profile escape',
+                            'Actual frozen6fa JIT9FAIL repaired by finite ordinary-function data-field admission plus generic actual root binding. Final exact affected-consumer union and foreign realJAX oracle: '+json.dumps(final_controls,sort_keys=True)+'. Matched getter admission removal fails materially. Intermediate0903 lexical-shadow3FAIL retained; B74 frame remains LIMITED. Closed is a bounded technical proposal, formal=false.')
+    decisions = {}
+    for index, row in enumerate(original['all60_manual_rows']):
+        fid = row['finding_id']
+        state = row['proposed_status'].lower()
+        owner = row['next_owner']
+        technical = ('Retain previous immutable bounded technical proposal and its exact deciding refs; no repeat whole-B review or new formal closure. '
+                     'Current full frozen cohort is independently partitioned and globally red; setup ERROR does not re-execute the original witness.')
+        missing = 'No new semantic authority inferred; backend/input scope remains the exact original criterion profile.'
+        if fid in overlays:
+            over = overlays[fid]
+            state = over['technical_disposition']; owner = over['next_owner']
+            technical = over['delta']; missing = over['remaining_or_missing_input']
+        if fid in source_guard:
+            state, owner, technical = source_guard[fid]
+            missing = technical if state != 'closed' else 'Full successor B/native/gates not replayed; full observed source remains6fa. G accepts code separately from finding closure.'
+        decisions[fid] = {'bundle_id': row['bundle_id'], 'technical_decision': state,
+                          'formal_closure': False, 'formal_authority': 'G, with canonical semantic owner where held',
+                          'criterion_basis': {'git_sha': PROPOSAL, 'path': original_path,
+                                              'pointer': f'/all60_manual_rows/{index}',
+                                              'criterion_sha256': row['canonical_criterion']['source_block_sha256']},
+                          'current_delta': technical, 'next_owner': owner,
+                          'missing_input_or_admission': missing,
+                          'backend_scope': 'See exact original row/profile and frozen runtime-environment.json; absent distributions or setup ERROR never promoted to backend PASS.'}
+    counts = Counter(r['technical_decision'] for r in decisions.values())
+    assert counts == {'closed': 48, 'limited': 7, 'held': 4, 'open': 1}
+    assert len({r['bundle_id'] for r in decisions.values()}) == 25
+    all60 = {'schema': 'policyos.e02.continuation_all60_decision_index.v1', 'unit': 'B',
+             'mode': 'Updated compact criterion/evidence decisions, not copied original criterion table and not formal closure',
+             'closure_ids': [], 'formal_closure': False, 'technical_counts_role': 'Bounded technical recommendations only; not G closure or automatic code acceptance',
+             'technical_counts': dict(counts), 'finding_count': 60, 'bundle_count': 25,
+             'decisions_by_id': decisions,
+             'original_evidence_navigation': {'git_sha': PROPOSAL, 'path': original_path, 'sha256': blob(PROPOSAL, original_path)['sha256']},
+             'continuation_delta_navigation': {'git_sha': delta_sha, 'path': delta_path, 'sha256': blob(delta_sha, delta_path)['sha256']},
+             'frozen_full_observation': {'source_sha': FROZEN, 'source_tree': sgit('rev-parse', FROZEN+'^{tree}'),
+                                         'packet': PREFIX+'/continuation-final-20261007-evidence/packet.json'},
+             'final_source_carrier': {'sha': parent, 'tree': sgit('rev-parse', parent+'^{tree}'),
+                                     'production_blob_identity': 'final-source-readback.json'},
+             'latest_controls': {'JIT_source': getter_source,
+                                 'JIT_foreign': getter_foreign,
+                                 'JIT_review': getter_review,
+                                 'targeted_partition': final_controls,
+                                 'current_output_foreign': '91e343e0fa79ff77ff08fa0fae6fd3f035633190'},
+             'quality_admission': 'not_established; no P41 inherited waiver; full6fa FAIL and setup ERROR preserved, successor assessed only by new bounded affected consumers',
+             'production_data': 'Unavailable in cloud; exact read-only inputs remain G local work, no transfer',
+             'absent_distributions': ['numba','dask','distributed','dowhy','econml','temporalio'],
+             'SKIP_XFAIL_UNRUN': 'Full6fa SKIP0/XFAIL0; verify14/parity34 constituents UNRUN; killed gates incomplete; missing optional backends not inferred from SKIP0.'}
+    sgit('read-tree', parent)
+    packaged = TASK / 'final-evidence'
+    packet = json.loads((packaged / 'packet.json').read_text())
+    staged = []
+    for row in packet['outputs']:
+        rel = row['path'].split('/continuation-final-20261007-evidence/',1)[1]
+        data = (packaged / rel).read_bytes()
+        assert len(data) == row['bytes'] and sha(data) == row['sha256']
+        staged.append(stage(row['path'], data))
+        if row['path'].endswith('.lossless.json'):
+            encoded = json.loads(data)
+            assert sha(encoded['text'].encode()) == encoded['source']['sha256']
+    staged.append(stage(PREFIX+'/continuation-final-20261007-evidence/packet.json', (packaged/'packet.json').read_bytes()))
+    for name in ['package_frozen_evidence.py','build_final_carrier.py','verify_final_source.py']:
+        staged.append(stage(PREFIX+'/continuation-final-20261007-evidence/'+name+'.source.txt', (TASK/name).read_bytes()))
+    staged.append(stage(PREFIX+'/continuation-all60-decisions-20261007.json', js(all60)))
+    staged.append(stage(PREFIX+'/continuation-final-20261007-evidence/final-source-readback.json', (TASK/'final-source-readback.json').read_bytes()))
+    staged.append(stage(PREFIX+'/continuation-final-20261007-evidence/merge-custody.json', js(custody)))
+    candidate_tree = sgit('write-tree')
+    impl = sgit('commit-tree', candidate_tree, '-p', parent, data=b'Preserve complete frozen B observations, bounded JIT repair and all60 decisions\n')
+    paths = sgit('diff', '--name-only', BASE, impl).splitlines()
+    footprint = [{'path': path, 'base': blob(BASE,path), 'candidate': blob(impl,path)} for path in paths]
+    main_base = '198076863e143dea9f89f02734b13d50dae3eed5'
+    main_paths = sgit('diff','--name-only',main_base,impl).splitlines()
+    main_footprint = [{'path':path,'base':blob(main_base,path),'candidate':blob(impl,path)} for path in main_paths]
+    index_ref = stage(PREFIX+'/continuation-final-20261007-evidence/full-footprint.json', js({'base': BASE, 'implementation': impl, 'tree': candidate_tree,
+              'role': 'Complete pre-handoff source/test/companion projection; this companion index is added in the separate handoff commit', 'paths': footprint,
+              'published_main_projection':{'base_sha':main_base,'base_tree':sgit('rev-parse',main_base+'^{tree}'),'complete_paths':main_footprint,
+                                           'purpose':'Entire original B carrier difference from published main, including retained original history; slice-base projection alone is not PR footprint.'}}))
+    # Index is an explicit receipt companion added only after implementation SHA is known.
+    handoff = {'schema': 'policyos.e02.implementation_handoff.v1', 'unit':'B',
+               'slice':'continuation-final-full-B-20261007','closure_ids':[],
+               'bundle_ids':sorted({r['bundle_id'] for r in decisions.values()}),
+               'slice_base_sha': BASE, 'slice_base_tree_sha':sgit('rev-parse',BASE+'^{tree}'),
+               'implementation_commits':[impl], 'candidate_tree_sha':candidate_tree,
+               'branch':BRANCH,'pull_request':PR,'changed_paths':paths,
+               'baseline_cells':[],
+               'baseline_role':'Previously integrity-checked full results pack and exact detail/job contexts are navigation only; no baseline cell restamped as new evidence.',
+               'checks':packet['checks'],
+               'full_diff_footprint':index_ref,
+               'receipt_companion_paths':[index_ref['path']],
+               'property':{'statement':'Carry ready canonical B runtime fixes and independent real-consumer evidence, preserve full actual frozen outcomes and all60 owner limits without inferred authority.',
+                           'runtime_path':['HTTP response text','Gateway Decimal lexeme admission','B enforcer durable obligation/ledger','fresh B/D consumer; A unknown seam separately failing',
+                                           'MethodCompiler captured graph','ordinary-function finite data-field getter','real JAX handles/defaults/dynamics','CAS checkpoint/reopen/resume static controls; frame escape retained'],
+                           'proxy_divergence':'P38: float underflow can manufacture reported zero; module/version can hide changed member; collection or setup ERROR cannot establish executed PASS; free permit cannot establish disconnect recovery owner.',
+                           'negative_controls':['Actual raw tiny±1e-1000 decoder property-removal loses unknown; foreign exact-ledger/D-reader controls',
+                                                'Real process crash/restart and durable reservation guard removal permits duplicate provider operation',
+                                                'Matched constant getter admission removal refuses real JAX compile; rebinding and generic scopes typed-refuse before dispatcher',
+                                                'Actual frame namespace remains FAIL7→107 with physical effect; B74 LIMITED',
+                                                'Actual A cost helper3PASS1FAIL and D controller5PASS10FAIL remain cross-owner residuals',
+                                                'Actual C cleanup-owner loss and separate cap1 restart budget failure retained'],
+                           'P40_boundary':'Generic ordinary-function static binding census and FUNCTION-only typed admission; no unsupported runtime namespace/descriptor closure, concrete frame falsifier retained.'},
+               'predicate_basis':'independently_reconciled',
+               'independent_reviewers':['CAS source/output reviewer; DUR real JAX oracle; EXE numeric/fresh D consumer oracle; RUN real A/C consumer and selector census; adapters finite frame custody review'],
+               'capability_state_or_finding_state':'Ready B-owned source residuals implemented as reviewable topic slices; all60 bounded technical decisions indexed; formal_closure=false; global code acceptance not_established',
+               'limitations_and_next_owner':['G fetches exact original B topic head/tree and source slice receipts; code acceptance and formal closure remain separate.',
+                                            'Full native was executed once at6fa:3986=1326PASS10FAIL2650ERROR, SKIP0/XFAIL0. It is not stamped on the getter successor.',
+                                            'Final getter exact source '+getter_source+' affected controls '+json.dumps(final_controls,sort_keys=True)+'; no arithmetic sum of overlapping predecessor contours. Intermediate0903 positive controls and lexical-shadow3FAIL remain ownsource only.',
+                                            'Full successor cohort/gates UNRUN. Existing8 gates red/incomplete; P41 inherited not_established. Signal sender/cause not_established.',
+                                            'Verify14/parity34 planned constituents UNRUN after doctorFAIL. Missing backend distributions and full local data explicitly unavailable.',
+                                            'B13/B154→A/G served simulation/all-confirmations; B66→A/G served unknown/zero admission; externalD B120 realcontroller unknown bug→D/G.',
+                                            'B87/B89→C/G production cleanup owner and separate restored-frontier budget contract.',
+                                            'B61→SKG snapshot/epoch owner; B67/B68→institutional scoped permission owner; B148→CAS tenant law owner.',
+                                            'B14/B24→G native Mac; B78 external status/idempotency authority unavailable, no fabricated reconciliation.',
+                                            'Large ignored raw retains exact path@sha; transported full stdout/JUnit is lossless. If unavailable to G, large-phase independent rejoin remains not_established until exact rerun.',
+                                            'Cloud cleanup newly authorized: one reproducible unused old environment and one generated ignored old mypy cache removed after active guards; deciding outputs/code/active PG/production input retained.'],
+               'all60_decisions': {'path':PREFIX+'/continuation-all60-decisions-20261007.json','implementation_sha':impl,'sha256':sha(js(all60)),
+                                   'counts':dict(counts),'counts_role':'technical recommendations, not G closure','formal_closure_count':0},
+               'source_boundaries':{'project_base':BASE,'frozen_native_sha':FROZEN,'final_source_parent':parent,
+                                    'published_main_base':main_base,'published_main_tree':sgit('rev-parse',main_base+'^{tree}'),
+                                    'metadata_carrier_is_not_a_new_runtime':'each observation retains actual own source SHA/tree'},
+               'publication':{'publisher':'B own topic only; G controls integration/main','no_main_push':True,'no_history_rewrite':True,
+                              'remote_head_readback':'performed after publishing this committed receipt; no future own-SHA in receipt'},
+               'cleanup_receipt':PREFIX+'/continuation-final-20261007-evidence/cloud-cleanup/receipt.json'}
+    required=['schema','unit','slice','closure_ids','bundle_ids','slice_base_sha','implementation_commits','candidate_tree_sha','branch','pull_request','changed_paths','baseline_cells','checks','property','predicate_basis','capability_state_or_finding_state','limitations_and_next_owner']
+    assert all(key in handoff for key in required)
+    handoff_ref = stage(PREFIX+'/continuation-final-full-B-20261007.json', js(handoff))
+    head_tree = sgit('write-tree')
+    head = sgit('commit-tree',head_tree,'-p',impl,data=b'Add separate exact-source final B continuation handoff for G\n')
+    assert sgit('merge-base','--is-ancestor',FROZEN,head)==''
+    assert sgit('diff','--name-only',parent,head,'--','policy-engine/src','policy-engine/tests','policy-engine/tools')==''
+    sgit('diff','--check',BASE,head)
+    record={'implementation_sha':impl,'implementation_tree':candidate_tree,'handoff_sha':head,'handoff_tree':head_tree,
+            'handoff':handoff_ref,'full_footprint':index_ref,'parent':parent,'base':BASE,'branch':BRANCH,'PR':PR,
+            'staged_payloads':staged,'full_changed_paths':paths,'formal_closure_count':0,
+            'source_checks':['metadata/evidence commit source/test/tool zeroDiff','original6fa ancestor','fullf796diffcheckPASS'],
+            'publication':'NOT_YET_PUSHED','local_checkout_unchanged':sgit('rev-parse','HEAD')}
+    (TASK/'final-carrier-publication.json').write_bytes(js(record))
+    print(json.dumps({key:record[key] for key in ['implementation_sha','implementation_tree','handoff_sha','handoff_tree','publication','local_checkout_unchanged']}))
+
+
+if __name__=='__main__':
+    main()

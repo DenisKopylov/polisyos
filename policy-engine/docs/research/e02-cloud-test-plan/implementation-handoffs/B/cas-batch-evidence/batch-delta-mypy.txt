@@ -1,0 +1,8 @@
+src/polisyos/core/artifacts/store.py:883: error: Argument "tenant_id" to "record_owner" of "ArtifactOwnershipIndex" has incompatible type "str | None"; expected "str"  [arg-type]
+src/polisyos/core/artifacts/store.py:2092: error: Argument "tenant_id" to "is_owned_by" of "ArtifactOwnershipIndex" has incompatible type "str | None"; expected "str"  [arg-type]
+src/polisyos/core/artifacts/store.py:2255: error: Argument "tenant_id" to "is_owned_by" of "ArtifactOwnershipIndex" has incompatible type "str | None"; expected "str"  [arg-type]
+src/polisyos/core/artifacts/store.py:3260: error: Argument "tenant_id" to "is_owned_by" of "ArtifactOwnershipIndex" has incompatible type "str | None"; expected "str"  [arg-type]
+src/polisyos/core/artifacts/store.py:3537: error: Value of type "dict[str, Any] | None" is not indexable  [index]
+src/polisyos/core/artifacts/store.py:4163: error: Argument 2 to "_member_name" of "FileSystemCAS" has incompatible type "str"; expected "Literal['blob', 'manifest', 'signature']"  [arg-type]
+src/polisyos/core/artifacts/store.py:4166: error: Argument "open_member" to "export_subgraph" has incompatible type "Callable[[ArtifactID | ArtifactRef | str, Literal['blob', 'manifest', 'signature']], _GeneratorContextManager[_VerifiedCASMemberStream, None, None]]"; expected "Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream, bool | None]]"  [arg-type]
+Found 7 errors in 1 file (checked 6 source files)

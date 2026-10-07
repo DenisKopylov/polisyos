@@ -1,0 +1,108 @@
+{
+  "schema": "policyos.e02.b65-detached-act-removal-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "test_sha": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+  "test_path": "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+  "test_sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949",
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/tmp/e02-B65-detach-removal-a2-1v3u9xd3/child.source.txt",
+    "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py::test_same_protected_owner_replays_exact_missing_act_before_unblocking",
+    "--noconftest",
+    "-c",
+    "/dev/null",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp",
+    "/tmp/e02-B65-detach-removal-a2-1v3u9xd3/fixtures",
+    "--junitxml",
+    "/tmp/e02-B65-detach-removal-a2-1v3u9xd3/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_B66_TARGET_SHA": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "E02_B65_CONTEXT": "/tmp/e02-B65-detach-removal-a2-1v3u9xd3/source-context.json",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "fixture_profile": "Unique actual /tmp filesystem/provider/ledger; no live TCP/API/external financial authority. No numerical/process/thread/CPU quota added.",
+  "actual_exit": 1,
+  "wall_seconds": 1.4313432859926252,
+  "max_rss_kib": 80752,
+  "source_head_before_after": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "test_content_source_sha": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+  "test_checkout_head_claim": "not_established; exact frozen file bytes checked instead",
+  "actual_cases": [
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-sync-invoke]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-async-generate]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+      "outcome": "PASS"
+    }
+  ],
+  "outcomes": {
+    "PASS": 2,
+    "FAIL": 6,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/tmp/e02-B65-detach-removal-a2-1v3u9xd3/native.txt",
+      "bytes": 155514,
+      "sha256": "b9861ec8b21e7883c5cc77e807c4289a860d7f3a935c2b8bd6a14b4abab82b84"
+    },
+    {
+      "path": "/tmp/e02-B65-detach-removal-a2-1v3u9xd3/native.xml",
+      "bytes": 8972,
+      "sha256": "5fc78b129572ac52ce4c39d3bc31825b1d054a9451f98025c89a88ad405d6cfe"
+    },
+    {
+      "path": "/tmp/e02-B65-detach-removal-a2-1v3u9xd3/source-context.json",
+      "bytes": 26993,
+      "sha256": "ea0f03b587d67499c8bd6e70d1dc4a4c918847d33c2101696408dd20a8395435"
+    }
+  ],
+  "closure_ids": []
+}

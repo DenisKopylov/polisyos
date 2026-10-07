@@ -1,0 +1,58 @@
+{
+  "source_sha": "bd490ea81ac5addb78a3f35532558a5b8042dcdb",
+  "source_tree": "253c1ac72c54177a5bf75a55bb729825c9d3f8cf",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "18a3c914d1503301308188d89474ddea80ca4be65a0a0f0bfca922fa2aea86df",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/input-closure.json",
+    "sha256": "0635426199a231b5c91988730dcb8649e95dd7fa9417b7955bedf467b52388c7",
+    "paths": 2732,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T13:46:01.742364+00:00",
+  "end_utc": "2026-10-06T13:46:20.971938+00:00",
+  "wall_s": 19.134745925010066,
+  "max_rss_kib": 607568,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/cohort.xml",
+      "sha256": "cb8f9437ffe3b70ba6575bd4198ee09d346b8927679015c643e93a4559c08e5f",
+      "bytes": 6373
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/input-closure.json",
+      "sha256": "0635426199a231b5c91988730dcb8649e95dd7fa9417b7955bedf467b52388c7",
+      "bytes": 519027
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-b73-frontier-removal/native.txt",
+      "sha256": "605de0448daffdcd7bf5711800c05f92f00d14691625c8c63dbe00624970108e",
+      "bytes": 6188
+    }
+  ]
+}

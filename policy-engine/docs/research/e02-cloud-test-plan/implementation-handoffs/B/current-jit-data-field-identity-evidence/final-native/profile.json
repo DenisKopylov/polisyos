@@ -1,0 +1,64 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-jit-data-getattr-20261007/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+    "/tmp/e02-B-jit-data-getattr-20261007/final-native/module-origins.json",
+    "tests/unit/remediation/test_jit_01.py",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-module-final-native-772030",
+    "--junitxml",
+    "/tmp/e02-B-jit-data-getattr-20261007/final-native/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+    "tree": "ab2050dd1606edf90fa9771dce76b6a368eeff8e",
+    "status": ""
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_OBJECT_DIRECTORY": "/tmp/e02-B-jit-data-getattr-20261007/git-objects",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/workspace/polisyos/.git/objects",
+    "GIT_INDEX_FILE": "/tmp/e02-B-jit-data-getattr-20261007/index",
+    "XLA_FLAGS": null,
+    "JAX_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "RAYON_NUM_THREADS": null,
+    "TF_NUM_INTEROP_THREADS": null,
+    "TF_NUM_INTRAOP_THREADS": null,
+    "NUMBA_NUM_THREADS": null,
+    "LOKY_MAX_CPU_COUNT": null,
+    "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+  },
+  "python_version": "Python 3.14.2",
+  "fixture": "/tmp/e02-B-module-final-native-772030",
+  "fixtures_preserved": true,
+  "no_caps_added": true,
+  "test_input_bytes": [
+    {
+      "path": "tests/unit/remediation/test_jit_01.py",
+      "bytes": 24311,
+      "sha256": "c7e68d8b29bd4d61b7cd5ec9c1e3b49c42cf410d38c456730171d63d0c6daa0a"
+    },
+    {
+      "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "bytes": 17782,
+      "sha256": "1689788c2ce78ded8e8b9c52d19da99c96b162e9b0f23436ede7762c4c338704"
+    }
+  ]
+}

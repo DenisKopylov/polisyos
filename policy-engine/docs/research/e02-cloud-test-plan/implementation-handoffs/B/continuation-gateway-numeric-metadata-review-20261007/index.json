@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-metadata-review-20261007/README.md",
+      "bytes": 2705,
+      "sha256": "b6e8c2caac6101122aba4fbb589b65bc6b3ba9ae94c542cb68d42f50dc059cc9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-metadata-review-20261007/audit-output.txt",
+      "bytes": 7762,
+      "sha256": "ac78a00db2df68fc554d75027a6ef9d8c1534f18dc1379f33692e89b7fcf9dfe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-metadata-review-20261007/audit.source.txt",
+      "bytes": 11018,
+      "sha256": "74036e50549d281b9d829381c06325e8ef1cdf816f6823ba59ddfeb7a963a898"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-metadata-review-20261007/profile.json",
+      "bytes": 833,
+      "sha256": "88d5bdf38c73ebef0b7170f0d6b0f1c29cbd663d5d84057815be5c9ebf81365a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-metadata-review-20261007/raw-custody.json",
+      "bytes": 8038,
+      "sha256": "74f5a0406592ca879624abdafb05a337329bf502c7748bda9b271e6db374342c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-metadata-review-20261007/review.json",
+      "bytes": 174395,
+      "sha256": "4ae2a732f40b52a2f5829ea736b2415d97b7c87f1578cc2bcf46823c7f0bc554"
+    }
+  ],
+  "payload_count": 6,
+  "payload_bytes": 204751,
+  "index_self": "Additional implementation file; later separate handoff binds its bytes."
+}

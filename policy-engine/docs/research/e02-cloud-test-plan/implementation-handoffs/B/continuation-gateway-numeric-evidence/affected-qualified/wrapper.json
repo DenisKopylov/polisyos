@@ -1,0 +1,73 @@
+{
+  "schema": "e02-independent-native-capture/v1",
+  "state": "EXECUTED",
+  "setup_failure": null,
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py",
+    "child",
+    "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+    "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/profile.json",
+    "-v",
+    "-s",
+    "--tb=short",
+    "--cache-clear",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/pytest-cache",
+    "--basetemp=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/fixtures",
+    "--junitxml=/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/native.xml",
+    "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+    "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+    "tests/unit/core/test_llm_core.py",
+    "tests/unit/scientist/orchestration/llm/test_factory.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+    "tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/scientist/agent/tools/test_tool_loop.py",
+    "tests/unit/scientist/agent/tools/test_tool_loop_hardening.py",
+    "tests/unit/scientist/validation/test_citation_faithfulness.py",
+    "tests/unit/runtime/quality/test_design_generation.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "target_tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+  "head_after": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "tree_after": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+  "status_before": "",
+  "status_after": "",
+  "actual_exit": 1,
+  "wall_s": 86.93349623100949,
+  "max_rss_kib": 970216,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "driver_sha256": "720e981ec657d17b1d26b022bf2ad64f7f1b6dabc89441313e30a07e00e8a596",
+  "outputs": {
+    "native.txt": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/native.txt",
+      "sha256": "f7444dc63494086458b852f2a2aebcdc544df126530e8cb7d606c5ab677e98cb",
+      "bytes": 1245115
+    },
+    "native.xml": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/native.xml",
+      "sha256": "4d9d7358108bbaddea4c5aa6590b67dfcaa884454b4fa0d81099eb721a0069de",
+      "bytes": 111086
+    },
+    "profile.json": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/profile.json",
+      "sha256": "4bf8a15fd8352806f7bd5b913a850fa5b1970ec3a5ed935aa1100cbdeec2d9c8",
+      "bytes": 1086014
+    }
+  }
+}

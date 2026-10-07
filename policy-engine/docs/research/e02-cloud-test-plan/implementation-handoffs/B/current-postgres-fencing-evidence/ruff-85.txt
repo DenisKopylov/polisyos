@@ -1,0 +1,27 @@
+PT012 `pytest.raises()` block should contain a single simple statement
+   --> tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py:376:5
+    |
+374 |           )
+375 |       before = fixture.rows()
+376 | /     with (
+377 | |         store.job_execution_fence(
+378 | |             job_id=job.job_id, worker_id="worker-A", attempt=job.attempt
+379 | |         ),
+380 | |         pytest.raises(
+381 | |             fixture.driver.errors.RaiseException, match="actual PostgreSQL publication"
+382 | |         ),
+383 | |     ):
+384 | |         if terminal == "completed":
+385 | |             store.complete_job(job_id=job.job_id, progress={"phase": "must-rollback"})
+386 | |         else:
+387 | |             store.fail_job(
+388 | |                 job_id=job.job_id,
+389 | |                 error_message="must-rollback",
+390 | |                 progress={"phase": "must-rollback"},
+391 | |             )
+    | |_____________^
+392 |       assert fixture.rows() == before
+393 |       reopened = ControlPlaneStore(
+    |
+
+Found 1 error.

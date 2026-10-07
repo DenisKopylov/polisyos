@@ -1,0 +1,78 @@
+{
+  "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+  "source_tree": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+  "base_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+  "all_four_outputs": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.pyi",
+      "before": {
+        "source_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+        "bytes": 10329,
+        "sha256": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3"
+      },
+      "after": {
+        "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "bytes": 10329,
+        "sha256": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3",
+        "git_blob": "d2948f0f0648bc77881acb4f8a0d7a3d7489b12c"
+      },
+      "ast_equal": true,
+      "ast_sha256": "0c0237483951bb46d660cc1d9f5ea6ebd6cc802cb84f30d790ca63689b86e83e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+      "before": {
+        "source_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+        "bytes": 58,
+        "sha256": "57f3509e55e92e57e7c5cc3fd6f257c0ff433bfefcb3d6286747126eae1377ef"
+      },
+      "after": {
+        "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "bytes": 117,
+        "sha256": "f8edc807f8cc38140afe51f899925dd86576d506cd1f80362cfb8b594dbf34bd",
+        "git_blob": "ed79a6db4c5114bff5a8b4e442cd6492f6a0efb6"
+      },
+      "ast_equal": true,
+      "ast_sha256": "399f09748ecc513ef93908a8cc2687a170b480f4d188c74c4f63eba03bae0678"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+      "before": {
+        "source_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+        "bytes": 59,
+        "sha256": "46d5d113361d487abf5cef5c85f88b8bbe1cd22f70ba266d763a1deb4aa4e781"
+      },
+      "after": {
+        "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "bytes": 118,
+        "sha256": "f3a8a6c3055389a21652307f66be1b1d8c6db72fad25d599cac2f4aca801ef83",
+        "git_blob": "9b82928df2ab84115a3b116e4a8f6b96a294018b"
+      },
+      "ast_equal": true,
+      "ast_sha256": "bf060d1f352fcf9a87ac8c76218d2c57d6cedf77b7674682b7e8c13132bf24de"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+      "before": {
+        "source_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+        "bytes": 5970,
+        "sha256": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241"
+      },
+      "after": {
+        "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "bytes": 5970,
+        "sha256": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241",
+        "git_blob": "b6995f23f3dbd65b85d02b70eedfcf7744b2a3f1"
+      },
+      "ast_equal": true,
+      "ast_sha256": "0ab6cf3accc5ee40798438f55e2ea1f9b79c8b57ca0dfcb542ee868bd4056135"
+    }
+  ],
+  "runtime_test_py_denominator": 5468,
+  "runtime_test_py_changed": [],
+  "complete_src_test_changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+    "policy-engine/src/polisyos/foundry/methods/registry.pyi"
+  ],
+  "meaning": "Complete Git path comparison for tracked .py runtime/test source, not a new runtime PASS or complete execution import/resource closure. Four stubs parsed wholly; only comments changed in two facades."
+}

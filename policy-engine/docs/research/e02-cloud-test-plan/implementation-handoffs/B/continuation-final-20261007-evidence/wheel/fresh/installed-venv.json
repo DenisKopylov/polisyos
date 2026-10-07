@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "venv",
+    "--python",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+    "--no-python-downloads",
+    "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-env"
+  ],
+  "cwd": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5",
+  "start_utc": "2026-10-07T08:37:36.861562+00:00",
+  "end_utc": "2026-10-07T08:37:36.980667+00:00",
+  "wall_s": 0.11911514200619422,
+  "child_maxrss_platform_units": 31940,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "exit": 0,
+  "output": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-venv.txt",
+  "output_bytes": 220,
+  "output_sha256": "88031c3313150199540d7e5f695abbb2896d91c384410f8741c1be1053bf7620",
+  "source": {
+    "head": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "status": ""
+  }
+}

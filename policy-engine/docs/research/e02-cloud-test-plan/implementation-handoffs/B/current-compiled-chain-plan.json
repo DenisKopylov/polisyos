@@ -1,0 +1,1192 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-compiled-chain-plan",
+  "owner": "/root/cmp_res_probe",
+  "closure_ids": [],
+  "finding_ids": [
+    "B43"
+  ],
+  "criterion_ids": [
+    "B43"
+  ],
+  "bundle_ids": [
+    "CMP-01"
+  ],
+  "slice_base_sha": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+  "implementation_commits": [
+    "f563fde9238a08b55135f167ddf0d6fa154690c5",
+    "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+    "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+    "885b3e0eff36ee8a733e32a0c604bdcd58a62eb5",
+    "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+    "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+    "85e97d91801bac9a4314655e81a4fe8c68a17235"
+  ],
+  "implementation_sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+  "candidate_tree_sha": "0bf6400bb60358c99bdecfb7184382f271959144",
+  "production_source_sha": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+  "production_source_tree_sha": "e40ec2802f8e9957b07b3271ae06c3ac7532daa6",
+  "actual_final_native_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+  "actual_final_native_tree_sha": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/baseline-B43-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/baseline-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/canonical-CMP-01.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/case-results.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/final-source-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-9ce.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-9ce.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-candidate.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/formatter-source-delta.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/generate_selected_stub.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/generate_typing_stub.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/generator-format-correction.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/generator-format-correction.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-e69.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-e69.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/package_final.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/query-B-failures.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-candidate.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/run_capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/run_capture_typing.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-base-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-base-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-composer-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-composer-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-corrected.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-corrected.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-format-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-format-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-sort-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub-sort-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/stub.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-chain-plan.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+    "policy-engine/src/polisyos/foundry/methods/base.pyi",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+    "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+    "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+    "policy-engine/tools/devx/foundry/README.md",
+    "policy-engine/tools/devx/foundry/generate_stubs.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P117",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.77",
+      "rss_kib": "168580",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "245",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P010",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "state": "PASS",
+      "collected": "25",
+      "calls": "25",
+      "call_pass": "25",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.57",
+      "rss_kib": "169160.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "140",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P117",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.026620626449585",
+      "rss_kib": "256836",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "240",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P137",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.87",
+      "rss_kib": "254332",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "292",
+      "extra_json": "{\"reason\":\"null\"}"
+    }
+  ],
+  "baseline_source_ref_and_input_closure": {
+    "routes": [
+      {
+        "finding_id": "B43",
+        "unit": "B",
+        "cell_id": "F02-P117",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "research_main",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B43"
+      },
+      {
+        "finding_id": "B43",
+        "unit": "B",
+        "cell_id": "F03-P010",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "research_main",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B43"
+      },
+      {
+        "finding_id": "B43",
+        "unit": "B",
+        "cell_id": "F08-P117",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "e02_head",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B43"
+      },
+      {
+        "finding_id": "B43",
+        "unit": "B",
+        "cell_id": "F15-P137",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "integration_head",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B43"
+      }
+    ],
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "exact_full_query": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/baseline-B43-query.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+    "canonical_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B43",
+    "raw_archives_received": 0,
+    "qualification": "Four source-reported PASS cells/declared F02/F03/F08/F15 environment and input locators are navigation, never a new persisted-plan proof. Current source admission/real CAS consumer results are separate."
+  },
+  "checks": [
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py --basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-f563 -o cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-f563 --junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-f563.xml",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-f563",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-f563",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-f563.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "f563fde9238a08b55135f167ddf0d6fa154690c5",
+      "target_tree": "411e48ca75e101a34af8b0a5c10ec557e1a7e050",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 1,
+      "wall_seconds": 2.5847599506378174,
+      "rusage": {
+        "maxrss_kib": 173948,
+        "user_seconds": 2.764959,
+        "system_seconds": 0.207113
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py --basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-e69 -o cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-e69 --junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-e69.xml",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-e69",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-e69",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-e69.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+      "target_tree": "93312b69fcb9f2704a9e0b8407c7fe57b8e41500",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 1,
+      "wall_seconds": 2.77085018157959,
+      "rusage": {
+        "maxrss_kib": 174084,
+        "user_seconds": 2.913901,
+        "system_seconds": 0.22636799999999999
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py --basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-9ce -o cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-9ce --junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-9ce.xml",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-9ce",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-9ce",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/defining-9ce.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 0,
+      "wall_seconds": 2.6633853912353516,
+      "rusage": {
+        "maxrss_kib": 173948,
+        "user_seconds": 2.847342,
+        "system_seconds": 0.221152
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/foundry/methods/test_artifacts.py tests/unit/foundry/methods/test_composer.py tests/unit/foundry/methods/test_composer_hardening.py tests/unit/remediation/test_cmp_01.py --basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-affected-9ce -o cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-affected-9ce --junitxml=/dev/shm/e02-B-cmp-b43-freeze/affected-9ce.xml",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/test_artifacts.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_composer_hardening.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-affected-9ce",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-affected-9ce",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/affected-9ce.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 0,
+      "wall_seconds": 5.369341850280762,
+      "rusage": {
+        "maxrss_kib": 175936,
+        "user_seconds": 5.805063,
+        "system_seconds": 0.5473819999999999
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m mypy src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/components/composer.py --follow-imports=skip --cache-dir=/dev/shm/e02-B-cmp-b43-freeze/mypy-owned-e69",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "--follow-imports=skip",
+        "--cache-dir=/dev/shm/e02-B-cmp-b43-freeze/mypy-owned-e69"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+      "target_tree": "93312b69fcb9f2704a9e0b8407c7fe57b8e41500",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-e69.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-e69.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-e69.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 1,
+      "wall_seconds": 1.3378090858459473,
+      "rusage": {
+        "maxrss_kib": 96932,
+        "user_seconds": 1.255592,
+        "system_seconds": 0.08077
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m mypy src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/components/composer.py --follow-imports=silent --cache-dir=/dev/shm/e02-B-cmp-b43-freeze/mypy-f563",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "--follow-imports=silent",
+        "--cache-dir=/dev/shm/e02-B-cmp-b43-freeze/mypy-f563"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 1,
+      "wall_seconds": 40.2597439289093,
+      "rusage": {
+        "maxrss_kib": 902688,
+        "user_seconds": 39.167005,
+        "system_seconds": 1.004159
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/components/composer.py src/polisyos/foundry/methods/components/composer.pyi tools/devx/foundry/generate_stubs.py tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/composer.pyi",
+        "tools/devx/foundry/generate_stubs.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 1,
+      "wall_seconds": 0.04467606544494629,
+      "rusage": {
+        "maxrss_kib": 19328,
+        "user_seconds": 0.028846999999999998,
+        "system_seconds": 0.016548999999999998
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/components/composer.py src/polisyos/foundry/methods/components/composer.pyi tools/devx/foundry/generate_stubs.py tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/composer.pyi",
+        "tools/devx/foundry/generate_stubs.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-9ce.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-9ce.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 0,
+      "wall_seconds": 0.04204559326171875,
+      "rusage": {
+        "maxrss_kib": 15232,
+        "user_seconds": 0.026289999999999997,
+        "system_seconds": 0.017543
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py tests/unit/foundry/methods/test_artifacts.py tests/unit/foundry/methods/test_composer.py tests/unit/foundry/methods/test_composer_hardening.py tests/unit/remediation/test_cmp_01.py --basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-final -o cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-final --junitxml=/dev/shm/e02-B-cmp-b43-freeze/native-final.xml",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+        "tests/unit/foundry/methods/test_artifacts.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_composer_hardening.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "--basetemp=/dev/shm/e02-B-cmp-b43-freeze/tmp-final",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-cmp-b43-freeze/cache-final",
+        "--junitxml=/dev/shm/e02-B-cmp-b43-freeze/native-final.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "target_tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 0,
+      "wall_seconds": 6.154689311981201,
+      "rusage": {
+        "maxrss_kib": 178148,
+        "user_seconds": 6.650123,
+        "system_seconds": 0.528004
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m mypy src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/components/composer.py --follow-imports=silent --cache-dir=/dev/shm/e02-B-cmp-b43-freeze/mypy-f563",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "--follow-imports=silent",
+        "--cache-dir=/dev/shm/e02-B-cmp-b43-freeze/mypy-f563"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "target_tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-final.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-final.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-final.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 0,
+      "wall_seconds": 6.539683818817139,
+      "rusage": {
+        "maxrss_kib": 558852,
+        "user_seconds": 6.086132,
+        "system_seconds": 0.422753
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/base.pyi src/polisyos/foundry/methods/components/composer.py src/polisyos/foundry/methods/components/composer.pyi tools/devx/foundry/generate_stubs.py tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/composer.pyi",
+        "tools/devx/foundry/generate_stubs.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "target_tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-final.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-final.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-final.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 0,
+      "wall_seconds": 0.06192922592163086,
+      "rusage": {
+        "maxrss_kib": 26112,
+        "user_seconds": 0.042005,
+        "system_seconds": 0.028102
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/base.pyi src/polisyos/foundry/methods/components/composer.py src/polisyos/foundry/methods/components/composer.pyi tools/devx/foundry/generate_stubs.py tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/composer.pyi",
+        "tools/devx/foundry/generate_stubs.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "target_tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-final.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-final.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-final.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 1,
+      "wall_seconds": 0.045146942138671875,
+      "rusage": {
+        "maxrss_kib": 17920,
+        "user_seconds": 0.02846,
+        "system_seconds": 0.017921
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/base.pyi src/polisyos/foundry/methods/components/composer.py src/polisyos/foundry/methods/components/composer.pyi tools/devx/foundry/generate_stubs.py tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/composer.pyi",
+        "tools/devx/foundry/generate_stubs.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+      "target_tree": "e40ec2802f8e9957b07b3271ae06c3ac7532daa6",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-candidate.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-candidate.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-candidate.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 0,
+      "wall_seconds": 0.04723191261291504,
+      "rusage": {
+        "maxrss_kib": 19584,
+        "user_seconds": 0.034697,
+        "system_seconds": 0.012927
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/methods/artifacts/_chain.py src/polisyos/foundry/methods/artifacts/parts.py src/polisyos/foundry/methods/base.pyi src/polisyos/foundry/methods/components/composer.py src/polisyos/foundry/methods/components/composer.pyi tools/devx/foundry/generate_stubs.py tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/artifacts/_chain.py",
+        "src/polisyos/foundry/methods/artifacts/parts.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/composer.pyi",
+        "tools/devx/foundry/generate_stubs.py",
+        "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+      "target_tree": "e40ec2802f8e9957b07b3271ae06c3ac7532daa6",
+      "environment": {
+        "actual_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-candidate.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "supporting_versions": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/environment.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "caps_absent": true
+      },
+      "input_closure": {
+        "source_before_after_named_files": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-candidate.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "scratch_isolation": "Actual argv unique basetemp/cache/JUnit in /dev/shm/e02-B-cmp-b43-freeze; old fixtures retained.",
+        "native_module_census": "Own wrapper hashes named files; no exhaustive own native loader census. Independent CAS checks record their actual loaded module origins/Git bytes."
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-candidate.txt@85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "exit_code": 0,
+      "wall_seconds": 0.03962540626525879,
+      "rusage": {
+        "maxrss_kib": 15232,
+        "user_seconds": 0.029233,
+        "system_seconds": 0.010962
+      }
+    },
+    {
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape --basetemp /tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/native.xml",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "plan_origins",
+        "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+        "tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape",
+        "--basetemp",
+        "/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/pytest",
+        "-o",
+        "cache_dir=/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/cache",
+        "--junitxml=/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json@e774768af0bbcc68ed14b101f8d5f869122fd87a",
+        "check_index": 2
+      },
+      "input_closure": {
+        "actual_test_head": {
+          "head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+          "status": "",
+          "tree": "0100344d597dc0c4fa8b08270883de40d8b51abc"
+        },
+        "actual_source_before_after": {
+          "after": {
+            "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "status": "",
+            "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+          },
+          "before": {
+            "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "status": "",
+            "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+          }
+        },
+        "module_origins": "Complete actual loaded polisyos Git-byte checks at collection/session finish; finite current Python loader census, not all native libraries/resources/data/network.",
+        "fixture_precondition": "Current explicit registry shared with real JaxRunner compiler/dispatcher; original e693 MethodNotFoundError retained."
+      },
+      "outcome": "PASS",
+      "output": {
+        "bytes": 8257,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-9ce/native-stdout.txt",
+        "sha256": "819484317b4403b0da130701f0925ef3fda8d2004c9d06f4caf7158f6b2e8204",
+        "source_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d"
+      },
+      "counts": {
+        "actual_cases": 16,
+        "error": 0,
+        "failed": 0,
+        "passed": 16,
+        "skipped": 0
+      },
+      "expected_negative_outcome": null,
+      "elapsed_seconds": 11.102140301998588,
+      "claim_grade": "Actual16PASS on9ce predecessor. Final typing-companion source gets separately executed final16; no aggregate or future candidate proof."
+    },
+    {
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins -p removal_plan 'tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]' --basetemp /tmp/e02-B-reopened-compiled-plan-61c1037763cd/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-61c1037763cd/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-61c1037763cd/native.xml",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "plan_origins",
+        "-p",
+        "removal_plan",
+        "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]",
+        "--basetemp",
+        "/tmp/e02-B-reopened-compiled-plan-61c1037763cd/pytest",
+        "-o",
+        "cache_dir=/tmp/e02-B-reopened-compiled-plan-61c1037763cd/cache",
+        "--junitxml=/tmp/e02-B-reopened-compiled-plan-61c1037763cd/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json@e774768af0bbcc68ed14b101f8d5f869122fd87a",
+        "check_index": 3
+      },
+      "input_closure": {
+        "actual_test_head": {
+          "head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+          "status": "",
+          "tree": "0100344d597dc0c4fa8b08270883de40d8b51abc"
+        },
+        "actual_source_before_after": {
+          "after": {
+            "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "status": "",
+            "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+          },
+          "before": {
+            "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "status": "",
+            "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+          }
+        },
+        "module_origins": "Complete actual loaded polisyos Git-byte checks at collection/session finish; finite current Python loader census, not all native libraries/resources/data/network.",
+        "fixture_precondition": "Current explicit registry shared with real JaxRunner compiler/dispatcher; original e693 MethodNotFoundError retained."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "bytes": 10151,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-plan/native-stdout.txt",
+        "sha256": "3de114c88d9c756e08c730c3a688d25be894916eddaaec94b66a08dce88b99d6",
+        "source_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d"
+      },
+      "counts": {
+        "actual_cases": 1,
+        "error": 0,
+        "failed": 1,
+        "passed": 0,
+        "skipped": 0
+      },
+      "expected_negative_outcome": "FAIL",
+      "elapsed_seconds": 4.349796897004126,
+      "claim_grade": "After genuine guardedCASload, in-memory drop only effective predecessors/successors while retaining nodes/wire/ABI/parameters/order/markers; actual async body result0.0 fails unchanged numerical expectation17.144009055176273. Full actual ref/wirehash/numeric arrays and changed node-result order recorded."
+    },
+    {
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins -p removal_preparation 'tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]' --basetemp /tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/native.xml",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "plan_origins",
+        "-p",
+        "removal_preparation",
+        "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]",
+        "--basetemp",
+        "/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/pytest",
+        "-o",
+        "cache_dir=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache",
+        "--junitxml=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json@e774768af0bbcc68ed14b101f8d5f869122fd87a",
+        "check_index": 4
+      },
+      "input_closure": {
+        "actual_test_head": {
+          "head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+          "status": "",
+          "tree": "0100344d597dc0c4fa8b08270883de40d8b51abc"
+        },
+        "actual_source_before_after": {
+          "after": {
+            "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "status": "",
+            "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+          },
+          "before": {
+            "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "status": "",
+            "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+          }
+        },
+        "module_origins": "Complete actual loaded polisyos Git-byte checks at collection/session finish; finite current Python loader census, not all native libraries/resources/data/network.",
+        "fixture_precondition": "Current explicit registry shared with real JaxRunner compiler/dispatcher; original e693 MethodNotFoundError retained."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "bytes": 4518,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-preparation/native-stdout.txt",
+        "sha256": "1861bcd797764c69d827ce199733c05cbef4614bca6000dadc8cadc6f35f7f0e",
+        "source_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d"
+      },
+      "counts": {
+        "actual_cases": 1,
+        "error": 0,
+        "failed": 1,
+        "passed": 0,
+        "skipped": 0
+      },
+      "expected_negative_outcome": "FAIL",
+      "elapsed_seconds": 4.553490543999942,
+      "claim_grade": "Original compilation followed by real numerical execution during preparation twice; totals16.244426727294922 recorded; unchanged zero-scientific-preparation assertion fails."
+    },
+    {
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins -p removal_seed 'tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]' --basetemp /tmp/e02-B-reopened-compiled-plan-a489c1a67492/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-a489c1a67492/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-a489c1a67492/native.xml",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "plan_origins",
+        "-p",
+        "removal_seed",
+        "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]",
+        "--basetemp",
+        "/tmp/e02-B-reopened-compiled-plan-a489c1a67492/pytest",
+        "-o",
+        "cache_dir=/tmp/e02-B-reopened-compiled-plan-a489c1a67492/cache",
+        "--junitxml=/tmp/e02-B-reopened-compiled-plan-a489c1a67492/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+      "target_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+      "environment": {
+        "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json@e774768af0bbcc68ed14b101f8d5f869122fd87a",
+        "check_index": 5
+      },
+      "input_closure": {
+        "actual_test_head": {
+          "head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+          "status": "",
+          "tree": "0100344d597dc0c4fa8b08270883de40d8b51abc"
+        },
+        "actual_source_before_after": {
+          "after": {
+            "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "status": "",
+            "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+          },
+          "before": {
+            "head": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "status": "",
+            "tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+          }
+        },
+        "module_origins": "Complete actual loaded polisyos Git-byte checks at collection/session finish; finite current Python loader census, not all native libraries/resources/data/network.",
+        "fixture_precondition": "Current explicit registry shared with real JaxRunner compiler/dispatcher; original e693 MethodNotFoundError retained."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "bytes": 5185,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-seed/native-stdout.txt",
+        "sha256": "ab32e7d59feaad6f6f7dfb7dbd28260ce35a11ec0deefcd9966b08d6badb5ad9",
+        "source_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d"
+      },
+      "counts": {
+        "actual_cases": 1,
+        "error": 0,
+        "failed": 1,
+        "passed": 0,
+        "skipped": 0
+      },
+      "expected_negative_outcome": "FAIL",
+      "elapsed_seconds": 4.4695876670011785,
+      "claim_grade": "Only explicit seed overrides forced to11 during actual compiled execution; requested23 retained in output; all4draws differ from independent expectedseed23 and original numerical assertion fails."
+    },
+    {
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins_final tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape --basetemp /tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/native.xml",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "plan_origins_final",
+        "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+        "tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape",
+        "--basetemp",
+        "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest",
+        "-o",
+        "cache_dir=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/cache",
+        "--junitxml=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "target_tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+      "environment": {
+        "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json@e774768af0bbcc68ed14b101f8d5f869122fd87a",
+        "check_index": 6
+      },
+      "input_closure": {
+        "actual_test_head": {
+          "head": "f3fec71449f752d7933dc21b979cb7dd21500ccf",
+          "status": "",
+          "tree": "03ace8754bfab51f7a3b366e33cc88a0b7da2f66"
+        },
+        "actual_source_before_after": {
+          "after": {
+            "head": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+            "status": "",
+            "tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd"
+          },
+          "before": {
+            "head": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+            "status": "",
+            "tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd"
+          }
+        },
+        "module_origins": "Complete actual loaded polisyos Git-byte checks at collection/session finish; finite current Python loader census, not all native libraries/resources/data/network.",
+        "fixture_precondition": "Current explicit registry shared with real JaxRunner compiler/dispatcher; original e693 MethodNotFoundError retained."
+      },
+      "outcome": "PASS",
+      "output": {
+        "bytes": 8263,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/native-stdout.txt",
+        "sha256": "7eb649d830dc263750aae0b41238c94ccf41a6ed3311f89bb469e5875d5b8724",
+        "source_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d"
+      },
+      "counts": {
+        "actual_cases": 16,
+        "error": 0,
+        "failed": 0,
+        "passed": 16,
+        "skipped": 0
+      },
+      "expected_negative_outcome": null,
+      "elapsed_seconds": 12.04389361399808,
+      "claim_grade": "Actual16PASS on literal clean6d7 checkout with independently reconciled885 src/tests/config/module-byte projection. Actual15owned cases plus one reused unknown-shape control. Does not establish final combined root, strict scientific output schemas, scientific validity, RNG distribution, legacy-source/cache-prefix authority or absent Ray deployment."
+    }
+  ],
+  "property": {
+    "statement": "A built/frozen finite cold compiled chain persists concrete node UUIDs/occurrences/static+dynamic payload, data bindings and ordering-only effective requirements, and reopens through guarded selected CAS bytes and the current canonical composer/current ABI before real execution. Required predecessors survive every demonstrated consumer while an independent sibling remains physically parallel.",
+    "runtime_path": [
+      "MethodComposer.build → CompiledChainPlan.from_chain → versioned immutable canonical content",
+      "store_compiled_chain_plan → actual FileSystemCAS.put_bytes/get_manifest → existing CAS profile helper → exact typed ArtifactRef",
+      "fresh FileSystemCAS → load_compiled_chain_plan → guarded manifest/schema/blob read → strict wire → MethodComposer.from_nodes/connect/build(STRICT)",
+      "existing heterogeneous sequential/async/auto and compiler nonjit/jit execute restored graph/current registry"
+    ],
+    "proxy_divergence": "An execution_order field or earlier profile refusal can look satisfactory while the actual async effective graph runs producer and consumer in one level. Independent removal keeps serialized wire/nodes/order/ABI markers and drops actual reopened predecessors: both scientific bodies run, but total0.0 diverges from independent17.144009055176273. The first seven author mutation PASSs were admitted only at earlier unprofiled-ref refusal and are explicitly not graph proof.",
+    "negative_controls": [
+      "Real selected CAS bytes with missing required edge/current required occurrence/cycle refuse before any scientific bodies.",
+      "Sparse/foreign fields/bool occurrence index/order/current ABI or selected schema mismatch refuse before runnable return.",
+      "Nonfinite/tuple/nonstring-key/reserved-tag/cyclic Python parameter inputs refuse real producer; unprofiled ref refuses selected reader.",
+      "Independent9ce effective-plan/preparation/seed quantity removal yields three actual numerical FAIL; preparation and seed support B53 separate peer criterion, not an extra author closure."
+    ],
+    "preserved_behavior": [
+      "Legacy ChainArtifact1.0.0 identity/schema/provenance recipe unchanged; new CompiledChainPlan is distinct kind/schema1.0.0.",
+      "Real reopened requires-only NumPy arithmetic17, same-FQN UUID/index/nearest-earlier occurrence and parameter/static payload preserve canonical owner semantics.",
+      "Real reopened JAX five numerical modes total17.144009055176273; two real two-thread barrier profiles preserve sibling parallelism and staticwindow20."
+    ],
+    "authority_purpose": "Internal cold structural execution under an explicit stable current registry/caller/backend profile; no historical implementation, scientific, permission, cache/prefix or publication authority.",
+    "versions": {
+      "wire_kind": "foundry.compiled_chain_plan",
+      "wire_schema": "polisyos.foundry.compiled_chain_plan",
+      "wire_version": "1.0.0",
+      "legacy_chain_artifact_version_unchanged": "1.0.0"
+    }
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_quantity": {
+    "source/output_hashes_XML_denominators": "recomputed",
+    "independent_review_and_real_consumer_artifacts": "independently_reconciled",
+    "own_positive_assertions_and_registry_fixture_premises": "consumer_asserted",
+    "formal_closure_future_root_full_gates": "not_established"
+  },
+  "capability_state_or_finding_state": "Implemented finite plain-JSON cold-plan profile; independent source and actual consumer evidence ready. Formal B43 adjudication/final combined root/G acceptance pending; closure_ids remains empty.",
+  "finding_classification": {
+    "B43": {
+      "source_status": "partial",
+      "candidate_status": "implemented_finite_cold_plan_profile",
+      "formal_closure": false,
+      "criterion_evidence": "Full canonical B43 serialization/changed-edge/ordering/parallel controls have concrete current outputs, subject to exact declared profile and root adjudication.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.xml@85e97d91801bac9a4314655e81a4fe8c68a17235",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json@e774768af0bbcc68ed14b101f8d5f869122fd87a"
+      ],
+      "falsifier": "At root final candidate, persist/reopen a requires-only chain, delete a substantial effective edge or replace current declared ABI, then measure actual body order/arithmetic/refusal and a genuine sibling barrier.",
+      "next_owner": "B root reviews/integrates exact head; G runs final combined supported input/cohort/gates and decides formal state."
+    }
+  },
+  "independent_reviews": {
+    "source_review": {
+      "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent.json",
+      "sha256": "88b2041ddb287331de03ebb4e69efbb27c4071c2b8fc6b42e91e39e01dfd1c6f",
+      "bytes": 38590,
+      "scope": "Independent source-only NONBLOCKING through final formatter7cec; runtime independently UNRUN by source reviewer."
+    },
+    "consumer_oracle": {
+      "sha": "e774768af0bbcc68ed14b101f8d5f869122fd87a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+      "sha256": "318d97c4ea1e0880614a469fce35883cf2c897fc2290498422687b884f000c83",
+      "bytes": 282230,
+      "scope": "Literal6d7 final16PASS plus9ce three distinct numerical removalFAIL; original source/fixture failures retained; published remote verified by independent owner."
+    }
+  },
+  "independent_evidence_reconciliation": {
+    "cas_artifact_objects": 313,
+    "cas_artifact_bytes": 1403886,
+    "all_indexed_hashes_sizes_recomputed": true,
+    "scope": "Publisher-defined313 moderate regular objects from immutableec8 Git evidence; not all private tmp bytes/nonnative dependencies/network/resource history."
+  },
+  "source_quality_and_generated_companions": {
+    "final_actual_mypy": "3 owned source targets PASS with actual imported types (--follow-imports=silent), no skip-import Any green.",
+    "historical_type_profiles": "Initial unqualified ordinary checker terminated after source changed; full bytes unavailable/excluded. e69 skip-import13FAIL and9ce proper-import3FAIL remain full separate outputs; no P41 inherited attribution.",
+    "generated_stubs": "Canonical selectedbase/components stubgen inclprivate actual helpers/fields, existing cleanup+atomicwrite, canonical Ruff importsorting and formatter; no handwritten stub or base.py edit.",
+    "formatter_successor": "7cec changes only generator tuplelayout, full AST equal; runtime/test/config bytes match actual6d7. Old81/16 remain actual6d7 results, not a new whole-source/future gate PASS.",
+    "final_style": "Ruff+format actual7cec PASS; earlierI001 and tupleformatFAIL preserved.",
+    "public_surface_inventory": "Internal nearest READMEs/release record classify new API; root owns mandatory generated public-surface synchronization/inventory and final gate, pending here."
+  },
+  "limitations_and_next_owner": [
+    "Wire supports finite plain JSON parameter values/string keys only, no arbitrary Python/NumPy array/dtype/default coercion. Caller initial state, seed, permitted execution overrides remain separate runtime inputs.",
+    "Cold restore selects current registry implementation and validates current ABI/occurrences/graph; registry remains stable through restore/execute by declared operational premise. Plan/manifest hashes do not attest old source or scientific/cached/checkpoint-prefix correctness.",
+    "Independent heterogeneous JAX fixture explicitly composes the same registry into actual public JaxRunner/MethodCompiler/dispatcher. Original three unrelated default-global-compiler MethodNotFoundErrors are retained; no claim about all custom/default runner compositions.",
+    "Independent final16 has12soft output-validation warnings, preserved. Numerical graph/parallel criteria do not establish strict scientific output schema health/RNG distribution/scientific validity; Ray absent/no Ray deployment PASS.",
+    "Fresh CAS store instances reopen persisted plan within one OS process. No process/powerloss/multihost checkpoint recovery authority inferred from this slice.",
+    "Own native81 and independent16 ran actual6d7; final7cec generatorformat-only byte/AST reconciliation is source-only. Final combined root namespace/cohort/quality gates are UNRUN here and not inherited from prior PASS/globalred.",
+    "A-owned generation_cycle/run_lifecycle and C-owned streaming untouched; B13 dataset/real served route and B148/B154 semantic/publication holds unaffected. All14/60 strict global dispositions remain root/G owned.",
+    "P41 inherited red NOT_ESTABLISHED: no pre-edit slice-base replay/disjoint full gate denominator. Old failures and input-premise corrections remain literal historical observations, no blanket waiver."
+  ],
+  "created_at_utc": "2026-10-06T21:39:42.905188+00:00",
+  "metadata_forward_history": {
+    "prior_receipt_sha": "d0def4c5784f52286b4af31a2392c330c81dec4b",
+    "correction": "Bind final CAS canonical handoff e774 that adds mandatory command/output and property aliases; raw313objects/outcomes/runtime inputs and production implementation unchanged. Prior2e6 data receipt is preserved historical incomplete schema, not canonical final intake."
+  }
+}

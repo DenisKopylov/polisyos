@@ -1,0 +1,90 @@
+{
+  "schema": "e02.final_repaired_case_audit_preparation.v1",
+  "status": "DRAFT_UNRUN_until_root_freeze_and_all_six_complete",
+  "leaf_lane": "/workspace/e02-B-current-adapters",
+  "source_parser": {
+    "implementation_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+    "tree": "c62e48e50a505bd35fbf3b4e1a97383a561870fd",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+    "sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+    "bytes": 27053,
+    "source_review_sha": "ade80582565bb7b4ab53120ff5da54f854de867e",
+    "source_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/review.json",
+    "source_review_sha256": "1b94b2f181b74ff91301befb128d0d98b46fe1659d208b3d52c50ccb8d59441b",
+    "source_change": "none"
+  },
+  "observer_contract": {
+    "source_sha": "e692f8cff4ca2d2e2697321ba77f7ba5050f27d1",
+    "source_sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+    "independent_source_review_sha": "8d01c7b07976ae1b500c8c07e73a120fdebb82dd",
+    "session_exit": "session_exitstatus is hook argument, actual wait4 child exit is separate deciding input",
+    "module_boundary": "hook-time file-backed sys.modules census only; no post-finalization/transient/resource/child/service readset claim"
+  },
+  "root_launcher_reviewed": {
+    "source_sha": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+    "tree": "678b8933a7d38858b914fdc1df8c58b929a2acbc",
+    "run_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+    "capture_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+    "tag": "repaired-final-B-cohort",
+    "grade": "source-read only; launcher invocation owned by root; no execution by this leaf",
+    "compatibility": "existing parser reads retained head/tree/head_after/command/output hash/wait4 fields; added harness_state/exec_setup_error are checked in explicit consumer preflight, no parser change"
+  },
+  "input_paths_expected": {
+    "inventory": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort-inventory.json",
+    "junit": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort.xml",
+    "wrapper": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort.json",
+    "stdout": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort.txt",
+    "profile": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort-profile.json",
+    "selectors": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/repaired-final-selector.json"
+  },
+  "argv_template_unexecuted": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+    "--inventory",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort-inventory.json",
+    "--junit",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort.xml",
+    "--wrapper",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort.json",
+    "--stdout",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort.txt",
+    "--profile",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort-profile.json",
+    "--selectors",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/repaired-final-selector.json",
+    "--source-sha",
+    "EXACT_ROOT_FROZEN_SHA_PENDING",
+    "--repo",
+    "/workspace/e02-B-current-adapters",
+    "--output",
+    "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/repaired-final-root-case-partition-3cd.json"
+  ],
+  "source_placeholder": "Replace EXACT_ROOT_FROZEN_SHA_PENDING only with root-issued actual final40hex SHA bound by completed wrapper/profile/selector/observer start+finish; no nearbysource substitution.",
+  "fresh_output": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/repaired-final-root-case-partition-3cd.json",
+  "preflight_before_actual_data_only_parser": [
+    "All six files present and complete; no interpretation of live partial inventory/XML/stdout.",
+    "Inventory state=session_finished; same source/tree at wrapper before+after, profile/selector and observer start+finish.",
+    "New capture wrapper harness_state=EXECUTED and exec_setup_error=null; actual child status retained even on FAIL/ERROR; execution setup failure is UNRUN.",
+    "Complete selector list and hash equal profile list/hash; all absolute six byte identities captured fresh; stdout complete hash matches wrapper; argsfile native command identity is disclosed.",
+    "Actual observed pytest9.0.2 _pytest.junitxml stable origin/backing SHA d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a matches reviewed exact native XML escaping profile; absent/mismatch remains failclosed.",
+    "Final output absent and explicitly Git-ignored; data-only command writes O_EXCL, never imports/executes pytest, parser source digest exactly unchanged."
+  ],
+  "derived_from_actual_new_inputs_only": [
+    "Unique session.items cases and every setup/call/teardown event; incomplete/ambiguous attempts separately UNRUN, not invented passes.",
+    "Case state ERROR>FAIL>UNRUN>SKIP>XFAIL>PASS after assignment validation; strictXPASS is FAIL, nonstrictXPASS rawPASS with qualifier.",
+    "JUnit representations reconciled via exact pinned native forward XML naming; multiple representations of one case do not add cases.",
+    "Collector noncase errors/skips, deselected and missing planned selectors remain separate; unknown uncollected case cardinality is not manufactured.",
+    "Both actual collection-file and definition-path denominators, relation and mismatch case indexes retained; no assumption of same file paths or selector count.",
+    "Every literal suffix/type/backend availability arises from actual reports or named-scope missing evidence; file existence/marker/pass package label is not property proof.",
+    "14 planned absent selectors in the previous4e snapshot remain an explicit historical denominator; final actual selector manifest determines its own missing entries/backend UNRUN, with unknown omitted-case counts.",
+    "Historical2253cases/110files and earlier74/1317 snapshots impose no stop/cap/target on this actual final session."
+  ],
+  "publication_protocol": "Record complete moderate parser stdout/wrapper/small authoritative census as own docs-only handoff, large complete partition ignored path@sha/bytes, all6 exactinput refs, no nativewave repetition or findingclosure. Normal append commits/topic push/readback, no root-source edits or new checkout/helper.",
+  "execution_state": {
+    "new_pytest": "UNRUN_by_leaf",
+    "collection": "UNRUN_by_leaf",
+    "new_final_parser": "UNRUN_pending_completed_inputs",
+    "gates": "UNRUN_by_leaf",
+    "syntax_or_source_check": "read-only literal parserhash and launcher contract readiness verified; no runtimePASS claim"
+  }
+}

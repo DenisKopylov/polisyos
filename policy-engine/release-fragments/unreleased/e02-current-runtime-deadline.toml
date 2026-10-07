@@ -1,0 +1,11 @@
+id = "e02-current-runtime-deadline"
+title = "Preserve one invocation deadline and retry semantics across runtime boundaries"
+type = "fixed"
+component = "scientist.orchestration.engine"
+owner = "team-policyos-runtime"
+summary = "Retry resolves one monotonic deadline across admission, execution, backoff and result or error publication. Provider TimeoutError remains a provider exception. Thread owners synchronously cancel unstarted work and revoke owned writes on termination; an unconfigured async-to-sync bridge is explicitly unbounded. Linux process control exceptions carry finite typed semantics without arbitrary exception reconstruction."
+evidence = ["tests/unit/scientist/orchestration/engine/test_retry.py", "tests/unit/remediation/test_run_03.py", "tests/unit/common/test_async_tools.py"]
+compatibility = "The optional deadline_monotonic keyword preserves the existing retry entrypoints. Configured timeout_s is one invocation budget; callers may also supply an earlier absolute deadline. SystemExit supports None, int and string codes across the process boundary; unsupported codes fail once with node.control_unsupported."
+surface_classification = "internal: scientist retry runtime producer and consumers"
+migration = "No schema migration. Runtime consumers with an existing absolute owner deadline should pass deadline_monotonic so cache or startup time cannot renew the budget."
+limitations = "Arbitrary already-running threads and shielded coroutines remain cooperative. Their raw external effects cannot be revoked; typed expiry reports an unknown external outcome. Entered owned writes cannot be preempted. Native non-Linux process recovery and opaque external consumers require local acceptance."

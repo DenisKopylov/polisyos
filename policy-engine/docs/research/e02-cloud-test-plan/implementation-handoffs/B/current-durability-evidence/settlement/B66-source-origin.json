@@ -1,0 +1,17 @@
+{
+  "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python": "3.14.2",
+  "pydantic": "2.12.5",
+  "PYTHONPATH": "src",
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "modules": [
+    {
+      "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+    }
+  ]
+}

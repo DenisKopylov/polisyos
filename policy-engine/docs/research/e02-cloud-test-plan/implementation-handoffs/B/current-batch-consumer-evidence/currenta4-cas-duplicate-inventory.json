@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/cas_duplicate_inventory_probe.py"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "a4ec901bcb2cee3fea7032a0d6e4b6911fa21f83",
+  "tree": "f283e853b164d8439df0fce71ff7556f4e0a3edb",
+  "head_after": "a4ec901bcb2cee3fea7032a0d6e4b6911fa21f83",
+  "wall_s": 0.511653313995339,
+  "process_rusage_maxrss_kib": 49888,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta4-cas-duplicate-inventory.txt",
+  "output_sha256": "d64b9fbe998e0fff8f315593afb6f8e78d5ea52b9cb0657d06c6304d06d342f1",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

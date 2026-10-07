@@ -1,0 +1,1393 @@
+{
+  "schema": "policyos.e02.B.external_reader_review.v1",
+  "target_b_sha": "29024b9537b46376957350c9e12f648c0bfb2d63",
+  "external_d_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+  "input_artifact_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+  "predicate_basis": "independently_reconciled",
+  "profile_count": 15,
+  "predicate_pass": 5,
+  "predicate_fail": 10,
+  "new_provider_calls": 0,
+  "all_loaded_source_hashes_match_git": true,
+  "ledger_bytes_unchanged_all15": true,
+  "public_claim_boundary": "Actual native _refresh_budget_snapshot and actual CostBudgetStopping component composition only; not a full default factory/service/served search execution.",
+  "profiles": [
+    {
+      "profile": "tiny-positive",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/budget.json",
+        "bytes": 2443,
+        "sha256": "c4607aba3b668053baa141cff210f038e5f0bfede962d7c6462ef5d5004236ae"
+      },
+      "child_pid": 709453,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/tiny-positive/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "c4607aba3b668053baa141cff210f038e5f0bfede962d7c6462ef5d5004236ae"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "c4607aba3b668053baa141cff210f038e5f0bfede962d7c6462ef5d5004236ae"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:e8251b06ca9c452cb14816551abb874a": {
+          "obligation_id": "llm-producer:e8251b06ca9c452cb14816551abb874a",
+          "event_payload": {
+            "event_id": "llm-producer:e8251b06ca9c452cb14816551abb874a",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:e421478b099e5f445e4a8aff0c740c961a45a7db2ec1ee281bd7f9a0342175f3",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:70ffc388d1f5486893598a079f080f46",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "tiny-negative",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/budget.json",
+        "bytes": 2443,
+        "sha256": "cde0498c3be949326757415690ae4f87443d3d867e5d551df71a66cd7b77367e"
+      },
+      "child_pid": 710288,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/tiny-negative/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "cde0498c3be949326757415690ae4f87443d3d867e5d551df71a66cd7b77367e"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "cde0498c3be949326757415690ae4f87443d3d867e5d551df71a66cd7b77367e"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:661b9a22722c4698b536159e06d9293b": {
+          "obligation_id": "llm-producer:661b9a22722c4698b536159e06d9293b",
+          "event_payload": {
+            "event_id": "llm-producer:661b9a22722c4698b536159e06d9293b",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:7ea227e94a501320ed402208884235fd56e96bacb2432a52ae9c8c1f69602d96",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:e34d1235c8234af8ba91ca6d5d363eb9",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "missing",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/budget.json",
+        "bytes": 2443,
+        "sha256": "de005824e05788c9049f2b735de451f88d09a6e3fb127d55bcf8ea5724afa1a5"
+      },
+      "child_pid": 711315,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/missing/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "de005824e05788c9049f2b735de451f88d09a6e3fb127d55bcf8ea5724afa1a5"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "de005824e05788c9049f2b735de451f88d09a6e3fb127d55bcf8ea5724afa1a5"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:bbb9ec97dfe34152a13227bbbf5f0bec": {
+          "obligation_id": "llm-producer:bbb9ec97dfe34152a13227bbbf5f0bec",
+          "event_payload": {
+            "event_id": "llm-producer:bbb9ec97dfe34152a13227bbbf5f0bec",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:bbb7f374772e57378e4cc7f2f1f672a3846ca190346d4d2d314f2bd6a2498c67",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:33f1d93b23e745d59d25c13da5800ffd",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "null",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/budget.json",
+        "bytes": 2443,
+        "sha256": "47ad79a174c0a45857fb2f0813ffe65653d82f3eef8c0df25c5aaa86973ba7c9"
+      },
+      "child_pid": 712325,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/null/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "47ad79a174c0a45857fb2f0813ffe65653d82f3eef8c0df25c5aaa86973ba7c9"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "47ad79a174c0a45857fb2f0813ffe65653d82f3eef8c0df25c5aaa86973ba7c9"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:eb0767c7b75548fab0971a6a2664d66b": {
+          "obligation_id": "llm-producer:eb0767c7b75548fab0971a6a2664d66b",
+          "event_payload": {
+            "event_id": "llm-producer:eb0767c7b75548fab0971a6a2664d66b",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:6ff6b40c7df80ef42b2d33e8a134cf879063d5e8cc51bc128ab2f4e894674999",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:7b417dc06ba74e5294bb3daa888fd144",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "integer-zero",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/budget.json",
+        "bytes": 3265,
+        "sha256": "289879acd533d966dab97c7b6dddf938e8d37435bcf5f86b2aa2050ae81b81f4"
+      },
+      "child_pid": 713151,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/integer-zero/budget.json"
+      ],
+      "known_amount": "0",
+      "predicate_outcome": "PASS",
+      "ledger_before": {
+        "bytes": 3265,
+        "sha256": "289879acd533d966dab97c7b6dddf938e8d37435bcf5f86b2aa2050ae81b81f4"
+      },
+      "ledger_after": {
+        "bytes": 3265,
+        "sha256": "289879acd533d966dab97c7b6dddf938e8d37435bcf5f86b2aa2050ae81b81f4"
+      },
+      "actual_completion_obligations": {},
+      "actual_spend_receipts": {
+        "llm-producer:7e8c214129b042ccb26e70420f80a689:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+          "event_id": "llm-producer:7e8c214129b042ccb26e70420f80a689:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "payload_digest": "6cb8f8526c40041570d8280a27b8d453c741265b5973266fe320123b0f37d060",
+          "key": "run",
+          "amount": "0.0",
+          "provider": "local-http",
+          "revision": 3,
+          "committed_at": "2026-10-07T07:43:02.487453Z"
+        }
+      },
+      "actual_spent": {
+        "run": "0.0"
+      },
+      "actual_reserved": {
+        "run": "0"
+      },
+      "canonical_pre_check_error": null,
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {
+          "local-http": 0.0
+        },
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": true
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {
+              "local-http": 0.0
+            },
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": true
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "decimal-zero",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/budget.json",
+        "bytes": 3265,
+        "sha256": "28fb818f8600a2d6bc7cac6801af7e08be0a5f75484b0bbb7d06018d7de8264b"
+      },
+      "child_pid": 713981,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/decimal-zero/budget.json"
+      ],
+      "known_amount": "0",
+      "predicate_outcome": "PASS",
+      "ledger_before": {
+        "bytes": 3265,
+        "sha256": "28fb818f8600a2d6bc7cac6801af7e08be0a5f75484b0bbb7d06018d7de8264b"
+      },
+      "ledger_after": {
+        "bytes": 3265,
+        "sha256": "28fb818f8600a2d6bc7cac6801af7e08be0a5f75484b0bbb7d06018d7de8264b"
+      },
+      "actual_completion_obligations": {},
+      "actual_spend_receipts": {
+        "llm-producer:dcbe717b44ac405582e1fbad12628675:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+          "event_id": "llm-producer:dcbe717b44ac405582e1fbad12628675:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "payload_digest": "b224e9740b24e351f23c49df350f59f43c9c72b7f746af42a89e80aeef7da260",
+          "key": "run",
+          "amount": "0.0",
+          "provider": "local-http",
+          "revision": 3,
+          "committed_at": "2026-10-07T07:43:12.362182Z"
+        }
+      },
+      "actual_spent": {
+        "run": "0.0"
+      },
+      "actual_reserved": {
+        "run": "0"
+      },
+      "canonical_pre_check_error": null,
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {
+          "local-http": 0.0
+        },
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": true
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {
+              "local-http": 0.0
+            },
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": true
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "negative-integer-zero",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/budget.json",
+        "bytes": 3265,
+        "sha256": "bf567a06bcd67ae63b3ffea0e90b94fd2496ed98ab3b0c9dced16ff5f7047bb0"
+      },
+      "child_pid": 714807,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/negative-integer-zero/budget.json"
+      ],
+      "known_amount": "0",
+      "predicate_outcome": "PASS",
+      "ledger_before": {
+        "bytes": 3265,
+        "sha256": "bf567a06bcd67ae63b3ffea0e90b94fd2496ed98ab3b0c9dced16ff5f7047bb0"
+      },
+      "ledger_after": {
+        "bytes": 3265,
+        "sha256": "bf567a06bcd67ae63b3ffea0e90b94fd2496ed98ab3b0c9dced16ff5f7047bb0"
+      },
+      "actual_completion_obligations": {},
+      "actual_spend_receipts": {
+        "llm-producer:9855f03ef0ff40998bf4f2a82d6be684:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+          "event_id": "llm-producer:9855f03ef0ff40998bf4f2a82d6be684:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "payload_digest": "d5b4da44940dc9fb3487ab19ed939b6e332cad7f0fd7d71823f501f07e03b309",
+          "key": "run",
+          "amount": "0.0",
+          "provider": "local-http",
+          "revision": 3,
+          "committed_at": "2026-10-07T07:43:22.246359Z"
+        }
+      },
+      "actual_spent": {
+        "run": "0.0"
+      },
+      "actual_reserved": {
+        "run": "0"
+      },
+      "canonical_pre_check_error": null,
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {
+          "local-http": 0.0
+        },
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": true
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {
+              "local-http": 0.0
+            },
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": true
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "negative-decimal-zero",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/budget.json",
+        "bytes": 3268,
+        "sha256": "2a98de3eac1045157813cc75132c414ec473b65c1e4f3bc9f9e2ef9e4575cf64"
+      },
+      "child_pid": 715691,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/negative-decimal-zero/budget.json"
+      ],
+      "known_amount": "0",
+      "predicate_outcome": "PASS",
+      "ledger_before": {
+        "bytes": 3268,
+        "sha256": "2a98de3eac1045157813cc75132c414ec473b65c1e4f3bc9f9e2ef9e4575cf64"
+      },
+      "ledger_after": {
+        "bytes": 3268,
+        "sha256": "2a98de3eac1045157813cc75132c414ec473b65c1e4f3bc9f9e2ef9e4575cf64"
+      },
+      "actual_completion_obligations": {},
+      "actual_spend_receipts": {
+        "llm-producer:be9fbba407b14eaabc51f731302add62:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+          "event_id": "llm-producer:be9fbba407b14eaabc51f731302add62:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "payload_digest": "c205e6782a8f2423a7755bc9a1223371de2ea0c4a80f54b7e569ae90b8a6cf07",
+          "key": "run",
+          "amount": "-0.0",
+          "provider": "local-http",
+          "revision": 3,
+          "committed_at": "2026-10-07T07:43:31.868760Z"
+        }
+      },
+      "actual_spent": {
+        "run": "0.0"
+      },
+      "actual_reserved": {
+        "run": "0"
+      },
+      "canonical_pre_check_error": null,
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {
+          "local-http": 0.0
+        },
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": true
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {
+              "local-http": 0.0
+            },
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": true
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "ordinary-positive",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/budget.json",
+        "bytes": 3270,
+        "sha256": "63bd17a30a037db4f15f66f2ac68471ad164cf87f230f0e80a954922e95ff8b0"
+      },
+      "child_pid": 716707,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/ordinary-positive/budget.json"
+      ],
+      "known_amount": "0.02",
+      "predicate_outcome": "PASS",
+      "ledger_before": {
+        "bytes": 3270,
+        "sha256": "63bd17a30a037db4f15f66f2ac68471ad164cf87f230f0e80a954922e95ff8b0"
+      },
+      "ledger_after": {
+        "bytes": 3270,
+        "sha256": "63bd17a30a037db4f15f66f2ac68471ad164cf87f230f0e80a954922e95ff8b0"
+      },
+      "actual_completion_obligations": {},
+      "actual_spend_receipts": {
+        "llm-producer:fa50437bb99c4624b8de38fbeb74cd56:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+          "event_id": "llm-producer:fa50437bb99c4624b8de38fbeb74cd56:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+          "payload_digest": "c9a002f6c1b8c15473e1002f0bbfe02a1d4598acd864982ce3327bca94f507eb",
+          "key": "run",
+          "amount": "0.02",
+          "provider": "local-http",
+          "revision": 3,
+          "committed_at": "2026-10-07T07:43:41.814421Z"
+        }
+      },
+      "actual_spent": {
+        "run": "0.02"
+      },
+      "actual_reserved": {
+        "run": "0"
+      },
+      "canonical_pre_check_error": null,
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.02
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {
+          "local-http": 0.02
+        },
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": true
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.02,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {
+              "local-http": 0.02
+            },
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": true
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "ordinary-negative",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/budget.json",
+        "bytes": 2443,
+        "sha256": "980a6bb3f7390003eabae46bef05fe6599844f35520ecbf0cb21e72f55940087"
+      },
+      "child_pid": 717536,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/ordinary-negative/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "980a6bb3f7390003eabae46bef05fe6599844f35520ecbf0cb21e72f55940087"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "980a6bb3f7390003eabae46bef05fe6599844f35520ecbf0cb21e72f55940087"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:c790e62ebcb94bf08faafd89ca34aa3e": {
+          "obligation_id": "llm-producer:c790e62ebcb94bf08faafd89ca34aa3e",
+          "event_payload": {
+            "event_id": "llm-producer:c790e62ebcb94bf08faafd89ca34aa3e",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:0628c475b8805ee4bc22186d4c87063a31df0be7577f908b95c88c5ed6f9645a",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:215e37faa4514077b2d6112f93a24c03",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "boolean-true",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/budget.json",
+        "bytes": 2443,
+        "sha256": "8c2c021e19e8fdfd6771848cc3209e8974ab4a887d80e354209d47004cfb1170"
+      },
+      "child_pid": 718841,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/boolean-true/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "8c2c021e19e8fdfd6771848cc3209e8974ab4a887d80e354209d47004cfb1170"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "8c2c021e19e8fdfd6771848cc3209e8974ab4a887d80e354209d47004cfb1170"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:04f2fcae01bb483a9b066bc50efe5077": {
+          "obligation_id": "llm-producer:04f2fcae01bb483a9b066bc50efe5077",
+          "event_payload": {
+            "event_id": "llm-producer:04f2fcae01bb483a9b066bc50efe5077",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:07e04625e9b0dc4ddf085a36177d90b5940c755e7a2ec7acd267cdd0089af675",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:d073cb7eb6a94272a061869f89905026",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "boolean-false",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/budget.json",
+        "bytes": 2443,
+        "sha256": "60695b04f40ee4e401295b990d764c41084b8faeb73aa0b2253f03f7f578c381"
+      },
+      "child_pid": 719671,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/boolean-false/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "60695b04f40ee4e401295b990d764c41084b8faeb73aa0b2253f03f7f578c381"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "60695b04f40ee4e401295b990d764c41084b8faeb73aa0b2253f03f7f578c381"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:0c7de3607add4337a6646605e79ed317": {
+          "obligation_id": "llm-producer:0c7de3607add4337a6646605e79ed317",
+          "event_payload": {
+            "event_id": "llm-producer:0c7de3607add4337a6646605e79ed317",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:5ea6f7fcb3b99af74a2ed921f903caf72e1787a3c66f1c129a320c66fe93d12b",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:980cbdf044a945ef902e461ae68207f1",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "nan",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/budget.json",
+        "bytes": 2443,
+        "sha256": "b3ef62de3ee275e4bd56e268f88d5b54962916521d86b23802fe1a789c9185f2"
+      },
+      "child_pid": 720501,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/nan/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "b3ef62de3ee275e4bd56e268f88d5b54962916521d86b23802fe1a789c9185f2"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "b3ef62de3ee275e4bd56e268f88d5b54962916521d86b23802fe1a789c9185f2"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:62714f18ad6b4a539eaa71dbce23ed3a": {
+          "obligation_id": "llm-producer:62714f18ad6b4a539eaa71dbce23ed3a",
+          "event_payload": {
+            "event_id": "llm-producer:62714f18ad6b4a539eaa71dbce23ed3a",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:c6e1d5a2b168d4e5bea59210e68e856b252f16489889fe0fd099a6488fe43adc",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:82f02a54957f4c98ab4d48984b4f8f60",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "positive-infinity",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/budget.json",
+        "bytes": 2443,
+        "sha256": "a75b086323cc6549b17bd96c09797c52fb570064005473744bf6cd79779d91e7"
+      },
+      "child_pid": 721453,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/positive-infinity/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "a75b086323cc6549b17bd96c09797c52fb570064005473744bf6cd79779d91e7"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "a75b086323cc6549b17bd96c09797c52fb570064005473744bf6cd79779d91e7"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:9351cb310b434bcbac41e0db118fbea9": {
+          "obligation_id": "llm-producer:9351cb310b434bcbac41e0db118fbea9",
+          "event_payload": {
+            "event_id": "llm-producer:9351cb310b434bcbac41e0db118fbea9",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:435617c7535da2df7e71f54a1e97db1a55b1efc0897514acd3d8004b79ec25f3",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:d6043986c5cb42c288020dfc8c040432",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    },
+    {
+      "profile": "negative-infinity",
+      "input_ref": {
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/budget.json",
+        "bytes": 2443,
+        "sha256": "323e7dfa96879d81cb3b4c220e90f80423362a13d4553a87a5137de06f8790ca"
+      },
+      "child_pid": 722362,
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-gateway-D-controller/probe.py",
+        "--child",
+        "/tmp/e02-B-gateway-D-controller/deciding-15/negative-infinity/budget.json"
+      ],
+      "known_amount": null,
+      "predicate_outcome": "FAIL",
+      "ledger_before": {
+        "bytes": 2443,
+        "sha256": "323e7dfa96879d81cb3b4c220e90f80423362a13d4553a87a5137de06f8790ca"
+      },
+      "ledger_after": {
+        "bytes": 2443,
+        "sha256": "323e7dfa96879d81cb3b4c220e90f80423362a13d4553a87a5137de06f8790ca"
+      },
+      "actual_completion_obligations": {
+        "llm-producer:27b32c497cea40fe814637d5c04b58b7": {
+          "obligation_id": "llm-producer:27b32c497cea40fe814637d5c04b58b7",
+          "event_payload": {
+            "event_id": "llm-producer:27b32c497cea40fe814637d5c04b58b7",
+            "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+            "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+            "model": "gpt-4o",
+            "provider": "local-http",
+            "amount": null,
+            "cost_origin": "unknown",
+            "kind": "provider",
+            "origin_event_id": null
+          },
+          "event_digest": "sha256:3d4c57c1b6d168f2bdb8aede3f77c62f1745ce20dde420221027c8168d80477a",
+          "run_id": "raw-http-money",
+          "owner_epoch": "667559:a80b821910bc4669a6e888f6fea5ee51",
+          "budget_keys": [
+            "run"
+          ],
+          "reserved_amounts": {
+            "run": "0.0000225"
+          },
+          "phase": "cost_unknown",
+          "known_receipt_ids": [],
+          "required_action": null
+        }
+      },
+      "actual_spend_receipts": {},
+      "actual_spent": {},
+      "actual_reserved": {
+        "run": "0.0000225"
+      },
+      "canonical_pre_check_error": "BudgetLedgerCompletionRequiredError",
+      "controller_budget_available": true,
+      "controller_budget_snapshot": {
+        "cumulative_cost_usd": 0.0
+      },
+      "controller_budget_evidence": {
+        "source": "configured_owner_recorded_state",
+        "receipt_revision_available": false,
+        "provider_cost_origin_available": false,
+        "recorded_by_provider": {},
+        "unavailable_reason": null,
+        "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+        "coordination_mode": "shared_posix_file_lock",
+        "recorded_spend_key_present": false
+      },
+      "actual_stopping_decision": {
+        "should_stop": false,
+        "reason": null,
+        "details": {
+          "cost": 0.0,
+          "budget": 1.0,
+          "cost_key": "cumulative_cost_usd",
+          "budget_evidence": {
+            "source": "configured_owner_recorded_state",
+            "receipt_revision_available": false,
+            "provider_cost_origin_available": false,
+            "recorded_by_provider": {},
+            "unavailable_reason": null,
+            "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+            "coordination_mode": "shared_posix_file_lock",
+            "recorded_spend_key_present": false
+          },
+          "budget_available": true
+        }
+      }
+    }
+  ],
+  "raw_complete_observations": {
+    "path": "/tmp/e02-B-gateway-D-controller/deciding-15/observations.json",
+    "bytes": 4550007,
+    "sha256": "0100779e5fdcc33a4eb9a9555493d9557d3d38e8a8a3eaf88a4a574575caf6e3",
+    "full_content_in_committed_native_stdout": true
+  },
+  "input_qualification": {
+    "own_head_at_execution": "29024b9537b46376957350c9e12f648c0bfb2d63",
+    "own_tree": "86bc69364bfe45cabf9f1069d440b34942957aa7",
+    "production_zero_delta_from_f796": true,
+    "external_d_not_integrated": true,
+    "source_before_after_checks": "Every actual loaded Bmodule matched Git290; every actual Dmodule Git8f; fresh ledger copies matched actual E7 HTTP artifacts at Gitb82.",
+    "initial_premise_side_effect": "Initial zero control used retained donor directly and created its native zero-byte .lock; donor bytes unchanged; lock preserved in this implementation, no cleanup."
+  },
+  "contract_to_D_G": {
+    "existing_expected_invariant": "A pending cost_unknown completion obligation must remain unavailable to stopping/action budget consumers, while actual acknowledged zero remains available.",
+    "canonical_owner": "D scientific methods search controller budget snapshot reader; B monetary decoder unchanged and independently verified at E7.",
+    "candidate_input": "ExactD8f controller647-710/CostBudgetStopping and each retainedE7ledger sourceb82; native15 has10 unknown vs5 acknowledged numeric controls.",
+    "negative_case": "Real ledger cost_unknown amountNone/no receipt/positive reservation and Bpre_check refusal is observed simultaneously with D snapshot0 available and stopFalse.",
+    "suggested_minimal_existing_contract": "Read canonical completion-aware middleware admission/status before marking configured-owner spend available; retain exact existing knownzero/ordinarypositive controls. D owner decides how exceptions/unknown status enter snapshot.",
+    "no_invented_authority": "No new billing fact, default invoice, zero settlement or provider retry is authorized by this projection."
+  }
+}

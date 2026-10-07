@@ -1,0 +1,59 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "mypy",
+    "--follow-imports=silent",
+    "--ignore-missing-imports",
+    "--cache-dir",
+    "/dev/shm/e02-B-worker-static/mypy-cache",
+    "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/adversary.py",
+    "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/translator.py"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_source_sha": "82f7656a3848225c615dfef8c363e914dafe7e3e",
+  "source_files": [
+    {
+      "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/__init__.py",
+      "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/__init__.py",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/__init__.py",
+      "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/__init__.py",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/__init__.py",
+      "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/__init__.py",
+      "bytes": 8526,
+      "sha256": "18bfb35730f0148d4542decc052e18f7e29fcb4f49360f379f1fe629d54cb82c"
+    },
+    {
+      "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/adversary.py",
+      "bytes": 15332,
+      "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+    },
+    {
+      "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/translator.py",
+      "bytes": 15582,
+      "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1"
+    }
+  ],
+  "explicit_environment": {
+    "MYPYPATH": "/workspace/e02-B-current-adapters/policy-engine/src"
+  },
+  "input_closure": "Exact two predecessor worker source files and namespace init files exported read-only; unchanged transitive dependencies resolved from current admitted source. Helper did not exist in predecessor and is not a baseline target. This is source-equivalent typing control, not a full predecessor runtime/worktree.",
+  "actual_exit": 1,
+  "wall_seconds": 3.3274225929926615,
+  "max_rss_kib": 580796,
+  "output": {
+    "path": "/dev/shm/e02-B-worker-static/base-control.txt",
+    "sha256": "f5a520e7fb0025d01af356790ba963e133ecd2619b8d9c27322cee33326a1402",
+    "bytes": 3686
+  }
+}

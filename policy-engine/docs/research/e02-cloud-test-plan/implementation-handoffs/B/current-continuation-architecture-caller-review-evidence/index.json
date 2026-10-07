@@ -1,0 +1,20 @@
+{
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-architecture-caller-review-evidence/caller-delta.patch.txt",
+      "sha256": "2a37168fcc5ec4f2dec6ca41e4d8c0284210e50d71654f7aec2cdad4d28bb5b4",
+      "bytes": 2295
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-architecture-caller-review-evidence/root-final-source-qualification.json",
+      "sha256": "5d054ed5b0bf1fddd0af729da5b4480343bae823e983447922b8f25903afa282",
+      "bytes": 2824
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-architecture-caller-review-evidence/source-review.json",
+      "sha256": "4ab3378be2a328f8de94fc34c7d759e24a2cb372db36426cce86112f91dcd685",
+      "bytes": 4753
+    }
+  ],
+  "payload_bytes": 9872
+}

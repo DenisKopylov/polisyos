@@ -1,0 +1,8 @@
+{
+  "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "instrument": "instruments/removal-child.py.source.txt",
+  "overlay": "identity._data_field_getattr=lambda function,name,captures:None; source files unchanged",
+  "same_case_control": "test_finite_aliased_data_getter_keeps_real_numeric_warm_handles[True] passed in completed-native: same kernel, old20/warm30; removal returns typed CompilationError beforecompile",
+  "observed_removal": "1 actual FAIL; matched numeric/kernel assertions not reached because useful supported getter admission is removed",
+  "quantity_bound": "Demonstrates finite admission matters to real numerical compiler consumer, not universal checkpoint source closure."
+}

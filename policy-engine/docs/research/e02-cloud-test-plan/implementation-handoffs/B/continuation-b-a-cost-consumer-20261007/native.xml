@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="4" time="22.449" timestamp="2026-10-07T07:33:34.753068+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_producer_ledger_truth_survives_a_optional_projection[unknown]" time="0.015"><failure message="AssertionError: A projection must distinguish unknown provider cost from reported or estimated zero&#10;assert 0.0 == None">tmp_path = PosixPath('/tmp/e02-B-runtime-continuation-20261007/b-a-projection/pytest/test_producer_ledger_truth_sur0')
+kind = 'unknown'
+
+    @pytest.mark.parametrize("kind", ["unknown", "reported-zero", "reported-positive", "estimated"])
+    def test_producer_ledger_truth_survives_a_optional_projection(tmp_path: Path, kind: str) -&gt; None:
+        observed = asyncio.run(_exercise(tmp_path, kind))
+        print("B_A_CONSUMER_ACTUAL " + json.dumps(observed, sort_keys=True))
+        expected = observed["optional_actual_observer_event"]["cost_usd"]
+&gt;       assert observed["actual_A_projection"]["cost_usd"] == expected, (
+            "A projection must distinguish unknown provider cost from reported or estimated zero"
+        )
+E       AssertionError: A projection must distinguish unknown provider cost from reported or estimated zero
+E       assert 0.0 == None
+
+tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py:167: AssertionError</failure></testcase><testcase classname="" name="test_producer_ledger_truth_survives_a_optional_projection[reported-zero]" time="0.014" /><testcase classname="" name="test_producer_ledger_truth_survives_a_optional_projection[reported-positive]" time="0.013" /><testcase classname="" name="test_producer_ledger_truth_survives_a_optional_projection[estimated]" time="0.013" /></testsuite></testsuites>

@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/inventory.json",
+    "bytes": 20392426,
+    "sha256": "97f2314c77ce5611d32037f060adb569152ea502dad597de77df90a66448bc01",
+    "custody": "preserved deciding output; excluded from newly authorized cloud cleanup",
+    "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "transfer_role": "large ignored raw path@sha; full moderate stdout and JUnit also transferred losslessly in Git"
+  },
+  {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/runtime-reports.jsonl",
+    "bytes": 7372479,
+    "sha256": "4f9132679ad3c7d539e940c2b60de1dc320a1b159e19620a0b4bff8cc7626806",
+    "custody": "preserved deciding output; excluded from newly authorized cloud cleanup",
+    "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "transfer_role": "large ignored raw path@sha; full moderate stdout and JUnit also transferred losslessly in Git"
+  },
+  {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.txt",
+    "bytes": 4551084,
+    "sha256": "ffe9b73469ce61c647b3ce5a0992e4dfa6038eeb3efd2e2906b5545586106231",
+    "custody": "preserved deciding output; excluded from newly authorized cloud cleanup",
+    "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "transfer_role": "large ignored raw path@sha; full moderate stdout and JUnit also transferred losslessly in Git"
+  },
+  {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml",
+    "bytes": 4697237,
+    "sha256": "beb9c1aab3508e78d07445b223aa6f4116ae37500f23f5fb107ba32ad4cd2108",
+    "custody": "preserved deciding output; excluded from newly authorized cloud cleanup",
+    "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "transfer_role": "large ignored raw path@sha; full moderate stdout and JUnit also transferred losslessly in Git"
+  },
+  {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/selector-6fa9b7142ba5-lineage.json",
+    "bytes": 149065446,
+    "sha256": "d6cdf347f62f6d6bf99026b76d72d66afa631c52b19a41e37a7762577416d1a9",
+    "custody": "preserved deciding output; excluded from newly authorized cloud cleanup",
+    "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "transfer_role": "large ignored raw path@sha; full moderate stdout and JUnit also transferred losslessly in Git"
+  }
+]

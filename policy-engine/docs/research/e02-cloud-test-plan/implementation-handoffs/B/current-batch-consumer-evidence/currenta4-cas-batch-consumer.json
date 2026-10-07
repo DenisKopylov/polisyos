@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py",
+    "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta4-cas-batch-consumer.xml",
+    "--basetemp=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta4-cas-batch-pytest"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "a4ec901bcb2cee3fea7032a0d6e4b6911fa21f83",
+  "tree": "f283e853b164d8439df0fce71ff7556f4e0a3edb",
+  "head_after": "a4ec901bcb2cee3fea7032a0d6e4b6911fa21f83",
+  "wall_s": 4.90443502200651,
+  "process_rusage_maxrss_kib": 92500,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta4-cas-batch-consumer.txt",
+  "output_sha256": "594438f46a6cbf0285a994a5d77df5df7c87f1de8fe9ad3064fa5ec039645733",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

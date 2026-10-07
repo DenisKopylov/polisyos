@@ -1,0 +1,13 @@
+from pathlib import Path
+import json
+arg='@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args'
+rows=[]
+for p in Path('/proc').iterdir():
+ if not p.name.isdigit():continue
+ try:
+  cmd=(p/'cmdline').read_bytes().decode().split('\0')
+  if arg not in cmd:continue
+  env=dict(x.split('=',1) for x in (p/'environ').read_bytes().decode().split('\0') if '=' in x)
+  rows.append({'pid':int(p.name),'argv':cmd[:-1],'E02_REMOVE_PROTECTION':env.get('E02_REMOVE_PROTECTION'),'present': 'E02_REMOVE_PROTECTION' in env,'cwd':str((p/'cwd').readlink())})
+ except (OSError,UnicodeError):pass
+print(json.dumps(rows,indent=2))

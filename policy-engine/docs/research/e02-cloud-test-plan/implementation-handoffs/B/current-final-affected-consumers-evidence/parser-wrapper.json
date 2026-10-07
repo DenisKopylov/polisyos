@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.parser_input_aliases.v1",
+  "head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+  "head_after": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+  "tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/selectors.args",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "current_cohort_inventory",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/fixtures",
+    "--junitxml",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "output_sha256": "c3bd7294fd8d47583c7531129994ab77c55042e4a5322f09655d4582378e015c",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.txt",
+  "exit_code": 0,
+  "wall_s": 432.1670279940008,
+  "process_rusage_maxrss_kib": 1026224,
+  "harness_state": "EXECUTED",
+  "setup_failure": null,
+  "original_wrapper": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/wrapper.json",
+    "bytes": 1808,
+    "sha256": "6b3a6e7909f2c9651cd164798b62ec7fe6b17801f8cc47484e019fbf93e11f73"
+  },
+  "field_mapping": {
+    "head": "source_before.head",
+    "head_after": "source_after.head",
+    "tree": "source_before.tree",
+    "command": "argv",
+    "cwd": "execution-profile.cwd",
+    "output_sha256": "stdout.sha256",
+    "output_path": "stdout.path",
+    "exit_code": "actual_exit_code",
+    "process_rusage_maxrss_kib": "max_rss_kib"
+  }
+}

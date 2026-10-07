@@ -1,0 +1,130 @@
+{
+  "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+  "core_owner_source_inputs": [
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+      "bytes": 20488,
+      "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802"
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+      "bytes": 9651,
+      "sha256": "e214ad4b56b01e4e700803d46c57ed81f806e2bf04b2687d62ac0cf5b0794cc4"
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/src/polisyos/core/observability/config.py",
+      "bytes": 5902,
+      "sha256": "08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0"
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+      "bytes": 49658,
+      "sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85"
+    },
+    {
+      "source_sha": "4ffda745bab4f6f4bac4e78349da225c8c2dc999",
+      "path": "policy-engine/src/polisyos/fabric/connectors/testing/simulator.py",
+      "bytes": 19254,
+      "sha256": "cf46181ee17c09b39f3b3cfd546bd96194e496060e1db2ee2372dae0f0c266ab"
+    }
+  ],
+  "installed_actual_source_files": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/tmpdir.py",
+      "bytes": 11387,
+      "sha256": "d9f10512bc4bfdc0e94bd78adfdbb32fd534903d9ca50b4f6ad474ffed031e55"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_benchmark/storage/file.py",
+      "bytes": 4331,
+      "sha256": "16094da2e6f10487f54556bd1e32b7695dabba0b2533834999b390d936908bcf"
+    }
+  ],
+  "literal_ignored_observer_copy": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/current_cohort_inventory.py",
+    "bytes": 20488,
+    "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802"
+  },
+  "planned_storage_route": {
+    "tmp": "argsfile, per-invocation basetemp and pytest cache, JUnit, profile. Distinct successor-final namespace.",
+    "root_overlay": "observer inventory must resolve inside actual Git-ignored repository; capture_frozen stdout/wrapper remain in root .polisyos/raw/review.",
+    "other_root_writes": "tests/conftest configures _cache/hypothesis; pytest.ini benchmark-storage remains _cache/benchmarks; Python default bytecode cache can write ignored__pycache__."
+  },
+  "actual_conflict_controls": [
+    {
+      "property": "No reuse of native basetemp/cache/XML/inventory",
+      "owner_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "actual_source": "4ff source refuses exists or dangling symlink for each destination before argsfile creation; argsfile/profile open x, observer/capture outputs O_EXCL.",
+      "limit": "Owned-lane fresh admission, not an atomic reservation against arbitrary concurrent outside creator; no pre-existing fixtures erased by this reviewer."
+    },
+    {
+      "property": "No fixed metrics port collision in declared launch environment",
+      "owner_source": "policy-engine/src/polisyos/core/observability/config.py",
+      "actual_source": "Launcher POLISYOS_METRICS_PORT0 feeds metrics_port default factory; actual metrics bootstrap calls start_http_server configuredport.",
+      "limit": "Port0 is OS-selected ephemeral; scoped directinputs cannot prove all runtime/service ports absent."
+    },
+    {
+      "property": "Actual selected socket/SQLite fixture ownership",
+      "actual_source": "transfer_generation_publication socket sites173/499 use socket.AF_UNIX and per-testtmp_path names; inspected control-plane/durability SQLite sites receive tmp_path DB paths; runtime_http autouse cache isolation uses per-testtmp_path; artifact helper CAS root per-testtmp_path.",
+      "limit": "Finite traced ports/DB fixture paths, no universal resource/readset absence claim."
+    },
+    {
+      "property": "No external record/golden writers inferred from selected rootfixtures",
+      "actual_source": "connectors conftest simulator defaults REPLAY because no --record-mode; default shared fixture tree and golden generatedrecords paths remain potential explicit modes.",
+      "limit": "Lexical selected229 module functionargs named api_simulator/fixtures_root/golden_check/golden_store/golden_records_path0; not dynamic fixture activation proof."
+    },
+    {
+      "property": "Shared gate writers",
+      "actual_source": "uncapped constituents verify/parity share last-mile artifact outputs and pnpm lock writer; launcher documents sequential invocation. Hypothesis/benchmark caches are root-shared across Python invocations.",
+      "limit": "Actual launch scheduler must preserve conflicting-writer serialization; this review executes no gate. No compute/process quota proposed."
+    }
+  ],
+  "numeric_quota_assessment": {
+    "current_parent_variables": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_NUM_THREADS": null,
+      "TF_NUM_INTEROP_THREADS": null,
+      "TF_NUM_INTRAOP_THREADS": null,
+      "TF_INTER_OP_PARALLELISM_THREADS": null,
+      "TF_INTRA_OP_PARALLELISM_THREADS": null,
+      "NUMBA_NUM_THREADS": null,
+      "LOKY_MAX_CPU_COUNT": null,
+      "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+    },
+    "explicit_direct_scope_count": 248,
+    "source_result": "No envnumeric-thread/CPU quota setter, affinity/RLIMIT, threadpool_limits or config worker cap found in governed directsource scan. Matches are typed command-metadata assertions and intentionally capacity-bound concurrent fixture/API tests.",
+    "command_metadata_case": "test_workspace_commands full source only constructs CommandSpec and asserts envvalues; no subprocess execution or ambientenv mutation in those tests.",
+    "semantic_JAX_settings": "CPU backend, preallocationfalse andX64 conftest settings are backend/dtype semantics, not numerical thread/process quotas.",
+    "limits": "Not dependency-wide/runtime-generated child/source execution census; future actual profile and observer remain deciding."
+  },
+  "storage_semantics": "Actual/tmp is tmpfs on separatedevice. Real file/process/flock/replace/fsync API paths remain executable; no device-power-loss or persistent-device durability claim. Measured available bytes are not process or numerical quotas.",
+  "explicit_current_parent_fixture_and_runner_flags": {
+    "E02_B_PROPERTY_REMOVAL": null,
+    "GOLDEN_UPDATE": null,
+    "GOLDEN_STRICT": null,
+    "PYTEST_ADDOPTS": null,
+    "PYTEST_PLUGINS": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "PYTEST_XDIST_WORKER": null,
+    "PYTEST_XDIST_AUTO_NUM_WORKERS": null,
+    "TMPDIR": null,
+    "TEMP": null,
+    "TMP": null
+  }
+}

@@ -1,0 +1,1665 @@
+{
+  "schema": "policyos.e02.finite_consumer_census.v1",
+  "target_sha": "a6259c232f7d2c61553f02485b988086cf00337a",
+  "target_tree": "acb73b0279faeabba1c3b12c18d0cd0aab4eb562",
+  "complete_denominator": {
+    "tracked_blob_files": 13750,
+    "tracked_python_files": 6444,
+    "parsed_python_files": 6444,
+    "python_path_blob_manifest_sha256": "7e564cef93b22f7664086edbe22beead9a0d44679f59d8c82ae1f906c6c52eb5",
+    "typing_configuration_files": 10
+  },
+  "parse_failures": [],
+  "related_consumers": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "blob": "a664d69d1d0ba58841c530a901783977072523b2",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 9,
+          "names": [
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 26,
+          "expression": "getattr(store, 'put_json', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "blob": "4c0b0e74cd199ceaeabc6eff5a2b6a4a24688b21",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 30,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 220,
+          "expression": "getattr(module, name)"
+        },
+        {
+          "line": 450,
+          "expression": "getattr(policy, name, default)"
+        },
+        {
+          "line": 1937,
+          "expression": "getattr(exc, 'status', None)"
+        },
+        {
+          "line": 1937,
+          "expression": "getattr(exc, 'status_code', None)"
+        },
+        {
+          "line": 730,
+          "expression": "getattr(config, 'observation_mode', 'all')"
+        },
+        {
+          "line": 2011,
+          "expression": "getattr(result, 'bytes_transferred', 0)"
+        },
+        {
+          "line": 2537,
+          "expression": "getattr(polled, 'bytes_transferred', 0)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "blob": "1a2e73df2ac53900879cb17bafb21aad6f4f8138",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 30,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 113,
+          "expression": "getattr(module, name)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "blob": "21d43040f1418712dcf568a096f371e646ae4e25",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 30,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 215,
+          "expression": "getattr(module, name)"
+        },
+        {
+          "line": 1159,
+          "expression": "getattr(capability, 'preferred_transport', None)"
+        },
+        {
+          "line": 1078,
+          "expression": "getattr(config, 'observation_mode', 'all')"
+        },
+        {
+          "line": 1254,
+          "expression": "getattr(capability, 'version_hint', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "blob": "9a4c6ff1d96cfc8b546e8c82c4723a8ec6651d1a",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 30,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 215,
+          "expression": "getattr(module, name)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "blob": "f9808edde2972c8be45a56121f605dd6e21e4d18",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 30,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 121,
+          "expression": "getattr(module, name)"
+        },
+        {
+          "line": 529,
+          "expression": "getattr(capability, 'version_hint', None)"
+        },
+        {
+          "line": 536,
+          "expression": "getattr(capability, 'preferred_transport', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "blob": "68d88e2bb22c6d7df56c2286ce0e6e1468f4661e",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 30,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 116,
+          "expression": "getattr(module, name)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+      "blob": "e29e30fa857014cfff637bffc2a2dc9fa0f7492f",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 179,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 161,
+          "expression": "getattr(module, owner_name)"
+        },
+        {
+          "line": 119,
+          "expression": "getattr(module, owner_name, None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/api.py",
+      "blob": "10f0a610f2753eb5e977cb369a49c04bdfbf4624",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 8,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "blob": "31525859297cf05d5c190db00e5389ab0c61b0ff",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 11,
+          "names": [
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 732,
+          "expression": "getattr(store, 'root', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "blob": "198ca13aac6a3edf29120f530b155cb9139d38da",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 18,
+          "names": [
+            "run_blocking_async",
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 217,
+          "expression": "getattr(connector, 'capabilities', None)"
+        },
+        {
+          "line": 334,
+          "expression": "getattr(value, 'artifact_id', None)"
+        },
+        {
+          "line": 348,
+          "expression": "getattr(fetch_result, 'completeness', None)"
+        },
+        {
+          "line": 392,
+          "expression": "getattr(fetch_result, 'version', None)"
+        },
+        {
+          "line": 395,
+          "expression": "getattr(version, 'value', None)"
+        },
+        {
+          "line": 396,
+          "expression": "getattr(version, 'timestamp', None)"
+        },
+        {
+          "line": 822,
+          "expression": "getattr(schema_binding, 'schema', None)"
+        },
+        {
+          "line": 188,
+          "expression": "getattr(self._connector, name)"
+        },
+        {
+          "line": 212,
+          "expression": "getattr(self._registry, name)"
+        },
+        {
+          "line": 219,
+          "expression": "getattr(connector, 'metadata', None)"
+        },
+        {
+          "line": 220,
+          "expression": "getattr(metadata, 'capabilities', None)"
+        },
+        {
+          "line": 343,
+          "expression": "getattr(fetch_result, 'has_more', False)"
+        },
+        {
+          "line": 345,
+          "expression": "getattr(fetch_result, 'next_page_token', None)"
+        },
+        {
+          "line": 356,
+          "expression": "getattr(fetch_result, 'is_complete', True)"
+        },
+        {
+          "line": 363,
+          "expression": "getattr(fetch_result, 'source_updated_at', None)"
+        },
+        {
+          "line": 371,
+          "expression": "getattr(fetch_result, 'version', None)"
+        },
+        {
+          "line": 374,
+          "expression": "getattr(version, 'value', None)"
+        },
+        {
+          "line": 375,
+          "expression": "getattr(version, 'timestamp', None)"
+        },
+        {
+          "line": 393,
+          "expression": "getattr(version, 'strategy', None)"
+        },
+        {
+          "line": 420,
+          "expression": "getattr(result, 'evidence_bundle_ref', None)"
+        },
+        {
+          "line": 1052,
+          "expression": "getattr(connector_manifest, 'streaming', None)"
+        },
+        {
+          "line": 372,
+          "expression": "getattr(version, 'strategy', None)"
+        },
+        {
+          "line": 1294,
+          "expression": "getattr(ds, 'connector_id', '')"
+        },
+        {
+          "line": 1295,
+          "expression": "getattr(ds, 'dataset_id', '')"
+        },
+        {
+          "line": 1130,
+          "expression": "getattr(schema_binding, 'schema', None)"
+        },
+        {
+          "line": 1198,
+          "expression": "getattr(schema_binding, 'schema', None)"
+        },
+        {
+          "line": 1221,
+          "expression": "getattr(chunk, 'resume_token', None)"
+        },
+        {
+          "line": 1222,
+          "expression": "getattr(chunk, 'is_first', False)"
+        },
+        {
+          "line": 1223,
+          "expression": "getattr(chunk, 'is_last', False)"
+        },
+        {
+          "line": 1220,
+          "expression": "getattr(chunk, 'bytes_size', 0)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "blob": "40fa241d849e41839436723d74feaaef751e8811",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 18,
+          "names": [
+            "run_blocking_async",
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 794,
+          "expression": "getattr(distributed, 'Client', None)"
+        },
+        {
+          "line": 805,
+          "expression": "getattr(celery_module, 'Celery', None)"
+        },
+        {
+          "line": 183,
+          "expression": "getattr(client, 'close', None)"
+        },
+        {
+          "line": 685,
+          "expression": "getattr(backend, 'requires_trust_contract', False)"
+        },
+        {
+          "line": 222,
+          "expression": "getattr(ray, 'is_initialized', lambda: False)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 14,
+          "names": [
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 1716,
+          "expression": "getattr(registry, 'resolve_schema_contract', None)"
+        },
+        {
+          "line": 2414,
+          "expression": "getattr(chunk, 'resume_token', None)"
+        },
+        {
+          "line": 2541,
+          "expression": "getattr(chunk, 'resume_token', None)"
+        },
+        {
+          "line": 2415,
+          "expression": "getattr(chunk, 'is_first', False)"
+        },
+        {
+          "line": 2416,
+          "expression": "getattr(chunk, 'is_last', False)"
+        },
+        {
+          "line": 2542,
+          "expression": "getattr(chunk, 'is_first', False)"
+        },
+        {
+          "line": 2543,
+          "expression": "getattr(chunk, 'is_last', False)"
+        },
+        {
+          "line": 2413,
+          "expression": "getattr(chunk, 'bytes_size', 0)"
+        },
+        {
+          "line": 2540,
+          "expression": "getattr(chunk, 'bytes_size', 0)"
+        },
+        {
+          "line": 290,
+          "expression": "getattr(resolved_registry, '_retain_pending_startup_cleanup', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+      "blob": "996e1d8cc8dac15f023ae5260146f49b0336bf69",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 15,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 147,
+          "expression": "getattr(yaml_module, 'safe_load', None)"
+        },
+        {
+          "line": 339,
+          "expression": "getattr(module, 'PIPELINE', None)"
+        },
+        {
+          "line": 1113,
+          "expression": "getattr(resolved_dependencies.metrics, 'record_fabric_lineage_graph', None)"
+        },
+        {
+          "line": 1034,
+          "expression": "getattr(connector, 'metadata', None)"
+        },
+        {
+          "line": 1039,
+          "expression": "getattr(connector_metadata, 'data_classification', None)"
+        },
+        {
+          "line": 1040,
+          "expression": "getattr(connector_metadata, 'column_classification', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/executor.py",
+      "blob": "e4751843b5459fe726ef1de1613437bd3bea867f",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 10,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 293,
+          "expression": "getattr(self._metrics, 'record_fabric_connector_fetch', None)"
+        },
+        {
+          "line": 304,
+          "expression": "getattr(self._metrics, 'record_fabric_connector_fetch', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/explore_lane.py",
+      "blob": "9791ecfd9b75940488db398ed0c76787344f79be",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 10,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 219,
+          "expression": "getattr(descriptor, 'dataset_id', '')"
+        },
+        {
+          "line": 220,
+          "expression": "getattr(descriptor, 'name', '')"
+        },
+        {
+          "line": 221,
+          "expression": "getattr(descriptor, 'description', '')"
+        },
+        {
+          "line": 222,
+          "expression": "getattr(descriptor, 'tags', ())"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/resilience.py",
+      "blob": "37b7c0af230751f902d22e14a5dce3f53b782435",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 30,
+          "names": [
+            "get_shared_executor"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 106,
+          "expression": "getattr(self._execution, 'attempt', None)"
+        },
+        {
+          "line": 175,
+          "expression": "getattr(self._breaker, '_release_cancelled_lease', None)"
+        },
+        {
+          "line": 256,
+          "expression": "getattr(self._breaker, '_release_cancelled_lease', None)"
+        },
+        {
+          "line": 276,
+          "expression": "getattr(self._target, name)"
+        },
+        {
+          "line": 288,
+          "expression": "getattr(self._target, 'close', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 18,
+          "names": [
+            "run_blocking_async"
+          ]
+        },
+        {
+          "kind": "from_import",
+          "line": 1876,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 425,
+          "expression": "getattr(response, 'raw', None)"
+        },
+        {
+          "line": 893,
+          "expression": "getattr(store, 'root', None)"
+        },
+        {
+          "line": 1243,
+          "expression": "getattr(client, 'aclose', None)"
+        },
+        {
+          "line": 1292,
+          "expression": "getattr(exc, 'failure', None)"
+        },
+        {
+          "line": 1495,
+          "expression": "getattr(bundle, 'model_spec', None)"
+        },
+        {
+          "line": 1496,
+          "expression": "getattr(model_spec, 'notes', None)"
+        },
+        {
+          "line": 1663,
+          "expression": "getattr(value, 'value', value)"
+        },
+        {
+          "line": 1671,
+          "expression": "getattr(value, 'artifact_id', None)"
+        },
+        {
+          "line": 387,
+          "expression": "getattr(tool_call, 'error_envelope', None)"
+        },
+        {
+          "line": 396,
+          "expression": "getattr(tool_call, 'arguments', None)"
+        },
+        {
+          "line": 1701,
+          "expression": "getattr(critique, 'issues', [])"
+        },
+        {
+          "line": 1713,
+          "expression": "getattr(critique, 'verdict', None)"
+        },
+        {
+          "line": 1716,
+          "expression": "getattr(critique, 'alignment_score', None)"
+        },
+        {
+          "line": 1717,
+          "expression": "getattr(critique, 'completeness_score', None)"
+        },
+        {
+          "line": 1718,
+          "expression": "getattr(critique, 'overall_quality', None)"
+        },
+        {
+          "line": 1719,
+          "expression": "getattr(critique, 'reflexion_hint', '')"
+        },
+        {
+          "line": 1880,
+          "expression": "getattr(getattr(self, '_policy_resolver', None), 'default_profile', None)"
+        },
+        {
+          "line": 377,
+          "expression": "getattr(response, 'tool_calls', None)"
+        },
+        {
+          "line": 1706,
+          "expression": "getattr(issue, 'message', '')"
+        },
+        {
+          "line": 1707,
+          "expression": "getattr(issue, 'location', '')"
+        },
+        {
+          "line": 1708,
+          "expression": "getattr(issue, 'suggestion', '')"
+        },
+        {
+          "line": 1881,
+          "expression": "getattr(self, '_policy_resolver', None)"
+        },
+        {
+          "line": 2113,
+          "expression": "getattr(self, '_emit_runtime_diagnostic_event', None)"
+        },
+        {
+          "line": 379,
+          "expression": "getattr(call, 'name', '')"
+        },
+        {
+          "line": 1704,
+          "expression": "getattr(issue, 'category', None)"
+        },
+        {
+          "line": 1705,
+          "expression": "getattr(issue, 'severity', None)"
+        },
+        {
+          "line": 3226,
+          "expression": "getattr(item, 'artifact_id', None)"
+        },
+        {
+          "line": 1709,
+          "expression": "getattr(issue, 'evidence', {})"
+        },
+        {
+          "line": 5681,
+          "expression": "getattr(retrieval, 'list_promotion_candidates', None)"
+        },
+        {
+          "line": 5670,
+          "expression": "getattr(item, 'promotion_id', None)"
+        },
+        {
+          "line": 5678,
+          "expression": "getattr(item, 'promotion_id', None)"
+        },
+        {
+          "line": 4935,
+          "expression": "getattr(bundle, 'schema_version', '1.0')"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "facts": [
+        {
+          "kind": "module_alias",
+          "line": 5108,
+          "alias": null
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 1839,
+          "expression": "getattr(self._artifact_store, 'ownership_evidence', None)"
+        },
+        {
+          "line": 2861,
+          "expression": "getattr(self._tracer, 'inject_context', None)"
+        },
+        {
+          "line": 2706,
+          "expression": "getattr(provider, 'bind_artifact_store', None)"
+        },
+        {
+          "line": 2716,
+          "expression": "getattr(self._retrieval_catalog, 'close', None)"
+        },
+        {
+          "line": 2721,
+          "expression": "getattr(self._control_store, 'close', None)"
+        },
+        {
+          "line": 2724,
+          "expression": "getattr(self._artifact_store, 'close', None)"
+        },
+        {
+          "line": 3235,
+          "expression": "getattr(self._tracer, 'extract_context', None)"
+        },
+        {
+          "line": 6489,
+          "expression": "getattr(request, field_name, None)"
+        },
+        {
+          "line": 7254,
+          "expression": "getattr(self._artifact_store, 'root', None)"
+        },
+        {
+          "line": 1663,
+          "expression": "getattr(self._event_log, '_store', None)"
+        },
+        {
+          "line": 474,
+          "expression": "getattr(spec, field_name)"
+        },
+        {
+          "line": 1115,
+          "expression": "getattr(artifact_store, capability, None)"
+        },
+        {
+          "line": 2055,
+          "expression": "getattr(cycle_substrate_context_admission_owner, 'admit_context', None)"
+        },
+        {
+          "line": 2213,
+          "expression": "getattr(epoch_claim_lifecycle_bridge.claim_owner, 'store', None)"
+        },
+        {
+          "line": 1212,
+          "expression": "getattr(receipt, field)"
+        },
+        {
+          "line": 1212,
+          "expression": "getattr(head, field)"
+        },
+        {
+          "line": 1987,
+          "expression": "getattr(self._artifact_store, method_name, None)"
+        },
+        {
+          "line": 1911,
+          "expression": "getattr(record, 'event', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/task_runner.py",
+      "blob": "597c65b29fa574f2cedc6cabbf94c58431482050",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 10,
+          "names": [
+            "get_shared_executor"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+      "blob": "4fb8915d22f669a1a11c7202341b6a2f494792f7",
+      "facts": [
+        {
+          "kind": "module_alias",
+          "line": 23,
+          "alias": null
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 61,
+          "expression": "getattr(promotion_runtime, 'store', None)"
+        },
+        {
+          "line": 966,
+          "expression": "getattr(control_store, 'current_execution_job_record', None)"
+        },
+        {
+          "line": 304,
+          "expression": "getattr(row, key)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scholar/api.py",
+      "blob": "6844a8b491f3b8580dba52dc446d7dbcf7d411cc",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 11,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 207,
+          "expression": "getattr(store, 'root', None)"
+        },
+        {
+          "line": 373,
+          "expression": "getattr(source, 'license', None)"
+        },
+        {
+          "line": 374,
+          "expression": "getattr(cached_record, 'license', None)"
+        },
+        {
+          "line": 397,
+          "expression": "getattr(cache, 'get', None)"
+        },
+        {
+          "line": 398,
+          "expression": "getattr(source, 'url', None)"
+        },
+        {
+          "line": 253,
+          "expression": "getattr(source, 'content_sha256', None)"
+        },
+        {
+          "line": 255,
+          "expression": "getattr(source, 'artifact_id', None)"
+        },
+        {
+          "line": 256,
+          "expression": "getattr(source, 'raw_artifact_id', None)"
+        },
+        {
+          "line": 257,
+          "expression": "getattr(cached_record, 'artifact_id', None)"
+        },
+        {
+          "line": 317,
+          "expression": "getattr(source, 'byte_size', None)"
+        },
+        {
+          "line": 317,
+          "expression": "getattr(cached_record, 'byte_size', None)"
+        },
+        {
+          "line": 252,
+          "expression": "getattr(source, 'url', '')"
+        },
+        {
+          "line": 335,
+          "expression": "getattr(source, 'source_type', 'web')"
+        },
+        {
+          "line": 336,
+          "expression": "getattr(source, 'title', '')"
+        },
+        {
+          "line": 337,
+          "expression": "getattr(source, 'domain', '')"
+        },
+        {
+          "line": 338,
+          "expression": "getattr(source, 'source_id', '')"
+        },
+        {
+          "line": 339,
+          "expression": "getattr(source, 'provider', '')"
+        },
+        {
+          "line": 350,
+          "expression": "getattr(source, 'fetch_status', 'ok')"
+        },
+        {
+          "line": 366,
+          "expression": "getattr(source, metadata_field, None)"
+        },
+        {
+          "line": 366,
+          "expression": "getattr(cached_record, metadata_field, None)"
+        },
+        {
+          "line": 342,
+          "expression": "getattr(source, 'final_url', None)"
+        },
+        {
+          "line": 343,
+          "expression": "getattr(cached_record, 'final_url', None)"
+        },
+        {
+          "line": 352,
+          "expression": "getattr(source, 'fetch_profile', None)"
+        },
+        {
+          "line": 353,
+          "expression": "getattr(cached_record, 'fetch_profile', {})"
+        },
+        {
+          "line": 356,
+          "expression": "getattr(source, 'redirect_chain', None)"
+        },
+        {
+          "line": 357,
+          "expression": "getattr(cached_record, 'redirect_chain', [])"
+        },
+        {
+          "line": 388,
+          "expression": "getattr(source, 'content_type', 'application/octet-stream')"
+        },
+        {
+          "line": 92,
+          "expression": "getattr(search_service, '_cache', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scholar/search/fetcher.py",
+      "blob": "4a8a6e5e30ec0c0fedbebc18f699a99099e2c0b5",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 12,
+          "names": [
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 218,
+          "expression": "getattr(reader, 'metadata', None)"
+        },
+        {
+          "line": 220,
+          "expression": "getattr(metadata, 'title', '')"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scholar/search/providers.py",
+      "blob": "0df7fa952328cec5483b44dbda157248c0f4cdd0",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 16,
+          "names": [
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "blob": "8756fd0a66cdf91c18e8b7c3bb60872926af05be",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 22,
+          "names": [
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 1434,
+          "expression": "getattr(run, 'tenant_id', None)"
+        },
+        {
+          "line": 1435,
+          "expression": "getattr(run, 'cell_id', None)"
+        },
+        {
+          "line": 1973,
+          "expression": "getattr(self._checkpoint_hook, 'on_tier_complete_async', None)"
+        },
+        {
+          "line": 1974,
+          "expression": "getattr(self._checkpoint_hook, 'on_tier_complete', None)"
+        },
+        {
+          "line": 2063,
+          "expression": "getattr(self._checkpoint_hook, 'on_node_complete_async', None)"
+        },
+        {
+          "line": 792,
+          "expression": "getattr(node, 'spec', None)"
+        },
+        {
+          "line": 795,
+          "expression": "getattr(spec, 'state_reads', None)"
+        },
+        {
+          "line": 796,
+          "expression": "getattr(spec, 'state_writes', None)"
+        },
+        {
+          "line": 1437,
+          "expression": "getattr(run, 'run_manifest', None)"
+        },
+        {
+          "line": 1438,
+          "expression": "getattr(run_manifest, 'tenant_id', None)"
+        },
+        {
+          "line": 1439,
+          "expression": "getattr(run_manifest, 'cell_id', None)"
+        },
+        {
+          "line": 2045,
+          "expression": "getattr(self._checkpoint_hook, 'on_tier_complete_async', None)"
+        },
+        {
+          "line": 2047,
+          "expression": "getattr(self._checkpoint_hook, 'on_tier_complete', None)"
+        },
+        {
+          "line": 1060,
+          "expression": "getattr(current, part)"
+        },
+        {
+          "line": 1594,
+          "expression": "getattr(node.spec, 'state_writes', ())"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "blob": "d00feba0e10023fbbc7c3c55b5ce18c6701e4931",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 19,
+          "names": [
+            "run_blocking_async",
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 1098,
+          "expression": "getattr(checkpoint_hook, 'export_runtime_metadata', None)"
+        },
+        {
+          "line": 1222,
+          "expression": "getattr(store, 'root', None)"
+        },
+        {
+          "line": 1317,
+          "expression": "getattr(node.spec, 'state_reads', ())"
+        },
+        {
+          "line": 1275,
+          "expression": "getattr(current, part)"
+        },
+        {
+          "line": 1309,
+          "expression": "getattr(node.spec, 'state_writes', ())"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/fan_out.py",
+      "blob": "0e8071cc91dc16a7390c2e02156a6eb084fb12e1",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 18,
+          "names": [
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 143,
+          "expression": "getattr(current, part, None)"
+        },
+        {
+          "line": 260,
+          "expression": "getattr(bound_node.spec, 'state_writes', ())"
+        },
+        {
+          "line": 371,
+          "expression": "getattr(bound_node.spec, 'state_writes', ())"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "blob": "00c18c9a11fdaf69331651ee291fe0fec334e5ab",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 37,
+          "names": [
+            "get_shared_executor",
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 717,
+          "expression": "getattr(node, 'spec', None)"
+        },
+        {
+          "line": 734,
+          "expression": "getattr(exc, 'category', None)"
+        },
+        {
+          "line": 737,
+          "expression": "getattr(category, 'value', category)"
+        },
+        {
+          "line": 761,
+          "expression": "getattr(exc, 'code', None)"
+        },
+        {
+          "line": 874,
+          "expression": "getattr(state, 'budgets', {})"
+        },
+        {
+          "line": 926,
+          "expression": "getattr(state, 'budgets', None)"
+        },
+        {
+          "line": 444,
+          "expression": "getattr(self._target, name)"
+        },
+        {
+          "line": 478,
+          "expression": "getattr(self._target, name)"
+        },
+        {
+          "line": 538,
+          "expression": "getattr(self._target, name)"
+        },
+        {
+          "line": 596,
+          "expression": "getattr(target, 'run_manifest', None)"
+        },
+        {
+          "line": 653,
+          "expression": "getattr(target, 'audit', None)"
+        },
+        {
+          "line": 660,
+          "expression": "getattr(target, 'claim_ledger_owner', None)"
+        },
+        {
+          "line": 669,
+          "expression": "getattr(self._target, name)"
+        },
+        {
+          "line": 681,
+          "expression": "getattr(proxy, name)"
+        },
+        {
+          "line": 718,
+          "expression": "getattr(spec, 'state_writes', ())"
+        },
+        {
+          "line": 736,
+          "expression": "getattr(exc, 'default_category', None)"
+        },
+        {
+          "line": 603,
+          "expression": "getattr(target, name, None)"
+        },
+        {
+          "line": 1032,
+          "expression": "getattr(ctx.run.run_manifest, 'run_id', '')"
+        },
+        {
+          "line": 1167,
+          "expression": "getattr(node, 'spec', None)"
+        },
+        {
+          "line": 2079,
+          "expression": "getattr(node, 'spec', None)"
+        },
+        {
+          "line": 2026,
+          "expression": "getattr(klass, '__dict__', {})"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "blob": "02f4ba3bbc5690cf79f730243af7c843433c50a4",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 11,
+          "names": [
+            "run_blocking_async",
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 727,
+          "expression": "getattr(opts, 'kind', '')"
+        },
+        {
+          "line": 783,
+          "expression": "getattr(opts, 'kind', '')"
+        },
+        {
+          "line": 850,
+          "expression": "getattr(opts, 'kind', '')"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/performance/test_scientist_runtime_paths.py",
+      "blob": "26d13a20e2d4b56a92174bdaad3f8ddd2d285b8f",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 7,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py",
+      "blob": "8866b13568db4e9c2407e930e60b8390e74925b3",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 699,
+          "names": [
+            "run_blocking_async"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 15,
+          "names": [
+            "get_shared_executor",
+            "run_blocking_async",
+            "run_coro_sync"
+          ]
+        },
+        {
+          "kind": "module_alias",
+          "line": 22,
+          "alias": null
+        },
+        {
+          "kind": "module_alias",
+          "line": 145,
+          "alias": null
+        },
+        {
+          "kind": "module_alias",
+          "line": 441,
+          "alias": null
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 32,
+          "expression": "get_type_hints(helper, globalns={**vars(async_tools), 'Awaitable': Awaitable, 'Callable': Callable}, localns={'T': parameter})"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "blob": "31341a2c44d8a05f6013cb31a9d5bb0b8698b78f",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 6,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+      "blob": "180e6c9530ed500ee17fbf8aaff12698db9d0429",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 465,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 486,
+          "expression": "getattr(executed.metric, 'fetch_receipt_ref', None)"
+        },
+        {
+          "line": 543,
+          "expression": "getattr(executed, 'fetch_receipt_ref', None)"
+        },
+        {
+          "line": 580,
+          "expression": "getattr(executed, 'fetch_receipt_ref', None)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "blob": "02894c6370a3533ab97043fc6eba8cb4bce697b0",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 12,
+          "names": [
+            "get_shared_executor"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "blob": "48d9d218a77e22328acd487a9116a826d03145b2",
+      "facts": [
+        {
+          "kind": "module_alias",
+          "line": 1518,
+          "alias": null
+        },
+        {
+          "kind": "module_alias",
+          "line": 1619,
+          "alias": null
+        },
+        {
+          "kind": "module_alias",
+          "line": 3114,
+          "alias": null
+        }
+      ],
+      "reflection_calls": [
+        {
+          "line": 3290,
+          "expression": "getattr(getattr(self, '_llm', None), '_model_name', '')"
+        },
+        {
+          "line": 3290,
+          "expression": "getattr(self, '_llm', None)"
+        },
+        {
+          "line": 3790,
+          "expression": "getattr(draft, 'draft_id', '')"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_resilience_guards.py",
+      "blob": "6bb41a01147b17a40d98f79e077f123506be26ad",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 11,
+          "names": [
+            "get_shared_executor"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "blob": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 8,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "blob": "ab9af85ef79e20635e62b61165173474ed98b40b",
+      "facts": [
+        {
+          "kind": "module_alias",
+          "line": 1601,
+          "alias": null
+        },
+        {
+          "kind": "from_import",
+          "line": 1675,
+          "names": [
+            "_SharedExecutor"
+          ]
+        },
+        {
+          "kind": "module_alias",
+          "line": 1813,
+          "alias": null
+        },
+        {
+          "kind": "from_import",
+          "line": 766,
+          "names": [
+            "_SharedExecutor"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/core_runtime_long_soak.py",
+      "blob": "4835dd281d9abb781d80c4d5aa477a4734ff9f6e",
+      "facts": [
+        {
+          "kind": "from_import",
+          "line": 343,
+          "names": [
+            "run_coro_sync"
+          ]
+        },
+        {
+          "kind": "from_import",
+          "line": 420,
+          "names": [
+            "run_coro_sync"
+          ]
+        },
+        {
+          "kind": "from_import",
+          "line": 516,
+          "names": [
+            "run_coro_sync"
+          ]
+        }
+      ],
+      "reflection_calls": []
+    }
+  ],
+  "required_T_or_star_consumers": [],
+  "source": {
+    "path": "policy-engine/src/polisyos/common/async_tools.py",
+    "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "function_local_type_params": [
+      {
+        "function": "_await_awaitable",
+        "params": [
+          "T"
+        ]
+      },
+      {
+        "function": "_run_coro_in_fresh_loop",
+        "params": [
+          "T"
+        ]
+      },
+      {
+        "function": "run_coro_sync",
+        "params": [
+          "T"
+        ]
+      },
+      {
+        "function": "run_blocking_async",
+        "params": [
+          "T"
+        ]
+      }
+    ],
+    "global_T_assignments": [],
+    "module_T_exposed": false,
+    "star_T_exposed": false
+  },
+  "runtime_typing": [
+    {
+      "function": "_await_awaitable",
+      "type_params": [
+        "T"
+      ],
+      "hints": {
+        "awaitable": "collections.abc.Awaitable[T]",
+        "return": "T"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "function": "_run_coro_in_fresh_loop",
+      "type_params": [
+        "T"
+      ],
+      "hints": {
+        "coro": "collections.abc.Awaitable[T]",
+        "timeout_seconds": "<class 'float'>",
+        "return": "T"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "function": "run_coro_sync",
+      "type_params": [
+        "T"
+      ],
+      "hints": {
+        "coro": "collections.abc.Awaitable[T]",
+        "timeout_seconds": "float | None",
+        "return": "T"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "function": "run_blocking_async",
+      "type_params": [
+        "T"
+      ],
+      "hints": {
+        "func": "collections.abc.Callable[..., T]",
+        "args": "<class 'object'>",
+        "timeout_seconds": "float | None",
+        "unbounded": "<class 'bool'>",
+        "kwargs": "<class 'object'>",
+        "return": "T"
+      },
+      "outcome": "PASS"
+    }
+  ],
+  "native_behavior": {
+    "before_loop": 17,
+    "inside_loop": [
+      17,
+      23
+    ],
+    "pass": true
+  },
+  "typing_configuration_refs": {
+    "policy-engine/examples/extensions/data_forge_domain/pyproject.toml": "d81751f6ecbb132ae5c465dcb330ceea0b237144",
+    "policy-engine/examples/extensions/fabric_connector/pyproject.toml": "b6fd6130b4b7aa239a0a93656d1c3ba914a7a04f",
+    "policy-engine/examples/extensions/foundry_method/pyproject.toml": "1dc71b4554be8aa3d087ad7cd0321b73fdcded30",
+    "policy-engine/examples/extensions/lex_normpack/pyproject.toml": "9a7ae912bcf72dadc6dc6afc6949d9527bb79c66",
+    "policy-engine/examples/extensions/runtime_middleware/pyproject.toml": "32b68c6304740b43adc6a722023106ea8843aa5d",
+    "policy-engine/examples/extensions/scientist_governance_pass/pyproject.toml": "8a87d2b0e55efd10293c19c104cbb54f89d59554",
+    "policy-engine/examples/extensions/scientist_node/pyproject.toml": "00d3fdbee6c75742f25b3b9098a54591091c477f",
+    "policy-engine/mypy.ini": "594ab4d060735c68b3d135f836908b096874801d",
+    "policy-engine/pyproject.toml": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+    "policy-engine/pytest.ini": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+  },
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "PYTHONPATH": "src:.",
+    "runtime_module_file": "/workspace/e02-B-current-runtime/policy-engine/src/polisyos/common/async_tools.py"
+  },
+  "limitations": [
+    "Complete tracked Python AST census, not a claim over opaque external distributions, arbitrary computed getattr/import strings, monkeypatched module exports or packaging not present in Git.",
+    "Correct namespace explicitly includes the annotation-only Awaitable/Callable and each function-local T; no module T is introduced.",
+    "Fresh baseline already lacked the global TypeVar/T residue; this verifies preservation rather than claiming a new deletion."
+  ]
+}

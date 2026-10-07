@@ -1,0 +1,1333 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "canonical-selector-criterion-equivalents",
+  "closure_ids": [],
+  "finding_ids": [
+    "B51",
+    "B52",
+    "B55",
+    "B77",
+    "B72",
+    "B73",
+    "B57",
+    "B58",
+    "B59",
+    "B150",
+    "B151",
+    "B153",
+    "B148",
+    "B149",
+    "B37",
+    "B67",
+    "B68",
+    "B87",
+    "B89",
+    "B90",
+    "B91",
+    "B92",
+    "B93",
+    "B14",
+    "B40",
+    "B69",
+    "B95",
+    "LA-057",
+    "B24",
+    "B60",
+    "B61",
+    "B62"
+  ],
+  "bundle_ids": [
+    "EXE-01",
+    "EXE-02",
+    "RES-02",
+    "STA-01",
+    "CAS-01",
+    "CAS-02",
+    "DUR-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "RUN-01",
+    "RUN-02",
+    "STA-02"
+  ],
+  "slice_base_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
+  "implementation_commits": [
+    "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "21c829434d3ee74370816d78609dff0a71cef6fc"
+  ],
+  "candidate_tree_sha": "a3949b874661e179a06a3f25e1d29886417c5f34",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt"
+  ],
+  "baseline_cells": [],
+  "baseline_use": "No baseline summary/cell outcome is used to establish this metadata correction or native acceptance. Canonical source criteria and actual DD test bodies decide finite labels.",
+  "source_snapshot": {
+    "sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "root_cwd": "/workspace/e02-B-current-coordination",
+    "production_and_test_changes_from_this_slice": []
+  },
+  "historical_input": {
+    "map_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "bytes": 21891,
+    "sha256": "2c916a62658080fc836e3c49778e9ceb60bd60bbd0fc908b2d5bad1ebc5b9358",
+    "status": "IMMUTABLE_ORIGINAL_WRONG_LABELS_RETAINED_AS_DD_INPUT",
+    "selector_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json",
+    "selector_bytes": 1116312,
+    "selector_sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0",
+    "original_absent_names": 21,
+    "canonical_absent_names": 14,
+    "incidental_absent_names": 7,
+    "native_whole_file_count": 236,
+    "status_qualification": "Original names remain UNRUN; DD actual native outcomes belong to its original source/input snapshot, not this future map SHA."
+  },
+  "implementation_map": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "bytes": 49833,
+    "sha256": "28cd03084e8ce77f913c5f8de1aefbfdbf99148c8702c531df900a5fe50b5863",
+    "top_level_entries": 15,
+    "corrected_absent_entries": 14,
+    "original_absent_candidate_references": 35,
+    "original_unique_body_selectors": 33,
+    "corrected_absent_candidate_references": 72,
+    "corrected_unique_body_selectors": 68,
+    "added_unique_body_selectors": 35,
+    "removed_unique_body_selectors": 0,
+    "unrelated_now_present_compiler_entry": "Exact literal1596 bytes unchanged; no edit or old-JIT-PASS inheritance."
+  },
+  "canonical_basis": {
+    "complete_reconciled_criterion_count": 32,
+    "all_exact_block_hashes_match": true,
+    "criterion_refs": [
+      {
+        "id": "B51",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B51",
+          "document": "B_r19",
+          "lines": [
+            1331,
+            1346
+          ],
+          "sha256": "e9b4ac7cef4037c2a72c1e5b9ebef5401d821d718b1be3dfb7b4fd44c38004f8",
+          "card": "EXE-01"
+        },
+        "bytes": 4143
+      },
+      {
+        "id": "B52",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B52",
+          "document": "B_r19",
+          "lines": [
+            1347,
+            1362
+          ],
+          "sha256": "1a6929c4d593f31111984bfc232aa5047093e63c0ae8b30bc8a77f988c193ab9",
+          "card": "EXE-01"
+        },
+        "bytes": 4551
+      },
+      {
+        "id": "B55",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B55",
+          "document": "B_r19",
+          "lines": [
+            1395,
+            1408
+          ],
+          "sha256": "26067194bc63e79de6b0a05c8ec8d1baa08f15661428174ded6ddbeea336a422",
+          "card": "EXE-01"
+        },
+        "bytes": 3854
+      },
+      {
+        "id": "B77",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B77",
+          "document": "B_r19",
+          "lines": [
+            1985,
+            1998
+          ],
+          "sha256": "9a964e072d3e3b2f8a636c8ba2d38de5e8ea300b9c7b11dbc7c5e09463fe392f",
+          "card": "EXE-02"
+        },
+        "bytes": 4334
+      },
+      {
+        "id": "B72",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B72",
+          "document": "B_r19",
+          "lines": [
+            1905,
+            1920
+          ],
+          "sha256": "38979cf3522b6b847946b86db0042408c08d07996d5b2f52a7c127e56c718189",
+          "card": "RES-02"
+        },
+        "bytes": 3607
+      },
+      {
+        "id": "B73",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B73",
+          "document": "B_r19",
+          "lines": [
+            1921,
+            1938
+          ],
+          "sha256": "e621748d93e6a09366084624850c95e9765196b665a628702f05054dd857bd9b",
+          "card": "RES-02"
+        },
+        "bytes": 5049
+      },
+      {
+        "id": "B57",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B57",
+          "document": "B_r19",
+          "lines": [
+            1543,
+            1558
+          ],
+          "sha256": "0d78e1d5818a8ee8e0f4ba236038d69d06c75e74da87ce22dd7327a13f2f8f06",
+          "card": "STA-01"
+        },
+        "bytes": 6127
+      },
+      {
+        "id": "B58",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B58",
+          "document": "B_r19",
+          "lines": [
+            1559,
+            1572
+          ],
+          "sha256": "1c1de2a09c78b01dcd21aff5b3b9aafb037873624e4848a2df85846e40cbe9df",
+          "card": "STA-01"
+        },
+        "bytes": 3806
+      },
+      {
+        "id": "B59",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B59",
+          "document": "B_r19",
+          "lines": [
+            1573,
+            1586
+          ],
+          "sha256": "f1be31314c74127f473589edbd1cda207e908ba5d0d1917d3cdbbb857ed306a8",
+          "card": "STA-01"
+        },
+        "bytes": 4497
+      },
+      {
+        "id": "B150",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B150",
+          "document": "B_r19",
+          "lines": [
+            3941,
+            3952
+          ],
+          "sha256": "b40a162af24b14c3160e0129551e58ecfabf054df9da4e3cab413f020cde5aa4",
+          "card": "CAS-01"
+        },
+        "bytes": 3276
+      },
+      {
+        "id": "B151",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B151",
+          "document": "B_r19",
+          "lines": [
+            3953,
+            3964
+          ],
+          "sha256": "b48507b8d9539968f2aa0e75206129e70e987c9a704aea12ae4299b944c098e7",
+          "card": "CAS-01"
+        },
+        "bytes": 3444
+      },
+      {
+        "id": "B153",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B153",
+          "document": "B_r19",
+          "lines": [
+            3977,
+            3988
+          ],
+          "sha256": "ce457c31ae354ef0b798696a95c012edf46cc582a985d184f4081a0a55ba5566",
+          "card": "CAS-01"
+        },
+        "bytes": 3100
+      },
+      {
+        "id": "B148",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B148",
+          "document": "B_r19",
+          "lines": [
+            3917,
+            3928
+          ],
+          "sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a",
+          "card": "CAS-02"
+        },
+        "bytes": 3829
+      },
+      {
+        "id": "B149",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B149",
+          "document": "B_r19",
+          "lines": [
+            3929,
+            3940
+          ],
+          "sha256": "77fcd9a12a06828f4ec68229fb69245c81ebe2842c53b348352a1dae01422cee",
+          "card": "CAS-02"
+        },
+        "bytes": 3280
+      },
+      {
+        "id": "B37",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B37",
+          "document": "B_r19",
+          "lines": [
+            700,
+            717
+          ],
+          "sha256": "4cb4cba956a6535facb92240a7755afd76eabd8c50ecda00d76e607299ab9985",
+          "card": "DUR-01"
+        },
+        "bytes": 4703
+      },
+      {
+        "id": "B67",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B67",
+          "document": "B_r19",
+          "lines": [
+            1709,
+            1728
+          ],
+          "sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278",
+          "card": "LLM-02"
+        },
+        "bytes": 4146
+      },
+      {
+        "id": "B68",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B68",
+          "document": "B_r19",
+          "lines": [
+            1729,
+            1748
+          ],
+          "sha256": "444a26030aad6d955907fee063845e8938c8348c5c7d970d3d4da6a1c2e3da62",
+          "card": "LLM-02"
+        },
+        "bytes": 4338
+      },
+      {
+        "id": "B87",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B87",
+          "document": "B_r19",
+          "lines": [
+            2263,
+            2274
+          ],
+          "sha256": "6e2bbb77d53fcdc1c29b51651016758e2e2b05b5f51bec0cf69a00d20f4e8996",
+          "card": "NET-01"
+        },
+        "bytes": 3320
+      },
+      {
+        "id": "B89",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B89",
+          "document": "B_r19",
+          "lines": [
+            2405,
+            2418
+          ],
+          "sha256": "43cfad4b987c5efbb7cc52c98e8a7d84508a7d4d6e64395cc926086c91f3de1a",
+          "card": "NET-01"
+        },
+        "bytes": 4549
+      },
+      {
+        "id": "B90",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B90",
+          "document": "B_r19",
+          "lines": [
+            2419,
+            2434
+          ],
+          "sha256": "40d664e5fe4a6a8f7559b5a5faf15b49ac0b739e538d9377c00e76e8a3dd26ee",
+          "card": "NET-01"
+        },
+        "bytes": 4304
+      },
+      {
+        "id": "B91",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B91",
+          "document": "B_r19",
+          "lines": [
+            2435,
+            2448
+          ],
+          "sha256": "9635f3793b099112dd1dc8fbd0a83231afe05d27cd97e8eab1a0479a577ce6a4",
+          "card": "NET-02"
+        },
+        "bytes": 3549
+      },
+      {
+        "id": "B92",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B92",
+          "document": "B_r19",
+          "lines": [
+            2449,
+            2462
+          ],
+          "sha256": "37097e7bc91e5b288c7e2c05359674ea52fac78804c3ea54b8a928c84a95cbea",
+          "card": "NET-02"
+        },
+        "bytes": 3856
+      },
+      {
+        "id": "B93",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B93",
+          "document": "B_r19",
+          "lines": [
+            2463,
+            2476
+          ],
+          "sha256": "f07d58727fcd6d01cb3768ec794500785fa052cd388988920e2033fc198ab803",
+          "card": "NET-02"
+        },
+        "bytes": 4182
+      },
+      {
+        "id": "B14",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B14",
+          "document": "B_r19",
+          "lines": [
+            363,
+            374
+          ],
+          "sha256": "89a1ccad96f0eaf48f41dd7f793f6427dc7d0fc7b8abb9d14a592ce92008bd41",
+          "card": "RUN-01"
+        },
+        "bytes": 2397
+      },
+      {
+        "id": "B40",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B40",
+          "document": "B_r19",
+          "lines": [
+            752,
+            769
+          ],
+          "sha256": "553ab08e2d38df8a86ad1a9a06e3bcb185741e630a7ea3df0c06a90faf3304f5",
+          "card": "RUN-01"
+        },
+        "bytes": 5006
+      },
+      {
+        "id": "B69",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B69",
+          "document": "B_r19",
+          "lines": [
+            1749,
+            1768
+          ],
+          "sha256": "48c2fed9857c0f4b60e19eb34ad9325524eb75f7cef036a87c675b5c497f06f7",
+          "card": "RUN-01"
+        },
+        "bytes": 4614
+      },
+      {
+        "id": "B95",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B95",
+          "document": "B_r19",
+          "lines": [
+            2493,
+            2506
+          ],
+          "sha256": "b3a422c42f7435b491d1fdaa1522d1ac5d8a8692e94cbc4155d9a5c5c6650a49",
+          "card": "RUN-01"
+        },
+        "bytes": 3644
+      },
+      {
+        "id": "LA-057",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_ref": {
+          "criterion_id": "LA-057",
+          "document": "LA_r09",
+          "lines": [
+            4172,
+            4203
+          ],
+          "sha256": "243a6686c43da8bbb26b9bf15b8da4bfb7061771d213f90f0757c160a76e789e",
+          "card": "RUN-01"
+        },
+        "bytes": 5965
+      },
+      {
+        "id": "B24",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B24",
+          "document": "B_r19",
+          "lines": [
+            489,
+            502
+          ],
+          "sha256": "ae15e81cc6f82a0cf31bfd1a4689724b00bd3fdae45748292a8735108acc9ec1",
+          "card": "RUN-02"
+        },
+        "bytes": 3127
+      },
+      {
+        "id": "B60",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B60",
+          "document": "B_r19",
+          "lines": [
+            1587,
+            1600
+          ],
+          "sha256": "44f69d1484c4a6336451b3c0c9645e799ad9b872941f4d068556a9c1d0cde018",
+          "card": "STA-02"
+        },
+        "bytes": 4375
+      },
+      {
+        "id": "B61",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B61",
+          "document": "B_r19",
+          "lines": [
+            1601,
+            1614
+          ],
+          "sha256": "d866142adb470420e36484ae68a71a865e730697ae87639bbef85c27ef86c32b",
+          "card": "STA-02"
+        },
+        "bytes": 4505
+      },
+      {
+        "id": "B62",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_ref": {
+          "criterion_id": "B62",
+          "document": "B_r19",
+          "lines": [
+            1615,
+            1628
+          ],
+          "sha256": "e8a018dd29129a34baf12068580586d16474c3b244341e94dc5eb6e3e5355070",
+          "card": "STA-02"
+        },
+        "bytes": 3762
+      }
+    ],
+    "semantic_grade": "Full32 original B_r19/LA_r09 blocks reviewed against concrete source bodies, independently reconciled only at finite stated property. Finding ID membership/file presence is not full acceptance.",
+    "card_byte_custody": "All25 cards part of complete592 unique Git-identity census; only13 owning bundles/32 criteria are the semantic scope here."
+  },
+  "label_changes": [
+    {
+      "named_selector": "tests/integration/scientist/test_async_cache_recovery.py",
+      "actual_selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+      "historical_DD_ids": [
+        "B51",
+        "B55"
+      ],
+      "corrected_ids": [
+        "B52",
+        "B57"
+      ]
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_execution_state_replay.py",
+      "actual_selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+      "historical_DD_ids": [
+        "B55"
+      ],
+      "corrected_ids": [
+        "B52",
+        "B57"
+      ]
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_execution_state_replay.py",
+      "actual_selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+      "historical_DD_ids": [
+        "B55",
+        "B72"
+      ],
+      "corrected_ids": [
+        "B57"
+      ]
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_execution_state_replay.py",
+      "actual_selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write",
+      "historical_DD_ids": [
+        "B55",
+        "B72"
+      ],
+      "corrected_ids": [
+        "B58"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "actual_selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim",
+      "historical_DD_ids": [
+        "B150",
+        "B151"
+      ],
+      "corrected_ids": [
+        "B148"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "actual_selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop",
+      "historical_DD_ids": [
+        "B148",
+        "B150"
+      ],
+      "corrected_ids": [
+        "B148"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "actual_selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_same_destination_retains_complete_history_and_exact_new_inventory",
+      "historical_DD_ids": [
+        "B148",
+        "B149"
+      ],
+      "corrected_ids": [
+        "B149"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "actual_selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation",
+      "historical_DD_ids": [
+        "B148",
+        "B149"
+      ],
+      "corrected_ids": [
+        "B149"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "actual_selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_streamed_write_failure_preserves_old_generation_and_no_false_inventory",
+      "historical_DD_ids": [
+        "B148",
+        "B149"
+      ],
+      "corrected_ids": [
+        "B149"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_exe_01.py",
+      "actual_selector": "tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+      "historical_DD_ids": [
+        "B51"
+      ],
+      "corrected_ids": [
+        "B55"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_exe_01.py",
+      "actual_selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_publication_trace_requires_completed_verified_storage",
+      "historical_DD_ids": [
+        "B55"
+      ],
+      "corrected_ids": [
+        "B52"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_01.py",
+      "actual_selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_persistent_disconnect_failure_retains_exactly_one_permit",
+      "historical_DD_ids": [
+        "B87",
+        "B89"
+      ],
+      "corrected_ids": [
+        "B89"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_01.py",
+      "actual_selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
+      "historical_DD_ids": [
+        "B57",
+        "B59"
+      ],
+      "corrected_ids": [
+        "B59"
+      ]
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_01.py",
+      "actual_selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_snapshot_state_deep_clones_mutable_state_surfaces",
+      "historical_DD_ids": [
+        "B57",
+        "B58"
+      ],
+      "corrected_ids": [
+        "B59"
+      ]
+    }
+  ],
+  "all14_dispositions": [
+    {
+      "named_selector": "tests/integration/scientist/test_async_cache_recovery.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "EXE-01"
+      ],
+      "canonical_ids": [
+        "B51",
+        "B52",
+        "B55"
+      ],
+      "finite_source_mapped_ids": [
+        "B52",
+        "B57",
+        "B51"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [
+        "B55"
+      ],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/integration/scientist/test_async_cache_recovery.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/integration/scientist/test_execution_state_replay.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "EXE-01",
+        "EXE-02",
+        "RES-02",
+        "STA-01"
+      ],
+      "canonical_ids": [
+        "B51",
+        "B52",
+        "B55",
+        "B77",
+        "B72",
+        "B73",
+        "B57",
+        "B58",
+        "B59"
+      ],
+      "finite_source_mapped_ids": [
+        "B52",
+        "B57",
+        "B58",
+        "B72",
+        "B73",
+        "B77"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [
+        "B51",
+        "B55",
+        "B59"
+      ],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/integration/scientist/test_execution_state_replay.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_import_tenant_context.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "CAS-01",
+        "CAS-02"
+      ],
+      "canonical_ids": [
+        "B150",
+        "B151",
+        "B153",
+        "B148",
+        "B149"
+      ],
+      "finite_source_mapped_ids": [
+        "B148",
+        "B150",
+        "B151",
+        "B153"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [
+        "B149"
+      ],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/core/artifacts/test_import_tenant_context.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_output_paths.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "CAS-02"
+      ],
+      "canonical_ids": [
+        "B148",
+        "B149"
+      ],
+      "finite_source_mapped_ids": [
+        "B149"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [
+        "B148"
+      ],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/core/artifacts/test_transfer_output_paths.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "CAS-02"
+      ],
+      "canonical_ids": [
+        "B148",
+        "B149"
+      ],
+      "finite_source_mapped_ids": [
+        "B149"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [
+        "B148"
+      ],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/core/artifacts/test_transfer_publication.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_dur_01.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "DUR-01"
+      ],
+      "canonical_ids": [
+        "B37"
+      ],
+      "finite_source_mapped_ids": [
+        "B37"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_dur_01.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_exe_01.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "EXE-01"
+      ],
+      "canonical_ids": [
+        "B51",
+        "B52",
+        "B55"
+      ],
+      "finite_source_mapped_ids": [
+        "B55",
+        "B52",
+        "B51"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_exe_01.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_llm_02.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "LLM-02"
+      ],
+      "canonical_ids": [
+        "B67",
+        "B68"
+      ],
+      "finite_source_mapped_ids": [
+        "B67",
+        "B68"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_llm_02.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_01.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "NET-01"
+      ],
+      "canonical_ids": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "finite_source_mapped_ids": [
+        "B90",
+        "B89",
+        "B87"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_net_01.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_net_02.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "NET-02"
+      ],
+      "canonical_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "finite_source_mapped_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_net_02.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_01.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "RUN-01"
+      ],
+      "canonical_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ],
+      "finite_source_mapped_ids": [
+        "B69",
+        "B14",
+        "B40",
+        "B95",
+        "LA-057"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_run_01.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_run_02.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "RUN-02"
+      ],
+      "canonical_ids": [
+        "B24"
+      ],
+      "finite_source_mapped_ids": [
+        "B24"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_run_02.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_01.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "STA-01"
+      ],
+      "canonical_ids": [
+        "B57",
+        "B58",
+        "B59"
+      ],
+      "finite_source_mapped_ids": [
+        "B59",
+        "B57",
+        "B58"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_sta_01.py\"]/residuals"
+    },
+    {
+      "named_selector": "tests/unit/remediation/test_sta_02.py",
+      "named_state": "UNRUN_named_selector_absent",
+      "canonical_bundles": [
+        "STA-02"
+      ],
+      "canonical_ids": [
+        "B60",
+        "B61",
+        "B62"
+      ],
+      "finite_source_mapped_ids": [
+        "B60",
+        "B62"
+      ],
+      "canonical_ids_without_a_mapped_discriminator": [
+        "B61"
+      ],
+      "state": "SOURCE_EQUIVALENCE_BOUNDED_NOT_RUNTIME_OR_FULL_CRITERION_CLOSURE",
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@e50bcdc2913305ac52adc7b6313fd3cc502950cf#/[\"tests/unit/remediation/test_sta_02.py\"]/residuals"
+    }
+  ],
+  "six_new_native_roles": [
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+      "bytes": 4870,
+      "finding_support_scope": [
+        "LA-057"
+      ],
+      "defining_property": "One normal outer case explicitly dispatches the whole eight-case installed-wheel non-testfilename child; full wheel/site/source/interpreter/hash inputs remain mandatory. The child is not silently added as eight ordinary cohort cases.",
+      "grade": "source-only role reconciliation; actual native outcomes are separate frozen inputs"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f",
+      "bytes": 8277,
+      "finding_support_scope": [
+        "B50"
+      ],
+      "defining_property": "Actual synchronous compiler leader CancelledError/SystemExit and cache-publication RuntimeError ports join a real follower before failure, retire flight and re-enter a real JAX kernel; no XLA hardkill/all-custom-cache claim.",
+      "grade": "source-only role reconciliation; actual native outcomes are separate frozen inputs"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "sha256": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73",
+      "bytes": 5302,
+      "finding_support_scope": [
+        "B37"
+      ],
+      "defining_property": "Independent emitted FileBudgetLedger envelope mandatory fields are removed and fresh-process load/record_spend/middleware consume actual bytes; nullable omissions preserve exhausted state. This is not ControlWorker fencing B38 and is not the complete runner Decimal codec B94.",
+      "grade": "source-only role reconciliation; actual native outcomes are separate frozen inputs"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+      "bytes": 7565,
+      "finding_support_scope": [
+        "B40"
+      ],
+      "defining_property": "Actual async node→FileSystemCAS→CASCheckpointHook real os.replace latency35 under original workflow60 must succeed and reopen exact frontier/value with one producer.",
+      "grade": "source-only role reconciliation; actual native outcomes are separate frozen inputs"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994",
+      "bytes": 20042,
+      "finding_support_scope": [
+        "B40",
+        "B14"
+      ],
+      "defining_property": "Canonical artifact/head/history/GC budget and queued versus admitted cancellation consumers preserve original owner and exact reopened generation without false ACK. Fixed-signature legacy wrapper, None and explicit finite limit have separate source cases.",
+      "grade": "source-only role reconciliation; actual native outcomes are separate frozen inputs"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+      "bytes": 11173,
+      "finding_support_scope": [
+        "B40",
+        "B14"
+      ],
+      "defining_property": "Actual phase Event barriers at artifact/head-temp-fsync/head-return/GC-read distinguish expiry/refusal from an already-entered physical operation; head/history and retained physical ownership are measured separately.",
+      "grade": "source-only role reconciliation; actual native outcomes are separate frozen inputs"
+    }
+  ],
+  "explicit_isolated_child": {
+    "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "bytes": 9973,
+    "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+    "ordinary_filename_role": "non-testfilename changed helper input; it is not a normally collected whole test file",
+    "explicit_child_role": "Installed-wheel outer executes entire child with -I/-B, no conftest/PYTHONPATH/plugin autoload/ini; one outer and eight child consumers remain distinct denominators.",
+    "outcome": "UNRUN_by_this_reviewer"
+  },
+  "checks": [
+    {
+      "command": "python3 .polisyos/e02-B-current-composition/selector-criterion-review/check_identity_census.py",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition",
+        "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14; stdlib static JSON/Git-byte review only, not the supported native product profile"
+      },
+      "input_closure": "Complete recursive selector dict/list walk finds1115 Git-identity occurrences592 unique complete(path,blob,sha256,bytes) tuples; every unique tuple read through git cat-file --batch at exact DD. No product import/collection/runtime.",
+      "outcome": "PASS",
+      "output": "{\n  \"kind\": \"complete recursive static JSON Git-identity custody, no product imports/collection/runtime\",\n  \"source_sha\": \"dd9584728bd96f204983615216efdbc58117e713\",\n  \"tree\": \"7bf4be4a117762c8d37d4babcc214a2b28c2113e\",\n  \"selector_bytes\": 1116312,\n  \"selector_sha256\": \"e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0\",\n  \"identity_occurrences\": 1115,\n  \"unique_complete_identity_tuples\": 592,\n  \"mismatches\": [],\n  \"non_git_identity_objects\": [\n    {\n      \"pointer\": \"/ignored_full_lineage\",\n      \"path\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector-lineage.json\",\n      \"source_git_sha\": \"dd9584728bd96f204983615216efdbc58117e713\",\n      \"sha256\": \"da51116a982d21ba4f79d1b62599d9a6411505f10edd20cdf254ccc3c7262e61\",\n      \"bytes\": 47285567,\n      \"grade\": \"ignored full lineage; compact census/source Git refs are authoritative\"\n    },\n    {\n      \"pointer\": \"/historical_oversized_packet\",\n      \"commit\": \"327b90023110f91b42a94e039863e7a8fe1425ec\",\n      \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-audit.json\",\n      \"sha256\": \"7d9c8a9c1507753635d553f98c90e533524024d8b30c05094efdc1b155ccb922\",\n      \"bytes\": 6125292,\n      \"grade\": \"historical publishing mistake; superseded, not current input proof\"\n    }\n  ],\n  \"major_denominators\": {\n    \"input_identities\": 8,\n    \"canonical_cards\": 25,\n    \"finding_criterion_refs\": 60,\n    \"candidate_whole_file_identities\": 236,\n    \"owner_receipt_identities\": 89,\n    \"command_descriptor_input_identities\": 198,\n    \"changed_defining_source_inputs\": 47,\n    \"changed_test_and_helper_inputs\": 64\n  }\n}\n",
+      "instrument_literal": "import hashlib\nimport json\nfrom pathlib import Path\nimport subprocess\n\nROOT=Path('/workspace/e02-B-current-coordination')\nPATH=ROOT/'.polisyos/e02-B-current/raw/successor-final-selector.json'\nraw=PATH.read_bytes();assert hashlib.sha256(raw).hexdigest()=='e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0'\ns=json.loads(raw);SHA=s['root_snapshot_sha'];assert SHA=='dd9584728bd96f204983615216efdbc58117e713'\nrefs=[];non_git=[]\ndef walk(v,pointer=''):\n if isinstance(v,dict):\n  if {'path','sha256','bytes'} <= set(v):\n   if 'git_blob' in v:refs.append((pointer,v))\n   else:non_git.append((pointer,v))\n  for k,x in v.items():walk(x,pointer+'/'+str(k))\n elif isinstance(v,list):\n  for i,x in enumerate(v):walk(x,pointer+'/'+str(i))\nwalk(s)\nidentities={tuple(r[k] for k in ['path','git_blob','sha256','bytes']):r for _,r in refs}\nproc=subprocess.Popen(['git','cat-file','--batch'],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE)\nfailures=[]\nfor identity in identities.values():\n spec=SHA+':'+identity['path'];proc.stdin.write((spec+'\\n').encode());proc.stdin.flush()\n header=proc.stdout.readline().decode().strip().split()\n if len(header)!=3 or header[1]!='blob':failures.append({'path':identity['path'],'header':header});continue\n blob,_,size=header;data=proc.stdout.read(int(size));assert proc.stdout.read(1)==b'\\n'\n if (blob,hashlib.sha256(data).hexdigest(),len(data)) != (identity['git_blob'],identity['sha256'],identity['bytes']):failures.append({'path':identity['path'],'identity':identity,'actual':[blob,hashlib.sha256(data).hexdigest(),len(data)]})\nproc.stdin.close();assert proc.wait()==0\nout={'kind':'complete recursive static JSON Git-identity custody, no product imports/collection/runtime','source_sha':SHA,'tree':s['root_snapshot_tree'],'selector_bytes':len(raw),'selector_sha256':hashlib.sha256(raw).hexdigest(),'identity_occurrences':len(refs),'unique_complete_identity_tuples':len(identities),'mismatches':failures,'non_git_identity_objects':[{'pointer':p,**v} for p,v in non_git],'major_denominators':{k:len(s[k]) for k in ['input_identities','canonical_cards','finding_criterion_refs','candidate_whole_file_identities','owner_receipt_identities','command_descriptor_input_identities','changed_defining_source_inputs','changed_test_and_helper_inputs']}}\nprint(json.dumps(out,indent=2));assert not failures\n",
+      "instrument_sha256": "76f5c574b0fe2a4b8a6d5b4ed81403a3dd168f728cdd5699012bca580e808eda"
+    },
+    {
+      "command": "git show DD:map + unchanged stdlib JSON/AST definition resolution for every corrected candidate",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": "Same stdlib source interpreter/cwd; exact Git test/source blobs, no imports",
+      "input_closure": "All72 corrected references resolve to68 unique actual test definitions in25 tracked test files; decorators+full function bodies read at DD. Literal compiler entry unchanged. All32 exact original canonical criterion block SHA256 values match their refs.",
+      "outcome": "PASS",
+      "output": "No missing/duplicate actual definition; fourteen historical candidate ID assignments corrected; thirty-five unique defining bodies added and no original body removed. This verifies custody/finite source binding, not all native assertions."
+    },
+    {
+      "command": "native/collection/quality gates/regeneration",
+      "target_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+      "environment": "UNRUN",
+      "input_closure": "No native execution requested/authorized in this metadata slice; root DD wave has its own inputs/outcomes",
+      "outcome": "UNRUN",
+      "output": "No root source writes, product/test Python edits, selector code change, native/collection command, gate rerun or generator run."
+    },
+    {
+      "command": "python3 .polisyos/e02-B-current-composition/selector-criterion-review/reconcile_after_terminal.py parent-DD-wave-terminal > .polisyos/e02-B-current-composition/selector-criterion-review/post-terminal-reconciliation.txt",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "metadata_implementation_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition",
+        "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14; stdlib-only Git/JSON/AST identity reconciliation, not the supported native profile"
+      },
+      "input_closure": "Complete frozen 236 whole-file paths from SHA-bound DD selector; all 14 corrected absent entries, all 72 candidate descriptors resolving 68 unique exact DD definitions; unchanged generic selector source c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d. No selector import/execution or product/test import.",
+      "outcome": "PASS",
+      "deciding_predicate": "recomputed exact path membership and definition identity; outcome does not use child exit as a product predicate",
+      "executions": 1,
+      "exit_status_qualification": "The aggregate shell cell returned 0 and the complete JSON output was emitted after the identity assertions. A separate wait4 child exit/resource wrapper was not captured; no native execution result is claimed.",
+      "output": {
+        "commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt",
+        "bytes": 1456,
+        "sha256": "3faf4ca022721a0d66d9b5c7f17ad81aafdcad0cea69903fe9ef41b7b0b37c4c"
+      },
+      "instrument": {
+        "commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt",
+        "bytes": 4412,
+        "sha256": "371c8e0f495260780f29d43011fdaead8d4d2d8308a3058fc70d392fc7d03168"
+      },
+      "result_scope": "236 unchanged, no added/removed/unadmitted files. Original 21 absent named selectors retain UNRUN. This result supplies no native case outcome or full criterion closure."
+    }
+  ],
+  "whole_file_set_reconciliation": {
+    "state": "COMPLETED_FINITE_SOURCE_SET_RECONCILIATION",
+    "basis": "Executed once only after explicit parent instruction that all DD wave tags were terminal. Parent terminal report admits this metadata operation; it is not independently reviewed native/runtime evidence.",
+    "reference_selector_sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0",
+    "reference_whole_file_count": 236,
+    "corrected_whole_file_count": 236,
+    "added_whole_files": [],
+    "removed_whole_files": [],
+    "unadmitted_candidate_whole_files": [],
+    "old_equivalent_file_count": 15,
+    "corrected_equivalent_file_count": 25,
+    "all_original_equivalent_files_retained": true,
+    "complete_output": {
+      "commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt",
+      "bytes": 1456,
+      "sha256": "3faf4ca022721a0d66d9b5c7f17ad81aafdcad0cea69903fe9ef41b7b0b37c4c"
+    },
+    "literal_executed_instrument": {
+      "commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt",
+      "bytes": 4412,
+      "sha256": "371c8e0f495260780f29d43011fdaead8d4d2d8308a3058fc70d392fc7d03168"
+    },
+    "source_basis": {
+      "sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "root_cwd": "/workspace/e02-B-current-coordination",
+      "production_and_test_changes_from_this_slice": []
+    },
+    "unchanged_selector_behavior": "The selector builds whole native input union before matching equivalent bodies. A new mapped candidate outside that admitted definition set would typed-refuse; it is not automatically added to the native set.",
+    "original_named_selector_count": 21,
+    "original_named_selector_state": "UNRUN_named_selector_absent unchanged",
+    "future_PASS_claim": false,
+    "native_outcomes": "Not independently established by this source-only reconciliation; root/ADAPTER/EXE own actual DD cohort and case/phase joins.",
+    "predicate_basis": "recomputed",
+    "unchanged_root_readback": {
+      "sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "attached_branch": "codex/e02-B-current-coordination",
+      "tracked_status": "clean"
+    }
+  },
+  "property": {
+    "statement": "Each absent planned name maps only to concrete defining consumer bodies whose finite property actually supports its listed canonical finding IDs; missing original names and unresolved input/owner criteria stay UNRUN/limited.",
+    "runtime_path": [
+      "canonical B_r19/LA_r09 criterion and bundle refs",
+      "exact DD actual defining producer/artifact/consumer test bodies",
+      "candidate-only equivalence JSON",
+      "unchanged generic cohort selector source",
+      "separately admitted native wave and its observed outcomes"
+    ],
+    "proxy_divergence": "DD tagged fail-fast semaphore admission B51, deep-copy isolation B57/B58 and pool disconnect cleanup B87. Those bodies can retain their markers/shape while exhausted-compute cache admission, journal write/delete intent or served streaming cleanup respectively fail. A shared bundle or pathname cannot supply the missing quantity.",
+    "negative_controls": [
+      "Wrong historical labels preserved as exact DD Git input; every mapped original body retained but identity tags corrected.",
+      "Independent C streaming source cases selected even if their actual native outcome is FAIL; no pool PASS waiver.",
+      "B61 actual consumed immutable SKG key/read binding not supplied by direct scalar/key or no-live-SKG fixture; preserved HELD/UNRUN exact input handoff to G.",
+      "Seven incidental script-fixture absent names remain UNRUN, unmapped and are not fabricated into tests.",
+      "Property-specific fixtures may intentionally saturate one pool/use multiple processes; no cloud numerical quota introduced."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_grade": "source-only metadata equivalence; native/full criterion admission not_established here",
+  "capability_state_or_finding_state": "FINITE_P37_METADATA_REPAIR_NO_PRODUCTION_BUG_OR_FORMAL_CLOSURE",
+  "P41": "not_established; no base replay or inherited-red waiver",
+  "pattern_pass": [
+    "P35 complete14/32 denominator and full selector identity census",
+    "P36 exact finding criteria not adjacent prose/bundle names",
+    "P37 actual body predicates source-bound and candidate-grade",
+    "P38 state copy/cache/read/stream quantities kept distinct",
+    "P40 one class of equivalence-ID/property escapes widened across all14 entries",
+    "P41 no global FAIL/UNRUN inheritance or future SHA PASS"
+  ],
+  "limitations_and_next_owner": [
+    "Foreign map author review is supplied by exact CAS 1a816 source-only receipt and six verified artifacts. It does not supply independent CAS code acceptance, native execution or SET comparison; this author supplies the finite SET result separately.",
+    "Root may merge after the explicit DD-terminal admission already received; original DD map/native input/outcomes remain immutable and do not become future map-SHA PASS.",
+    "Finite comparison finds zero added/removed/unadmitted files; no newly selected file is promoted from previously UNRUN. Original 21 absent names still remain UNRUN.",
+    "Actual B65/B66 native probe failures reported by root are not resolved by mapping labels; the appointed runtime writers own any successor implementation and its distinct evidence.",
+    "B148/B67 actual owner permission premises and B61 exact source-version read input remain explicit owner/input limits, not rules supplied to obtain green.",
+    "C alone owns streaming cleanup production; A/G alone own served lifecycle/catalog/producer scope contracts.",
+    "Full product dataset/data-dependent local checks remain G input on exact candidate. Source-only Git custody is not a universal module/resource/network/child-process closure."
+  ],
+  "publication": {
+    "implementation_status": "PUBLISHED_READBACK_VERIFIED",
+    "remote_ref": "refs/heads/codex/e02-B-current-composition",
+    "ls_remote_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "fresh_fetch_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "fetched_map_sha256": "28cd03084e8ce77f913c5f8de1aefbfdbf99148c8702c531df900a5fe50b5863",
+    "handoff_status": "NOT_ESTABLISHED_AT_CAPTURE for this append; separate normal push/readback follows",
+    "prior_handoff_readback": {
+      "sha": "9cd2c860f2b614d7a976b6ebb14f06744177f72e",
+      "tree": "57a590431eedb1d7a40e7b9643465ff05a8b5290",
+      "receipt_sha256": "49b97066b723be8e0353d212c470247e8e9ceb0cb63f22a6760824aa8ea1b914",
+      "status": "PUBLISHED_READBACK_VERIFIED before terminal-evidence append"
+    },
+    "terminal_evidence_status": "LOCAL_COMMITTED; remote not established at this receipt capture"
+  },
+  "independent_review": {
+    "reviewer": "/root/cas_probe",
+    "receipt": {
+      "commit": "1a816b90a7ee159c67fad29584a783c409bc650e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-map-independent-review.json",
+      "bytes": 13153,
+      "sha256": "b778ffb1b681937125cdaaf8e8869aba7b41c8f624b42447dc53a4862d6027f5"
+    },
+    "receipt_tree": "3caa1a2eeaf0cc6296c135bb58b9bfd56e6681f9",
+    "evidence_implementation_sha": "0b4e34876e349526f253998ac34c932bd97d2338",
+    "review_target_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "verdict": "NONBLOCKING foreign source-only labels/preconditions for all 14 corrected values",
+    "input_artifact_custody": "Complete canonical review receipt and review.json read; all six declared artifacts resolved from exact Git blobs and bytes/SHA256 matched.",
+    "predicate_basis": "independently_reconciled",
+    "scope": "72 descriptors and 68 DD bodies; 31 mapped IDs plus held B61 = 32 canonical criteria across 13 bundles. No runtime, no reviewer SET comparison and no own CAS code acceptance."
+  },
+  "terminal_append": {
+    "previous_source_only_receipt_sha": "9cd2c860f2b614d7a976b6ebb14f06744177f72e",
+    "evidence_commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+    "evidence_tree": "a3949b874661e179a06a3f25e1d29886417c5f34",
+    "changed_source_or_test_or_selector_paths": [],
+    "source_grade": "Metadata/path/definition reconciliation only; no production bug verdict or formal closure.",
+    "runtime_and_gate_execution": "UNRUN by this reviewer; no future product PASS",
+    "parent_terminal_report_role": "Explicit task admission only; native case and phase counters are not independently recounted or imported into this receipt."
+  },
+  "receipt_metadata_history": {
+    "scope": "Receipt commits are mandatory metadata companions separate from the exact implementation-commit footprint.",
+    "snapshots": [
+      {
+        "commit": "9cd2c860f2b614d7a976b6ebb14f06744177f72e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
+        "role": "Published pre-terminal source-only metadata history; not an implementation commit."
+      },
+      {
+        "commit": "197e54900956031093e82f387286caf216c3f7e3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
+        "sha256": "3348fad7cc74abef644c4c9a5921747f1b719220514cb7435b8b11741842e1fe",
+        "role": "Published terminal handoff snapshot preserved; its changed_paths incorrectly included SELFreceipt."
+      }
+    ],
+    "forward_correction": "changed_paths now equals the complete diff-tree path union of declared implementation commits e50 and21c only. This append changes no map, consumer, selector, evidence bytes or prior actual outcomes.",
+    "mechanism_source_changes": [],
+    "runtime_or_gate_reexecution": "UNRUN; not required for a footprint-only forward correction."
+  },
+  "mandatory_metadata_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt"
+  ]
+}

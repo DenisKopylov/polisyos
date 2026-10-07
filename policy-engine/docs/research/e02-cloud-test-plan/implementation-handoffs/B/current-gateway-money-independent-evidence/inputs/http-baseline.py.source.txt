@@ -1,0 +1,19 @@
+import asyncio,json
+from aiohttp import web
+from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+async def main():
+ for lex in ['1e-1000','-1e-1000','0','0.0','0.02']:
+  raw=('{"choices":[{"message":{"content":"actual answer"}}],"usage":{"cost_usd":'+lex+'},"model":"gpt-4o"}').encode()
+  async def handler(request):
+   await request.read()
+   return web.Response(body=raw,content_type='application/json')
+  app=web.Application();app.router.add_post('/chat/completions',handler)
+  runner=web.AppRunner(app);await runner.setup();site=web.TCPSite(runner,'127.0.0.1',0);await site.start()
+  port=site._server.sockets[0].getsockname()[1]
+  client=GatewayLLMClient(base_url=f'http://127.0.0.1:{port}',api_key='',model='gpt-4o',max_retries=0)
+  try:
+   result=await client.generate(user='actual request')
+   print(json.dumps({'raw':raw.decode(),'cost_type':type(result.usage.cost_usd).__name__,'cost':str(result.usage.cost_usd),'status':result.usage.cost_status,'raw_cost_type':type(result.raw['usage']['cost_usd']).__name__,'raw_cost':str(result.raw['usage']['cost_usd'])}))
+  finally:
+   await client.aclose();await runner.cleanup()
+asyncio.run(main())

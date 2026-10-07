@@ -1,0 +1,313 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completed-architecture-prerequisite",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "finding_ids": [],
+  "slice_base_sha": "916953164be6e21b8dd2e35888f7dfe48068cb63",
+  "implementation_commits": [
+    "def52c48c9bc715f4126db05549c0831a67e83da"
+  ],
+  "candidate_tree_sha": "935b4bb132b622e7ffd53f4232452331988974d5",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/cache-ready-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/cache-ready.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/cache-ready.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/interpretation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-prepare.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-private-imports-and-packages.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-sync.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-sync.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-venv.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-venv.txt"
+  ],
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json",
+  "baseline_cells": [],
+  "executed_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "executed_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "checks": [
+    {
+      "id": "second-offline-architecture-partial",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv run --no-sync polisyos-tools architecture guardrails check --generated-freshness-workspace-root /dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready --generated-freshness-uv-cache-dir /home/agent/.cache/uv",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+        "--generated-freshness-uv-cache-dir",
+        "/home/agent/.cache/uv"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/cache-ready-profile.json",
+        "git_blob": "c2a246b175c233dcf10fc40da6139adb77c771a8",
+        "bytes": 2641,
+        "sha256": "668631aeb78a30bcb94d9f173c61fa23ab5dc302e7df00411d93b70c04c84c80"
+      },
+      "input_closure": {
+        "profile": {
+          "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/cache-ready-profile.json",
+          "git_blob": "c2a246b175c233dcf10fc40da6139adb77c771a8",
+          "bytes": 2641,
+          "sha256": "668631aeb78a30bcb94d9f173c61fa23ab5dc302e7df00411d93b70c04c84c80"
+        },
+        "capture": {
+          "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/cache-ready.json",
+          "git_blob": "c8bb2007f929ad8d1496c51ed7df06a4bbecceff",
+          "bytes": 2625,
+          "sha256": "a5a4682a07ca031bb267ab959a88a5d6070b3b0a43df0c3223a756131ab51fc6"
+        },
+        "first_attempts": "916953164be6e21b8dd2e35888f7dfe48068cb63:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review.json"
+      },
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "output": {
+        "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/cache-ready.txt",
+        "git_blob": "93c982a31f85e9b49f7122b13cedef4f34cb91aa",
+        "bytes": 129485,
+        "sha256": "c5c954983c24ea9ea43a96c3b46687e20001442cd40cfe942a177d5a06f49e78"
+      },
+      "deciding_output": "Client3 and dashboard1 generator-observed outputs clean; OpenAPI generator blocked by genuinely missing locked lifelines0.30.3 offline; partial static drift retained, no complete verdict.",
+      "wall_seconds": 133.1247834609967
+    },
+    {
+      "id": "registered-runtime-ml-venv",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv venv --python /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python /tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "venv",
+        "--python",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment"
+      ],
+      "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+        "git_blob": "afddbd2eabc4f61d866278322b5a09aff4e02b97",
+        "bytes": 8870,
+        "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69"
+      },
+      "input_closure": {
+        "actual_registered_recipe_and_uvlock": {
+          "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+          "git_blob": "afddbd2eabc4f61d866278322b5a09aff4e02b97",
+          "bytes": 8870,
+          "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69"
+        },
+        "actual_preparation_driver": {
+          "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-prepare.source.txt",
+          "git_blob": "d3099b5399ceb55b89553937bd3d14920310bd5d",
+          "bytes": 4715,
+          "sha256": "ee7df5a10c4b249626d01a8638d491bd0ee09934dba8bf22abcefd54b8d46e2e"
+        },
+        "existing_shared_cache": "/home/agent/.cache/uv: exact locked restoration explicitly authorized, no ownership or offline-sufficiency substitute"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.06659468900761567,
+      "output": {
+        "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-venv.txt",
+        "git_blob": "f8c76b44c54e0d0043c595862101c36f39e49d97",
+        "bytes": 332,
+        "sha256": "cb3601dce81390b7599d1c271512222db1cee469053c4febc7bc045516839ff2"
+      },
+      "deciding_output": "Exact registered profile only; no architecture generator/measurement performed by this leaf."
+    },
+    {
+      "id": "registered-runtime-ml-sync",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv sync --frozen --extra runtime --extra ml",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "sync",
+        "--frozen",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml"
+      ],
+      "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+        "git_blob": "afddbd2eabc4f61d866278322b5a09aff4e02b97",
+        "bytes": 8870,
+        "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69"
+      },
+      "input_closure": {
+        "actual_registered_recipe_and_uvlock": {
+          "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+          "git_blob": "afddbd2eabc4f61d866278322b5a09aff4e02b97",
+          "bytes": 8870,
+          "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69"
+        },
+        "actual_preparation_driver": {
+          "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-prepare.source.txt",
+          "git_blob": "d3099b5399ceb55b89553937bd3d14920310bd5d",
+          "bytes": 4715,
+          "sha256": "ee7df5a10c4b249626d01a8638d491bd0ee09934dba8bf22abcefd54b8d46e2e"
+        },
+        "existing_shared_cache": "/home/agent/.cache/uv: exact locked restoration explicitly authorized, no ownership or offline-sufficiency substitute"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 3.87483532600163,
+      "output": {
+        "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-sync.txt",
+        "git_blob": "1bf4a96ab463bb8261c779a7c6654173b86a43f9",
+        "bytes": 4116,
+        "sha256": "e526eb8c56335d507e2e7406146d1f72be574ea82f32af3a4955ff1b7d2c5b9a"
+      },
+      "deciding_output": "Exact registered profile only; no architecture generator/measurement performed by this leaf."
+    },
+    {
+      "id": "registered-profile-origin-and-package-observation",
+      "command": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment/bin/python -B -c 'import importlib.metadata,json,polisyos,tools; print(json.dumps({\"polisyos_origin\":polisyos.__file__,\"tools_origin\":tools.__file__,\"installed\":[{\"name\":d.metadata[\"Name\"],\"version\":d.version} for d in sorted(importlib.metadata.distributions(),key=lambda d:d.metadata[\"Name\"].lower())]},indent=2))'",
+      "argv": [
+        "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment/bin/python",
+        "-B",
+        "-c",
+        "import importlib.metadata,json,polisyos,tools; print(json.dumps({\"polisyos_origin\":polisyos.__file__,\"tools_origin\":tools.__file__,\"installed\":[{\"name\":d.metadata[\"Name\"],\"version\":d.version} for d in sorted(importlib.metadata.distributions(),key=lambda d:d.metadata[\"Name\"].lower())]},indent=2))"
+      ],
+      "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+        "git_blob": "afddbd2eabc4f61d866278322b5a09aff4e02b97",
+        "bytes": 8870,
+        "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69"
+      },
+      "input_closure": {
+        "source_and_lock": {
+          "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+          "git_blob": "afddbd2eabc4f61d866278322b5a09aff4e02b97",
+          "bytes": 8870,
+          "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69"
+        },
+        "actual_observation": {
+          "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-private-imports-and-packages.json",
+          "git_blob": "d17cca860123aa5d3f2ef5ab52564e1f6436499a",
+          "bytes": 10793,
+          "sha256": "7d2a4604a91ee91ceea112f3e085c1abdaf7f514fd2066766fa67740eeb9cc1a"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-private-imports-and-packages.json",
+        "git_blob": "d17cca860123aa5d3f2ef5ab52564e1f6436499a",
+        "bytes": 10793,
+        "sha256": "7d2a4604a91ee91ceea112f3e085c1abdaf7f514fd2066766fa67740eeb9cc1a"
+      },
+      "deciding_output": "Canonical isolated-origin preflight actual PASS;159 actual distributions, exact lifelines0.30.3/Pillow12.3.0. Six thread caps absent; rootsource clean unchanged."
+    }
+  ],
+  "property": {
+    "statement": "Restore only exact registered locked runtime+ml prerequisites for a justified same-source architecture environment retry while preserving all first and second literal gate outcomes and unchanged offline measurement contract.",
+    "runtime_path": [
+      "Frozen generated-artifact registry OpenAPI recipe declares runtime+ml extras",
+      "Canonical offline architecture actually fails on absent locked lifelines0.30.3 at generator stage",
+      "Authorized pinned uv sync --frozen --extra runtime --extra ml warms declared shared cache in fresh private environment",
+      "Actual isolated-source origin and installed distribution readback",
+      "Root owns fresh retained offline full canonical architecture retry"
+    ],
+    "proxy_divergence": "Default frozen provisioning with149 distributions let two client families measure clean but did not supply registered ml prerequisites: exact second gate still returned UNRUN on lifelines0.30.3. New159-package observation is readiness only, never proof that four family generation/maps/comparisons completed.",
+    "negative_controls": [
+      "Preserve original first four environment UNRUN and second OpenAPI generator UNRUN full outputs rather than upgrading their statuses after cache change.",
+      "Fresh explicit private environment and six removed cap names; no shared rootvenv sync, source edit, guessed package version, arbitrary extras or omitted offline deciding flag.",
+      "Source-copy imports must remain isolated; installed metadata/uv success is bounded prerequisite evidence, not whole-family acceptance."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Exact registered locked profile restored; same-source full architecture retry remains root-owned, not established by this slice.",
+  "complete_evidence": {
+    "index": {
+      "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/index.json",
+      "git_blob": "eb474def041be9c9ba49fb5121df2445a291edde",
+      "bytes": 1803,
+      "sha256": "8d444d9f49d42c015784a56eab1145c1d9208dbcd664e22c746d3e0aea9c2888"
+    },
+    "payload_count": 11,
+    "payload_bytes": 167836,
+    "index_is_additional_object": true
+  },
+  "interpretation": {
+    "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/interpretation.json",
+    "git_blob": "79ea867223e5023bb2dcf02e27ef0b352ecc6235",
+    "bytes": 2796,
+    "sha256": "6f5e93884e5fa164a9cd9cdbf2152ed57c6c4f3d4e7b8230b0a05d17d2fa7eb0"
+  },
+  "source_and_role_qualification": {
+    "canonical_openapi_recipe": [
+      "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json"
+    ],
+    "locked_lifelines": {
+      "name": "lifelines",
+      "version": "0.30.3",
+      "source": {
+        "registry": "https://pypi.org/simple"
+      },
+      "dependencies": [
+        {
+          "name": "autograd"
+        },
+        {
+          "name": "autograd-gamma"
+        },
+        {
+          "name": "formulaic"
+        },
+        {
+          "name": "matplotlib"
+        },
+        {
+          "name": "numpy"
+        },
+        {
+          "name": "pandas"
+        },
+        {
+          "name": "scipy"
+        }
+      ],
+      "sdist": {
+        "url": "https://files.pythonhosted.org/packages/a0/4b/f92ca958b11284f9e80075d6b80b8150a3a231edb55e73a42878f786a54a/lifelines-0.30.3.tar.gz",
+        "hash": "sha256:acd1e0ecada4280c7bb2948f39c760a0f9158a57d752c8ca29f984a86c698b7f",
+        "size": 690663,
+        "upload-time": "2026-03-05T16:54:44.365Z"
+      },
+      "wheels": [
+        {
+          "url": "https://files.pythonhosted.org/packages/8a/fb/5ed80a8932630d4ae33af186a87008c9b48f02bc515380acc1a4b1fec162/lifelines-0.30.3-py3-none-any.whl",
+          "hash": "sha256:44802480a28d6cb836c7fea4a54ec0ba220eb31c6d7444589637a8bd66066e8c",
+          "size": 409055,
+          "upload-time": "2026-03-05T16:54:42.414Z"
+        }
+      ]
+    },
+    "private_environment": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment",
+    "read_only_preparation_source_reuse": "Prior canonical cache-preparation source only; neither first nor retry architecture measurement workspace is modified. Fresh explicit UV_PROJECT_ENVIRONMENT overrides that copied project .venv link.",
+    "all_six_thread_caps_absent": true,
+    "shared_cache_role": "Existing external shared cache explicitly authorized for restoration writes; not task-exclusive/immutable and no unobserved offline completeness claim.",
+    "original_source_and_both_measured_workspaces": "No source edits; original two architecture workspaces not modified by this preparation.",
+    "tooling_restore_vs_dependency_choice": "Existing UVlock/registry prerequisites only, not a newly selected external library."
+  },
+  "limitations_and_next_owner": [
+    "Root: fresh offline canonical architecture command on1862 with new retained workspace/tag; no reusing O_EXCL tags and no duplicate full native cohort.",
+    "Full first8 outcome packet916953164 remains historical; second complete129485B UNRUN preserved here.",
+    "159 installed distributions/isolated origin PASS is finite environment readiness; generated artifacts, four-family maps and full static architecture verdict need actual new root execution.",
+    "No native/collection/architecture gates/build replay by this reviewer; only authorized frozen UV preparation and full already-completed output reads.",
+    "Production scanner first and second signal termination and root250 native cohort remain distinct executions, not imported into this denominator.",
+    "No finding closure, inherited-red waiver, financial/institution authority or production-data equivalence claim."
+  ]
+}

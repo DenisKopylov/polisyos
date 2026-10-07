@@ -1,0 +1,267 @@
+{
+  "scope": "Eight literal first completed-final quality attempts on immutable1862 only. Root affected47 wave, current250 cohort and future retries are separate denominators.",
+  "rows": [
+    {
+      "gate": "ruff",
+      "tag": "completed-final-ruff-1862c021df74",
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 0.6658903869974893,
+      "maxrss_kib": 57952,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-ruff-1862c021df74.txt",
+        "bytes": 2914362,
+        "sha256": "e0be76c099d6e89e44dbc1887b4ffdcf238fec819b362805293f692634edac89"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-ruff-1862c021df74-profile.json",
+        "bytes": 1267487,
+        "sha256": "26af6e5a843d283c06e5bf55121ea50fae4060b940e5801a66800d300df87598"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-ruff-1862c021df74.json",
+        "bytes": 27675,
+        "sha256": "69f81f80ff5c2c89f6b67702685a0db4f2ce7d1ed5f741918b484dbfaec038d0"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "profile_time_state": "UNRUN at profile creation, terminal state comes from completed capture",
+      "all_six_caps_absent": true,
+      "interpretation": {
+        "outcome": "FAIL",
+        "classification": "completed global code-quality RED",
+        "literal": "4443 diagnostics / 105 files; complete 273 changed Python/PYI denominator including research; no inherited waiver"
+      }
+    },
+    {
+      "gate": "format",
+      "tag": "completed-final-format-1862c021df74",
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 0.6195061670005089,
+      "maxrss_kib": 39828,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-format-1862c021df74.txt",
+        "bytes": 13342,
+        "sha256": "b8ef37db82492c3bb687b19b99d8a54c80465a495b3a3474d169934adf0fc666"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-format-1862c021df74-profile.json",
+        "bytes": 1267503,
+        "sha256": "212bd260876805a23df9036221f575d232a2e8930c5e82d11ba486eb1bb4d00d"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-format-1862c021df74.json",
+        "bytes": 27675,
+        "sha256": "d350f987e173274abab5c899fc39eeee52b7983a7a68e3a47e012c32b0a7d503"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "profile_time_state": "UNRUN at profile creation, terminal state comes from completed capture",
+      "all_six_caps_absent": true,
+      "interpretation": {
+        "outcome": "FAIL",
+        "classification": "completed formatting RED",
+        "literal": "101 would reformat +172 already formatted =273 complete files"
+      }
+    },
+    {
+      "gate": "mypy",
+      "tag": "completed-final-mypy-1862c021df74",
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 72.19546060399443,
+      "maxrss_kib": 1143932,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-mypy-1862c021df74.txt",
+        "bytes": 522,
+        "sha256": "8c0c9b162c464b26f5d7bb42dacb2997549922def46bd68f0066c47e3188b018"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-mypy-1862c021df74-profile.json",
+        "bytes": 22148,
+        "sha256": "a739e3ea7f33b79acd22fc0111b50e0b0b2b35a17d7e9f2f7239e04b6d3f7d5c"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-mypy-1862c021df74.json",
+        "bytes": 3339,
+        "sha256": "dae0919d4ee79b7b37e46386f63d6db4e35e6998c065ea56f9b7cddc55eb7d80"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "profile_time_state": "UNRUN at profile creation, terminal state comes from completed capture",
+      "all_six_caps_absent": true,
+      "interpretation": {
+        "outcome": "FAIL",
+        "classification": "completed proper-import type RED",
+        "literal": [
+          "src/polisyos/scientist/policy_design/adversary.py:159: error: \"BenchmarkSplitManifest\" has no attribute \"model_dump\"  [attr-defined]",
+          "src/polisyos/scientist/policy_design/translator.py:124: error: \"object\" has no attribute \"items\"  [attr-defined]",
+          "src/polisyos/scientist/orchestration/engine/executor.py:1807: error: Argument \"errors\" to \"finalize\" of \"RunContext\" has incompatible type \"list[dict[str, str]] | None\"; expected \"list[dict[str, object]] | None\"  [arg-type]"
+        ],
+        "targets": 15
+      }
+    },
+    {
+      "gate": "architecture",
+      "tag": "completed-final-architecture-1862c021df74",
+      "exit_code": 2,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 45.22433372800879,
+      "maxrss_kib": 85896,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-1862c021df74.txt",
+        "bytes": 130854,
+        "sha256": "f50bf77c51ce57163af7c25bd9a63059249de6176a506ecad027c9272e6c2f90"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-1862c021df74-profile.json",
+        "bytes": 12036,
+        "sha256": "490b6703550e68aca91c8490d9c2145e0056cedc5a028e07aa890c0a3d319a5a"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-1862c021df74.json",
+        "bytes": 2600,
+        "sha256": "75c0038afae610f1b1748b812b33b3f5b362c79438d62d5570e398e33e3cc158"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "profile_time_state": "UNRUN at profile creation, terminal state comes from completed capture",
+      "all_six_caps_absent": true,
+      "interpretation": {
+        "outcome": "UNRUN",
+        "classification": "canonical required four-family measurement unavailable",
+        "literal": "All four family environment stages blocked by missing locked Pillow12.3.0 offline cache; static deep-import drift remains partial completed evidence; no complete verdict or family map"
+      }
+    },
+    {
+      "gate": "runtime-api",
+      "tag": "completed-final-runtime-api-1862c021df74",
+      "exit_code": 0,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 75.30579549800314,
+      "maxrss_kib": 1145456,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-runtime-api-1862c021df74.txt",
+        "bytes": 7059,
+        "sha256": "50b2389f8127b9a0e0e5336717e6ff3a371f90d03d62d1c847a32faa5ec03ee7"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-runtime-api-1862c021df74-profile.json",
+        "bytes": 10170,
+        "sha256": "0f30774d937612d16f70b87599504cec8a546ec4c0576faeeca09552ed97b57a"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-runtime-api-1862c021df74.json",
+        "bytes": 2481,
+        "sha256": "1330e458c1487ed3b9a84e2fc60a8077b9c6e5e24b031e8dc985bda0d66b2cc5"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "profile_time_state": "UNRUN at profile creation, terminal state comes from completed capture",
+      "all_six_caps_absent": true,
+      "interpretation": {
+        "outcome": "PASS",
+        "classification": "completed finite canonical contract checker PASS",
+        "literal": "Generated OpenAPI byte drift, hardening and runtime client byte bindings only; not endpoint/auth/client behavior, hosted CI or deployment"
+      }
+    },
+    {
+      "gate": "production-invocation",
+      "tag": "completed-final-production-invocation-1862c021df74",
+      "exit_code": -9,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 123.27904838400718,
+      "maxrss_kib": 5610612,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74-profile.json",
+        "bytes": 10838,
+        "sha256": "8eb1969c202ba86060f2df52883ea97d052f41fa48d5b863d405354e61f6a128"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.json",
+        "bytes": 2667,
+        "sha256": "c6c6a0403f3ebaa47bcc000a8ff9264829ea105c1c9e3fd365e80b2d4cc077eb"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "profile_time_state": "UNRUN at profile creation, terminal state comes from completed capture",
+      "all_six_caps_absent": true,
+      "interpretation": {
+        "outcome": "ERROR",
+        "classification": "executed scanner terminated SIGKILL",
+        "literal": "exit -9, empty stdout and no complete JSON receipt; complete static verdict not established; causal process/PID OOM proof not established"
+      }
+    },
+    {
+      "gate": "verify-uncapped",
+      "tag": "completed-final-verify-uncapped-1862c021df74",
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 8.398207449004985,
+      "maxrss_kib": 125808,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-verify-uncapped-1862c021df74.txt",
+        "bytes": 18075,
+        "sha256": "c3031cf0dba852239a3bf68cfe3cff9696a08fad2849082f4cbd3be56f4bd841"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-verify-uncapped-1862c021df74-profile.json",
+        "bytes": 13547,
+        "sha256": "4b07cf3f5cdc3a248ab48d050c226c2ace839b33af5f6f1e81f001d8fbab1e5d"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-verify-uncapped-1862c021df74.json",
+        "bytes": 2851,
+        "sha256": "975a0e513b8fcfb2aa467d7d0cd9b3253381c0ef4ae5577e06cf1fcc50dd0b22"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "profile_time_state": "UNRUN at profile creation, terminal state comes from completed capture",
+      "all_six_caps_absent": true,
+      "interpretation": {
+        "outcome": "FAIL",
+        "classification": "completed failed lint constituent; later commands UNRUN",
+        "literal": "Doctor PASS then lint imports FAIL:21 unadjudicated,0 lapsed, no exceptions;2 of15 constituents started, remaining13 UNRUN"
+      }
+    },
+    {
+      "gate": "parity-uncapped",
+      "tag": "completed-final-parity-uncapped-1862c021df74",
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 48.96490190800978,
+      "maxrss_kib": 1043300,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-parity-uncapped-1862c021df74.txt",
+        "bytes": 28797,
+        "sha256": "99392d4f09004e1259264f66b635345658cb89de5565aa72148e2f3717b58aea"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-parity-uncapped-1862c021df74-profile.json",
+        "bytes": 13553,
+        "sha256": "75370dae889dfb12a7343480d24180167b0887bc3efe6a19c7fba7bd9f27ffff"
+      },
+      "capture": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-parity-uncapped-1862c021df74.json",
+        "bytes": 2855,
+        "sha256": "4c60314c355e109b6b75a59f476d8ec28a1445f96595f7869f2d74c3fbb4f771"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "profile_time_state": "UNRUN at profile creation, terminal state comes from completed capture",
+      "all_six_caps_absent": true,
+      "interpretation": {
+        "outcome": "FAIL",
+        "classification": "doctor FAIL with mixed schema RED/runtime resource termination; later commands UNRUN",
+        "literal": "Doctor only of35 expanded;2 stale schema snapshot diagnostics; nested runtime checker exit137; nested frontend contracts1PASS; remaining34 UNRUN; signal cause not established"
+      }
+    }
+  ],
+  "fully_terminal_first_attempts": 8,
+  "gate_counts": {
+    "FAIL": 5,
+    "UNRUN": 1,
+    "PASS": 1,
+    "ERROR": 1
+  },
+  "finding_closure": [],
+  "source_clean_after": true
+}

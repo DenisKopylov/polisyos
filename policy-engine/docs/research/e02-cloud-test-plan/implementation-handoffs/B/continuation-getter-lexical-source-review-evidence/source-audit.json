@@ -1,0 +1,168 @@
+{
+  "schema": "policyos.e02.foreign_source_custody.v1",
+  "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+  "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+  "reviewed_comparison_refs": [
+    "0903e31d1b9090560280c2e15aea0575da97ec20",
+    "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+    "7c05686dbd8427fa2e8bf217827046acef097058"
+  ],
+  "authored_slice_base_sha": "e82ac5834ee481051f905edfe0bd68ba19dcc6ad",
+  "source_inputs": [
+    {
+      "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "git_blob": "5c974e0c1ff455802de497f3771d19868aeddbba",
+      "bytes": 20387,
+      "sha256": "ee5db9c9900ea31f14dd3c47b56c75a2d4a1c7f44cac8cede95476da21fe1830"
+    },
+    {
+      "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "git_blob": "bf0468d4b88cafc0e45d94412d645b385c299e26",
+      "bytes": 8353,
+      "sha256": "b5c125a65d619797fc94265a5dbdb54589796b7dca8c555b1c87f81f1bee4e75"
+    },
+    {
+      "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+      "git_blob": "431951499591e10baec58007c15cff91ea176879",
+      "bytes": 1177,
+      "sha256": "92f9b37faf4d02425bf267cddfc7b7065907dce1421bf3877971bb8d60d269aa"
+    },
+    {
+      "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "git_blob": "398532879ce64958a43707e14f9687e55feb6f0d",
+      "bytes": 18035,
+      "sha256": "2d0968aa5c4adb65c735e5b69e4b85d635587fc8ac214330f529d79379deb77c"
+    },
+    {
+      "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+      "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "git_blob": "7f109c5bd9c3d955c65d01a6a96f6ab116e9856b",
+      "bytes": 21409,
+      "sha256": "6bf154b7f28dee297ce463ba1df3d6d11c30eb280480da39ed93b5576601cd6a"
+    },
+    {
+      "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+      "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "git_blob": "d59888bf2b64a4ad5cbaa0aaa957c93b091d6709",
+      "bytes": 8702,
+      "sha256": "58facee1a4a47a036a54d285c84972d2eebecaf0f17d585a57b702082d4f2b7e"
+    },
+    {
+      "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+      "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+      "git_blob": "4ea89db8be729608ed8b1a0e1c074f8cbe682e39",
+      "bytes": 1321,
+      "sha256": "2c231fb35e87b5da21e5d7cc61279239ac164f1db1414111b2723697a0b88f72"
+    },
+    {
+      "source_sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+      "source_tree": "79444947f48872f7743002a796d8307dcc2cab81",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "git_blob": "488100607e6d8e72019dd16306825f5e6a9d6358",
+      "bytes": 21147,
+      "sha256": "506e7184c9ac737de83e0c3dc027fef7d36e0ac20c53947b7f01ee6acf57ce5a"
+    },
+    {
+      "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "git_blob": "7f0d0323474ee2f8f1fe4adea316c5260159262e",
+      "bytes": 21815,
+      "sha256": "95ed058f5387bc1b9af7db9cdb3a835565cca608c6dba84901add538c9b079be"
+    },
+    {
+      "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "git_blob": "6bf7f04f66eb0acc0fb90a175592da3cc3092c2f",
+      "bytes": 8893,
+      "sha256": "cd9c01124e879342e7098662091026e05e01ea161950feddc010936f125f9f51"
+    },
+    {
+      "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+      "git_blob": "4ea89db8be729608ed8b1a0e1c074f8cbe682e39",
+      "bytes": 1321,
+      "sha256": "2c231fb35e87b5da21e5d7cc61279239ac164f1db1414111b2723697a0b88f72"
+    },
+    {
+      "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+      "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "git_blob": "d54e5ddaeb0f8e2e50d8941ccf1adb639c4071ff",
+      "bytes": 21776,
+      "sha256": "b9a95dc7959eb3fb8094a3875a2419444867770ed8e29a9f73ced5d21c76767d"
+    }
+  ],
+  "full_owned_source_delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "whole_branch_changed_path_count": 80,
+  "additional_research_evidence_path_count": 76,
+  "projection_qualification": "Four owned mechanism/test/companion paths only; intervening published evidence docs are counted separately, not asserted absent.",
+  "final_narrow_delta_paths": [
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "prior_guard_function_ast_equal": {
+    "_instructions": true,
+    "_function_captures": true,
+    "_module_paths": true,
+    "_module_capture": true,
+    "_external_member_boundary": true,
+    "_unavailable": true,
+    "_version": true,
+    "implementation_identity_projection": true
+  },
+  "root_getter_premises": [
+    "return {**captures.builtins, **captures.globals, **captures.nonlocals}",
+    "root_bindings = _root_function_captures(function)",
+    "symbol.is_parameter()",
+    "symbol.is_local()",
+    "symbol.is_assigned()",
+    "symbol.is_imported()",
+    "symbol.is_global() or symbol.is_free()",
+    "captures.get(identifier, missing) is not value",
+    "scope.get_type() == symtable.SymbolTableType.FUNCTION",
+    "if item is builtins.getattr or name in root_getters"
+  ],
+  "predicate_basis": "independently_reconciled",
+  "verdict": "NONBLOCKING within declared ordinary-function finite getter family",
+  "scope_limits": [
+    "No candidate imports, native, gate, cleanup, helper execution or source mutation.",
+    "Actual root getter alias, selector and iterator must have admissible lexical global/free binding and agree by object identity with flattened captures.",
+    "The unchanged whole recursive capture algorithm is not accepted as universal lexical/source closure.",
+    "Runtime target types, descriptors, returned contexts and installed numerical mutable internals remain unproved; B74 frame counterexample remains LIMITED.",
+    "Prior0903 review is historical finite scope, not acceptance of the later demonstrated scalar/iterator/nonlocal/builtin-alias inlet gaps.",
+    "Whole root6fa native/gate failures remain separate; no P41 inherited exemption or finding closure."
+  ],
+  "actual_checkout_before": {
+    "sha": "a058426e743e8ce8c88c0b4469451b3180458915",
+    "status": ""
+  },
+  "actual_checkout_after": {
+    "sha": "a058426e743e8ce8c88c0b4469451b3180458915",
+    "status": ""
+  },
+  "metadata_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "git_environment": {
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/e02-B-jit-data-getattr-20261007/git-objects:/tmp/e02-dur-getter-oracle-8aa69009572b/git-objects:/workspace/polisyos/.git/objects"
+  },
+  "audit_errors": []
+}

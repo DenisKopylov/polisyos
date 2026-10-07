@@ -1,0 +1,14 @@
+{
+  "count": 27,
+  "pass": 26,
+  "nonpass": [
+    {
+      "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+      "name": "test_returned_frame_namespace_refuses_before_replacement_effect",
+      "tags": [
+        "failure"
+      ]
+    }
+  ],
+  "origins": 167
+}

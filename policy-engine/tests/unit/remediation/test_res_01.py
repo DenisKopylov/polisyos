@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import logging
+import os
+import socket
 from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
@@ -12,6 +15,7 @@ from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointCorruptedError,
+    CheckpointStatusNotEstablishedError,
     WorkflowMismatchError,
     compute_workflow_fingerprint,
     create_checkpoint,
@@ -97,7 +101,9 @@ def test_cache_seed_does_not_mix_different_content_under_same_key(
     original_get_bytes = store.get_bytes
 
     def counted_get_bytes(artifact_id):
-        reads.append(str(artifact_id))
+        reads.append(
+            str(artifact_id.artifact_id if isinstance(artifact_id, ArtifactRef) else artifact_id)
+        )
         return original_get_bytes(artifact_id)
 
     monkeypatch.setattr(store, "get_bytes", counted_get_bytes)
@@ -132,7 +138,9 @@ def test_cache_seed_revalidates_full_ref_identity(
     replay = NodeResultCache(store, run_id=run_id)
     assert replay.load_entry(entry_ref) is True
     altered_ref = entry_ref.model_copy(update={field: value})
-    with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+    with pytest.raises(
+        ValueError, match="Artifact reference type does not match selected manifest"
+    ):
         replay.load_entry(altered_ref)
     assert replay.get(key) is not None
 
@@ -244,7 +252,63 @@ def _resume_registry() -> NodeRegistry:
 def _context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, object]:
     bundle = build_default_registry_bundle(store)
     run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
-    return ExecutionContext(store=store, run=run, logger=logging.getLogger("res_01")), bundle.bundle_ref
+    return ExecutionContext(
+        store=store, run=run, logger=logging.getLogger("res_01")
+    ), bundle.bundle_ref
+
+
+def _native_completed_checkpoint(
+    store: FileSystemCAS,
+    *,
+    run_id: str,
+    workflow: WorkflowSpec,
+    through: str = "b",
+    missing_param: str | None = None,
+):
+    """Produce completion evidence through the actual executor, then inject missing state."""
+    producer = _resume_registry()
+    if through == "b":
+        producer.get(ComponentId.parse("scientist.node_res_b@1.0.0")).fail_once = False
+    ctx, bundle_ref = _context(store, run_id)
+    hook = CASCheckpointHook(store=store, run_dir=Path(store.root) / "runs" / run_id)
+    first = WorkflowExecutor(ctx, producer, checkpoint_hook=hook).execute(
+        workflow, ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle_ref})
+    )
+    assert first.report.status == "fail"
+    resolved = resolve_latest_checkpoint(store, run_id)
+    assert resolved is not None
+    head, checkpoint = resolved
+    assert checkpoint.metadata.completed_nodes == (["a", "b"] if through == "b" else ["a"])
+    assert checkpoint.metadata.completed_node_status_contract == "native_node_outcome_v1"
+    assert checkpoint.state is not None
+    if missing_param is not None:
+        state = ExperimentState.model_validate(checkpoint.state)
+        del state.params[missing_param]
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=head.sequence_number + 1,
+            completed_node_alias=through,
+            completed_node_id=str(workflow.nodes[1 if through == "b" else 0].node_id),
+            completed_nodes=list(checkpoint.metadata.completed_nodes),
+            completed_node_status_contract=checkpoint.metadata.completed_node_status_contract,
+            workflow_id=checkpoint.metadata.workflow_id,
+            workflow_fingerprint=checkpoint.metadata.workflow_fingerprint,
+            origin_workflow_fingerprint=checkpoint.metadata.origin_workflow_fingerprint,
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            Path(store.root) / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=head.sequence_number + 1,
+            node_alias=through,
+            writer_pid=os.getpid(),
+            writer_hostname=socket.gethostname(),
+        )
+    return bundle_ref
 
 
 def test_resume_preserves_origin_fingerprint_across_two_stops(tmp_path: Path) -> None:
@@ -298,35 +362,7 @@ def test_full_valid_state_resumes_without_unnecessary_cache_seed(tmp_path: Path)
     registry = _resume_registry()
     registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
     run_id = "R_res_01_full_state"
-    state = ExperimentState(
-        run_id=run_id,
-        params={"a": 1, "b": 2},
-    )
-    created = create_checkpoint(
-        store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
-        completed_node_alias="b",
-        completed_node_id="scientist.node_res_b@1.0.0",
-        completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
-    )
-
-    ctx, bundle_ref = _context(store, run_id)
-    del ctx
+    bundle_ref = _native_completed_checkpoint(store, run_id=run_id, workflow=workflow)
     resumed = resume_from_checkpoint(
         store,
         run_id,
@@ -344,31 +380,9 @@ def test_resume_rejects_missing_state_written_by_completed_node(tmp_path: Path) 
     workflow = _resume_workflow()
     registry = _resume_registry()
     run_id = "R_res_01_missing_state"
-    state = ExperimentState(run_id=run_id, params={"a": 1})
-    created = create_checkpoint(
-        store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
-        completed_node_alias="b",
-        completed_node_id="scientist.node_res_b@1.0.0",
-        completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
-    )
+    _native_completed_checkpoint(store, run_id=run_id, workflow=workflow, missing_param="b")
 
-    with pytest.raises(CheckpointCorruptedError, match="params.b"):
+    with pytest.raises(CheckpointCorruptedError, match=r"params\.b"):
         resume_from_checkpoint(
             store,
             run_id,
@@ -385,32 +399,9 @@ def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path)
     registry.get(ComponentId.parse("scientist.node_res_b@1.0.0")).fail_once = False
     registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
     run_id = "R_res_01_allow_replay"
-    state = ExperimentState(run_id=run_id, params={"a": 1})
-    created = create_checkpoint(
-        store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
-        completed_node_alias="b",
-        completed_node_id="scientist.node_res_b@1.0.0",
-        completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
+    bundle_ref = _native_completed_checkpoint(
+        store, run_id=run_id, workflow=workflow, missing_param="b"
     )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
-    )
-
-    ctx, bundle_ref = _context(store, run_id)
-    del ctx
     resumed = resume_from_checkpoint(
         store,
         run_id,
@@ -435,29 +426,7 @@ def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path:
         }
     )
     run_id = "R_res_01_changed_input"
-    state = ExperimentState(run_id=run_id)
-    created = create_checkpoint(
-        store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=0,
-        completed_node_alias="a",
-        completed_node_id="scientist.node_res_a@1.0.0",
-        completed_nodes=["a"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=0,
-        node_alias="a",
-        writer_pid=123,
-        writer_hostname="localhost",
-    )
+    _native_completed_checkpoint(store, run_id=run_id, workflow=workflow, through="a")
     changed = workflow.model_copy(
         update={
             "nodes": [
@@ -482,3 +451,40 @@ def test_duplicate_cache_ref_is_not_independent_coverage(tmp_path: Path) -> None
     assert replay.seed_from_entry_refs([entry, entry]) == 1
     assert replay.size == 1
     assert replay.seed_from_entry_refs([]) == 0
+
+
+def test_constructed_completion_without_native_status_is_refused(tmp_path: Path) -> None:
+    """The old state-only frontier cannot assert native completion on behalf of a producer."""
+    store = FileSystemCAS(tmp_path)
+    workflow = _resume_workflow()
+    run_id = "R_res_01_unestablished_completion"
+    state = ExperimentState(run_id=run_id, params={"a": 1, "b": 2})
+    created = create_checkpoint(
+        store,
+        run_id=run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        sequence_number=1,
+        completed_node_alias="b",
+        completed_node_id="scientist.node_res_b@1.0.0",
+        completed_nodes=["a", "b"],
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        fsm_phase="EXECUTE",
+        cache_entry_refs=[],
+    )
+    update_checkpoint_head(
+        tmp_path / "runs" / run_id,
+        run_id=run_id,
+        checkpoint_ref=created.checkpoint_ref,
+        sequence_number=1,
+        node_alias="b",
+        writer_pid=os.getpid(),
+        writer_hostname=socket.gethostname(),
+    )
+    consumer = _resume_registry()
+    with pytest.raises(
+        CheckpointStatusNotEstablishedError,
+        match="checkpoint_completed_node_status_not_established",
+    ):
+        resume_from_checkpoint(store, run_id, workflow=workflow, registry=consumer)
+    assert all(consumer.get(invocation.node_id).invocations == 0 for invocation in workflow.nodes)

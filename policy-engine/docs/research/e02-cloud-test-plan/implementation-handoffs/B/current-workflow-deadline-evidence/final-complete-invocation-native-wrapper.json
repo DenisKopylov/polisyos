@@ -1,0 +1,51 @@
+{
+  "target_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+  "candidate_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/workspace/e02-B-current-execution-state/policy-engine",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-invocation-native/raw.json"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-invocation-native/input-closure.json",
+    "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca",
+    "tracked_paths": 13853,
+    "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "driver_sha256": "d00105b9385369bc6bfeeb90ede651b44dd24ff7b4cba897fdb091f12e010efd",
+  "start_utc": "2026-10-06T13:32:46.153946+00:00",
+  "end_utc": "2026-10-06T13:36:24.930127+00:00",
+  "wall_s": 218.77616605799994,
+  "max_rss_kib": 8365760,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-invocation-native/input-closure.json",
+      "sha256": "082b103d72f6a4e152a1094703b9d4501ed6f15d4b22dc03c5d94ec24b043aca",
+      "bytes": 2792775
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-invocation-native/raw.json",
+      "sha256": "e18a145af359deb14e86526898747f32c7548d19cba7c14093021018a8e3fa35",
+      "bytes": 171603426
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-invocation-native/stdout.txt",
+      "sha256": "4d0a5cc1929349cae96f10af2b80ac1279e5104c48177983f995ff432b31cfb3",
+      "bytes": 6256
+    }
+  ]
+}

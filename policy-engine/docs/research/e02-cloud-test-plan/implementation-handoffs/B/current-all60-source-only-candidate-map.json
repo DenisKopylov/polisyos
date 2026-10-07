@@ -1,0 +1,1428 @@
+{
+  "schema": "policyos.e02.source_only_all60_candidate_map.v1",
+  "unit": "B",
+  "reviewer": "DUR /root/dur_probe independent manual criterion/consumer map helper; not own implementation reviewer",
+  "mode": "SOURCE_ONLY_CURRENT_CANDIDATE_READY; WAIT_FINAL_NATIVE_CASE_JOIN",
+  "closure_ids": [],
+  "root_source_cut": {
+    "sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+    "tree": "b75980daba837e15d8664785107e12d759101b82",
+    "role": "Source/readiness identity only. Running targeted wave result and upcoming full native/gates not imported."
+  },
+  "canonical_source_basis": {
+    "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "card_path_template": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/{bundle_id}.md",
+    "criterion_locator": "Marker line range locates the full SOURCE block; source_block_sha256 hashes raw UTF-8 regex capture between markers, preserving all whitespace. See current-canonical-criterion-digest-qualification.json."
+  },
+  "canonical_summary_role": "Per-ID summary only aids navigation; full immutable canonical SOURCE block and bundle acceptance control adjudication. Raw capture convention preserves all whitespace.",
+  "denominator_basis": {
+    "finding_owners": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@0fdc39831bc95f059dd220c054494fd410bde9da",
+    "bundle_owners": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv@0fdc39831bc95f059dd220c054494fd410bde9da",
+    "finding_count": 60,
+    "bundle_count": 25,
+    "validation": "Full B owner set exactly equals60 row IDs; all60 canonical raw-capture digests match and all25 root source cards equal canonical697. No status-count target."
+  },
+  "basis_index": {
+    "prior": {
+      "git_sha": "69592e5ca095011bfd724a01da1e1f44cfb9f9d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-adjudication.json",
+      "sha256": "57824974c599414a246810f39724a7cb4e4386ae8ade514e6721737b177a3a28",
+      "bytes": 108445
+    },
+    "delta": {
+      "git_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-open-delta-review.json",
+      "sha256": "4cbef77e9f8335729e3290faba9761c56d399d867dcdc78e3e9f14ec7066b284",
+      "bytes": 16456
+    },
+    "exe-final": {
+      "git_sha": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+      "sha256": "186761143590191aaa4057700c50c1f90a04bf467d60194cd17854f6e9a9a7f0",
+      "bytes": 284620
+    },
+    "sta-final": {
+      "git_sha": "42b777ef381f14794bbb91ad1905a07ada768577",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/review-final.json",
+      "sha256": "1faeda016479552d42d99e563d0deea79a4e5131aed1e403dcb00457bb438991",
+      "bytes": 36860
+    },
+    "cas-failure": {
+      "git_sha": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failed-snapshot-report-followup.json",
+      "sha256": "55ce702927ff2335613a999ebd70cc053ef9b4e22f4450ec242c7923b132b0c6",
+      "bytes": 48628
+    },
+    "wire": {
+      "git_sha": "48580635d00911c95c54cabb92227d0c482be89d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer.json",
+      "sha256": "2fe3c84264bae3e12b6239a9b5045151cfe5657f73c45d4c517e6318257bf62d",
+      "bytes": 46697
+    },
+    "stream-portable": {
+      "git_sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-portable.json",
+      "sha256": "13ca21897bbb2f01efe6efdf896d74d8c988a509a8d9c86b2b258d198c8afca9",
+      "bytes": 17494
+    },
+    "stream-review": {
+      "git_sha": "7cbde21de57765c37af5384cb80b85267119a4f5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/review-portable.json",
+      "sha256": "0ca107b29782b1cd536674571110c9fdae0a54cb6647334bb34c7e671b195e3f",
+      "bytes": 23301
+    },
+    "criterion-digest": {
+      "git_sha": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-criterion-digest-qualification.json",
+      "sha256": "b06de8e80a4749ab666c91e1acab08d52263b26f08e3a96173d6ec8f436e048a",
+      "bytes": 2340
+    },
+    "cas-fixture-review": {
+      "git_sha": "00632efbaaad96e8011d0f6197427b8d6c0f8025",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-fixture-independent-review/review.json",
+      "sha256": "9e072d3c53a20af1ada7fd8c6edcc8c00d3749824c018b390eede8eb918f24b3",
+      "bytes": 49458
+    },
+    "checkpoint-budget": {
+      "sha": "03e52adb2a8a84f0339108fea7a1f5a10e041132",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget.json",
+      "bytes": 79078,
+      "sha256": "5e6c7415a26c69667e406e401d46c6a0ace5d33e496676b4c78996d827756f09"
+    },
+    "checkpoint-independent": {
+      "sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-candidate.json",
+      "bytes": 37637,
+      "sha256": "c981376d269805ed7d09fb95e4cd2f873ae962f8c5db8b369f8f83136c061da4"
+    },
+    "checkpoint-cancellation-review": {
+      "sha": "76028eda766d00b0b952b4927f72d07b0a477be1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-cancellation-independent-review/review.json",
+      "bytes": 35284,
+      "sha256": "f6ac4ba4235ad5ce7ff2cb7e8e2e2dae897a419ecb1b99810310eb953862e353"
+    },
+    "b73-independent": {
+      "sha": "df5622065679d66b6d6685ecdd9948552cbd8e55",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-parallel-tier-compensation-independent.json",
+      "bytes": 13522,
+      "sha256": "c320c94f4b2a64a17f923ef060be72254030f4adb50ccc6e62d49a28a9af5367"
+    },
+    "b50-independent-oracle": {
+      "sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-leader-terminal.json",
+      "bytes": 14886,
+      "sha256": "5e27a94d682c01b254ec1623d44628a12ac618e0bbc2463c9f7c970fb4c9d044"
+    },
+    "la057-prepared": {
+      "sha": "d760672190fd00237d499aa6f2b62ef276ca0b5a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-preparation.json",
+      "bytes": 10839,
+      "sha256": "d423246f2cd7312f2c4d1d4a8b306e7ed86dbc65461e4528f36f03cd46bfedd5"
+    },
+    "la057-independent-review": {
+      "sha": "f3858797fe2546d2230a13a6b3a1adeb9328afcb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/review.json",
+      "bytes": 47104,
+      "sha256": "68211fbcd74de800427b3c254131a64634ae266b5e07ca7d40435bc8aaac501e"
+    },
+    "c1-independent-gates": {
+      "sha": "1607d28dfac717b6927f64a3b2a15451879dcd92",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-c1-required-gate-independent-review.json",
+      "bytes": 414421,
+      "sha256": "aee3b77b36d090935c3f534c96c6796f06b7419caf156771182b3c7ac8b439d7"
+    }
+  },
+  "historical_check_resolution": "prior/<key> resolves prior#/check_index then prior#/receipt_index for exact command, target, environment, input, full deciding bytes. delta/<key> and other basis keys resolve their immutable receipt checks. Indexes are navigation; actual outputs/properties are the evidence, never package exit alone. No duplicated source/cell/evidence inventory.",
+  "scope_profiles": {
+    "RUN-01": "Canonical shared executor/common3.14 plus direct/thread/fork/genuine-async timeout/context/cancel paths; accepted logical publication and retained entered physical ownership are distinct.",
+    "RUN-02": "Linux real fork/Pipe/framed transport and owned descendant lifecycle; native platform properties remain separately named, no imported platform success.",
+    "RUN-03": "Canonical category/code classification across exception and returned NodeOutcome, isolated native state attempts and known typed expense settlement.",
+    "DUR-01": "Actual FileBudgetLedger filesystem publication plus real child/reopened BudgetMiddleware; exact legal wire, concurrent read/write and injected filesystem/process cuts.",
+    "DUR-02": "Actual bound source-job store transaction fence and SQLite public worker/restart/status-event consumers; actual dispatched primary has typed unknown until external reconciliation law exists.",
+    "CMP-01": "MethodRegistry registered ordinary two-node/multi-occurrence chains and declared required edges, native sync/async/checkpoint/JIT materialization with declared parameters.",
+    "CMP-02": "Strict scalar target and declared occurrence semantics; visible WARN candidate is not execution authority.",
+    "CMP-03": "Supported typed slot/unit/shape/contract/semantic inputs, full incoming DAG acceptance and exact finite max-cardinality/max-utility matching/ambiguity.",
+    "JIT-01": "Supported real JAX specialization and canonical synchronous compiler single-flight; logical leader terminal/error/publication and actual follower/healthy numerical retry.",
+    "EXE-01": "AsyncWorkflowExecutor concrete verified FileSystemCAS, explicit read/run budgets and named functional read policy; no external permission/source-owner law invented.",
+    "EXE-02": "Declared safe DAG dependencies/state read-write sets; actual independent successor scheduling and preserved inputs/seed/full artifact lineage.",
+    "STA-01": "Ordinary declared JSON dict/list state graph, live nested aliases/reparent/held views, versioned actual operations, fail isolation and guarded write scope.",
+    "STA-02": "Actual adaptive bundle/CAS selection and declared parameter normalization/presence keys; SKG immutable consumed snapshot authority is a separate held contract.",
+    "RES-01": "Concrete exact ArtifactRef trace/checkpoint/legacy result inlet, actual cached outcomes/state operations and output-aware resume dependency consumer.",
+    "RES-02": "Native skip/fail/ok frontier, parallel fail-fast compensation/continue commit set, actual retained CAS output and fresh-store public resume.",
+    "RES-03": "Actual simulation artifact survives prefix failure; served HTTP consumer must be reached with required readonly acquisition/catalog inputs.",
+    "RES-04": "Finite inspectable Python source graph/declared refs and JSON/NumPy immutable generation; native producer/history/context/readback exact identity, not constructor names.",
+    "LLM-01": "Actual provider adapter, producer flight, Traced hooks, enforcer and initialized durable ledger; known typed event and ACK are distinct from unknown external billing authority.",
+    "LLM-02": "Actual exact scoped reuse/single-flight with declared principal/purpose/epoch fixture; production institutional permission is not inferred from readability.",
+    "NET-01": "Real canonical pool physical handles plus real file EventStreamConnector/C session/process/CursorStore; fault-stage ownership measured, no pool/marker substitution.",
+    "NET-02": "Actual rate/circuit decorator leases and exact-key bounded registries; fake clock is explicit fixture input, not external rate law.",
+    "WIRE-01": "Canonical worker serialization native and stdlib JSON backends with independent bare/framed-v1 legacy and current-v2 emitters/readers.",
+    "CAS-01": "Real FileSystemCAS first-writer selected profiles, physical existing bytes/size, scoped views and bounded local lock lifetime.",
+    "CAS-02": "Real verified private transfer staging, normalized final output entries and atomic directory/archive generation publication; scoped ownership law separate.",
+    "CAS-03": "Concrete FileSystemCAS byte/manifest snapshot, actual signatures/trust/revocation/report/capture reader and finite iterator batch producer; A governed publisher separate."
+  },
+  "root_protected_owner_source_binding": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "equals_current_entry198": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "equals_current_entry198": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3",
+      "equals_current_entry198": true
+    }
+  ],
+  "current_final_native_case_join": null,
+  "current_root_gates_acceptance": "PENDING_CURRENT_SOURCE; historical current-c1 independent six failures remain source-boundc1, later456 storage/cohort/gates separate. No P41 inherited waiver (source denominator intersects changed inputs and exactbase replay/zerointersection not established). No source-only code acceptance.",
+  "P37_rules": {
+    "allowed_labels": [
+      "recomputed",
+      "independently_reconciled",
+      "consumer_asserted",
+      "institutionally_supplied",
+      "not_established"
+    ],
+    "canonical_criterion": "Normative input; not substituted for measured deciding predicate.",
+    "actual_predicate_admission": "Final case/property quantity requires recomputed or independently_reconciled source/input-bound observation. Fixture declarations and institutional claims cannot by themselves confer authority; current runtime join is not_established.",
+    "author_independence": "DUR own implementations are not approved by this map; root/foreign review refs and actual final root cases decide them. This map only binds criteria/consumer/evidence locators.",
+    "case_outcomes": "Setup/teardown ERROR, skipped/missing backend, ENOSPC and not-reached fixture premises are not property PASS or a source defect by default; native actual classifications retained.",
+    "meaning_of_source_prefixes": "Validated actual test function/file identities only, not collection/runtime success. Outer LA case and child eight cases have separate denominators."
+  },
+  "technical_boundaries": [
+    "No full production dataset required for generic mechanism fixtures; actual history/source/served/authority criteria name exact missing consumer or owner law.",
+    "No invented physical powerloss, universal multihost/external idempotency, cryptographic ledger-attestation, all-backend conformance or scientific authority from declared source/test shape.",
+    "All previous closure/status proposals are historical; root/G applies final findings after exact current source+actual defining cases+full criterion read. Code acceptance is a separate gate result.",
+    "Original current DUR lane admission create/resume is supplied by root; older referenced receipts retain their actual admission qualifications. No all-checkouts-admitted blanket claim."
+  ],
+  "rows": [
+    {
+      "finding_id": "B13",
+      "bundle_id": "RES-03",
+      "canonical_criterion": {
+        "line_begin": 51,
+        "line_end": 66,
+        "source_block_sha256": "8714cb99089ae3acaf3b6bad7954b4ea29bb018e3128bccb5c937d21aa43ad49"
+      },
+      "criterion_summary": "Real simulation survives later failure and is correctly consumed through served route.",
+      "historical_distinguishing_fact": "Real simulation artifact and later-failure prefix persist; actual served-route attempt stops at catalog_fetch_source_unreadable before TestClient consumption.",
+      "historical_deciding_checks": [
+        "prior/identity:5",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": "Readonly native production catalog/acquisition input and all15 served HTTP negatives unavailable; producer success is insufficient.",
+      "next_owner": "A lifecycle/generation owner + local G",
+      "cross_unit_contract": "A alone owns generation_cycle.py/run_lifecycle.py bridge; readonly catalog/acquisition/served HTTP consumer requires actual reachable input, no producer-only closure."
+    },
+    {
+      "finding_id": "B14",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 53,
+        "line_end": 66,
+        "source_block_sha256": "6751a4ad3fac17a99f232f0c277b7df5b9a7911393ed10edf4013c8e60f71b0f"
+      },
+      "criterion_summary": "Timeout/cancellation stops owned work or revokes late current-state publication; delivery success is distinguished from compute failure.",
+      "historical_distinguishing_fact": "Real Linux owned descendants are reaped; queued jobs cancel synchronously; late thread output/owned-write refusal distinguished from continued raw physical work.",
+      "historical_deciding_checks": [
+        "prior/run:0",
+        "prior/run:1",
+        "prior/run:2",
+        "prior/run:5",
+        "prior/run-process:0",
+        "prior/run-process:1"
+      ],
+      "standing_missing_consumer_or_contract": "Arbitrary already-running thread/coroutine/external effects cannot be hard-stopped; native macOS profile unrun.",
+      "next_owner": "RUN + external effect owner + G native platform"
+    },
+    {
+      "finding_id": "B24",
+      "bundle_id": "RUN-02",
+      "canonical_criterion": {
+        "line_begin": 48,
+        "line_end": 63,
+        "source_block_sha256": "07a88c84d0c6ba90c263ae4eac6963f2a204362af642aa95d60a00792aa7ece0"
+      },
+      "criterion_summary": "Small/1MiB process results drain while producer lives; compute and delivery failures never publish false success.",
+      "historical_distinguishing_fact": "Actual framed1MiB, partial Pipe transport, first-handle setup faults and descendant cleanup controls distinguish join-before-drain and delivery loss.",
+      "historical_deciding_checks": [
+        "prior/run-process:0",
+        "prior/run-process:1",
+        "prior/run:5"
+      ],
+      "standing_missing_consumer_or_contract": "Linux supervisor/procfs/pidfd profile established; native macOS process/adopted-child boundary unrun.",
+      "next_owner": "G native platform + RUN"
+    },
+    {
+      "finding_id": "B37",
+      "bundle_id": "DUR-01",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 68,
+        "source_block_sha256": "c555fb1ccd7afd60ee4c21887f0da19bb1d95885fd7b3a736cd84872814db01e"
+      },
+      "criterion_summary": "Concurrent ledger reads and interrupted publication yield complete old/new or typed recovery, never implicit unlimited; sparse wire is refused before defaults.",
+      "historical_distinguishing_fact": "Actual child cold public spend refuses missing bootstrap; explicit unlimited remains valid; fixed23 wire-field consumer negatives, process concurrent read/write, fsync/replace/SIGKILL cuts and reopened middleware cap refusal pass.",
+      "historical_deciding_checks": [
+        "prior/dur-settlement:0",
+        "prior/dur-settlement:1",
+        "prior/dur-settlement:2",
+        "prior/dur-settlement:3",
+        "prior/dur-independent:0",
+        "prior/dur-independent:1",
+        "prior/dur-independent:2",
+        "prior/dur:0"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final integrated criterion acceptance",
+      "historical_observation_basis": "recomputed"
+    },
+    {
+      "finding_id": "B38",
+      "bundle_id": "DUR-02",
+      "canonical_criterion": {
+        "line_begin": 54,
+        "line_end": 73,
+        "source_block_sha256": "d37d987dae1f7e9c87bb88d46bbbdb91c30f0a7208e28c12bdcd21ab46b73258"
+      },
+      "criterion_summary": "Actual bound stale worker cannot publish terminal/progress/event/history/outbox after owner/attempt/expiry takeover; current owner completes coherently.",
+      "historical_distinguishing_fact": "Fresh SQLite processes exercise13 public mutators with unchanged full rows, currentB completion, expiry/renew/self-generation rollback and verified terminal publication; fence removal fails actual consumer.",
+      "historical_deciding_checks": [
+        "prior/dur:0",
+        "prior/dur:1",
+        "prior/dur:2",
+        "prior/dur:5",
+        "prior/dur:6",
+        "prior/dur:7",
+        "prior/dur:10",
+        "prior/dur:11"
+      ],
+      "standing_missing_consumer_or_contract": "Canonical SQLite stale-owner/status-event transaction profile has actual fresh process13mutator/fence-removal evidence. Six unavailable PG tests are unrelated DS20/DS9;269 missing catalog aggregate is not a B38 criterion blanket. A real external/backend claim needs its exact consumer and explicit profile; no universal PostgreSQL/crosshost/physical power-loss prerequisite invented.",
+      "next_owner": "root/G final B38 SQLite criterion casejoin; DUR/DB owner only for separately claimed PostgreSQL actual handler profile",
+      "historical_observation_basis": "recomputed"
+    },
+    {
+      "finding_id": "B39",
+      "bundle_id": "RUN-03",
+      "canonical_criterion": {
+        "line_begin": 48,
+        "line_end": 65,
+        "source_block_sha256": "f2546edff7c1593a0c052e825aff9229abba6c4a98bf2f9a215698aafb27a7e2"
+      },
+      "criterion_summary": "Same permanent returned/raised defect has same retry count; allowed transient faults retry within policy; unknown external outcome does not blind-retry.",
+      "historical_distinguishing_fact": "Actual direct/thread/fork/genuine-async classifier matrix preserves canonical category/code, transient provider TimeoutError and terminal wrapper expiry.",
+      "historical_deciding_checks": [
+        "prior/run:1",
+        "prior/run:3",
+        "prior/run:4",
+        "prior/run:5"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G integrated retry consumers"
+    },
+    {
+      "finding_id": "B40",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 72,
+        "line_end": 91,
+        "source_block_sha256": "0f1f3de7c6168147385cad77e0eb9c8e974e6b51c28dd7bf6cc1533f5f655ed9"
+      },
+      "criterion_summary": "One visible effective deadline covers queue/startup/retry/I/O/publication across sync/async forms and rejects late current writes.",
+      "historical_distinguishing_fact": "Healthy real35s atomic head within owner60 failed at hidden30 on old456. Exact6af unchanged long+short7PASS and four material guard-removalFAIL; exact84 cancellation/queued admission controls and later sourcebc are separately bound in owner18-check receipt. Source-only map does not relabel any of these as root0fd execution.",
+      "historical_deciding_checks": [
+        "prior/run:0",
+        "prior/run:1",
+        "prior/run:2",
+        "prior/run:5",
+        "prior/exe-owner:0",
+        "prior/exe-owner:1",
+        "prior/exe-owner:2",
+        "prior/exe-owner:3",
+        "exe-final/checks/16",
+        "checkpoint-budget-baseline/checks/1",
+        "checkpoint-budget-candidate/five_checks"
+      ],
+      "standing_missing_consumer_or_contract": "No accepted finite-profile canonical checkpoint-budget omission remains established; actual new root phase/casejoin and full shared-deadline criterion are pending. Entered uninterruptible physical I/O is retained/typed unknown, never acknowledged late workflow frontier; no rollback fiction.",
+      "next_owner": "EXE + RUN + root/G",
+      "new_native_defining_prefixes": [
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py::test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py"
+      ],
+      "successor_basis": [
+        "checkpoint-budget",
+        "checkpoint-independent",
+        "checkpoint-cancellation-review"
+      ]
+    },
+    {
+      "finding_id": "B42",
+      "bundle_id": "CMP-01",
+      "canonical_criterion": {
+        "line_begin": 56,
+        "line_end": 73,
+        "source_block_sha256": "434fc93d5f183004fa3dea62a3802632618b7a5a640c7a29a94b218cc09bbc77"
+      },
+      "criterion_summary": "Both fresh import orders execute real built two-node registry chain through common async wrapper; missing required dependency is diagnostic.",
+      "historical_distinguishing_fact": "Two actual fresh child import orders produce7→21; controlled missing async module raises genuine dependency error rather than permanent unavailable.",
+      "historical_deciding_checks": [
+        "prior/solver:2",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final supported chain profile"
+    },
+    {
+      "finding_id": "B43",
+      "bundle_id": "CMP-01",
+      "canonical_criterion": {
+        "line_begin": 79,
+        "line_end": 96,
+        "source_block_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9"
+      },
+      "criterion_summary": "Build/freeze/execute consumes ordering-only requires in one effective graph, preserves independent parallelism and refuses cycle.",
+      "historical_distinguishing_fact": "Real required-only chain order, independent ThreadBarrier pair, true estimate1→sensitivity→estimate2=31 and ambiguous/cyclic before-body refusals pass.",
+      "historical_deciding_checks": [
+        "prior/solver:2",
+        "prior/cmp:0",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final effective DAG consumers"
+    },
+    {
+      "finding_id": "B44",
+      "bundle_id": "CMP-01",
+      "canonical_criterion": {
+        "line_begin": 102,
+        "line_end": 119,
+        "source_block_sha256": "0c36b2d0d5304b425dde05fe8679dc2adab49d9ae67925a4533cdb1f912be5ae"
+      },
+      "criterion_summary": "Static→dynamic→per-call override payload is identical in sequential/async/checkpoint and native compiled consumers.",
+      "historical_distinguishing_fact": "Actual nondefault static/dynamic/override arithmetic agrees without redundant params_map; changed effective payload and unknown parameter refuse, real checkpoint bound-slot output persists.",
+      "historical_deciding_checks": [
+        "prior/payload:0",
+        "prior/payload:1",
+        "prior/cmp:2",
+        "prior/cmp:5",
+        "prior/jit:3",
+        "prior/jit:4"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G supported payload/materialization consumers"
+    },
+    {
+      "finding_id": "B45",
+      "bundle_id": "CMP-02",
+      "canonical_criterion": {
+        "line_begin": 57,
+        "line_end": 74,
+        "source_block_sha256": "164b0ecacd454c386662aac54c271c7298c3348b34de661816f015eaddc2e186"
+      },
+      "criterion_summary": "Duplicate scalar target producers cannot silently last-win by UUID; distinct targets and explicit merge preserve meaning.",
+      "historical_distinguishing_fact": "Actual strict duplicate refuses before bodies; WARN remains visible unexecuted candidate; left10/right20 explicit merge=30 and neutral UUID controls pass.",
+      "historical_deciding_checks": [
+        "prior/solver:2",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final strict composition acceptance"
+    },
+    {
+      "finding_id": "B46",
+      "bundle_id": "CMP-02",
+      "canonical_criterion": {
+        "line_begin": 80,
+        "line_end": 97,
+        "source_block_sha256": "662a1a626240391877225f0ba32d12c2977f1acfba0290386b4bdff0d317b580"
+      },
+      "criterion_summary": "Ordering uses concrete occurrences, accepting valid repeated prerequisite and rejecting unsupported early dependent.",
+      "historical_distinguishing_fact": "True31 estimate1→sensitivity→estimate2 survives; strict earlier-dependent and ambiguous future occurrence refuse before bodies; requires no longer adds every same-FQN node.",
+      "historical_deciding_checks": [
+        "prior/solver:2",
+        "prior/cmp:0",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G existing declared ordering-oracle profile"
+    },
+    {
+      "finding_id": "B47",
+      "bundle_id": "CMP-03",
+      "canonical_criterion": {
+        "line_begin": 56,
+        "line_end": 73,
+        "source_block_sha256": "db0a46a8373da1087edb08b827fd8e925dc9c731492d6147ee683dc284a1dfa9"
+      },
+      "criterion_summary": "Typed compatibility matching maximizes cardinality then existing utility; meaningful equivalent optima require explicit mapping, never lexical choice.",
+      "historical_distinguishing_fact": "Independent512 finite3×3 graphs×5 integer profiles=2560 exact optimum/alternative comparisons; flexible/fixed1107, neutral-relabel typed refusal, explicit711/1107 and exact-name711 actual consumers pass.",
+      "historical_deciding_checks": [
+        "prior/solver:0",
+        "prior/solver:1",
+        "prior/solver:2",
+        "prior/cmp:1",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G supported typed compatibility graph"
+    },
+    {
+      "finding_id": "B48",
+      "bundle_id": "CMP-03",
+      "canonical_criterion": {
+        "line_begin": 79,
+        "line_end": 96,
+        "source_block_sha256": "f92d8823d473df1af96de2bc15940fe284bdb8ad0eb9e7d757478069c448007c"
+      },
+      "criterion_summary": "Manual/automatic pair acceptance uses same mandatory type/unit/shape/contract/semantic rules; final whole incoming DAG enforces completeness.",
+      "historical_distinguishing_fact": "Both forbidden modes refuse before bodies; admitted semantics=21; partial connect+build refuses; full two-source union=30. Approved oracle boundary change retained separately from original RED input.",
+      "historical_deciding_checks": [
+        "prior/solver:2",
+        "prior/cmp:0",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final pair and whole-DAG admission"
+    },
+    {
+      "finding_id": "B49",
+      "bundle_id": "JIT-01",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 67,
+        "source_block_sha256": "e581a88f4245b540e42b3ac60bc78a278bbe890e6ce2149031305d4235188ab6"
+      },
+      "criterion_summary": "Warm current dynamic defaults match cold, old handle stays unchanged and dynamic-only change reuses same actual kernel.",
+      "historical_distinguishing_fact": "Actual nativeJAX coefficient2→3 yields old20/current30 with one kernel; source/helper/ABI/static/shape/dtype/backend changes refuse stale specialization or rebuild as required.",
+      "historical_deciding_checks": [
+        "prior/jit:1",
+        "prior/jit:3",
+        "prior/jit:4",
+        "prior/cmp:2",
+        "prior/cmp:5"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G declared supported JAX specialization profile"
+    },
+    {
+      "finding_id": "B50",
+      "bundle_id": "JIT-01",
+      "canonical_criterion": {
+        "line_begin": 73,
+        "line_end": 90,
+        "source_block_sha256": "0aa3d14bac0b9f19c3362889bf0f13fdc54326453536084a4be68d1e295ed3bf"
+      },
+      "criterion_summary": "Terminal value/error publishes before follower wakeup and shared cache generation/miss-claim recheck avoids duplicate useful compile.",
+      "historical_distinguishing_fact": "Additional independent ADAPTER real joined-follower CancelledError/SystemExit/publication-RuntimeError ports on root456: actual3PASS, canonical flight retirement before wake, same logical error identity and real JAX healthy retry/warm20/30/20. Not physical XLA hard-kill evidence; current0fd casejoin pending.",
+      "historical_deciding_checks": [
+        "prior/jit:1",
+        "prior/jit:3",
+        "prior/jit:4",
+        "prior/cmp:2",
+        "prior/cmp:4",
+        "prior/cmp:5"
+      ],
+      "standing_missing_consumer_or_contract": "No intrinsic physical-XLA-cancellation criterion asserted. Combine actual terminal3ports with prior generation/miss-claim controls and final native results; supported synchronous compiler/follower cancellation law stays finite.",
+      "next_owner": "root/G criterion admission after final logical terminal/generation casejoin; CMP/JIT implementation owner",
+      "new_native_defining_prefixes": [
+        "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py::test_actual_leader_terminal_fault_releases_follower_and_fresh_native_retry"
+      ],
+      "successor_basis": [
+        "b50-independent-oracle"
+      ]
+    },
+    {
+      "finding_id": "B51",
+      "bundle_id": "EXE-01",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 67,
+        "source_block_sha256": "8be3876e053d7fa9b13fafcf7d74ae50aae980a6949966dcbf5962344bd7aafd"
+      },
+      "criterion_summary": "Authorized bounded cache read may reuse paid result after compute exhaustion; miss/permission/corruption cannot bypass budget.",
+      "historical_distinguishing_fact": "Real warm exhausted-compute cachehit/read-budget0 refusal through actualCAS/current stateoperation merge are accepted atfinalEXE source; actualfinalwave stillUNRUN.",
+      "historical_deciding_checks": [
+        "prior/exe:0",
+        "prior/exe:2",
+        "exe-final/checks/26"
+      ],
+      "standing_missing_consumer_or_contract": "Permission/currentapplicability authority is only measured namedfunctional policy and concreteCAS context; no independent production owner-epoch grant. Finalcriterion review will decide boundedasyncproperty separately from institutional authority.",
+      "next_owner": "EXE + root/G current replay owner"
+    },
+    {
+      "finding_id": "B52",
+      "bundle_id": "EXE-01",
+      "canonical_criterion": {
+        "line_begin": 73,
+        "line_end": 90,
+        "source_block_sha256": "e4af31d50bb9263c6744fd0aef0e1fe452faa29181bb42294e0c1e0d4c441885"
+      },
+      "criterion_summary": "Real cache read/write/recovery leaves independent coroutine responsive, shares absolute deadline and quarantines late cancelled cache publication.",
+      "historical_distinguishing_fact": "Healthy real35s atomic head within owner60 failed at hidden30 on old456. Exact6af unchanged long+short7PASS and four material guard-removalFAIL; exact84 cancellation/queued admission controls and later sourcebc are separately bound in owner18-check receipt. Source-only map does not relabel any of these as root0fd execution.",
+      "historical_deciding_checks": [
+        "prior/exe:0",
+        "prior/exe:2",
+        "prior/exe-owner:0",
+        "prior/exe-owner:1",
+        "prior/exe-owner:2",
+        "prior/exe-owner:3",
+        "exe-final/checks/16",
+        "exe-final/checks/26",
+        "checkpoint-budget-baseline/checks/1",
+        "checkpoint-budget-candidate/five_checks"
+      ],
+      "standing_missing_consumer_or_contract": "No accepted finite-profile canonical checkpoint-budget omission remains established; actual new root phase/casejoin and full shared-deadline criterion are pending. Entered uninterruptible physical I/O is retained/typed unknown, never acknowledged late workflow frontier; no rollback fiction.",
+      "next_owner": "EXE + root/G current store/owner profile",
+      "new_native_defining_prefixes": [
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py"
+      ],
+      "successor_basis": [
+        "checkpoint-budget",
+        "checkpoint-independent",
+        "checkpoint-cancellation-review"
+      ]
+    },
+    {
+      "finding_id": "B53",
+      "bundle_id": "JIT-01",
+      "canonical_criterion": {
+        "line_begin": 96,
+        "line_end": 113,
+        "source_block_sha256": "7593081b5107446ae188b695b89f6b84599a3dfbb0da218002d9c2e69fef8b12"
+      },
+      "criterion_summary": "Known shape preparation performs no scientific body work; actual execution uses correct occurrence inputs and unknown shapes are never invented.",
+      "historical_distinguishing_fact": "Actual compiled required-alias chain[False/True] and dtype/materialization readback, declared-shape body-count and unknown data-dependent-shape refusals pass; warmup remains separate.",
+      "historical_deciding_checks": [
+        "prior/jit:2",
+        "prior/jit:3",
+        "prior/jit:4",
+        "prior/cmp:2",
+        "prior/cmp:5"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G declared shape and compiled execution profile"
+    },
+    {
+      "finding_id": "B55",
+      "bundle_id": "EXE-01",
+      "canonical_criterion": {
+        "line_begin": 96,
+        "line_end": 111,
+        "source_block_sha256": "8191ea528e4cb3823ee245a3c5ff0d7a66aef73cd44e4a4bcb57ac1c4c2409da"
+      },
+      "criterion_summary": "Fail-fast rechecks after semaphore acquire, frees every slot on error/cancellation and preserves continue/completed outcomes.",
+      "historical_distinguishing_fact": "Saturated real semaphore rejects two queued bodies after first failure; continue runs both despite optional metric failures; cancel frees permit and preserves CAS seedprefix. Actual three cases are check16, within its retained overallFAIL.",
+      "historical_deciding_checks": [
+        "delta/exe:16"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final integrated criterion acceptance"
+    },
+    {
+      "finding_id": "B57",
+      "bundle_id": "STA-01",
+      "canonical_criterion": {
+        "line_begin": 52,
+        "line_end": 69,
+        "source_block_sha256": "989c4b3d91329d24324c501149ed1325207d8755c3de0cb749b7ad79f339702a"
+      },
+      "criterion_summary": "Replay applies actual assignments including same-value writes to current base without resurrecting unrelated/removed fields.",
+      "historical_distinguishing_fact": "Actual operation journal replays only producer intent against currentbase, including samevalue/delete/null, live aliases/reparent/heldviews and additive once-per-target; guarded producer grants cannot broaden. Real validproof malformed False0/nestedFalse0/0float groups miss before cache admission.",
+      "historical_deciding_checks": [
+        "delta/exe:26",
+        "delta/run:group",
+        "delta/run-a175:graph"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final integrated criterion acceptance"
+    },
+    {
+      "finding_id": "B58",
+      "bundle_id": "STA-01",
+      "canonical_criterion": {
+        "line_begin": 75,
+        "line_end": 90,
+        "source_block_sha256": "f033cf80f557c6d0182c48122321772bc26ce47dff30de0b0cca1baf1279285a"
+      },
+      "criterion_summary": "Delete/null/no-write replay preserves allowed deletion and refuses protected-index removal with explicit conflict semantics.",
+      "historical_distinguishing_fact": "Real direct/parallel/cache/reopened params deletion remains distinct fromnull/no-write; child-parent operation order and protected evidence-index refusal remain. Currentbase unrelated values survive.",
+      "historical_deciding_checks": [
+        "delta/exe:26",
+        "delta/exe:23"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final integrated criterion acceptance"
+    },
+    {
+      "finding_id": "B59",
+      "bundle_id": "STA-01",
+      "canonical_criterion": {
+        "line_begin": 96,
+        "line_end": 111,
+        "source_block_sha256": "2c0c22b628ad881f863d35c1ee9e05976d4e9cd281f4ab540820ae555bf50295"
+      },
+      "criterion_summary": "Declared nested mutable subtree isolates base/neighbor before commit and failed branch leaves no nested trace; unrelated immutable subtree may stay shared.",
+      "historical_distinguishing_fact": "Fresh native test_branch_state_deeply_isolates_nested_elements_of_declared_leaf and deep snapshot controls PASS; historical closed bounded regression is retained.",
+      "historical_deciding_checks": [
+        "prior/exe:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G declared branching regression scope"
+    },
+    {
+      "finding_id": "B60",
+      "bundle_id": "STA-02",
+      "canonical_criterion": {
+        "line_begin": 51,
+        "line_end": 66,
+        "source_block_sha256": "2064253937c5fc51352981eef9dada91cd145e1a85afd788b33cd72866ee7635"
+      },
+      "criterion_summary": "Existing adaptive bundle is loaded and checked for actual context/graph/required parameters; inaccessible ref never gives presence-only ok.",
+      "historical_distinguishing_fact": "Actual ResolveParametersNode nine cases: matching frozen bundle reuses withzero selector work; changed context/domain/graph/requiredlist uses real selection and fresh fullmanifest graphlineage; oldCAS bytes stay verified; missing physicalCAS candidate yieldsskip, neverpresence-onlyOK.",
+      "historical_deciding_checks": [
+        "delta/exe:27"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final integrated criterion acceptance"
+    },
+    {
+      "finding_id": "B61",
+      "bundle_id": "STA-02",
+      "canonical_criterion": {
+        "line_begin": 72,
+        "line_end": 87,
+        "source_block_sha256": "6c229b5194b7ece8cf32e5c774c9dc2d06092fb0e5eb592b60b956c9bf38baff"
+      },
+      "criterion_summary": "Cache key and actual SKG read bind same immutable/versioned consumed snapshot; changed live source is never silently reused.",
+      "historical_distinguishing_fact": "No immutable/versioned SKG data_record and consumed query/run/custody contract is admitted; prepared same-read-handle design does not supply authority.",
+      "historical_deciding_checks": [
+        "prior/exe:2"
+      ],
+      "standing_missing_consumer_or_contract": "Standing source-owner semantic contract and actual consumed stable snapshot required; fixture/file hash cannot invent it.",
+      "next_owner": "SKG semantic/source owner + local G + EXE",
+      "standing_qualification": "HELD missing semantic owner law; green functional fixture cannot confer it"
+    },
+    {
+      "finding_id": "B62",
+      "bundle_id": "STA-02",
+      "canonical_criterion": {
+        "line_begin": 93,
+        "line_end": 108,
+        "source_block_sha256": "1cae96d29d981d9650032e044e8fda65b6165702f2ff6aa9ca7640b1d6444ac2"
+      },
+      "criterion_summary": "Declared method input key preserves missing/null/0/False/empty distinctions, safe cache-version compatibility and meaningful current-base replay.",
+      "historical_distinguishing_fact": "Actual native cold/warm/reopened keys and outputs distinguishmissing/null/0/False/[] withfive producer calls/five verified artifacts; method-declared absent-intermediate/default5 equivalence reuses withoutglobalnull normalization.",
+      "historical_deciding_checks": [
+        "delta/exe:26",
+        "delta/exe:23",
+        "delta/run-a175:presence"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final integrated criterion acceptance"
+    },
+    {
+      "finding_id": "B63",
+      "bundle_id": "RES-01",
+      "canonical_criterion": {
+        "line_begin": 53,
+        "line_end": 68,
+        "source_block_sha256": "7bccf9e6d563e9575f5da7d0c320fcdb6ec07175920c088106cb690c0bac9c28"
+      },
+      "criterion_summary": "Successful exact ArtifactRef trace/checkpoint duplicates are read once; failed/conflicting/profile/tenant refs never become admitted hits.",
+      "historical_distinguishing_fact": "Actual full4-field refs from trace/checkpoint/legacyoutcome,100A+1B dedupe, selectedforeignproducer epoch/refusal and currentbase merge controls accepted atfinalsource.",
+      "historical_deciding_checks": [
+        "prior/exe:0",
+        "prior/exe:2",
+        "prior/required:3",
+        "exe-final/checks/26"
+      ],
+      "standing_missing_consumer_or_contract": "Review pending exactfinalwave criterion methods: serviceabsence or arbitrarybackend extension alone is not a reason for LIMITED.",
+      "next_owner": "EXE + root/G exact ref recovery consumer"
+    },
+    {
+      "finding_id": "B64",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 53,
+        "line_end": 74,
+        "source_block_sha256": "8b937eee0a8702760af6f5bc4cccec275c9d06f350456ba6c124cbdc55953487"
+      },
+      "criterion_summary": "Supported named prompt reaches provider once; user/system/messages preserve meaning and incompatible forms refuse before external action.",
+      "historical_distinguishing_fact": "Actual generic accepting provider receives named/positional prompt once; competing forms fail before provider; no invented mandatory production prompt caller.",
+      "historical_deciding_checks": [
+        "prior/adapters:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G supported LLM protocol input"
+    },
+    {
+      "finding_id": "B65",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 80,
+        "line_end": 101,
+        "source_block_sha256": "90e562abc3c5f0f27d186df9b75f70a800407315b44b6bc92dd4a2d69469d4b9"
+      },
+      "criterion_summary": "Optional metrics/tracing failure preserves obtained provider response; mandatory accounting failure retains unknown event and blocks uncontrolled new spend.",
+      "historical_distinguishing_fact": "Actual optional start/body/exit failures preserve provider answer; mandatory same-event callback reconciliation blocks provider2 and property-removal controls fail defining assertions.",
+      "historical_deciding_checks": [
+        "prior/adapters:2",
+        "prior/adapters:8",
+        "prior/adapters:14"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G mandatory callback and durable settlement consumer"
+    },
+    {
+      "finding_id": "B66",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 107,
+        "line_end": 128,
+        "source_block_sha256": "ef9b4c4d8d959e699bfc06780c1d7e6e4abb4c44b1f6386a78bf6d08d193610e"
+      },
+      "criterion_summary": "Miss/hits/followers keep one actual provider cost event, separate reuse identity and durable idempotent producer settlement surviving caller cancellation.",
+      "historical_distinguishing_fact": "Actual configured factory→cache producer→Traced→enforcer→initializedFileBudgetLedger fresh reopen charges0.02 once; receiver/issuer/type negatives bill physical completions, same-event ACK resolve/dedupe and lost-ACK unknown controls pass.",
+      "historical_deciding_checks": [
+        "prior/adapters:2",
+        "prior/adapters:6",
+        "prior/adapters:12",
+        "prior/adapters:13",
+        "prior/adapters:15",
+        "prior/adapters:16",
+        "prior/adapters:17",
+        "prior/adapters:18",
+        "prior/receiver:0",
+        "prior/receiver:1",
+        "prior/receiver:2",
+        "prior/dur-settlement:0",
+        "prior/dur-settlement:2",
+        "prior/dur-settlement:3"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G actual configured typed cost/ledger profile"
+    },
+    {
+      "finding_id": "B67",
+      "bundle_id": "LLM-02",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 71,
+        "source_block_sha256": "b05c118cdc26e84579548072dcb2c766cfd5e75946b3cabe13ae3d021c62fdd4"
+      },
+      "criterion_summary": "Reuse authorization binds actual principal/scope/purpose/epoch and exact verified evidence/model/request at every read/publication.",
+      "historical_distinguishing_fact": "Functional injected owner fixture verifies realCAS bytes and actual actor/ref/epoch; declaration/type/liveURL/revocation negatives refuse.",
+      "historical_deciding_checks": [
+        "prior/adapters:2",
+        "prior/adapters:7",
+        "prior/adapters:10"
+      ],
+      "standing_missing_consumer_or_contract": "Institutional production permission grant and atomic owner-epoch contract not established; CAS readability or local functional policy cannot confer it.",
+      "next_owner": "Deployment permission owner + local G",
+      "standing_qualification": "HELD missing semantic owner law; green functional fixture cannot confer it"
+    },
+    {
+      "finding_id": "B68",
+      "bundle_id": "LLM-02",
+      "canonical_criterion": {
+        "line_begin": 77,
+        "line_end": 98,
+        "source_block_sha256": "e4ed51ed64211794192a8f19d6cceeeff1f29df468bf3b40109650658a7b2675"
+      },
+      "criterion_summary": "Permitted exact scoped identical misses have one producer event; follower cancellation, error, deadline and distinct intentional repetitions preserve ownership.",
+      "historical_distinguishing_fact": "Actual4follower one-call behavior, distinct seeds/principals/accounting owners, physical settlement before wakeup and atomic producer deadline/cache admission pass.",
+      "historical_deciding_checks": [
+        "prior/adapters:2",
+        "prior/adapters:6",
+        "prior/adapters:9",
+        "prior/adapters:10",
+        "prior/adapters:19",
+        "prior/adapters:20"
+      ],
+      "standing_missing_consumer_or_contract": "Production permission premise remains B67-held; final B66 joint settlement consumer acceptance required. Foreign cache signature alone is not conformance.",
+      "next_owner": "Permission owner + adapters + root/G",
+      "standing_qualification": "HELD missing semantic owner law; green functional fixture cannot confer it"
+    },
+    {
+      "finding_id": "B69",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 97,
+        "line_end": 118,
+        "source_block_sha256": "f3c09fefcef97725af61bccc6480d59034302012b9413815c6944474d632bb3e"
+      },
+      "criterion_summary": "Shared executor rejects saturated reentry or admits bounded useful work; callbacks/queued cancellation/shutdown cannot create hidden occupied capacity.",
+      "historical_distinguishing_fact": "Actual ownedFuture callback barrier/late registration/context/order/error/cancel plus shutdown-lock progress and physical worker accounting controls pass; guard removal fails same meaningful capacity oracle.",
+      "historical_deciding_checks": [
+        "prior/run-executor:0",
+        "prior/run-executor:1",
+        "prior/run-executor:2",
+        "prior/run-executor:3",
+        "prior/run:5"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G canonical shared executor consumers"
+    },
+    {
+      "finding_id": "B70",
+      "bundle_id": "RES-01",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 91,
+        "source_block_sha256": "bcf7738eb29ed6a0676ca42fdd999c14a680494038333aa8d557a605dc2047cb"
+      },
+      "criterion_summary": "Original functional fingerprint survives two real interrupted resumes and complete reopen without reexecuting successfulA/B; changed request refuses.",
+      "historical_distinguishing_fact": "Real WorkflowExecutor/CASCheckpointHook two stops retain originworkflow fingerprint; completedA/B do not rerun; genuine changedquery rejects. Independent native double_resume_B70 completed_reopen_nodes=0 supplies the separate fully-completed-run reopen control.",
+      "historical_deciding_checks": [
+        "delta/exe:16",
+        "delta/run-a175:presence"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G final integrated criterion acceptance"
+    },
+    {
+      "finding_id": "B71",
+      "bundle_id": "RES-01",
+      "canonical_criterion": {
+        "line_begin": 97,
+        "line_end": 114,
+        "source_block_sha256": "f68a12b118f6d8105fc247896d765126ba087d740747a069abbb36ffc4bbc2cd"
+      },
+      "criterion_summary": "Sufficient checkpoint state needs no irrelevant cache-count seed; truly required selected external output is verified/repaired or refused before suffix.",
+      "historical_distinguishing_fact": "ActualOutputAware producer→checkpoint→freshFileSystemCASresume→durable reader effect; healthy/optional/missing/corrupt/foreignprofile/realallow_replay repair and fullcached-requiredvalidator controls accepted.",
+      "historical_deciding_checks": [
+        "prior/required:0",
+        "prior/required:1",
+        "prior/required:2",
+        "prior/required:3",
+        "exe-final/checks/16"
+      ],
+      "standing_missing_consumer_or_contract": "Review pending exactfinalwave existingrequiredcontract/refs/bothstrategies; arbitrary hiddenJSON dependencies and B61owner law are separate, not automatic LIMITED for this declaredconsumer.",
+      "next_owner": "EXE + root/G exact required-ref consumer"
+    },
+    {
+      "finding_id": "B72",
+      "bundle_id": "RES-02",
+      "canonical_criterion": {
+        "line_begin": 51,
+        "line_end": 68,
+        "source_block_sha256": "c2c20881bd0e439dfde5c4c59873754fd09a8eb20f6e5e30dc26563fd0a506ce"
+      },
+      "criterion_summary": "Native skip is not silently successful producer; single/parallel widths and later checkpoints preserve same completed frontier meaning.",
+      "historical_distinguishing_fact": "Actual single_skip_is_not_added_to_checkpoint_completed_set and independent_neighbor_does_not_promote_parallel_skip_to_completed pass; ok/fail paths remain native distinct statuses.",
+      "historical_deciding_checks": [
+        "prior/exe:2",
+        "prior/resume:1"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G canonical completion journal consumer"
+    },
+    {
+      "finding_id": "B73",
+      "bundle_id": "RES-02",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 93,
+        "source_block_sha256": "5d7c44528f1e1d6845265d8bf932cf121cd2959bf2d144348d6b404066f8d8f4"
+      },
+      "criterion_summary": "Checkpoint state, completed frontier and cache refs describe same committed generation; fail-fast rollback/continue and retained result are coherent.",
+      "historical_distinguishing_fact": "Prior bd490/a175 actualspawn beforehead/afterhead and two-policy failedtier/resume frontier/cache evidence remain separate source. New independent two-policy native@84: fail_fast emits exactlyone typedcompensation with seedonly pre-tierfrontier/restoredstate; continue emitsnone and commitsAonly. RealCAS A output/cache survive rollback; freshFileSystemCAS/publicresume sameprocess seed/A body0, failedB1/suffix1, complete state/frontier/content agree. Actual2PASS; source/module/input/output Git bindings verified after topic remote fetch.",
+      "historical_deciding_checks": [
+        "prior/resume:1",
+        "prior/resume:2",
+        "prior/exe-owner:0",
+        "prior/exe-owner:1",
+        "prior/exe-owner:2",
+        "prior/exe-owner:3",
+        "exe-final/checks/23",
+        "exe-final/checks/24",
+        "b73-compensation84/checks/0"
+      ],
+      "standing_missing_consumer_or_contract": "Final root integrated source and actual defining finalcohort reconciliation pending. No intrinsic canonical B73 mechanism gap identified in nativeparallel/FileSystemCAS profile; already-entered I/O physicalpreemption is not a canonical B73 acceptance condition.",
+      "next_owner": "root/G final defining-case/criterion reconciliation; EXE only upon a true source falsifier",
+      "new_native_defining_prefixes": [
+        "tests/integration/scientist/test_parallel_tier_compensation_oracle.py::test_parallel_compensation_matches_committed_frontier_and_retained_output"
+      ],
+      "successor_basis": [
+        "b73-independent",
+        "checkpoint-budget"
+      ]
+    },
+    {
+      "finding_id": "B74",
+      "bundle_id": "RES-04",
+      "canonical_criterion": {
+        "line_begin": 56,
+        "line_end": 71,
+        "source_block_sha256": "fe5c80be8769dc007957fe5125cff3110cc02a77208d29f3b7523f0b267bc181"
+      },
+      "criterion_summary": "Checkpoint strict admission binds effective plan/input/seed/occurrences, actual supported implementation graph and exact scoped supplied refs to same generation.",
+      "historical_distinguishing_fact": "Actual static helper cold7→10/stale resume7 baseline FAIL; unchanged successor typed-refuses before suffix/pointer mutation. Source/ABI/ref-view/tenant/cell/origin/config/dependency negatives and unchanged positive pass.",
+      "historical_deciding_checks": [
+        "prior/identity:1",
+        "prior/identity:2",
+        "prior/identity:3",
+        "prior/identity:4",
+        "prior/source-graph:0",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": "Finite inspectablePython graph and declared refs only; imported module/builtin versions and context=None do not establish arbitrary mutable source/data or decoder/publication authority.",
+      "next_owner": "CMP + root/G exact declared source/artifact context"
+    },
+    {
+      "finding_id": "B75",
+      "bundle_id": "RES-04",
+      "canonical_criterion": {
+        "line_begin": 77,
+        "line_end": 94,
+        "source_block_sha256": "bfa81a7d72085f1f37d2623263dff2cc2d52e19d297f8144a557d76875e443e6"
+      },
+      "criterion_summary": "Per-node history restores original output/seed/runtime/warnings; legacy missing records remain explicitly incomplete and cannot supply absent bound predecessor.",
+      "historical_distinguishing_fact": "Actual outputs6/7 retain separate original records; false/missing/unknown history headers stay incomplete through continuation/re-persist; required missing predecessor refuses before suffix.",
+      "historical_deciding_checks": [
+        "prior/payload:0",
+        "prior/payload:2",
+        "prior/identity:3",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G concrete Foundry history consumer"
+    },
+    {
+      "finding_id": "B76",
+      "bundle_id": "RES-04",
+      "canonical_criterion": {
+        "line_begin": 100,
+        "line_end": 117,
+        "source_block_sha256": "18fbe02ddd13babe4e4df26b023de3655025e27309ae780ac8c7e1a24fc7995a"
+      },
+      "criterion_summary": "All JSON/NumPy checkpoint sidecars belong to one immutable generation; path collision, fault, concurrent writer or process stop never mix acknowledged old/new.",
+      "historical_distinguishing_fact": "Actual a_b versusa→b, finite-codec refused inputs, process writer/reader, sidecar/publication/fsync faults and same-step concurrent generation controls pass; original/rootnamespace failures retained.",
+      "historical_deciding_checks": [
+        "prior/publication:0",
+        "prior/publication:1",
+        "prior/publication:2",
+        "prior/cmp:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G supported local filesystem checkpoint codec"
+    },
+    {
+      "finding_id": "B77",
+      "bundle_id": "EXE-02",
+      "canonical_criterion": {
+        "line_begin": 48,
+        "line_end": 63,
+        "source_block_sha256": "a83c4caf19814d7cf068b5e1a24d095f44228f905d50acb4f8931e3818a6ca86"
+      },
+      "criterion_summary": "Declared independent successor starts when its own predecessors complete; realB dependency/read-write overlap retains barrier and scientific inputs/seed remain unchanged.",
+      "historical_distinguishing_fact": "Actual native independent/dependency/overlap profiles preserve method/input/fullartifactlineage and independentC completeswhileBheld; finalpublication lifetime classaccepted.",
+      "historical_deciding_checks": [
+        "prior/exe:2",
+        "exe-final/checks/16"
+      ],
+      "standing_missing_consumer_or_contract": "Review pending exactfinalwave declaredindependent consumer criterion; unmeasured fullproductionthroughput/distributedscheduler is not an automatic LIMITED. Hidden/scientific dependencies remain outside declaredsafeprofile.",
+      "next_owner": "EXE + root/G readiness/current-state consumers"
+    },
+    {
+      "finding_id": "B78",
+      "bundle_id": "DUR-02",
+      "canonical_criterion": {
+        "line_begin": 79,
+        "line_end": 96,
+        "source_block_sha256": "5b3639630d2e7af82b90281906e6ed658c5f45687c3d3904dc2f177c07258dd0"
+      },
+      "criterion_summary": "Pre-dispatch fallback is authorized separately; post-dispatch lost response reconciles actual external status/idempotency instead of duplicating effect.",
+      "historical_distinguishing_fact": "Actual typedPrimaryExecutionOutcomeUnknownError prevents second persistedSQLite+CAS logical effect; removal gives2 materialFAIL. Healthy/unhealthy/probe policies pass.",
+      "historical_deciding_checks": [
+        "prior/dur:0",
+        "prior/dur:8",
+        "prior/dur:9"
+      ],
+      "standing_missing_consumer_or_contract": "Authoritative external primary status/idempotency/reconciliation contract absent; local typedUnknown correctly holds, not fabricated remote confirmation.",
+      "next_owner": "External primary service owner + local G + DUR",
+      "standing_qualification": "HELD missing semantic owner law; green functional fixture cannot confer it",
+      "historical_observation_basis": "recomputed"
+    },
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 62,
+        "source_block_sha256": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781"
+      },
+      "criterion_summary": "Stream subscribe/checkpoint/rewind/close/cancel transfers pending physical cleanup ownership and leaves no permanently occupied pool slot.",
+      "historical_distinguishing_fact": "Actual EventStreamConnector fileURL→C session/process→FileSystemCAS/CursorStore: source205+portable724 eightcases7PASS1FAIL. Healthy subscribe/checkpoint-read/rewind/caller-cancel/startup-owner/direct-close controls pass. Once final disconnect refuses, old handle remains pending in closedpool; registry haszero production retryowners and shutdown cannot retire it; freshnewsession handle and later observer-only cleanup are measured before assertions.",
+      "historical_deciding_checks": [
+        "stream-portable/checks/0",
+        "stream-review/metadata_only"
+      ],
+      "standing_missing_consumer_or_contract": "C final process cleanup must retain/transfer the actual failed pool owner or finish required cleanup before exit. Actual old handle has unconfirmed disconnect despite availablepermit1/pending_permitFalse; this is not an occupied-slot/OS-FD leak. Separatecap1 restoredfrontier-budget FAIL is not this cleanup witness.",
+      "next_owner": "C streaming.py owner + G",
+      "standing_qualification": "OPEN actual protected-C process-final cleanup ownership witness; no C source repair in B",
+      "new_native_defining_prefixes": [
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership",
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup"
+      ],
+      "cross_unit_contract": "C alone owns streaming.py cleanup-transfer consumer. Real EventStreamConnector old handle pending with no production retryowner is not an occupied-permit/OS-FD assertion. Independent observer cleanup does not repair exited production path; separate restored-frontier cap1 failure is a distinct B→C budget contract.",
+      "historical_observation_basis": "recomputed"
+    },
+    {
+      "finding_id": "B89",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 68,
+        "line_end": 83,
+        "source_block_sha256": "5c543b225505ffd632e3ffb90bee0ac51d0473a19a0dfe2a93c0be2aaf6380c4"
+      },
+      "criterion_summary": "Permit/handle is transferred or retired exactly once under lock/connect/health/disconnect cancellation and closed-pool release.",
+      "historical_distinguishing_fact": "Actual event-controlled connectors retire physical handle before permit release, retain failed cleanup for retry and distinguish double-release/late registration; physical/pool removal oracle fails.",
+      "historical_deciding_checks": [
+        "prior/adapters:0",
+        "prior/adapters:2",
+        "prior/adapters:3",
+        "prior/adapters:13"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G concrete pool lifecycle; C stream bridge remains separateB87"
+    },
+    {
+      "finding_id": "B90",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 89,
+        "line_end": 106,
+        "source_block_sha256": "8b1e63a16da14bf95ef0104b412bbd1da0b8ce0b4bb093026d80d50253bc94ab"
+      },
+      "criterion_summary": "Network work is outside metadata lock; independent release proceeds and one absolute acquisition deadline/epoch gates atomic late publication.",
+      "historical_distinguishing_fact": "Actual independent connect/release, metadata-lock expiry and cancellation-suppressing late connector controls refuse before handle publication; no await follows transfer.",
+      "historical_deciding_checks": [
+        "prior/adapters:0",
+        "prior/adapters:2",
+        "prior/adapters:3"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G concrete connector protocol"
+    },
+    {
+      "finding_id": "B91",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 64,
+        "source_block_sha256": "0f2ed6f8615e478a4110ac1658fba923e87255d0810a6ace9c78144b8fd7e541"
+      },
+      "criterion_summary": "Unit capacity remains separate from fractional rate; impossible/nonfinite weights refuse before wait/provider and cooldown/cancel preserve law.",
+      "historical_distinguishing_fact": "Actual fake-clock0.1/0.2/1/>1 and defaultunit capacity, weighted request, cooldown/cancellation and physical decorator refusal controls pass; finite-rate baselineFAIL→successorPASS.",
+      "historical_deciding_checks": [
+        "prior/adapters:1",
+        "prior/adapters:2",
+        "prior/adapters:11",
+        "prior/adapters:21",
+        "prior/adapters:22"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G declared generic rate/source quota profile"
+    },
+    {
+      "finding_id": "B92",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 70,
+        "line_end": 85,
+        "source_block_sha256": "eb9d5ebf88004fea69fff0eef6961700a7fa3fddf27ba044b317b4dcad90b5d4"
+      },
+      "criterion_summary": "Finalization belongs to admitted circuit generation; old success/failure preserves provider outcome without voting on new half-open generation.",
+      "historical_distinguishing_fact": "Actual oldCLOSED and oldHALF_OPEN, current probe, cancellation and duplicate-finalization controls preserve source result and correct active tokens.",
+      "historical_deciding_checks": [
+        "prior/adapters:0",
+        "prior/adapters:1",
+        "prior/adapters:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G declared circuit lease profile"
+    },
+    {
+      "finding_id": "B93",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 91,
+        "line_end": 106,
+        "source_block_sha256": "87741d3b2986ece596a60a5ae476e33558b94b6dceb92afd4b85598bfedc750d"
+      },
+      "criterion_summary": "TTL/pressure never evicts active/cooldown/balance history into a second independent regulator; safe quiescent eviction remains bounded.",
+      "historical_distinguishing_fact": "Real decorator await/retry lease, exact-key concurrent state, cooldown/half-open/pressure and cancellation controls pass; registry-property removal fails actual assertions.",
+      "historical_deciding_checks": [
+        "prior/adapters:1",
+        "prior/adapters:2",
+        "prior/adapters:4"
+      ],
+      "standing_missing_consumer_or_contract": "Historical finding ledger mapping differs from immutable canonical regulator criterion; G/ledger semantic owner must reconcile declaration, not rewrite it from package PASS.",
+      "next_owner": "G + standing ledger/permission owner",
+      "standing_qualification": "HELD missing semantic owner law; green functional fixture cannot confer it"
+    },
+    {
+      "finding_id": "B94",
+      "bundle_id": "WIRE-01",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 67,
+        "source_block_sha256": "42eed64bf083f227b7f0fb37cf13d60117e5521d8e06bc982bbb6b5e42a87aa5"
+      },
+      "criterion_summary": "Versioned typed wire preserves Decimal/budget/union/nested/ref/outcome values and rejects nonfinite/unsupported/digest corruption consistently under both backends.",
+      "historical_distinguishing_fact": "New currentv2 and independently emitted bare/framedv1 legacy ArtifactRef+ArtifactID decode preserve actualtype/value under native and stdlib encoders (sixprofiles), plus existing Decimal/budget/union/nested/outcome/nonfinite/corrupt controls:119wholecasePASS. Removing only actualmodeltag reader makes same sixactualcallsFAIL while envelope/tag premise assertions remainPASS. Originalroot4e two staleinputFAIL retained.",
+      "historical_deciding_checks": [
+        "prior/adapters:0",
+        "prior/adapters:2",
+        "prior/adapters:5",
+        "prior/run:5",
+        "prior/run:9",
+        "wire/checks/0",
+        "wire/checks/1"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G supported codec; Ray/Temporal services are not needed to prove codec",
+      "new_native_defining_prefixes": [
+        "tests/unit/remediation/test_wire_01.py"
+      ]
+    },
+    {
+      "finding_id": "B95",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 124,
+        "line_end": 139,
+        "source_block_sha256": "e20a5f278e861f80727aa69e770584595eacef1d7b2aeb9d22ff9bf6aaade341"
+      },
+      "criterion_summary": "Each actual task submission captures current context; repeated A/B/empty work in same worker never leaks prior context or invents permissions.",
+      "historical_distinguishing_fact": "Actual7-boundary attempt files and9 A/B/empty artifact-consumer rows on reusedthread preserve caller scope and transfer; forced thread fallback is real, Linuxfork separately exercised.",
+      "historical_deciding_checks": [
+        "prior/run:1",
+        "prior/run:5",
+        "prior/run:10"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G declared context transport profile"
+    },
+    {
+      "finding_id": "B96",
+      "bundle_id": "RUN-03",
+      "canonical_criterion": {
+        "line_begin": 71,
+        "line_end": 86,
+        "source_block_sha256": "e715c9c7e265cdca1b906cdce523be2a4a4728b354aa25a334d27082f0f1c73b"
+      },
+      "criterion_summary": "Each retry starts from same isolated baseline; successful result matches cold while failed history and actual known typed expenses are retained once.",
+      "historical_distinguishing_fact": "Real mutation→failure→success and8route known-budget settlement consumer/control matrices preserve one ordinary effect and exactDecimal expense/history through canonicalWIRE transport.",
+      "historical_deciding_checks": [
+        "prior/run:5",
+        "prior/run:6",
+        "prior/run:7",
+        "prior/run:8",
+        "prior/run:9"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G declared retry and budget projection; external effect owner retains unknown effects"
+    },
+    {
+      "finding_id": "B148",
+      "bundle_id": "CAS-02",
+      "canonical_criterion": {
+        "line_begin": 55,
+        "line_end": 68,
+        "source_block_sha256": "7737ebff60bc5812b79091bfcc2859cd7a9415c47f4327f271e82641b076fe34"
+      },
+      "criterion_summary": "Verified private staging/admission preserves oldCAS on bad/conflicting/truncated/concurrent import; owner decides scoped same-view retry law before publication.",
+      "historical_distinguishing_fact": "Actual exactsame-owner/view/profile/signature/bytes retry is no-op; real foreign/unclaimed/cell refs remain refused before stage. Original unbound and for_tenant-only positives failed BEFORE intendedpublicationfault because actualmanifest lacked tenant_context: P37 fixturepremise, not validcurrent sameowner defect. Explicitboundproducer14e reaches unchanged pending/read/exactretry controls within actualauthor46PASS; independent00632 reviews exactbytes/source only.",
+      "historical_deciding_checks": [
+        "prior/cas-admission:0",
+        "prior/cas-admission:1",
+        "prior/cas-admission:2",
+        "prior/cas-admission:3",
+        "prior/cas:2",
+        "cas-fixture-review/author_checks"
+      ],
+      "standing_missing_consumer_or_contract": "Cross-tenant/unbound ownership admission is a standing semanticlaw still unratified here; boundfixture repair does notgrant it. Root/G appliesheld law after exactfinalwave, originalinvalidpremise failures preservedqualified.",
+      "next_owner": "CAS semantic ownership owner + G",
+      "standing_qualification": "HELD missing semantic owner law; green functional fixture cannot confer it"
+    },
+    {
+      "finding_id": "B149",
+      "bundle_id": "CAS-02",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 87,
+        "source_block_sha256": "911157062b91d21961884fc59c818a40ec8075917ef74f9e585510c9e611534f"
+      },
+      "criterion_summary": "Replacement export has exact new inventory; A→B/options/fault/path entry changes preserve previous complete generation without staleA members.",
+      "historical_distinguishing_fact": "Actual Linux renameat2 generation, transfer independent importer, signature/inventory, special entry and concurrent fault controls pass.",
+      "historical_deciding_checks": [
+        "prior/cas:2"
+      ],
+      "standing_missing_consumer_or_contract": "Darwin renamex_np native target profile unrun; no non-atomic fallback claimed.",
+      "next_owner": "CAS + G nativeDarwin transfer consumer"
+    },
+    {
+      "finding_id": "B150",
+      "bundle_id": "CAS-01",
+      "canonical_criterion": {
+        "line_begin": 56,
+        "line_end": 69,
+        "source_block_sha256": "135dfde8a0bb25422fa6a9972ccb662ede9706af55cf81c481c86dd1be843672"
+      },
+      "criterion_summary": "Returned ref and selected persisted manifest profile match actual first-writer view; equalbytes different provenance retains separate meaningful views.",
+      "historical_distinguishing_fact": "Historical closed bounded ref/profile law retained; actualCachingArtifactStore selected-view/exactbyte write-through controls prevent conflating default and selected profile.",
+      "historical_deciding_checks": [
+        "prior/cas-put:0",
+        "prior/cas-admission:2",
+        "prior/cas:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G exact CAS reference/profile consumer"
+    },
+    {
+      "finding_id": "B151",
+      "bundle_id": "CAS-01",
+      "canonical_criterion": {
+        "line_begin": 75,
+        "line_end": 88,
+        "source_block_sha256": "b7883805cfa726a3d09a814b00e5894c860ce9b4f4314ef1e78e818cb75af25a"
+      },
+      "criterion_summary": "Public duplicateput never confirms corrupt existing blob/wrong selected byte_size; legitimate missing-sidecar repair yields immediately readable verified result.",
+      "historical_distinguishing_fact": "Actual5 put filesystem controls plus independently authored real root oracle readback/refusal and property removal distinguish successful retry from consumer failure.",
+      "historical_deciding_checks": [
+        "prior/cas-put:0",
+        "prior/cas-put:2",
+        "prior/dur-independent:1",
+        "prior/dur-independent:3",
+        "prior/dur-independent:4",
+        "prior/cas:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G concrete publicFileSystemCAS put/get/verify"
+    },
+    {
+      "finding_id": "B152",
+      "bundle_id": "CAS-03",
+      "canonical_criterion": {
+        "line_begin": 55,
+        "line_end": 68,
+        "source_block_sha256": "1bf037809d7d4612858d37aae8198d5314bfb170d827c75126876df705bec85d"
+      },
+      "criterion_summary": "Size/hash/signature/report consume same independently computed immutable byte+manifest snapshot while trust/revocation/current access remain enforced.",
+      "historical_distinguishing_fact": "Original actual onehash/oneblob+manifest/signedbyteswap/revocation/tenant/quality controls remain separately pinned. Repaired463 native264PASS contains14 measuredfailure+realcapture cases; same14 witness-removal12FAIL2PASS and publiccaptureidentity-removal2FAIL preserve exact byte/refusal premises. False reports retain capturedactualdigest/size through invalid selectedprofile/ref/manifest and real chronology rejects mismatch; actualsameowner verifycapture persists/freshindexreloads.",
+      "historical_deciding_checks": [
+        "prior/cas-snapshot:0",
+        "prior/cas-snapshot:1",
+        "prior/snapshot-independent:0",
+        "prior/snapshot-independent:1",
+        "prior/snapshot-independent:2",
+        "prior/cas:1",
+        "prior/cas:2",
+        "cas-failure/checks/0",
+        "cas-failure/checks/1",
+        "cas-failure/checks/2",
+        "cas-failure/checks/3"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G concrete FileSystemCAS snapshot/report consumer",
+      "new_native_defining_prefixes": [
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+      ]
+    },
+    {
+      "finding_id": "B153",
+      "bundle_id": "CAS-01",
+      "canonical_criterion": {
+        "line_begin": 94,
+        "line_end": 107,
+        "source_block_sha256": "adc89fe0916a2dfc26efa1b77d98c34550c9c75e2532424401c6f927093506aa"
+      },
+      "criterion_summary": "Resident local lock ownership is bounded without evicting active same-key holder/waiter or losing scoped-view mutual exclusion.",
+      "historical_distinguishing_fact": "Historical closed striping regression preserved; actual competing import/writer lease admission and same-key controls preserve local first-writer semantics.",
+      "historical_deciding_checks": [
+        "prior/cas-put:0",
+        "prior/cas-admission:2",
+        "prior/cas:2"
+      ],
+      "standing_missing_consumer_or_contract": null,
+      "next_owner": "root/G cooperating local CAS lock consumers"
+    },
+    {
+      "finding_id": "B154",
+      "bundle_id": "CAS-03",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 87,
+        "source_block_sha256": "4238b2c281dcc1a9c504c40351b70039945a0e99b14e450cc571b7e3c3307b9f"
+      },
+      "criterion_summary": "Typed per-item complete/aborted batch preserves local/global/cancel results; all-confirmations publisher requires exact full valid report before publication.",
+      "historical_distinguishing_fact": "Actual signedcrypto/CLI/import-integrity producer+consumer controls and all8 completeness removals distinguish complete/partial/aborted; unsigned integrity importer does not fabricate signature authority.",
+      "historical_deciding_checks": [
+        "prior/cas:0",
+        "prior/cas:1",
+        "prior/cas:2",
+        "prior/cas:3",
+        "prior/cas:10"
+      ],
+      "standing_missing_consumer_or_contract": "Actual A all-signature-confirmations publisher missing; typedrequire_complete_valid API and tests are producer/contract, not consumer closure.",
+      "next_owner": "A actual signature all-confirmations publisher + G",
+      "cross_unit_contract": "A alone owns real all-confirmations generation/publisher consumer; report method/constructor and exposure cell None cannot close actual governed publication."
+    },
+    {
+      "finding_id": "B155",
+      "bundle_id": "CAS-03",
+      "canonical_criterion": {
+        "line_begin": 93,
+        "line_end": 106,
+        "source_block_sha256": "85ce1ecb40bf521ab7ef979d26f376fad77248c267b8d16eb87de42b3cacb2b9"
+      },
+      "criterion_summary": "Producer advancement and pending window are bounded together; cancellation/deadline stop new intake while exact admitted result identities remain complete.",
+      "historical_distinguishing_fact": "Actual finite/infinite child duplicate-source,40-itempending window, real defaultcensus cancel/deadline controls pass; stop/window removals fail actual cases.",
+      "historical_deciding_checks": [
+        "prior/cas:0",
+        "prior/cas:4",
+        "prior/cas:5",
+        "prior/cas:7"
+      ],
+      "standing_missing_consumer_or_contract": "One arbitrary already-entered next/iter/filesystem syscall or callback cannot be physically preempted; complete returned details/seen set remainO(N).",
+      "next_owner": "CAS + root/G declared iterator/filesystem profile"
+    },
+    {
+      "finding_id": "LA-057",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 145,
+        "line_end": 178,
+        "source_block_sha256": "2afe404aaaa4e0abb4dce006674af34f61ca3269d1e0b9e516b788bb42c8ac57"
+      },
+      "criterion_summary": "Only incidental moduleT/TypeVar cleanup preserves four local generic identities, imports/context/cancel/bridge and supported consumers/tooling/package compatibility.",
+      "historical_distinguishing_fact": "Fresh198 already lacks moduleT; full6444-file scope-aware Python/type-config census and correct-namespace native typehint/direct/loop/context/cancellation consumers preserve intended law.",
+      "historical_deciding_checks": [
+        "prior/run:5",
+        "prior/run:11",
+        "prior/run:12",
+        "prior/run-executor:2"
+      ],
+      "standing_missing_consumer_or_contract": "Actual frozen root wheel build/install/eight isolated consumer cases and normal-cohort outer dispatch not executed yet. Cloud-actionable verification gap; no automatic local-G-only stop. Supported actual profile required, not arbitrary external consumer zero.",
+      "next_owner": "DUR installed-wheel actual executor after root source freeze; root cohort input owner; root/G final criterion admission",
+      "new_native_defining_prefixes": [
+        "tests/unit/common/test_async_tools_installed_wheel.py::test_installed_wheel_consumers_in_isolated_child",
+        "tests/unit/common/installed_wheel_bridge_consumer.py (explicit isolated child input; not separate outer cohort member)"
+      ],
+      "successor_basis": [
+        "la057-prepared",
+        "la057-independent-review"
+      ]
+    }
+  ],
+  "all_row_runtime_join": "WAIT/no status upgrades; current defining predicate basis not_established for every row until final actual casejoin. Historical receipt basis independently_reconciled unless row explicitly says recomputed. Source/card/hash binding recomputed; fixture declarations consumer_asserted. Scope profile is keyed by bundle_id."
+}

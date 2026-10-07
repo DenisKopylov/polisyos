@@ -1,0 +1,21 @@
+id = "2026-10-06-e02-b-foundry-checkpoint-payload"
+title = "Preserve compiled Foundry inputs and honest checkpoint history"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Use the sequential compiled input materializer in async and checkpoint execution, preserve original producer slots on resume, and retain completed frontier plus known suffix records when earlier history is unavailable."
+evidence = [
+  "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+  "tests/unit/foundry/methods/backends/test_checkpointing.py",
+  "tests/unit/remediation/test_res_04.py",
+  "tests/unit/remediation/test_cmp_01.py",
+]
+compatibility = "Checkpoint execution now validates the same compiled static/dynamic/override payload and bound slot input as sequential execution. It no longer invents a method parameter named seed. Missing original per-node history is exposed explicitly rather than synthesized or silently discarded on continuation."
+change_class = "behavior-change"
+surface_classification = "internal: polisyos.foundry.methods.backends"
+migration = "Pass the execution seed as the executor seed argument. Read history_complete and missing_history_node_ids before treating resumed node_results as a complete original history. Bound continuation requires the original producer slot records."
+limitations = "This change covers Foundry execution and checkpoint history; Scientist orchestration, public generation-route consumption, automatic retry, external-effect exactly-once semantics and independent durability acceptance remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/components/README.md"]
+runbook_docs = []

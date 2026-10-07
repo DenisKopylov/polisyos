@@ -1,0 +1,138 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+from typing import Any
+
+EXIT_STATUS: int | None = None
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def pytest_sessionfinish(session: Any, exitstatus: int) -> None:
+    global EXIT_STATUS
+    EXIT_STATUS = int(exitstatus)
+
+
+def pytest_unconfigure(config: Any) -> None:
+    variant = os.environ['G_NUMERIC_VARIANT']
+    archive = Path(os.environ['G_ARCHIVE_ROOT']).resolve()
+    product = archive / 'policy-engine'
+    src_root = product / 'src'
+    test_root = product / 'tests'
+    manifest_path = Path(os.environ['G_SOURCE_MANIFEST'])
+    origin_path = Path(os.environ['G_ORIGIN_REPORT'])
+    manifest = json.loads(manifest_path.read_text())
+    expected = {row['path']: row for row in manifest}
+    mutation_path = os.environ.get('G_MUTATION_PATH', '')
+    mutation_sha = os.environ.get('G_MUTATION_SHA256', '')
+    errors: list[str] = []
+    product_modules: list[dict[str, Any]] = []
+    test_modules: list[dict[str, Any]] = []
+
+    for name, module in sorted(sys.modules.items()):
+        spec = getattr(module, '__spec__', None)
+        raw_origin = getattr(module, '__file__', None) or getattr(spec, 'origin', None)
+        locations = getattr(spec, 'submodule_search_locations', None)
+        if name == 'polisyos' or name.startswith('polisyos.'):
+            if raw_origin in {None, 'built-in', 'frozen'}:
+                if locations:
+                    resolved_locations = [Path(location).resolve() for location in locations]
+                    valid = bool(resolved_locations) and all(
+                        location == src_root or src_root in location.parents
+                        for location in resolved_locations
+                    )
+                    product_modules.append({
+                        'name': name,
+                        'origin': raw_origin,
+                        'search_locations': [str(item) for item in resolved_locations],
+                        'candidate_bound': valid,
+                    })
+                    if not valid:
+                        errors.append(f'{name}: namespace search path outside candidate')
+                else:
+                    errors.append(f'{name}: no file origin or namespace search path')
+                continue
+            origin = Path(raw_origin).resolve()
+            try:
+                rel_from_src = origin.relative_to(src_root).as_posix()
+            except ValueError:
+                errors.append(f'{name}: origin outside candidate src: {origin}')
+                product_modules.append({'name': name, 'origin': str(origin), 'candidate_bound': False})
+                continue
+            repo_rel = f'policy-engine/src/{rel_from_src}'
+            row = expected.get(repo_rel)
+            if row is None:
+                errors.append(f'{name}: source path absent from candidate manifest: {repo_rel}')
+                expected_sha = None
+            elif variant == 'control' and repo_rel == mutation_path:
+                expected_sha = mutation_sha
+            else:
+                expected_sha = row['sha256']
+            actual_sha = _sha256(origin) if origin.is_file() else None
+            valid = row is not None and actual_sha == expected_sha
+            product_modules.append({
+                'name': name,
+                'origin': str(origin),
+                'repo_path': repo_rel,
+                'sha256': actual_sha,
+                'expected_sha256': expected_sha,
+                'git_blob_sha1': row['git_blob_sha1'] if row else None,
+                'candidate_bound': valid,
+            })
+            if not valid:
+                errors.append(f'{name}: source bytes differ from expected candidate/control: {repo_rel}')
+        elif raw_origin and isinstance(raw_origin, str):
+            origin = Path(raw_origin).resolve()
+            try:
+                rel_from_tests = origin.relative_to(test_root).as_posix()
+            except ValueError:
+                continue
+            repo_rel = f'policy-engine/tests/{rel_from_tests}'
+            row = expected.get(repo_rel)
+            actual_sha = _sha256(origin) if origin.is_file() else None
+            valid = row is not None and actual_sha == row['sha256']
+            test_modules.append({
+                'name': name,
+                'origin': str(origin),
+                'repo_path': repo_rel,
+                'sha256': actual_sha,
+                'git_blob_sha1': row['git_blob_sha1'] if row else None,
+                'candidate_bound': valid,
+            })
+            if not valid:
+                errors.append(f'{name}: test/helper bytes outside candidate manifest: {repo_rel}')
+
+    required_modules = [
+        'polisyos.scientist.orchestration.llm.gateway_client',
+        'polisyos.core.llm.response',
+        'polisyos.scientist.orchestration.llm.prompt_cache',
+    ]
+    loaded_names = {entry['name'] for entry in product_modules}
+    for name in required_modules:
+        if name not in loaded_names:
+            errors.append(f'required runtime module not observed: {name}')
+
+    report = {
+        'variant': variant,
+        'candidate_commit': os.environ['G_CANDIDATE_COMMIT'],
+        'candidate_tree': os.environ['G_CANDIDATE_TREE'],
+        'archive_root': str(archive),
+        'exit_status': EXIT_STATUS,
+        'product_module_count': len(product_modules),
+        'test_module_count': len(test_modules),
+        'product_modules': product_modules,
+        'test_modules': test_modules,
+        'errors': errors,
+        'all_observed_product_and_test_modules_candidate_bound': not errors,
+    }
+    origin_path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')

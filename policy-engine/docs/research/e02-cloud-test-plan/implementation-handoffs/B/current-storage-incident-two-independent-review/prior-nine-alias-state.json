@@ -1,0 +1,115 @@
+{
+  "retained_paths": [
+    {
+      "path": "/tmp/braw-e02-B/x0",
+      "type": "regular",
+      "bytes": 16345859,
+      "nlink": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B/x1",
+      "type": "regular",
+      "bytes": 22532317,
+      "nlink": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B/x2",
+      "type": "regular",
+      "bytes": 15412075,
+      "nlink": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B/x3",
+      "type": "regular",
+      "bytes": 173230115,
+      "nlink": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B/x4",
+      "type": "regular",
+      "bytes": 20483928,
+      "nlink": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B/x5",
+      "type": "regular",
+      "bytes": 22383763,
+      "nlink": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B/x6",
+      "type": "regular",
+      "bytes": 173315329,
+      "nlink": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B/x7",
+      "type": "regular",
+      "bytes": 20097609,
+      "nlink": 1
+    },
+    {
+      "path": "/tmp/braw-e02-B/x8",
+      "type": "regular",
+      "bytes": 173315329,
+      "nlink": 1
+    }
+  ],
+  "aliases": [
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/terminal-final-selector-lineage.json",
+      "target": "/tmp/braw-e02-B/x1",
+      "resolves": true,
+      "logical_bytes": 22532317
+    },
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-selector-full-lineage.json",
+      "target": "/tmp/braw-e02-B/x0",
+      "resolves": true,
+      "logical_bytes": 16345859
+    },
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-production-invocation-full.json",
+      "target": "/tmp/braw-e02-B/x8",
+      "resolves": true,
+      "logical_bytes": 173315329
+    },
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/prefreeze-d3-selector-lineage.json",
+      "target": "/tmp/braw-e02-B/x4",
+      "resolves": true,
+      "logical_bytes": 20483928
+    },
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-production-invocation-full.json",
+      "target": "/tmp/braw-e02-B/x3",
+      "resolves": true,
+      "logical_bytes": 173230115
+    },
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-production-invocation-full.json",
+      "target": "/tmp/braw-e02-B/x6",
+      "resolves": true,
+      "logical_bytes": 173315329
+    },
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+      "target": "/tmp/braw-e02-B/x2",
+      "resolves": true,
+      "logical_bytes": 15412075
+    },
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/prefreeze-ff-selector-lineage.json",
+      "target": "/tmp/braw-e02-B/x5",
+      "resolves": true,
+      "logical_bytes": 22383763
+    },
+    {
+      "alias": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-inventory.json",
+      "target": "/tmp/braw-e02-B/x7",
+      "resolves": true,
+      "logical_bytes": 20097609
+    }
+  ],
+  "no_mutation": true
+}

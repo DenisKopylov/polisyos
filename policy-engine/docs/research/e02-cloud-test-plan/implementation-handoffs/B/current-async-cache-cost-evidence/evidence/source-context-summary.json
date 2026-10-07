@@ -1,0 +1,97 @@
+{
+  "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "target_tree": "ba4cdd14d0e18fae1c7569d5f398c673e0f38282",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "python_executable_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "distributions": {
+    "pytest": "9.0.2",
+    "pytest-asyncio": "1.3.0",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5"
+  },
+  "no_live_profile_sync": true,
+  "source_equal_after": true,
+  "all_loaded_canonical_modules_git_equal": true,
+  "loaded_canonical_count": 1100,
+  "source_head_after": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "pytest_argv": [
+    "-ra",
+    "-q",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-s",
+    "-ra",
+    "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+    "--basetemp=/tmp/e02-B52-cache-cost-c043/fixtures",
+    "--junitxml=/tmp/e02-B52-cache-cost-c043/evidence/native.xml"
+  ],
+  "pytest_return_code": 0,
+  "input_inventory_count": 2918,
+  "input_inventory_raw": {
+    "path": "/tmp/e02-B52-cache-cost-c043/evidence/source-context.json",
+    "bytes": 585000,
+    "sha256": "cf7f284f9f8ac32f0e886688b517db535d77ebc5be8a220aef5ce895deb54791"
+  },
+  "loaded_module_origins_raw": {
+    "path": "/tmp/e02-B52-cache-cost-c043/evidence/module-origins.json",
+    "bytes": 415248,
+    "sha256": "64b930f039b7c3c663d78e658739ba01024a1d401fa57132e8be59e7d1cf9c47"
+  },
+  "inventory_reproduction": "Literal committed child.source.txt git ls-files + git show target:path + actual byte checks; raw derivative retained outside Git.",
+  "selected_mechanisms": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1",
+      "bytes": 105281
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "sha256": "3f8cb9bef47dbaf1a242fda929a4d71f4276ca4c0761b7392fef34e80c81e996",
+      "bytes": 34274
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/metrics_otel.py",
+      "sha256": "f89f8c921ca4fa759cdde60d7ccd182d32f3033a9e63d6e4affc05bea78a69d0",
+      "bytes": 6391
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/metrics_protocol.py",
+      "sha256": "1fdd88e0f2da7177fc6dbf223f4c937ca1326b0fc463a6fbecd1991d71bccadc",
+      "bytes": 3027
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "sha256": "70c99ff156d658302be6dfbc04fcaf875cb63bb822641eeec03c9924f25cd03b",
+      "bytes": 38234
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "sha256": "527e5f610530165ffc5275eda52d3595a74e93c600d3dfbaf78d8c5ca1c3180c",
+      "bytes": 23952
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+      "sha256": "22925ca45c128fec913cb16417ddd2349b6127704e45da50cf335e2fdf8dc7c8",
+      "bytes": 12414
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    }
+  ]
+}

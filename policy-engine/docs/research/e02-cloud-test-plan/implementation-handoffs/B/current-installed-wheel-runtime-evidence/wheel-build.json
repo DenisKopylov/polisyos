@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "build",
+    "--wheel",
+    "--no-build-isolation",
+    "--python",
+    "/tmp/e02-B-la057-final-dd9584728bd9/build-env/bin/python",
+    "--no-python-downloads",
+    "--no-create-gitignore",
+    "--out-dir",
+    "/tmp/e02-B-la057-final-dd9584728bd9/wheels",
+    "/workspace/e02-B-current-coordination/policy-engine"
+  ],
+  "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+  "start_utc": "2026-10-06T19:09:01.492372+00:00",
+  "end_utc": "2026-10-06T19:09:05.129211+00:00",
+  "wall_s": 3.636847576999571,
+  "child_maxrss_platform_units": 37020,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "exit": 0,
+  "output": "/tmp/e02-B-la057-final-dd9584728bd9/wheel-build.txt",
+  "output_bytes": 81,
+  "output_sha256": "430982fdee80715cdcd8cfe97c600955d040a0744c6f540e92297d3d36287def",
+  "source": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  }
+}

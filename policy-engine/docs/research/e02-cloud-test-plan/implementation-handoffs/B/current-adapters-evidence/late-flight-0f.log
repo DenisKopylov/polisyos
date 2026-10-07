@@ -1,0 +1,20 @@
+{"target_sha": "0f7bdc9233af49c63874ac72e463aedeba7b2fb7", "driver_sha256": "c31fb61bb083d96f2b1e73d45f840cfcea047d8305290f732f47fc4a92a431e2", "pool_of_interest": {"file": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py", "sha256": "6e4aaf29b0855ad46eeff23bd1999f3104ee780a99a21446e9d13f7bcb9c074f"}, "fixture_sha256": "a96c4fa929ecceed3b136582d55ec55f3d8ad7afb33de39df8e1325d6107422f"}
+2026-10-06 10:51:51.025 | DEBUG    | polisyos.common.logger:_call:120 - Prompt cache miss model=e02 key=7220e099e771
+{"outcome": "returned", "returned": "late physical response", "provider_calls": 1, "cache_size": 1, "spent": "0.02", "reserved": "0", "physical_cancellation_observed": true, "provider_events": 1, "flights": 0}
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/late-flight-probe.py", line 53, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/late-flight-probe.py", line 51, in main
+    assert outcome == "TimeoutError" and record["cache_size"] == 0, "expired physical response must not publish or return as admitted success"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: expired physical response must not publish or return as admitted success

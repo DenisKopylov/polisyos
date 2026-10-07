@@ -1,0 +1,38 @@
+"""Reconcile actual global Ruff diagnostics by exact path; do not assign inheritance."""
+from pathlib import Path
+import collections,hashlib,json,posixpath,re,subprocess
+ROOT=Path('/workspace/e02-B-current-coordination');OUT=Path('/tmp/e02-B-gateway-import-style-20261007');SHA='6fa9b7142ba590c3173f1cd3be097286db5acc4d';BASE='f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1'
+RAW=ROOT/'.polisyos/e02-B-current/raw/review';log=RAW/'continuation-6fa9b7142ba5-ruff.txt';wrapper=RAW/'continuation-6fa9b7142ba5-ruff.json'
+b=log.read_bytes();w=json.loads(wrapper.read_bytes());text=b.decode('utf-8')
+assert w['head']==SHA and w['head_after']==SHA and w['exit_code']==1 and w['harness_state']=='EXECUTED' and w['exec_setup_error'] is None
+assert hashlib.sha256(b).hexdigest()==w['output_sha256']
+delta=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-status',BASE,SHA],text=True).splitlines();states={line.split('\t',1)[1]:line.split('\t',1)[0] for line in delta};selected=set(json.loads((OUT/'delta-checks.json').read_bytes())['static_checked_paths'])
+rows=[];pending=None
+for line in text.splitlines():
+ m=re.match(r'^([A-Z]+\d+)\b(?: \[\*\])? (.*)',line)
+ if m:pending=(m.group(1),m.group(2))
+ m=re.match(r'^\s*--> (.+):(\d+):(\d+)\s*$',line)
+ if m and pending:
+  path=posixpath.normpath('policy-engine/'+m.group(1));code,message=pending;pending=None
+  membership='checked_2production_6test_delta' if path in selected else 'other_continuation_changed_path' if path in states else 'outside_continuation_path_delta'
+  rows.append({'code':code,'diagnostic_path':m.group(1),'repository_path':path,'line':int(m.group(2)),'column':int(m.group(3)),'message':message,'delta_membership':membership,'f796_to_6fa_path_status':states.get(path,'UNCHANGED_PATH'),'inheritance':'NOT_ESTABLISHED: no exactslice-base fullgate replay plus input-denominator nonintersection proof.'})
+found=re.findall(r'^Found (\d+) errors\.$',text,re.M);assert found==['4444'] and len(rows)==4444
+paths={}
+for row in rows:
+ p=row['repository_path'];v=paths.setdefault(p,{'path':p,'delta_membership':row['delta_membership'],'path_status':row['f796_to_6fa_path_status'],'count':0,'codes':collections.Counter()});v['count']+=1;v['codes'][row['code']]+=1
+ argv_paths={posixpath.normpath('policy-engine/'+part) for part in w['command'][5:] if part.endswith(('.py','.pyi'))}
+assert all(r['repository_path'] in argv_paths for r in rows)
+summary={'schema':'policyos.e02.B.static_diagnostic_reconciliation.v1','source_sha':SHA,'source_tree':w['tree'],'continuation_base':BASE,'global_harness':'EXECUTED','global_exit_code':1,'global_outcome':'FAIL','reported_errors':4444,'parsed_errors':len(rows),'parsed_all_actual_diagnostics':True,
+ 'memberships':dict(collections.Counter(r['delta_membership'] for r in rows)),'code_counts':dict(collections.Counter(r['code'] for r in rows)),
+ 'diagnostic_paths':[dict(v,codes=dict(v['codes'])) for v in sorted(paths.values(),key=lambda r:r['path'])],
+ 'current_checked_eight_paths':sorted(selected),'current_checked_eight_diagnostic_count':sum(r['repository_path'] in selected for r in rows),
+ 'own_exact_money_diagnostic_count':sum(r['repository_path'].endswith('/test_gateway_exact_money_consumer.py') for r in rows),
+ 'actual_tail_I001_paths':[r for r in rows if r['code']=='I001'][-4:],
+ 'source_global_input_count':len(argv_paths),'actual_full_argv':w['command'],'cwd':w['cwd'],'environment':w['source_environment'],
+ 'raw_stdout':{'path':str(log),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'portable_state':'Root-owned fullglobal output; notduplicated in this compact peerreceipt; commitcustody pendingrootowner'},
+ 'raw_wrapper':{'path':str(wrapper),'bytes':wrapper.stat().st_size,'sha256':hashlib.sha256(wrapper.read_bytes()).hexdigest()},
+ 'global_inheritance_claim':'NONE/P41 NOT_ESTABLISHED. Path classification alone does not prove inherited red; no baselineglobal replay in this task.',
+ 'limitations':['Narrow2production+6test staticPASS does not make global4444PASS.','Other newcontinuation helperdiagnostics remain explicitcurrentdelta, no massfix requested.','No native execution, source/import changes, dependency setup/services or cleanup.']}
+(OUT/'global-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+(OUT/'global-diagnostics.json').write_text(json.dumps({'diagnostics':rows},separators=(',',':'))+'\n')
+print(json.dumps({'diagnostics':len(rows),'paths':len(paths),'memberships':summary['memberships'],'new_eight':summary['current_checked_eight_diagnostic_count'],'own_exactmoney':summary['own_exact_money_diagnostic_count'],'global_outcome':'FAIL','no_inherited_claim':True}))

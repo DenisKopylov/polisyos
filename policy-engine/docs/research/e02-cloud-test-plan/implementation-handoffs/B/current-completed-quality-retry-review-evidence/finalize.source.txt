@@ -1,0 +1,32 @@
+from pathlib import Path
+import hashlib,json,shutil,subprocess
+root=Path('/workspace/e02-B-current-coordination');lane=Path('/workspace/e02-B-current-runtime');scratch=Path('/tmp/e02-B-completed-quality-retry-review-1862c021df74');dest=lane/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence';sha='1862c021df74a5c5815bc5cd21a20e61b30132b6';raw=root/'.polisyos/e02-B-current/raw/review'
+def ident(path):
+ b=path.read_bytes();return {'path':str(path),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def dump(path,obj):path.write_text(json.dumps(obj,indent=2)+'\n')
+full=dest/'complete-typed-json-drift.json';d=json.loads(full.read_text());huge=scratch/'complete-index-aligned-typed-json-drift.raw.json';huge.write_bytes(full.read_bytes());assert huge.read_bytes()==full.read_bytes()
+# Preserve all created exact expected bytes outside Git; actual expected Git refs remain deciding source.
+shutil.move(str(dest/'expected-drift-bytes'),str(scratch/'expected-drift-bytes'))
+compact={'actual_openapi_complete_nine_typed_differences':d['architecture-runtime-ml-ready/runtime-openapi-snapshot'],'trust_index_aligned_leaf_counts':{k:v['semantic_delta_count'] for k,v in d.items() if 'trust-claim' in k},'trust_interpretation':'19,596 index-aligned leaves can cascade when list rows move; not a semantic change count, cause attribution or waiver. Full observed trust JSON is committed; exact expected1862 Gitbytes/ref/hash are in output map.','huge_complete_naive_typed_diff':{**ident(huge),'availability_to_G':'not_established for this ignored scratch; recompute from full committed observed JSON and exact1862 expected source Git ref','deciding_use':'Optional exhaustive index-aligned representation; full actual output bytes/hash equality is independently deciding without transferring this13MB duplicate representation.'}}
+dump(full,compact)
+p=dest/'complete-both-retry-output-maps.json';maps=json.loads(p.read_text())
+for value in maps.values():
+ for row in value['complete_outputs']:
+  row.pop('committed_expected_path',None)
+  row['expected_custody']='Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet.'
+dump(p,maps)
+# Root exclusively publishes native partial bytes: retain references, never duplicate or invent case status.
+native=[]
+for name in ('completed-final-B-cohort.txt','completed-final-B-cohort.json','completed-final-B-cohort-profile.json','completed-final-B-cohort-inventory.json'):
+ native.append({**ident(raw/name),'custody_owner':'ROOT only','portable_git_receipt':'pending ROOT publication; no local raw availability upgrade for G'})
+w=json.loads((raw/'completed-final-B-cohort.json').read_text());p=json.loads((raw/'completed-final-B-cohort-profile.json').read_text());i=json.loads((raw/'completed-final-B-cohort-inventory.json').read_text());count=i['counts'];assert w['head']==w['head_after']==sha and w['exit_code']==-9;assert i['state']=='collection_finished_runtime_pending';assert p['sha']==sha
+junit=Path(i['junit_path']);assert not junit.exists()
+dump(dest/'root-native-partial-custody-locators.json',{'raw_refs':native,'actual_capture':{'exit_code':w['exit_code'],'wall_seconds':w['wall_s'],'maxrss_kib':w['process_rusage_maxrss_kib'],'head':w['head'],'tree':w['tree'],'head_after':w['head_after'],'harness_state':w['harness_state']},'actual_inventory_counts':count,'inventory_state':i['state'],'junit_absent':True,'junit_path':str(junit),'scope':'Literal already-completed parent artifact reads only; no native/collection/parser repetition, no complete per-case outcomes or full regression PASS.','availability':'Raw references are cloud-local until exact ROOT portable packet; G availability not_established and ROOT is sole deciding-byte custody writer.'})
+interp=json.loads((dest/'all-stage-interpretation.json').read_text());interp['native_execution_denominators']['root_full250']='Actual parent wrapper SIGKILL/-9 after486.204744s; no XML; inventory collection_finished_runtime_pending. Counts/custody locators directly read, no complete case partition established.';interp['native_execution_denominators']['qualification']='Root affected47 quantity remains parent-reported context; fullcohort wrapper/inventory custody quantities directly read only and bound in root-native-partial-custody-locators.json. ROOT exclusively publishes those complete native bytes.';dump(dest/'all-stage-interpretation.json',interp)
+shutil.copyfile(scratch/'finalize.source.txt',dest/'finalize.source.txt')
+rows=[]
+for path in sorted(dest.rglob('*')):
+ if path.is_file() and path.name!='index.json':
+  b=path.read_bytes();rows.append({'path':str(path.relative_to(dest)),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+dump(dest/'index.json',{'payload_count':len(rows),'payload_bytes':sum(r['bytes'] for r in rows),'files':rows,'scope':'Full three completed retry stdout/profile/captures; complete6final observed artifacts; expected bytes bound by immutable1862 Git refs; full moderate maps/nine OpenAPI differences; huge13MB aligneddiff remains ignored with exacthash; native originals ROOT-only.'})
+print(json.dumps({'payload_count':len(rows),'payload_bytes':sum(r['bytes'] for r in rows),'native_actual_counts':count,'large_raw':ident(huge)},indent=2))

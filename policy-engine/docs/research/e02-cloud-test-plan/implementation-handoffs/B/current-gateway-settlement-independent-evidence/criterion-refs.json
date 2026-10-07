@@ -1,0 +1,24 @@
+[
+  {
+    "id": "B65",
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      1669,
+      1688
+    ],
+    "bytes": 4468,
+    "sha256": "f21a5d7d62b538e3466fe46778cbd8e27c2e3fa333cfb0b3a367b8fa6c731b76"
+  },
+  {
+    "id": "B66",
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      1689,
+      1708
+    ],
+    "bytes": 4442,
+    "sha256": "397fc3ab86c9c5243288fde7c7396afd3146df75bf74bb39973870a9d22c47a5"
+  }
+]

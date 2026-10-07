@@ -7,20 +7,78 @@ import hashlib
 import time
 
 import pytest
+
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.tenant_context import (
+    reset_current_access_scope,
+    set_current_access_scope,
+)
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
     GatewayToolCall,
     GatewayUsage,
 )
 from polisyos.scientist.orchestration.llm.prompt_cache import (
+    CacheReuseDecision,
     CachingLLMClient,
     InMemoryPromptCache,
     compute_cache_key,
 )
 
 
+class _UnitDeploymentOwner:
+    """Explicit versioned owner fixture; production defaults remain fail closed."""
+
+    def __init__(self):
+        self.allowed = True
+
+    def authorize_reuse(self, request):
+        if not self.allowed or request.actor_id != "spiffe://local/unit-cache":
+            return None
+        if request.tenant != "tenant-a" or request.scope != "policy-a":
+            return None
+        if any(
+            e.content not in {b"frozen evidence bytes", b"original", b"changed"}
+            or e.ref != "artifact://evidence/policy-a"
+            or e.version != "snapshot-v1"
+            or e.content_hash != "sha256:" + hashlib.sha256(e.content).hexdigest()
+            for e in request.evidence
+        ):
+            return None
+        return CacheReuseDecision(
+            issuer="deployment-owner:unit-fixture",
+            epoch="policy-1",
+            actor_id=request.actor_id,
+            tenant=request.tenant,
+            scope=request.scope,
+            purpose=request.purpose,
+            model=request.model,
+            parameters_digest=request.parameters_digest,
+            evidence=request.evidence,
+        )
+
+
+def _owner_caching_client(*args, **kwargs):
+    return CachingLLMClient(*args, **kwargs, reuse_authorizer=_UnitDeploymentOwner())
+
+
+@pytest.fixture(autouse=True)
+def _actual_unit_principal():
+    token = set_current_access_scope(
+        AccessScope.for_service(
+            tenant_id="tenant-a", cell_id="unit-cell", spiffe_id="spiffe://local/unit-cache"
+        )
+    )
+    try:
+        yield
+    finally:
+        reset_current_access_scope(token)
+
+
 def _make_response(content: str = "cached") -> GatewayLLMResponse:
-    return GatewayLLMResponse(content=content, usage=GatewayUsage(), raw={})
+    # This healthy cache fixture reports a known free completion. Default
+    # telemetry zeros without monetary/usage evidence represent an unknown cost.
+    return GatewayLLMResponse(content=content, usage=GatewayUsage(cost_usd=0.0), raw={})
 
 
 class _FakeLLMClient:
@@ -247,7 +305,7 @@ class TestCachingLLMClient:
     async def test_caches_deterministic_positional_prompt_calls(self):
         base_client = _FakeLLMClient()
         cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
-        client = CachingLLMClient(
+        client = _owner_caching_client(
             base_client,
             cache=cache,
             model="m",
@@ -269,7 +327,7 @@ class TestCachingLLMClient:
     async def test_cache_hits_do_not_share_mutable_response_state(self):
         base_client = _FakeLLMClient()
         cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
-        client = CachingLLMClient(
+        client = _owner_caching_client(
             base_client,
             cache=cache,
             model="m",
@@ -290,7 +348,7 @@ class TestCachingLLMClient:
     async def test_skips_cache_for_tool_calls_and_freshness_sensitive_inputs(self):
         base_client = _FakeLLMClient()
         cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
-        client = CachingLLMClient(
+        client = _owner_caching_client(
             base_client,
             cache=cache,
             model="m",
@@ -319,7 +377,7 @@ class TestCachingLLMClient:
     @pytest.mark.asyncio
     async def test_frozen_snapshot_with_url_reuses(self):
         base_client = _FakeLLMClient()
-        client = CachingLLMClient(
+        client = _owner_caching_client(
             base_client,
             cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
             model="m",
@@ -343,22 +401,20 @@ class TestCachingLLMClient:
         assert client._cache.stats()["hits"] == 1
         forwarded_metadata = base_client.calls[0][1]["metadata"]
         assert "content" not in forwarded_metadata["cache_reuse"]["snapshot"]
-        assert forwarded_metadata["cache_reuse"]["snapshot"]["content_hash"].startswith(
-            "sha256:"
-        )
+        assert forwarded_metadata["cache_reuse"]["snapshot"]["content_hash"].startswith("sha256:")
 
     @pytest.mark.asyncio
     async def test_changed_snapshot_bytes_or_hash_cannot_hit(self):
         base_client = _FakeLLMClient()
         cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
-        client = CachingLLMClient(base_client, cache=cache, model="m", ttl_s=3600)
+        client = _owner_caching_client(base_client, cache=cache, model="m", ttl_s=3600)
 
         original = _frozen_snapshot_metadata(content=b"original")
         changed = _frozen_snapshot_metadata(content=b"changed")
         stale_hash = _frozen_snapshot_metadata(content=b"changed")
-        stale_hash["cache_reuse"]["snapshot"]["content_hash"] = original["cache_reuse"][
-            "snapshot"
-        ]["content_hash"]
+        stale_hash["cache_reuse"]["snapshot"]["content_hash"] = original["cache_reuse"]["snapshot"][
+            "content_hash"
+        ]
 
         await client.generate(
             user="Use https://example.org/frozen report",
@@ -385,8 +441,8 @@ class TestCachingLLMClient:
     async def test_lost_permission_and_model_change_cannot_hit(self):
         base_client = _FakeLLMClient()
         cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
-        client = CachingLLMClient(base_client, cache=cache, model="m", ttl_s=3600)
-        other_model = CachingLLMClient(
+        client = _owner_caching_client(base_client, cache=cache, model="m", ttl_s=3600)
+        other_model = _owner_caching_client(
             base_client,
             cache=cache,
             model="other-model",
@@ -401,6 +457,7 @@ class TestCachingLLMClient:
             metadata=allowed,
             temperature=0.0,
         )
+        client._reuse_authorizer.allowed = False
         await client.generate(
             user="Use https://example.org/frozen report",
             metadata=lost_permission,
@@ -418,7 +475,7 @@ class TestCachingLLMClient:
     async def test_live_url_without_snapshot_skips(self):
         base_client = _FakeLLMClient()
         cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
-        client = CachingLLMClient(base_client, cache=cache, model="m", ttl_s=3600)
+        client = _owner_caching_client(base_client, cache=cache, model="m", ttl_s=3600)
 
         await client.generate(user="Use https://example.org/live report", temperature=0.0)
         await client.generate(user="Use https://example.org/live report", temperature=0.0)
@@ -430,7 +487,7 @@ class TestCachingLLMClient:
     @pytest.mark.asyncio
     async def test_four_identical_allowed_misses_single_flight(self):
         base_client = _SlowLLMClient()
-        client = CachingLLMClient(
+        client = _owner_caching_client(
             base_client,
             cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
             model="m",
@@ -452,12 +509,14 @@ class TestCachingLLMClient:
         responses = await asyncio.gather(*tasks)
 
         assert len(base_client.calls) == 1
-        assert [response.content for response in responses] == ["answer:Use https://example.org/frozen report"] * 4
+        assert [response.content for response in responses] == [
+            "answer:Use https://example.org/frozen report"
+        ] * 4
 
     @pytest.mark.asyncio
     async def test_different_seed_and_tenant_are_separate_flights(self):
         base_client = _SlowLLMClient()
-        client = CachingLLMClient(
+        client = _owner_caching_client(
             base_client,
             cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
             model="m",
@@ -489,7 +548,7 @@ class TestCachingLLMClient:
     @pytest.mark.asyncio
     async def test_cancelled_follower_does_not_cancel_owner(self):
         base_client = _SlowLLMClient()
-        client = CachingLLMClient(
+        client = _owner_caching_client(
             base_client,
             cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
             model="m",
@@ -517,7 +576,7 @@ class TestCachingLLMClient:
     @pytest.mark.asyncio
     async def test_failed_owner_clears_inflight_entry(self):
         base_client = _SlowLLMClient(fail_first=True)
-        client = CachingLLMClient(
+        client = _owner_caching_client(
             base_client,
             cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
             model="m",

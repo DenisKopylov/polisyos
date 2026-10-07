@@ -1,0 +1,4035 @@
+{
+  "schema": "policyos.e02.gateway_metadata_independent_audit.v1",
+  "review_kind": "Full data-only metadata/byte/XML audit; no runtime replay and no production author self-review",
+  "draft": {
+    "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/handoff-final-draft.json",
+    "bytes": 142264,
+    "sha256": "1e4553f6a101ad327f614085687bff8de88e5956d2aefbe2bea12c23cf9db191"
+  },
+  "published_final_receipt": {
+    "git_sha": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric.json",
+    "bytes": 142264,
+    "sha256": "1e4553f6a101ad327f614085687bff8de88e5956d2aefbe2bea12c23cf9db191"
+  },
+  "actual_raw_files_reconciled": 30,
+  "implementation_sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+  "implementation_tree": "d32ca3217289429dca0dbe73cf104c12a710731e",
+  "execution_source_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "checks": [
+    {
+      "check": "candidate-tree",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "full-38-path-union",
+      "pass": true,
+      "detail": 38
+    },
+    {
+      "check": "net-path-denominator",
+      "pass": true,
+      "detail": 38
+    },
+    {
+      "check": "formal-closure-empty",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "all-17-checks",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "before"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "candidate"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "removal"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "affected"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "affected-qualified"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "ruff"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "format"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "mypy"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "production_invocation"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "foreign-exe-0"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "foreign-exe-1"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "foreign-exe-2"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "foreign-exe-3"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "foreign-exe-4"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "foreign-exe-5"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "foreign-exe-6"
+    },
+    {
+      "check": "minimum-check-fields",
+      "pass": true,
+      "detail": "foreign-exe-7"
+    },
+    {
+      "check": "property-minimum-fields",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/0/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/1/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/2/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/3/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/4/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/5/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/6/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/7/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/8/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/9/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/10/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/11/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/12/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/13/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/14/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/15/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/16/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/17/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/18/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/19/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/20/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/21/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/22/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/23/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/24/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/25/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/26/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/27/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/28/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/29/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/30/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/baseline_cells/31/actual_environment_and_input_locator",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/0/environment/actual_origins",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/profile.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/0/input_closure/driver",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/0/input_closure/tokenizer_input",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/0/output/stdout",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/0/output/junit_lossless_wrapper_decode_text",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/0/output/wrapper",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/0/output/allcase_partition",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/1/environment/actual_origins",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/1/input_closure/driver",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/1/input_closure/tokenizer_input",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/1/output/stdout",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/1/output/junit_lossless_wrapper_decode_text",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/1/output/wrapper",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/1/output/allcase_partition",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/2/environment/actual_origins",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/profile.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/2/input_closure/driver",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/2/input_closure/tokenizer_input",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/2/output/stdout",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/2/output/junit_lossless_wrapper_decode_text",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/2/output/wrapper",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/2/output/allcase_partition",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/3/environment/actual_origins",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/profile.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/3/input_closure/driver",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/3/input_closure/tokenizer_input",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/3/output/stdout",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/3/output/junit_lossless_wrapper_decode_text",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/3/output/wrapper",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/3/output/allcase_partition",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/4/environment/actual_origins",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/profile.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/4/input_closure/driver",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/4/input_closure/tokenizer_input",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/4/output/stdout",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/4/output/junit_lossless_wrapper_decode_text",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/4/output/wrapper",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/4/output/allcase_partition",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/5/environment/runtime",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/5/input_closure/complete_quality_measurement",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/5/output",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/ruff.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/6/environment/runtime",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/6/input_closure/complete_quality_measurement",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/6/output",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/format.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/7/environment/runtime",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/7/input_closure/complete_quality_measurement",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/7/output",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/8/environment/runtime",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/8/input_closure/complete_quality_measurement",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/8/output",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/9/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/9/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/9/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/10/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/10/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/10/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/11/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/11/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/11/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/12/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/12/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/12/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/13/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/13/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/13/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/14/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/14/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/14/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/15/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/checks/16/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/source_points/source_context",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/source_points/evidence_index",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/index.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/representation_forward",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/representation-forward.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/foreign_independent_handoff",
+        "sha": "29024b9537b46376957350c9e12f648c0bfb2d63",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "draft/foreign_independent_readback",
+        "sha": "1cac85dd540c2109d2172892a95c2c0c18a17254",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/foreign-packet-readback.json"
+      }
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-original.source.txt"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/capture-current.source.txt"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/source-context.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/status-partition.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/runtime-closure.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/quality-checks.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/ruff.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/ruff.utf8.json",
+        "decoded_bytes": 19
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/ruff.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/format.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/format.utf8.json",
+        "decoded_bytes": 26
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/format.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json",
+        "decoded_bytes": 19221
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json",
+        "decoded_bytes": 0
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json",
+        "decoded_bytes": 17236
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+        "decoded_bytes": 20647
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml"
+    },
+    {
+      "check": "original-XML-Git-byte-binding",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/wrapper.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/wrapper.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/profile.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/profile.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json",
+        "decoded_bytes": 3325
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+        "decoded_bytes": 5806
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml"
+    },
+    {
+      "check": "original-XML-Git-byte-binding",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/wrapper.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/wrapper.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/profile.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json",
+        "decoded_bytes": 17238
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+        "decoded_bytes": 20647
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml"
+    },
+    {
+      "check": "original-XML-Git-byte-binding",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/wrapper.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/wrapper.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/profile.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/profile.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json",
+        "decoded_bytes": 1149
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
+        "decoded_bytes": 238
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml"
+    },
+    {
+      "check": "original-XML-Git-byte-binding",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/wrapper.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/wrapper.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/profile.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/profile.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json",
+        "decoded_bytes": 1245115
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
+        "decoded_bytes": 111086
+      }
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml"
+    },
+    {
+      "check": "original-XML-Git-byte-binding",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/wrapper.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/wrapper.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/profile.json"
+    },
+    {
+      "check": "own-original-bytes",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/profile.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/package.source.txt"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/representation-forward.json"
+    },
+    {
+      "check": "own-index-payload",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/foreign-packet-readback.json"
+    },
+    {
+      "check": "33-payload-total",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "full-own-index-coverage",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "all-captured-origins",
+      "pass": true,
+      "detail": {
+        "label": "before",
+        "count": 81
+      }
+    },
+    {
+      "check": "source-before-after-clean",
+      "pass": true,
+      "detail": "before"
+    },
+    {
+      "check": "native-wrapper-counts",
+      "pass": true,
+      "detail": "before"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+        "decoded_bytes": 20647
+      }
+    },
+    {
+      "check": "native-XML-counts",
+      "pass": true,
+      "detail": {
+        "label": "before",
+        "counts": {
+          "FAIL": 20,
+          "PASS": 10
+        }
+      }
+    },
+    {
+      "check": "phase-denominator",
+      "pass": true,
+      "detail": "before"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.utf8.json",
+        "decoded_bytes": 17236
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+        "decoded_bytes": 20647
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "before",
+        "file": "native.txt"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "before",
+        "file": "native.xml"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "before",
+        "file": "profile.json"
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
+        "decoded_bytes": 20647
+      }
+    },
+    {
+      "check": "all-captured-origins",
+      "pass": true,
+      "detail": {
+        "label": "candidate",
+        "count": 81
+      }
+    },
+    {
+      "check": "source-before-after-clean",
+      "pass": true,
+      "detail": "candidate"
+    },
+    {
+      "check": "native-wrapper-counts",
+      "pass": true,
+      "detail": "candidate"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+        "decoded_bytes": 5806
+      }
+    },
+    {
+      "check": "native-XML-counts",
+      "pass": true,
+      "detail": {
+        "label": "candidate",
+        "counts": {
+          "PASS": 30
+        }
+      }
+    },
+    {
+      "check": "phase-denominator",
+      "pass": true,
+      "detail": "candidate"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.utf8.json",
+        "decoded_bytes": 3325
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+        "decoded_bytes": 5806
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "candidate",
+        "file": "native.txt"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "candidate",
+        "file": "native.xml"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "candidate",
+        "file": "profile.json"
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
+        "decoded_bytes": 5806
+      }
+    },
+    {
+      "check": "all-captured-origins",
+      "pass": true,
+      "detail": {
+        "label": "removal",
+        "count": 81
+      }
+    },
+    {
+      "check": "source-before-after-clean",
+      "pass": true,
+      "detail": "removal"
+    },
+    {
+      "check": "native-wrapper-counts",
+      "pass": true,
+      "detail": "removal"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+        "decoded_bytes": 20647
+      }
+    },
+    {
+      "check": "native-XML-counts",
+      "pass": true,
+      "detail": {
+        "label": "removal",
+        "counts": {
+          "FAIL": 20,
+          "PASS": 10
+        }
+      }
+    },
+    {
+      "check": "phase-denominator",
+      "pass": true,
+      "detail": "removal"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.utf8.json",
+        "decoded_bytes": 17238
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+        "decoded_bytes": 20647
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "removal",
+        "file": "native.txt"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "removal",
+        "file": "native.xml"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "removal",
+        "file": "profile.json"
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
+        "decoded_bytes": 20647
+      }
+    },
+    {
+      "check": "all-captured-origins",
+      "pass": true,
+      "detail": {
+        "label": "affected",
+        "count": 64
+      }
+    },
+    {
+      "check": "source-before-after-clean",
+      "pass": true,
+      "detail": "affected"
+    },
+    {
+      "check": "native-wrapper-counts",
+      "pass": true,
+      "detail": "affected"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
+        "decoded_bytes": 238
+      }
+    },
+    {
+      "check": "native-XML-counts",
+      "pass": true,
+      "detail": {
+        "label": "affected",
+        "counts": {}
+      }
+    },
+    {
+      "check": "phase-denominator",
+      "pass": true,
+      "detail": "affected"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.utf8.json",
+        "decoded_bytes": 1149
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
+        "decoded_bytes": 238
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "affected",
+        "file": "native.txt"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "affected",
+        "file": "native.xml"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "affected",
+        "file": "profile.json"
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
+        "decoded_bytes": 238
+      }
+    },
+    {
+      "check": "all-captured-origins",
+      "pass": true,
+      "detail": {
+        "label": "affected-qualified",
+        "count": 1530
+      }
+    },
+    {
+      "check": "source-before-after-clean",
+      "pass": true,
+      "detail": "affected-qualified"
+    },
+    {
+      "check": "native-wrapper-counts",
+      "pass": true,
+      "detail": "affected-qualified"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
+        "decoded_bytes": 111086
+      }
+    },
+    {
+      "check": "native-XML-counts",
+      "pass": true,
+      "detail": {
+        "label": "affected-qualified",
+        "counts": {
+          "PASS": 541,
+          "FAIL": 13
+        }
+      }
+    },
+    {
+      "check": "phase-denominator",
+      "pass": true,
+      "detail": "affected-qualified"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.utf8.json",
+        "decoded_bytes": 1245115
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
+        "decoded_bytes": 111086
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "affected-qualified",
+        "file": "native.txt"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "affected-qualified",
+        "file": "native.xml"
+      }
+    },
+    {
+      "check": "wrapper-original-output-binding",
+      "pass": true,
+      "detail": {
+        "label": "affected-qualified",
+        "file": "profile.json"
+      }
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
+        "decoded_bytes": 111086
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/0/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/0/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/0/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/1/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/1/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/1/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/2/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/2/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/2/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/3/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/3/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/3/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/4/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/4/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/4/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/5/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.txt"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/5/junit",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.xml"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/5/wrapper",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/wrapper.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/6/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/checks/7/output",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/source_and_evidence/index",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/index.json"
+      }
+    },
+    {
+      "check": "content-reference",
+      "pass": true,
+      "detail": {
+        "where": "foreign-author-handoff/source_and_evidence/observations",
+        "sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/observations.json"
+      }
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/wrapper.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom1/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom1/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom1/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom10/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom10/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom10/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom10/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom11/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom11/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom11/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom11/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom12/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom12/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom12/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom12/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom13/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom13/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom13/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom13/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom14/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom14/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom14/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom14/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom2/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom2/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom2/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom2/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom3/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom3/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom3/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom3/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom4/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom4/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom4/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom4/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom5/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom5/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom5/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom5/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom6/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom6/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom6/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom6/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom7/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom7/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom7/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom7/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom8/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom8/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom8/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom8/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom9/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom9/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom9/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom9/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/wrapper.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/wrapper.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom1/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom1/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom1/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom10/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom10/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom10/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom10/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom11/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom11/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom11/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom11/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom12/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom12/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom12/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom12/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom13/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom13/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom13/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom13/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom14/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom14/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom14/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom14/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom2/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom2/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom2/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom2/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom3/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom3/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom3/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom3/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom4/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom4/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom4/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom4/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom5/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom5/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom5/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom5/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom6/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom6/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom6/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom6/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom7/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom7/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom7/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom7/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom8/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom8/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom8/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom8/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom9/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom9/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom9/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom9/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/wrapper.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.xml"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom0/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom0/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom0/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom1/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom1/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom1/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom10/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom10/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom10/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom10/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom11/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom11/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom11/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom11/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom12/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom12/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom12/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom12/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom13/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom13/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom13/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom13/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom14/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom14/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom14/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom14/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom2/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom2/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom2/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom2/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom3/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom3/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom3/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom3/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom4/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom4/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom4/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom4/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom5/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom5/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom5/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom5/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom6/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom6/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom6/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom6/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom7/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom7/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom7/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom7/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom8/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom8/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom8/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom8/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom9/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom9/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom9/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom9/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/wrapper.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.xml"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/wrapper.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.xml"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom0/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom0/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom0/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom1/budget.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom1/response.bin"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom1/http-work.jsonl"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/inputs/http-baseline.py.source.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/inputs/http-baseline.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/inputs/remove_exact_decode.py.source.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/inputs/package_evidence.py.source.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise-qualified.txt"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/observations.json"
+    },
+    {
+      "check": "foreign-all-payloads",
+      "pass": true,
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json"
+    },
+    {
+      "check": "274-foreign-payload-total",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "foreign-original-check-unchanged",
+      "pass": true,
+      "detail": "foreign-exe-0"
+    },
+    {
+      "check": "foreign-XML-counts",
+      "pass": true,
+      "detail": {
+        "id": "foreign-exe-0",
+        "counts": {
+          "FAIL": 10,
+          "PASS": 5
+        }
+      }
+    },
+    {
+      "check": "foreign-original-check-unchanged",
+      "pass": true,
+      "detail": "foreign-exe-1"
+    },
+    {
+      "check": "foreign-XML-counts",
+      "pass": true,
+      "detail": {
+        "id": "foreign-exe-1",
+        "counts": {
+          "ERROR": 15
+        }
+      }
+    },
+    {
+      "check": "foreign-original-check-unchanged",
+      "pass": true,
+      "detail": "foreign-exe-2"
+    },
+    {
+      "check": "foreign-XML-counts",
+      "pass": true,
+      "detail": {
+        "id": "foreign-exe-2",
+        "counts": {
+          "FAIL": 10,
+          "PASS": 5
+        }
+      }
+    },
+    {
+      "check": "foreign-original-check-unchanged",
+      "pass": true,
+      "detail": "foreign-exe-3"
+    },
+    {
+      "check": "foreign-XML-counts",
+      "pass": true,
+      "detail": {
+        "id": "foreign-exe-3",
+        "counts": {
+          "FAIL": 2,
+          "PASS": 13
+        }
+      }
+    },
+    {
+      "check": "foreign-original-check-unchanged",
+      "pass": true,
+      "detail": "foreign-exe-4"
+    },
+    {
+      "check": "foreign-XML-counts",
+      "pass": true,
+      "detail": {
+        "id": "foreign-exe-4",
+        "counts": {
+          "PASS": 15
+        }
+      }
+    },
+    {
+      "check": "foreign-original-check-unchanged",
+      "pass": true,
+      "detail": "foreign-exe-5"
+    },
+    {
+      "check": "foreign-XML-counts",
+      "pass": true,
+      "detail": {
+        "id": "foreign-exe-5",
+        "counts": {
+          "FAIL": 2
+        }
+      }
+    },
+    {
+      "check": "foreign-original-check-unchanged",
+      "pass": true,
+      "detail": "foreign-exe-6"
+    },
+    {
+      "check": "foreign-original-check-unchanged",
+      "pass": true,
+      "detail": "foreign-exe-7"
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/mypy.utf8.json",
+        "decoded_bytes": 19221
+      }
+    },
+    {
+      "check": "mypy-110-red-retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "lossless-decode",
+      "pass": true,
+      "detail": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/production-invocation.utf8.json",
+        "decoded_bytes": 0
+      }
+    },
+    {
+      "check": "scanner-killed-incomplete-retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "no-P41-waiver",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "external-D-profile-boundary",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "published-final-receipt-equals-audited-draft",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture-original.source.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/capture.py"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/source-context.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/status-partition.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/runtime-closure.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/quality-checks.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/ruff.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/format.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/mypy.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/production-invocation.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/native.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/native.xml"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/wrapper.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/profile.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/native.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/native.xml"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/wrapper.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/profile.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/native.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/native.xml"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/wrapper.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/profile.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/native.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/native.xml"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/wrapper.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/profile.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/native.txt"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/native.xml"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/wrapper.json"
+    },
+    {
+      "check": "actual-raw-custody",
+      "pass": true,
+      "detail": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/profile.json"
+    }
+  ],
+  "check_count": 619,
+  "mismatches": [],
+  "own_native_rows": [
+    {
+      "id": "before",
+      "exit": 1,
+      "XML_counts": {
+        "FAIL": 20,
+        "PASS": 10
+      },
+      "collected": 30,
+      "phase_count": 90,
+      "origins": 81,
+      "failing_cases": [
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e1000]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-base_cost_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-platform_fee_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-base_cost_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-platform_fee_usd]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[1e-1000]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[-1e-1000]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[0.9999999999999999999999]",
+        "test_http_top_level_cost_and_ordinary_tool_arguments_keep_separate_contracts"
+      ]
+    },
+    {
+      "id": "candidate",
+      "exit": 0,
+      "XML_counts": {
+        "PASS": 30
+      },
+      "collected": 30,
+      "phase_count": 90,
+      "origins": 81,
+      "failing_cases": []
+    },
+    {
+      "id": "removal",
+      "exit": 1,
+      "XML_counts": {
+        "FAIL": 20,
+        "PASS": 10
+      },
+      "collected": 30,
+      "phase_count": 90,
+      "origins": 81,
+      "failing_cases": [
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e1000]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-base_cost_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-platform_fee_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-base_cost_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-platform_fee_usd]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[1e-1000]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[-1e-1000]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[0.9999999999999999999999]",
+        "test_http_top_level_cost_and_ordinary_tool_arguments_keep_separate_contracts"
+      ]
+    },
+    {
+      "id": "affected",
+      "exit": 4,
+      "XML_counts": {},
+      "collected": 0,
+      "phase_count": 0,
+      "origins": 64,
+      "failing_cases": []
+    },
+    {
+      "id": "affected-qualified",
+      "exit": 1,
+      "XML_counts": {
+        "PASS": 541,
+        "FAIL": 13
+      },
+      "collected": 554,
+      "phase_count": 1662,
+      "origins": 1530,
+      "failing_cases": [
+        "test_prompt_slice_uses_pack_candidate_levers_without_binding_them",
+        "test_prompt_slice_rejects_context_for_another_design_problem",
+        "test_prompt_slice_uses_context_bound_l6_vocabulary_not_model_filter",
+        "test_cgf_binding_recovers_legacy_exact_match_rejection",
+        "test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition",
+        "test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind",
+        "test_novel_candidate_with_false_analog_evidence_routes_to_cg3",
+        "test_recorded_llm_organs_emit_diverse_cg3_dispositions_without_authority",
+        "test_problem_variation_recordings_produce_different_candidate_sets",
+        "test_gateway_only_model_is_accepted_from_live_catalog",
+        "test_fake_surrogate_owner_ref_fails_closed",
+        "test_phase5_surrogate_rejects_fake_route_targets_without_certifying_candidates",
+        "test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle"
+      ]
+    }
+  ],
+  "foreign_native_rows": [
+    {
+      "id": "foreign-exe-0",
+      "name": "baseline-original",
+      "XML_counts": {
+        "FAIL": 10,
+        "PASS": 5
+      },
+      "cases": 15,
+      "qualification": "Original wrong PendingError class assertion preserved (actual RequiredError fence worked); does not attribute those class mismatches to product."
+    },
+    {
+      "id": "foreign-exe-1",
+      "name": "candidate-parent-absent",
+      "XML_counts": {
+        "ERROR": 15
+      },
+      "cases": 15,
+      "qualification": "All15 setup errors before HTTP/property due missing parent fixture directory; actual executed pytest retained, runtime property UNRUN."
+    },
+    {
+      "id": "foreign-exe-2",
+      "name": "candidate-original",
+      "XML_counts": {
+        "FAIL": 10,
+        "PASS": 5
+      },
+      "cases": 15,
+      "qualification": "Original wrong PendingError class assertion preserved (actual RequiredError fence worked); does not attribute those class mismatches to product."
+    },
+    {
+      "id": "foreign-exe-3",
+      "name": "baseline",
+      "XML_counts": {
+        "FAIL": 2,
+        "PASS": 13
+      },
+      "cases": 15,
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader."
+    },
+    {
+      "id": "foreign-exe-4",
+      "name": "candidate",
+      "XML_counts": {
+        "PASS": 15
+      },
+      "cases": 15,
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader."
+    },
+    {
+      "id": "foreign-exe-5",
+      "name": "removal",
+      "XML_counts": {
+        "FAIL": 2
+      },
+      "cases": 2,
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader."
+    }
+  ],
+  "own_payloads": 33,
+  "own_payload_bytes": 3515134,
+  "foreign_payloads": 274,
+  "foreign_payload_bytes": 9336474,
+  "unique_git_content_reads": 1927,
+  "verdict": "NONBLOCKING",
+  "limitations": [
+    "This audit does not run native tests, quality gates or imports.",
+    "All native/quality RED and setup ERROR remain literal; no inherited/integration/formal finding closure waiver.",
+    "Constructor-bound external D pre_check composition is a finite reader profile, not default served controller acceptance.",
+    "Full file-backed module census is the declared source custody denominator, not every child/transitive/native/resource input."
+  ],
+  "closure_ids": []
+}

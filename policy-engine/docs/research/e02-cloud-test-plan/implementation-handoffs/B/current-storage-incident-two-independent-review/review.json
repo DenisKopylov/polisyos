@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.independent_storage_incident_two_verdict.v1",
+  "reviewer": "/root/cas_probe",
+  "slice_base_sha": "62d8d21b4506ac99b163542b8ef30a7122d7f7e8",
+  "author_lane": "/workspace/e02-B-current-cas-generation",
+  "authority_purpose": "Independent custody/availability and resource-observation review only; no CAS/PG runtime finding closure",
+  "outcome": "PASS_CURRENT_BOUNDED_CUSTODY_WITH_AVAILABILITY_LIMITS",
+  "deciding_output": "custody-full-stdout.json",
+  "deciding_totals": {
+    "groups": 4,
+    "ledger_rows": 64,
+    "unique_pairs": 32,
+    "unique_logical_bytes": 1916417509
+  },
+  "census_output": "old-raw-census-full-stdout.json",
+  "census_totals": {
+    "roots": 14,
+    "selected_report_files_or_aliases": 94,
+    "regular_report_files": 87,
+    "report_aliases": 7,
+    "excluded_nonreport_raw_paths": 14,
+    "regular_reports_over_50000000_bytes": 0,
+    "preserved_report_aliases_over_50000000_bytes": 7
+  },
+  "predicate_basis": {
+    "current_alias_bytes_length_digest_regular_target_mode": "independently_reconciled",
+    "past_preservation_copy_fsync_order": "consumer_asserted: root instrument and author ledger only; independent historical execution replay not performed",
+    "G_external_deciding_raw_bytes_availability": "not_established",
+    "protected_Docker_physical_layer_bytes": "not_established",
+    "product_runtime_or_powerloss_durability": "not_established"
+  },
+  "actual_properties": [
+    "All64 author rows form32 exact unique source-target copy/alias pairs with ordered timestamps; counts derived from complete four ledgers.",
+    "Each original path is currently the exact expected symlink; each target is regular; target permissions match recorded original source permissions.",
+    "Both source-alias and target were streamed in full and length/SHA256 compared with author declaration; file descriptors and pathname lstat remain stable during readback.",
+    "Changing both author SHA declarations or size declarations in memory, while actual byte streams and aliases remain unchanged, is refused. These are metadata-custody discriminators, not product runtime controls."
+  ],
+  "census_scope": {
+    "old_roots": 14,
+    "type_denominator": "Any suffix regular/alias report files within .polisyos or _build with exact raw path segment; enumerated hidden+ignored+aliases from complete captured rg traversal.",
+    "remaining_eligible_large_regular_observed": 0,
+    "threshold_bytes": 50000000,
+    "qualification": "Corrects prior all-raw-segment denominator that also included tracked architecture directories. Absence is bounded to captured complete path traversal and current lstat of its selected paths, not new files after capture, current-* lanes, Docker protected roots, fixtures/env/caches, or all filesystem data. Four current EXE historical invocation files are separately explicit preserved ledger inputs, outside this old-root profile.",
+    "current_exe_historical_reports": "Four explicit author-ledger invocation files in current execution lane handled separately; not pretended part of old-root census."
+  },
+  "initial_storage_observations": {
+    "complete_commands": "initial-census-commands.json",
+    "docker": {
+      "data_root": "/var/lib/docker",
+      "driver": "vfs",
+      "image_id": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+      "image_digest": "postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "logical_image_bytes": 297176980,
+      "containers": 0,
+      "volume": "e02-b38-pg-20261006-143b68a-data",
+      "logical_volume_bytes": 0,
+      "partial_vfs_layers_or_physical_total": "not_established: direct data-root directory census PermissionError uid1000; sudo command absent. du8192 is unreadable directory metadata only.",
+      "resource_problem": "overlay ENOSPC; PostgreSQL product not executed/proved",
+      "filesystem_st_dev": 27
+    },
+    "resource_attribution": "Actual overlay ENOSPC, Docker logical image size and exposed API inventory observed. Protected VFS root physical total could not be measured; no PostgreSQL product defect established. Initial and later df/statvfs snapshots are separate times, not an exact freed-space accounting."
+  },
+  "prior_nine_aliases": {
+    "input": "prior-nine-alias-state.json",
+    "count": 9,
+    "logical_unique_bytes_historical_root_declared": 637116324,
+    "inspection": "Existing original alias lstat/readlink/target stat snapshots only; original nine raw contents were not newly streamed in this incident audit. This is not a second full bytes verification of the historical nine."
+  },
+  "withdrawn_suggestion": {
+    "historical_summary": {
+      "path": "/tmp/e02-cas-storage-census-20261006/summary.json",
+      "bytes": 6539,
+      "sha256": "4d02301b7fd07002de2447fa4c8c8945356b6a84b0f7e1f10c332e4d4919518c"
+    },
+    "status": "WITHDRAWN_NOT_AUTHORIZED",
+    "paths": [
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/admission-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-final-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-duplicate-base-input",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-duplicate-release-base-input"
+    ],
+    "reason": "Root restated user constraint: repeatable test dirs and used environments may move only through native Trash, unavailable. Seven input projection dirs stay in place as cleanup candidates only; historical root fixture dirs and used env/cache/dependency dirs also stay. No such move performed by auditor. Older candidate prose does not authorize a move."
+  },
+  "source_profile": "Metadata read-only task; own product sources/tests unchanged. Old invocation logs hashed only as preservation custody inputs and are not used as current product/source/gate evidence.",
+  "qualification": [
+    "Only current pathname/regular-target/mode/length/SHA256 and stable opened-byte witnesses independently reconciled; past preservation copy/fsync sequence is author-observed.",
+    "Underlying filesystem and inode identities changed. No new product CAS durability, PostgreSQL defect, power-loss or multihost guarantee is established.",
+    "No explicit target-directory fsync before alias publication exists in these instruments; target-directory crash durability not established.",
+    "/tmp is volatile local storage. Availability to G outside this VM is not_established until deciding bytes are transferred or exact checks rerun.",
+    "No repeatable fixture/input-projection directories, used environment/cache, source, original evidence bytes or services mutated by this auditor; only small independent metadata written."
+  ],
+  "further_limits": [
+    "Committing moderate custody input ledgers/output/commands/instrument bytes gives portable bounded review facts, not external availability of1.916GB deciding raw content or19.5MB ignored census path capture.",
+    "Target-directory fsync before original alias publication absent in inspected preservation scripts. No crash/powerloss durability inference; current readback accepted.",
+    "Original inodes/filesystem placement changed; historical evidence source/time qualifications remain unchanged.",
+    "Initial13 read-only command outputs retained verbatim; Docker protected-root du exit1/permission error retained without treating8192 directory metadata as total usage.",
+    "All previous product source failures, B148HELD and B154 signature all-confirmations consumer_missing remain outside this metadata task."
+  ],
+  "next_owner": [
+    "Root can fetch this portable moderate independent packet and must keep retained VM raw bytes/aliases accessible for actual deciding replay.",
+    "G external byte availability remains not_established until exact raw inputs transferred or receipt-bound read-only hash audit rerun with original bytes. No current product-native/gates demanded by this custody verdict.",
+    "No deletion/prune/move/native-trash substitute/service changes authorized by this receipt."
+  ]
+}

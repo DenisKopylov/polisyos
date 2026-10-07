@@ -1,0 +1,44 @@
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py
+index 616df563a..a5a2b56dc 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py
+@@ -37,6 +37,7 @@ def main() -> None:
+     parser.add_argument("--namespace", required=True)
+     parser.add_argument("--selector", type=Path)
+     parser.add_argument("--wheel-input", type=Path)
++    parser.add_argument("--architecture-uv-cache-dir", type=Path)
+     args = parser.parse_args()
+     if not args.namespace or not all(c.isalnum() or c in "-_" for c in args.namespace):
+         raise ValueError("Supply an exclusive simple output namespace")
+@@ -196,15 +197,22 @@ def main() -> None:
+             "Canonical uncapped constituent projection; verify/parity shared writers serialized"
+         )
+     elif args.gate == "architecture":
+-        argv = [
+-            str(uv),
+-            "run",
+-            "--no-sync",
+-            "polisyos-tools",
+-            "architecture",
+-            "guardrails",
+-            "check",
+-        ]
++        if args.architecture_uv_cache_dir is None:
++            raise ValueError("Architecture requires the explicit preserved UV cache")
++        quality_source = handoff / "final-root-evidence/run_completed_quality.py"
++        quality_spec = importlib.util.spec_from_file_location(
++            "e02_retained_gate_inputs", quality_source
++        )
++        if quality_spec is None or quality_spec.loader is None:
++            raise RuntimeError("Canonical retained architecture input admission unavailable")
++        quality = importlib.util.module_from_spec(quality_spec)
++        quality_spec.loader.exec_module(quality)
++        architecture_inputs = quality.retained_architecture_inputs(
++            args.sha, args.architecture_uv_cache_dir
++        )
++        argv, inputs = quality.make_command(
++            "architecture", args.sha, run, python, uv, architecture_inputs
++        )
+     elif args.gate == "runtime-api":
+         argv = [
+             str(uv),

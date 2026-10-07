@@ -1,0 +1,51 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+    "--inventory",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json",
+    "--junit",
+    "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml",
+    "--wrapper",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.json",
+    "--stdout",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.txt",
+    "--profile",
+    "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-profile.json",
+    "--selectors",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json",
+    "--source-sha",
+    "dd9584728bd96f204983615216efdbc58117e713",
+    "--repo",
+    "/workspace/e02-B-current-coordination",
+    "--output",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-dd958-case-partition.json"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "dd9584728bd96f204983615216efdbc58117e713",
+  "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "head_after": "dd9584728bd96f204983615216efdbc58117e713",
+  "wall_s": 0.569410850002896,
+  "process_rusage_maxrss_kib": 92416,
+  "exit_code": 0,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-case-partition.txt",
+  "output_sha256": "8a7871cde47ffedeb9e54c1b0888feed75a7458d20c78538965f2c6bfdd966ec",
+  "source_environment": {
+    "PYTHONPATH": null,
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": null,
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

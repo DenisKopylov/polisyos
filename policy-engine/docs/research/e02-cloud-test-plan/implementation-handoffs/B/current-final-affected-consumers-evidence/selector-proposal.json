@@ -1,0 +1,552 @@
+{
+  "actual_source_head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+  "actual_source_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+  "source_content_equal_1862": true,
+  "canonical_selector": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-root-evidence/completed-final-selector.json",
+    "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3",
+    "source_snapshot": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "path_normalization": "Canonical test_paths are policy-engine cwd relative; prepended policy-engine/ once for Git-relative comparison."
+  },
+  "whole_file_count": 35,
+  "whole_files": [
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+      "direct_engine_imports": [
+        "async_executor",
+        "budget",
+        "budget_middleware",
+        "context",
+        "errors",
+        "idempotency",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c",
+      "direct_engine_imports": [
+        "async_executor",
+        "budget",
+        "budget_middleware",
+        "errors",
+        "protocol",
+        "registry",
+        "state",
+        "state_merge",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "22925ca45c128fec913cb16417ddd2349b6127704e45da50cf335e2fdf8dc7c8",
+      "direct_engine_imports": [
+        "async_executor",
+        "context",
+        "metrics",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972",
+      "direct_engine_imports": [
+        "async_executor",
+        "budget",
+        "budget_middleware",
+        "checkpoint",
+        "context",
+        "errors",
+        "idempotency",
+        "protocol",
+        "registry",
+        "state",
+        "state_branching",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18",
+      "direct_engine_imports": [
+        "async_executor",
+        "checkpoint",
+        "context",
+        "metrics_protocol",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c",
+      "direct_engine_imports": [
+        "engine",
+        "async_executor",
+        "checkpoint",
+        "context",
+        "errors",
+        "idempotency",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "1e06eddf3a53bb96da51b5b233e8a5eb3421886585c114c36fcc8d29b122620c",
+      "direct_engine_imports": [
+        "checkpoint",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994",
+      "direct_engine_imports": [
+        "engine",
+        "errors",
+        "state"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+      "direct_engine_imports": [
+        "async_executor",
+        "checkpoint",
+        "context",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+      "direct_engine_imports": [
+        "async_executor",
+        "checkpoint",
+        "errors",
+        "state"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a",
+      "direct_engine_imports": [
+        "idempotency",
+        "protocol",
+        "state",
+        "state_branching",
+        "state_merge"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "cc96bdff760c0cdab55f8b6f3b388610c32e1ead363325cefbeebd4cc624dcd8",
+      "direct_engine_imports": [
+        "async_executor",
+        "checkpoint",
+        "context",
+        "executor",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "8caba8a940ecd756bbd47f7fb97e7695c8e45fc3cd258c392170b0ae2cdfd53c",
+      "direct_engine_imports": [
+        "async_executor",
+        "context",
+        "executor",
+        "idempotency",
+        "protocol",
+        "registry",
+        "serialization",
+        "state",
+        "state_branching",
+        "state_merge",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "fba2beb39298c54788516a69fa8a5ba8bdabc47fdf6f51a772825f866110366e",
+      "direct_engine_imports": [
+        "async_executor",
+        "context",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65",
+      "direct_engine_imports": [
+        "protocol",
+        "state",
+        "state_branching",
+        "state_merge"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+      "direct_engine_imports": [
+        "protocol",
+        "state",
+        "state_branching",
+        "state_merge"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+      "direct_engine_imports": [
+        "budget",
+        "budget_ledger",
+        "budget_middleware"
+      ],
+      "direct_budget_middleware_reference": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "group": "engine",
+      "canonical_current_selector": true,
+      "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+      "direct_engine_imports": [
+        "engine",
+        "context",
+        "errors",
+        "protocol",
+        "retry",
+        "serialization",
+        "state"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "group": "wire/worker/tier",
+      "canonical_current_selector": true,
+      "sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f",
+      "direct_engine_imports": [
+        "engine",
+        "protocol",
+        "runner",
+        "serialization",
+        "state",
+        "state_branching"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "group": "wire/worker/tier",
+      "canonical_current_selector": true,
+      "sha256": "a0a2bb4190a150b76c09239056e7f97ec9ff8506d133fb3333d8e741770f7e03",
+      "direct_engine_imports": [
+        "protocol",
+        "runner",
+        "_activity_worker",
+        "state"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "group": "wire/worker/tier",
+      "canonical_current_selector": true,
+      "sha256": "2c5c3308b9a8a6f28091a834d13d7286f1db3316c906f7e1ac65c3b91123f9e2",
+      "direct_engine_imports": [
+        "checkpoint",
+        "context",
+        "protocol",
+        "runner",
+        "_activity_worker",
+        "serialization",
+        "state_merge",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+      "group": "wire/worker/tier",
+      "canonical_current_selector": false,
+      "sha256": "4322bf9c7d8f2f994783fc9d312934f9b9dac454bc9922e2ab0d480f42685293",
+      "direct_engine_imports": [
+        "checkpoint",
+        "idempotency",
+        "protocol",
+        "registry",
+        "distributed_tier",
+        "serialization",
+        "state_merge",
+        "state",
+        "state_branching",
+        "state_merge",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+      "group": "wire/worker/tier",
+      "canonical_current_selector": false,
+      "sha256": "29b8517fd912dc7b80c05685f2a8b4420f5ff47a6a55f90e021d913a805415bb",
+      "direct_engine_imports": [
+        "serialization",
+        "state_merge",
+        "state",
+        "state_merge"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "group": "foundry",
+      "canonical_current_selector": true,
+      "sha256": "70818a2e1b8c4e94f930823693ef7f0d232ff7c92f987decbf97d0c39ef18449",
+      "direct_engine_imports": [
+        "checkpointing"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "group": "foundry",
+      "canonical_current_selector": true,
+      "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd",
+      "direct_engine_imports": [
+        "checkpointing"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "group": "integration",
+      "canonical_current_selector": true,
+      "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2",
+      "direct_engine_imports": [
+        "async_executor",
+        "checkpoint",
+        "context",
+        "executor",
+        "idempotency",
+        "protocol",
+        "registry",
+        "local_runner",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+      "group": "integration",
+      "canonical_current_selector": true,
+      "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7",
+      "direct_engine_imports": [
+        "async_executor",
+        "checkpoint",
+        "compensation",
+        "context",
+        "idempotency",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_exe_02.py",
+      "group": "remediation",
+      "canonical_current_selector": true,
+      "sha256": "34a2a44040561fd7af9b03de765f5accb3fc6726f4c1e74e47821afa483a7104",
+      "direct_engine_imports": [
+        "async_executor",
+        "context",
+        "protocol",
+        "registry",
+        "state",
+        "state_branching",
+        "state_merge",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+      "group": "remediation",
+      "canonical_current_selector": true,
+      "sha256": "e8913b401a0101c2301671962e876c97e86afed696536407f0c86e8c2acec93b",
+      "direct_engine_imports": [
+        "checkpoint",
+        "context",
+        "executor",
+        "idempotency",
+        "protocol",
+        "registry",
+        "state",
+        "state_branching",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+      "group": "remediation",
+      "canonical_current_selector": true,
+      "sha256": "1a8d8c7d305fe66bd8fcf261ec7423be61b37df27354e752152b001ef729d0aa",
+      "direct_engine_imports": [
+        "async_executor",
+        "checkpoint",
+        "context",
+        "protocol",
+        "registry",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "group": "remediation",
+      "canonical_current_selector": true,
+      "sha256": "d6ea1299420903c72a42e8c6b07b506ed6aaa1dc5d0366a7bcdf144aec4838b0",
+      "direct_engine_imports": [
+        "checkpointing"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "group": "remediation",
+      "canonical_current_selector": true,
+      "sha256": "20a9f68b15462ca6e20a2ffa602828a1b64354a2457f2cc18cb8fed70430e507",
+      "direct_engine_imports": [
+        "protocol",
+        "runner",
+        "serialization",
+        "state"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "group": "remediation",
+      "canonical_current_selector": true,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c",
+      "direct_engine_imports": [
+        "context",
+        "errors",
+        "protocol",
+        "retry",
+        "state"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+      "group": "remediation",
+      "canonical_current_selector": true,
+      "sha256": "22aa14c0d4e8a3ad6c0bcc0ae1101bfeff551f2fb69c89610507cf80210449a8",
+      "direct_engine_imports": [
+        "runner",
+        "fallback_runner",
+        "protocol"
+      ],
+      "direct_budget_middleware_reference": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "group": "remediation",
+      "canonical_current_selector": true,
+      "sha256": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48",
+      "direct_engine_imports": [
+        "context",
+        "executor",
+        "protocol",
+        "registry",
+        "fallback_runner",
+        "protocol",
+        "state",
+        "workflow_spec"
+      ],
+      "direct_budget_middleware_reference": false
+    }
+  ],
+  "case_count": "UNKNOWN until actual collection; no execution/collection yet",
+  "selection_basis": "Actual defined wholefile import/body consumers of async_executor budget admission/cache/scheduler; checkpoint publication/history/frontier; state journal/fork merge and wire/activity tier; actual BudgetMiddleware; canonical EXE/RES/WIRE/RUN/DUR profiles."
+}

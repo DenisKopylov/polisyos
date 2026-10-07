@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "count": 3,
+  "bytes": 34799,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-root-generated-companion-independent-review/audit-full-stdout.json",
+      "bytes": 19599,
+      "sha256": "eecdc25c96ec857db838eabb860c473cc479c6566cee259284cde444ef7d1ba8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-root-generated-companion-independent-review/audit.py.txt",
+      "bytes": 12351,
+      "sha256": "528e5a9a9c5aa305639a42fbc5a1cee88ed3b4616a1a6fba902832290f82ac88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-root-generated-companion-independent-review/review.json",
+      "bytes": 2849,
+      "sha256": "76eba3a8b5fae377e17c588dd58b059fd59a5dd4ed71d3aebf6d3c207e5c084e"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.317" timestamp="2026-10-07T07:52:53.943139+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.backends.test_imported_module_checkpoint_identity" name="test_same_version_imported_member_change_refuses_before_replacement_effect" time="0.262"><failure message="Failed: DID NOT RAISE any of (&lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;, &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointIdentityError'&gt;)">tmp_path = PosixPath('/tmp/e02-B-cas-b74-20261007/removal-eb4/pytest/test_same_version_imported_mem0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7efc30d828b0&gt;
+
+    def test_same_version_imported_member_change_refuses_before_replacement_effect(
+        tmp_path, monkeypatch
+    ):
+        monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _original_increment, raising=False)
+        effects = tmp_path / "effects.txt"
+        original, chain, params, context, checkpoint, path, reopened = _saved_prefix(
+            tmp_path, _ImportedConsumer, effects
+        )
+        assert original.final_state["total"] == 7
+        pointer = path.read_bytes()
+        original_effects = effects.read_bytes()
+        original_name = math.__name__
+        # Keep the actual imported module and runtime version. Change only the
+        # callable member which the not-yet-completed consumer actually resolves.
+        monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _replacement_increment)
+        assert math.__name__ == original_name
+        try:
+&gt;           with pytest.raises((CheckpointDigestMismatchError, CheckpointIdentityError)):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE any of (&lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;, &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointIdentityError'&gt;)
+
+tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py:216: Failed</failure></testcase></testsuite></testsuites>

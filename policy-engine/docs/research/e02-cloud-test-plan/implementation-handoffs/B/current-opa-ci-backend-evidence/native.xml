@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="16" failures="0" skipped="0" tests="24" time="15.371" timestamp="2026-10-06T22:21:46.258385+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_rego_permission_vocabulary_matches_canonical_server_enum" time="0.076" /><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_human_decision_permission_and_owned_resource_match_rego" time="0.894"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_human_decision_permission_and_owned_resource_match_rego&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_rego_action_resource_contracts_match_live_guarded_router" time="0.834"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_rego_action_resource_contracts_match_live_guarded_router&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_runtime_opa_input_projects_exact_sealed_action_contract" time="0.001" /><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_runtime_middleware_sends_sealed_action_contract_to_opa" time="0.883"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_runtime_middleware_sends_sealed_action_contract_to_opa&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_guarded_safe_route_emits_runtime_action_opa_input" time="0.792"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_guarded_safe_route_emits_runtime_action_opa_input&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_rego_allows_exact_guarded_human_decision_read" time="0.049" /><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants0-True]" time="0.072" /><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1-grants1-True]" time="0.044" /><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_service_read_expectation_matches_rego[/api/v1/runs/run-1/timeline-grants2-True]" time="0.076" /><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_service_read_expectation_matches_rego[/api/v1/control/jobs/job-1-grants3-False]" time="0.059" /><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_service_read_expectation_matches_rego[/api/v1/control/data/secret-grants4-False]" time="0.034" /><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_live_request_and_canonical_rego_agree_before_handler_side_effect" time="0.828"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_live_request_and_canonical_rego_agree_before_handler_side_effect&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[analyst_launch]" time="0.709"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[analyst_launch]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[viewer_launch]" time="0.772"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[viewer_launch]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[admin_ingestion]" time="0.680"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[admin_ingestion]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[admin_unscoped_resolution]" time="0.721"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[admin_unscoped_resolution]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[request_bound_resource_with_fabricated_tenant]" time="0.842"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[request_bound_resource_with_fabricated_tenant]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[cross_tenant_launch]" time="0.698"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[cross_tenant_launch]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_action]" time="0.900"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_action]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[malformed_action]" time="0.745"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[malformed_action]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[known_action_wrong_resource]" time="0.691"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[known_action_wrong_resource]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_resource]" time="0.701"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_resource]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase><testcase classname="tests.unit.runtime.http.test_runtime_rego_authorization_parity" name="test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_authority]" time="0.737"><error message="failed on setup with &quot;ValueError: catalog_fetch_source_unreadable&quot;">fixturedef = &lt;FixtureDef argname='runtime_api_env' scope='function' baseid='tests/unit/runtime/http'&gt;
+request = &lt;SubRequest 'runtime_api_env' for &lt;Function test_server_and_rego_decisions_match_for_principal_operation_resource_matrix[unknown_authority]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -&gt; CatalogContentIdentity:
+        if not path.is_file():
+&gt;           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError</error></testcase></testsuite></testsuites>

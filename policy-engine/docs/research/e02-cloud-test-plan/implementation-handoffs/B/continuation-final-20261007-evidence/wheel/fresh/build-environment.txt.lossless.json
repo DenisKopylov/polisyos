@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.lossless_text.v1",
+  "source": {
+    "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-environment.txt",
+    "bytes": 285,
+    "sha256": "b3125d834f85031d48349b4065d04fe160d4b85f332a646295070ba5d3aaff7d"
+  },
+  "encoding": "utf-8",
+  "text": "{\"distributions\": {\"hatchling\": \"1.27.0\", \"packaging\": \"26.3\", \"pathspec\": \"1.1.1\", \"pluggy\": \"1.6.0\", \"trove-classifiers\": \"2026.9.21.13\"}, \"python\": \"/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-env/bin/python\", \"version\": \"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\"}\n"
+}

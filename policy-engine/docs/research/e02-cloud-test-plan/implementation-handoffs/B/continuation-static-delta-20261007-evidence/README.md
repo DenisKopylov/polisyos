@@ -1,0 +1,5 @@
+Static checks on the exact frozen root6fa continuation delta: two production files and six added test files. Ruff and format both passed; source bytes stayed unchanged. The own exact-money test needed no import changes and its complete AST remains equal to c383. No native execution, dependency setup, service action or cleanup occurred.
+
+The global root Ruff gate remains actual FAIL with 4,444 diagnostics. All 4,444 are on 106 paths outside the f796-to-6fa path delta; this classification grants no P41 inherited waiver. The complete root output is pinned by absolute locator, size and SHA256 and remains root-owned custody. This compact packet does not duplicate that log or establish its pending portable custody. The exact stdlib parser and every diagnostic path/code aggregate are included.
+
+Local publication encountered ENOSPC before any source or commit changes. This packet is prepared in a unique /tmp namespace for append-only Git API publication on the existing topic branch; local source checkout remains clean c383. No files were moved, deleted or trashed. Remote publication custody must be read back separately.

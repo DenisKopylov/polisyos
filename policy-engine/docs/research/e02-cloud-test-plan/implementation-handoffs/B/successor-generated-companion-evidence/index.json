@@ -1,0 +1,108 @@
+{
+  "producer_source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+  "slice_base_sha": "7ba5b49ce1ae3dfdcb985e6a339787414e9eb6b4",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.txt",
+      "bytes": 6800,
+      "sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.json",
+      "bytes": 2269,
+      "sha256": "8daa9f106086bc0638a9c9b3d1547b84dc281f0f4848d5c4a2f7e16a793aebbd",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.txt",
+      "bytes": 44,
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-public-sync-02ff.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.json",
+      "bytes": 2106,
+      "sha256": "a0882ee78fd28a6674f01298d4e8674d259face65d8f867a5e8cf75abdee5a31",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-public-sync-02ff.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/full-recursive-diff.json",
+      "bytes": 4387,
+      "sha256": "88493c0421c4999a21c98cc08d2e107c6a8d32558f8c84e1ce608052acd67132",
+      "original_path": "/tmp/e02-B-successor-openapi-02ff/full-recursive-diff.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-launch.source.txt",
+      "bytes": 1473,
+      "sha256": "95d86ed9a5f8df1cfed6e68c636cc52ee880425db9521fa91fb4f64ae4082307",
+      "original_path": "/tmp/e02-B-successor-openapi-launch.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync-launch.source.txt",
+      "bytes": 1099,
+      "sha256": "e1201295af3673d7bfff18f6f2e758c8f349a36abbb0d0b3406c7b8b1301bd6c",
+      "original_path": "/tmp/e02-B-successor-public-sync-launch.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.txt",
+      "bytes": 226,
+      "sha256": "cb299935d7449081b4081a0c0abb488c063695f53bd5e0e10915815e858594d3",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step0.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.json",
+      "bytes": 2314,
+      "sha256": "522582f0d167d4cf5d552ce0d2eff1b8b2f488b0c547ddb685a2f990c67ee54c",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step0.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step1.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.json",
+      "bytes": 2151,
+      "sha256": "ced4159f2ffbe20a6cf292a038501f6f31aa86aaa54904abc43984749d423532",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step1.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.txt",
+      "bytes": 104,
+      "sha256": "6e09243b29671e6f6a7eb312f4512c9d801a627c9f380d4be9efdbdc729dd7a5",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step2.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.json",
+      "bytes": 2360,
+      "sha256": "d718dd2e41de66c97107320fbc5799e144bf568bf54aed6376623039e7df6aa1",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step2.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step3.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.json",
+      "bytes": 2564,
+      "sha256": "4596311b1c2cccbdd6b7db0fb3cfa44fddcb7cb81e08064bc101f0252d2382f2",
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step3.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-result.json",
+      "bytes": 3121,
+      "sha256": "56a59b9df1be715e3123d92ec2512414c40ca98b323bdc7c0366ca0b00bf7a86",
+      "original_path": "/tmp/e02-B-successor-client-421/result.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-launch.source.txt",
+      "bytes": 3317,
+      "sha256": "13c8bd67b05746dc4135a48199fc247a5ff759f33ae5dfbeda4df133b52a5ab9",
+      "original_path": "/tmp/e02-B-successor-client-421-launch.py"
+    }
+  ]
+}

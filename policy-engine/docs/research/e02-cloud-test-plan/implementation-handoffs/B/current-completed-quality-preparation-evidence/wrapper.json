@@ -1,0 +1,131 @@
+{
+  "schema": "policyos.e02.author_preparation.v1",
+  "source_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+  "source_tree": "72b126a050dbe8e7fa8de46c0c8e9998debd2315",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "Python 3.14.2",
+  "source_status_after": "",
+  "checks": [
+    {
+      "id": "ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.04220155600341968,
+      "output_path": "/tmp/e02-B-completed-quality-preparation-36957513/ruff.txt",
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "output_bytes": 19,
+      "grade": "Author preparation only; no quality gate/native/wheel executed"
+    },
+    {
+      "id": "format",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.0384731300000567,
+      "output_path": "/tmp/e02-B-completed-quality-preparation-36957513/format.txt",
+      "output_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "output_bytes": 25,
+      "grade": "Author preparation only; no quality gate/native/wheel executed"
+    },
+    {
+      "id": "help",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+        "--help"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.05483402800746262,
+      "output_path": "/tmp/e02-B-completed-quality-preparation-36957513/help.txt",
+      "output_sha256": "a2e38508e2568d4483604d2b49de5074355bb6569193e5366df608173d952068",
+      "output_bytes": 752,
+      "grade": "Author preparation only; no quality gate/native/wheel executed"
+    },
+    {
+      "id": "invalid-source-admission",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+        "--sha",
+        "bad",
+        "--gate",
+        "ruff",
+        "--scratch",
+        "/tmp/e02-B-completed-quality-preparation-36957513/must-not-be-created"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.05571078399952967,
+      "output_path": "/tmp/e02-B-completed-quality-preparation-36957513/invalid-source-admission.txt",
+      "output_sha256": "67f738d4e4ca95f1d9441a5d32235cfa9bc8895731f855d2b746eb5ed93a8c09",
+      "output_bytes": 780,
+      "grade": "Author preparation only; no quality gate/native/wheel executed"
+    },
+    {
+      "id": "syntax-and-declared-target-census",
+      "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "outcome": "PASS",
+      "source_sha256": "c378b81b1dc0b3cd61cefdc7d795e5fab364c708e653c438049bb467c538f17e",
+      "source_bytes": 16407,
+      "mypy_groups": {
+        "ledger_middleware": [
+          "scientist/orchestration/engine/budget_ledger.py",
+          "scientist/orchestration/engine/budget_middleware.py"
+        ],
+        "core_llm": [
+          "core/llm/response.py",
+          "core/llm/settlement.py",
+          "core/llm/traced_client.py"
+        ],
+        "upper_llm": [
+          "scientist/orchestration/llm/gateway_client.py",
+          "scientist/orchestration/llm/prompt_cache.py",
+          "scientist/orchestration/llm/budget_enforcer.py"
+        ],
+        "method_composition": [
+          "foundry/methods/artifacts/parts.py",
+          "foundry/methods/artifacts/_chain.py",
+          "foundry/methods/components/composer.py"
+        ],
+        "executor": [
+          "scientist/orchestration/engine/executor.py"
+        ]
+      },
+      "mypy_target_count": 12,
+      "grade": "Complete AST literal and syntax only; no imports or gates executed"
+    }
+  ],
+  "all_quality_gates": "UNRUN",
+  "wheel_build": "UNRUN",
+  "future_final_source": "not_yet_supplied",
+  "limitations": [
+    "No execution proves changed-file census or gate completion yet",
+    "Invalid-source negative stops before target Git read, input admission or scratch creation"
+  ]
+}

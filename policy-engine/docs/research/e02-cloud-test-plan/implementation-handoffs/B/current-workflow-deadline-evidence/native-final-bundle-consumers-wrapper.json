@@ -1,0 +1,58 @@
+{
+  "source_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+  "source_tree": "1fa3889f9fa5d216ab54357de6a680d03c4621d4",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "18a3c914d1503301308188d89474ddea80ca4be65a0a0f0bfca922fa2aea86df",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/input-closure.json",
+    "sha256": "50747331c10b9cb5210799dc5de82044c1aaf7347aaa9b50982892ae97984da9",
+    "paths": 2732,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T14:07:21.816781+00:00",
+  "end_utc": "2026-10-06T14:07:39.741797+00:00",
+  "wall_s": 17.82588746199326,
+  "max_rss_kib": 567456,
+  "exit": 0,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/cohort.xml",
+      "sha256": "33647716525e367983a4b4989b8a38810e580365bde70e3adac43770b85cb532",
+      "bytes": 1803
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/input-closure.json",
+      "sha256": "50747331c10b9cb5210799dc5de82044c1aaf7347aaa9b50982892ae97984da9",
+      "bytes": 519041
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/native.txt",
+      "sha256": "585ba42829657b9e2d56f8614be6c3365a8405474eed008559511ab50f2ffcfb",
+      "bytes": 80
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+src/polisyos/foundry/methods/components/composer.py:23: error: Module "polisyos.foundry.methods.base" has no attribute "_stable_digest"  [attr-defined]
+src/polisyos/foundry/methods/components/composer.py:72: error: Returning Any from function declared to return "str"  [no-any-return]
+src/polisyos/foundry/methods/components/composer.py:872: error: Item "None" of "NodeKey | None" has no attribute "static_params_digest"  [union-attr]
+Found 3 errors in 1 file (checked 3 source files)

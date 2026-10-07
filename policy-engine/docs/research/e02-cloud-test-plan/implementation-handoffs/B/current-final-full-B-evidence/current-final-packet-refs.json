@@ -1,0 +1,38 @@
+[
+  {
+    "commit": "da0fd9abba7a6be9871503224962c7419321ead0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review.json"
+  },
+  {
+    "commit": "d539717f2720ef4f202e6cb265e23b99cb4a5018",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent.json"
+  },
+  {
+    "commit": "0b0a524c7e51cf714102374d8d2a715a9bedc5e9",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-independent.json"
+  },
+  {
+    "commit": "80ffac038e92eaf904d1939dc84bf4ba76b124bd",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review.json"
+  },
+  {
+    "commit": "c61ec2652c06b1e404c76379bf994dff1a789f11",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-independent.json"
+  },
+  {
+    "commit": "7af0b486f8434185204abf98863e54cac16fe431",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers.json"
+  },
+  {
+    "commit": "b6c4d27a23d78feb8c081be9e9024051805a647b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-handoff.json"
+  },
+  {
+    "commit": "df945de549d9d31ca56c5b3b7fab6a1e29d09361",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent.json"
+  },
+  {
+    "commit": "e6f947151a4837578e5263aca5ab2fd2dab2876d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review.json"
+  }
+]

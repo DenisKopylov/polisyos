@@ -1,0 +1,890 @@
+{
+  "schema": "policyos.e02.explicit_evidence_graph_audit.v1",
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "receipt_count": 21,
+  "unique_explicit_git_objects": 890,
+  "unique_git_object_bytes": 18222945,
+  "mismatches": [],
+  "unresolved_reference_rows": [
+    {
+      "origin": "current-durable-completion-obligations.json.admission.create_receipt",
+      "path": "/workspace/e02-B-current-admission/durability-create.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-durable-completion-obligations.json.admission.resume_receipt",
+      "path": "/workspace/e02-B-current-admission/durability-resume.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-shared-flight-independent-review.json.checks[0].input_closure.actual_input",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-shared-flight-independent-review.json.checks[0].input_closure.tracked_profile",
+      "path": "policy-engine/pyproject.toml",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-shared-flight-independent-review.json.checks[0].input_closure.tracked_dependency_lock",
+      "path": "policy-engine/uv.lock",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-async-cache-cost.json.checks[0].input_closure.all_tracked_src_config_test_inventory",
+      "path": "/tmp/e02-B52-cache-cost-c043/evidence/source-context.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-async-cache-cost.json.checks[0].input_closure.all_loaded_origin_identity",
+      "path": "/tmp/e02-B52-cache-cost-c043/evidence/module-origins.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-async-cache-cost.json.checks[1].input_closure.all_tracked_src_config_test_inventory",
+      "path": "/tmp/e02-B52-cache-cost-c043/removal/source-context.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-async-cache-cost.json.checks[1].input_closure.all_loaded_origin_identity",
+      "path": "/tmp/e02-B52-cache-cost-c043/removal/module-origins.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-compiled-chain-plan.json.independent_reviews.source_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent.json",
+      "ref": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-chain-plan.json.independent_reviews.consumer_oracle",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+      "ref": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[0].input_closure.literal_executed_instruments[0]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_run.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[0].input_closure.literal_executed_instruments[1]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_origins.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[1].input_closure.literal_executed_instruments[0]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_run.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[1].input_closure.literal_executed_instruments[1]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_origins.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[2].input_closure.literal_executed_instruments[0]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_run.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[2].input_closure.literal_executed_instruments[1]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_origins.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[3].input_closure.literal_executed_instruments[0]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_run.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[3].input_closure.literal_executed_instruments[1]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_origins.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[3].input_closure.literal_executed_instruments[2]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/removal_plan.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[4].input_closure.literal_executed_instruments[0]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_run.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[4].input_closure.literal_executed_instruments[1]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_origins.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[4].input_closure.literal_executed_instruments[2]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/removal_preparation.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[5].input_closure.literal_executed_instruments[0]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_run.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[5].input_closure.literal_executed_instruments[1]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_origins.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[5].input_closure.literal_executed_instruments[2]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/removal_seed.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[6].input_closure.literal_executed_instruments[0]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_run_final.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[6].input_closure.literal_executed_instruments[1]",
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_origins_final.py",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[0].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/first-f563/native-stdout.txt",
+      "ref": "ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:9ddecf3ee06cc24da4f99859ac13acab8df06eaccab5abf2ce2136f388ea892c bytes:46231 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[1].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/second-e69/native-stdout.txt",
+      "ref": "ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:e2d1ed4a6594d9de9c1fbc51593c50f14568522532c47252727ef339204b79b6 bytes:28211 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[2].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-9ce/native-stdout.txt",
+      "ref": "ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:819484317b4403b0da130701f0925ef3fda8d2004c9d06f4caf7158f6b2e8204 bytes:8257 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[3].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-plan/native-stdout.txt",
+      "ref": "ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:3de114c88d9c756e08c730c3a688d25be894916eddaaec94b66a08dce88b99d6 bytes:10151 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[4].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-preparation/native-stdout.txt",
+      "ref": "ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:1861bcd797764c69d827ce199733c05cbef4614bca6000dadc8cadc6f35f7f0e bytes:4518 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[5].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-seed/native-stdout.txt",
+      "ref": "ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:ab32e7d59feaad6f6f7dfb7dbd28260ce35a11ec0deefcd9966b08d6badb5ad9 bytes:5185 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "compiled-plan-consumer-oracle.json.checks[6].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/native-stdout.txt",
+      "ref": "ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:7eb649d830dc263750aae0b41238c94ccf41a6ed3311f89bb469e5875d5b8724 bytes:8263 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[2].input_closure.source_before_after_wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[2].wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[2].xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.xml",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[3].input_closure.source_before_after_wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[3].wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[3].xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.xml",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[4].input_closure.source_before_after_wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[4].wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[4].xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.xml",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[5].input_closure.source_before_after_wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[5].wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[5].xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.xml",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[6].input_closure.source_before_after_wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[6].wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[7].input_closure.source_before_after_wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[7].wrapper",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.evidence.foreign_complete_index",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/evidence-index.json",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[2].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.txt",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[3].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.txt",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[4].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.txt",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[5].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.txt",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[6].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.txt",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-source-independent.json.checks[7].output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.txt",
+      "ref": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-final-custody-handoff.json.checks[1].input_closure.canonical_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json",
+      "ref": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-final-custody-handoff.json.checks[2].input_closure.canonical_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+      "ref": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-final-custody-handoff.json.checks[3].input_closure.canonical_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-review.json",
+      "ref": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-final-custody-handoff.json.finding_dispositions[0].deciding_refs[0]",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json",
+      "ref": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-final-custody-handoff.json.finding_dispositions[0].deciding_refs[1]",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+      "ref": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-final-custody-handoff.json.evidence.canonical_CMP",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json",
+      "ref": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-final-custody-handoff.json.evidence.canonical_CAS",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+      "ref": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-compiled-plan-final-custody-handoff.json.evidence.canonical_RUN",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-review.json",
+      "ref": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-stub-freshness.json.independent_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review.json",
+      "ref": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "reason": "Git object unavailable",
+      "returncode": 128
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[0].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[1].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[2].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[3].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[4].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[5].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[6].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[7].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[8].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[9].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[10].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[11].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.baseline_job_context[12].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.checks[0].input_closure.source_context",
+      "path": "/dev/shm/e02-B-llm-affected-31d613/source-context.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.raw_only[0]",
+      "path": "/dev/shm/e02-B-llm-affected-31d613/source-context.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-llm-completion-repair.json.index.raw_only[0]",
+      "path": "/dev/shm/e02-B-llm-affected-31d613/source-context.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.raw_only[0]",
+      "path": "/dev/shm/e02-B-workers-native-4b368/source-context.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[0].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[1].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[2].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[3].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[4].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[5].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[6].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[7].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[8].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[9].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[10].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[11].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.baseline_job_context[12].transferred_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-policy-worker-accounting.json.index.raw_only[0]",
+      "path": "/dev/shm/e02-B-workers-native-4b368/source-context.json",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-worker-accounting-repair-independent.json.canonical_criteria.source",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-opa-ci-backend.json.checks[0].input_closure.exact_binary_asset",
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-opa-ci-backend.json.checks[1].input_closure.exact_binary_asset",
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-opa-ci-backend.json.checks[2].input_closure.exact_binary_asset",
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-opa-ci-backend.json.checks[3].input_closure.exact_binary_asset",
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    },
+    {
+      "origin": "current-opa-ci-backend.json.checks[4].input_closure.exact_binary_asset",
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+      "ref": null,
+      "reason": "No explicit receiver-available immutable Git binding."
+    }
+  ],
+  "receipts": [
+    {
+      "name": "current-durable-completion-obligations.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 35016,
+      "sha256": "f7e1e64f9144dd5a331214c28a36698f35aa537ff0e6a28dd90f69be6a720788",
+      "evidence_tip": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "check_count": 6
+    },
+    {
+      "name": "current-llm-completion-source-independent-review.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 18466,
+      "sha256": "8754722689e07ef33301b774627a75ff2e0559af375325a493a74bc7b8d399ee",
+      "evidence_tip": "e853235ce5516ae4e3347d630fc8925b517c1b69",
+      "check_count": 1
+    },
+    {
+      "name": "current-required-audit-recovery-candidate.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 146314,
+      "sha256": "89b1a76d05955adf6b219546a39ab79c95b9c1058b4da6f77f81baed1d39ed63",
+      "evidence_tip": "226ee27ac90819f471f2c031be299e6145abb95f",
+      "check_count": 2
+    },
+    {
+      "name": "current-shared-flight-independent-review.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 70444,
+      "sha256": "b699cefef5697967f3290f5002f513fd9a9228af628d0b08ff30a14b78fa925d",
+      "evidence_tip": "823a3f7b4e1eec20be5a2aac50cf80830319a881",
+      "check_count": 3
+    },
+    {
+      "name": "current-async-cache-cost.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 55309,
+      "sha256": "27e8aabf39fd255056e9323d41055eef3cc096000b436f3e71dc405e8019fac4",
+      "evidence_tip": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+      "check_count": 7
+    },
+    {
+      "name": "current-compiled-chain-plan.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 77658,
+      "sha256": "bec3267b25dd757b4d67b5ea85bd8904bb624727feedb1c16c29e2de822095f4",
+      "evidence_tip": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "check_count": 19
+    },
+    {
+      "name": "compiled-plan-consumer-oracle.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 282230,
+      "sha256": "318d97c4ea1e0880614a469fce35883cf2c897fc2290498422687b884f000c83",
+      "evidence_tip": "ec8ec7c3eeb708bb82975be18b7750d8951e811d",
+      "check_count": 7
+    },
+    {
+      "name": "current-compiled-plan-source-independent.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 38590,
+      "sha256": "88b2041ddb287331de03ebb4e69efbb27c4071c2b8fc6b42e91e39e01dfd1c6f",
+      "evidence_tip": "0d3ee9707d397a7066eb144345220f42e36d7386",
+      "check_count": 8
+    },
+    {
+      "name": "current-compiled-plan-final-custody-handoff.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 22671,
+      "sha256": "d2e124fb89d733d372f099ad4dd3a449600b72cb0e4c2eacec41fca870f8f734",
+      "evidence_tip": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "check_count": 4
+    },
+    {
+      "name": "current-completed-cohort-launcher-review.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 12654,
+      "sha256": "7d13a2e9f203b586bf5dc9f10356739284aef3d5948a897339f480a96dac9090",
+      "evidence_tip": "d3b1d120c1da97d556a907a4ba4658c70f245030",
+      "check_count": 2
+    },
+    {
+      "name": "completion-admission-consumer-oracle.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 75978,
+      "sha256": "e21195c3b4ba60c5fa2452c7b898666a3e4cd3df42642568cb7a3c327ba413df",
+      "evidence_tip": "533985871f1320c8a2c3bc525e96e8f98f13e13b",
+      "check_count": 5
+    },
+    {
+      "name": "current-stub-freshness.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 60521,
+      "sha256": "4b4cd7477fb311b3c668b5c67df4eb2ee6e4f12529ced29a9a40ae3387a4dd3f",
+      "evidence_tip": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "check_count": 14
+    },
+    {
+      "name": "current-stub-freshness-independent-review.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 6048,
+      "sha256": "b79842b9189403574da44447a8d1e29355e6c49dd7ab3f636277208c5dd91280",
+      "evidence_tip": "f67fedf84388a00ddc724553d52de996d5453748",
+      "check_count": 1
+    },
+    {
+      "name": "current-llm-completion-repair.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 238204,
+      "sha256": "0f090915c51977633043f19086ebaa0ab0dc402484efb3167ac665513e419268",
+      "evidence_tip": "82f7656a3848225c615dfef8c363e914dafe7e3e",
+      "check_count": 13
+    },
+    {
+      "name": "current-policy-worker-accounting.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 150417,
+      "sha256": "a0f821c3c9dd2864c36e07973c222742dcddd3df606e821ceb5eb2ba4a03406b",
+      "evidence_tip": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+      "check_count": 5
+    },
+    {
+      "name": "current-worker-accounting-repair-independent.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 32317,
+      "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd",
+      "evidence_tip": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+      "check_count": 3
+    },
+    {
+      "name": "current-completed-quality-worker-targets-review.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 11940,
+      "sha256": "36d57cfaadb5e84e5106c651ec6b202eab58df460c60aa404c8c8dab50251060",
+      "evidence_tip": "a8f84f7d67a96b9668af7042eab7c137b0d6cb35",
+      "check_count": 2
+    },
+    {
+      "name": "current-worker-accounting-source-review.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 19003,
+      "sha256": "c82a5afe59eea1df38241d0b9a3d3470f49a7ad676768a0016e091605c2b6373",
+      "evidence_tip": "af17567389e255ae561cf86db6f068e385b5a9da",
+      "check_count": 2
+    },
+    {
+      "name": "current-opa-ci-backend.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 32260,
+      "sha256": "74e831f212e2e2db3c088f2d06b9cb8115655fd174a34047f2f3e893a283b6a9",
+      "evidence_tip": "06b4ea123c918b35e8161026f7095baaac3ef6fd",
+      "check_count": 5
+    },
+    {
+      "name": "current-completed-generated-companions.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 25461,
+      "sha256": "3aa66e9e6110adc764e2720f84df130fa82831a43187bb691eeed4942ef7d851",
+      "evidence_tip": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "check_count": 7
+    },
+    {
+      "name": "current-root-generated-companion-independent-review.json",
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "receipt_bytes": 7737,
+      "sha256": "eaa82a49746262693c6079845b7d634b6d50c0fd5a6eec4673321274f0f4115c",
+      "evidence_tip": "1fced22064e26135ce3555f89b4cf21f4859ee54",
+      "check_count": 1
+    }
+  ],
+  "indices": [
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-obligations.json",
+      "index_sha": "19d5feae86d6121c953082f00919d52766c3c24b",
+      "index_bytes": 3861,
+      "sha256": "936e7641316de52d78ef3a0641d02f19b535c39efb2c36dcc9180873e0657a43"
+    },
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-review.json",
+      "index_sha": "e853235ce5516ae4e3347d630fc8925b517c1b69",
+      "index_bytes": 1439,
+      "sha256": "1818d6b83af4c7238187623da69b9a0877abbd42ec3fee273b2b43197524f90c"
+    },
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost.json",
+      "index_sha": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+      "index_bytes": 14162,
+      "sha256": "9ed54e689013ac81a3413c61731972915448c7f6105ed8f4b9b0addbb5e096b2"
+    },
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-repair.json",
+      "index_sha": "82f7656a3848225c615dfef8c363e914dafe7e3e",
+      "index_bytes": 20870,
+      "sha256": "483bc7624394f9b741a0ee67bb79a7474be64088c6db6873d7945ccdb9e9fdcb"
+    },
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting.json",
+      "index_sha": "047a66ec62eab6fdc5f220eae6e5d35479ddc8ce",
+      "index_bytes": 7595,
+      "sha256": "b78d42994d4138ea539d5ad68c91ba22fd31b74ced90527bf18cc1609e0debe0"
+    },
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-companions.json",
+      "index_sha": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+      "index_bytes": 5445,
+      "sha256": "ac21c0a1fe33412f2c84ed094e7eb4cb6a9cd5e14c0742b950c2ecc34e95f3cc"
+    },
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-root-generated-companion-independent-review.json",
+      "index_sha": "1fced22064e26135ce3555f89b4cf21f4859ee54",
+      "index_bytes": 928,
+      "sha256": "a3c81ef1711217d6e5222adc7458e7a98f66bbb1aa93aa7daf0107163cf5ef48"
+    }
+  ],
+  "claim_grade": "Exact declared Git source/evidence bytes only; no replay, runtime verdict, implicit absolute raw availability, institution owner authority, or historic PASS transplantation."
+}

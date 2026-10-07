@@ -1,0 +1,138 @@
+{
+  "kind": "independent_source_retention_only",
+  "command": "python3 .polisyos/e02-B-current-runtime/final-run-consumer-review/source-audit.py",
+  "cwd": "/workspace/e02-B-current-runtime",
+  "reviewer_head": "7cbde21de57765c37af5384cb80b85267119a4f5",
+  "target": {
+    "sha": "456f34938731b1ef11555d8333d011d3552574ec",
+    "tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502"
+  },
+  "denominator": {
+    "complete_declared_path_set": 7,
+    "native_cases_observed_by_this_audit": 0
+  },
+  "rows": [
+    {
+      "origin": {
+        "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "path": "policy-engine/src/polisyos/common/async_tools.py",
+        "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+        "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+        "bytes": 11846
+      },
+      "current": {
+        "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "path": "policy-engine/src/polisyos/common/async_tools.py",
+        "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+        "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+        "bytes": 11846
+      },
+      "byte_equal": true
+    },
+    {
+      "origin": {
+        "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "git_blob": "00c18c9a11fdaf69331651ee291fe0fec334e5ab",
+        "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+        "bytes": 79312
+      },
+      "current": {
+        "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "git_blob": "00c18c9a11fdaf69331651ee291fe0fec334e5ab",
+        "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+        "bytes": 79312
+      },
+      "byte_equal": true
+    },
+    {
+      "origin": {
+        "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "path": "policy-engine/tests/unit/common/test_async_tools.py",
+        "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+        "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+        "bytes": 15730
+      },
+      "current": {
+        "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "path": "policy-engine/tests/unit/common/test_async_tools.py",
+        "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+        "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5",
+        "bytes": 15730
+      },
+      "byte_equal": true
+    },
+    {
+      "origin": {
+        "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+        "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+        "bytes": 79749
+      },
+      "current": {
+        "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+        "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+        "bytes": 79749
+      },
+      "byte_equal": true
+    },
+    {
+      "origin": {
+        "at_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+        "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+        "git_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+        "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c",
+        "bytes": 14399
+      },
+      "current": {
+        "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+        "git_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+        "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c",
+        "bytes": 14399
+      },
+      "byte_equal": true
+    },
+    {
+      "origin": {
+        "at_sha": "bcfc9c82615965578ed250effa6108a763f5dea9",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+        "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+        "bytes": 102653
+      },
+      "current": {
+        "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+        "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+        "bytes": 102653
+      },
+      "byte_equal": true
+    },
+    {
+      "origin": {
+        "at_sha": "bcfc9c82615965578ed250effa6108a763f5dea9",
+        "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+        "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+        "bytes": 7518
+      },
+      "current": {
+        "at_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+        "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+        "bytes": 7518
+      },
+      "byte_equal": true
+    }
+  ],
+  "all_byte_equal": true,
+  "scope": "Source/input retention; no new runtime result, complete fresh root census, future freeze identity, production dataset or G finding closure inferred.",
+  "LA_qualification": "a625 full-root tracked census6444; preliminary product-cwd census6442 omitted two repo-root Python paths. Retained function-local generic semantics only; this audit does not recompute final full-tree consumers."
+}

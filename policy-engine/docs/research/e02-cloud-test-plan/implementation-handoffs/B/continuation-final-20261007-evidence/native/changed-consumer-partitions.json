@@ -1,0 +1,411 @@
+{
+  "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "role": "Actual six changed-file JUnit partitions; no re-execution or body-entry inference from collection",
+  "rows": [
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+      "JUnit_class_prefix": "tests.unit.foundry.methods.backends.test_imported_module_checkpoint_identity",
+      "count": 4,
+      "partition": {
+        "ERROR": 4
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_imported_module_checkpoint_identity",
+          "name": "test_unchanged_imported_member_resumes_real_persisted_prefix",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_imported_module_checkpoint_identity",
+          "name": "test_same_version_imported_member_change_refuses_before_replacement_effect",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_imported_module_checkpoint_identity",
+          "name": "test_unchanged_imported_builtin_has_real_cold_resume_parity",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_imported_module_checkpoint_identity",
+          "name": "test_dynamic_import_is_refused_before_any_checkpoint_consumer_effect",
+          "status": "ERROR"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "JUnit_class_prefix": "tests.unit.foundry.methods.backends.test_module_source_identity",
+      "count": 13,
+      "partition": {
+        "ERROR": 13
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_returned_frame_namespace_refuses_before_replacement_effect",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_same_version_imported_member_change_refuses_actual_stale_prefix",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_unchanged_imported_builtin_retains_actual_arithmetic_resume",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_selected_constant_and_nested_module_are_bound_before_resume[_ImportedConstantSource]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_selected_constant_and_nested_module_are_bound_before_resume[_NestedSource]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_selected_constant_and_nested_module_are_bound_before_resume[_NestedFunctionSource]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_unselected_module_member_does_not_invalidate_real_prefix",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_unsupported_module_access_refuses_before_actual_dispatch[_ReflectiveSource]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_unsupported_module_access_refuses_before_actual_dispatch[_TransportSource]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_unsupported_module_access_refuses_before_actual_dispatch[_MutableModuleSource]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_unsupported_module_access_refuses_before_actual_dispatch[_DynamicImportSource]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_unsupported_module_access_refuses_before_actual_dispatch[_LocalImportSource]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+          "name": "test_unsupported_module_access_refuses_before_actual_dispatch[_NamespaceSource]",
+          "status": "ERROR"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+      "JUnit_class_prefix": "tests.unit.runtime.http.services.test_b_llm_cost_projection_consumer_e02",
+      "count": 4,
+      "partition": {
+        "ERROR": 4
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.runtime.http.services.test_b_llm_cost_projection_consumer_e02",
+          "name": "test_producer_ledger_truth_survives_a_optional_projection[unknown]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.runtime.http.services.test_b_llm_cost_projection_consumer_e02",
+          "name": "test_producer_ledger_truth_survives_a_optional_projection[reported-zero]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.runtime.http.services.test_b_llm_cost_projection_consumer_e02",
+          "name": "test_producer_ledger_truth_survives_a_optional_projection[reported-positive]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.runtime.http.services.test_b_llm_cost_projection_consumer_e02",
+          "name": "test_producer_ledger_truth_survives_a_optional_projection[estimated]",
+          "status": "ERROR"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+      "JUnit_class_prefix": "tests.unit.scientist.orchestration.engine.test_budget_llm_process_recovery",
+      "count": 3,
+      "partition": {
+        "ERROR": 3
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.test_budget_llm_process_recovery",
+          "name": "test_real_sdk_process_recovery_keeps_effect_accounting_and_audit_distinct[healthy]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.test_budget_llm_process_recovery",
+          "name": "test_real_sdk_process_recovery_keeps_effect_accounting_and_audit_distinct[cancel]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.test_budget_llm_process_recovery",
+          "name": "test_real_sdk_process_recovery_keeps_effect_accounting_and_audit_distinct[kill]",
+          "status": "ERROR"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+      "JUnit_class_prefix": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+      "count": 15,
+      "partition": {
+        "ERROR": 15
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[missing]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[null]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[integer-zero]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[boolean-true]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[boolean-false]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[nan]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]",
+          "status": "ERROR"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer",
+          "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]",
+          "status": "ERROR"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+      "JUnit_class_prefix": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+      "count": 30,
+      "partition": {
+        "PASS": 30
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_reported_known_cost_remains_known[0]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_reported_known_cost_remains_known[0.0]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_reported_known_cost_remains_known[-0.0]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_reported_known_cost_remains_known[0e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_reported_known_cost_remains_known[0.02]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_invalid_cost_does_not_gain_reported_zero_authority[true]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_invalid_cost_does_not_gain_reported_zero_authority[false]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_invalid_cost_does_not_gain_reported_zero_authority[NaN]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_invalid_cost_does_not_gain_reported_zero_authority[Infinity]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_invalid_cost_does_not_gain_reported_zero_authority[-Infinity]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-base_cost_usd]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-platform_fee_usd]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-base_cost_usd]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-platform_fee_usd]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[1e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[-1e-1000]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[0.9999999999999999999999]",
+          "status": "PASS"
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.llm.test_gateway_numeric_decode",
+          "name": "test_http_top_level_cost_and_ordinary_tool_arguments_keep_separate_contracts",
+          "status": "PASS"
+        }
+      ]
+    }
+  ]
+}

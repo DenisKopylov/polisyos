@@ -1,0 +1,220 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-executor-format",
+  "bundle_ids": [
+    "EXE-01",
+    "EXE-02"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "8537cda8bde4c60d0274cb5edfc1cc1c305adf40",
+  "implementation_commits": [
+    "19ce51076cf910d34ad9b49e2964d9c18900c52b"
+  ],
+  "candidate_sha": "19ce51076cf910d34ad9b49e2964d9c18900c52b",
+  "candidate_tree_sha": "832d66f3bbf53cca103f288f4a97b7403b055239",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py"
+  ],
+  "source_changed_paths": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py"
+  ],
+  "handoff_evidence_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/ast-comparison.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/compare.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-after.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-apply.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-before.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/evidence-index.json"
+  ],
+  "baseline_cells": [],
+  "baseline_qualification": "Mechanicalformat property uses exact DD source bytes and actual DD fullformatoutput at published B/current-successor-final-gate-independent-review.json historical packet; no finding/cell closure or baseline runtime attributed to new source.",
+  "checks": [
+    {
+      "kind": "Actual literal narrow Ruff command",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "src/polisyos/scientist/orchestration/engine/executor.py"
+      ],
+      "target_sha": "8537cda8bde4c60d0274cb5edfc1cc1c305adf40",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "ruff_version": "0.14.10",
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "shared_environment_mutation": false
+      },
+      "input_closure": {
+        "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "source_sha256": "7dd103dcaf4deed17d3f5612d96f3b0283991096922518cbf929bd91e3e6c520",
+        "checked_before_commit": "Postformat checks ran on authored working bytes, byteidentical exact candidate Git object; onlyone sourcepathdirty.",
+        "source_file_input_count": 1
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-before.txt",
+        "bytes": 100,
+        "sha256": "78ddd832eff07672fef1a884efe967cb516a58a4a533376870c3e093c0ff5382"
+      },
+      "capture_qualification": "Complete actual exec_command stdout preserved verbatim, no repeatcommand or invented wrapper/measurement."
+    },
+    {
+      "kind": "Actual literal narrow Ruff command",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--no-cache",
+        "src/polisyos/scientist/orchestration/engine/executor.py"
+      ],
+      "target_sha": "19ce51076cf910d34ad9b49e2964d9c18900c52b",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "ruff_version": "0.14.10",
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "shared_environment_mutation": false
+      },
+      "input_closure": {
+        "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "source_sha256": "19f04157cd395d404ebfe948f3ba6ae0fd40a9c7c888cb6e56b1cc0905114087",
+        "checked_before_commit": "Postformat checks ran on authored working bytes, byteidentical exact candidate Git object; onlyone sourcepathdirty.",
+        "source_file_input_count": 1
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-apply.txt",
+        "bytes": 19,
+        "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+      },
+      "capture_qualification": "Complete actual exec_command stdout preserved verbatim, no repeatcommand or invented wrapper/measurement."
+    },
+    {
+      "kind": "Actual literal narrow Ruff command",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "src/polisyos/scientist/orchestration/engine/executor.py"
+      ],
+      "target_sha": "19ce51076cf910d34ad9b49e2964d9c18900c52b",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "ruff_version": "0.14.10",
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "shared_environment_mutation": false
+      },
+      "input_closure": {
+        "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "source_sha256": "19f04157cd395d404ebfe948f3ba6ae0fd40a9c7c888cb6e56b1cc0905114087",
+        "checked_before_commit": "Postformat checks ran on authored working bytes, byteidentical exact candidate Git object; onlyone sourcepathdirty.",
+        "source_file_input_count": 1
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/format-after.txt",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "capture_qualification": "Complete actual exec_command stdout preserved verbatim, no repeatcommand or invented wrapper/measurement."
+    },
+    {
+      "kind": "Actual literal narrow Ruff command",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/scientist/orchestration/engine/executor.py"
+      ],
+      "target_sha": "19ce51076cf910d34ad9b49e2964d9c18900c52b",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "ruff_version": "0.14.10",
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "shared_environment_mutation": false
+      },
+      "input_closure": {
+        "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "source_sha256": "19f04157cd395d404ebfe948f3ba6ae0fd40a9c7c888cb6e56b1cc0905114087",
+        "checked_before_commit": "Postformat checks ran on authored working bytes, byteidentical exact candidate Git object; onlyone sourcepathdirty.",
+        "source_file_input_count": 1
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/ruff.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "capture_qualification": "Complete actual exec_command stdout preserved verbatim, no repeatcommand or invented wrapper/measurement."
+    },
+    {
+      "kind": "Complete immutable AST/API syntax compare",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "-B",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/compare.source.txt"
+      ],
+      "target_sha": "19ce51076cf910d34ad9b49e2964d9c18900c52b",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "native": "UNRUN",
+        "product_imports": "UNRUN"
+      },
+      "input_closure": {
+        "base": "8537cda8bde4c60d0274cb5edfc1cc1c305adf40",
+        "candidate": "19ce51076cf910d34ad9b49e2964d9c18900c52b",
+        "source_before_byte_equal_to": "dd9584728bd96f204983615216efdbc58117e713",
+        "instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/compare.source.txt",
+          "bytes": 2373,
+          "sha256": "947dae917fa7dfb2a08846df0b1f118896946a2d642bded85d077ec1ae133cdc"
+        }
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/ast-comparison.txt",
+        "bytes": 2842,
+        "sha256": "0a5be548ae9cc8b163a789efafc8b0fd0227828b19f80f0a034eb89967eac09a"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Canonical synchronous executor passes literal Ruff formatting with complete AST/API unchanged.",
+    "source_scope": "Exactly one canonical file; line/column metadata changes with formatting, all56definitions/signatures/defaults/decorators/annotations/docstrings/executable bodies included in full AST comparison.",
+    "full_AST_sha256": "2a8a835ee6a777b5ea9a64fc06d0682ea234acb3ce34dda69ddf413eea2e46b7",
+    "negative": "Same exact DD beforebytes produce actual formatter FAIL.",
+    "runtime": "UNRUN; final root affected consumer replay remains separate."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Single-file formatter property PASS; no product runtime/fullcriterion/globalgate closure",
+  "limitations_and_next_owner": [
+    "Root independently reviews exact style delta/AST and repeats meaningful affected executor checks on final composed source; author does not supply independent mechanism acceptance.",
+    "Actual DD fullgate102format failures/4441Ruff diagnostics and native nonpasses retain original commands and source. This one-file style correction does not make the fullgate PASS or claim inherited P41.",
+    "No source/test/config changes outside owned executor; no newtests or native/collection/gate replay. No generated/publicAPI behavior change claimed."
+  ],
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-executor-format-evidence/evidence-index.json",
+    "bytes": 1606,
+    "sha256": "0ad475d0231e203b37094c1531bf027b11b8415c75da147ccacbb0c29ecce9e1"
+  },
+  "git_publication": "Pending normal topic push/readback at metadata commit; append-only history."
+}

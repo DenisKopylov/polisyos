@@ -1,0 +1,50 @@
+{
+  "checked_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "checked_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "full_cohort": {
+    "whole_files": 250,
+    "collected": 3882,
+    "harness": "EXECUTED",
+    "exit_code": -9,
+    "wall_s": 486.20474443299463,
+    "junit": "absent",
+    "inventory_state": "collection_finished_runtime_pending",
+    "persisted_runtime_phases": 0,
+    "terminal_partition": "not_established",
+    "stdout_observations": {
+      "rows": 1322,
+      "PASSED": 1290,
+      "FAILED": 16,
+      "ERROR": 16,
+      "grade": "Unjoined stdout observations only; no full-case PASS/FAIL/ERROR/SKIP/XFAIL/XPASS/UNRUN partition"
+    }
+  },
+  "affected": {
+    "whole_files": 47,
+    "cases": 807,
+    "PASS": 806,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0,
+    "XFAIL": 0,
+    "XPASS": 0,
+    "UNRUN": 0,
+    "phase_reports": 2421,
+    "failure": "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution; genuine vulnerabilities[] assertion",
+    "P41": "not_established; three raw fixture migration inputs changed, no exact slice-base full-input nonintersection waiver"
+  },
+  "prepared_retry": {
+    "state": "UNRUN; only literal derived operational source prepared",
+    "reason": "Actual retained RAM-backed filesystem pressure and insufficient established fresh file-backed capacity; no safe prerequisite for complete run established. Exact finite resource packet separately published by CAS.",
+    "source_preserving_delta": "Same250 selectors/order/wheel/PG/observer/pytest options; distinct tag and fresh file-backed scratch only. No actual replay result."
+  },
+  "preparation_failures": {
+    "actual_events": [
+      "First affected preparation used a nonexistent selector-map filename and refused before native execution.",
+      "First affected preparation omitted private PG file/driver admission inputs and refused before native execution, leaving only the original argsfile scratch."
+    ],
+    "original_full_console_bytes": "not_established in this packet; session observations only, not deciding runtime inputs or product failures.",
+    "retained_original_scratch": "/dev/shm/e02-B-completed-affected-1862c021df74"
+  },
+  "authority": "No production-data, permission-owner law, global gate acceptance or formal finding closure inferred from this output-custody publication."
+}

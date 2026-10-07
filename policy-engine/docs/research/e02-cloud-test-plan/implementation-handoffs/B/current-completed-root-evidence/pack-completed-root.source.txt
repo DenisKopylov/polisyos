@@ -1,0 +1,44 @@
+"""Publish exact moderate outputs; retain large raw instruments without inventing results."""
+from pathlib import Path
+import hashlib,json,shutil,subprocess
+ROOT=Path('/workspace/e02-B-current-coordination')
+SHA='1862c021df74a5c5815bc5cd21a20e61b30132b6'
+TREE='f765043b27b96a1fbb0795aa600db9bd94df0e36'
+RAW=ROOT/'.polisyos/e02-B-current/raw/review'
+B=ROOT/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B'
+OUT=B/'current-completed-root-evidence'
+def git(*a):return subprocess.check_output(['git','-C',str(ROOT),*a],text=True).strip()
+def identity(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+assert git('rev-parse','HEAD')==SHA and git('rev-parse','HEAD^{tree}')==TREE
+assert not git('status','--porcelain')
+OUT.mkdir(exist_ok=False)
+outputs=[]
+def copy(source,name=None):
+ p=Path(source);q=OUT/(name or p.name);shutil.copyfile(p,q);assert p.read_bytes()==q.read_bytes()
+ outputs.append({'source_actual':str(p),'committed_path':q.relative_to(ROOT).as_posix(),'bytes':q.stat().st_size,'sha256':hashlib.sha256(q.read_bytes()).hexdigest()})
+for tag in ['completed-final-B-cohort','completed-final-affected-consumers']:
+ wrapper=json.loads((RAW/(tag+'.json')).read_bytes());assert wrapper['head']==wrapper['head_after']==SHA and wrapper['tree']==TREE
+ assert wrapper['output_sha256']==hashlib.sha256((RAW/(tag+'.txt')).read_bytes()).hexdigest()
+ for suffix in ['.json','.txt','-profile.json']:copy(RAW/(tag+suffix))
+copy('/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml','native-affected.xml')
+copy(RAW/'completed-final-selector.json')
+copy(ROOT/'.polisyos/e02-B-current/tools/run_completed_affected.py','run-completed-affected.source.txt')
+copy(Path(__file__).resolve(),'pack-completed-root.source.txt')
+copy(ROOT/'.polisyos/e02-B-current/tools/run_completed_cohort_filebacked_retry.py','run-completed-cohort-filebacked-retry.source.txt')
+copy(RAW/'completed-final-B-cohort-filebacked-retry-derivation.json')
+inv=RAW/'completed-final-B-cohort-inventory.json';v=json.loads(inv.read_bytes())
+assert v['state']=='collection_finished_runtime_pending' and len(v['session_items_before_execution'])==3882
+assert not v['runtime_phase_reports'] and v['counts']['collection_failed']==0
+collection={'schema':'policyos.e02.actual_incomplete_collection_projection.v1','source_sha':SHA,'source_tree':TREE,'original_inventory':identity(inv),'original_state':v['state'],'original_counts':v['counts'],'projection_rule':'Only nodeid/path/location/originalname copied, in original order; no outcome or phase reconstruction.','items':[{'nodeid':x['nodeid'],'path':x['path'],'location':x['location'],'originalname':x['originalname']} for x in v['session_items_before_execution']],'runtime_terminal_partition':'not_established; abrupt process death and absent JUnit. Stdout observations remain independent unjoined observations.','generic27_terminal_parser':'UNRUN because inventory has no session_finished state or native JUnit; original profile grammar mismatch is explicitly qualified in EXE322fc, no alias/restamp.'}
+(OUT/'incomplete-collected-nodeids.json').write_text(json.dumps(collection,indent=2)+'\n')
+large=[identity(RAW/n) for n in ['completed-final-B-cohort-inventory.json','completed-final-affected-consumers-inventory.json','completed-final-selector-lineage.json']]
+for i in large:i.update({'storage':'ignored raw; original bytes preserved','receiver_availability':'not_established; rerun exact instruments if original artifact transfer unavailable','claim_boundary':'Complete stdout/XML/selected250 source list and full collection-nodeid projection are committed separately; this locator is not a terminal native partition or universal import/resource read set.'})
+(OUT/'large-raw-locators.json').write_text(json.dumps(large,indent=2)+'\n')
+(OUT/'execution-qualification.json').write_text(json.dumps({'checked_source_sha':SHA,'checked_source_tree':TREE,'full_cohort':{'whole_files':250,'collected':3882,'harness':'EXECUTED','exit_code':-9,'wall_s':486.20474443299463,'junit':'absent','inventory_state':'collection_finished_runtime_pending','persisted_runtime_phases':0,'terminal_partition':'not_established','stdout_observations':{'rows':1322,'PASSED':1290,'FAILED':16,'ERROR':16,'grade':'Unjoined stdout observations only; no full-case PASS/FAIL/ERROR/SKIP/XFAIL/XPASS/UNRUN partition'}},'affected':{'whole_files':47,'cases':807,'PASS':806,'FAIL':1,'ERROR':0,'SKIP':0,'XFAIL':0,'XPASS':0,'UNRUN':0,'phase_reports':2421,'failure':'tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution; genuine vulnerabilities[] assertion','P41':'not_established; three raw fixture migration inputs changed, no exact slice-base full-input nonintersection waiver'},'prepared_retry':{'state':'UNRUN; only literal derived operational source prepared','reason':'Actual retained RAM-backed filesystem pressure and insufficient established fresh file-backed capacity; no safe prerequisite for complete run established. Exact finite resource packet separately published by CAS.','source_preserving_delta':'Same250 selectors/order/wheel/PG/observer/pytest options; distinct tag and fresh file-backed scratch only. No actual replay result.'},'preparation_failures':{'actual_events':['First affected preparation used a nonexistent selector-map filename and refused before native execution.','First affected preparation omitted private PG file/driver admission inputs and refused before native execution, leaving only the original argsfile scratch.'],'original_full_console_bytes':'not_established in this packet; session observations only, not deciding runtime inputs or product failures.','retained_original_scratch':'/dev/shm/e02-B-completed-affected-1862c021df74'},'authority':'No production-data, permission-owner law, global gate acceptance or formal finding closure inferred from this output-custody publication.'},indent=2)+'\n')
+(OUT/'README.md').write_text('These are exact moderate deciding outputs of the frozen B source 1862c021df74a5c5815bc5cd21a20e61b30132b6, tree f765043b27b96a1fbb0795aa600db9bd94df0e36. The full cohort was interrupted by signal9: collected nodeids and stdout observations do not supply final phases. The affected47 whole files have complete native stdout/JUnit:806 PASS and1 scientific FAIL. Large original inventory/lineage bytes stay ignored and hash-bound; unavailable receiver bytes remain not_established. Prepared file-backed full retry was not executed. Full source/consumer/gate/all60 adjudication is separate. No original output was overwritten or deleted.\n')
+index={'schema':'policyos.e02.complete_output_custody.v1','checked_source_sha':SHA,'checked_source_tree':TREE,'original_copies':outputs,'payloads':[]}
+for p in sorted(OUT.iterdir()):
+ if p.is_file():d=identity(p);d['path']=p.relative_to(ROOT).as_posix();index['payloads'].append(d)
+(OUT/'index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({'payloads':len(index['payloads']),'total_bytes':sum(p['bytes'] for p in index['payloads']),'checked_source_sha':SHA,'index':str(OUT/'index.json')},indent=2))

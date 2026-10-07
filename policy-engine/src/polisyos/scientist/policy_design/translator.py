@@ -10,10 +10,13 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.llm.traced_client import LLMAccountingError
 from polisyos.scientist.methods.search.readiness import DecisionReadinessContract
 from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
+from polisyos.scientist.policy_design._llm_accounting import worker_budget_state
 from polisyos.scientist.policy_design.output import (
     ChampionPolicyDossier,
     ConstraintSatisfactionReport,
@@ -181,11 +184,17 @@ class PolicyTranslatorWorker:
         config: PolicyTranslatorConfig | None = None,
         *,
         fallback: DeterministicPolicyTranslator | None = None,
+        budget_middleware: BudgetMiddleware | None = None,
     ) -> None:
         self._config = config or PolicyTranslatorConfig()
         self._fallback = fallback or DeterministicPolicyTranslator()
+        self._budget_middleware = budget_middleware
+        worker_budget_state(budget_state=None, budget_middleware=budget_middleware)
 
     async def translate_async(self, bundle: TranslatorInputBundle) -> PolicyBrief:
+        admitted_state = worker_budget_state(
+            budget_state=bundle.budget_state, budget_middleware=self._budget_middleware
+        )
         client = create_traced_gateway_client(
             model_name=self._config.model_name,
             provider_hint=self._config.provider_hint,
@@ -195,10 +204,11 @@ class PolicyTranslatorWorker:
             return self._fallback.translate(bundle)
 
         llm_client: Any = client
-        if bundle.budget_state is not None:
+        if admitted_state is not None:
             llm_client = LLMBudgetEnforcer(
                 client=client,
-                budget_state=bundle.budget_state,
+                budget_state=admitted_state,
+                budget_middleware=self._budget_middleware,
                 budget_keys=list(self._config.budget_keys),
                 model_name=self._config.model_name,
                 run_id=bundle.run_id,
@@ -227,12 +237,17 @@ class PolicyTranslatorWorker:
             )
             raw = getattr(response, "content", response)
             return PolicyBrief.model_validate(_parse_json_object(raw))
+        except LLMAccountingError:
+            raise
         except Exception:
             if not self._config.fallback_on_error:
                 raise
             return self._fallback.translate(bundle)
 
     def translate(self, bundle: TranslatorInputBundle) -> PolicyBrief:
+        worker_budget_state(
+            budget_state=bundle.budget_state, budget_middleware=self._budget_middleware
+        )
         try:
             asyncio.get_running_loop()
         except RuntimeError:
@@ -257,6 +272,9 @@ class PolicyTranslatorWorker:
         *,
         inputs: list[InputRef] | None = None,
     ) -> tuple[PolicyBrief, ArtifactRef]:
+        worker_budget_state(
+            budget_state=bundle.budget_state, budget_middleware=self._budget_middleware
+        )
         try:
             asyncio.get_running_loop()
         except RuntimeError:

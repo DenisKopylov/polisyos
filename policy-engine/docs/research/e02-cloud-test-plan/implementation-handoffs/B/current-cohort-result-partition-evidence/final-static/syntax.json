@@ -1,0 +1,30 @@
+{
+  "id": "syntax",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-c",
+    "from pathlib import Path; p=Path(\"docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py\"); compile(p.read_bytes(), str(p), \"exec\"); print(\"Syntax PASS; parser not imported or executed\")"
+  ],
+  "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "environment": {
+    "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "python_version": "3.14.2",
+    "pytest_source_profile": "9.0.2",
+    "process_worker_numerical_quota": "none imposed"
+  },
+  "input_closure": {
+    "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+    "source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+    "source_bytes": 27053,
+    "execution": "static check only; no parser/native cohort execution"
+  },
+  "returncode": 0,
+  "outcome": "PASS",
+  "tool_reported_wall_seconds": 2.4364e-05,
+  "output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/syntax.txt",
+    "bytes": 45,
+    "sha256": "e5d79977240302e0849f2d529247258d301e6785ee6f836a924f3f8aec36dd27"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-profile-seam",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAS-01"
+  ],
+  "slice_base_sha": "ed4dab27e91fd1cea93c0ae24814b5de70f9cc1d",
+  "implementation_commits": [
+    "7207ceec89e72481c0de8c3e4e64f25d667dc299"
+  ],
+  "candidate_tree_sha": "ede0685d27af5d3f49df96ff03ae4921c48bb3f1",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-manifest-profile-seam.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/__init__.py",
+    "policy-engine/src/polisyos/core/artifacts/manifest_profile.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam-evidence/probe.py",
+      "target_sha": "7207ceec89e72481c0de8c3e4e64f25d667dc299",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src"
+      },
+      "input_closure": {
+        "source_ref": "7207ceec89e72481c0de8c3e4e64f25d667dc299",
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam-evidence/probe.py",
+          "sha256": "352314bfba333a6fcfb7f98ea2b2af21846975b2e9f1afe83f6dd19a6c72a379",
+          "bytes": 1013
+        },
+        "runtime_input": "Actual FileSystemCAS put/get manifest plus its three persisted schema projections, no production dataset"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam-evidence/probe.txt",
+        "sha256": "26718b7e1207dab093631ce7e4008bd5774e319d4a46c53e6d6f5a9f7d5cd384",
+        "bytes": 98
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/core/artifacts/__init__.py src/polisyos/core/artifacts/manifest_profile.py\n/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/core/artifacts/__init__.py src/polisyos/core/artifacts/manifest_profile.py",
+      "target_sha": "7207ceec89e72481c0de8c3e4e64f25d667dc299",
+      "environment": "shared Python; cwd policy-engine",
+      "input_closure": "Both complete source modules@7207; tracked Ruff config",
+      "outcome": "PASS",
+      "output": "All checks passed!; 2 files already formatted"
+    }
+  ],
+  "property": {
+    "statement": "Typed integration seam delegates unchanged existing versioned manifest profile projection and digest; no new profile algorithm or closure claim.",
+    "runtime_path": [
+      "actual FileSystemCAS persisted manifest",
+      "artifacts facade wrappers",
+      "ManifestLifecycle existing owner",
+      "Foundry exact selected-view consumer dependency (separate CMP slice)"
+    ],
+    "proxy_divergence": "A copied unversioned digest could differ on v3 optional integrity metadata; these wrappers invoke the existing owner.",
+    "negative_controls": []
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "additive integration seam; CMP consumer acceptance separate",
+  "limitations_and_next_owner": [
+    "Current registry classifies polisyos.core.artifacts internal by default; exposure does not ratify a new stable entrypoint. Root/G owns shared generated public-surface refresh.",
+    "Initial ad-hoc probe used unsupported put_bytes(kind=...) and failed TypeError before production work; corrected opts=PutOptions actual probe is committed.",
+    "CAS03 pending; no static green blanket claim."
+  ]
+}

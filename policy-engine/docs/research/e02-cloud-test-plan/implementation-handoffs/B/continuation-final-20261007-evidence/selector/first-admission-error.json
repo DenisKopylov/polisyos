@@ -1,0 +1,24 @@
+{
+  "schema": "policyos.e02.setup_attempt.v1",
+  "sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "derive_union_first_assertion": {
+    "exit": 1,
+    "outcome": "ERROR",
+    "missing_paths": [
+      "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
+    ],
+    "full_output": "Traceback (most recent call last):\n  File \"<stdin>\", line 7, in <module>\nAssertionError: ['tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py', 'tests/unit/scientist/orchestration/engine/runner/test_state_merge.py']\n"
+  },
+  "first_native_caller": {
+    "outcome": "UNRUN",
+    "exit": 1,
+    "reason": "FileNotFoundError reading not-yet-created selector; pytest was not execd",
+    "preserved_namespace": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5/native",
+    "command": "E02_REMOVE_PROTECTION=0 E02_B38_POSTGRES_DSN_FILE=/tmp/e02-B38-pg-evidence/postgres-dsn E02_B38_POSTGRES_DRIVER_ROOT=/tmp/e02-B38-pg-profile .polisyos/e02-B-current/environment/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py --sha 6fa9b7142ba590c3173f1cd3be097286db5acc4d --gate native --namespace continuation-6fa9b7142ba5 --selector /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/selector-6fa9b7142ba5-final.json --wheel-input /tmp/e02-B-continuation-wheel-6fa9b7142ba5/cohort-input-environment.json"
+  },
+  "repair": "Explicit append from tracked canonical253 plan; all250 preserved; two G dependency nativefiles retained; six newfiles retained; externalB93 exactbytes + ordinarymode0; final261files, casecount awaits runtime",
+  "actual_runtime_namespace": "continuation-6fa9b7142ba5-admitted",
+  "not_a_second_native_run": true
+}

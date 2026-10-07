@@ -4,6 +4,35 @@ exception_policy = "Generated-artifact contract exceptions are not implicit; any
 exception_policy_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
 
 [[family]]
+id = "foundry-method-type-stubs"
+label = "Foundry method type stubs"
+owner = "team-policyos-foundry"
+approval_owner = "team-policyos-foundry"
+lifecycle = "generated_committed"
+generator = "Canonical Foundry stub generator with shared Ruff import sorting and formatting"
+verifier = "Canonical readonly --check compares all four generated outputs with their committed bytes"
+promotion_target = "The four internal method typing outputs listed in outputs"
+stale_output_behavior = "fail"
+source_of_truth = "tools/devx/foundry/generate_stubs.py TARGETS and OUTPUT_MAP; src/polisyos/foundry/methods/base.py; canonical components/composer.py; compatibility re-export policy"
+outputs = [
+  "src/polisyos/foundry/methods/base.pyi",
+  "src/polisyos/foundry/methods/registry.pyi",
+  "src/polisyos/foundry/methods/composer.pyi",
+  "src/polisyos/foundry/methods/components/composer.pyi",
+]
+regenerate_commands = ["uv run polisyos-tools foundry generate-stubs"]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit when any declared source, private typing dependency, generator target, canonical formatting policy or re-export policy changes. Run the readonly comparator after regeneration."
+compatibility_class = "internal-python-typing"
+version_owner = "team-policyos-foundry"
+release_fragment_change_class = "internal-tooling"
+compatibility_promise = "Generated stubs describe the existing internal implementations and compatibility re-exports; they do not enlarge a registered stable public facade."
+drift_gate = "automated"
+workflow = "tools/devx/foundry/generate_stubs.py"
+check_cwd = "."
+check_command = ["uv", "run", "polisyos-tools", "foundry", "generate-stubs", "--check"]
+
+[[family]]
 id = "policy-design-case-layer3-g1-substrate-grounding-artifacts"
 label = "Policy Design Case Layer 3 G1 substrate grounding artifacts"
 owner = "team-runtime-quality"

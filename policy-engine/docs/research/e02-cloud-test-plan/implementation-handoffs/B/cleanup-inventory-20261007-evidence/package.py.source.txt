@@ -1,0 +1,37 @@
+"""Publish compact exact path observations; retain the large inode view in scratch."""
+from pathlib import Path
+import collections,hashlib,json,subprocess
+root=Path('/workspace/e02-B-current-execution-state');scratch=Path('/tmp/e02-B-cleanup-inventory-20261007')
+rel='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+prefix=rel+'cleanup-inventory-20261007-evidence/'
+out=root/prefix;out.mkdir(exist_ok=False)
+raw=(scratch/'inventory.json').read_bytes();x=json.loads(raw)
+def blob(data):return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+rows=[]
+for r in x['rows']:
+ rows.append({key:r[key] for key in ['path','classification','purpose','uniqueness_status','cleanup_eligible','performed_action','regular_file_apparent_bytes','all_entry_allocated_blocks_bytes','entry_count','regular_file_count','directory_count','symlink_count','hardlinked_entry_count','complete_for_nonfollowed_namespace','excluded_subtree_count','read_error_count','directory_entry_metadata_changed_during_walk']}|{'lstat':r['metadata_before']})
+symlinks={'method':'readlink plus normalized absolute declared target and lstat only; no traversal through a link. Equal normalized target strings are sharing candidates, not a global physical dedup computation.',
+ 'count':len(x['symlink_edges']),'links':x['symlink_edges'],'same_declared_target_groups':x['symlink_shared_targets']}
+symlink_data=(json.dumps(symlinks,ensure_ascii=True,separators=(',',':'))+'\n').encode();(out/'symlink-sharing.json').write_bytes(symlink_data)
+report={key:x[key] for key in ['schema','utc_started','utc_finished','wall_s','own_source_sha','own_tree','own_head_after','scope','measurement_method','no_global_deduplicated_total','content_reads','row_count','disjoint_walk_roots','shared_cache_metadata_only','protected_skipped_subtrees','read_errors','excluded_named_unique_files','registered_worktrees_all_preserved','performed_move_delete_trash_service_change','cleanup_authority','limitations']}
+report['rows']=rows
+report['class_counts']=dict(collections.Counter(r['classification'] for r in rows))
+report['named_fixture_candidate_paths']=[r['path'] for r in rows if r['classification']=='CANDIDATE_ONLY_UNREVIEWED_REPEATABLE_FIXTURES']
+report['live_process_or_service_release']='NOT_ESTABLISHED: no process/service introspection, start/stop, connection or cleanup attempted. Declared194/PG/wheel inputs remain retained.'
+report['raw_full_inode_view']={'path':str(scratch/'inventory.json'),**blob(raw),'transfer_state':'ignored large derived per-inode view; not committed. Raw detailed hardlink-group portability not established; no cleanup eligibility depends on it.'}
+report['hardlink_qualification']={'same_device_inode_groups':len(x['hardlink_namespace_groups']),'groups_with_multiple_observed_paths':sum(r['observed_path_count']>1 for r in x['hardlink_namespace_groups']),'method':'Each file entry with st_nlink>1 recorded. Path examples in ignoredraw are bounded samples, not every external/shared link. All namespace totals count entries and can include duplicate inode blocks; no global freeable-byte claim.'}
+report['symlink_sharing']={'path':prefix+'symlink-sharing.json',**blob(symlink_data),'edge_count':len(x['symlink_edges']),'shared_declared_target_groups':len(x['symlink_shared_targets'])}
+report['legacy_cleanup_instruction_superseded']='The preserved legacy script mentions future nativeTrash movement. Current user/root instruction prohibits move/delete/Trash; that historical sentence grants no authority here.'
+(out/'inventory.json').write_text(json.dumps(report,indent=2)+'\n')
+(out/'inventory.py.source.txt').write_bytes((scratch/'inventory.py').read_bytes())
+(out/'package.py.source.txt').write_bytes(Path(__file__).read_bytes())
+(out/'stdout.txt').write_bytes((scratch/'stdout.txt').read_bytes())
+(out/'stderr.txt').write_bytes((scratch/'stderr.txt').read_bytes())
+(out/'legacy-inventory.py.source.txt').write_bytes(Path(x['scope']['legacy_script']).read_bytes())
+(out/'README.md').write_text('''This is a read-only metadata inventory, not a cleanup grant. Every listed path remains preserved. The 25 named fixture directories are candidates for later ownership/custody review only; no eligibility, consumer release or deletion is established. Mixed raw roots, unique logs/ledgers/CAS/backend data, registered worktrees and declared 194/PG/wheel inputs must remain retained.\n\n`inventory.json` contains all 602 exact selected path rows, individual namespace byte counts, skipped protected subtrees and purpose/uniqueness qualifications. `symlink-sharing.json` contains all 5,898 observed links and 27 equal-declared-target groups. `stdout.txt` is the complete literal metadata traversal output. No secret contents were read.\n\nThese are interval observations. Parent/child rows overlap; hardlinks and symlinks share underlying files. Do not sum rows or namespace totals as globally unique physical storage or freeable space. Sizes marked incomplete exclude protected subtrees and non-followed link targets. The 25.5 MB detailed inode view remains in ignored scratch with exact hash; it is unnecessary for the preserved/noneligible decision and its portability is not established.\n\nThe archived legacy inventory script is navigation only. Its historical nativeTrash sentence is superseded by the current prohibition on moves, deletion and Trash. This task ran no tests, gates, services or dependency setup.\n''')
+artifacts=[]
+for file in sorted(out.iterdir()):
+ data=file.read_bytes();artifacts.append({'path':str(file.relative_to(root)),**blob(data)})
+index={'artifacts':artifacts,'artifact_count':len(artifacts),'payload_bytes':sum(a['bytes'] for a in artifacts),'source_execution_sha':x['own_source_sha'],'metadata_only':True}
+(out/'index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({'artifacts':len(artifacts),'payload_bytes':index['payload_bytes'],'rows':len(rows),'fixture_candidates':len(report['named_fixture_candidate_paths']),'cleanup_eligible':sum(r['cleanup_eligible'] for r in rows),'raw_full_inode_view':report['raw_full_inode_view']}))

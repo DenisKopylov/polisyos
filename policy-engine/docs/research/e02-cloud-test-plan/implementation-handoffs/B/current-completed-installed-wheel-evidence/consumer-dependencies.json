@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "pip",
+    "install",
+    "--python",
+    "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+    "--no-deps",
+    "pytest==9.0.2",
+    "iniconfig==2.3.0",
+    "packaging==25.0",
+    "pluggy==1.6.0",
+    "pygments==2.19.2"
+  ],
+  "cwd": "/tmp/e02-B-la057-final-1862c021df74-run",
+  "start_utc": "2026-10-06T22:31:19.163004+00:00",
+  "end_utc": "2026-10-06T22:31:21.314792+00:00",
+  "wall_s": 2.1518009979918133,
+  "child_maxrss_platform_units": 43536,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "exit": 0,
+  "output": "/tmp/e02-B-la057-final-1862c021df74-run/consumer-dependencies.txt",
+  "output_bytes": 280,
+  "output_sha256": "2c502b367414ce8ac76b8eb152fdfff1bc340f36d289d8c3b3bfc3af3a6484f8",
+  "source": {
+    "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "status": ""
+  }
+}

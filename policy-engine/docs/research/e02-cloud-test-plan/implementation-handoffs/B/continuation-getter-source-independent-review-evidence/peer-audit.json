@@ -1,0 +1,287 @@
+{
+  "schema": "policyos.e02.foreign_packet_custody.v1",
+  "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+  "canonical_peer_receipt": {
+    "git_sha": "f6a3e0c8a6e6b4393dc81bb8f15b19815b48638b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-final.json",
+    "bytes": 10081,
+    "sha256": "8c37c0f7a93ef789652d90a3b5323a2f099b568d4e7e43a83fe80128b5faa1f6",
+    "tree": "89738350586548dec36b7caf68ff774a77866e93"
+  },
+  "distinct_declared_artifacts": [
+    {
+      "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+      "git_blob": "f71509b17b0321f86fab69fe33413d70cb3d7d11",
+      "bytes": 5272,
+      "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+    },
+    {
+      "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/run-native.source.txt",
+      "git_blob": "bff2ee38ff49dacf1d374da9d189c54a215f0258",
+      "bytes": 4636,
+      "sha256": "14471cae1773ec25fcda6ca0e85dc3494177975e0b840fd9c81689e7c715759b"
+    },
+    {
+      "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/profile.json",
+      "git_blob": "ab9f76b8d5bbd9d21dcdb4d062d42df0ba720868",
+      "bytes": 38615,
+      "sha256": "23d389dd78f1c513e3ff61a58645e61375e649b0110af5ff3b1fb460d668ee88"
+    },
+    {
+      "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/native.txt",
+      "git_blob": "dffecc09fbdcc2880ab71e03505c4655e5630b1d",
+      "bytes": 3034,
+      "sha256": "9021cc51d126cde3903e1cbb19585cc42c75d633a11f5664d5ec921d77cce695"
+    },
+    {
+      "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/native.xml",
+      "git_blob": "2c27431a4177022deaee61c60ad32f762e607dfe",
+      "bytes": 605,
+      "sha256": "489cb63e06027ba6c7a71d74395cd191e68882cafca04afdb3087829d8d8da70"
+    },
+    {
+      "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/wrapper.json",
+      "git_blob": "413146960234f5da580196b1553f1fe1f63fd9a2",
+      "bytes": 1177,
+      "sha256": "52672bd34910f299b75925c9a50d0929bd61ea2b81f7c9ea20815f21b1448452"
+    },
+    {
+      "git_sha": "637b821971f8d9a6413c5f8e93a7d416a30dbc65",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent.json",
+      "git_blob": "448ff9c63fbb124fdbd5adb08725c5a9b5aeb118",
+      "bytes": 18270,
+      "sha256": "f5fc67f6fd6a76939ef23caab28eecd2e53e1e75a02ba85f1f37e3fbefc83f06"
+    },
+    {
+      "git_sha": "66863a0d89e7acffde8deef79f47ab0b96061ccf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-successor.json",
+      "git_blob": "2ea9f4f2f539eae36943c390389c846ee5f44133",
+      "bytes": 9415,
+      "sha256": "830fc61f4852e9605279a887c92bee331f69795f2f9d07b7a24c6012dd3c7fe1"
+    },
+    {
+      "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/index.json",
+      "git_blob": "facb137d79e5c0567ba0d382ee7721a6df33bbdd",
+      "bytes": 1732,
+      "sha256": "22ce7239a5622084ad9bd48900232779a616b44497cb43ad6a88f5beb9e5a7b0"
+    },
+    {
+      "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/review.json",
+      "git_blob": "639a8bf1971c6d1f1f86baf83d3258bfb7e87114",
+      "bytes": 1716,
+      "sha256": "f1c0515ed2d9e2c5c2ab6b83e0e25ab69dd199349d115ddfcd12a6fcd26607ed"
+    }
+  ],
+  "checked_artifact_count": 10,
+  "full_junit_cases": [
+    {
+      "classname": "",
+      "name": "test_real_two_output_getter_compiled_handles_preserve_dynamic_values[False]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_real_two_output_getter_compiled_handles_preserve_dynamic_values[True]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_real_compiler_refuses_captured_module_getter_before_physical_body",
+      "outcome": "PASS"
+    }
+  ],
+  "actual_loaded_filebacked_origin_count": 152,
+  "numeric_recomputation": [
+    {
+      "jit": false,
+      "label": "cold",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "warm",
+      "actual_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "expected_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "override",
+      "actual_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "expected_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": false,
+      "label": "cold_again",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "cold",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "warm",
+      "actual_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "expected_score": [
+        2.25,
+        0.0,
+        4.25
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "override",
+      "actual_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "expected_score": [
+        5.0,
+        23.0,
+        -11.0
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    },
+    {
+      "jit": true,
+      "label": "cold_again",
+      "actual_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "expected_score": [
+        3.25,
+        12.25,
+        -4.75
+      ],
+      "actual_spread": [
+        4.5,
+        10.0,
+        -1.5
+      ],
+      "matches": true
+    }
+  ],
+  "typed_refusal_observation": [
+    {
+      "type": "CompilationError",
+      "reason": "Compilation failed for tests.independent_getter_consumer.captured_module_reflection@1.0.0: source identity is unavailable for builtin_function_or_method",
+      "physical_body_exists": false,
+      "path": "/tmp/e02-dur-getter-oracle-0903e31d1b90/fixtures-final/test_real_compiler_refuses_cap0/reflective-method-effect.txt"
+    }
+  ],
+  "foreign_wrapper_status": 0,
+  "reviewer_runtime": "UNRUN",
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "hashes_xml_source_origins_and_arithmetic": "independently_reconciled",
+    "physical_body_absence_and_handle_identity": "consumer_asserted by independently authored actual native fixture"
+  },
+  "qualifications": [
+    "Native is the peer actual final0903 run, not replayed by this reviewer.",
+    "152 denotes loaded local Polisyos filebacked origins; no all-dependency or scientific authority closure.",
+    "Three PASS arithmetic/refusal cases do not erase the separate admitted frame namespace counterexample.",
+    "No global quality/cohort/B74 acceptance or inherited grade."
+  ],
+  "audit_errors": []
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "policyos.e02.literal_metadata_instrument.v1",
+  "language": "python3",
+  "execution_role": "Read-only metadata identity validation only; never product/criterion gate",
+  "source_bytes_utf8": "import hashlib\nimport json\nimport subprocess\nfrom pathlib import Path\n\nroot=Path('/workspace/e02-B-current-cas-generation')\np='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-b149-b155-adjudication/review.json'\nhead=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()\ntree=subprocess.check_output(['git','rev-parse',head+'^{tree}'],cwd=root,text=True).strip()\nb=subprocess.check_output(['git','show',head+':'+p],cwd=root)\nd=json.loads(b)\nseen=set()\nfor group in [d['source_points'],d['receipt_points']]:\n for item in group.values():\n  path,ref=item['ref'].rsplit('@',1)\n  raw=subprocess.check_output(['git','show',ref+':'+path],cwd=root)\n  assert len(raw)==item['bytes'] and hashlib.sha256(raw).hexdigest()==item['sha256']\n  seen.add(item['ref'])\nfor item in d['historical_controls']:\n spec=item['junit'];path,ref=spec['ref'].rsplit('@',1)\n raw=subprocess.check_output(['git','show',ref+':'+path],cwd=root)\n assert len(raw)==spec['bytes'] and hashlib.sha256(raw).hexdigest()==spec['sha256']\n seen.add(spec['ref'])\nassert d['closure_ids']==[] and d['held_unaffected']==['B148 public cross-tenant law HELD','B154 real A all-signature-confirmations publisher consumer_missing']\nassert head==subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()\nprint(json.dumps({'outcome':'PASS_METADATA_ONLY','head':head,'tree':tree,'review':p,'review_sha256':hashlib.sha256(b).hexdigest(),'review_bytes':len(b),'complete_identity_refs_verified':len(seen),'closure_ids':[],'product_or_native_or_gate_execution':False,'source_claim':'conditional criteria adjudication; no final-candidate runtime proof'},ensure_ascii=False))\n",
+  "source_sha256": "846d08bf2e92dd1e9059582618fff443b14276432c291b54b7eb1f0628e3202b",
+  "original_command": [
+    "python3",
+    "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/cas-b149-b155-adjudication/validate.py"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation"
+}

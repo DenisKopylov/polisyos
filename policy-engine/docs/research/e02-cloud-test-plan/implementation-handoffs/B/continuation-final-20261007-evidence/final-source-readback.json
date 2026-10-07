@@ -1,0 +1,85 @@
+{
+  "status": "SOURCE_AND_OWNED_FOOTPRINT_VERIFIED",
+  "parent": "b371fce793afddbe15e18ee2eadec3c7b9d51e52",
+  "parent_tree": "f38d33e7006a75d2bdb145f0367afe82075cf4a5",
+  "frozen_native_source": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "production_delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "getter_source": {
+    "sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+    "tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+    "blob_sha1": "7f0d0323474ee2f8f1fe4adea316c5260159262e",
+    "blob_sha256": "95ed058f5387bc1b9af7db9cdb3a835565cca608c6dba84901add538c9b079be"
+  },
+  "getter_foreign": {
+    "sha": "0bf268e7860831241e3fd193b3da46086d5893cc",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-lexical-final.json"
+  },
+  "getter_review": {
+    "sha": "8c292c4904462a1ecd57d250f06fdfd7ff293c95",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review.json"
+  },
+  "getter_canonical": {
+    "sha": "71afa5796b7a1b89cc94d9b6d4a0394d6117aab0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-data-field-identity.json",
+    "bytes": 248144,
+    "sha256": "74134a34cd17782e4aab525d306f44b8ea32711ae722c3455ffeed37fcdeb672",
+    "merged_byte_equal": true
+  },
+  "gateway": {
+    "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "blob_sha1": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+    "blob_sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+    "cut": "same as actual frozen decoder30PASS and original E7 direct/fresh consumer controls"
+  },
+  "final_targeted_controls": {
+    "whole_files": 5,
+    "collected": 128,
+    "PASS": 127,
+    "FAIL": 1,
+    "FAIL_identity": "known returned-frame namespace escape B74 LIMITED",
+    "canonical_JIT_PASS": 9,
+    "independent_real_JAX_PASS": 3,
+    "property_removal_FAIL": 1,
+    "Ruff": "PASS",
+    "format": "PASS",
+    "mypy_normal_imports": "PASS"
+  },
+  "canonical_receipt_checks": [
+    {
+      "sha": "71afa5796b7a1b89cc94d9b6d4a0394d6117aab0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-data-field-identity.json",
+      "bytes": 248144,
+      "sha256": "74134a34cd17782e4aab525d306f44b8ea32711ae722c3455ffeed37fcdeb672",
+      "merged_byte_equal": true
+    },
+    {
+      "sha": "8c292c4904462a1ecd57d250f06fdfd7ff293c95",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review.json",
+      "bytes": 34319,
+      "sha256": "15774698b68eb2b03f4004e96df83ce35e1b21ce82bfc1ce707b10f2343517fb",
+      "merged_byte_equal": true
+    },
+    {
+      "sha": "0bf268e7860831241e3fd193b3da46086d5893cc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-lexical-final.json",
+      "bytes": 11396,
+      "sha256": "99815bffc0311d3fe0f68cbb82ec64c89cc05b661ec39fdc17178e20fa031846",
+      "merged_byte_equal": true
+    }
+  ],
+  "protected_source_A_C_changes": [],
+  "local_root_checkout_unchanged": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "formal_closure": false,
+  "initial_root_footprint_admission": {
+    "outcome": "ERROR",
+    "exit": 1,
+    "provenance": "tool stdout/stderr observation, not a runtime test",
+    "cause": "Root initially selected nonexistent RELEASE_NOTES.toml instead of actual tracked release fragment; no source mismatch or mutation.",
+    "literal_output": "AssertionError: [README.md, _implementation_identity.py, test_module_source_identity.py]; root corrected actual full non-handoff diff rather than inferring filename."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.lossless_text.v1",
+  "source": {
+    "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheel-build.txt",
+    "bytes": 81,
+    "sha256": "430982fdee80715cdcd8cfe97c600955d040a0744c6f540e92297d3d36287def"
+  },
+  "encoding": "utf-8",
+  "text": "Building wheel...\nSuccessfully built wheels/policy_engine-0.1.0-py3-none-any.whl\n"
+}

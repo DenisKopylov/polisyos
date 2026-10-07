@@ -1,0 +1,55 @@
+{
+  "outcome": "PASS",
+  "execution_kind": "Git/JSON/XML/hash metadata only",
+  "interpreter": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "packet_sha256": "2ce1a110fe35ae14e00e5fc61380b70fac90c623ca32b4d5cd70f745ae9aa5d1",
+  "inherited_findings": 60,
+  "inherited_bundles": 25,
+  "explicit_delta_rows": 15,
+  "canonical_raw_hashes_matched": 15,
+  "immutable_deciding_refs_verified": 68,
+  "actual_original_XML_counts": {
+    "process_0": {
+      "PASS": 3
+    },
+    "process_1": {
+      "FAIL": 1
+    },
+    "http_numeric_0": {
+      "FAIL": 20,
+      "PASS": 10
+    },
+    "http_numeric_1": {
+      "PASS": 30
+    },
+    "http_numeric_2": {
+      "FAIL": 20,
+      "PASS": 10
+    },
+    "imported_consumer_2": {
+      "PASS": 4
+    },
+    "imported_consumer_3": {
+      "FAIL": 1
+    },
+    "frame_namespace_12": {
+      "FAIL": 1
+    },
+    "frame_namespace_13": {
+      "FAIL": 1
+    },
+    "B_A_consumer": {
+      "FAIL": 1,
+      "PASS": 3
+    }
+  },
+  "source_cut_qualification": "seven f4e vs1862 production blobs only; no root/fae or future-source runtime restamp",
+  "B74_actual_frame_residual": "7->107/physical replacement with no refusal; two actual nativeFAILs retained",
+  "B66_actual_A_residual": "observerNone->A0.0, separate mandatorycost_unknown/noACK",
+  "formal_closure": false,
+  "closure_authority": false,
+  "closure_ids": []
+}

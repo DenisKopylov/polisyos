@@ -8,17 +8,25 @@ import os
 import socket
 import tempfile
 import time
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from threading import Lock
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+from polisyos.core.artifacts import (
+    AsyncArtifactStoreAdapter,
+    AsyncFileSystemArtifactStore,
+    ensure_async_artifact_store,
+)
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
@@ -34,6 +42,7 @@ from polisyos.core.security import (
     get_current_tenant_id_or_none,
 )
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 if TYPE_CHECKING:
@@ -68,6 +77,137 @@ _CHECKPOINT_OPERATION_ERRORS = (
 CheckpointPolicy = Literal["off", "strict", "best_effort"]
 CheckpointResumeStrategy = Literal["require_cache_seed", "allow_replay"]
 CheckpointSnapshotMode = Literal["full", "incremental"]
+
+
+@dataclass(frozen=True)
+class CheckpointPublicationBudget:
+    """Invocation-local publication budget; it grants no artifact authority.
+
+    The callbacks capture the original caller and ownership token. They must not
+    resolve a later invocation's cancellation baseline or deadline.
+    """
+
+    deadline_monotonic: float | None
+    owner_is_current: Callable[[], bool]
+    caller_cancelled: Callable[[], bool]
+
+    def require_active(self, operation: str, *, execution_state: str = "not_admitted") -> None:
+        if not self.owner_is_current() or self.caller_cancelled():
+            raise asyncio.CancelledError(
+                f"checkpoint owner cancelled; execution_state={execution_state}; "
+                f"publication_operation={operation}"
+            )
+        if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
+            raise WorkflowTimeoutError(
+                "Workflow timeout during checkpoint publication",
+                details={
+                    "execution_state": execution_state,
+                    "publication_operation": operation,
+                },
+            )
+
+    def remaining_seconds(self, operation: str) -> float | None:
+        self.require_active(operation)
+        if self.deadline_monotonic is None:
+            return None
+        remaining = self.deadline_monotonic - time.monotonic()
+        if remaining <= 0:
+            self.require_active(operation)
+        return remaining
+
+
+_checkpoint_publication_budget: ContextVar[CheckpointPublicationBudget | None] = ContextVar(
+    "checkpoint_publication_budget", default=None
+)
+
+
+@contextmanager
+def _checkpoint_publication_scope(
+    budget: CheckpointPublicationBudget | None,
+) -> Iterator[None]:
+    """Propagate through legacy delegating hooks without changing their kwargs."""
+    if budget is None:
+        yield
+        return
+    token = _checkpoint_publication_budget.set(budget)
+    try:
+        yield
+    finally:
+        _checkpoint_publication_budget.reset(token)
+
+
+def _budget_with_store_policy(
+    budget: CheckpointPublicationBudget,
+    store: AsyncArtifactStore,
+) -> CheckpointPublicationBudget:
+    if not isinstance(store, (AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore)):
+        return budget
+    if store.unbounded and store.timeout_seconds is not None:
+        raise ValueError("unbounded cannot be combined with a finite store timeout")
+    if store.timeout_seconds is None:
+        return budget
+    store_deadline = time.monotonic() + store.timeout_seconds
+    return CheckpointPublicationBudget(
+        deadline_monotonic=(
+            store_deadline
+            if budget.deadline_monotonic is None
+            else min(budget.deadline_monotonic, store_deadline)
+        ),
+        owner_is_current=budget.owner_is_current,
+        caller_cancelled=budget.caller_cancelled,
+    )
+
+
+async def _run_checkpoint_blocking[T](
+    func: Callable[..., T],
+    /,
+    *args: Any,
+    publication_budget: CheckpointPublicationBudget | None,
+    operation: str,
+    **kwargs: Any,
+) -> T:
+    if publication_budget is None:
+        return cast("T", await run_blocking_async(func, *args, **kwargs))
+    remaining = publication_budget.remaining_seconds(operation)
+    admission_lock = Lock()
+    worker_entered = False
+    wait_cancelled = False
+
+    def admitted_call() -> T:
+        nonlocal worker_entered
+        # A queued worker cannot enter after its original caller has expired.
+        with admission_lock:
+            if wait_cancelled:
+                raise asyncio.CancelledError(
+                    f"checkpoint wait cancelled; execution_state=not_admitted; "
+                    f"publication_operation={operation}"
+                )
+            publication_budget.require_active(operation)
+            worker_entered = True
+        return func(*args, **kwargs)
+
+    try:
+        result = await run_blocking_async(
+            admitted_call,
+            timeout_seconds=remaining,
+            unbounded=remaining is None,
+        )
+    except asyncio.CancelledError as exc:
+        # Close admission before reporting a queued cancellation. An admitted
+        # synchronous operation can still complete physically after this wait.
+        with admission_lock:
+            wait_cancelled = True
+            execution_state = "unknown" if worker_entered else "not_admitted"
+        raise asyncio.CancelledError(
+            f"checkpoint wait cancelled; execution_state={execution_state}; "
+            f"publication_operation={operation}"
+        ) from exc
+    except TimeoutError:
+        # Keep an on-time backend TimeoutError distinct from owner expiry.
+        publication_budget.require_active(operation, execution_state="unknown")
+        raise
+    publication_budget.require_active(operation, execution_state="unknown")
+    return cast("T", result)
 
 
 class CheckpointRegistry(Protocol):
@@ -386,6 +526,36 @@ class AsyncCheckpointHook(Protocol):
     ) -> CheckpointWriteResult | None: ...
 
 
+class BudgetedAsyncCheckpointHook(Protocol):
+    """Additive opt-in; existing fixed-signature hook protocols remain valid."""
+
+    async def on_node_complete_with_budget_async(
+        self,
+        *,
+        publication_budget: CheckpointPublicationBudget,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_ref: ArtifactRef | None,
+    ) -> CheckpointWriteResult | None: ...
+
+    async def on_tier_complete_with_budget_async(
+        self,
+        *,
+        publication_budget: CheckpointPublicationBudget,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef],
+    ) -> CheckpointWriteResult | None: ...
+
+
 @dataclass
 class RunLockHandle:
     """Run lock handle public type."""
@@ -581,8 +751,11 @@ def gc_checkpoints(
     *,
     policy: CheckpointGCPolicy,
     current_head_ref: ArtifactRef | None = None,
+    budget: CheckpointPublicationBudget | None = None,
 ) -> int:
     """Trim local checkpoint history exceeding *policy* and return deletion count."""
+    if budget is not None:
+        budget.require_active("checkpoint_gc")
     history = load_checkpoint_history(run_dir)
     if history is None or not history.entries:
         return 0
@@ -629,7 +802,11 @@ def gc_checkpoints(
     removed = len(history.entries) - len(retained)
     if removed <= 0:
         return 0
-    write_checkpoint_history(run_dir, CheckpointHistory(entries=retained))
+    write_checkpoint_history(
+        run_dir,
+        CheckpointHistory(entries=retained),
+        budget=budget,
+    )
     return removed
 
 
@@ -676,9 +853,7 @@ class CASCheckpointHook:
             self._completed_node_status_contract = (
                 initial_completed_node_status_contract
                 if initial_completed_node_status_contract == COMPLETED_NODE_STATUS_CONTRACT
-                else (
-                    COMPLETED_NODE_STATUS_CONTRACT if not self._completed_nodes else None
-                )
+                else (COMPLETED_NODE_STATUS_CONTRACT if not self._completed_nodes else None)
             )
         self._gc_policy = gc_policy or CheckpointGCPolicy()
         self._checkpoint_store = checkpoint_store
@@ -690,9 +865,7 @@ class CASCheckpointHook:
     def _append_cache_entry_refs(self, refs: list[ArtifactRef | None]) -> None:
         """Retain every cache entry reference represented by one commit."""
         self._cache_entry_refs.extend(
-            ref
-            for ref in refs
-            if ref is not None and ref.kind == "scientist.node_cache_entry"
+            ref for ref in refs if ref is not None and ref.kind == "scientist.node_cache_entry"
         )
 
     def _write_checkpoint(
@@ -706,16 +879,17 @@ class CASCheckpointHook:
         workflow_fingerprint: str,
         cache_entry_refs: list[ArtifactRef | None],
         sequence_advance: int,
+        publication_budget: CheckpointPublicationBudget | None = None,
     ) -> CheckpointWriteResult:
         """Create one durable checkpoint for a node or an atomically merged tier."""
         self._append_cache_entry_refs(cache_entry_refs)
         sequence_number = self._sequence + max(0, sequence_advance - 1)
         current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
         merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
-        origin_workflow_fingerprint = (
-            self._origin_workflow_fingerprint or workflow_fingerprint
-        )
+        origin_workflow_fingerprint = self._origin_workflow_fingerprint or workflow_fingerprint
         self._origin_workflow_fingerprint = origin_workflow_fingerprint
+        if publication_budget is not None:
+            publication_budget.require_active("checkpoint_artifact")
         created = create_checkpoint(
             self._store,
             run_id=state.run_id,
@@ -748,7 +922,10 @@ class CASCheckpointHook:
             chain_depth=created.chain_depth,
             writer_pid=os.getpid(),
             writer_hostname=socket.gethostname(),
+            budget=publication_budget,
         )
+        if publication_budget is not None:
+            publication_budget.require_active("checkpoint_head", execution_state="unknown")
         self._previous_checkpoint_ref = created.checkpoint_ref
         self._previous_state = deepcopy(current_state)
         self._previous_chain_depth = created.chain_depth
@@ -775,15 +952,14 @@ class CASCheckpointHook:
         workflow_fingerprint: str,
         cache_entry_refs: list[ArtifactRef | None],
         sequence_advance: int,
+        publication_budget: CheckpointPublicationBudget | None = None,
     ) -> CheckpointWriteResult:
         """Async counterpart of :meth:`_write_checkpoint`."""
         self._append_cache_entry_refs(cache_entry_refs)
         sequence_number = self._sequence + max(0, sequence_advance - 1)
         current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
         merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
-        origin_workflow_fingerprint = (
-            self._origin_workflow_fingerprint or workflow_fingerprint
-        )
+        origin_workflow_fingerprint = self._origin_workflow_fingerprint or workflow_fingerprint
         self._origin_workflow_fingerprint = origin_workflow_fingerprint
         created = await create_checkpoint_async(
             self._async_store,
@@ -805,10 +981,13 @@ class CASCheckpointHook:
             previous_checkpoint_ref=self._previous_checkpoint_ref,
             previous_chain_depth=self._previous_chain_depth,
             max_incremental_chain=self._gc_policy.max_incremental_chain,
+            publication_budget=publication_budget,
         )
-        await run_blocking_async(
+        await _run_checkpoint_blocking(
             update_checkpoint_head,
             self._run_dir,
+            publication_budget=publication_budget,
+            operation="checkpoint_head",
             run_id=state.run_id,
             checkpoint_ref=created.checkpoint_ref,
             sequence_number=sequence_number,
@@ -818,6 +997,7 @@ class CASCheckpointHook:
             chain_depth=created.chain_depth,
             writer_pid=os.getpid(),
             writer_hostname=socket.gethostname(),
+            budget=publication_budget,
         )
         self._previous_checkpoint_ref = created.checkpoint_ref
         self._previous_state = deepcopy(current_state)
@@ -839,7 +1019,13 @@ class CASCheckpointHook:
         merged = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
         return max(1, len(merged) - len(self._completed_nodes))
 
-    def _gc_after_checkpoint(self, result: CheckpointWriteResult, *, run_id: str) -> None:
+    def _gc_after_checkpoint(
+        self,
+        result: CheckpointWriteResult,
+        *,
+        run_id: str,
+        publication_budget: CheckpointPublicationBudget | None = None,
+    ) -> None:
         if self._gc_policy is None:
             return
         try:
@@ -847,6 +1033,7 @@ class CASCheckpointHook:
                 self._run_dir,
                 policy=self._gc_policy,
                 current_head_ref=result.checkpoint_ref,
+                budget=publication_budget,
             )
         except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError) as exc:
             emit_degraded_path(
@@ -868,15 +1055,19 @@ class CASCheckpointHook:
         result: CheckpointWriteResult,
         *,
         run_id: str,
+        publication_budget: CheckpointPublicationBudget | None = None,
     ) -> None:
         if self._gc_policy is None:
             return
         try:
-            await run_blocking_async(
+            await _run_checkpoint_blocking(
                 gc_checkpoints,
                 self._run_dir,
+                publication_budget=publication_budget,
+                operation="checkpoint_gc",
                 policy=self._gc_policy,
                 current_head_ref=result.checkpoint_ref,
+                budget=publication_budget,
             )
         except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError, TimeoutError) as exc:
             emit_degraded_path(
@@ -947,6 +1138,11 @@ class CASCheckpointHook:
         if self._policy == "off":
             return None
 
+        publication_budget = _checkpoint_publication_budget.get()
+        if publication_budget is not None:
+            publication_budget = _budget_with_store_policy(publication_budget, self._async_store)
+            publication_budget.require_active("checkpoint_artifact")
+
         sequence_number = self._sequence + max(0, self._tier_sequence_advance(completed_nodes) - 1)
         try:
             result = self._write_checkpoint(
@@ -958,6 +1154,7 @@ class CASCheckpointHook:
                 workflow_fingerprint=workflow_fingerprint,
                 cache_entry_refs=list(cache_entry_refs),
                 sequence_advance=self._tier_sequence_advance(completed_nodes),
+                publication_budget=publication_budget,
             )
         except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError) as exc:
             if self._policy == "best_effort":
@@ -978,7 +1175,11 @@ class CASCheckpointHook:
                 )
                 return None
             raise
-        self._gc_after_checkpoint(result, run_id=state.run_id)
+        self._gc_after_checkpoint(
+            result, run_id=state.run_id, publication_budget=publication_budget
+        )
+        if publication_budget is not None:
+            publication_budget.require_active("checkpoint_gc", execution_state="unknown")
         return result
 
     async def on_node_complete_async(
@@ -1003,6 +1204,64 @@ class CASCheckpointHook:
             cache_entry_refs=[cache_entry_ref] if cache_entry_ref is not None else [],
         )
 
+    async def on_node_complete_with_budget_async(
+        self,
+        *,
+        publication_budget: CheckpointPublicationBudget,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_ref: ArtifactRef | None,
+    ) -> CheckpointWriteResult | None:
+        """Preserve legacy dynamic dispatch within one owned budget context."""
+        token = _checkpoint_publication_budget.set(
+            _budget_with_store_policy(publication_budget, self._async_store)
+        )
+        try:
+            return await self.on_node_complete_async(
+                state=state,
+                alias=alias,
+                node_id=node_id,
+                completed_nodes=completed_nodes,
+                workflow_id=workflow_id,
+                workflow_fingerprint=workflow_fingerprint,
+                cache_entry_ref=cache_entry_ref,
+            )
+        finally:
+            _checkpoint_publication_budget.reset(token)
+
+    async def on_tier_complete_with_budget_async(
+        self,
+        *,
+        publication_budget: CheckpointPublicationBudget,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef],
+    ) -> CheckpointWriteResult | None:
+        """Invoke fixed-signature tier overrides without adding legacy kwargs."""
+        token = _checkpoint_publication_budget.set(
+            _budget_with_store_policy(publication_budget, self._async_store)
+        )
+        try:
+            return await self.on_tier_complete_async(
+                state=state,
+                alias=alias,
+                node_id=node_id,
+                completed_nodes=completed_nodes,
+                workflow_id=workflow_id,
+                workflow_fingerprint=workflow_fingerprint,
+                cache_entry_refs=cache_entry_refs,
+            )
+        finally:
+            _checkpoint_publication_budget.reset(token)
+
     async def on_tier_complete_async(
         self,
         *,
@@ -1018,6 +1277,11 @@ class CASCheckpointHook:
         if self._policy == "off":
             return None
 
+        publication_budget = _checkpoint_publication_budget.get()
+        if publication_budget is not None:
+            publication_budget = _budget_with_store_policy(publication_budget, self._async_store)
+            publication_budget.require_active("checkpoint_artifact")
+
         sequence_advance = self._tier_sequence_advance(completed_nodes)
         sequence_number = self._sequence + max(0, sequence_advance - 1)
         try:
@@ -1030,6 +1294,7 @@ class CASCheckpointHook:
                 workflow_fingerprint=workflow_fingerprint,
                 cache_entry_refs=list(cache_entry_refs),
                 sequence_advance=sequence_advance,
+                publication_budget=publication_budget,
             )
         except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError, TimeoutError) as exc:
             if self._policy == "best_effort":
@@ -1050,7 +1315,9 @@ class CASCheckpointHook:
                 )
                 return None
             raise
-        await self._gc_after_checkpoint_async(result, run_id=state.run_id)
+        await self._gc_after_checkpoint_async(
+            result, run_id=state.run_id, publication_budget=publication_budget
+        )
         return result
 
     def export_runtime_metadata(self) -> dict[str, Any] | None:
@@ -1163,8 +1430,7 @@ def restore_checkpoint_hook_from_runtime_metadata(
 
     origin_workflow_fingerprint = metadata.get("origin_workflow_fingerprint")
     if origin_workflow_fingerprint is not None and (
-        not isinstance(origin_workflow_fingerprint, str)
-        or len(origin_workflow_fingerprint) != 64
+        not isinstance(origin_workflow_fingerprint, str) or len(origin_workflow_fingerprint) != 64
     ):
         raise CheckpointCorruptedError("checkpoint runtime origin fingerprint is invalid")
 
@@ -1178,12 +1444,9 @@ def restore_checkpoint_hook_from_runtime_metadata(
         cell_id=cell_id,
         initial_cache_entry_refs=cache_entry_refs,
         initial_completed_nodes=list(metadata.get("completed_nodes", [])),
-        initial_completed_node_status_contract=metadata.get(
-            "completed_node_status_contract"
-        ),
+        initial_completed_node_status_contract=metadata.get("completed_node_status_contract"),
         initial_status_contract_established=(
-            metadata.get("completed_node_status_contract")
-            == COMPLETED_NODE_STATUS_CONTRACT
+            metadata.get("completed_node_status_contract") == COMPLETED_NODE_STATUS_CONTRACT
         ),
         gc_policy=gc_policy,
         initial_checkpoint_ref=previous_checkpoint_ref,
@@ -1265,8 +1528,27 @@ def _build_resume_workflow_spec(
     return workflow.model_copy(update={"nodes": resumed_nodes})
 
 
-def _state_path_present(state: ExperimentState, path: str) -> bool:
-    """Return whether a dotted state path has a non-null value."""
+def _state_value_artifacts_available(value: Any, store: ArtifactStore) -> bool:
+    """Check actual typed references without interpreting arbitrary JSON shapes."""
+    if isinstance(value, ArtifactRef):
+        try:
+            if not store.verify(value).ok:
+                return False
+            # Verification and reading may have different protected-store
+            # capabilities. Keep the complete selected reference for both.
+            store.get_bytes(value)
+        except (OSError, PolicyOSError, ValueError):
+            return False
+        return True
+    if isinstance(value, dict):
+        return all(_state_value_artifacts_available(item, store) for item in value.values())
+    if isinstance(value, (list, tuple)):
+        return all(_state_value_artifacts_available(item, store) for item in value)
+    return True
+
+
+def _state_path_available(state: ExperimentState, path: str, store: ArtifactStore) -> bool:
+    """Check existing required state and the typed artifact refs it resolves."""
     current: Any = state
     for part in path.split("."):
         if isinstance(current, BaseModel):
@@ -1279,7 +1561,7 @@ def _state_path_present(state: ExperimentState, path: str) -> bool:
             current = current[part]
         else:
             return False
-    return current is not None
+    return current is not None and _state_value_artifacts_available(current, store)
 
 
 def _state_paths_overlap(read_path: str, write_path: str) -> bool:
@@ -1298,8 +1580,9 @@ def _missing_completed_state_paths(
     completed_nodes: list[str],
     state: ExperimentState,
     registry: CheckpointRegistry,
+    store: ArtifactStore,
 ) -> tuple[str, ...]:
-    """Find remaining reads whose producer was marked complete but is absent."""
+    """Find required remaining reads missing state or available producer artifacts."""
     completed_set = set(completed_nodes)
     completed_writes: list[str] = []
     for invocation in workflow.nodes:
@@ -1315,9 +1598,9 @@ def _missing_completed_state_paths(
     for invocation in resumed_workflow.nodes:
         node = registry.get(invocation.node_id)
         for read_path in getattr(node.spec, "state_reads", ()):
-            if _state_path_present(state, read_path):
+            if not any(_state_paths_overlap(read_path, write) for write in completed_writes):
                 continue
-            if any(_state_paths_overlap(read_path, write) for write in completed_writes):
+            if not _state_path_available(state, read_path, store):
                 missing.add(read_path)
     return tuple(sorted(missing))
 
@@ -1499,8 +1782,11 @@ async def create_checkpoint_async(
     previous_chain_depth: int = 0,
     max_incremental_chain: int = 6,
     origin_workflow_fingerprint: str | None = None,
+    publication_budget: CheckpointPublicationBudget | None = None,
 ) -> CreatedCheckpoint:
     """Create a checkpoint without blocking the active event loop."""
+    if publication_budget is not None:
+        publication_budget = _budget_with_store_policy(publication_budget, store)
     tenant_id, cell_id = _reconcile_checkpoint_scope(
         tenant_id,
         cell_id,
@@ -1550,18 +1836,39 @@ async def create_checkpoint_async(
         base_checkpoint_ref=base_checkpoint_ref,
         state_delta=state_delta,
     )
-    ref = await store.put_json(
-        checkpoint.model_dump(mode="python", by_alias=True, exclude_none=False),
-        ArtifactWriteOptions(
-            kind=CHECKPOINT_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.scientist.checkpoint.CheckpointArtifact",
-                version=CHECKPOINT_SCHEMA_VERSION,
-            ),
+    payload = checkpoint.model_dump(mode="python", by_alias=True, exclude_none=False)
+    opts = ArtifactWriteOptions(
+        kind=CHECKPOINT_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(
+            name="polisyos.scientist.checkpoint.CheckpointArtifact",
+            version=CHECKPOINT_SCHEMA_VERSION,
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
     )
+    if publication_budget is not None and isinstance(
+        store, (AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore)
+    ):
+        # The adapter's implicit helper default does not own this invocation.
+        # An explicitly configured store limit remains an independent limit.
+        ref = await _run_checkpoint_blocking(
+            store.store.put_json,
+            payload,
+            opts,
+            canon_spec=CanonSpec(forbid_floats=False),
+            publication_budget=publication_budget,
+            operation="checkpoint_artifact",
+        )
+    elif publication_budget is not None:
+        remaining = publication_budget.remaining_seconds("checkpoint_artifact")
+        try:
+            async with asyncio.timeout(remaining):
+                ref = await store.put_json(payload, opts, canon_spec=CanonSpec(forbid_floats=False))
+        except TimeoutError:
+            publication_budget.require_active("checkpoint_artifact", execution_state="unknown")
+            raise
+        publication_budget.require_active("checkpoint_artifact", execution_state="unknown")
+    else:
+        ref = await store.put_json(payload, opts, canon_spec=CanonSpec(forbid_floats=False))
     duration_ms = int((time.perf_counter() - t0) * 1000)
     return CreatedCheckpoint(
         checkpoint_ref=ref,
@@ -1593,8 +1900,11 @@ def update_checkpoint_head(
     chain_depth: int = 0,
     writer_pid: int,
     writer_hostname: str,
+    budget: CheckpointPublicationBudget | None = None,
 ) -> None:
     """Atomically rewrite the local checkpoint head pointer for the latest completed node."""
+    if budget is not None:
+        budget.require_active("checkpoint_head")
     run_dir.mkdir(parents=True, exist_ok=True)
     head = CheckpointHead(
         run_id=run_id,
@@ -1614,14 +1924,20 @@ def update_checkpoint_head(
 
     fd, tmp_path = tempfile.mkstemp(prefix=".checkpoint_head_", suffix=".tmp", dir=str(run_dir))
     try:
-        os.write(fd, payload)
-        os.fsync(fd)
+        try:
+            os.write(fd, payload)
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        if budget is not None:
+            budget.require_active("checkpoint_head")
+        # Once atomic publication enters, finish the committed generation even
+        # if the caller expires. The async owner then reports unknown, not ACK.
+        os.replace(tmp_path, str(head_path))
+        _fsync_dir(run_dir)
+        append_checkpoint_history(run_dir, head)
     finally:
-        os.close(fd)
-
-    os.replace(tmp_path, str(head_path))
-    _fsync_dir(run_dir)
-    append_checkpoint_history(run_dir, head)
+        Path(tmp_path).unlink(missing_ok=True)
 
 
 def _history_path(run_dir: Path) -> Path:
@@ -1656,8 +1972,15 @@ def load_checkpoint_history(run_dir: Path) -> CheckpointHistory | None:
         ) from exc
 
 
-def write_checkpoint_history(run_dir: Path, history: CheckpointHistory) -> None:
+def write_checkpoint_history(
+    run_dir: Path,
+    history: CheckpointHistory,
+    *,
+    budget: CheckpointPublicationBudget | None = None,
+) -> None:
     """Atomically persist local checkpoint history."""
+    if budget is not None:
+        budget.require_active("checkpoint_gc")
     run_dir.mkdir(parents=True, exist_ok=True)
     history_path = _history_path(run_dir)
     payload = history.model_dump_json(by_alias=True, exclude_none=True, indent=2).encode("utf-8")
@@ -1668,13 +1991,17 @@ def write_checkpoint_history(run_dir: Path, history: CheckpointHistory) -> None:
         dir=str(run_dir),
     )
     try:
-        os.write(fd, payload)
-        os.fsync(fd)
+        try:
+            os.write(fd, payload)
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        if budget is not None:
+            budget.require_active("checkpoint_gc")
+        os.replace(tmp_path, str(history_path))
+        _fsync_dir(run_dir)
     finally:
-        os.close(fd)
-
-    os.replace(tmp_path, str(history_path))
-    _fsync_dir(run_dir)
+        Path(tmp_path).unlink(missing_ok=True)
 
 
 def append_checkpoint_history(run_dir: Path, head: CheckpointHead) -> None:
@@ -2128,8 +2455,7 @@ def resume_from_checkpoint(
         )
         if (
             checkpoint.metadata.completed_nodes
-            and checkpoint.metadata.completed_node_status_contract
-            != COMPLETED_NODE_STATUS_CONTRACT
+            and checkpoint.metadata.completed_node_status_contract != COMPLETED_NODE_STATUS_CONTRACT
         ):
             raise CheckpointStatusNotEstablishedError(
                 "checkpoint_completed_node_status_not_established"
@@ -2163,6 +2489,7 @@ def resume_from_checkpoint(
                 completed_nodes=checkpoint.metadata.completed_nodes,
                 state=restored_state,
                 registry=resolved_registry,
+                store=store,
             )
         execution_workflow = resumed_workflow
         if missing_state_paths:
@@ -2226,8 +2553,7 @@ def resume_from_checkpoint(
                 checkpoint.metadata.completed_node_status_contract
             ),
             initial_status_contract_established=(
-                checkpoint.metadata.completed_node_status_contract
-                == COMPLETED_NODE_STATUS_CONTRACT
+                checkpoint.metadata.completed_node_status_contract == COMPLETED_NODE_STATUS_CONTRACT
             ),
             initial_checkpoint_ref=head.checkpoint_ref,
             initial_state=checkpoint.state,

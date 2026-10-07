@@ -1,0 +1,20 @@
+import argparse, datetime, hashlib, json, os, pathlib, subprocess, time
+parser=argparse.ArgumentParser();parser.add_argument("name");parser.add_argument("targets",nargs="+");args=parser.parse_args()
+root=pathlib.Path("/workspace/e02-B-current-composition");cwd=root/"policy-engine";base=pathlib.Path(__file__).parent
+out=base/args.name;out.mkdir(exist_ok=False)
+fixture=pathlib.Path("/dev/shm")/("e02-B-module-"+args.name+"-"+str(os.getpid()));fixture.mkdir(exist_ok=False)
+sha=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip()
+def source():return {"sha":subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),"tree":subprocess.check_output(["git","rev-parse","HEAD^{tree}"],cwd=root,text=True).strip(),"status":subprocess.check_output(["git","status","--porcelain"],cwd=root,text=True)}
+pre=source();assert not pre["status"]
+env=os.environ.copy();env["PYTHONPATH"]=str(cwd/"src")+":"+str(cwd/"product");env["POLISYOS_METRICS_PORT"]="0"
+argv=["/workspace/polisyos/policy-engine/.venv/bin/python",str(base/"pytest-child.py"),str(root),sha,str(out/"module-origins.json"),*args.targets,"-vv","--tb=short","--import-mode=importlib","-p","no:cacheprovider","--basetemp",str(fixture),"--junitxml",str(out/"native.xml")]
+keys=["PYTHONPATH","POLISYOS_METRICS_PORT","XLA_FLAGS","JAX_NUM_THREADS","OMP_NUM_THREADS","OPENBLAS_NUM_THREADS","MKL_NUM_THREADS","BLIS_NUM_THREADS","VECLIB_MAXIMUM_THREADS","NUMEXPR_NUM_THREADS","RAYON_NUM_THREADS","TF_NUM_INTEROP_THREADS","TF_NUM_INTRAOP_THREADS","NUMBA_NUM_THREADS","LOKY_MAX_CPU_COUNT","PYTEST_XDIST_AUTO_NUM_WORKERS"]
+profile={"argv":argv,"cwd":str(cwd),"source_before":pre,"environment":{key:env.get(key) for key in keys},"python_version":subprocess.check_output([argv[0],"--version"],text=True).strip(),"fixture":str(fixture),"fixtures_preserved":True,"no_caps_added":True,"test_input_bytes":[{"path":target,"bytes":len((cwd/target).read_bytes()),"sha256":hashlib.sha256((cwd/target).read_bytes()).hexdigest()} for target in args.targets]}
+(out/"profile.json").write_text(json.dumps(profile,indent=2)+"\n")
+start=datetime.datetime.now(datetime.UTC).isoformat();tick=time.monotonic()
+with (out/"stdout.txt").open("xb") as log:
+    proc=subprocess.Popen(argv,cwd=cwd,env=env,stdout=log,stderr=subprocess.STDOUT)
+    pid,status,usage=os.wait4(proc.pid,0);proc.returncode=os.waitstatus_to_exitcode(status)
+post=source();assert pre==post
+result={"started_at":start,"finished_at":datetime.datetime.now(datetime.UTC).isoformat(),"argv":argv,"cwd":str(cwd),"source_before":pre,"source_after":post,"exit_code":proc.returncode,"wait4_status":status,"signal":(-proc.returncode if proc.returncode<0 else None),"wall_seconds":time.monotonic()-tick,"max_rss_kib":usage.ru_maxrss,"user_cpu_seconds":usage.ru_utime,"system_cpu_seconds":usage.ru_stime,"stdout":{"bytes":(out/"stdout.txt").stat().st_size,"sha256":hashlib.sha256((out/"stdout.txt").read_bytes()).hexdigest()}}
+(out/"wrapper.json").write_text(json.dumps(result,indent=2)+"\n");print(json.dumps(result))

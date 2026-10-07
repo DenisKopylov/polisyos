@@ -1,0 +1,170 @@
+"""Run the complete B selector on one clean source and fresh scratch directory.
+
+This reuses the canonical installed-wheel/PostgreSQL input admission and full
+wait4 capture. It changes output destinations, without filtering selected cases
+or changing pytest outcomes. Raw fixtures and earlier runs are preserved.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import os
+import subprocess
+from pathlib import Path
+
+
+def main() -> None:
+    """Bind exact source/input identity and launch the unfiltered native cohort."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sha", required=True)
+    parser.add_argument("--selector", type=Path, required=True)
+    parser.add_argument("--scratch", type=Path, required=True)
+    parser.add_argument("--wheel-input", type=Path, required=True)
+    args = parser.parse_args()
+    root = Path("/workspace/e02-B-current-coordination")
+    product = root / "policy-engine"
+    harness = root / ".polisyos/e02-B-current"
+    tools = harness / "tools"
+    evidence = Path('/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence')
+
+    def git(*words: str) -> str:
+        return subprocess.check_output(  # noqa: S603 - fixed read-only Git argv
+            ["/usr/bin/git", "-C", str(root), *words], text=True
+        ).strip()
+
+    if git("rev-parse", "HEAD") != args.sha:
+        raise RuntimeError("Supplied source differs from HEAD")
+    if git("symbolic-ref", "--short", "HEAD") != "codex/e02-B-current-coordination":
+        raise RuntimeError("The declared B lane is not attached")
+    if git("status", "--porcelain"):
+        raise RuntimeError("The source is not clean")
+    if not args.scratch.is_absolute() or args.scratch.exists() or args.scratch.is_symlink():
+        raise RuntimeError("Supply an unused absolute scratch directory")
+    selector_bytes = args.selector.read_bytes()
+    selector = json.loads(selector_bytes)
+    if selector["root_snapshot_sha"] != args.sha:
+        raise RuntimeError("Selector belongs to another source")
+    if selector["root_snapshot_tree"] != git("rev-parse", "HEAD^{tree}"):
+        raise RuntimeError("Selector tree differs from source")
+    paths = selector["test_paths"]
+    if len(paths) != len(set(paths)) or len(paths) != selector["candidate_whole_file_count"]:
+        raise RuntimeError("Selector file denominator does not reconcile")
+    observer = evidence.parent / "current-cohort-inventory.py"
+    if (tools / "current_cohort_inventory.py").read_bytes() != observer.read_bytes():
+        raise RuntimeError("Native observer differs from the tracked instrument")
+    spec = importlib.util.spec_from_file_location(
+        "e02_verification_inputs", evidence / "run_successor.py"
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Canonical input admission loader unavailable")
+    admission = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(admission)
+    admission.SHA = args.sha
+    env = dict(os.environ)
+    removed = sorted(key for key in admission.CAPS if key in env)
+    for key in admission.CAPS:
+        env.pop(key, None)
+    python = harness / "environment/bin/python"
+    env.update(
+        {
+            "UV_PROJECT_ENVIRONMENT": str(harness / "environment"),
+            "UV_NO_SYNC": "1",
+            "PYTHONPATH": ":".join(map(str, [product / "src", product, tools])),
+            "POLISYOS_METRICS_PORT": "0",
+            "E02_ORACLE_PRODUCT_ROOT": str(product),
+            "TIKTOKEN_CACHE_DIR": str(tools / "tokenizer-input/cache"),
+        }
+    )
+    env["PATH"] = ":".join(
+        [
+            str(python.parent),
+            str(tools / "uv-0.9.21/bin"),
+            "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin",
+            env["PATH"],
+        ]
+    )
+    os.environ["E02_LA057_COHORT_INPUT_FILE"] = str(args.wheel_input)
+    verification = admission.bind_verification_inputs(env)
+    args.scratch.mkdir(mode=0o700)
+    argsfile = args.scratch / "whole-files.args"
+    argsfile.write_text("\n".join(paths) + "\n")
+    raw = harness / "raw/review"
+    tag = "completed-final-B-cohort-filebacked-retry"
+    inventory = raw / (tag + "-inventory.json")
+    if inventory.exists() or inventory.is_symlink():
+        raise RuntimeError("Inventory destination already exists")
+    env["E02_B_COHORT_INVENTORY_PATH"] = str(inventory)
+    argv = [
+        str(python),
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@" + str(argsfile),
+        "--continue-on-collection-errors",
+        "--basetemp",
+        str(args.scratch / "pytest"),
+        "-o",
+        "cache_dir=" + str(args.scratch / "cache"),
+        "--junitxml=" + str(args.scratch / "native.xml"),
+    ]
+    profile = {
+        "sha": args.sha,
+        "tree": git("rev-parse", "HEAD^{tree}"),
+        "argv": argv,
+        "cwd": str(product),
+        "verification_inputs": verification,
+        "selector_path": str(args.selector),
+        "selector_sha256": hashlib.sha256(selector_bytes).hexdigest(),
+        "test_paths": paths,
+        "whole_file_count": len(paths),
+        "inventory": str(inventory),
+        "fresh_scratch": str(args.scratch),
+        "ambient_cap_names_removed": removed,
+        "all_cap_names_absent_in_child": list(admission.CAPS),
+        "environment": {
+            key: env.get(key)
+            for key in (
+                "PYTHONPATH",
+                "PATH",
+                "UV_PROJECT_ENVIRONMENT",
+                "UV_NO_SYNC",
+                "POLISYOS_METRICS_PORT",
+                "TIKTOKEN_CACHE_DIR",
+                "E02_B_COHORT_INVENTORY_PATH",
+            )
+        },
+        "launcher_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "input_admission_sha256": hashlib.sha256(
+            (evidence / "run_successor.py").read_bytes()
+        ).hexdigest(),
+        "capture_sha256": hashlib.sha256((evidence / "capture_frozen.py").read_bytes()).hexdigest(),
+        "qualification": (
+            "Complete native files, no test/marker/worker/thread/CPU quota. "
+            "Observer records hook-time modules, not a complete import read set "
+            "or child/transient modules."
+        ),
+    }
+    with (raw / (tag + "-profile.json")).open("x") as stream:
+        json.dump(profile, stream, indent=2)
+        stream.write("\n")
+    capture = [
+        str(python),
+        str(evidence / "capture_frozen.py"),
+        "--repo",
+        str(root),
+        "--tag",
+        tag,
+        "--",
+        *argv,
+    ]
+    result = subprocess.run(capture, cwd=root, env=env)  # noqa: S603 - recorded argv
+    raise SystemExit(result.returncode)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,698 @@
+{
+  "actual_cases": [
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "1.841",
+      "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-False]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "1.438",
+      "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-True]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "1.311",
+      "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-False]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "1.488",
+      "name": "test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.689",
+      "name": "test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.108",
+      "name": "test_reopened_plan_keeps_independent_real_branches_parallel[async]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.110",
+      "name": "test_reopened_plan_keeps_independent_real_branches_parallel[auto]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.230",
+      "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[sequential]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.068",
+      "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.084",
+      "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[auto]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.127",
+      "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.246",
+      "name": "test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled-jit]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.023",
+      "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-edge]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.020",
+      "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-node]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle",
+      "duration_seconds": "0.019",
+      "name": "test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[cycle]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_jit_01",
+      "duration_seconds": "0.125",
+      "name": "test_chain_shape_inference_refuses_unknown_data_dependent_shape",
+      "outcome": "PASS"
+    }
+  ],
+  "actual_phase_count": 48,
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-p",
+    "plan_origins_final",
+    "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+    "tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape",
+    "--basetemp",
+    "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest",
+    "-o",
+    "cache_dir=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/cache",
+    "--junitxml=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/native.xml"
+  ],
+  "artifact_transfers": [
+    {
+      "bytes": 71003,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/module-origins.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/module-origins.jsonl",
+      "sha256": "787491f025e2fca4dda732314f75a70a6d0dad3337c59998b78952591ef9a072",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 8263,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/native-stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/native-stdout.txt",
+      "sha256": "7eb649d830dc263750aae0b41238c94ccf41a6ed3311f89bb469e5875d5b8724",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 3346,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/native.xml",
+      "sha256": "c7115218d85f1aa7d1e0adb201f02dc6f94a17562aaa875f5ff21df345a24d75",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 12415,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/phases.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/phases.jsonl",
+      "sha256": "4c7e09257b96d522d8fa22192241e81e82a8db1bfc02dfbb95a6f9938e032375",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 15800,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/profile.json",
+      "sha256": "5d4518b4e9f1e9828c4eddca80f48df58246ec2b1f9c5f9906d7f73f632808d8",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/ownership/transactions/locks/stripe-00.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/ownership/transactions/locks/stripe-00.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1226,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/sha256/a7/b0/a7b0e01f48c10e49676f56dab55b99588817586b497267540a536f7469371dc0.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/sha256/a7/b0/a7b0e01f48c10e49676f56dab55b99588817586b497267540a536f7469371dc0.blob",
+      "sha256": "a7b0e01f48c10e49676f56dab55b99588817586b497267540a536f7469371dc0",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/sha256/a7/b0/a7b0e01f48c10e49676f56dab55b99588817586b497267540a536f7469371dc0.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/sha256/a7/b0/a7b0e01f48c10e49676f56dab55b99588817586b497267540a536f7469371dc0.manifest.json",
+      "sha256": "508b9c463cddc549205fc0ba6c28dae5e4831e9b242fed15a82df4950c3068ed",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/sha256/a7/b0/a7b0e01f48c10e49676f56dab55b99588817586b497267540a536f7469371dc0.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen0/cas/artifacts/sha256/a7/b0/a7b0e01f48c10e49676f56dab55b99588817586b497267540a536f7469371dc0.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "sha256": "508b9c463cddc549205fc0ba6c28dae5e4831e9b242fed15a82df4950c3068ed",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1060,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen0/reopened-plan-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen0/reopened-plan-observations.json",
+      "sha256": "d26e138648f040024f65a6d5c7b5cf8774368bd35d0a93ee75950b88aca33fbc",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/ownership/transactions/locks/stripe-19.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/ownership/transactions/locks/stripe-19.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1226,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/sha256/60/c7/60c7a75b584a07310565d9fa5e63fdb7588960d0714d6dec8734311a7eea3713.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/sha256/60/c7/60c7a75b584a07310565d9fa5e63fdb7588960d0714d6dec8734311a7eea3713.blob",
+      "sha256": "60c7a75b584a07310565d9fa5e63fdb7588960d0714d6dec8734311a7eea3713",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/sha256/60/c7/60c7a75b584a07310565d9fa5e63fdb7588960d0714d6dec8734311a7eea3713.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/sha256/60/c7/60c7a75b584a07310565d9fa5e63fdb7588960d0714d6dec8734311a7eea3713.manifest.json",
+      "sha256": "6dd78490d0dcf87418bbd4aa0c2a5ff44507dc3d46661f3dd23ce3d04afacb22",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/sha256/60/c7/60c7a75b584a07310565d9fa5e63fdb7588960d0714d6dec8734311a7eea3713.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen1/cas/artifacts/sha256/60/c7/60c7a75b584a07310565d9fa5e63fdb7588960d0714d6dec8734311a7eea3713.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "sha256": "6dd78490d0dcf87418bbd4aa0c2a5ff44507dc3d46661f3dd23ce3d04afacb22",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1055,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen1/reopened-plan-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen1/reopened-plan-observations.json",
+      "sha256": "197dcd02ca553881fc5a76bb020f0ba1a5ac60b4c5fb9f25488d0e9944559740",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1226,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/sha256/de/91/de91e9863375e9a42cb45034993d597ab6dddccd17cce682ea549a0a378b7a67.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/sha256/de/91/de91e9863375e9a42cb45034993d597ab6dddccd17cce682ea549a0a378b7a67.blob",
+      "sha256": "de91e9863375e9a42cb45034993d597ab6dddccd17cce682ea549a0a378b7a67",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/sha256/de/91/de91e9863375e9a42cb45034993d597ab6dddccd17cce682ea549a0a378b7a67.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/sha256/de/91/de91e9863375e9a42cb45034993d597ab6dddccd17cce682ea549a0a378b7a67.manifest.json",
+      "sha256": "f0948bd8099d3bf1aa9cb80377e50d0bd2be696e67f86f7eac08c40c2db495ee",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/sha256/de/91/de91e9863375e9a42cb45034993d597ab6dddccd17cce682ea549a0a378b7a67.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen2/cas/artifacts/sha256/de/91/de91e9863375e9a42cb45034993d597ab6dddccd17cce682ea549a0a378b7a67.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "sha256": "f0948bd8099d3bf1aa9cb80377e50d0bd2be696e67f86f7eac08c40c2db495ee",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1054,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen2/reopened-plan-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen2/reopened-plan-observations.json",
+      "sha256": "644963b43b2f8f8c42285f1a0c2095e2a32123bec4b86b9192c7df3cb8254396",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1226,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/sha256/5f/ac/5fac3dd274c0dc5729fe910e0eda1be9f6f23e8e886ce9ede2dd6f23f12da6ed.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/sha256/5f/ac/5fac3dd274c0dc5729fe910e0eda1be9f6f23e8e886ce9ede2dd6f23f12da6ed.blob",
+      "sha256": "5fac3dd274c0dc5729fe910e0eda1be9f6f23e8e886ce9ede2dd6f23f12da6ed",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/sha256/5f/ac/5fac3dd274c0dc5729fe910e0eda1be9f6f23e8e886ce9ede2dd6f23f12da6ed.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/sha256/5f/ac/5fac3dd274c0dc5729fe910e0eda1be9f6f23e8e886ce9ede2dd6f23f12da6ed.manifest.json",
+      "sha256": "c688f077db5e37b2fb098a9fe8a4454dda477a91da9f48d6fcc4b3ee8d6e3de9",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/sha256/5f/ac/5fac3dd274c0dc5729fe910e0eda1be9f6f23e8e886ce9ede2dd6f23f12da6ed.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen3/cas/artifacts/sha256/5f/ac/5fac3dd274c0dc5729fe910e0eda1be9f6f23e8e886ce9ede2dd6f23f12da6ed.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "sha256": "c688f077db5e37b2fb098a9fe8a4454dda477a91da9f48d6fcc4b3ee8d6e3de9",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1057,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen3/reopened-plan-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen3/reopened-plan-observations.json",
+      "sha256": "134fa7f6563349b6e58195ab5e0dabbe67077a9cd32647ac3551db806b16f39c",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1226,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/sha256/e6/5e/e65ee99740436c26173c96c24a371f16a72b67deae3741dfb99733585229e02c.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/sha256/e6/5e/e65ee99740436c26173c96c24a371f16a72b67deae3741dfb99733585229e02c.blob",
+      "sha256": "e65ee99740436c26173c96c24a371f16a72b67deae3741dfb99733585229e02c",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/sha256/e6/5e/e65ee99740436c26173c96c24a371f16a72b67deae3741dfb99733585229e02c.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/sha256/e6/5e/e65ee99740436c26173c96c24a371f16a72b67deae3741dfb99733585229e02c.manifest.json",
+      "sha256": "858431f2ff47c6839e1bd20522a2cb2617c7f7808d73cca4cc793cf9c5da6d8e",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/sha256/e6/5e/e65ee99740436c26173c96c24a371f16a72b67deae3741dfb99733585229e02c.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen4/cas/artifacts/sha256/e6/5e/e65ee99740436c26173c96c24a371f16a72b67deae3741dfb99733585229e02c.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "sha256": "858431f2ff47c6839e1bd20522a2cb2617c7f7808d73cca4cc793cf9c5da6d8e",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1062,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_canonical_plan_cas_reopen4/reopened-plan-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_canonical_plan_cas_reopen4/reopened-plan-observations.json",
+      "sha256": "8cb409615b01814ab7cc07149814ed256eff955343fbcb3e80ed2135e492ef28",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1316,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_cold_warm_preparation_pre0/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_cold_warm_preparation_pre0/numerical-observations.json",
+      "sha256": "f24c6b6a3e9f6f50baee1701ee0da69d81ed1c1ac8f0950295a450a481b70ac8",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1312,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_cold_warm_preparation_pre1/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_cold_warm_preparation_pre1/numerical-observations.json",
+      "sha256": "0849802fdf5742a88e24bd9562e3c732e1d0aedbdc6c21dff87c3b706b1f5395",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1315,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_cold_warm_preparation_pre2/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_cold_warm_preparation_pre2/numerical-observations.json",
+      "sha256": "0a95e6599477cc435e7af0e48d66d880673f5da8c88741a28b79084643e495b0",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1311,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_cold_warm_preparation_pre3/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_cold_warm_preparation_pre3/numerical-observations.json",
+      "sha256": "ae6a6ba45435f0f3daad810551da82ad9589a509b764c61d2183b5869328accc",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 532,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_explicit_numerical_warmup0/numerical-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_explicit_numerical_warmup0/numerical-observations.json",
+      "sha256": "965a1600fdfaa5f5f720619ea7313dde628fab405679862cc55866c0634f3620",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/ownership/transactions/locks/stripe-27.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/ownership/transactions/locks/stripe-27.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1626,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/sha256/40/ee/40ee038a80094fdf34fd9fdebb1e3ed70ce5b220a74d78655f75ed758ed92e9b.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/sha256/40/ee/40ee038a80094fdf34fd9fdebb1e3ed70ce5b220a74d78655f75ed758ed92e9b.blob",
+      "sha256": "40ee038a80094fdf34fd9fdebb1e3ed70ce5b220a74d78655f75ed758ed92e9b",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/sha256/40/ee/40ee038a80094fdf34fd9fdebb1e3ed70ce5b220a74d78655f75ed758ed92e9b.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/sha256/40/ee/40ee038a80094fdf34fd9fdebb1e3ed70ce5b220a74d78655f75ed758ed92e9b.manifest.json",
+      "sha256": "236f494db20cf102aa1a40796d0dd70969ba262b73a209c8854846f0ef5b6b76",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/sha256/40/ee/40ee038a80094fdf34fd9fdebb1e3ed70ce5b220a74d78655f75ed758ed92e9b.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep0/cas/artifacts/sha256/40/ee/40ee038a80094fdf34fd9fdebb1e3ed70ce5b220a74d78655f75ed758ed92e9b.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "sha256": "236f494db20cf102aa1a40796d0dd70969ba262b73a209c8854846f0ef5b6b76",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 866,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep0/reopened-parallel-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep0/reopened-parallel-observations.json",
+      "sha256": "9dbe813a1e731b02d821e341780ede281ed3f58e455b9519e7190b2cba5c3245",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/ownership/transactions/locks/stripe-60.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/ownership/transactions/locks/stripe-60.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1626,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/sha256/96/0a/960acc9f695d150c79a2006c9cf6532d628b653d67fa7b117c945a42adc0b07c.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/sha256/96/0a/960acc9f695d150c79a2006c9cf6532d628b653d67fa7b117c945a42adc0b07c.blob",
+      "sha256": "960acc9f695d150c79a2006c9cf6532d628b653d67fa7b117c945a42adc0b07c",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/sha256/96/0a/960acc9f695d150c79a2006c9cf6532d628b653d67fa7b117c945a42adc0b07c.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/sha256/96/0a/960acc9f695d150c79a2006c9cf6532d628b653d67fa7b117c945a42adc0b07c.manifest.json",
+      "sha256": "9be7b849dff880a8617a84f994f1e9572aef04df97650f7999fd8b59ee4d49fa",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 496,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/sha256/96/0a/960acc9f695d150c79a2006c9cf6532d628b653d67fa7b117c945a42adc0b07c.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep1/cas/artifacts/sha256/96/0a/960acc9f695d150c79a2006c9cf6532d628b653d67fa7b117c945a42adc0b07c.view.f64cc97da8844f6fe00326da93b730801cd15e4bf87d3aa77e72f807aa3adf25.manifest.json",
+      "sha256": "9be7b849dff880a8617a84f994f1e9572aef04df97650f7999fd8b59ee4d49fa",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 865,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_keeps_indep1/reopened-parallel-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_keeps_indep1/reopened-parallel-observations.json",
+      "sha256": "0e58fd11f756921fc5c601249587d7ff963f40c858f4c5331efa31309499131a",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/ownership/transactions/locks/stripe-38.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/ownership/transactions/locks/stripe-38.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1188,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/sha256/3e/18/3e1849be8f040d2a98e6c3ce23b88588633ffe339ddc9235695ee80cc2cf6526.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/sha256/3e/18/3e1849be8f040d2a98e6c3ce23b88588633ffe339ddc9235695ee80cc2cf6526.blob",
+      "sha256": "3e1849be8f040d2a98e6c3ce23b88588633ffe339ddc9235695ee80cc2cf6526",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 433,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/sha256/3e/18/3e1849be8f040d2a98e6c3ce23b88588633ffe339ddc9235695ee80cc2cf6526.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/sha256/3e/18/3e1849be8f040d2a98e6c3ce23b88588633ffe339ddc9235695ee80cc2cf6526.manifest.json",
+      "sha256": "4767b26edd035719db464479dc7c28edb53f8b5a2e469d3eb48632d7dc0391a0",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 433,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/sha256/3e/18/3e1849be8f040d2a98e6c3ce23b88588633ffe339ddc9235695ee80cc2cf6526.view.cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam0/cas/artifacts/sha256/3e/18/3e1849be8f040d2a98e6c3ce23b88588633ffe339ddc9235695ee80cc2cf6526.view.cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c.manifest.json",
+      "sha256": "4767b26edd035719db464479dc7c28edb53f8b5a2e469d3eb48632d7dc0391a0",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 561,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam0/damaged-plan-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam0/damaged-plan-observations.json",
+      "sha256": "c9d788759e881990fcc2639a97e9b79a2020be0df095c4a2af24de5f809997fc",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/ownership/transactions/locks/stripe-05.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/ownership/transactions/locks/stripe-05.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 649,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/sha256/1d/bb/1dbbaae9cce260213795b23ae38f9ecfe2509aed9825d567b4763a8d5f723785.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/sha256/1d/bb/1dbbaae9cce260213795b23ae38f9ecfe2509aed9825d567b4763a8d5f723785.blob",
+      "sha256": "1dbbaae9cce260213795b23ae38f9ecfe2509aed9825d567b4763a8d5f723785",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 432,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/sha256/1d/bb/1dbbaae9cce260213795b23ae38f9ecfe2509aed9825d567b4763a8d5f723785.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/sha256/1d/bb/1dbbaae9cce260213795b23ae38f9ecfe2509aed9825d567b4763a8d5f723785.manifest.json",
+      "sha256": "13c9fb6835457a7a2a266ccf797ebff001c92535d61f1f0587c79e5abb9203d1",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 432,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/sha256/1d/bb/1dbbaae9cce260213795b23ae38f9ecfe2509aed9825d567b4763a8d5f723785.view.cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam1/cas/artifacts/sha256/1d/bb/1dbbaae9cce260213795b23ae38f9ecfe2509aed9825d567b4763a8d5f723785.view.cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c.manifest.json",
+      "sha256": "13c9fb6835457a7a2a266ccf797ebff001c92535d61f1f0587c79e5abb9203d1",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 652,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam1/damaged-plan-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam1/damaged-plan-observations.json",
+      "sha256": "0d75e672ee954fb4fb54ca4f17e942193bbf4955efca7f186b0ef003334348e7",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/ownership/transactions/locks/stripe-55.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/ownership/transactions/locks/stripe-55.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 0,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1264,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/sha256/02/ca/02ca1717865a9cb4280339f5e58d8b5d58a1fe6ac989bf8961a2d056be4540f7.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/sha256/02/ca/02ca1717865a9cb4280339f5e58d8b5d58a1fe6ac989bf8961a2d056be4540f7.blob",
+      "sha256": "02ca1717865a9cb4280339f5e58d8b5d58a1fe6ac989bf8961a2d056be4540f7",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 433,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/sha256/02/ca/02ca1717865a9cb4280339f5e58d8b5d58a1fe6ac989bf8961a2d056be4540f7.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/sha256/02/ca/02ca1717865a9cb4280339f5e58d8b5d58a1fe6ac989bf8961a2d056be4540f7.manifest.json",
+      "sha256": "4e48e2e497f6b1c396ec3869637cac9e9889397a0e87c9498922537b9966c843",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 433,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/sha256/02/ca/02ca1717865a9cb4280339f5e58d8b5d58a1fe6ac989bf8961a2d056be4540f7.view.cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam2/cas/artifacts/sha256/02/ca/02ca1717865a9cb4280339f5e58d8b5d58a1fe6ac989bf8961a2d056be4540f7.view.cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c.manifest.json",
+      "sha256": "4e48e2e497f6b1c396ec3869637cac9e9889397a0e87c9498922537b9966c843",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 727,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest/test_reopened_plan_refuses_dam2/damaged-plan-observations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/pytest/test_reopened_plan_refuses_dam2/damaged-plan-observations.json",
+      "sha256": "bb7678796667739d336cd452932b2e86fbed64098765b7eb6295dd4b3e89791d",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 22325,
+      "original_path": "/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/result.json",
+      "sha256": "0954e06183afa839db14bea1ed9686c5e4e87c62ada7a159b657d823076aacaa",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 7080,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_run_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/literal-instruments/plan_run_final.py.txt",
+      "sha256": "e2cda553a2458a68b84cbef5612833bd50bdf0d81ddd280e9a4ec3388f3b10a8",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 1863,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan_origins_final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/literal-instruments/plan_origins_final.py.txt",
+      "sha256": "50333b62abfd6a4003dcc3df49e5a4576309312ccc41c14b4a22460e41026c4d",
+      "source_mode": "0o100600"
+    },
+    {
+      "bytes": 4943,
+      "original_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/publish-plan-final.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/literal-instruments/publish-plan-final.py.txt",
+      "sha256": "465c9bb9da20d376e5a28f0a071e966f0198f27fe5dc3066522bf59897a88124",
+      "source_mode": "0o100600"
+    }
+  ],
+  "counts": {
+    "actual_cases": 16,
+    "error": 0,
+    "failed": 0,
+    "passed": 16,
+    "skipped": 0
+  },
+  "created_utc": "2026-10-06T21:33:38.469318+00:00",
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "elapsed_seconds": 12.04389361399808,
+  "predicate_basis": "recomputed",
+  "production_source_projection_sha": "885b3e0eff36ee8a733e32a0c604bdcd58a62eb5",
+  "production_source_projection_tree": "fccab3a77a1e4d257d8e347a4d27c63cee286c0f",
+  "qualifications": [
+    "Final16PASS retains12soft output-validation warnings; no strict scientific output schema/validity/RNG-distribution/old-source/cache-prefix/all-Ray deployment authority claim.",
+    "No repeated property-removal or broader gate run after type-only companion; prior9ce actual three distinguishing removalFAIL controls remain separately pinned historical controls.",
+    "Original full DD native/global gate FAIL remains unchanged historical evidence; no P41 inheritance waiver or final combined root PASS claimed.",
+    "Sourcehold released only after terminal source/test beforeafter and full module origins verified; no canonical producer source change by independent test author."
+  ],
+  "returncode": 0,
+  "schema": "policyos.e02.independent_compiled_plan_final_replay.v1",
+  "source_checkout_after": {
+    "head": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+    "status": "",
+    "tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd"
+  },
+  "source_checkout_before": {
+    "head": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+    "status": "",
+    "tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd"
+  },
+  "source_projection_full_src_test_config_diff": {
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/e02-B-current-composition",
+      "diff",
+      "--name-only",
+      "885b3e0eff36ee8a733e32a0c604bdcd58a62eb5",
+      "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "--",
+      "policy-engine/src",
+      "policy-engine/tests",
+      "policy-engine/pytest.ini",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ],
+    "source_checkout_qualification": "Actual clean6d7 checkout; not a literal885 checkout. Exact source/tests/config equality plus all loaded module origins/Git bytes independently checked against6d7 AND885 at collection/session finish.",
+    "stdout": ""
+  },
+  "test_byte_identity": "Actual test/config bytes in final profile; no test edit after5a3f, ownf3fec adds only deciding docs custody.",
+  "test_checkout_after": {
+    "head": "f3fec71449f752d7933dc21b979cb7dd21500ccf",
+    "status": "",
+    "tree": "03ace8754bfab51f7a3b366e33cc88a0b7da2f66"
+  },
+  "test_checkout_before": {
+    "head": "f3fec71449f752d7933dc21b979cb7dd21500ccf",
+    "status": "",
+    "tree": "03ace8754bfab51f7a3b366e33cc88a0b7da2f66"
+  },
+  "test_file_original_implementation_sha": "5a3f466b0457ed4afbda53381617762a34cb05ed"
+}

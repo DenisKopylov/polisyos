@@ -1,0 +1,126 @@
+"""Reconcile explicitly pinned receipt/evidence Git objects without execution."""
+import argparse
+import hashlib
+import json
+import re
+from pathlib import Path
+import subprocess
+
+ROOT = '/workspace/e02-B-current-cas-generation'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', ROOT, *args])
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--source', required=True)
+    parser.add_argument('--receipts', type=Path, required=True)
+    parser.add_argument('--out', type=Path, required=True)
+    args = parser.parse_args()
+    source = git('rev-parse', args.source).decode().strip()
+    requests = json.loads(args.receipts.read_bytes())
+    checked, unresolved, indices, receipt_rows = {}, [], [], []
+    expanded_indices = set()
+
+    def check(ref, path, expected_hash=None, expected_bytes=None, origin=None):
+        if not isinstance(ref, str) or not isinstance(path, str) or not path.startswith('policy-engine/'):
+            unresolved.append({'origin': origin, 'path': path, 'ref': ref,
+                               'reason': 'No explicit receiver-available immutable Git binding.'})
+            return None
+        try:
+            resolved = git('rev-parse', ref + '^{commit}').decode().strip()
+            raw = git('show', resolved + ':' + path)
+            digest = hashlib.sha256(raw).hexdigest()
+            key = resolved + ':' + path
+            row = checked.setdefault(key, {'source_sha': resolved, 'path': path,
+                'git_blob': git('rev-parse', key).decode().strip(), 'bytes': len(raw),
+                'sha256': digest, 'expected_hash_matches': [], 'expected_bytes_matches': []})
+            if expected_hash is not None:
+                row['expected_hash_matches'].append(digest == expected_hash)
+            if expected_bytes is not None:
+                row['expected_bytes_matches'].append(len(raw) == expected_bytes)
+            if key not in expanded_indices and path.endswith('.json') and 'index' in Path(path).name:
+                body = json.loads(raw)
+                if isinstance(body, dict) and isinstance(body.get('files'), list):
+                    expanded_indices.add(key)
+                    walk(body, resolved, origin + '::index')
+            return raw
+        except subprocess.CalledProcessError as exc:
+            unresolved.append({'origin': origin, 'path': path, 'ref': ref,
+                               'reason': 'Git object unavailable', 'returncode': exc.returncode})
+            return None
+
+    def walk(value, fallback, origin):
+        if isinstance(value, dict):
+            if isinstance(value.get('path'), str) and ('sha256' in value or 'bytes' in value):
+                ref = next((value.get(k) for k in ['source_sha', 'commit', 'git_commit',
+                            'object_commit', 'source_ref', 'git_sha', 'sha', 'receipt_sha'] if isinstance(value.get(k), str)), None)
+                if ref is None and value['path'].startswith(PREFIX):
+                    # Evidence rows inherit the explicitly declared evidence container.
+                    # Production/test inputs must not silently inherit that container.
+                    ref = fallback
+                check(ref, value['path'], value.get('sha256'), value.get('bytes'), origin)
+            for key, child in value.items():
+                walk(child, fallback, origin + '.' + key)
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                walk(child, fallback, origin + '[' + str(index) + ']')
+
+    for request in requests:
+        path = PREFIX + request['name']
+        # Root-final committed receipt bytes are the scope; original evidence bindings stay exact.
+        raw = check(source, path, origin='accepted_receipt')
+        if raw is None:
+            continue
+        d = json.loads(raw)
+        evidence_tip = d.get('evidence_implementation_sha') or d.get('candidate_sha')
+        if not evidence_tip and d.get('implementation_commits'):
+            evidence_tip = d['implementation_commits'][-1]
+        walk(d, evidence_tip, request['name'])
+        index = d.get('evidence_index')
+        if isinstance(index, str):
+            index_ref = d.get('evidence_index_commit')
+            index_raw = check(index_ref, index, d.get('evidence_index_sha256'),
+                              origin=request['name'] + '.evidence_index')
+        elif isinstance(index, dict):
+            index_ref = index.get('commit') or index.get('source_sha') or index.get('git_sha') or evidence_tip
+            index_raw = check(index_ref, index.get('path'), index.get('sha256'),
+                              index.get('bytes'), request['name'] + '.evidence_index')
+        else:
+            index_ref, index_raw = None, None
+        if index_raw:
+            body = json.loads(index_raw)
+            walk(body, index_ref, request['name'] + '.index')
+            indices.append({'receipt': path, 'index_sha': index_ref,
+                            'index_bytes': len(index_raw), 'sha256': hashlib.sha256(index_raw).hexdigest()})
+        for number, c in enumerate(d.get('checks', [])):
+            for key in ['output', 'junit', 'wrapper']:
+                val = c.get(key)
+                if isinstance(val, str) and val.startswith('policy-engine/'):
+                    if '@' in val:
+                        output_path, raw_ref = val.rsplit('@', 1)
+                        matched = re.match(r'([0-9a-f]{40})(?:$| )', raw_ref)
+                        ref = matched.group(1) if matched else raw_ref
+                    else:
+                        output_path, ref = val, c.get(key + '_git_sha') or c.get('output_git_sha') or c.get('output_commit') or evidence_tip
+                    check(ref, output_path, c.get(key + '_sha256'), c.get(key + '_bytes'),
+                          request['name'] + '.checks[' + str(number) + '].' + key)
+        receipt_rows.append({'name': request['name'], 'source_sha': source,
+                             'receipt_bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest(),
+                             'evidence_tip': evidence_tip, 'check_count': len(d.get('checks', []))})
+    mismatches = [r for r in checked.values() if False in r['expected_hash_matches'] or False in r['expected_bytes_matches']]
+    result = {'schema': 'policyos.e02.explicit_evidence_graph_audit.v1', 'source_sha': source,
+              'receipt_count': len(receipt_rows), 'unique_explicit_git_objects': len(checked),
+              'unique_git_object_bytes': sum(r['bytes'] for r in checked.values()),
+              'recursively_expanded_explicit_evidence_indices': len(expanded_indices),
+              'mismatches': mismatches, 'unresolved_reference_rows': unresolved,
+              'receipts': receipt_rows, 'indices': indices,
+              'claim_grade': 'Exact declared Git source/evidence bytes only; no replay, runtime verdict, implicit absolute raw availability, institution owner authority, or historic PASS transplantation.'}
+    args.out.mkdir(parents=True, exist_ok=True)
+    (args.out / 'graph-audit.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+    (args.out / 'derivable-object-readback.json').write_text(json.dumps(list(checked.values()), ensure_ascii=False, indent=2) + '\n')
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+if __name__ == '__main__':
+    main()

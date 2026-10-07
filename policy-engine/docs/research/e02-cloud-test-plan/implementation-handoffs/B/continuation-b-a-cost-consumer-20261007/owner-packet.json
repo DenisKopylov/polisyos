@@ -1,0 +1,260 @@
+{
+  "schema": "policyos.e02.consumer_owner_packet.v1",
+  "source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "source_tree": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50",
+  "test_input_ref": {
+    "git_sha": "2c7a6398efc773a18bf04abd7d119b6462a8809b",
+    "path": "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+    "git_blob": "efbc9a3ab6d53ea07acf60edf784e04099907967",
+    "bytes": 7886,
+    "sha256": "ee41bd7df1c2123b8b4748a645646cc6240c4619b77e9305d93a698714389770"
+  },
+  "finding_ids": [
+    "B66"
+  ],
+  "formal_closure": false,
+  "code_acceptance": "independent review pending; test-only producer/consumer evidence",
+  "actual_case_counts": {
+    "PASS": 3,
+    "FAIL": 1,
+    "ERROR": 0
+  },
+  "actual_failure": "Unknown optional Traced event cost_usd=None is consumed by actual A _sum_call_events as0.0; other controls reach matching real ledger ACK/readback. Native failure is retained, not xfailed.",
+  "profiles": [
+    {
+      "kind": "unknown",
+      "optional_origin": "unknown",
+      "optional_cost": null,
+      "A_cost": 0.0,
+      "mandatory_event": {
+        "amount": null,
+        "cost_origin": "unknown",
+        "event_id": "llm-producer:84f0341d7c29410eafadcf9feb70f61a",
+        "kind": "provider",
+        "payload_digest": "sha256:f59516e385b7c888a7470f9bf1ba07d27e07064d2c2d721623706305ab70f69b",
+        "request_digest": "sha256:bcdeb849a337c9634a49f560d57d72b03864fc447a4999ea2161941addd0d43f"
+      },
+      "ack": null,
+      "physical_provider_calls_per_distinct_port": {
+        "optional": 1,
+        "mandatory": 1
+      }
+    },
+    {
+      "kind": "reported-zero",
+      "optional_origin": "reported",
+      "optional_cost": 0.0,
+      "A_cost": 0.0,
+      "mandatory_event": {
+        "amount": "0.0",
+        "cost_origin": "reported",
+        "event_id": "llm-producer:130ae70ab2924282b1a6a4ee5a93bae6",
+        "kind": "provider",
+        "payload_digest": "sha256:85b28cf76c1a1f1720bf9311ea3dd02cf8e72658a9b9588538646e2a63990272",
+        "request_digest": "sha256:bcdeb849a337c9634a49f560d57d72b03864fc447a4999ea2161941addd0d43f"
+      },
+      "ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:130ae70ab2924282b1a6a4ee5a93bae6",
+        "receipts": [
+          {
+            "amount": "0.0",
+            "committed_at": "2026-10-07T07:33:57.169046Z",
+            "event_id": "llm-producer:130ae70ab2924282b1a6a4ee5a93bae6:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "06bb0810f776817a1a6082c3d5f89450d596e4c497314ada75f095e1939f785a",
+            "provider": "physical-file-oracle",
+            "revision": 3
+          }
+        ],
+        "status": "committed"
+      },
+      "physical_provider_calls_per_distinct_port": {
+        "optional": 1,
+        "mandatory": 1
+      }
+    },
+    {
+      "kind": "reported-positive",
+      "optional_origin": "reported",
+      "optional_cost": 0.02,
+      "A_cost": 0.02,
+      "mandatory_event": {
+        "amount": "0.02",
+        "cost_origin": "reported",
+        "event_id": "llm-producer:e5fc45921924456f84e1d9ae27d7084e",
+        "kind": "provider",
+        "payload_digest": "sha256:0d02a87a5fd13c5767ac6d088a7b0bbfe0fb668d7188b9d0d89cd3f2b5e79e56",
+        "request_digest": "sha256:bcdeb849a337c9634a49f560d57d72b03864fc447a4999ea2161941addd0d43f"
+      },
+      "ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:e5fc45921924456f84e1d9ae27d7084e",
+        "receipts": [
+          {
+            "amount": "0.02",
+            "committed_at": "2026-10-07T07:33:57.182151Z",
+            "event_id": "llm-producer:e5fc45921924456f84e1d9ae27d7084e:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "88e2f8db32f0c247f1fbe978fad81a9fbaee78c7a859637a4d25d2a1bb628561",
+            "provider": "physical-file-oracle",
+            "revision": 3
+          }
+        ],
+        "status": "committed"
+      },
+      "physical_provider_calls_per_distinct_port": {
+        "optional": 1,
+        "mandatory": 1
+      }
+    },
+    {
+      "kind": "estimated",
+      "optional_origin": "estimated",
+      "optional_cost": 4.75e-05,
+      "A_cost": 4.75e-05,
+      "mandatory_event": {
+        "amount": "0.0000475",
+        "cost_origin": "estimated",
+        "event_id": "llm-producer:32dbcdf156f842d495c683fcd8b77b0c",
+        "kind": "provider",
+        "payload_digest": "sha256:a138ac2f17b951649fdaff01af358117de92829faf0967e5f8af8e2a79831607",
+        "request_digest": "sha256:bcdeb849a337c9634a49f560d57d72b03864fc447a4999ea2161941addd0d43f"
+      },
+      "ack": {
+        "durability": "ledger",
+        "event_id": "llm-producer:32dbcdf156f842d495c683fcd8b77b0c",
+        "receipts": [
+          {
+            "amount": "0.0000475",
+            "committed_at": "2026-10-07T07:33:57.195255Z",
+            "event_id": "llm-producer:32dbcdf156f842d495c683fcd8b77b0c:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+            "key": "run",
+            "payload_digest": "35ce2f5904d401b705b78c7e95c82d5e2cc8d176fce30d9420372017dafba673",
+            "provider": "physical-file-oracle",
+            "revision": 3
+          }
+        ],
+        "status": "committed"
+      },
+      "physical_provider_calls_per_distinct_port": {
+        "optional": 1,
+        "mandatory": 1
+      }
+    }
+  ],
+  "source_refs": [
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "git_blob": "a21bca5b1280069d6852bad0b5437d9783925886",
+      "bytes": 21507,
+      "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "git_blob": "df786193b548215d84b4e7b1707c73272416d618",
+      "bytes": 37572,
+      "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+      "bytes": 59381,
+      "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+      "bytes": 10751,
+      "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "git_blob": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+      "bytes": 58032,
+      "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "git_blob": "235b7e1b9008bb60323a464b10563d8d76520e78",
+      "bytes": 27826,
+      "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+      "git_blob": "b525f2601a311f1b47fd97ae429e1647a6c5d993",
+      "bytes": 39885,
+      "sha256": "0018f247b22b9479be1e37e3827c0381740d8b42649bd08490fe8823494e238c"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+      "git_blob": "448dff30bfdcfbef812ff09eb0472438f49b3d4e",
+      "bytes": 34752,
+      "sha256": "b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "git_blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+      "bytes": 427462,
+      "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "git_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "bytes": 53953,
+      "sha256": "cf6522b5c8b3d02c2b334468cb42edf99c5a3575bcc09c41b985c0ce43bfa9f6"
+    },
+    {
+      "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "git_blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+      "bytes": 182148,
+      "sha256": "e290ec767a95d032fb55603449a64fb515f95af844e6285650d063f895499ddc"
+    }
+  ],
+  "consumer_trace": {
+    "B_producer": "Gateway typed usage → Traced _record_tokens event; unknown amountNone/originunknown; knownzero is reported0; estimated is a model-price estimate with observedusage. Mandatory enforcer refuses unknown and persists exact cost_unknown obligation; known ACKcommitted durabilityledger binds actual spend receipts read back from fresh FileBudgetLedger.",
+    "A_helper": "response_shapes.py36–58 (_sum_call_events) and61–69 (_delta_usage); unknown field is treated as zero with or0.0. nl_pipeline.py4973+ creates optional Traced observer;5910+ feeds sum into legacy budget_remaining_ratio;6181+ compares accumulated scalarcost with permodel budget.",
+    "served_route": "routes/control.py370–404 POST/api/v1/control/runs/nl consumes exact BoundActionPermissionVerification. run_lifecycle.py6960+ launches/preflights/persists execution-intent; worker5105+ validates intent and5472+ runs compile_and_run_recursive_generation_cycle. This CURRENT served dispatch is separate from the legacy _execute_nl_pipeline helper; no served budget-admission receipt is inferred.",
+    "served_generation": "runtime/quality/design_generation.py1294+ default N4 owns create_traced_gateway_client without a supplied mandatory ledger adapter. Worker supplies typed BudgetState at5486; identity/accounting consumer composition must be witnessed at actual cycle entry, not inferred from a passed budget field.",
+    "smallest_missing_input": "An A/G-owned authenticated NL job fixture with route-issued permission proof, configured model/preflight, compiler/candidate response bodies sufficient to enter actual served N4, and owner-bound accounting adapter/event propagation; then exact served job/result and budget-admission readback for an unknown event versus reportedzero. No full production dataset is needed for the scalarcost discriminator; a constructor-only budget/claim is insufficient."
+  },
+  "minimal_contract_proposal": {
+    "owner": "A/G controls actual projection and served cycle composition; B-W09 controls typed producer/ACK bridge",
+    "input": "Retain LLMProducerEvent amountDecimal|None, cost_origin, event_id/digest, request_digest, response_digest and optional LLMSettlementAck status/durability/receipt identities; optional observer remains explicitly unmanaged.",
+    "consumer": "Projection retains unknown event IDs/pending accounting and known totals separately; it must not present aggregate known0 as complete spent total when unknown exists. Reportedzero and model estimate remain distinct origins; ledger committed means actual local receipt, not external invoice or spend permission.",
+    "admission_negative": "Unknown input must not create a full-known budget_remaining_ratio, complete scalar delta or fresh uncontrolled spend; missing/noACK and unresolved completion cannot be upgraded by readablehash/float0.",
+    "positive": "Reported0 and .02 retain actual ACK/readback, estimate4.75e-5 retains estimated origin, unknown retains amountNone/phasecost_unknown and fresh-owner provider refusal.",
+    "implementation_status": "Proposal only; A paths are unchanged. Actual served route consumer result is UNRUN."
+  },
+  "P37": {
+    "physical_file_provider_effects": "recomputed",
+    "native_typed_event_receipt_and_fresh_ledger_quantities": "independently_reconciled",
+    "external_provider_billing_or_permission": "not_established",
+    "served_budget_admission": "not_established"
+  },
+  "limitations": [
+    "Two distinct provider stacks/physical requests perprofile, not one billable flight; each actual fsynced JSONL operation is counted.",
+    "SDK parser dictionary boundary is real; response-text tiny numeric lexical preservation belongs to separate B gateway/D consumer work.",
+    "A helper counterexample is established; current served recursive route and actual final budget consumer have not been executed by this leaf.",
+    "Installed dependencies are observed actual versions/source-context, no dependency synchronization or source edit; native no-conftest profile is explicit.",
+    "No formal finding closure or institutional authority; nextowner A/G."
+  ]
+}

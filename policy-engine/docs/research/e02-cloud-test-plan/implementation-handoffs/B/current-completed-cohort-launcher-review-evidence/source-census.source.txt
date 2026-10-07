@@ -1,0 +1,10 @@
+import subprocess, json, hashlib, ast
+sha = "4703d19296998d93bac94bfcafc0934a37901126"
+prefix = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+paths = [prefix + "final-root-evidence/run_completed_cohort.py", prefix + "final-root-evidence/run_successor.py", prefix + "final-root-evidence/capture_frozen.py", prefix + "current-cohort-inventory.py", "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py", "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py", "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py", "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py"]
+rows = []
+for path in paths:
+    body = subprocess.check_output(["git", "show", sha + ":" + path])
+    ast.parse(body.decode())
+    rows.append({"path": path, "source_sha": sha, "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest(), "git_blob": subprocess.check_output(["git", "rev-parse", sha + ":" + path]).decode().strip(), "AST_parse": "PASS", "parent_byte_equal": subprocess.check_output(["git", "show", sha + "^:" + path]) == body if not path.endswith("run_completed_cohort.py") else "NEW_FILE"})
+print(json.dumps({"target_sha": sha, "target_tree": subprocess.check_output(["git", "rev-parse", sha + "^{tree}"]).decode().strip(), "source_diff_paths": subprocess.check_output(["git", "diff", "--name-status", sha + "^", sha]).decode().splitlines(), "source_inputs": rows, "execution": "Git-only reads and stdlib AST parsing; launcher/capture/admission/observer/pytest imports or execution UNRUN"}, indent=2))

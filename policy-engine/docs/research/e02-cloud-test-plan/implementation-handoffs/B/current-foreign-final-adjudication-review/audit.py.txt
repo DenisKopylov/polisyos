@@ -1,0 +1,272 @@
+"""Read immutable Git evidence only; never import or execute project code."""
+import argparse
+import collections
+import csv
+import hashlib
+import io
+import json
+import pathlib
+import re
+import subprocess
+import sys
+import datetime
+import xml.etree.ElementTree as ET
+
+ROOT = pathlib.Path('/workspace/e02-B-current-cas-generation')
+SOURCE = '1862c021df74a5c5815bc5cd21a20e61b30132b6'
+CARDS = '69780761ae091d8fcc6ab8778c7f5f7227eeef0b'
+BASE = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+IDS = ['B13', 'B42', 'B43', 'B44', 'B45', 'B46', 'B47', 'B48', 'B49', 'B50', 'B52', 'B53', 'B74', 'B75', 'B76']
+
+def git(*argv):
+    return subprocess.check_output(['git', *argv], cwd=ROOT)
+
+def blob(sha, path):
+    return git('show', sha + ':' + path)
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def ref(sha, path):
+    data = blob(sha, path)
+    return {'git_sha': sha, 'path': path, 'bytes': len(data), 'sha256': digest(data)}
+
+def read_ref(item):
+    sha = item.get('git_sha', item.get('commit', item.get('source_sha')))
+    data = blob(sha, item['path'])
+    assert len(data) == item['bytes'] and digest(data) == item['sha256'], item
+    return data
+
+def state(case):
+    if case.find('failure') is not None:
+        return 'FAIL'
+    if case.find('error') is not None:
+        return 'ERROR'
+    if case.find('skipped') is not None:
+        return 'SKIP'
+    return 'PASS'
+
+args = argparse.ArgumentParser()
+args.add_argument('--proposal-sha', required=True)
+args.add_argument('--proposal-hash', required=True)
+args.add_argument('--cost-input-dir', required=True)
+args.add_argument('--out', required=True)
+args = args.parse_args()
+invocation = {'argv': sys.argv, 'cwd': str(pathlib.Path.cwd()), 'metadata_reader_head_before': git('rev-parse', 'HEAD').decode().strip(), 'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'execution_profile': 'stdlib+Git only; no project imports/native/gates'}
+print('INVOCATION', json.dumps(invocation))
+proposal_path = BASE + 'current-all60-final-criterion-proposal.json'
+raw = blob(args.proposal_sha, proposal_path)
+assert digest(raw) == args.proposal_hash
+draft = json.loads(raw)
+assert draft['root_source']['sha'] == SOURCE
+assert git('rev-parse', SOURCE + '^{tree}').decode().strip() == 'f765043b27b96a1fbb0795aa600db9bd94df0e36'
+assert draft['root_source']['tree'] == 'f765043b27b96a1fbb0795aa600db9bd94df0e36'
+rows = {row['finding_id']: row for row in draft['all60_manual_rows']}
+assert len(rows) == 60 and len(draft['all60_manual_rows']) == 60
+owners_path = 'policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv'
+owners = {row['finding_id']: row for row in csv.DictReader(io.StringIO(blob(SOURCE, owners_path).decode()), delimiter='\t')}
+canonical = []
+for fid in IDS:
+    row = rows[fid]
+    bid = row['bundle_id']
+    assert bid in owners[fid]['source_bundle_ids'].split(',')
+    path = 'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/' + bid + '.md'
+    card = blob(CARDS, path)
+    assert card == blob(SOURCE, path)
+    block = re.search(r'<!-- SOURCE_BEGIN B:' + fid + r' -->(.*?)<!-- SOURCE_END B:' + fid + r' -->', card.decode(), re.S).group(1).encode()
+    assert digest(block) == row['canonical_criterion']['source_block_sha256']
+    assert row['proposed_status'] == ('limited' if fid in ['B13', 'B74'] else 'closed')
+    assert row['formal_closure'] is False
+    canonical.append({'finding_id': fid, 'bundle_id': bid, 'criterion_raw_sha256': digest(block), 'full_card': ref(CARDS, path), 'proposed_status': row['proposed_status'], 'formal_closure': False})
+
+relevant_refs = set(['historical_manual_basis', 'dd_xml', 'dd_profile', 'dd_wrapper', 'root_affected_xml', 'root_affected_stdout', 'root_affected_profile'])
+relevant_refs.update(draft['native_evidence_state']['engine_affected35']['ref_ids'])
+for fid in IDS:
+    relevant_refs.update(rows[fid]['deciding_reference_ids'])
+custody = {key: draft['evidence_index'][key] for key in sorted(relevant_refs)}
+contents = {key: read_ref(item) for key, item in custody.items()}
+old = json.loads(contents['historical_manual_basis'])
+old_rows = {row['finding_id']: row for row in old['all60_manual_rows']}
+old_xml = list(ET.fromstring(contents['dd_xml']).iter('testcase'))
+historical_joins = []
+test_keys = set()
+for fid in IDS:
+    item = old_rows[fid]['DD_deciding_cases']
+    cases = [{'index': index, 'classname': old_xml[index].get('classname'), 'name': old_xml[index].get('name'), 'state': state(old_xml[index])} for index in item['junit_indexes']]
+    assert dict(collections.Counter(case['state'] for case in cases)) == item['literal_states']
+    test_keys.update(item['test_input_refs'])
+    historical_joins.append({'finding_id': fid, 'source_cut': old['source_cuts']['DD']['sha'], 'cases': cases, 'claim_grade': 'Historical actual source-bound cases; no literal final1862 execution asserted.'})
+input_identity = []
+for key in sorted(test_keys):
+    item = old['test_input_index'][key]
+    data = read_ref(item)
+    current = blob(SOURCE, item['path'])
+    assert data == current
+    input_identity.append({'key': key, 'historical': item, 'final': ref(SOURCE, item['path']), 'byte_equal': True})
+
+xml = list(ET.fromstring(contents['root_affected_xml']).iter('testcase'))
+assert len(xml) == 807
+assert dict(collections.Counter(state(case) for case in xml)) == {'PASS': 806, 'FAIL': 1}
+current_joins = []
+for fid in IDS:
+    spec = rows[fid]['actual_current_check']
+    if isinstance(spec, dict):
+        cases = [{'index': index, 'classname': case.get('classname'), 'name': case.get('name'), 'state': state(case)} for index, case in enumerate(xml) if any(part in case.get('classname', '') for part in spec['classname_substrings'])]
+        assert dict(collections.Counter(case['state'] for case in cases)) == spec['literal_case_counts']
+        current_joins.append({'finding_id': fid, 'cases': cases, 'counts_role': 'Actual declared current selector membership; not a count of independent defining predicates.'})
+
+xml35 = list(ET.fromstring(contents['affected35_xml']).iter('testcase'))
+assert len(xml35) == 712 and dict(collections.Counter(state(case) for case in xml35)) == {'PASS': 712}
+wrapper35 = json.loads(contents['affected35_wrapper'])
+execution35 = draft['native_evidence_state']['engine_affected35']['actual_execution_sha']
+assert execution35 == '10e812a98d5f7f3997e7d0aa44de43dc90eb022c'
+assert wrapper35['source_before']['head'] == wrapper35['source_after']['head'] == execution35
+assert wrapper35['source_before']['tracked_status'] == wrapper35['source_after']['tracked_status'] == ''
+assert wrapper35['actual_exit_code'] == 0 and wrapper35['setup_failure'] is None
+projection35 = json.loads(contents['affected35_projection'])
+projection_args = ['ls-tree', '-r', execution35, '--', 'policy-engine/src', 'policy-engine/tests', 'policy-engine/product']
+actual_entries = git(*projection_args).splitlines()
+reference_entries = git('ls-tree', '-r', SOURCE, '--', 'policy-engine/src', 'policy-engine/tests', 'policy-engine/product').splitlines()
+assert actual_entries == reference_entries and len(actual_entries) == 6246
+assert projection35['entry_count'] == 6246 and projection35['mismatch_count'] == 0
+before35 = json.loads(contents['affected35_before'])
+after35 = json.loads(contents['affected35_after'])
+assert before35['declared_disk_inputs'] == after35['declared_disk_inputs']
+for item in before35['declared_disk_inputs']:
+    data = blob(execution35, item['path'])
+    assert digest(data) == item['sha256'] and len(data) == item['bytes']
+    assert item['actual_disk_git_bytes_match'] is True
+joins35 = []
+for fid in IDS:
+    spec = rows[fid].get('actual_affected35_check')
+    if not spec:
+        continue
+    def admitted(case):
+        return any(selector['classname_contains'] in case.get('classname', '') and (not selector['name_starts_with_any'] or any(case.get('name', '').startswith(part) for part in selector['name_starts_with_any'])) for selector in spec['selectors'])
+    cases = [{'index': index, 'classname': case.get('classname'), 'name': case.get('name'), 'state': state(case)} for index, case in enumerate(xml35) if admitted(case)]
+    assert dict(collections.Counter(case['state'] for case in cases)) == spec['literal_case_counts']
+    joins35.append({'finding_id': fid, 'actual_execution_sha': execution35, 'content_only_reference': SOURCE, 'cases': cases, 'counts_role': 'Literal declared selection membership; overlapping rows are not independent predicates or automatic closure.'})
+
+costs = []
+for line in contents['root_affected_stdout'].decode().splitlines():
+    if ' B52_REAL_CACHE_COST ' in line:
+        costs.append(json.loads(line.split(' B52_REAL_CACHE_COST ', 1)[1]))
+assert len(costs) == 2
+assert [item['payload_bytes'] for item in costs] == [1024, 65536]
+assert [item['warm_observations'] for item in costs] == [12, 12]
+assert [item['neighbour_observations'] for item in costs] == [262, 297]
+for item in costs:
+    assert item['warm_workflow_return_cost_p95_ns'] == item['warm_workflow_return_cost_p99_ns']
+    assert item['neighbour_wait_p95_ns'] != item['neighbour_wait_p99_ns']
+cost_qualification = 'Each separate payload profile has12 warm-return observations, so its empirical nearest-rank p95/p99 equal its maximum. Neighbour observations are262/297, with distinct p95/p99. No pooled24 statistic, SLA, general speedup or isolated CPU/GIL claim.'
+cost_dir = pathlib.Path(args.cost_input_dir)
+cost_manifest_path = cost_dir / 'cost-input-custody.json'
+cost_manifest = json.loads(cost_manifest_path.read_bytes())
+cost_math = []
+def empirical(values, percent):
+    ordered = sorted(values)
+    return ordered[(percent * len(ordered) + 99) // 100 - 1]
+for item, printed in zip(cost_manifest, costs, strict=True):
+    data = (cost_dir / item['retained_name']).read_bytes()
+    assert digest(data) == item['sha256'] and len(data) == item['bytes']
+    measured = json.loads(data)
+    assert [row['ordinal'] for row in measured] == list(range(13))
+    assert [row['warm'] for row in measured] == [False] + [True] * 12
+    warm = [row['workflow_return_cost_ns'] for row in measured if row['warm']]
+    waits = [sample['lateness_ns'] for row in measured for sample in row['neighbour_timer_samples']]
+    for row in measured:
+        assert row['workflow_finished_ns'] - row['workflow_started_ns'] == row['workflow_return_cost_ns']
+        assert row['actual_provider_calls'] == 1
+        for sample in row['neighbour_timer_samples']:
+            assert sample['resumed_ns'] - sample['scheduled_ns'] == sample['lateness_ns']
+        for sample in row['cache_io_samples']:
+            assert sample['thread_id'] != row['loop_thread_id']
+            assert any(sample['started_ns'] <= timer['resumed_ns'] <= sample['finished_ns'] for timer in row['neighbour_timer_samples'])
+        assert sum(sample['serialized_bytes'] for sample in row['cache_io_samples'] if sample['operation'] == 'put') == row['serialized_cache_put_bytes']
+        if row['warm']:
+            assert row['serialized_cache_put_bytes'] == 0
+    recomputed = {'payload_bytes': printed['payload_bytes'], 'cold_workflow_return_cost_ns': measured[0]['workflow_return_cost_ns'], 'warm_observations': len(warm), 'neighbour_observations': len(waits), 'neighbour_wait_p95_ns': empirical(waits, 95), 'neighbour_wait_p99_ns': empirical(waits, 99), 'warm_workflow_return_cost_p95_ns': empirical(warm, 95), 'warm_workflow_return_cost_p99_ns': empirical(warm, 99), 'serialized_cache_put_bytes': sum(row['serialized_cache_put_bytes'] for row in measured)}
+    for key, value in recomputed.items():
+        assert printed[key] == value, (key, printed[key], value)
+    cost_math.append({'original_input': item, 'independently_recomputed': recomputed, 'formula': 'sort samples; choose index ceil(percent*N/100)-1 using integer arithmetic; no pooled samples', 'raw_phase_measurements_not_new_runtime': True})
+
+prod_paths = [
+    'policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py',
+    'policy-engine/src/polisyos/foundry/methods/backends/__init__.py',
+    'policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py',
+    'policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py',
+    'policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py',
+    'policy-engine/src/polisyos/foundry/methods/compiler/__init__.py',
+    'policy-engine/src/polisyos/foundry/methods/compiler/specialization.py',
+    'policy-engine/src/polisyos/foundry/methods/components/composer.py',
+    'policy-engine/src/polisyos/foundry/methods/components/linker.py',
+    'policy-engine/src/polisyos/foundry/methods/exceptions.py',
+]
+source_identity = []
+dd = old['source_cuts']['DD']['sha']
+for path in prod_paths:
+    before = blob(dd, path)
+    after = blob(SOURCE, path)
+    source_identity.append({'path': path, 'DD': ref(dd, path), 'final': ref(SOURCE, path), 'byte_equal': before == after})
+assert [item['path'] for item in source_identity if not item['byte_equal']] == ['policy-engine/src/polisyos/foundry/methods/components/composer.py']
+composer_diff = git('diff', dd, SOURCE, '--', prod_paths[7]).decode()
+# Explicitly retained source delta: new from_nodes inlet plus guarded Optional key refinement.
+assert 'def from_nodes(' in composer_diff and 'for key in (frozen_dag.nodes[uid].node_key for uid in upstream_ids)' in composer_diff
+plan_paths = [
+    'policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py',
+    'policy-engine/src/polisyos/foundry/methods/artifacts/parts.py',
+    'policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py',
+    'policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py',
+    'policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py',
+]
+final_specific_inputs = [ref(SOURCE, path) for path in plan_paths]
+
+# Source-reported baseline custody is deliberately not used as new runtime proof.
+baseline = ref('c31e69958ba1d639db6d739ec42f6595add88234', BASE + 'current-composition-payload/baseline-input-closure.json')
+context = json.loads(read_ref(baseline))
+assert len(context['cells']) == 28 and len(context['routes']) == 74 and len(context['contexts']) == 11
+baseline_extra = [ref('0592674c103841ed6e671d7c50ac3e814dc9d1c2', BASE + 'current-async-cache-cost-evidence/' + path) for path in ['baseline-cells.json', 'baseline-job-contexts.json']]
+for item in baseline_extra:
+    json.loads(read_ref(item))
+
+report = {
+    'invocation': invocation,
+    'mode': 'Foreign criterion/source/evidence metadata review only; no project imports, native/gates/collection/provision/deletion or self-CAS acceptance.',
+    'source': {'sha': SOURCE, 'tree': git('rev-parse', SOURCE + '^{tree}').decode().strip()},
+    'proposal': ref(args.proposal_sha, proposal_path),
+    'canonical_routing': ref(SOURCE, owners_path),
+    'scope': {'bundles': ['CMP-01', 'CMP-02', 'CMP-03', 'RES-03', 'RES-04', 'JIT-01'], 'cross_family': {'B52': 'EXE-01'}, 'findings': IDS, 'counts': {'proposed_bounded_closed': 13, 'limited': 2, 'formal_closure': 0}},
+    'canonical_reconciliation': canonical,
+    'deciding_custody': custody,
+    'historical_actual_case_joins': historical_joins,
+    'historical_test_input_identity': input_identity,
+    'foreign_mechanism_source_projection': source_identity,
+    'composer_delta': composer_diff,
+    'actual_current_case_joins': current_joins,
+    'actual_additional712_case_joins': joins35,
+    'additional712_custody': {'actual_execution_sha': execution35, 'content_reference_only': SOURCE, 'projection_argv': ['git'] + projection_args, 'recomputed_entry_count': len(actual_entries), 'entry_mismatches': 0, 'declared_disk_inputs_count': len(before35['declared_disk_inputs']), 'actual_xml_cases': len(xml35), 'actual_xml_counts': {'PASS': 712}, 'new_metric_timings_not_substituted_for_root807': True},
+    'final_specific_inputs': final_specific_inputs,
+    'costs': costs,
+    'cost_input_custody': {'manifest': str(cost_manifest_path), 'bytes': cost_manifest_path.stat().st_size, 'sha256': digest(cost_manifest_path.read_bytes())},
+    'cost_math': cost_math,
+    'cost_qualification': cost_qualification,
+    'baseline_navigation_only': {'composition': baseline, 'counts': {'cells': 28, 'routes': 74, 'job_contexts': 11}, 'B52': baseline_extra, 'raw_baseline_archives': 'Unavailable; no new fix proof from source-reported baseline.'},
+    'full_native': draft['native_evidence_state']['full_joint'],
+    'global_code_acceptance': draft['global_code_acceptance'],
+    'per_quantity_guard': {
+        'B43': 'Finite JSON/current-registry ABI cold plan accepted. Selected persisted bytes reopen through canonical composer; actual requires-only five modes, physical two-branch barrier and before-body edge/cycle negatives. No checkpoint/prefix/historical-source authority.',
+        'B53': 'Five current stochastic/preparation profiles within15 module cases. Known-shape preparation has zero substantive body entries, explicit numerical warmup2 separately consumes its seed997, repeated requests11/23/47/11 are separately checked with independent NumPy/Python transform of real JAX draws. Not independent validation of JAX RNG distribution or physical XLA compile count.',
+        'B52': cost_qualification + ' Root807 metric observations keep their120a identity. Actual affected35 at10e contributes33 selected cases (including2 new metric executions), not35 or2+33; original negative removals keep their original source. Content equality to1862 is not execution restamping.',
+        'B13': 'LIMITED: real Foundry sibling partial output is not A served simulation-result recovery after later lifecycle failure. Local exact readonly catalog/history and A route remain next consumer.',
+        'B74': 'LIMITED: ordinary inspectable Python/helper capture and current exact scoped refs are supported; ModuleType capture is module+installed version and builtin capture is interpreter/distribution version. Same-version imported member substitution can change cold arithmetic without captured module identity. This intrinsic source-profile boundary is distinct from held SKG/institutional law.',
+        'others': 'Supported typed composition, occurrence, matching, single-flight and local immutable checkpoint/history claims remain finite; historical exact source and unchanged input cases are not literal current executions or complete joint acceptance.',
+    },
+    'conclusion': 'No foreign-row status blocker after the B52 per-quantity wording qualification.13 bounded criterion proposals and2 explicit LIMITED remain nonformal. Full cohort incomplete and global gates RED preserved; ROOT/G decides formal closure.',
+    'outcome': 'PASS',
+}
+out = pathlib.Path(args.out)
+invocation['metadata_reader_head_after'] = git('rev-parse', 'HEAD').decode().strip()
+assert invocation['metadata_reader_head_before'] == invocation['metadata_reader_head_after']
+out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'scope': report['scope'], 'current_case_counts': [{'finding_id': item['finding_id'], 'counts': dict(collections.Counter(case['state'] for case in item['cases']))} for item in current_joins], 'costs': costs, 'source_changed_paths_vs_DD': [item['path'] for item in source_identity if not item['byte_equal']], 'conclusion': report['conclusion'], 'outcome': report['outcome']}, ensure_ascii=False, indent=2))
+print('REPORT_BYTES',out.stat().st_size,'REPORT_SHA256',digest(out.read_bytes()))

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="21.477" timestamp="2026-10-06T20:54:55.738789+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_optional_projection_preserves_physical_spend_knowledge[unknown]" time="0.027"><failure message="AssertionError: the spend projection must distinguish an unknown physical charge from a reported zero&#10;assert 0.0 == None">tmp_path = PosixPath('/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/optional-spend-review/candidate-a2f/tmp/test_optional_projection_prese0')
+reported_cost = None
+
+    @pytest.mark.parametrize(
+        "reported_cost",
+        [
+            pytest.param(None, id="unknown"),
+            pytest.param(0.02, id="reported-02"),
+            pytest.param(0.0, id="reported-zero"),
+        ],
+    )
+    def test_optional_projection_preserves_physical_spend_knowledge(
+        tmp_path: Path, reported_cost: float | None
+    ) -&gt; None:
+        origins = _source_custody()
+        provider = _PhysicalProvider(tmp_path / "physical-provider.jsonl", reported_cost)
+        events: list[dict[str, Any]] = []
+        client = TracedLLMClient(
+            provider,
+            model_name="gpt-4o",
+            run_id="optional-spend-boundary",
+            call_observer=events.append,
+            tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+            metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+        )
+        result = asyncio.run(client.generate(user="one actual optional-spend request"))
+        physical_requests = [json.loads(line) for line in provider.path.read_text().splitlines()]
+        projection = response_shapes._sum_call_events(events)
+        print(
+            "OPTIONAL_SPEND_ACTUAL "
+            + json.dumps(
+                {
+                    "reported_cost": reported_cost,
+                    "source_origins": origins,
+                    "physical_provider_requests": physical_requests,
+                    "actual_observer_events": events,
+                    "actual_runtime_projection": projection,
+                },
+                sort_keys=True,
+            )
+        )
+        assert len(physical_requests) == len(provider.responses) == len(events) == 1
+        assert result is provider.responses[0]
+        assert json.loads(result.content)["value"] == 7
+        event = events[0]
+        assert event["provider_call"] is True
+        assert event["cache_hit"] is False
+        assert event["cost_usd"] == reported_cost
+        if reported_cost is None:
+            assert event["cost_origin"] == "unknown"
+            assert event["usage_status"] == event["cost_status"] == "missing"
+        else:
+            assert event["usage_status"] == event["cost_status"] == "known"
+        _source_custody()
+&gt;       assert projection["cost_usd"] == reported_cost, (
+            "the spend projection must distinguish an unknown physical charge from a reported zero"
+        )
+E       AssertionError: the spend projection must distinguish an unknown physical charge from a reported zero
+E       assert 0.0 == None
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_optional_spend_projection_boundary.py:144: AssertionError</failure></testcase><testcase classname="" name="test_optional_projection_preserves_physical_spend_knowledge[reported-02]" time="0.024" /><testcase classname="" name="test_optional_projection_preserves_physical_spend_knowledge[reported-zero]" time="0.023" /></testsuite></testsuites>

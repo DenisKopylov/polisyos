@@ -1,0 +1,166 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-installed-wheel-independent-preparation",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RUN-01"
+  ],
+  "slice_base_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+  "implementation_commits": [
+    "02b14aa0928fa32da6b46fa5169605d59e71d9ac"
+  ],
+  "candidate_tree_sha": "83667eaae1959f37a0a13a904709944c999f5463",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+    "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py"
+  ],
+  "baseline_cells": [
+    "F01-P008",
+    "F03-P083",
+    "F05-P104",
+    "F06-P021",
+    "F09-P017",
+    "F09-P084",
+    "F10-P012",
+    "F10-P080",
+    "F15-P012",
+    "F15-P096"
+  ],
+  "baseline_binding": {
+    "role": "Navigation only; ten candidate routes are not installed-wheel deciding evidence.",
+    "source_cut": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+    "reproduction_command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding LA-057 --details --job-context",
+    "source_refs": "policy-engine/docs/research/e02-cloud-test-plan/results/{cells.tsv,routes.tsv,sources.json,received/F01.txt,received/F03.txt,received/F05.txt,received/F06.txt,received/F09.txt,received/F10.txt,received/F15.txt}@02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+    "environment_and_input_closure": "Exact source-reported job-context locators are reproduced by query; raw archives_received=0. They establish no new candidate behavior."
+  },
+  "canonical_criterion": {
+    "finding_id": "LA-057",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md",
+    "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "lines": [
+      145,
+      178
+    ],
+    "source_block_sha256": "2afe404aaaa4e0abb4dce006674af34f61ca3269d1e0b9e516b788bb42c8ac57",
+    "digest_convention": "Raw SOURCE_BEGIN/SOURCE_END regex capture including captured whitespace, as pinned compact all60 canonical source basis.",
+    "property": "Incidental module generic cleanup must preserve four local generic identities, supported actual imports/reflection/type-hints and direct/loop/context/cancel/packaging consumers."
+  },
+  "checks": [
+    {
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m ruff check tests/unit/common/test_async_tools_installed_wheel.py tests/unit/common/installed_wheel_bridge_consumer.py docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "target_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "ruff_version": "0.14.10",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "scope": "Static source validation; no wheel build/install/pytest execution."
+      },
+      "input_closure": [
+        "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+        "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py"
+      ],
+      "outcome": "PASS",
+      "output": "All checks passed!\n",
+      "exit": 0
+    },
+    {
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m ruff format --check tests/unit/common/test_async_tools_installed_wheel.py tests/unit/common/installed_wheel_bridge_consumer.py docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "target_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "ruff_version": "0.14.10",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "scope": "Static source validation; no wheel build/install/pytest execution."
+      },
+      "input_closure": [
+        "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+        "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py"
+      ],
+      "outcome": "PASS",
+      "output": "3 files already formatted\n",
+      "exit": 0
+    },
+    {
+      "command": "Invoke committed launcher.py with explicit --source-root/--source-sha/--test-path/--test-sha256/--consumer-sha256/--task-root/--python/--uv after root frozen source admission.",
+      "target_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "environment": "Task-local build/installed venvs under unique /tmp root; Python3.14, Hatchling1.27.0, declared minimal pytest dependencies. Actual provisioned environment not established yet.",
+      "input_closure": "Root frozen product SHA/tree and real wheel are pending; test inputs are the three Git objects above.",
+      "outcome": "UNRUN",
+      "output": "No wheel build, installation, consumer pytest, or final normal-root cohort executed by this preparation slice."
+    }
+  ],
+  "property": {
+    "statement": "Run real installed-wheel generic/import/reflection/context/timeout/cancel consumers in isolated Python while the normal source cohort dispatches that child and retains all actual output before deciding.",
+    "runtime_path": [
+      "Frozen canonical root Git source",
+      "Hatchling wheel artifact",
+      "Task-local wheel installation without source PYTHONPATH",
+      "One ordinary outer native case",
+      "Eight actual isolated installed consumer cases"
+    ],
+    "proxy_divergence": "A source-checkout import can pass while packaging omits or resolves different helpers. Consumer guards bind actual imported bytes to wheel members and frozen source Git bytes before executing properties. Missing inputs or foreign origin fail, never fall back/skip.",
+    "negative_controls": [
+      "Wheel/source/installed/member/metadata/origin mismatches refused by strong child binding guards.",
+      "Actual cooperative timeout runs parent and abandoned-child finally and observes child cancellation.",
+      "Actual caller cancellation reaches awaitable finally before and within a running loop."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "predicate_basis_by_quantity": {
+    "source_derived_structure": "recomputed",
+    "consumer_AST_preservation": "recomputed",
+    "actual_installed_origin_and_behavior": "not_established",
+    "fixture_case_intent": "consumer_asserted"
+  },
+  "capability_state_or_finding_state": "verification_input_prepared_runtime_UNRUN; no finding closure or root-code acceptance",
+  "input_profiles": {
+    "product_source_sha": null,
+    "product_source_tree": null,
+    "product_source_state": "Root final freeze not yet selected; own DUR branch product source is not the wheel authority.",
+    "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+    "normal_source_cohort": "Root Python3.14 source interpreter plus all seven explicit inputs from launcher cohort-input-environment.json; ordinary outer file is one native case. Actual normal-cohort invocation is UNRUN.",
+    "isolated_child": "Explicit task-installed lexical venv Python -I -B, empty PYTHONPATH, no pytest plugin autoload/conftest/config pythonpath injection; child validates site within sys.prefix and exact three installed/wheel/source module bindings.",
+    "source_derived_denominators": "One outer case; child 4 generic-consumer parameters +1 context/direct/loop +1 cooperative timeout +2 cancellation parameters =8. Actual runtime counts are UNRUN; no double-counting.",
+    "optional_common_profile": "Removed; root source cohort already includes the original common whole file. No installed async-plugin profile claimed."
+  },
+  "file_identity": [
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+      "bytes": 4870
+    },
+    {
+      "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+      "bytes": 9973
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb",
+      "bytes": 10704
+    }
+  ],
+  "forward_qualification": {
+    "historical_input": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62:policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+    "historical_state": "Prepared direct installed-only file UNRUN; incompatible with ordinary source-cohort fixture inputs, not an observed product regression.",
+    "consumer_full_AST_equal_historical": true,
+    "earlier_case_count_correction": "Earlier preparation message said nine; complete AST parametrization proves eight, 4+1+1+2. No native case count was measured then.",
+    "mutable_tmp_drafts": "Prior /tmp hashes were source-review drafts. Only these committed input bytes are frozen.",
+    "toolchain": "Tmp default-config Ruff passed initially; actual repository-config lint then exposed style/trust-comment errors, fixed before implementation freeze. Current exact repository-config check and format PASS."
+  },
+  "limitations_and_next_owner": [
+    "Root must freeze exact product source SHA/tree before build. No future SHA, wheel, or installed behavior is assumed.",
+    "Root supplies the same literal seven-input installed artifact profile to its normal native cohort; until actual dispatch this profile is not established.",
+    "After actual build/install/consumer run, preserve full moderate stdout/XML/wrappers/environment/build evidence in a separate handoff, then root/G adjudicate LA-057.",
+    "Formal closure and overall code acceptance remain root/G decisions; no broad gate or production source edits in this slice.",
+    "Cleanup candidates are only the eventual task-local /tmp build/installed env/cache/scratch directory; none was created or removed here."
+  ]
+}

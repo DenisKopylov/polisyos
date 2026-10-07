@@ -1,0 +1,172 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/baseline-query.txt",
+      "bytes": 91345,
+      "sha256": "4d1abcbc74552a6ce5227ec264e0f1275366c52e94ecb94f852a14731d77cf06"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/build-dependencies.json",
+      "bytes": 870,
+      "sha256": "585ace9467f7eef982a380a9202b38b5320ca089ff8ff3f086c378d080c8df24"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/build-dependencies.txt",
+      "bytes": 243,
+      "sha256": "8e3ef4013092bb3c7838545357c477f80dac3c5092f0ff41fc83d747d4b23100"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/build-environment.json",
+      "bytes": 957,
+      "sha256": "07f0cac09119b161c44d0e8fcec192617f99074ea94826a91a129a24ffc4e279"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/build-environment.txt",
+      "bytes": 282,
+      "sha256": "76783cc04600524f297cf97f68b4ed6e14329b1296bb580f15f1d05d55979c57"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/build-pyvenv.cfg.txt",
+      "bytes": 179,
+      "sha256": "5b48d511ca6f9041a086238c18869c2d91b8b50f67bc52f2705e911e86b9b258"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/build-venv.json",
+      "bytes": 937,
+      "sha256": "c9d631e192539b46a8dcdf467d196d6204693b119c4886822b83191456eb3f6c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/build-venv.txt",
+      "bytes": 212,
+      "sha256": "5205c6c365e647dd5d51df8e3bc218655c50c612beced86680157bfe98f6b61c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/case-quantities.json",
+      "bytes": 4624,
+      "sha256": "ac776b92c02d325fa51b94b72d7169e72d11ecaf83a5938a61651d45105ee3c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/cohort-input-environment.json",
+      "bytes": 684,
+      "sha256": "009c6b38467f697b7c4c3972ee3a81fb374c066c2ae29b7bde6807711f0f74f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/consumer-dependencies.json",
+      "bytes": 983,
+      "sha256": "a7796d20f004110b4ea59f9832323bd4f05236823f1cdef42c1edaa065fc375f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/consumer-dependencies.txt",
+      "bytes": 280,
+      "sha256": "2c502b367414ce8ac76b8eb152fdfff1bc340f36d289d8c3b3bfc3af3a6484f8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/consumer-environment.json",
+      "bytes": 964,
+      "sha256": "4d00221fb67a8dd2b5527037c09ff801e9f28ba375cf2d3123060709cb605ef4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/consumer-environment.txt",
+      "bytes": 294,
+      "sha256": "0b1b834f80a0a63b38b21cc907440573ec2fbe1773e3d1655027868e9fcf67b0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/executed-launcher.json",
+      "bytes": 2267,
+      "sha256": "9febc616a37bfe157febe1a1eed469284e20af1d911560d67213d519725cca03"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/input-and-environment.json",
+      "bytes": 8834,
+      "sha256": "d2d919f3a2ba9de3580272569541375c9aaf90ed5c11e1a17ace214f6499808c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/installed-child-wrapper.json",
+      "bytes": 3014,
+      "sha256": "73ab80b493e0e4dfcdfe7246018222939a32dc8a372ed555c804f01850f28554"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/installed-child.txt",
+      "bytes": 1814,
+      "sha256": "1fbcdb15b259954a496a8ab35968ea6ff512655f1af836fa3089734af55f3313"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/installed-child.xml",
+      "bytes": 989,
+      "sha256": "211b05505ba7e24734d525058b2d3c9e2dd38cc21dece361ce8fc583d5dd8651"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/installed-pyvenv.cfg.txt",
+      "bytes": 179,
+      "sha256": "5b48d511ca6f9041a086238c18869c2d91b8b50f67bc52f2705e911e86b9b258"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/installed-venv.json",
+      "bytes": 945,
+      "sha256": "a15be32e7042415f7e43967d86b5b48fbdbcb95ebd9cba88e6fc397f3c8c9ad3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/installed-venv.txt",
+      "bytes": 220,
+      "sha256": "88031c3313150199540d7e5f695abbb2896d91c384410f8741c1be1053bf7620"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/launcher-full.txt",
+      "bytes": 11981,
+      "sha256": "eca47dd659cc1824f6006bd15fe58e0ed8e8d75df24bde46ca9212fe293e9e55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/module-byte-bindings.json",
+      "bytes": 4714,
+      "sha256": "d4ab498c45512d913858d5c53ec3f241b030cb1be9237dc2a34214fcda0fa1c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/native.json",
+      "bytes": 1251,
+      "sha256": "5ce5191d87651887801636a3e545b5395bf1c73b28901549f13926c3f5e8fe81"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/native.txt",
+      "bytes": 4535,
+      "sha256": "defa888f74fc28702db16b3ee5572c813fa6a79d7f8ec13f4fc2f0a30568d50a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/native.xml",
+      "bytes": 342,
+      "sha256": "b9f01bf011678772bee84aef4e31cc9444bd5582fd92e75c5d343457b5a94da9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/package-evidence.source.txt",
+      "bytes": 11808,
+      "sha256": "9e578831477ab7328021918145000d605dfd4c90f1dae3f4bacab77ee268cf27"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/profile.json",
+      "bytes": 1870,
+      "sha256": "a54ca2943c672045836c68e7f1172f9994e1da4696e82bc67f5baa574fcdc6eb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/wheel-build.json",
+      "bytes": 1055,
+      "sha256": "b10877a202f460181401cbd5ec60e3c682ace6d8c9be51f86b82567ba0a2bade"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/wheel-build.txt",
+      "bytes": 81,
+      "sha256": "430982fdee80715cdcd8cfe97c600955d040a0744c6f540e92297d3d36287def"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/wheel-install.json",
+      "bytes": 954,
+      "sha256": "3ce7894317371800cfa32e79af07678d885645582842d2709f703fb153960cab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-installed-wheel-evidence/wheel-install.txt",
+      "bytes": 253,
+      "sha256": "2af5038f3d76b4931a22b58a63d55a832c221e7e22c5fd5813d1a25f9202590f"
+    }
+  ],
+  "count": 33,
+  "bytes": 159960,
+  "scope": "All9full phase stdout/wrappers, launcher/output/profiles/config, outerXML/childfull3, source/environment/quantities/baseline and packaginginput; large wheel/cache/privateenv retainedlocal"
+}

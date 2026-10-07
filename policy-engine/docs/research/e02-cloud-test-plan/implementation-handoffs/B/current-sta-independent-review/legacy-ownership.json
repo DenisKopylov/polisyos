@@ -1,0 +1,291 @@
+{
+  "target_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+  "source_identity": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": "d12be89d178f81540676e6dcc459698e43c4629335479e08daa66ab1cf9128d0",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py": "6eb8cd4bcb7f3e67c82f24903357591e44e38fe6aa96f4467f09ee3e36846d83",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py": "3a1658e0ef6d43236b3be774483b9c0dac2b70c5418e103f80781da33d1eb85c"
+  },
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "input_negative_commit": "41b6b7ce1237e921a68d4322b27a1e9b3100569f",
+  "input_negative_sha256": "12033cfe8799bbec98683359c2f3efb0a5e701a470fc75bd4cb35c6e95217d6e",
+  "legacy": [
+    {
+      "case": "insert_then_existing_nested_write",
+      "legacy_version": "1.0",
+      "cache_ref": {
+        "artifact_id": "sha256:6f29ed2efaabe9fd116f6d012ed71f1f560b63484251b49e1a01e1e53a78a83f",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "artifact_bytes_unchanged": true,
+      "admitted": false,
+      "pass": true
+    },
+    {
+      "case": "no_shift_nested_positive",
+      "legacy_version": "1.0",
+      "cache_ref": {
+        "artifact_id": "sha256:850d9691c666991dcaa3ca4bb3327e242708f93d9e204f569d012ba2fa575065",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "artifact_bytes_unchanged": true,
+      "admitted": false,
+      "pass": true
+    },
+    {
+      "case": "same_value_delete_null_no_write",
+      "legacy_version": "1.0",
+      "cache_ref": {
+        "artifact_id": "sha256:3563cee3307aa7d840a832018ff31866f0fa4f1a5d24771f2ae2be6373bf22ec",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "artifact_bytes_unchanged": true,
+      "admitted": true,
+      "pass": true,
+      "actual": {
+        "x": 2,
+        "y": 4,
+        "nullable": null,
+        "untouched": "new"
+      },
+      "reserved_usd": "11"
+    }
+  ],
+  "live": [
+    {
+      "case": "held_shifted_descendant",
+      "producer": [
+        {
+          "id": "new",
+          "v": 0
+        },
+        {
+          "id": "old",
+          "v": 5
+        }
+      ],
+      "operations": [
+        {
+          "index": 0,
+          "operation": "insert",
+          "path": "params.rows",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "list",
+          "target_presence": "present",
+          "value": {
+            "id": "new",
+            "v": 0
+          },
+          "value_kind": "json"
+        },
+        {
+          "index": null,
+          "operation": "set",
+          "path": "params.rows.1.v",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "scalar",
+          "target_presence": "present",
+          "value": 5,
+          "value_kind": "json"
+        }
+      ],
+      "profiles": [
+        {
+          "profile": "warm",
+          "actual": [
+            {
+              "id": "new",
+              "v": 0
+            },
+            {
+              "id": "old",
+              "v": 5
+            }
+          ],
+          "result_ref": {
+            "artifact_id": "sha256:ec17423bd120131634fdcd9ef0437ce65e20869dc36ee6b0e96506c7b6e595d5",
+            "kind": "scientist.independent_live_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"23\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"neighbor\":{\"queue\":[\"kept\"]},\"rows\":[{\"id\":\"new\",\"v\":0},{\"id\":\"old\",\"v\":5}]},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}",
+          "reserved_usd": "23"
+        },
+        {
+          "profile": "reopened",
+          "actual": [
+            {
+              "id": "new",
+              "v": 0
+            },
+            {
+              "id": "old",
+              "v": 5
+            }
+          ],
+          "result_ref": {
+            "artifact_id": "sha256:ec17423bd120131634fdcd9ef0437ce65e20869dc36ee6b0e96506c7b6e595d5",
+            "kind": "scientist.independent_live_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"23\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"neighbor\":{\"queue\":[\"kept\"]},\"rows\":[{\"id\":\"new\",\"v\":0},{\"id\":\"old\",\"v\":5}]},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}",
+          "reserved_usd": "23"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "case": "held_repeated_same_object",
+      "producer": [
+        {
+          "id": "old",
+          "v": 5
+        },
+        {
+          "id": "old",
+          "v": 5
+        }
+      ],
+      "operations": [
+        {
+          "index": null,
+          "operation": "replace",
+          "path": "params.rows",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "list",
+          "target_presence": "present",
+          "value": [
+            {
+              "id": "old",
+              "v": 1
+            },
+            {
+              "id": "old",
+              "v": 1
+            }
+          ],
+          "value_kind": "json"
+        },
+        {
+          "index": null,
+          "operation": "set",
+          "path": "params.rows.0.v",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "scalar",
+          "target_presence": "present",
+          "value": 5,
+          "value_kind": "json"
+        },
+        {
+          "index": null,
+          "operation": "set",
+          "path": "params.rows.1.v",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "scalar",
+          "target_presence": "present",
+          "value": 5,
+          "value_kind": "json"
+        }
+      ],
+      "profiles": [
+        {
+          "profile": "warm",
+          "actual": [
+            {
+              "id": "old",
+              "v": 5
+            },
+            {
+              "id": "old",
+              "v": 5
+            }
+          ],
+          "result_ref": {
+            "artifact_id": "sha256:1030bacde11c71bb5096a6c80c9adbebdb4bfbc253d959456f56215d7d5e8bd2",
+            "kind": "scientist.independent_live_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"23\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"neighbor\":{\"queue\":[\"kept\"]},\"rows\":[{\"id\":\"old\",\"v\":5},{\"id\":\"old\",\"v\":5}]},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}",
+          "reserved_usd": "23"
+        },
+        {
+          "profile": "reopened",
+          "actual": [
+            {
+              "id": "old",
+              "v": 5
+            },
+            {
+              "id": "old",
+              "v": 5
+            }
+          ],
+          "result_ref": {
+            "artifact_id": "sha256:1030bacde11c71bb5096a6c80c9adbebdb4bfbc253d959456f56215d7d5e8bd2",
+            "kind": "scientist.independent_live_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"23\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"neighbor\":{\"queue\":[\"kept\"]},\"rows\":[{\"id\":\"old\",\"v\":5},{\"id\":\"old\",\"v\":5}]},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}",
+          "reserved_usd": "23"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "case": "detached_descendant_no_new_state_intent",
+      "producer": [],
+      "operations": [
+        {
+          "index": -1,
+          "operation": "pop",
+          "path": "params.rows",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "list",
+          "target_presence": "present",
+          "value": null,
+          "value_kind": "json"
+        }
+      ],
+      "profiles": [
+        {
+          "profile": "warm",
+          "actual": [],
+          "result_ref": {
+            "artifact_id": "sha256:2012e98b50ba3778232d40324bc0f6a5f8f1d3019c53b531bb16b175bb7f8eb8",
+            "kind": "scientist.independent_live_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"23\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"neighbor\":{\"queue\":[\"kept\"]},\"rows\":[]},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}",
+          "reserved_usd": "23"
+        },
+        {
+          "profile": "reopened",
+          "actual": [],
+          "result_ref": {
+            "artifact_id": "sha256:2012e98b50ba3778232d40324bc0f6a5f8f1d3019c53b531bb16b175bb7f8eb8",
+            "kind": "scientist.independent_live_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"23\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"neighbor\":{\"queue\":[\"kept\"]},\"rows\":[]},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}",
+          "reserved_usd": "23"
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "trace_utf8": "{\"ts\":\"2026-10-06T12:47:57Z\",\"run_id\":\"R_independent_STA\",\"phase\":\"core\",\"event\":\"RUN_STARTED\",\"run_terminality\":\"non_terminal\",\"refs\":{\"inputs\":[],\"outputs\":[]},\"metrics\":{},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T12:47:57Z\",\"run_id\":\"R_independent_STA\",\"phase\":\"independent.legacy\",\"event\":\"LEGACY_CACHE_ADMISSION\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:6f29ed2efaabe9fd116f6d012ed71f1f560b63484251b49e1a01e1e53a78a83f\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"}]},\"metrics\":{\"admitted\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T12:47:57Z\",\"run_id\":\"R_independent_STA\",\"phase\":\"independent.legacy\",\"event\":\"LEGACY_CACHE_ADMISSION\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:850d9691c666991dcaa3ca4bb3327e242708f93d9e204f569d012ba2fa575065\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"}]},\"metrics\":{\"admitted\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T12:47:57Z\",\"run_id\":\"R_independent_STA\",\"phase\":\"independent.legacy\",\"event\":\"LEGACY_CACHE_ADMISSION\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:3563cee3307aa7d840a832018ff31866f0fa4f1a5d24771f2ae2be6373bf22ec\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"}]},\"metrics\":{\"admitted\":1},\"warnings\":[],\"errors\":[]}\n",
+  "pass": true
+}

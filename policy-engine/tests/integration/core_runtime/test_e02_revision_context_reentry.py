@@ -16,11 +16,15 @@ async def test_served_candidate_profile_two_iteration_cap_stops_before_revision_
 ) -> None:
     """A candidate-only profile cannot turn an N6 revision into a second N5."""
 
+    from dataclasses import replace
+
     from polisyos.core import canon
     from polisyos.core.security import tenant_scope
+    from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.quality import design_generation, substrate_registry
     from polisyos.runtime.quality.cycle_substrate import (
         ConfiguredCandidateSimulationContextAdmissionOwner,
         cycle_job_design_problem_ref,
@@ -31,6 +35,57 @@ async def test_served_candidate_profile_two_iteration_cap_stops_before_revision_
     )
     from tests.unit.runtime.http.test_control_service_di import (
         _run_controlled_simulate_only_job_fixture,
+    )
+
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv(
+        "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+    )
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+    monkeypatch.setenv("OMP_NUM_THREADS", "1")
+
+    # Give the service's eager retrieval catalog a real, bounded Slice0 graph.
+    catalog_root = tmp_path / "candidate-context-revision-catalog"
+    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+    curated_root = tmp_path / "candidate-context-revision-curated"
+    curated_root.mkdir()
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+    monkeypatch.setattr(
+        catalog_api,
+        "default_acquisition_overlay_path",
+        lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+    )
+    default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+    repo_root = Path(__file__).resolve().parents[3]
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda root: (
+            replace(
+                default_catalog_paths(root),
+                l1_dcat_path=catalog_root / "catalog.duckdb",
+            )
+            if Path(root).resolve() == repo_root
+            else default_catalog_paths(root)
+        ),
+    )
+
+    # The candidate-only N4 lane records an unavailable-reference limitation;
+    # it does not need the checkout's factual LEX-backed credal reference.
+    def bounded_candidate_reference_unavailable(
+        *args: object,
+        **kwargs: object,
+    ) -> object:
+        del args, kwargs
+        raise ValueError("candidate_revision_fixture_has_no_credal_reference")
+
+    monkeypatch.setattr(
+        design_generation,
+        "build_credal_reference",
+        bounded_candidate_reference_unavailable,
     )
 
     fixture = await _run_controlled_simulate_only_job_fixture(

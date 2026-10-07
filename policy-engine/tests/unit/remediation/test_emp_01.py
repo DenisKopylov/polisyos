@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
@@ -21,6 +21,7 @@ from polisyos.runtime.quality import cycle_substrate, data_state_substrate, subs
 def _project_value_outer_set(
     *,
     confidence_interval: tuple[float, float],
+    point_estimate: Any = 4.0,
     forecast_tier: str = "direct",
 ) -> Any:
     """Project a small estimator report through the live value owner helper."""
@@ -41,7 +42,7 @@ def _project_value_outer_set(
         uncertainty_interval_refs=("interval://emp01/test/95",),
     )
     report = SimpleNamespace(
-        point_estimate=4.0,
+        point_estimate=point_estimate,
         confidence_interval=confidence_interval,
         method="emp01_test_method",
     )
@@ -432,7 +433,7 @@ def test_selection_diagram_requires_verified_causal_artifact(
 
     class _Problem:
         domain = "emp01-domain"
-        runtime_hints: dict[str, Any] = {}
+        runtime_hints: ClassVar[dict[str, Any]] = {}
 
         def model_dump(self, *, mode: str) -> dict[str, str]:
             assert mode == "json"

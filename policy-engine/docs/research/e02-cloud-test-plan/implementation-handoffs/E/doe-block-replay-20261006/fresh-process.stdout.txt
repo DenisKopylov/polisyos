@@ -1,0 +1,41 @@
+{"fresh_process_readback": "PASS", "forged_interaction_refusal": "Persisted DOE sensitivity result does not reproduce"}
+{
+  "analysis_ref": {
+    "artifact_id": "sha256:2022f143fffcaeb852756652842af31dd7b174e0d5918309b6db4c86540a4ac1",
+    "kind": "doe_sensitivity_analysis",
+    "media_type": "application/json"
+  },
+  "callback_count": 6144,
+  "s1": {
+    "x": 0.47999699611764657,
+    "z": 0.47999590880678566
+  },
+  "s2": {
+    "x": {
+      "z": 0.039912116447267554
+    }
+  },
+  "st": {
+    "x": 0.5200360682165714,
+    "z": 0.5199599464851906
+  },
+  "truth": {
+    "S1": 0.48,
+    "S2": 0.04,
+    "ST": 0.52
+  },
+  "absolute_numerical_tolerance": 0.01,
+  "design_id": "6c59b4d6d649034608371f98c3203ba9141fd01acc75d437147a5223a6bee7b9",
+  "analysis_id": "8b05d0a14055336c4cc9444a8ec67cd6320aa0210c3a9d7e115efdded0d254af",
+  "ordered_samples_sha256": "8cd81a14142619ab77a69d6b55e5b6abd3bc4942848217d26a122cd55e49b1c9",
+  "ordered_outputs_sha256": "39767f12c0e5a0022223f1d68f556a22f3f93fd0c17ed6e8f447c826842b3fda",
+  "analyzer": "SALib@1.5.2:sobol",
+  "denominator": {
+    "requested": 6144,
+    "observed": 6144,
+    "failed": 0
+  },
+  "authority_purpose": "exploratory_parameter_experiment",
+  "population_law_status": "not_established",
+  "default_search": "bridge_missing; canonical owner D"
+}

@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 117, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 91, in main
+    p=Path(args.manifest);raw_manifest=p.read_bytes();m=strict_json(raw_manifest);validate(p,m)
+                                                                                  ^^^^^^^^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 68, in validate
+    expected=recompute_expected(p,m)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 61, in recompute_expected
+    if canonical(m['selection_inputs'])!=canonical(headers):raise ValueError('typed exact six selector vector')
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: typed exact six selector vector

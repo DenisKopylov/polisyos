@@ -1,0 +1,1533 @@
+{
+  "schema": "policyos.e02.independent_frozen_wave_DOC_custody_review.v1",
+  "publication_sha": "ac2682a66afd8fd5beef39d15fd82ec58e10dd6d",
+  "publication_tree_sha": "e332ae6113ee710e0e0bf7e09299bdcc1dcc573e",
+  "publication_base_sha": "3eafb85617738c9b398fe67c70d58b3d0d05a5a9",
+  "historical_publication_sha": "e8807764d7e527b6cb998cd7296c7f8fd55f9890",
+  "verification_source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "disposition": "GO for immutable DOC custody and data-validator correction",
+  "changed_path_denominator": 93,
+  "active_python_path_denominator": 0,
+  "literal_copy_count": 90,
+  "literal_copy_bytes": 5740884,
+  "selected_deciding_count": 76,
+  "selected_deciding_bytes": 5549441,
+  "case_count": 1549,
+  "case_outcomes": {
+    "PASS": 1541,
+    "FAIL": 8
+  },
+  "finding_count": 54,
+  "bundle_count": 22,
+  "id_to_bundle_link_count": 55,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/implementation-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/cal-publication-review.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/cal-publication-review.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/cal-retry-independent-corrected.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/cal-retry-independent-corrected.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/case-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/committed-publication-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/publication-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/case-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/collector-controls-final.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/collector-controls-final.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/collector-controls/results-current.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/defining-assertion-source-index-64d.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/defining-current-case-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/defining-current-case-index.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/defining-current-case-index.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/final-64d-corrected.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/final-64d-corrected.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/history/final-64d-initial.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/history/final-64d-initial.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/history/recomputed-before-A-empty-class-source-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/inventory-normal.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/inventory-normal.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/inventory-optimized.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/inventory-optimized.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/recomputed-wave.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/collector_controls.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/inventory_control.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/join_defining_source.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/recompute_wave.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/review_cal_publication.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/review_cal_retry.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/select_publication.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/moderate-publication-selection.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-admission/admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-admission/admission-resume.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-admission/copy-common-wave.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-normal.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-normal.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-optimized.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-optimized.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-normal.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-normal.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-optimized.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-optimized.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/validate-common-wave-v2.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/validate-common-wave.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/source-and-owner-inputs/current-prewave-all-54-owner-dispositions.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/source-and-owner-inputs/source-freeze-64d7444a.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/architecture/architecture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/architecture/architecture.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ci-parity/ci-parity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ci-parity/ci-parity.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ddm-runtime-and-facade/pytest.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/doe-salib-and-consumer-factory/pytest.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/pcl-continuous-persistence/pytest.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/results-importer/results-importer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/results-importer/results-importer.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ruff-format/ruff-format.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ruff-format/ruff-format.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ruff/ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ruff/ruff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/runtime-api-contract/retained-runtime-catalog.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/runtime-api-contract/runtime-api-contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/static-invocation/static-invocation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/static-invocation/static-invocation.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/workspace-verify/workspace-verify.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/workspace-verify/workspace-verify.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/execution-complete.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/owner-packet/test_a_frc_native_cas_status_reason.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/plan.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/wave-started.json"
+  ],
+  "literal_copies": [
+    {
+      "portable_path": "wave/plan.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/plan.json",
+      "bytes": 201583,
+      "sha256": "e9779679ee75c23151a7eb57aca123fe3918b78b28f3a61b082c15e7627fcd23",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/wave-started.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/wave-started.json",
+      "bytes": 198,
+      "sha256": "3443b5017e941786f984145792c522fae17309a6894cb4e9a0dfc16c3a935c4c",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/execution-complete.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/execution-complete.json",
+      "bytes": 282,
+      "sha256": "6bddda3629c4fe5eb6993d839dccae2c7882723d742a734176b23fb99265283a",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "bytes": 9433,
+      "sha256": "e7d34b6fb91f3301783d6fc14b0bb4870847d2d4a1710b8469be362c1bdcf42b",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "bytes": 160,
+      "sha256": "d8b8de5aa45f370d8fca3d3554fc6f6eb91df8892674da930f787edcc91f0d95",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/pcl-continuous-persistence/pytest.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pytest.xml",
+      "bytes": 15059,
+      "sha256": "590659d7422b8103617787f7d42345502a5f6ea718321fff783563cd45017f51",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "bytes": 9677,
+      "sha256": "3f5055ffa1d657d7fb6bb48aba2f58586a9dff7c477926a46cce4cac4ed38fed",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ddm-runtime-and-facade/pytest.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+      "bytes": 12578,
+      "sha256": "8ec75f41d5be88b055f813772e9c89fdb9ed1ba978df9966b153074d899cfbcd",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 10645,
+      "sha256": "2b76b7f27babe3eee1a1b4fe1bf8fa82c839f351c70460ec1ebb0665df527434",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "bytes": 27554,
+      "sha256": "1a1b6fde267fa9a2283b4bbadbff0ea3fe0221e691bf1525f2d63db65c1844fc",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "bytes": 83154,
+      "sha256": "eff4ee7af671cae2f9d49bf4bd994533bc52245433d61f1fe0a56ff668e3ebbb",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 10457,
+      "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "bytes": 281,
+      "sha256": "840e92795a70320c72cbedd9f1ef462e30cbd062b488ab646e23b5c93c0ea505",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "bytes": 10594,
+      "sha256": "7227ca411296804de6d5f6cca769b9be0d210009040ef9c9bf3390c36ba1586e",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "bytes": 1211,
+      "sha256": "2b8d025fdbc1364f5afbb4edf9717bda621429495f142c349cb8548908c7e235",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "bytes": 73798,
+      "sha256": "16387db180e797b9663e288360f4bd50d4b638b50d357e70453e2e6baf57bdfa",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "bytes": 9830,
+      "sha256": "74d964a4a6c8e7d6a52592b0c3d3d71ae161279272fc3179577dae62cbfcee93",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "bytes": 36923,
+      "sha256": "c2856e7892537f67c965ce385585a206fd5d4a937cd3a0d4eaafd358688ec09b",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "bytes": 9017,
+      "sha256": "c063fcf1288e0a5c17562e71cdf899e5251c93a8c4c3fc4b5ae5f21eca64f66a",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "bytes": 10247,
+      "sha256": "0a0ebe21740efba221edccd2312a788eb6fb453aafad5b50b48e84cc69bafbb9",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/results-importer/results-importer.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/results-importer/results-importer.json",
+      "bytes": 8168,
+      "sha256": "6aaa1261b5ec92bfcd3bd491411ab79a7f8ef0d589b8e73c87e4d9baaaf874e7",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/results-importer/results-importer.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/architecture/architecture.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.json",
+      "bytes": 8146,
+      "sha256": "f2fb06dd561d9cb11503d8b70903e6864fe153286725bbc8ad6087754b4786cc",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/architecture/architecture.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.stdout.txt",
+      "bytes": 136159,
+      "sha256": "7e4b0d4c4115b56440e6498dae639fef1329b49960b38bc3371cf6e354b33682",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/runtime-api-contract/runtime-api-contract.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/runtime-api-contract.json",
+      "bytes": 8748,
+      "sha256": "52721551be07b75512ff5015f53c391e5db46ac918a1f3ae91baf0d4666c6132",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+      "bytes": 13147,
+      "sha256": "735d5db073ae7a4e9be3d54e01accbf1118d4aee51f95bfe733c09bef1808e49",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/runtime-api-contract/retained-runtime-catalog.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/retained-runtime-catalog.json",
+      "bytes": 2341,
+      "sha256": "c379560fd9f55c0c22168c7a4bf0b63d02dfac9a01ef9431b3eabd7123a5db38",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/static-invocation/static-invocation.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.json",
+      "bytes": 8422,
+      "sha256": "58c3b82812c3c123343552c2ed53a4d746b49f1c96385f20e430e739f4eac5f3",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/static-invocation/static-invocation.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.stdout.txt",
+      "bytes": 10099,
+      "sha256": "651ac270c247d0e52b2d1c365a94bd563e035786078bffb7dce7a2912f6576cb",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ruff/ruff.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff/ruff.json",
+      "bytes": 50356,
+      "sha256": "bdd1f1417d8b0a8500c5bd9ca605a5023d65811a12a55e9e9f082eed19fbf324",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ruff/ruff.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff/ruff.stdout.txt",
+      "bytes": 21533,
+      "sha256": "76b6b7f89005eed8b122f904adcbe9c04025535ded76de567dd268aef2419f36",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ruff-format/ruff-format.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff-format/ruff-format.json",
+      "bytes": 50394,
+      "sha256": "c3dce64e0c0eda90f5b4d88360478147f2a6b04971ed1fcee99706ad4e7b5d74",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ruff-format/ruff-format.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff-format/ruff-format.stdout.txt",
+      "bytes": 439,
+      "sha256": "ec72f99fca601ff7c444d76e6ef80fc57ebeddf60ddff744ad49dfd10c9cfbbb",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/workspace-verify/workspace-verify.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.json",
+      "bytes": 8640,
+      "sha256": "0a931767d9c7ce564189b1b79d9d199731e4110a9ab70609dcdbb5d3989f67e8",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/workspace-verify/workspace-verify.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.stdout.txt",
+      "bytes": 7454,
+      "sha256": "0d323368ef32d64a3fe0d64b44831f6152bced2aa15409c3e009ddae9f2070c5",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ci-parity/ci-parity.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/ci-parity.json",
+      "bytes": 8574,
+      "sha256": "8ce46546614f66778a33e41cb9ba21533edab45c97137610f6d8bb56a88114af",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/checks/ci-parity/ci-parity.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/ci-parity.stdout.txt",
+      "bytes": 15296,
+      "sha256": "048275b6f4334ea9638817049dabcff2cf1a14e9cbfb4085a30fd5f0a333c8fd",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "wave/owner-packet/test_a_frc_native_cas_status_reason.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/owner-packets/test_a_frc_native_cas_status_reason.py",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/recomputed-wave.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/recomputed-wave.json",
+      "bytes": 1049493,
+      "sha256": "bb59345873fdc306c98458587354f3caaed45312694c14a51d01edfd08768bbf",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/case-index.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/case-index.json",
+      "bytes": 701747,
+      "sha256": "73a5974a61fe29424373bac0edfc0bbdff1840b7717dd493e8261c3dff3e7ab0",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/defining-current-case-index.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/defining-current-case-index.json",
+      "bytes": 654655,
+      "sha256": "6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/final-64d-corrected.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d-corrected.stdout",
+      "bytes": 318,
+      "sha256": "651804d2d4ea68a9bc4d516440832e3b6fc774c00a37d7d14aa1731341d25f8b",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/final-64d-corrected.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/defining-current-case-index.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/defining-current-case-index.stdout",
+      "bytes": 360,
+      "sha256": "6f3cbe2ed945bb45670395fc3a87daa165c94d4c39cd060c1f397bcf3fb893ea",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/defining-current-case-index.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/defining-current-case-index.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/defining-assertion-source-index-64d.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/defining-assertion-source-index-64d.json",
+      "bytes": 303981,
+      "sha256": "43db67e8ef9596a2ab1d71a47ea5d6c9cd588e83c35664b2d66dc2025b440ded",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/collector-controls-final.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector-controls-final.stdout",
+      "bytes": 45,
+      "sha256": "07a8d90979b3ebc92c41a194974c5720fb960512e20a8861746efe8b724a7370",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/collector-controls-final.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector-controls-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/inventory-normal.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory-normal.stdout",
+      "bytes": 223,
+      "sha256": "a1e3d2cd38d1ddb2f5fe167c4fc2804aa59797e409c3c4a5277822072d5a12fb",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/inventory-normal.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/inventory-optimized.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory-optimized.stdout",
+      "bytes": 223,
+      "sha256": "a1e3d2cd38d1ddb2f5fe167c4fc2804aa59797e409c3c4a5277822072d5a12fb",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/inventory-optimized.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/collector-controls/results-current.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector-controls/results-current.json",
+      "bytes": 9332,
+      "sha256": "8b7c049d087b8d00d7f0293f2977f9e007ffafda410ed7d80a2aa486a2a83afd",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/history/recomputed-before-A-empty-class-source-binding.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/recomputed-wave.json.historical-before-A-empty-class-binding",
+      "bytes": 1020725,
+      "sha256": "8794fb54cd779b6517b25f5cba0eb8f78d61b78b18161db5c5282a071e257a8a",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/history/final-64d-initial.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d.stdout",
+      "bytes": 318,
+      "sha256": "651804d2d4ea68a9bc4d516440832e3b6fc774c00a37d7d14aa1731341d25f8b",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/history/final-64d-initial.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/reproducers/recompute_wave.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/recompute_wave.py",
+      "bytes": 40909,
+      "sha256": "7d176c1028b07c6974fbb8a97b6f363b005e7439b592039a54fc3a3a107f34b2",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/reproducers/join_defining_source.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/join_defining_source.py",
+      "bytes": 6537,
+      "sha256": "65a18ff4c6747b758731f4650526da16d3138075c9cd85da116c904a9f4904b8",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/reproducers/collector_controls.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector_controls.py",
+      "bytes": 6159,
+      "sha256": "6878e5cae9a8edff8cf22c46d39dee59625c5a0f2fffcab553415d2f1286a04d",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/reproducers/inventory_control.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory_control.py",
+      "bytes": 1463,
+      "sha256": "f50a74eddb06092c4e0bf03bc871814cc947001e006802ba6a83ec8a962edf4b",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/reproducers/review_cal_retry.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/review_cal_retry.py",
+      "bytes": 4277,
+      "sha256": "73860d158263885fd3e4794a976fc1f06fbc58945c50baedb75411d55b84c4e3",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/reproducers/review_cal_publication.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/review_cal_publication.py",
+      "bytes": 4755,
+      "sha256": "1cc45442dc35f85270dfe02baa9215b10c7cb4592dd87f3b8cc4f81d825c1dbd",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/reproducers/select_publication.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/select_publication.py",
+      "bytes": 7355,
+      "sha256": "7439ed8410a5c1ccd9c4e718810bfe488718f8d661d7306b4e97dca3a0ddca9e",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/cal-retry/review.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/review.json",
+      "bytes": 257231,
+      "sha256": "ca7158b7ec13ae1343ff8fdfe9058c7d40d869a774a5a1fbbc7101f26bbcbc68",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/cal-retry/case-index.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/case-index.json",
+      "bytes": 227258,
+      "sha256": "dba0f3479e68f857c1e445c4e2f217720ee858d6839cbac2e0091ad1317bdf2d",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/cal-retry/publication-review.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/publication-review.json",
+      "bytes": 10258,
+      "sha256": "f60727e1dadaf3e9225a15e0104a917dad71d6d6422bec15034edb87ada0bace",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/cal-retry/committed-publication-review.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/committed-publication-review.json",
+      "bytes": 32807,
+      "sha256": "8df3ddd822df348a430321c0f46cb67d926b7e0c171247de19d4b4ada9337a7d",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/cal-retry/cal-retry-independent-corrected.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent-corrected.stdout",
+      "bytes": 317,
+      "sha256": "5bc16f72789d1fd02856976a9c5a90f6bc80cd39ac6a757c4787b42febac8dfe",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/cal-retry/cal-retry-independent-corrected.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/cal-retry/cal-publication-review.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-publication-review.stdout",
+      "bytes": 323,
+      "sha256": "d6da2fb98f6ad16bd4e88b42340a261d18e0f237373a1e3d7c175defac83dc69",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "independent/cal-retry/cal-publication-review.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-publication-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "source-and-owner-inputs/source-freeze-64d7444a.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/source-freeze-64d7444a.json",
+      "bytes": 3424,
+      "sha256": "41b408e310e4a2b3bf2771ec41298024fd30e5f276bdb455493f33550a0041c2",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "source-and-owner-inputs/current-prewave-all-54-owner-dispositions.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+      "bytes": 305737,
+      "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "moderate-publication-selection.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/moderate-publication-selection.json",
+      "bytes": 31657,
+      "sha256": "865f0422c6c9f78751a958a0f6aaf825711e014ec425d71cc41a540e1e2f3823",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-admission/admission-resume.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/admission-resume.json",
+      "bytes": 123184,
+      "sha256": "e4bb230685bdc983bff027c9879c152fa89f79836a8719bef6dec674c3bf85a7",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-admission/admission-resume.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/admission-resume.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-admission/copy-common-wave.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/copy-common-wave.py.txt",
+      "bytes": 11040,
+      "sha256": "23643efaaf1cf4124b11e47e72cb5ed3d8d7bb75619d95553c6c5e40853c97c1",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/validate-common-wave.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-common-wave.py.txt",
+      "bytes": 8246,
+      "sha256": "a6f0cc47bd18db4015fe1f7c266204a94be2f60cc0474d5c0ad7aca284c4d451",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/prearchive-normal.stdout.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate.stdout.json",
+      "bytes": 2030,
+      "sha256": "682c0ad76dc2bafcec241cc0fdfce8472d15c58b702f144b994ef2095b63c6bd",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/prearchive-normal.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/prearchive-optimized.stdout.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-optimized.stdout.json",
+      "bytes": 2030,
+      "sha256": "682c0ad76dc2bafcec241cc0fdfce8472d15c58b702f144b994ef2095b63c6bd",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/prearchive-optimized.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/validate-common-wave-v2.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-common-wave-v2.py.txt",
+      "bytes": 8814,
+      "sha256": "0118719cadfa06c3b4f207191f073186e452de264e33bbe7eb9e10cbbd990318",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/v2-prearchive-normal.stdout.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive.stdout.json",
+      "bytes": 2221,
+      "sha256": "ee80e741e4343bc2ff45653ec5a86b77c8b2ae36b8702deb85248f5ec7c15aef",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/v2-prearchive-normal.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/v2-prearchive-optimized.stdout.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive-optimized.stdout.json",
+      "bytes": 2221,
+      "sha256": "ee80e741e4343bc2ff45653ec5a86b77c8b2ae36b8702deb85248f5ec7c15aef",
+      "literal_equal": true
+    },
+    {
+      "portable_path": "publication-control/v2-prearchive-optimized.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    }
+  ],
+  "historical_copies_preserved": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/cal-publication-review.stderr",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/cal-publication-review.stdout",
+      "same_bytes": true,
+      "bytes": 323,
+      "sha256": "d6da2fb98f6ad16bd4e88b42340a261d18e0f237373a1e3d7c175defac83dc69"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/cal-retry-independent-corrected.stderr",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/cal-retry-independent-corrected.stdout",
+      "same_bytes": true,
+      "bytes": 317,
+      "sha256": "5bc16f72789d1fd02856976a9c5a90f6bc80cd39ac6a757c4787b42febac8dfe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/case-index.json",
+      "same_bytes": true,
+      "bytes": 227258,
+      "sha256": "dba0f3479e68f857c1e445c4e2f217720ee858d6839cbac2e0091ad1317bdf2d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/committed-publication-review.json",
+      "same_bytes": true,
+      "bytes": 32807,
+      "sha256": "8df3ddd822df348a430321c0f46cb67d926b7e0c171247de19d4b4ada9337a7d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/publication-review.json",
+      "same_bytes": true,
+      "bytes": 10258,
+      "sha256": "f60727e1dadaf3e9225a15e0104a917dad71d6d6422bec15034edb87ada0bace"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/cal-retry/review.json",
+      "same_bytes": true,
+      "bytes": 257231,
+      "sha256": "ca7158b7ec13ae1343ff8fdfe9058c7d40d869a774a5a1fbbc7101f26bbcbc68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/case-index.json",
+      "same_bytes": true,
+      "bytes": 701747,
+      "sha256": "73a5974a61fe29424373bac0edfc0bbdff1840b7717dd493e8261c3dff3e7ab0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/collector-controls-final.stderr",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/collector-controls-final.stdout",
+      "same_bytes": true,
+      "bytes": 45,
+      "sha256": "07a8d90979b3ebc92c41a194974c5720fb960512e20a8861746efe8b724a7370"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/collector-controls/results-current.json",
+      "same_bytes": true,
+      "bytes": 9332,
+      "sha256": "8b7c049d087b8d00d7f0293f2977f9e007ffafda410ed7d80a2aa486a2a83afd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/defining-assertion-source-index-64d.json",
+      "same_bytes": true,
+      "bytes": 303981,
+      "sha256": "43db67e8ef9596a2ab1d71a47ea5d6c9cd588e83c35664b2d66dc2025b440ded"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/defining-current-case-index.json",
+      "same_bytes": true,
+      "bytes": 654655,
+      "sha256": "6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/defining-current-case-index.stderr",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/defining-current-case-index.stdout",
+      "same_bytes": true,
+      "bytes": 360,
+      "sha256": "6f3cbe2ed945bb45670395fc3a87daa165c94d4c39cd060c1f397bcf3fb893ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/final-64d-corrected.stderr",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/final-64d-corrected.stdout",
+      "same_bytes": true,
+      "bytes": 318,
+      "sha256": "651804d2d4ea68a9bc4d516440832e3b6fc774c00a37d7d14aa1731341d25f8b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/history/final-64d-initial.stderr",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/history/final-64d-initial.stdout",
+      "same_bytes": true,
+      "bytes": 318,
+      "sha256": "651804d2d4ea68a9bc4d516440832e3b6fc774c00a37d7d14aa1731341d25f8b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/history/recomputed-before-A-empty-class-source-binding.json",
+      "same_bytes": true,
+      "bytes": 1020725,
+      "sha256": "8794fb54cd779b6517b25f5cba0eb8f78d61b78b18161db5c5282a071e257a8a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/inventory-normal.stderr",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/inventory-normal.stdout",
+      "same_bytes": true,
+      "bytes": 223,
+      "sha256": "a1e3d2cd38d1ddb2f5fe167c4fc2804aa59797e409c3c4a5277822072d5a12fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/inventory-optimized.stderr",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/inventory-optimized.stdout",
+      "same_bytes": true,
+      "bytes": 223,
+      "sha256": "a1e3d2cd38d1ddb2f5fe167c4fc2804aa59797e409c3c4a5277822072d5a12fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/recomputed-wave.json",
+      "same_bytes": true,
+      "bytes": 1049493,
+      "sha256": "bb59345873fdc306c98458587354f3caaed45312694c14a51d01edfd08768bbf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/collector_controls.py.txt",
+      "same_bytes": true,
+      "bytes": 6159,
+      "sha256": "6878e5cae9a8edff8cf22c46d39dee59625c5a0f2fffcab553415d2f1286a04d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/inventory_control.py.txt",
+      "same_bytes": true,
+      "bytes": 1463,
+      "sha256": "f50a74eddb06092c4e0bf03bc871814cc947001e006802ba6a83ec8a962edf4b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/join_defining_source.py.txt",
+      "same_bytes": true,
+      "bytes": 6537,
+      "sha256": "65a18ff4c6747b758731f4650526da16d3138075c9cd85da116c904a9f4904b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/recompute_wave.py.txt",
+      "same_bytes": true,
+      "bytes": 40909,
+      "sha256": "7d176c1028b07c6974fbb8a97b6f363b005e7439b592039a54fc3a3a107f34b2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/review_cal_publication.py.txt",
+      "same_bytes": true,
+      "bytes": 4755,
+      "sha256": "1cc45442dc35f85270dfe02baa9215b10c7cb4592dd87f3b8cc4f81d825c1dbd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/review_cal_retry.py.txt",
+      "same_bytes": true,
+      "bytes": 4277,
+      "sha256": "73860d158263885fd3e4794a976fc1f06fbc58945c50baedb75411d55b84c4e3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/independent/reproducers/select_publication.py.txt",
+      "same_bytes": true,
+      "bytes": 7355,
+      "sha256": "7439ed8410a5c1ccd9c4e718810bfe488718f8d661d7306b4e97dca3a0ddca9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/moderate-publication-selection.json",
+      "same_bytes": true,
+      "bytes": 31657,
+      "sha256": "865f0422c6c9f78751a958a0f6aaf825711e014ec425d71cc41a540e1e2f3823"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-admission/admission-resume.json",
+      "same_bytes": true,
+      "bytes": 123184,
+      "sha256": "e4bb230685bdc983bff027c9879c152fa89f79836a8719bef6dec674c3bf85a7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-admission/admission-resume.stderr.txt",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-admission/copy-common-wave.py.txt",
+      "same_bytes": true,
+      "bytes": 11040,
+      "sha256": "23643efaaf1cf4124b11e47e72cb5ed3d8d7bb75619d95553c6c5e40853c97c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-normal.stderr.txt",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-normal.stdout.json",
+      "same_bytes": true,
+      "bytes": 2030,
+      "sha256": "682c0ad76dc2bafcec241cc0fdfce8472d15c58b702f144b994ef2095b63c6bd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-optimized.stderr.txt",
+      "same_bytes": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-optimized.stdout.json",
+      "same_bytes": true,
+      "bytes": 2030,
+      "sha256": "682c0ad76dc2bafcec241cc0fdfce8472d15c58b702f144b994ef2095b63c6bd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/validate-common-wave.py.txt",
+      "same_bytes": true,
+      "bytes": 8246,
+      "sha256": "a6f0cc47bd18db4015fe1f7c266204a94be2f60cc0474d5c0ad7aca284c4d451"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/source-and-owner-inputs/current-prewave-all-54-owner-dispositions.json",
+      "same_bytes": true,
+      "bytes": 305737,
+      "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/source-and-owner-inputs/source-freeze-64d7444a.json",
+      "same_bytes": true,
+      "bytes": 3424,
+      "sha256": "41b408e310e4a2b3bf2771ec41298024fd30e5f276bdb455493f33550a0041c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/architecture/architecture.json",
+      "same_bytes": true,
+      "bytes": 8146,
+      "sha256": "f2fb06dd561d9cb11503d8b70903e6864fe153286725bbc8ad6087754b4786cc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/architecture/architecture.stdout.txt",
+      "same_bytes": true,
+      "bytes": 136159,
+      "sha256": "7e4b0d4c4115b56440e6498dae639fef1329b49960b38bc3371cf6e354b33682"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "same_bytes": true,
+      "bytes": 10645,
+      "sha256": "2b76b7f27babe3eee1a1b4fe1bf8fa82c839f351c70460ec1ebb0665df527434"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "same_bytes": true,
+      "bytes": 27554,
+      "sha256": "1a1b6fde267fa9a2283b4bbadbff0ea3fe0221e691bf1525f2d63db65c1844fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "same_bytes": true,
+      "bytes": 83154,
+      "sha256": "eff4ee7af671cae2f9d49bf4bd994533bc52245433d61f1fe0a56ff668e3ebbb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "same_bytes": true,
+      "bytes": 10457,
+      "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "same_bytes": true,
+      "bytes": 281,
+      "sha256": "840e92795a70320c72cbedd9f1ef462e30cbd062b488ab646e23b5c93c0ea505"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ci-parity/ci-parity.json",
+      "same_bytes": true,
+      "bytes": 8574,
+      "sha256": "8ce46546614f66778a33e41cb9ba21533edab45c97137610f6d8bb56a88114af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ci-parity/ci-parity.stdout.txt",
+      "same_bytes": true,
+      "bytes": 15296,
+      "sha256": "048275b6f4334ea9638817049dabcff2cf1a14e9cbfb4085a30fd5f0a333c8fd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "same_bytes": true,
+      "bytes": 9677,
+      "sha256": "3f5055ffa1d657d7fb6bb48aba2f58586a9dff7c477926a46cce4cac4ed38fed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "same_bytes": true,
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ddm-runtime-and-facade/pytest.xml",
+      "same_bytes": true,
+      "bytes": 12578,
+      "sha256": "8ec75f41d5be88b055f813772e9c89fdb9ed1ba978df9966b153074d899cfbcd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "same_bytes": true,
+      "bytes": 9830,
+      "sha256": "74d964a4a6c8e7d6a52592b0c3d3d71ae161279272fc3179577dae62cbfcee93"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "same_bytes": true,
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "same_bytes": true,
+      "bytes": 36923,
+      "sha256": "c2856e7892537f67c965ce385585a206fd5d4a937cd3a0d4eaafd358688ec09b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "same_bytes": true,
+      "bytes": 9017,
+      "sha256": "c063fcf1288e0a5c17562e71cdf899e5251c93a8c4c3fc4b5ae5f21eca64f66a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "same_bytes": true,
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "same_bytes": true,
+      "bytes": 10247,
+      "sha256": "0a0ebe21740efba221edccd2312a788eb6fb453aafad5b50b48e84cc69bafbb9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "same_bytes": true,
+      "bytes": 10594,
+      "sha256": "7227ca411296804de6d5f6cca769b9be0d210009040ef9c9bf3390c36ba1586e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "same_bytes": true,
+      "bytes": 1211,
+      "sha256": "2b8d025fdbc1364f5afbb4edf9717bda621429495f142c349cb8548908c7e235"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "same_bytes": true,
+      "bytes": 73798,
+      "sha256": "16387db180e797b9663e288360f4bd50d4b638b50d357e70453e2e6baf57bdfa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "same_bytes": true,
+      "bytes": 9433,
+      "sha256": "e7d34b6fb91f3301783d6fc14b0bb4870847d2d4a1710b8469be362c1bdcf42b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "same_bytes": true,
+      "bytes": 160,
+      "sha256": "d8b8de5aa45f370d8fca3d3554fc6f6eb91df8892674da930f787edcc91f0d95"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/pcl-continuous-persistence/pytest.xml",
+      "same_bytes": true,
+      "bytes": 15059,
+      "sha256": "590659d7422b8103617787f7d42345502a5f6ea718321fff783563cd45017f51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/results-importer/results-importer.json",
+      "same_bytes": true,
+      "bytes": 8168,
+      "sha256": "6aaa1261b5ec92bfcd3bd491411ab79a7f8ef0d589b8e73c87e4d9baaaf874e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/results-importer/results-importer.stdout.txt",
+      "same_bytes": true,
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ruff-format/ruff-format.json",
+      "same_bytes": true,
+      "bytes": 50394,
+      "sha256": "c3dce64e0c0eda90f5b4d88360478147f2a6b04971ed1fcee99706ad4e7b5d74"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ruff-format/ruff-format.stdout.txt",
+      "same_bytes": true,
+      "bytes": 439,
+      "sha256": "ec72f99fca601ff7c444d76e6ef80fc57ebeddf60ddff744ad49dfd10c9cfbbb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ruff/ruff.json",
+      "same_bytes": true,
+      "bytes": 50356,
+      "sha256": "bdd1f1417d8b0a8500c5bd9ca605a5023d65811a12a55e9e9f082eed19fbf324"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/ruff/ruff.stdout.txt",
+      "same_bytes": true,
+      "bytes": 21533,
+      "sha256": "76b6b7f89005eed8b122f904adcbe9c04025535ded76de567dd268aef2419f36"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/runtime-api-contract/retained-runtime-catalog.json",
+      "same_bytes": true,
+      "bytes": 2341,
+      "sha256": "c379560fd9f55c0c22168c7a4bf0b63d02dfac9a01ef9431b3eabd7123a5db38"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/runtime-api-contract/runtime-api-contract.json",
+      "same_bytes": true,
+      "bytes": 8748,
+      "sha256": "52721551be07b75512ff5015f53c391e5db46ac918a1f3ae91baf0d4666c6132"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+      "same_bytes": true,
+      "bytes": 13147,
+      "sha256": "735d5db073ae7a4e9be3d54e01accbf1118d4aee51f95bfe733c09bef1808e49"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/static-invocation/static-invocation.json",
+      "same_bytes": true,
+      "bytes": 8422,
+      "sha256": "58c3b82812c3c123343552c2ed53a4d746b49f1c96385f20e430e739f4eac5f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/static-invocation/static-invocation.stdout.txt",
+      "same_bytes": true,
+      "bytes": 10099,
+      "sha256": "651ac270c247d0e52b2d1c365a94bd563e035786078bffb7dce7a2912f6576cb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/workspace-verify/workspace-verify.json",
+      "same_bytes": true,
+      "bytes": 8640,
+      "sha256": "0a931767d9c7ce564189b1b79d9d199731e4110a9ab70609dcdbb5d3989f67e8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/workspace-verify/workspace-verify.stdout.txt",
+      "same_bytes": true,
+      "bytes": 7454,
+      "sha256": "0d323368ef32d64a3fe0d64b44831f6152bced2aa15409c3e009ddae9f2070c5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/execution-complete.json",
+      "same_bytes": true,
+      "bytes": 282,
+      "sha256": "6bddda3629c4fe5eb6993d839dccae2c7882723d742a734176b23fb99265283a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/owner-packet/test_a_frc_native_cas_status_reason.py.txt",
+      "same_bytes": true,
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/plan.json",
+      "same_bytes": true,
+      "bytes": 201583,
+      "sha256": "e9779679ee75c23151a7eb57aca123fe3918b78b28f3a61b082c15e7627fcd23"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/wave-started.json",
+      "same_bytes": true,
+      "bytes": 198,
+      "sha256": "3443b5017e941786f984145792c522fae17309a6894cb4e9a0dfc16c3a935c4c"
+    }
+  ],
+  "reviewed_handoff": {
+    "bytes": 23636,
+    "sha256": "4e59256343698661ce475e31e5aa7bf2a0641c9579c7d5c2fbb43ad4211f0185"
+  },
+  "reviewed_copy_index": {
+    "bytes": 37976,
+    "sha256": "070b7a1ca4874c73b8bcbee9ace50984da4840fd5bd5becb9a82a3c678eb8aec"
+  },
+  "reviewed_validator": {
+    "bytes": 8814,
+    "sha256": "0118719cadfa06c3b4f207191f073186e452de264e33bbe7eb9e10cbbd990318"
+  },
+  "validator_runs": [
+    {
+      "mode": "normal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/executed-validator-v2.py.txt",
+        "--packet",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--controls"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "bytes": 2221,
+        "sha256": "4fd53ee0bc4a53e2538214ee438173c5dbf731ccd548fe32387f588c92434b12"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observation": {
+        "schema": "policyos.e02.frozen_wave_publication_recomputation.v1",
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+        "positive": "PASS",
+        "copied_files_at_execution": 90,
+        "copied_bytes_at_execution": 5740884,
+        "path_count_at_execution": 93,
+        "primary_jobs": 15,
+        "actual_counts": {
+          "cases": 1549,
+          "passed": 1541,
+          "failed": 8,
+          "errors": 0,
+          "skipped": 0
+        },
+        "negative_controls": [
+          {
+            "mutation": "copy_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "copy_bytes",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "path_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "active_python",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "summary_case_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "summary_pass_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "primary_jobs",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "known_A_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "source_sha",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "copy_hash",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "portable_escape",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "collector_case_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "collector_pass_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "fake_original_CAL_counts",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "fake_original_gate_PASS",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "retry_case_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "selected_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "selected_bytes",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "metadata_as_receipt",
+            "outcome": "REFUSED"
+          }
+        ],
+        "exact_named_receipt_order_control": "PASS (forward/reverse directories select only dirname/dirname.json)",
+        "numerical_gate_test_execution": false,
+        "scope": "Literal custody and parsed receipts/JUnit; successor selectors outside original15-job carrier remain excluded"
+      }
+    },
+    {
+      "mode": "optimized",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/executed-validator-v2.py.txt",
+        "--packet",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--controls"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "bytes": 2221,
+        "sha256": "4fd53ee0bc4a53e2538214ee438173c5dbf731ccd548fe32387f588c92434b12"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observation": {
+        "schema": "policyos.e02.frozen_wave_publication_recomputation.v1",
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+        "positive": "PASS",
+        "copied_files_at_execution": 90,
+        "copied_bytes_at_execution": 5740884,
+        "path_count_at_execution": 93,
+        "primary_jobs": 15,
+        "actual_counts": {
+          "cases": 1549,
+          "passed": 1541,
+          "failed": 8,
+          "errors": 0,
+          "skipped": 0
+        },
+        "negative_controls": [
+          {
+            "mutation": "copy_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "copy_bytes",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "path_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "active_python",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "summary_case_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "summary_pass_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "primary_jobs",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "known_A_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "source_sha",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "copy_hash",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "portable_escape",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "collector_case_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "collector_pass_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "fake_original_CAL_counts",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "fake_original_gate_PASS",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "retry_case_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "selected_count",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "selected_bytes",
+            "outcome": "REFUSED"
+          },
+          {
+            "mutation": "metadata_as_receipt",
+            "outcome": "REFUSED"
+          }
+        ],
+        "exact_named_receipt_order_control": "PASS (forward/reverse directories select only dirname/dirname.json)",
+        "numerical_gate_test_execution": false,
+        "scope": "Literal custody and parsed receipts/JUnit; successor selectors outside original15-job carrier remain excluded"
+      }
+    }
+  ],
+  "independent_intake_control": {
+    "canonical_receipt_count": 15,
+    "new_forward_equals_reverse": true,
+    "actual_runtime_receipt_is_exact_named": true,
+    "old_glob_order_diverges": true,
+    "old_metadata_last_selects_catalog": true,
+    "property_removal_same_files_same_markers": "Removing exact-name intake restores catalog/receipt ambiguity without altering any actual files or markers."
+  },
+  "issues": [],
+  "limits": [
+    "Receipt integrity/parsed counts only; the full source/numerical review is reused by exact immutable source and literal independent receipt hashes.",
+    "No source/test/gate/numerical execution, no repeated 500MB input scan, no cleanup or owner disposition change.",
+    "Original CAL SIGKILL/cause not_established and distinct324PASS retry remain separate.",
+    "All8A current boundary failures and all7original global wrapperFAIL are retained; no P41 cause or CI PASS inferred.",
+    "Successor selectors are outside this original15-job carrier and need their separate actual receipts.",
+    "Does not certify later remote delivery or G acceptance/closure."
+  ]
+}

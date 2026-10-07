@@ -1,0 +1,109 @@
+{
+  "base": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+  "candidate": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "utility_denominator": 229,
+  "changed_existing_default_rows": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.probe.py",
+      "scope": "module.loader",
+      "old_signature": "_",
+      "new_signature": "_: object, *, counts: object=counts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.probe.py",
+      "scope": "module.observed_emitter",
+      "old_signature": "self, *args, **kwargs",
+      "new_signature": "self: object, *args: object, counts: object=counts, **kwargs: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+      "scope": "module.counted_build",
+      "old_signature": "*args, **kwargs",
+      "new_signature": "*args: object, original_build: object=original_build, callback_count: object=callback_count, **kwargs: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+      "scope": "module.counted_build.counted",
+      "old_signature": "**params",
+      "new_signature": "*, callback_count: object=callback_count, **params: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+      "scope": "module.counted_dispatch",
+      "old_signature": "*args, **kwargs",
+      "new_signature": "*args: object, dispatch_count: object=dispatch_count, original_dispatch: object=original_dispatch, **kwargs: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/validate_review_copies.py",
+      "scope": "module.validate",
+      "old_signature": "root: Path, records: list[dict], revision: str='HEAD'",
+      "new_signature": "root: Path, records: list[dict[str, object]], revision: str='HEAD', *, historical: bool=False"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline_falsifier.py",
+      "scope": "module.spy",
+      "old_signature": "*args, **kwargs",
+      "new_signature": "*args: object, calls: object=calls, **kwargs: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.py",
+      "scope": "module.observe",
+      "old_signature": "*args, **kwargs",
+      "new_signature": "*args: object, count: object=count, **kwargs: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.py",
+      "scope": "module.evaluator",
+      "old_signature": "candidate, context",
+      "new_signature": "candidate: object, context: object, *, calls: object=calls, metric: object=metric"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.py",
+      "scope": "module.evaluate",
+      "old_signature": "candidate, context",
+      "new_signature": "candidate: object, context: object, *, calls: object=calls"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/review_harness.py",
+      "scope": "module.main.forbidden",
+      "old_signature": "*argv, **kwargs",
+      "new_signature": "*argv: object, launches: object=launches, **kwargs: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+      "scope": "module.f",
+      "old_signature": "**p",
+      "new_signature": "*, calls: object=calls, sign: object=sign, **p: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration_reader_probe.py",
+      "scope": "module.counted_build",
+      "old_signature": "*args, **kwargs",
+      "new_signature": "*args: object, original_build: object=original_build, callback_count: object=callback_count, **kwargs: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration_reader_probe.py",
+      "scope": "module.counted_build.counted",
+      "old_signature": "**params",
+      "new_signature": "*, callback_count: object=callback_count, **params: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration_reader_probe.py",
+      "scope": "module.counted_dispatch",
+      "old_signature": "*args, **kwargs",
+      "new_signature": "*args: object, dispatch_count: object=dispatch_count, original_dispatch: object=original_dispatch, **kwargs: object"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py",
+      "scope": "module.validate",
+      "old_signature": "root: Path, records: list[dict], revision: str='HEAD'",
+      "new_signature": "root: Path, records: list[dict[str, object]], revision: str='HEAD', *, historical: bool=False"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_receipt.py",
+      "scope": "module.verify",
+      "old_signature": "repo: Path, receipt: dict, index: dict",
+      "new_signature": "repo: Path, receipt: dict, index: dict, *, publication_revision: str | None=None"
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-cas-contract.junit.xml",
+    "bytes": 1113,
+    "sha256": "8043f5932f472916e7c2631aa92f8c5181c913d9a5ea73c42de4e4be9234af48"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-cas-contract.resource.json",
+    "bytes": 150,
+    "sha256": "c4cf7a3d69604b720307e794227a1bdaf16710ce3b745f3da8dc022fde61a120"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-cas-contract.stdout",
+    "bytes": 109,
+    "sha256": "152b0fdc6507bf0dd923c562f5804d383e58407af14ccd3fce5014442e34cf70"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-patch-applicable.resource.json",
+    "bytes": 163,
+    "sha256": "51199ce3e40068548a38b3d341ae34755cc4796282cace84a5fad10264d5db71"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-patch-applicable.stdout",
+    "bytes": 81,
+    "sha256": "605a0bda15d7d9a378ba156179f6b28df6132c4545ae3ccc6e2f87416a791d10"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-status-reason.junit.xml",
+    "bytes": 3667,
+    "sha256": "f67fd6462a6efa31fa6a8f7c6f7de3236998da66fd88e903f045031bc2fc589a"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-status-reason.resource.json",
+    "bytes": 150,
+    "sha256": "d77523f502a0118cc2e1d0a2e15ceb61bb5e106ce6c2fe6ce29f22acd2b8135b"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-status-reason.stdout",
+    "bytes": 6986,
+    "sha256": "121195630aedfb1770f6c4e61d92881282b91fe624d76624b3d7bf76f6ecb2f7"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/admission-resume.json",
+    "bytes": 123184,
+    "sha256": "5a364cc80197b5a7b197197764e9de12716d284b5b20e525997ff7f8e0c867f3"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/affected-native.junit.xml",
+    "bytes": 3573,
+    "sha256": "9c329583228719523c8ae15e5cc96d9aa1177255035820ba507708efd74373e6"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/affected-native.resource.json",
+    "bytes": 151,
+    "sha256": "623b427e40c53b62b4bea0c0715b23d3c247a053ea4db685b0b613c3279feaeb"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/affected-native.stdout",
+    "bytes": 80,
+    "sha256": "0caf379acbcb845c31b98bf4efeffb865a66d527d27d5bb4f34018bea0099078"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/baseline-environment-locators.json",
+    "bytes": 4464,
+    "sha256": "f481d8f6cae312ed0977ea4a666b7b0628d2136a6b3941bb45e66ede2c6e9fa8"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/baseline-navigation.json",
+    "bytes": 15125,
+    "sha256": "2a7eef15928e4e7f012eaff2ce40ef0aea5d315638b0cb55c533a90e7bfbd4a1"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/execution.json",
+    "bytes": 9676,
+    "sha256": "6027c82f77faf7a1424d90c1770f3e29ae7b193e545fa1a62c183c9bce2b44bb"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/format.resource.json",
+    "bytes": 162,
+    "sha256": "826797e821f6230862259ae2b72adc417bb50f69d744bf3523e88bc537dc69e8"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/format.stdout",
+    "bytes": 26,
+    "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-base-measurement-configured.stdout",
+    "bytes": 5973,
+    "sha256": "60f00dcdc3155b862492881a80af24ced087aca13c493d5370259f095af65886"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-base-measurement.stdout",
+    "bytes": 2430,
+    "sha256": "d7925e7ae98d2605a970b209e9ecc437253653d07f61aaebd48b0eb84860c674"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-family.stdout",
+    "bytes": 978,
+    "sha256": "6fd004efcecca06d95e2a58b4d269e7914bc5e403851dff7710a7205ee25869a"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-legacy-producer.stdout",
+    "bytes": 3882,
+    "sha256": "241d34f68ab6066d1ea208074c9341e1d8114f6c0d67afafcb82203f1bcc3694"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-positive-exec-error.stdout",
+    "bytes": 1105,
+    "sha256": "a34c615e2034eb3e40092f0556381406b9287b4c184b08c9cb0c15bac2c8e55e"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-positive-path-error.stdout",
+    "bytes": 1114,
+    "sha256": "715a2732a9c063eff4e48785041bdcf9516716c7660c51a10f8bda107def7647"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-targeted-iteration.stdout",
+    "bytes": 7148,
+    "sha256": "1c1c0bb1d989c02d441eec03898a5e3b6380e7f92e0b20a1ec4192657a8eaffe"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-targeted.stdout",
+    "bytes": 3812,
+    "sha256": "508dd0ba22f76394f1aaa01184954a32b33bc6e3b08777d170334d111c31c572"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/legacy-replay.resource.json",
+    "bytes": 150,
+    "sha256": "967149df84b00586febe6fda9814dec383e65bb4ac0dbf0d4f1f9e0261f52842"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/legacy-replay.stdout",
+    "bytes": 318,
+    "sha256": "943688ebd8dab32bf1e6fe4a95940f3267a09de02959afcd58e18654b4a91ce1"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/measurement-probe.resource.json",
+    "bytes": 149,
+    "sha256": "b927bba56f922d7de8106888fb252a83cb0b444d27267b4b096227af9d7729cf"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/measurement-probe.stdout",
+    "bytes": 1571,
+    "sha256": "e29b5d97b215ee4faa0cf779428a95fa0ba34d1eab9c695c70e4666bdb9676fe"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/positive-artifact.resource.json",
+    "bytes": 160,
+    "sha256": "9ce916ba49ababffea7217bd9a39ce992daeb5d2a5cabb1da11c20d885023222"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/positive-artifact.stdout",
+    "bytes": 7288,
+    "sha256": "7b0810193555c6226c0a5cc41f34593eb77d103741a3d2397aead88cccbf1c00"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/property-removal.resource.json",
+    "bytes": 160,
+    "sha256": "ae5ad3725d742481f34de2c0e679064f5bc65937691924e31e4bc8c830c318df"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/property-removal.stdout",
+    "bytes": 8765,
+    "sha256": "ff1e4735e35e04e2d1b14ff9c9fd627cfaca583a8714e490c745e6e50ae9efb2"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/results-importer.resource.json",
+    "bytes": 161,
+    "sha256": "ae1d88a66cd9471dc8dd9c873d7109e8920751935fdd2fe772d49aa6c9b2904a"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/results-importer.stdout",
+    "bytes": 112,
+    "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/ruff.resource.json",
+    "bytes": 162,
+    "sha256": "c089ae2594340c57e5ea583d8095cd50ea92b8306fdad1e35aa515b30e69abf1"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/ruff.stdout",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  }
+]

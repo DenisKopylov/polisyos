@@ -1,0 +1,16 @@
+{
+  "source_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+  "canonical_companion": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+  "flag_parent": "c3f0f105aad915d4ddce43be37055fd367966e2e",
+  "flag_companion": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "flag_tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+  "footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml"
+  ],
+  "exact_one_line_false_to_true": true,
+  "classification": "public_stable",
+  "source_and_canonical_metadata_unchanged": true,
+  "path_sha256": "3c07068b2cf80201a5dde2b8632dcc9c4b1bd19d767e1db82533c002d83d8559",
+  "verdict": "GO-bounded-declaration-of-completed-independent-review",
+  "harness_history": "Initial whole7dc\u21927bc footprint assertion failed because parentc3 also committed r4 receipts. Corrected to exactflagcommit parent\u2192candidate. No product failure; full canonical\u2192flag delta includes those separate docs receipts."
+}

@@ -1,0 +1,339 @@
+{
+  "schema": "policyos.e02.native_extension_install_entrypoint_bindings.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "example_count": 7,
+  "actual_configured_environment": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+  "rows": [
+    {
+      "slug": "fabric_connector",
+      "distribution": {
+        "name": "polisyos-fabric-connector-example",
+        "version": "0.1.0",
+        "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_fabric_connector_example-0.1.0.dist-info",
+        "entry_points": [
+          {
+            "group": "polisyos.fabric_connectors",
+            "name": "example.local_rows",
+            "value": "polisyos_fabric_connector_example:local_rows_connector_component"
+          }
+        ]
+      },
+      "declared_entrypoint": {
+        "group": "polisyos.fabric_connectors",
+        "name": "example.local_rows",
+        "value": "polisyos_fabric_connector_example:local_rows_connector_component"
+      },
+      "installed_direct_url": {
+        "url": "file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/fabric_connector",
+        "dir_info": {
+          "editable": true
+        }
+      },
+      "exact_installed_metadata": [
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_fabric_connector_example-0.1.0.dist-info/direct_url.json",
+          "bytes": 135,
+          "sha256": "e9a7b6d3b23eb58f2f1dea9049bfb5e02568f97ed14bea3558a7e2d65fc2914d",
+          "literal_bytes_utf8": "{\"url\":\"file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/fabric_connector\",\"dir_info\":{\"editable\":true}}"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_fabric_connector_example-0.1.0.dist-info/entry_points.txt",
+          "bytes": 115,
+          "sha256": "ce4c554613f392a5a5548ee810901364a2a7fe0f9ebfd2e9fece65ba13b2fc33",
+          "literal_bytes_utf8": "[polisyos.fabric_connectors]\nexample.local_rows = polisyos_fabric_connector_example:local_rows_connector_component\n"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_fabric_connector_example-0.1.0.dist-info/RECORD",
+          "bytes": 1095,
+          "sha256": "39658726313675e1dd7e749660613ac5d33f7c463f1a206654698e9f15ffdb7e",
+          "literal_bytes_utf8": "_editable_impl_polisyos_fabric_connector_example.pth,sha256=UKP1w9sjX3Kke73KCjBju01FRCHchz8afFSDtI3z1hE,93\npolisyos_fabric_connector_example-0.1.0.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2\npolisyos_fabric_connector_example-0.1.0.dist-info/METADATA,sha256=rL-Xsc5HUtQYppxrF5NcKq37ErPXSt9V98HPxIi9bSE,198\npolisyos_fabric_connector_example-0.1.0.dist-info/RECORD,,\npolisyos_fabric_connector_example-0.1.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0\npolisyos_fabric_connector_example-0.1.0.dist-info/WHEEL,sha256=W3fkpkm7-wf9vBI5Z-7s0eWkeM-spu78I8Neb98DeEg,87\npolisyos_fabric_connector_example-0.1.0.dist-info/direct_url.json,sha256=6ae207I-tY8vHeqQSb-14CVo-X7RS-o1WKfi1l_CkU0,135\npolisyos_fabric_connector_example-0.1.0.dist-info/entry_points.txt,sha256=zkxVRhPzkqWlVI7oEJATZKKn_g-ev9Lp_s5luhOy_DM,115\npolisyos_fabric_connector_example-0.1.0.dist-info/uv_build.json,sha256=RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o,2\npolisyos_fabric_connector_example-0.1.0.dist-info/uv_cache.json,sha256=25m-RCRCkAlrBYQUUQfOVSOECu-Olnlw_g1DhmC68Ow,194\n"
+        }
+      ],
+      "source_example_path": "/workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/fabric_connector"
+    },
+    {
+      "slug": "foundry_method",
+      "distribution": {
+        "name": "polisyos-foundry-method-example",
+        "version": "0.1.0",
+        "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_foundry_method_example-0.1.0.dist-info",
+        "entry_points": [
+          {
+            "group": "polisyos.foundry_methods",
+            "name": "example.weighted_average",
+            "value": "polisyos_foundry_method_example:weighted_average_plugin"
+          }
+        ]
+      },
+      "declared_entrypoint": {
+        "group": "polisyos.foundry_methods",
+        "name": "example.weighted_average",
+        "value": "polisyos_foundry_method_example:weighted_average_plugin"
+      },
+      "installed_direct_url": {
+        "url": "file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/foundry_method",
+        "dir_info": {
+          "editable": true
+        }
+      },
+      "exact_installed_metadata": [
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_foundry_method_example-0.1.0.dist-info/direct_url.json",
+          "bytes": 133,
+          "sha256": "9cdba9ec663f81a93ee9caafd45cca034c7cdece815816f653c4e1b3c53214cf",
+          "literal_bytes_utf8": "{\"url\":\"file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/foundry_method\",\"dir_info\":{\"editable\":true}}"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_foundry_method_example-0.1.0.dist-info/entry_points.txt",
+          "bytes": 110,
+          "sha256": "2d5f6e43e1da4b2a46afb9acc44b131d15639769da35053a41762af1990584af",
+          "literal_bytes_utf8": "[polisyos.foundry_methods]\nexample.weighted_average = polisyos_foundry_method_example:weighted_average_plugin\n"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_foundry_method_example-0.1.0.dist-info/RECORD",
+          "bytes": 1075,
+          "sha256": "a1982f1efa22671c843b205405ffae5c695965da127389c45c4da7eed192c652",
+          "literal_bytes_utf8": "_editable_impl_polisyos_foundry_method_example.pth,sha256=3ipH_sFY6Oot1sJivhEYLZcvFDfGxwhhwXVt5OpzSh4,91\npolisyos_foundry_method_example-0.1.0.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2\npolisyos_foundry_method_example-0.1.0.dist-info/METADATA,sha256=ysTSwHA6lUCD9ty8ENu3HKyjUntFL1upRrY-hfeYN2M,194\npolisyos_foundry_method_example-0.1.0.dist-info/RECORD,,\npolisyos_foundry_method_example-0.1.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0\npolisyos_foundry_method_example-0.1.0.dist-info/WHEEL,sha256=W3fkpkm7-wf9vBI5Z-7s0eWkeM-spu78I8Neb98DeEg,87\npolisyos_foundry_method_example-0.1.0.dist-info/direct_url.json,sha256=nNup7GY_gak-6cqv1FzKA0x83s6BWBb2U8Ths8UyFM8,133\npolisyos_foundry_method_example-0.1.0.dist-info/entry_points.txt,sha256=LV9uQ-HaSypGr7msxEsTHRVjl2naNQU6QXYq8ZkFhK8,110\npolisyos_foundry_method_example-0.1.0.dist-info/uv_build.json,sha256=RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o,2\npolisyos_foundry_method_example-0.1.0.dist-info/uv_cache.json,sha256=vssI84P-vGMmgk_33iFRNkAoDy1soNU_7bDrqe0istY,194\n"
+        }
+      ],
+      "source_example_path": "/workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/foundry_method"
+    },
+    {
+      "slug": "scientist_governance_pass",
+      "distribution": {
+        "name": "polisyos-scientist-governance-pass-example",
+        "version": "0.1.0",
+        "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_scientist_governance_pass_example-0.1.0.dist-info",
+        "entry_points": [
+          {
+            "group": "polisyos.scientist_governance_passes",
+            "name": "example.audit_marker",
+            "value": "polisyos_scientist_governance_pass_example:audit_marker_pass_factory"
+          }
+        ]
+      },
+      "declared_entrypoint": {
+        "group": "polisyos.scientist_governance_passes",
+        "name": "example.audit_marker",
+        "value": "polisyos_scientist_governance_pass_example:audit_marker_pass_factory"
+      },
+      "installed_direct_url": {
+        "url": "file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/scientist_governance_pass",
+        "dir_info": {
+          "editable": true
+        }
+      },
+      "exact_installed_metadata": [
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_scientist_governance_pass_example-0.1.0.dist-info/direct_url.json",
+          "bytes": 144,
+          "sha256": "8e956d4b14630b827090bff7852ab02c87f2e9e17ffe62f3da41ab7089ad2260",
+          "literal_bytes_utf8": "{\"url\":\"file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/scientist_governance_pass\",\"dir_info\":{\"editable\":true}}"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_scientist_governance_pass_example-0.1.0.dist-info/entry_points.txt",
+          "bytes": 131,
+          "sha256": "83a4dd75421176997d12fdd1536753173e8bff10f340d03c29a48ca604934e26",
+          "literal_bytes_utf8": "[polisyos.scientist_governance_passes]\nexample.audit_marker = polisyos_scientist_governance_pass_example:audit_marker_pass_factory\n"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_scientist_governance_pass_example-0.1.0.dist-info/RECORD",
+          "bytes": 1186,
+          "sha256": "3ff02016425efa983f68e63d732dc68403e257f67b3ed3e462fd78a6a5d20e55",
+          "literal_bytes_utf8": "_editable_impl_polisyos_scientist_governance_pass_example.pth,sha256=_P1mlxBhoavoxMxrFovalnSV9_NeUlxjT6VywiK_UqY,102\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/METADATA,sha256=6jm_OEHZogekWR-2Lszb_fT4RXaYb9huQvSpfvixPhI,216\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/RECORD,,\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/WHEEL,sha256=W3fkpkm7-wf9vBI5Z-7s0eWkeM-spu78I8Neb98DeEg,87\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/direct_url.json,sha256=jpVtSxRjC4JwkL_3hSqwLIfy6eF__mLz2kGrcImtImA,144\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/entry_points.txt,sha256=g6TddUIRdpl9Ev3RU2dTFz6L_xDzQNA8KaSMpgSTTiY,131\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/uv_build.json,sha256=RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o,2\npolisyos_scientist_governance_pass_example-0.1.0.dist-info/uv_cache.json,sha256=6UAp0xxtF4FAH8Xk6ogMQDOh2aLctcfVxah7W256PSA,194\n"
+        }
+      ],
+      "source_example_path": "/workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/scientist_governance_pass"
+    },
+    {
+      "slug": "scientist_node",
+      "distribution": {
+        "name": "polisyos-scientist-node-example",
+        "version": "0.1.0",
+        "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_scientist_node_example-0.1.0.dist-info",
+        "entry_points": [
+          {
+            "group": "polisyos.scientist_nodes",
+            "name": "example.annotate_state",
+            "value": "polisyos_scientist_node_example:annotate_state_node_component"
+          }
+        ]
+      },
+      "declared_entrypoint": {
+        "group": "polisyos.scientist_nodes",
+        "name": "example.annotate_state",
+        "value": "polisyos_scientist_node_example:annotate_state_node_component"
+      },
+      "installed_direct_url": {
+        "url": "file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/scientist_node",
+        "dir_info": {
+          "editable": true
+        }
+      },
+      "exact_installed_metadata": [
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_scientist_node_example-0.1.0.dist-info/direct_url.json",
+          "bytes": 133,
+          "sha256": "e337cbbf4a4d98b526a35732f546f736599f9455da7cc6ddc92cab5cce3707ad",
+          "literal_bytes_utf8": "{\"url\":\"file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/scientist_node\",\"dir_info\":{\"editable\":true}}"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_scientist_node_example-0.1.0.dist-info/entry_points.txt",
+          "bytes": 114,
+          "sha256": "df31bbb74b2023bb301da22b56e655a67ddfc1d34aa7824c8292a51596c7cf0f",
+          "literal_bytes_utf8": "[polisyos.scientist_nodes]\nexample.annotate_state = polisyos_scientist_node_example:annotate_state_node_component\n"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_scientist_node_example-0.1.0.dist-info/RECORD",
+          "bytes": 1075,
+          "sha256": "46c54bd676604b5dd4a5ee329ceade34bee72f20eb563e432de05927729f8798",
+          "literal_bytes_utf8": "_editable_impl_polisyos_scientist_node_example.pth,sha256=e8QdeuvdpiF3pbWEDWSG1fuOof8awaTOsGkdXL6V8hk,91\npolisyos_scientist_node_example-0.1.0.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2\npolisyos_scientist_node_example-0.1.0.dist-info/METADATA,sha256=19Zqrh9-LXrUUe55YrKn4zBNA77tzwpqNTyy9WgJa8w,194\npolisyos_scientist_node_example-0.1.0.dist-info/RECORD,,\npolisyos_scientist_node_example-0.1.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0\npolisyos_scientist_node_example-0.1.0.dist-info/WHEEL,sha256=W3fkpkm7-wf9vBI5Z-7s0eWkeM-spu78I8Neb98DeEg,87\npolisyos_scientist_node_example-0.1.0.dist-info/direct_url.json,sha256=4zfLv0pNmLUmo1cy9Ub3NlmflFXafMbdySyrXM43B60,133\npolisyos_scientist_node_example-0.1.0.dist-info/entry_points.txt,sha256=3zG7t0sgI7swHaIrVuZVpn3fwdNKp4JMgpKlFZbHzw8,114\npolisyos_scientist_node_example-0.1.0.dist-info/uv_build.json,sha256=RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o,2\npolisyos_scientist_node_example-0.1.0.dist-info/uv_cache.json,sha256=Dj75oYq6yzkDMCwpwBlcBLG8ZyL7SgwHlidtnII9LfY,194\n"
+        }
+      ],
+      "source_example_path": "/workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/scientist_node"
+    },
+    {
+      "slug": "data_forge_domain",
+      "distribution": {
+        "name": "polisyos-data-forge-domain-example",
+        "version": "0.1.0",
+        "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_data_forge_domain_example-0.1.0.dist-info",
+        "entry_points": [
+          {
+            "group": "polisyos.data_forge_domains",
+            "name": "example.city_budget",
+            "value": "polisyos_data_forge_domain_example:city_budget_domain_component"
+          }
+        ]
+      },
+      "declared_entrypoint": {
+        "group": "polisyos.data_forge_domains",
+        "name": "example.city_budget",
+        "value": "polisyos_data_forge_domain_example:city_budget_domain_component"
+      },
+      "installed_direct_url": {
+        "url": "file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/data_forge_domain",
+        "dir_info": {
+          "editable": true
+        }
+      },
+      "exact_installed_metadata": [
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_data_forge_domain_example-0.1.0.dist-info/direct_url.json",
+          "bytes": 136,
+          "sha256": "7d625e187172d4bfe55d4ccec2533719b47bd16a47b393a60819ba96e4605af8",
+          "literal_bytes_utf8": "{\"url\":\"file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/data_forge_domain\",\"dir_info\":{\"editable\":true}}"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_data_forge_domain_example-0.1.0.dist-info/entry_points.txt",
+          "bytes": 116,
+          "sha256": "61345d3053209b2962c5cb1400ca25a825692e07a7535fed0da00ca014023aab",
+          "literal_bytes_utf8": "[polisyos.data_forge_domains]\nexample.city_budget = polisyos_data_forge_domain_example:city_budget_domain_component\n"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_data_forge_domain_example-0.1.0.dist-info/RECORD",
+          "bytes": 1105,
+          "sha256": "cfc762ad942e810361b56119c82b8c6fc5a28fc7e90805008ba9ff87b2ec236c",
+          "literal_bytes_utf8": "_editable_impl_polisyos_data_forge_domain_example.pth,sha256=lhKZSPs6KocATAQr2TUsce4FOOo4u3qbWoobe2qS-Gs,94\npolisyos_data_forge_domain_example-0.1.0.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2\npolisyos_data_forge_domain_example-0.1.0.dist-info/METADATA,sha256=2jKQbznJf9G-keXpiDKxtsWapFB4yhIO-TcTAMfeu6E,200\npolisyos_data_forge_domain_example-0.1.0.dist-info/RECORD,,\npolisyos_data_forge_domain_example-0.1.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0\npolisyos_data_forge_domain_example-0.1.0.dist-info/WHEEL,sha256=W3fkpkm7-wf9vBI5Z-7s0eWkeM-spu78I8Neb98DeEg,87\npolisyos_data_forge_domain_example-0.1.0.dist-info/direct_url.json,sha256=fWJeGHFy1L_lXUzOwlM3GbR70WpHs5OmCBm6luRgWvg,136\npolisyos_data_forge_domain_example-0.1.0.dist-info/entry_points.txt,sha256=YTRdMFMgmylixcsUAMolqCVpLgenU1_tDaAMoBQCOqs,116\npolisyos_data_forge_domain_example-0.1.0.dist-info/uv_build.json,sha256=RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o,2\npolisyos_data_forge_domain_example-0.1.0.dist-info/uv_cache.json,sha256=PbjlsR801jECMalE2AamXu8HGk47jIiVJFvI_mCY-0k,194\n"
+        }
+      ],
+      "source_example_path": "/workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/data_forge_domain"
+    },
+    {
+      "slug": "lex_normpack",
+      "distribution": {
+        "name": "polisyos-lex-normpack-example",
+        "version": "0.1.0",
+        "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_lex_normpack_example-0.1.0.dist-info",
+        "entry_points": [
+          {
+            "group": "polisyos.lex_normpacks",
+            "name": "example.minimum_wage",
+            "value": "polisyos_lex_normpack_example:minimum_wage_normpack_component"
+          }
+        ]
+      },
+      "declared_entrypoint": {
+        "group": "polisyos.lex_normpacks",
+        "name": "example.minimum_wage",
+        "value": "polisyos_lex_normpack_example:minimum_wage_normpack_component"
+      },
+      "installed_direct_url": {
+        "url": "file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/lex_normpack",
+        "dir_info": {
+          "editable": true
+        }
+      },
+      "exact_installed_metadata": [
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_lex_normpack_example-0.1.0.dist-info/direct_url.json",
+          "bytes": 131,
+          "sha256": "031dae0df5b0284aa4264931cf254e079a689b06cc04571dbb5f553fa1ef6aad",
+          "literal_bytes_utf8": "{\"url\":\"file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/lex_normpack\",\"dir_info\":{\"editable\":true}}"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_lex_normpack_example-0.1.0.dist-info/entry_points.txt",
+          "bytes": 110,
+          "sha256": "4e1c1cb9c4dfe7aea2bbf1ead360269b486b7edf8892e3d2ffb974d6bfb62cb2",
+          "literal_bytes_utf8": "[polisyos.lex_normpacks]\nexample.minimum_wage = polisyos_lex_normpack_example:minimum_wage_normpack_component\n"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_lex_normpack_example-0.1.0.dist-info/RECORD",
+          "bytes": 1055,
+          "sha256": "185c93707bcb83be4b16834bbd7a282aecc5f41aa44703b27d7c2c33eba1a699",
+          "literal_bytes_utf8": "_editable_impl_polisyos_lex_normpack_example.pth,sha256=zC6aFdiRaVDzl8RWeLqUIeZaEz61nZmsynbCebKEr4c,89\npolisyos_lex_normpack_example-0.1.0.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2\npolisyos_lex_normpack_example-0.1.0.dist-info/METADATA,sha256=jX7V8wCshcmbEVZhSqcog4h2PDr0q6ja_Q5HrZmLKeg,199\npolisyos_lex_normpack_example-0.1.0.dist-info/RECORD,,\npolisyos_lex_normpack_example-0.1.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0\npolisyos_lex_normpack_example-0.1.0.dist-info/WHEEL,sha256=W3fkpkm7-wf9vBI5Z-7s0eWkeM-spu78I8Neb98DeEg,87\npolisyos_lex_normpack_example-0.1.0.dist-info/direct_url.json,sha256=Ax2uDfWwKEqkJkkxzyVOB5pomwbMBFcdu19VP6Hvaq0,131\npolisyos_lex_normpack_example-0.1.0.dist-info/entry_points.txt,sha256=ThwcucTf566iu_Hq02Amm0hrft-IkuPS_7l01r-2LLI,110\npolisyos_lex_normpack_example-0.1.0.dist-info/uv_build.json,sha256=RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o,2\npolisyos_lex_normpack_example-0.1.0.dist-info/uv_cache.json,sha256=XRSciNb83HY9t8Uaqh_TTd1pLu1M0x7ymYVNCgEN1vo,194\n"
+        }
+      ],
+      "source_example_path": "/workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/lex_normpack"
+    },
+    {
+      "slug": "runtime_middleware",
+      "distribution": {
+        "name": "polisyos-runtime-middleware-example",
+        "version": "0.1.0",
+        "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_runtime_middleware_example-0.1.0.dist-info",
+        "entry_points": [
+          {
+            "group": "polisyos.runtime_middlewares",
+            "name": "example.response_header",
+            "value": "polisyos_runtime_middleware_example:response_header_middleware_component"
+          }
+        ]
+      },
+      "declared_entrypoint": {
+        "group": "polisyos.runtime_middlewares",
+        "name": "example.response_header",
+        "value": "polisyos_runtime_middleware_example:response_header_middleware_component"
+      },
+      "installed_direct_url": {
+        "url": "file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/runtime_middleware",
+        "dir_info": {
+          "editable": true
+        }
+      },
+      "exact_installed_metadata": [
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_runtime_middleware_example-0.1.0.dist-info/direct_url.json",
+          "bytes": 137,
+          "sha256": "5d7d07ecd4334cb6c080d3224bd54bb6d26e51306352da8179afef7785ccf6e6",
+          "literal_bytes_utf8": "{\"url\":\"file:///workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/runtime_middleware\",\"dir_info\":{\"editable\":true}}"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_runtime_middleware_example-0.1.0.dist-info/entry_points.txt",
+          "bytes": 130,
+          "sha256": "11eaac15e3356620a01593e0212d665e93366e22247168695c542e6c743b2f5c",
+          "literal_bytes_utf8": "[polisyos.runtime_middlewares]\nexample.response_header = polisyos_runtime_middleware_example:response_header_middleware_component\n"
+        },
+        {
+          "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/polisyos_runtime_middleware_example-0.1.0.dist-info/RECORD",
+          "bytes": 1115,
+          "sha256": "d6356399b58e90f2c6a8941bf7d95247556681e79e8eb3fcb662047095472969",
+          "literal_bytes_utf8": "_editable_impl_polisyos_runtime_middleware_example.pth,sha256=ZgM3UBGf1BFiCcwjGjsLGvOGcex6bgkYZqUNpHLAMRw,95\npolisyos_runtime_middleware_example-0.1.0.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2\npolisyos_runtime_middleware_example-0.1.0.dist-info/METADATA,sha256=X_vCwkNyMVxZaj61V1NWHZl-FGyS60Lk4MBRgrAIJBk,202\npolisyos_runtime_middleware_example-0.1.0.dist-info/RECORD,,\npolisyos_runtime_middleware_example-0.1.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0\npolisyos_runtime_middleware_example-0.1.0.dist-info/WHEEL,sha256=W3fkpkm7-wf9vBI5Z-7s0eWkeM-spu78I8Neb98DeEg,87\npolisyos_runtime_middleware_example-0.1.0.dist-info/direct_url.json,sha256=XX0H7NQzTLbAgNMiS9VLttJuUTBjUtqBea_vd4XM9uY,137\npolisyos_runtime_middleware_example-0.1.0.dist-info/entry_points.txt,sha256=EeqsFeM1ZiCgFZPgIS1mXpM2biIkcWhpXFQubHQ7L1w,130\npolisyos_runtime_middleware_example-0.1.0.dist-info/uv_build.json,sha256=RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o,2\npolisyos_runtime_middleware_example-0.1.0.dist-info/uv_cache.json,sha256=qaNQggCsUSYNhC8SYJKd9uX3wCmSUVt1LgwtN-fVT8o,194\n"
+        }
+      ],
+      "source_example_path": "/workspace/e02-E-continuation-20261006/policy-engine/examples/extensions/runtime_middleware"
+    }
+  ],
+  "consumer_witness": "Unmodified checker fresh-process discover_components/load_governance_passes asserts metadata.source_type/group/name and performs each native API probe. Full stdout reports6components+1governance pass; all8actualsmoke cases in retained JUnit."
+}

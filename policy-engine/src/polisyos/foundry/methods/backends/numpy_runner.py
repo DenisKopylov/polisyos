@@ -30,11 +30,14 @@ from polisyos.foundry.methods.components.io import dematerialize_method_output
 def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     known = {p.name for p in signature.parameters}
-    unknown = set(params.keys()) - known - VALIDATED_EXECUTION_PARAM_NAMES
+    # A store is an execution service, never a scientific parameter/default.
+    unknown = set(params.keys()) - known - VALIDATED_EXECUTION_PARAM_NAMES - {"artifact_store"}
     if unknown:
         raise ValueError(f"Unknown parameters for {signature.fqn}: {sorted(unknown)}")
     for param in signature.parameters:
         result[param.name] = params.get(param.name, param.default)
+    if "artifact_store" in params:
+        result["artifact_store"] = params["artifact_store"]
     return result
 
 

@@ -1,0 +1,14 @@
+RUF021 [*] Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
+    --> src/polisyos/ir/analytics/uncertainty.py:1620:9
+     |
+1618 |     raw = envelope.metadata.get(PROFILE_KEY)
+1619 |     if not (
+1620 |         isinstance(raw, dict) and raw.get("profile_id") == PROFILE_V2_ID
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1621 |         or envelope.metadata.get("posterior_summary_profile_id") == PROFILE_V2_ID
+1622 |         or envelope.metadata.get("posterior_summary_profile_version") == "2.0"
+     |
+help: Parenthesize the `and` subexpression
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

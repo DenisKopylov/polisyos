@@ -1,0 +1,96 @@
+"""Publish only closed native CI08 receipts and actual existing-env differences."""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+
+BASE = Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+
+
+def identity(path: Path) -> dict:
+    if not path.is_file() or path.is_symlink():
+        raise ValueError('Closed regular input required: ' + str(path))
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+plan = json.loads((BASE / 'execution-plan.json').read_text())
+completion = json.loads((BASE / 'completion.json').read_text())
+receipt_path = Path(completion['receipt'])
+receipt = json.loads(receipt_path.read_text())
+if receipt['candidate_sha'] != plan['candidate_sha'] or receipt['candidate_tree_sha'] != plan['candidate_tree_sha']:
+    raise ValueError('Root immutable source identity differs')
+if receipt['source_immutable'] is not True or receipt['source_identity_before'] != receipt['source_identity_after']:
+    raise ValueError('Root physical source changed')
+if completion['ending_HEAD'] != plan['candidate_sha'] or completion['ending_tracked_status'] != '':
+    raise ValueError('Root frozen source changed')
+if receipt['exit_code'] != 0 or receipt['outcome'] != 'PASS' or receipt['counts'] != {'cases': 8, 'passed': 8, 'failed': 0, 'errors': 0, 'skipped': 0}:
+    raise ValueError('Actual full gate did not pass all eight smoke cases')
+stdout = Path(receipt['stdout_path'])
+stdout_ref = identity(stdout)
+if stdout_ref['bytes'] != receipt['stdout_bytes'] or stdout_ref['sha256'] != receipt['stdout_sha256']:
+    raise ValueError('Full command output changed')
+text = stdout.read_text()
+if not all(s in text for s in ('discovered 6 extension examples', 'discovered 1 governance pass extension example(s)', 'Extension example gate passed for 7 example(s).')):
+    raise ValueError('Actual fresh discovery/full native scope markers absent')
+changes = {}
+for label in ('doe', 'root'):
+    before = json.loads((BASE / (label + '-environment-before.json')).read_text())
+    after = json.loads((BASE / (label + '-environment-after.json')).read_text())
+    old = {d['name']: d for d in before['distributions']}
+    new = {d['name']: d for d in after['distributions']}
+    added, removed = sorted(new.keys() - old.keys()), sorted(old.keys() - new.keys())
+    modified = sorted(name for name in old.keys() & new.keys() if old[name] != new[name])
+    protected = [name for name in old if old[name].get('metadata_files')]
+    if removed or modified or any(old[name] != new[name] for name in protected):
+        raise ValueError('Existing/protected installed distribution changed: ' + label)
+    if label == 'root' and added:
+        raise ValueError('Root environment mutated')
+    if label == 'doe' and added != sorted(e['distribution_name'] for e in plan['actual_examples']):
+        raise ValueError('DoE actual package additions differ from seven canonical examples')
+    changes[label] = {'before_count': before['distribution_count'], 'after_count': after['distribution_count'], 'added': added, 'removed': removed, 'modified': modified,
+                      'protected_metadata_byte_equal': True, 'protected_distributions': protected,
+                      'before': identity(BASE / (label + '-environment-before.json')), 'after': identity(BASE / (label + '-environment-after.json'))}
+installed = json.loads((BASE / 'installed-entrypoint-bindings.json').read_text())
+extra_metadata = []
+for row in installed['rows']:
+    path = Path(row['distribution']['metadata_path'])
+    records = []
+    for source in sorted(path.rglob('*')):
+        if source.is_file():
+            data = source.read_bytes()
+            records.append({**identity(source), 'literal_bytes_utf8': data.decode()})
+    extra_metadata.append({'slug': row['slug'], 'complete_installed_distinfo': records})
+with (BASE / 'installed-distinfo-complete.json').open('x') as handle:
+    handle.write(json.dumps({'actual_editable_install_count': 7, 'wheel_generator': 'hatchling 1.32.4 (actual installed WHEEL files)', 'native_installer': 'uv 0.9.21 (actual invocation selected by unchanged checker)', 'rows': extra_metadata}, indent=2) + '\n')
+summary = {'schema': 'policyos.e02.native_ci08_equivalent_selector_observation.v1', 'candidate_sha': plan['candidate_sha'], 'candidate_tree_sha': plan['candidate_tree_sha'],
+           'outcome': receipt['outcome'], 'exit_code': receipt['exit_code'], 'actual_counts': receipt['counts'], 'actual_example_count': 7,
+           'fresh_native_component_discovery': 6, 'fresh_native_governance_pass_discovery': 1, 'receipt': identity(receipt_path), 'complete_stdout_stderr_merged': stdout_ref,
+           'canonical_CommandSpec': plan['canonical_CommandSpec'], 'effective_command': receipt['command'], 'effective_cwd': receipt['cwd'],
+           'environment_change': changes, 'actual_environment': receipt['environment'], 'source_identity_before': receipt['source_identity_before'], 'source_identity_after': receipt['source_identity_after'],
+           'source_immutable': True, 'full_native_runtime': 'Existing unchanged full checker installed all7 examples via native --no-deps editable installer, ran fresh-interpreter native component/governance discovery with actual API probes, then executed all7 example test directories (8 smoke cases).',
+           'installed_entrypoint_custody': identity(BASE / 'installed-entrypoint-bindings.json'), 'independent_xml_count_reader': identity(BASE / 'actual-smoke-xml-recompute.json'),
+           'original_root_env_invocation': 'Deferred/UNRUN observation remains unchanged; equivalent full-selector PASS has explicit distinct existing DoE interpreter/installed environment identity.',
+           'no_manual_workaround': 'No manual entry points, package source changes, schema/generated edits, lock sync, skipped phase or selector reduction; numerical environment protected and root installed distribution metadata unchanged.',
+           'historical_observer_errors': ['Initial host-wide process observer refused on unreadable privileged dockerd/containerd environment; v2 explicitly covers all live agent-UID processes and retains exact infrastructure exclusions.', 'First dispatch inlet requested nonexistent policy-engine/conftest.py and refused Git128 before any checker/install callback; literal source/stdout/stderr archived. Corrected inlet includes51 actual existing Git-bound sources.'],
+           'limitations': ['Command parity is on the declared different existing environment; the original root-env command was not invoked.', 'Protected metadata equality includes RECORD/METADATA/WHEEL, not independent rehash of every numerical binary.', 'This generic extension fixture does not establish production history, original E finding closure, hosted CI or broad workflow PASS.'],
+           'finding_closure': False, 'parallel_limits': 'No artificial worker/thread/process/CPU caps. Canonical7editable install loop serialized because it shares DoE site-packages; exclusive existing-env lease only.',
+           'cleanup': 'No environment or current deciding output removed; seven installed examples are retained in existing DoEenv until root releases active-user protection.'}
+with (BASE / 'native-ci08-summary.json').open('x') as handle:
+    handle.write(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
+files = []
+for path in sorted(BASE.rglob('*')):
+    if not path.is_file() or any(p in {'environment-tmp', 'pytest-base', 'pytest-cache', 'benchmarks', 'ruff-cache', 'raw', '__pycache__'} for p in path.relative_to(BASE).parts):
+        continue
+    relative = path.relative_to(BASE).as_posix()
+    if path.suffix == '.py':
+        relative += '.txt'
+    files.append({**identity(path), 'destination': relative, 'role': 'closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt'})
+selection = {'schema': 'policyos.e02.closed_publication_selection.v1', 'candidate_sha': plan['candidate_sha'], 'candidate_tree_sha': plan['candidate_tree_sha'],
+             'asset_count': len(files), 'asset_bytes': sum(r['bytes'] for r in files), 'files': files,
+             'exclusions': ['private Git config full bytes (hash/size remain in native receipt)', 'build/tmp/cache catalogs', 'existing used environments', 'root-owned other selectors'],
+             'source_scope': 'ROOT64d actual51 declared Git-bound inputs and canonical full source framing retained; original deferred root-env invocation not rewritten.'}
+with (BASE / 'publication-selection.json').open('x') as handle:
+    handle.write(json.dumps(selection, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'summary': identity(BASE / 'native-ci08-summary.json'), 'selection': identity(BASE / 'publication-selection.json'), 'assets': len(files), 'bytes': selection['asset_bytes'], 'outcome': 'PASS', 'actual_counts': receipt['counts']}, indent=2))

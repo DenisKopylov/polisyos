@@ -1,0 +1,90 @@
+"""Exercise the final join's receipt guard using a copied actual frozen receipt."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import runpy
+import sys
+from pathlib import Path
+from typing import Any
+
+BUILDER = Path("/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-final-all-54-update.py.txt")
+ACTUAL = Path(
+    "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-16/checks/standalone-ci-16/standalone-ci-16.json"
+)
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def ref(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    return {"path": str(path), "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "fresh control output required")
+    namespace = runpy.run_path(str(BUILDER))
+    check = namespace["frozen_receipt"]
+    args.output.mkdir(parents=True)
+    original = json.loads(ACTUAL.read_bytes())
+    original_stdout = Path(original["stdout_path"])
+    target = args.output / "actual-receipt-control.json"
+    stdout = target.with_suffix(".stdout.txt")
+    stdout.write_bytes(original_stdout.read_bytes())
+    healthy = copy.deepcopy(original)
+    healthy["stdout_path"] = str(stdout)
+    target.write_text(json.dumps(healthy, indent=2) + "\n")
+    require(check(target)["outcome"] == "PASS", "actual frozen healthy receipt failed")
+    mutations = [
+        ("candidate_sha", "0" * 40, "wrong_source"),
+        ("candidate_tree_sha", "0" * 40, "wrong_tree"),
+        ("exit_code", 7, "nonzero_exit"),
+        ("exit_code", False, "boolean_exit"),
+        ("source_immutable", False, "source_drift"),
+        ("stdout_sha256", "0" * 64, "stdout_digest_drift"),
+        ("stdout_bytes", healthy["stdout_bytes"] + 1, "stdout_size_drift"),
+        ("stdout_path", str(args.output / "unowned-stdout.txt"), "stdout_custody_escape"),
+    ]
+    results = []
+    for key, replacement, label in mutations:
+        corrupt = copy.deepcopy(healthy)
+        corrupt[key] = replacement
+        target.write_text(json.dumps(corrupt, indent=2) + "\n")
+        try:
+            check(target)
+        except ValueError as error:
+            results.append({"control": label, "outcome": "PASS", "refusal": str(error)})
+        else:
+            raise ValueError("corrupt receipt admitted: " + label)
+    target.write_text(json.dumps(healthy, indent=2) + "\n")
+    require(check(target)["outcome"] == "PASS", "restored actual receipt failed")
+    result = {
+        "schema": "policyos.e02.final_join_receipt_guard_controls.v1",
+        "optimization": sys.flags.optimize,
+        "source": namespace["SOURCE"],
+        "tree": namespace["TREE"],
+        "builder": ref(BUILDER),
+        "control_source": ref(Path(__file__)),
+        "original_receipt": ref(ACTUAL),
+        "original_stdout": ref(original_stdout),
+        "healthy_outcome": "PASS",
+        "controls": results,
+        "final_join_executed": False,
+        "scope": "Actual frozen receipt custody guards; no numeric rerun or finding decision",
+    }
+    result_path = args.output / "guard-controls.json"
+    result_path.write_text(json.dumps(result, indent=2) + "\n")
+    sys.stdout.write(json.dumps(ref(result_path), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

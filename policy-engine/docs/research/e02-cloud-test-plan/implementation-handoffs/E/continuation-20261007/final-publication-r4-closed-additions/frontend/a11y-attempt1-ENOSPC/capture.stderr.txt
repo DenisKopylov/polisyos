@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/checks/a11y-full-native-retry'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py", line 341, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py", line 125, in main
+    args.output.mkdir(parents=True, exist_ok=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 1015, in mkdir
+    self.parent.mkdir(parents=True, exist_ok=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+OSError: [Errno 28] No space left on device: '/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/checks'

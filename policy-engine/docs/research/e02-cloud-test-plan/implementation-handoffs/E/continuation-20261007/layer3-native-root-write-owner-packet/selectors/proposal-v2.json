@@ -1,0 +1,80 @@
+{
+  "assets": [
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/canonical-owner-test-isolation-v2.patch",
+      "portable_path": "canonical-owner-test-isolation-v2.patch",
+      "bytes": 5068,
+      "sha256": "d82a99f193316df37dda4cb079c92da3a667fea069333edf87a11d84a9e5f3f2"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proposed-conftest-v2.py.txt",
+      "portable_path": "proposed-conftest-v2.py.txt",
+      "bytes": 2620,
+      "sha256": "f076a7d9bc3651532bb4fde2f16cad516f6a6ed613c26627079b8697db7a9fab"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare_fixture_guard_v2.py",
+      "portable_path": "prepare_fixture_guard_v2.py.txt",
+      "bytes": 6497,
+      "sha256": "2abfe23b7824757047d2857c34980723feae2c7270feda7c7ada0ea2fb77658e"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-controls.normal.json",
+      "portable_path": "fixture-v2-controls.normal.json",
+      "bytes": 4999,
+      "sha256": "75c14868647d2019e05ac6689750a701e8964f031e2f99a97fd33638954e0887"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-controls.optimized.json",
+      "portable_path": "fixture-v2-controls.optimized.json",
+      "bytes": 5002,
+      "sha256": "3af5bf893c7d2383c52e4cfb5f2c2e3bc07833cb20e9a47015fa01e7946cc7ff"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-controls.normal.stderr.txt",
+      "portable_path": "fixture-v2-controls.normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-controls.optimized.stderr.txt",
+      "portable_path": "fixture-v2-controls.optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-apply.stdout.txt",
+      "portable_path": "fixture-v2-apply.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-apply.stderr.txt",
+      "portable_path": "fixture-v2-apply.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/owner-packet-v2.json",
+      "portable_path": "owner-packet-v2.json",
+      "bytes": 7916,
+      "sha256": "f077319df4a60861c9ff7fbc4248025879d9e7cf6a9746ca19dd5e607ce90010"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-read-alias-companion.json",
+      "portable_path": "fixture-read-alias-companion.json",
+      "bytes": 13508,
+      "sha256": "2d327c78f2ece4446b73637fab1d8b8eeee0e70aa5ad7d0302d6c81a01b18cb2"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-selection-read-alias-companion.json",
+      "portable_path": "publication-selection-read-alias-companion.json",
+      "bytes": 482,
+      "sha256": "a9b0559e1192b73737af71ba7a5894910b72c0d4ecc6b88f9b95b7f43aee4179"
+    }
+  ],
+  "asset_count": 12,
+  "total_bytes": 46092,
+  "historical_main_selection": "publication-selection.json/ebfdd337de6bc01dada000fc7b6f03f596c32002c1618c51331b57b940ff32d3",
+  "current_outcome": "owner-ready V2 unapplied proposal; independent review pending; full native fixture selectors UNRUN; actual native P41 not_established"
+}

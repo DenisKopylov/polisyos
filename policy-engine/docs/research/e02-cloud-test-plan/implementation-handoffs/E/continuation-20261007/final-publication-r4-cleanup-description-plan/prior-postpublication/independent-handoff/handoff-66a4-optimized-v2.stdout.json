@@ -1,0 +1,16 @@
+{
+  "disposition": "GO boundedDOC custody/protocol delta, source/finding/backendauthority distinct",
+  "source_sha": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "source_tree": "54ec53ea6e53a61432135e8d2728c6fa1cfd964a",
+  "339DOC_bytes": 1510294,
+  "335copied_bytes": 1040026,
+  "P37": 15,
+  "negative_count": 23,
+  "effective_claim_removal": true,
+  "optimized": true,
+  "receipt": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4/independent-handoff-optimized.json",
+    "bytes": 123633,
+    "sha256": "8f9d5709429d63dc76962159766f2282ee57f2a8824b12d3bb723fe817143b6c"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "candidate_sha": "bff2464a1303c76e387f4cd2d0cbb995e02d4bea",
+  "candidate_tree": "71f1cfbff46fa832f40b4a032f0a1467c486eac8",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-first-wave/b37-oracle.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/b-durability/policy-engine",
+  "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/b-durability/policy-engine/src",
+  "script_sha256": "a551a1b2d79051b64b59db5ccddcb50e03dd1b4eb5b40613298dabb6a7fcd057",
+  "stdout_sha256": "9edc5cbb06e03fa47488ca032eafc6c8f33baab93ee5d91760f8a3da6d4d8565",
+  "exit_code": 0,
+  "wall_seconds": 0.709,
+  "scoped_controls": "PASS",
+  "unsupported_version_property": "FAIL",
+  "observation": {
+    "probe": "unsupported_schema_version",
+    "load_accepted": true,
+    "before": "99.0",
+    "after_mutation": "1.0",
+    "bytes_rewritten": true
+  },
+  "fixtures_retained": true,
+  "previous_script_provenance": "b37-oracle.py@c9af0f65f",
+  "ruff_check": "PASS",
+  "ruff_format_check": "PASS"
+}

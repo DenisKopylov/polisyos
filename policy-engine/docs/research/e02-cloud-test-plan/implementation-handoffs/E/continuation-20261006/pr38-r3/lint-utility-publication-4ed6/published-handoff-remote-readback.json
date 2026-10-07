@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.publication_readback.v1",
+  "branch": "codex/e02-E-cal05-20261006",
+  "published_handoff_sha": "4ed6a4324c53275afb00d9fc380cd29e0cca556c",
+  "published_handoff_tree": "43e60bdd118830806d53bb2e813198e08aa88681",
+  "implementation_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "implementation_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-E-cal05-20261006:refs/remotes/origin/codex/e02-E-cal05-20261006"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * [new branch]          codex/e02-E-cal05-20261006 -> origin/codex/e02-E-cal05-20261006\n"
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-E-cal05-20261006"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "stdout": "4ed6a4324c53275afb00d9fc380cd29e0cca556c\trefs/heads/codex/e02-E-cal05-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-E-cal05-20261006",
+        "refs/remotes/origin/codex/e02-E-cal05-20261006^{tree}"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "stdout": "4ed6a4324c53275afb00d9fc380cd29e0cca556c\n43e60bdd118830806d53bb2e813198e08aa88681\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "merge-base",
+        "--is-ancestor",
+        "74d0452848a7461d82ea7f150f126631d9fc8399",
+        "refs/remotes/origin/codex/e02-E-cal05-20261006"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "stdout": "## codex/e02-E-cal05-20261006\n",
+      "stderr": ""
+    }
+  ],
+  "remote_identity": "PASS",
+  "implementation_ancestry": "PASS",
+  "finding_closure": false,
+  "history_rewrite": false,
+  "integration_or_main_push": false,
+  "observer_attempt_note": "An earlier fetch origin <branch> updated only FETCH_HEAD under the configured refspec; the uncreated remote-tracking read was an observer ERROR. This readback uses the explicit exact topic refspec and establishes the current remote identity."
+}

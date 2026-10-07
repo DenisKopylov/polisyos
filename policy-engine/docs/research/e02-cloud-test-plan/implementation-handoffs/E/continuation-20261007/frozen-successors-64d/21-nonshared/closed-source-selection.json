@@ -1,0 +1,873 @@
+{
+  "schema": "policyos.e02.closed_publication_selection.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "asset_count": 122,
+  "asset_bytes": 1687195,
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/checks/standalone-workspace-01/standalone-workspace-01.json",
+      "bytes": 8467,
+      "sha256": "54e6ebeb42b68f5864fe2396982ebbbdae723e6a46999b302611ac1d438fdc47",
+      "destination": "stages/workspace-01/standalone-workspace-01.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/checks/standalone-workspace-01/standalone-workspace-01.stdout.txt",
+      "bytes": 6915,
+      "sha256": "957e564ef28b57ca626c3cfdb1c1a402300f5ae5f15453a7f8b5d96c32b55550",
+      "destination": "stages/workspace-01/standalone-workspace-01.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/capture.stdout.txt",
+      "bytes": 345,
+      "sha256": "b6fd81c1d61eaed77f3f599feee04944b475cab7436061b1d73ebe7f9f692c42",
+      "destination": "stages/workspace-01/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-01/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/dispatch-observation.json",
+      "bytes": 1854,
+      "sha256": "5edf16ca40d1ec06d1ea8c911fb048fa089570be9ee4525161b9b7b9f9f5511e",
+      "destination": "stages/workspace-01/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/checks/standalone-workspace-02/standalone-workspace-02.json",
+      "bytes": 8517,
+      "sha256": "5bb088c3942a288522923bb60de35b9cf8a409119840e7d392e316f498af8d60",
+      "destination": "stages/workspace-02/standalone-workspace-02.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/checks/standalone-workspace-02/standalone-workspace-02.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-02/standalone-workspace-02.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/capture.stdout.txt",
+      "bytes": 407,
+      "sha256": "67b7c4562d6d2d32b2c666a9b97c9686519a46dcada38e3a0db371d2dc571f3d",
+      "destination": "stages/workspace-02/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-02/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/dispatch-observation.json",
+      "bytes": 1919,
+      "sha256": "1ccddb6a71b1b8755d1accb14501562b61e93f0deff038fe73d472f7f80711a0",
+      "destination": "stages/workspace-02/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/tool-output.json",
+      "bytes": 181111,
+      "sha256": "0a9f446ace107e84c6046983baa3a85e0101cd02abdb7a0b1972ca6de21b7982",
+      "destination": "stages/workspace-02/tool-output.json",
+      "role": "complete native tool deciding output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/checks/standalone-workspace-03/standalone-workspace-03.json",
+      "bytes": 8371,
+      "sha256": "055cf37d284cf0fed2ddd5f2d533a091f8e0001215227e1d7cf167281d6ca256",
+      "destination": "stages/workspace-03/standalone-workspace-03.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/checks/standalone-workspace-03/standalone-workspace-03.stdout.txt",
+      "bytes": 872,
+      "sha256": "bba8fb29e3f2ae59d7a7654e0198b95748e3937a58e3296a1d26ba0c2f1ed151",
+      "destination": "stages/workspace-03/standalone-workspace-03.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/capture.stdout.txt",
+      "bytes": 263,
+      "sha256": "59ed48d1474005dd23d4a3d9755ced7e28111e09321836a25b02939edf31e606",
+      "destination": "stages/workspace-03/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-03/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/dispatch-observation.json",
+      "bytes": 1770,
+      "sha256": "51950149d05905b6d8c862e33538fdb2b60898294be8bd7909598c39186dd7b7",
+      "destination": "stages/workspace-03/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/checks/standalone-workspace-04/standalone-workspace-04.json",
+      "bytes": 8349,
+      "sha256": "19d40e2376abfc00ee7cc143e3144d8fc8140f8e6919d2653ffb8180cc39d4f3",
+      "destination": "stages/workspace-04/standalone-workspace-04.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/checks/standalone-workspace-04/standalone-workspace-04.stdout.txt",
+      "bytes": 1557,
+      "sha256": "592064763bb7fba0c143d673374f51bdf455eb6074d6cef35ee52263a5fbbbf0",
+      "destination": "stages/workspace-04/standalone-workspace-04.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/capture.stdout.txt",
+      "bytes": 253,
+      "sha256": "b8dc3a88c046ee7fdad24fead97784432f442caa630f1665fb9e30eb228e26cd",
+      "destination": "stages/workspace-04/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-04/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/dispatch-observation.json",
+      "bytes": 1746,
+      "sha256": "6db30d7e04ec9b6428a6743a2a3605f5f8c78d48a269ead8c4e7cd786ea76ec1",
+      "destination": "stages/workspace-04/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/checks/standalone-workspace-05/standalone-workspace-05.json",
+      "bytes": 8344,
+      "sha256": "4afcea2ab90083646b0c5b269b68b2b60953d4c87aa808f7f8e6bd0543fd0d94",
+      "destination": "stages/workspace-05/standalone-workspace-05.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/checks/standalone-workspace-05/standalone-workspace-05.stdout.txt",
+      "bytes": 24,
+      "sha256": "43f2361ccca6bc36f0477e6db72c3a0875502a3b4a1622deb4d1de713648e5ad",
+      "destination": "stages/workspace-05/standalone-workspace-05.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/capture.stdout.txt",
+      "bytes": 250,
+      "sha256": "5f0755721999ae0c487e809f1c644e5f39d969220f3dc4c68d8122cd6469c618",
+      "destination": "stages/workspace-05/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-05/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/dispatch-observation.json",
+      "bytes": 1744,
+      "sha256": "98936eccef19fed8079a25c2fc4db6f6c2a7f661766c0ad9babbf70fc1d96a4c",
+      "destination": "stages/workspace-05/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/checks/standalone-workspace-06/standalone-workspace-06.json",
+      "bytes": 8354,
+      "sha256": "e209e0a432fdf43fe064ce530f5ffd588d00142d3baf4c703c567075bf27a8c5",
+      "destination": "stages/workspace-06/standalone-workspace-06.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/checks/standalone-workspace-06/standalone-workspace-06.stdout.txt",
+      "bytes": 32,
+      "sha256": "8afb1abaffac02edb4baa91bf813c45fe1ca9a346f5eac71db731d4aaba6aa57",
+      "destination": "stages/workspace-06/standalone-workspace-06.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/capture.stdout.txt",
+      "bytes": 253,
+      "sha256": "81bdc3fd66f35166b99cdc5495edc376c108c207e8ef5c5888bf6338981462d4",
+      "destination": "stages/workspace-06/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-06/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/dispatch-observation.json",
+      "bytes": 1757,
+      "sha256": "7fe02272a22371d553bece35cca2561f9c4625d1434c9ff89ea3a4e9df9bed79",
+      "destination": "stages/workspace-06/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/checks/standalone-workspace-07/standalone-workspace-07.json",
+      "bytes": 8518,
+      "sha256": "0fca7ccf15f492081f23265c94de8ffcff913ae8c737fd61884a2bd17c942a5f",
+      "destination": "stages/workspace-07/standalone-workspace-07.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/checks/standalone-workspace-07/standalone-workspace-07.stdout.txt",
+      "bytes": 649,
+      "sha256": "c6119fc370b13cb5ddb221d0855c195597f3a28c54b84b575bdcb44d0d9b2f0c",
+      "destination": "stages/workspace-07/standalone-workspace-07.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/capture.stdout.txt",
+      "bytes": 402,
+      "sha256": "d37aff4992e428d3c72a5e75faa77d8a3f4d2fd90c4cf36eedec7338aa6b11d4",
+      "destination": "stages/workspace-07/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-07/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/dispatch-observation.json",
+      "bytes": 1918,
+      "sha256": "83cea15fd08dd120a1b110e533018b28822ea1101d6e22a043c87c6270113c19",
+      "destination": "stages/workspace-07/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/checks/standalone-workspace-09/standalone-workspace-09.json",
+      "bytes": 8517,
+      "sha256": "ce20864b9d29335202a44966305a95fa4dc7ad48411d8d46c67fa1a28ed765e0",
+      "destination": "stages/workspace-09/standalone-workspace-09.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/checks/standalone-workspace-09/standalone-workspace-09.stdout.txt",
+      "bytes": 86,
+      "sha256": "c3a4d6157f63dc1e848fd161564adc9e89ac5cf904841882c8096e9a88805a7d",
+      "destination": "stages/workspace-09/standalone-workspace-09.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/capture.stdout.txt",
+      "bytes": 411,
+      "sha256": "24f37c085c8f2de8d0711443daecc043c4fa09603ec62ae4fa5dca17d1d70358",
+      "destination": "stages/workspace-09/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-09/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/dispatch-observation.json",
+      "bytes": 1918,
+      "sha256": "38b6a25a0dc3482c89c370f0fc5457c479f491dfd8bf155b248deca5d7204e49",
+      "destination": "stages/workspace-09/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/checks/standalone-workspace-10/standalone-workspace-10.json",
+      "bytes": 8524,
+      "sha256": "a69a91fb57e5f2ed9eecf540a46cdc9978dbfa2536c96ebffc689abd7477ebdb",
+      "destination": "stages/workspace-10/standalone-workspace-10.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/checks/standalone-workspace-10/standalone-workspace-10.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-10/standalone-workspace-10.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/capture.stdout.txt",
+      "bytes": 415,
+      "sha256": "500db6d9e62d3f3c6d522ed1c2f8197b044da0ab72c509c52671f00fc92c9a16",
+      "destination": "stages/workspace-10/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-10/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/dispatch-observation.json",
+      "bytes": 1925,
+      "sha256": "b157148ce46643ca641f6ca4b3d9ba6593b4ba304f79b601767b2bc5d5dba5c2",
+      "destination": "stages/workspace-10/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/coverage/coverage.json",
+      "bytes": 10181,
+      "sha256": "ff1d7570d3f5b2e789f436910e3a37107e66cd877cb22781ef9fba07fcde7283",
+      "destination": "stages/workspace-10/coverage/coverage.json",
+      "role": "complete native coverage-dashboard output; scope does not imply behavior closure"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/coverage/coverage.md",
+      "bytes": 2251,
+      "sha256": "3d361c0cde4ff10e63560c7175a86a9a9ea65010c76014eeeaac433e73f9a3e5",
+      "destination": "stages/workspace-10/coverage/coverage.md",
+      "role": "complete native coverage-dashboard output; scope does not imply behavior closure"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/checks/standalone-workspace-11/standalone-workspace-11.json",
+      "bytes": 8405,
+      "sha256": "6c7701b5999a77f0842edd3dbcd8fb01aec573552a0fc2740d5f5623c46f2d48",
+      "destination": "stages/workspace-11/standalone-workspace-11.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/checks/standalone-workspace-11/standalone-workspace-11.stdout.txt",
+      "bytes": 24276,
+      "sha256": "3fe62a8812679c05f8f20d5f586f7660992f01ae50fd527f10846f81d637bfce",
+      "destination": "stages/workspace-11/standalone-workspace-11.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/capture.stdout.txt",
+      "bytes": 296,
+      "sha256": "b2458f05529506453e0b34e54d27c42583f3f2ca6f7efe6a85d41743e3457a0f",
+      "destination": "stages/workspace-11/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-11/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/dispatch-observation.json",
+      "bytes": 1803,
+      "sha256": "b7cf3528ff0c0c9e11dc2ff0af6a4aeaf1991478cb4879e4e727380962882695",
+      "destination": "stages/workspace-11/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/checks/standalone-workspace-12/standalone-workspace-12.json",
+      "bytes": 8419,
+      "sha256": "a2120f6d4c72a38ef7d6a8cf1f64e51ed1297f49702085c07b3385157e5fb1ec",
+      "destination": "stages/workspace-12/standalone-workspace-12.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/checks/standalone-workspace-12/standalone-workspace-12.stdout.txt",
+      "bytes": 48,
+      "sha256": "ab15a4fdd55e1f7e85de95e6f47e0468deb6dbe7ac982c230f8d773d381d8026",
+      "destination": "stages/workspace-12/standalone-workspace-12.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/capture.stdout.txt",
+      "bytes": 313,
+      "sha256": "456fffa9784f633f4e1236202b4e409123048498b4cf37858149589621bd79c5",
+      "destination": "stages/workspace-12/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-12/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/dispatch-observation.json",
+      "bytes": 1820,
+      "sha256": "6340a11317f398359113787ead1cb63c3079c2c029fd00e8276c156e8b1b3d7d",
+      "destination": "stages/workspace-12/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/checks/standalone-workspace-13/standalone-workspace-13.json",
+      "bytes": 8914,
+      "sha256": "ba932d71239d4071addee107fcfa58af62deb3f5387390222bb21ed220e453bc",
+      "destination": "stages/workspace-13/standalone-workspace-13.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/checks/standalone-workspace-13/standalone-workspace-13.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-13/standalone-workspace-13.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/capture.stdout.txt",
+      "bytes": 817,
+      "sha256": "0ad5d666a2a4f4c299adc1a29ee05f0db07ab7db8e09bc77e866985ec74f2e13",
+      "destination": "stages/workspace-13/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-13/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/dispatch-observation.json",
+      "bytes": 2316,
+      "sha256": "58ed248226a7da7df7def9f1c9dc00595417b90f0518bb1fb441fe91e011e833",
+      "destination": "stages/workspace-13/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/schemas-python-residue.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/workspace-13/schemas-python-residue.txt",
+      "role": "complete native tool deciding output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/checks/standalone-ci-03/standalone-ci-03.json",
+      "bytes": 8629,
+      "sha256": "06a1e294768faeea521e1964b1da1f627bc1152981b20ab9c427669769e87230",
+      "destination": "stages/ci-03/standalone-ci-03.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/checks/standalone-ci-03/standalone-ci-03.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-03/standalone-ci-03.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/capture.stdout.txt",
+      "bytes": 555,
+      "sha256": "be72defb85b181e56257b41b8e63bf50549ad0b872acb7fe36c7435271a0a38b",
+      "destination": "stages/ci-03/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-03/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/dispatch-observation.json",
+      "bytes": 2015,
+      "sha256": "8de6415a41b42def64a9dacda69ff5b7b42296059483b1a1cc42601e31d9907b",
+      "destination": "stages/ci-03/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/tool-output.json",
+      "bytes": 44547,
+      "sha256": "7aff70a61c4f27b6d4fd165cdb4d1636619b4c09585fd02200d4d4f7216baaac",
+      "destination": "stages/ci-03/tool-output.json",
+      "role": "complete native tool deciding output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/tool-output.md",
+      "bytes": 5502,
+      "sha256": "59f6cf0f4b7d0935f0a505d57f6686e117dbe65928e37798e0be5307f0a5c91e",
+      "destination": "stages/ci-03/tool-output.md",
+      "role": "complete native tool deciding output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/checks/standalone-ci-04/standalone-ci-04.json",
+      "bytes": 8484,
+      "sha256": "bff76dbfa8b1c426968360dc89b4f3db75491a26fc3d3509f4779964932e4ac4",
+      "destination": "stages/ci-04/standalone-ci-04.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/checks/standalone-ci-04/standalone-ci-04.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-04/standalone-ci-04.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/capture.stdout.txt",
+      "bytes": 419,
+      "sha256": "9f41db6c559443ec093e7046839bbcaf8c39d2428a4037c721bd3655aaf21a4f",
+      "destination": "stages/ci-04/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-04/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/dispatch-observation.json",
+      "bytes": 1871,
+      "sha256": "728e5a89353ba6402afe81939a874a0c67816ba45af005768244a1c0f341062f",
+      "destination": "stages/ci-04/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/tool-output.json",
+      "bytes": 111068,
+      "sha256": "92ec6dc962d8186d29c4a82490695a4c77074f90f4c48c64f8bb2500a66d3130",
+      "destination": "stages/ci-04/tool-output.json",
+      "role": "complete native tool deciding output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/checks/standalone-ci-05/standalone-ci-05.json",
+      "bytes": 8518,
+      "sha256": "820d6bf7e11fa6dcd1b01f03228f95f93f2d3193652f34481e8cd6bc1da8d346",
+      "destination": "stages/ci-05/standalone-ci-05.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/checks/standalone-ci-05/standalone-ci-05.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-05/standalone-ci-05.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/capture.stdout.txt",
+      "bytes": 451,
+      "sha256": "dec344f19cc07c83e49a4f2ce74a172381644b96cebdf11ad576c39e0ffe7018",
+      "destination": "stages/ci-05/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-05/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/dispatch-observation.json",
+      "bytes": 1903,
+      "sha256": "781798e53475c5371f97572f12fd02277bb08e4162fde2ad1ba7d6aa27ba61c8",
+      "destination": "stages/ci-05/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/tool-output.json",
+      "bytes": 170548,
+      "sha256": "0dd2a00c1743a4bc24231fdd181db85d8ed41249f465d58cb48523a965447505",
+      "destination": "stages/ci-05/tool-output.json",
+      "role": "complete native tool deciding output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/checks/standalone-ci-06/standalone-ci-06.json",
+      "bytes": 8516,
+      "sha256": "613fbe287bcbb1578f88073dcacf9a9ff2f02adaa4ec1ff31363046f73390d85",
+      "destination": "stages/ci-06/standalone-ci-06.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/checks/standalone-ci-06/standalone-ci-06.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-06/standalone-ci-06.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/capture.stdout.txt",
+      "bytes": 454,
+      "sha256": "7114d844c62e45c96dd3c8becf92d1dcb661a74d7a6f1b15392fcf8c4f2cf5b1",
+      "destination": "stages/ci-06/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-06/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/dispatch-observation.json",
+      "bytes": 1905,
+      "sha256": "e986147d4f8bcb45ea3eef2f1785969a21e422de105a8dde8049f4f0a869ffe4",
+      "destination": "stages/ci-06/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/tool-output.json",
+      "bytes": 24136,
+      "sha256": "7f1f01b9a634c637742589d3b31b158b6ad4995efb540ddb3b039fc0f15bd3ad",
+      "destination": "stages/ci-06/tool-output.json",
+      "role": "complete native tool deciding output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/checks/standalone-ci-07/standalone-ci-07.json",
+      "bytes": 8340,
+      "sha256": "94c84364a361f40e556d672a2812cfcfae98c56840e181875e4508adf57b5957",
+      "destination": "stages/ci-07/standalone-ci-07.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/checks/standalone-ci-07/standalone-ci-07.stdout.txt",
+      "bytes": 83604,
+      "sha256": "1254b865726c3d70a26eb1a78e63dad16330b35a93d709d3c063b6d02727b8a9",
+      "destination": "stages/ci-07/standalone-ci-07.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/capture.stdout.txt",
+      "bytes": 280,
+      "sha256": "70f13d0e43a4f9e7c2a7c33c8c0f670679fa1c8bfeea9c66c51a82cf14d55118",
+      "destination": "stages/ci-07/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-07/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/dispatch-observation.json",
+      "bytes": 1719,
+      "sha256": "b9755766e072462c1b6b76c74addaa5588999969db80281df1da2688d8ab790d",
+      "destination": "stages/ci-07/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/checks/standalone-ci-09/standalone-ci-09.json",
+      "bytes": 8311,
+      "sha256": "0aa0b022500ddc1207cc07b365ca8da4377a2eea60b239962ab400c0ed07a916",
+      "destination": "stages/ci-09/standalone-ci-09.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/checks/standalone-ci-09/standalone-ci-09.stdout.txt",
+      "bytes": 28,
+      "sha256": "e6cb3d25339d1fb5adff0f49a1bec2afc7a9101bac49d652c862d1cee37058b9",
+      "destination": "stages/ci-09/standalone-ci-09.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/capture.stdout.txt",
+      "bytes": 263,
+      "sha256": "9bf124cd1a966d0be5cc61d36919179f532f91899c0c5088528c9319af247cfe",
+      "destination": "stages/ci-09/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-09/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/dispatch-observation.json",
+      "bytes": 1699,
+      "sha256": "6313c6323be7501e8ad8dec431cb1915dea39603ea6927bbbe51eb7caf51ac72",
+      "destination": "stages/ci-09/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/checks/standalone-ci-10/standalone-ci-10.json",
+      "bytes": 8364,
+      "sha256": "02f639352706c511c153a14d06e1ea01b85abd62beda579cec004d933a309110",
+      "destination": "stages/ci-10/standalone-ci-10.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/checks/standalone-ci-10/standalone-ci-10.stdout.txt",
+      "bytes": 2880,
+      "sha256": "b3387b8e4cc33bf0fdc3a6486bd8e2f8767499f5b1e49bbdc2e4f3f9081560eb",
+      "destination": "stages/ci-10/standalone-ci-10.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/capture.stdout.txt",
+      "bytes": 292,
+      "sha256": "8f0b0e177e5d16fcd4e9646ce72b2dab86fdff58247e2fb2d1deafb9b3db0b99",
+      "destination": "stages/ci-10/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-10/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/dispatch-observation.json",
+      "bytes": 1740,
+      "sha256": "55834c954f7d3764ffe04405579a3b5f1e4b977c20a2d303bcc30b1ca02209ee",
+      "destination": "stages/ci-10/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.json",
+      "bytes": 8460,
+      "sha256": "46b50df6b7652d463242e4e3eedb4f730a52beb66c60560fab52affa01f94957",
+      "destination": "stages/ci-11/standalone-ci-11.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.stdout.txt",
+      "bytes": 230183,
+      "sha256": "a5e53cb944840209256ac0afc2fd0306e0d01f2f824bbb5c06224038dc77ccc5",
+      "destination": "stages/ci-11/standalone-ci-11.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/capture.stdout.txt",
+      "bytes": 380,
+      "sha256": "8fe7a4165d3f143eaee97ad665ddbdfbe986daed6c77d4e0a7a7dfd792d1f103",
+      "destination": "stages/ci-11/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-11/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/dispatch-observation.json",
+      "bytes": 1839,
+      "sha256": "e760a26ba616d2c64320037bb9be25293c770e33634ad2d7d6d9444359fb7518",
+      "destination": "stages/ci-11/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/checks/standalone-ci-12/standalone-ci-12.json",
+      "bytes": 8536,
+      "sha256": "5ae3fe31d9acb1c838b856d90844283e733e5b1596d47d28b8c54e1843b8de1d",
+      "destination": "stages/ci-12/standalone-ci-12.json",
+      "role": "complete frozen command/environment/input receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/checks/standalone-ci-12/standalone-ci-12.stdout.txt",
+      "bytes": 6770,
+      "sha256": "561144a3aeb416b2516081155925bb3cf23f5564a399c29b11ed24c7d96d8bf5",
+      "destination": "stages/ci-12/standalone-ci-12.stdout.txt",
+      "role": "complete command stdout and stderr combined by canonical run_check"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/capture.stdout.txt",
+      "bytes": 437,
+      "sha256": "8706ed52f7c162311d8829e9d0cd0836fd5fe32dafc4ee87e2c4fde1ec697810",
+      "destination": "stages/ci-12/capture.stdout.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "stages/ci-12/capture.stderr.txt",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/dispatch-observation.json",
+      "bytes": 1909,
+      "sha256": "28c33911c0f4e63d2033cced5612ee61df8035c9fdb0484617252a81f779cf00",
+      "destination": "stages/ci-12/dispatch-observation.json",
+      "role": "complete orchestration capture; command streams stay separately in combined stdout"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/dispatch-plan-64d7444a18c5-frozen-final.json",
+      "bytes": 322808,
+      "sha256": "f0f00bef93befbca83a1bdbb59c1d895ac0a43cc50db602de18629ef0ccb86e6",
+      "destination": "dispatch/dispatch-plan-64d7444a18c5-frozen-final.json",
+      "role": "closed current source-frozen preparation/execution/custody record"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/successor-21-started-64d.json",
+      "bytes": 818,
+      "sha256": "663234e4cf9f310a3ad08d874c8067498f6f8f597eec8dbba84c9bcaabdb6441",
+      "destination": "dispatch/successor-21-started-64d.json",
+      "role": "closed current source-frozen preparation/execution/custody record"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/successor-21-complete-64d.json",
+      "bytes": 42963,
+      "sha256": "f9c8ae4b069f7429eba522853b23ad9cf9bcf1d03cbfb81866a350ab2d25b050",
+      "destination": "dispatch/successor-21-complete-64d.json",
+      "role": "closed current source-frozen preparation/execution/custody record"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/successor-21-check-index-64d.json",
+      "bytes": 167397,
+      "sha256": "f936099dcf78117758bf75f8768456c1d6fecbef392f6f670610101a93c16ed4",
+      "destination": "dispatch/successor-21-check-index-64d.json",
+      "role": "closed current source-frozen preparation/execution/custody record"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/successor-21-launch.stdout.txt",
+      "bytes": 5382,
+      "sha256": "ebac9623191a270ac218cdb65970231e2fea05facbdc56c0a36821f0531f8acf",
+      "destination": "dispatch/successor-21-launch.stdout.txt",
+      "role": "closed current source-frozen preparation/execution/custody record"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/successor-21-launch.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "dispatch/successor-21-launch.stderr.txt",
+      "role": "closed current source-frozen preparation/execution/custody record"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/dispatch_assigned_64d.py",
+      "bytes": 4943,
+      "sha256": "0217b127a6678dabc2862c02325544176a7ccafe8be4ccff59cb5cbcdd1f7632",
+      "destination": "dispatch/dispatch_assigned_64d.py.txt",
+      "role": "literal already-used scratch orchestration/publication producer; archive bytes, not a new API"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/publish_successor21.py",
+      "bytes": 10713,
+      "sha256": "5ceafc798c1771c0d167998f125371acf1e2611790d17c88800110618535e0a9",
+      "destination": "dispatch/publish_successor21.py.txt",
+      "role": "literal already-used scratch orchestration/publication producer; archive bytes, not a new API"
+    }
+  ],
+  "exclusions": [
+    "complete private Git config",
+    "4.24 MB full tracked inventory (exact Git reconstruction retained)",
+    "13 MB unrolled preparation inventory",
+    "schema caches and generated MkDocs site",
+    "root-owned 16 resource selectors",
+    "environments/pyc/temporary catalogs"
+  ],
+  "historical_partial_snapshot": "successor-21-status20-64d.json is retained in ignored history, superseded by final 21-check index; not substituted or rewritten.",
+  "cleanup": "No cleanup is performed by this publisher. Current wave/constituent outputs and used environments remain protected until root closes receipts and active users. Cloud cleanup clarification supersedes the older preparation Trash-only text."
+}

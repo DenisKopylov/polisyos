@@ -1,0 +1,137 @@
+{
+  "research_source": "97c85fae2d4505ec8248540d98b9556296244208",
+  "current_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "accepted_slice_delta": [
+    {
+      "slice": "backtest_bias",
+      "accepted_merge_sha": "3f02f39c9998b72eba157df503847971f1ec5f92",
+      "ancestor_of_current_base": true,
+      "merge_changed_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "changed_paths_since_merge": [],
+      "survival_verdict": "Byte identity/delta only; recheck behavioral property on fresh base."
+    },
+    {
+      "slice": "bootstrap",
+      "accepted_merge_sha": "a41d13ed51c12a6afc585b5717d61327dfcb6616",
+      "ancestor_of_current_base": true,
+      "merge_changed_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py"
+      ],
+      "changed_paths_since_merge": [],
+      "survival_verdict": "Byte identity/delta only; recheck behavioral property on fresh base."
+    },
+    {
+      "slice": "composition",
+      "accepted_merge_sha": "8d5a490ff78f68683fdf867699846b98d1be961b",
+      "ancestor_of_current_base": true,
+      "merge_changed_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py"
+      ],
+      "changed_paths_since_merge": [],
+      "survival_verdict": "Byte identity/delta only; recheck behavioral property on fresh base."
+    },
+    {
+      "slice": "pcl",
+      "accepted_merge_sha": "5a9b5814436dfd69e38dd1a8d95db1a08b7c2498",
+      "ancestor_of_current_base": true,
+      "merge_changed_mechanism_paths": [
+        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/calibration/curve.py",
+        "policy-engine/tests/unit/calibration/test_continuous.py",
+        "policy-engine/tests/unit/calibration/test_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py"
+      ],
+      "changed_paths_since_merge": [],
+      "survival_verdict": "Byte identity/delta only; recheck behavioral property on fresh base."
+    },
+    {
+      "slice": "cal05",
+      "accepted_merge_sha": "08918047feac94acffb19eccba6d6f9d7e564adc",
+      "ancestor_of_current_base": true,
+      "merge_changed_mechanism_paths": [
+        "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py"
+      ],
+      "changed_paths_since_merge": [],
+      "survival_verdict": "Byte identity/delta only; recheck behavioral property on fresh base."
+    },
+    {
+      "slice": "doe_morris",
+      "accepted_merge_sha": "34d054dbdb936e4e11d67b99c73b19a42f710b62",
+      "ancestor_of_current_base": true,
+      "merge_changed_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py"
+      ],
+      "changed_paths_since_merge": [],
+      "survival_verdict": "Byte identity/delta only; recheck behavioral property on fresh base."
+    },
+    {
+      "slice": "forecast_producer",
+      "accepted_merge_sha": "bcf5203ea76e3ef5476775eee3a8f55c025d9162",
+      "ancestor_of_current_base": true,
+      "merge_changed_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py"
+      ],
+      "changed_paths_since_merge": [],
+      "survival_verdict": "Byte identity/delta only; recheck behavioral property on fresh base."
+    }
+  ],
+  "all_paths_changed_since_research_source": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/E.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/delivery-evidence.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/input-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validation.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/A.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/C.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/D.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/E.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-07.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/c-canon.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/changed-product-python-ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/clean-candidate-architecture-guardrails.out.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/clean-candidate-guardrails.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/clean-candidate-runtime-api-contract.out.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/local-focused-wave.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/local-focused-wave.out.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/local-salib-provisioning.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/local-salib-skipped-replay.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/local-salib-skipped-replay.out.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/ruff-product-check.out.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/ruff-product-format-check.out.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/publication-2026-10-06.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-05-owner-actions.md",
+    "policy-engine/release-fragments/unreleased/2026-10-05-lex-impact-input-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-predictive-calibration-inputs.toml"
+  ],
+  "interpretation": "Accepted commits are existing ancestry, never applied; unchanged bytes do not establish current behavior."
+}

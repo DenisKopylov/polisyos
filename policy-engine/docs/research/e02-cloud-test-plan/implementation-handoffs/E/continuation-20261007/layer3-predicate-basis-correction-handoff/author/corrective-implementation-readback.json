@@ -1,0 +1,124 @@
+{
+  "base_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+  "first_candidate_sha": "6b6280d1e66edf26031568e8773e93726fde9928",
+  "candidate_sha": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+  "candidate_tree_sha": "a067361f310259449bea5dd90b86c4d96796e5b0",
+  "complete_implementation_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/README.md",
+      "change": "A",
+      "git_blob": "c3c0edd4af171fda5bc784326f831b3e29cc14c8",
+      "bytes": 1708,
+      "sha256": "faf0b2fade6cacc4a8de4baac67d98aabc41ca67849c3d452f05e7844d0122d0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/admission-resume.json",
+      "change": "A",
+      "git_blob": "8cefd511923f1c9c4b5dbebabe8141a28dd201f7",
+      "bytes": 123130,
+      "sha256": "4801eb93a253c1ce3259573f549d2f8984d22d1cb8a9e897b08018684a548ce5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/admission-resume.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/class-correction-receipt.json",
+      "change": "A",
+      "git_blob": "80f946689ff536659f67b4c24b6344196432af42",
+      "bytes": 1412,
+      "sha256": "9409f0c3c41bf67c43e80db32dbd80c82b367480bdb0153e424cc1bca2213388"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-independent-CHANGE_REQUIRED.json",
+      "change": "A",
+      "git_blob": "ca216c43d4f7d77e76658c837db0699ee0010130",
+      "bytes": 13570,
+      "sha256": "4b3b7867199c0f4ca6da5953fe597ee7f3bc6239521e4d1af2861b5eb8ed8598"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.normal.json",
+      "change": "A",
+      "git_blob": "c989175c04b5295ad63e1077b6fedc9bc1449352",
+      "bytes": 1893,
+      "sha256": "a9969e21e71f0d0a18e5f70d454bb3dc1c2c62cb7e25ad6992e001e76771a471"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.normal.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.optimized.json",
+      "change": "A",
+      "git_blob": "c989175c04b5295ad63e1077b6fedc9bc1449352",
+      "bytes": 1893,
+      "sha256": "a9969e21e71f0d0a18e5f70d454bb3dc1c2c62cb7e25ad6992e001e76771a471"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.optimized.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-validate_predicate_basis.py.txt",
+      "change": "A",
+      "git_blob": "6286f9163c9af9d564e9c412e78827919fff132a",
+      "bytes": 7056,
+      "sha256": "99b706274f51d0adc1e44c99cf0bedcd7f255d94afac754eeff234dfa1fbdb4c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.json",
+      "change": "A",
+      "git_blob": "9bd0e39e690bf431efd6c9e335a9cd31a47de48f",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.json",
+      "change": "A",
+      "git_blob": "9bd0e39e690bf431efd6c9e335a9cd31a47de48f",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/predicate-basis-correction.json",
+      "change": "A",
+      "git_blob": "25e4c3d58f03e85acfbc8a28b04dbf9bc5172af1",
+      "bytes": 11169,
+      "sha256": "0bd5c3049abf201886ba6dce3a8541e3e7390856f71af906d7531975eed4e9f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/validate_predicate_basis.py.txt",
+      "change": "A",
+      "git_blob": "7929cf514292a364ec7731e6ef0a154d873bd40e",
+      "bytes": 9427,
+      "sha256": "8a71c65cfdab881b3efe3dad7ecc4c0e845ff66af745f9065a0143f369f66c6e"
+    }
+  ],
+  "DOC_paths": 16,
+  "active_PY_paths": 0,
+  "clean_tracked_status": "",
+  "source_or_numeric_changes": false
+}

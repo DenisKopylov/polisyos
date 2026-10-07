@@ -1,0 +1,47 @@
+{
+  "phase": "current-replay",
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "tools/devx/architecture/guardrails.py",
+    "sync",
+    "--skip-deep-import-baseline",
+    "--public-json",
+    "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-replay/inventory.json",
+    "--public-md",
+    "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-replay/public-surface.md",
+    "--generated-md",
+    "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-replay/generated-artifacts.md"
+  ],
+  "cwd": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine",
+  "UV_NO_SYNC": "1",
+  "exit_code": 0,
+  "wall_seconds": 16.31358766555786,
+  "fixture_is_git_candidate": false,
+  "no_full_global_guard": true,
+  "input_paths": {
+    "src/polisyos/calibration/__init__.py": {
+      "sha256": "3fcbc6d7e10176cf6578dc88fdc54482ba6a300a55385f3603f3069ad2ab67bd",
+      "bytes": 1989
+    },
+    "src/polisyos/calibration/forecast_bridge.py": {
+      "sha256": "173954a420aca0bbc9bad13eb4ab82eab6ff8b60ba75e540f0d245061d41ce44",
+      "bytes": 75581
+    },
+    "src/polisyos/scientist/methods/backtesting/forecast_owner.py": {
+      "sha256": "86af4657cb009f932fa8e06921eea5ca9d1896834c8a60af4e95613e4f67203e",
+      "bytes": 54514
+    },
+    "src/polisyos/foundry/uncertainty/__init__.py": {
+      "sha256": "f555f6960f0fdb140ca4d393004dc358dcd82066297f16561160cc4875802d8d",
+      "bytes": 1895
+    },
+    "tools/devx/architecture/guardrails.py": {
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "bytes": 103077
+    },
+    "architecture/public_surface/contract.toml": {
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "cal": {
+    "HEAD": "491562fab29f61efda7eaa57d09791740a7d53cc",
+    "head_tree": "1d10a768d229dbcf2ee39c7ea4805664f6dedcba",
+    "status": "",
+    "source_delta_head": "",
+    "files": {
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-gaussian-noise-preflight-r2.toml": {
+        "sha256": "939af05d4f18e97613d1691840361cf2ed624eaf08d7318bceb79e0a47288ab6",
+        "bytes": 1402
+      },
+      "policy-engine/src/polisyos/foundry/calibration/README.md": {
+        "sha256": "545b5ebb10ad22e400ef2315ff7c9e4eca898d67a14a00d4a5e50b7c138171d4",
+        "bytes": 8884
+      },
+      "policy-engine/src/polisyos/foundry/calibration/calibrator.py": {
+        "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca",
+        "bytes": 92721
+      },
+      "policy-engine/src/polisyos/foundry/calibration/preflight.py": {
+        "sha256": "d6644d1c49efc82a7aaa4436b7c413251f54196867d80405a100dfa0c0203c28",
+        "bytes": 14265
+      },
+      "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py": {
+        "sha256": "7af89a525a5e011567a8fd60c66e6c814ac7c934caa3f13e5c374906ca5116fc",
+        "bytes": 7789
+      }
+    }
+  },
+  "ddm": {
+    "HEAD": "a2276d5a1d0258ca1e4d15a345f7679fd4443ec0",
+    "head_tree": "58a3fd8e1c224e237d338f1680883fc0231c271b",
+    "status": "",
+    "source_delta_head": "",
+    "files": {
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml": {
+        "sha256": "807fcc8d0348a1867ecd21851169113bd33f4f3971307cd4da2e06e0fae5e1d7",
+        "bytes": 1667
+      },
+      "policy-engine/src/polisyos/ddm/README.md": {
+        "sha256": "dcc60dbd5a8d631619e8e326f8b9d24d5edef56a1c4f1a0f7a41424333bf5760",
+        "bytes": 2646
+      },
+      "policy-engine/src/polisyos/ddm/integration/model_registry.py": {
+        "sha256": "a735a52e743f835f5ff6251d82a8f55fb23affed19ae1b8d0ec5ebc2a5d66f10",
+        "bytes": 31931
+      },
+      "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md": {
+        "sha256": "8365b630a97557f3483e7265145ac4b8b2306b6b438cf4257b3e7b72d9f79939",
+        "bytes": 7873
+      },
+      "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json": {
+        "sha256": "f67350d1606ccc754a446790db635a812f78bba3d492f7ffc123063a666b3c84",
+        "bytes": 4485
+      },
+      "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json": {
+        "sha256": "92a594ac542a59e1d4dab4d867b11d9430ecd6f56ee2e6f3fea7c9b0b51089a7",
+        "bytes": 4074
+      },
+      "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py": {
+        "sha256": "33ad1986cac616c0bf4fc4b5c67954310717ec6c5048c8002464fe4e21dc1504",
+        "bytes": 8495
+      }
+    }
+  }
+}

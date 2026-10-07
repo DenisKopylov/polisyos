@@ -1,0 +1,93 @@
+{
+  "schema": "policyos.e02.independent_oracle.v1",
+  "source_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "source_tree": "cee54ddfec357aedc96a8495b4a9fff5b5cec167",
+  "source_bindings": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "bytes": 103077
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715
+    },
+    {
+      "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+      "git_blob": "4ba9adfe8327ee020efd91ad1621d447ef271a95",
+      "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7",
+      "bytes": 947189
+    }
+  ],
+  "actual_runtime_path": [
+    "guardrails.collect_deep_import_edges",
+    "guardrails._check_deep_import_creep"
+  ],
+  "property": "cross-root deep imports require an existing supported entrypoint or existing exact baseline edge",
+  "predicate_basis": "recomputed",
+  "proxy_divergence": "facade comment and PublicArtifacts alias remain present while actual AST import targets a private deep module",
+  "fixture_scope": {
+    "path_count": 1,
+    "file_type": "Python",
+    "full_repo_scan": false
+  },
+  "limitations": [
+    "This independently exercises the existing AST boundary mechanism, not full architecture workflow or runtime availability of exported CAS. Full changed-source consumer tests remain separate."
+  ],
+  "controls": [
+    {
+      "case": "healthy_canonical_root",
+      "outcome": "PASS",
+      "expected_rejection": false,
+      "actual_violation_count": 0,
+      "source_sha256": "54b66a5d5a58ab6e3896255cb32186f670b33be1fa88170ac94f8c095a56a91b",
+      "complete_edges": [],
+      "complete_violations": []
+    },
+    {
+      "case": "present_but_fake_facade",
+      "outcome": "PASS",
+      "expected_rejection": true,
+      "actual_violation_count": 1,
+      "source_sha256": "a0548bbab44d39e0c52fa07886e716ac816b43e14ca50931a4c821a23724561b",
+      "complete_edges": [
+        {
+          "source_module": "polisyos.scientist.methods.doe.oracle_import_probe",
+          "source_root": "scientist",
+          "source_file": "src/polisyos/scientist/methods/doe/oracle_import_probe.py",
+          "target_module": "polisyos.core.artifacts.cas",
+          "target_root": "core"
+        }
+      ],
+      "complete_violations": [
+        {
+          "check": "deep_import",
+          "subject": "polisyos.scientist.methods.doe.oracle_import_probe",
+          "message": "New deep-import creep detected: polisyos.scientist.methods.doe.oracle_import_probe -> polisyos.core.artifacts.cas (src/polisyos/scientist/methods/doe/oracle_import_probe.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+          "detail": "polisyos.core.artifacts.cas",
+          "source_module": "polisyos.scientist.methods.doe.oracle_import_probe",
+          "target_module": "polisyos.core.artifacts.cas"
+        }
+      ]
+    }
+  ],
+  "removal_control": {
+    "case": "remove_AST_edge_admission_keep_markers",
+    "outcome": "PASS",
+    "negative_gate_outcome": "FAIL",
+    "actual_edges": 0,
+    "actual_violations": 0,
+    "assertion": "actual import boundary checker missed the forbidden deep import"
+  },
+  "baseline_unchanged": true,
+  "contract_unchanged": true
+}

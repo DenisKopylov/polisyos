@@ -1,0 +1,935 @@
+"""Read-only independent receipt recomputation; never executes wave/test commands."""
+
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+import hashlib
+import json
+import os
+import re
+import signal
+from pathlib import Path
+import subprocess
+import threading
+import xml.etree.ElementTree as ET
+
+PLAN_PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/"
+FAMILIES = {
+    "CAL": "cal-and-welfare-consumer",
+    "DDM": "ddm-runtime-and-facade",
+    "DOE": "doe-salib-and-consumer-factory",
+    "PCL": "pcl-continuous-persistence",
+    "BKT": "bkt-frc-s10-and-adjacent-report-consumers",
+    "FRC": "bkt-frc-s10-and-adjacent-report-consumers",
+    "UQP": "mc-joint-law-support-and-scientist-consumer",
+    "UQS": "mc-joint-law-support-and-scientist-consumer",
+}
+
+
+def git(repo: Path, *argv: str) -> bytes:
+    return subprocess.check_output(["git", "-C", str(repo), *argv])
+
+
+def identity(path: Path) -> dict:
+    stat = path.stat()
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    after = path.stat()
+    if (stat.st_size, stat.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
+        raise ValueError(f"File changed during independent read: {path}")
+    return {"path": str(path), "bytes": stat.st_size, "sha256": digest.hexdigest()}
+
+
+def read(path: Path) -> dict:
+    return json.loads(path.read_text())
+
+
+def junit(path: Path, job: str) -> dict:
+    data = path.read_bytes()
+    if b"<!DOCTYPE" in data.upper() or b"<!ENTITY" in data.upper():
+        raise ValueError(f"External/entity XML is not admitted: {path}")
+    root = ET.fromstring(data)
+    counts = {"cases": 0, "passed": 0, "failed": 0, "errors": 0, "skipped": 0}
+    cases = []
+    ids = Counter()
+    issues = []
+    status_keys = {
+        "PASS": "passed",
+        "FAIL": "failed",
+        "ERROR": "errors",
+        "SKIP": "skipped",
+    }
+    for ordinal, case in enumerate(root.iter("testcase")):
+        children = [
+            child for child in case if child.tag in {"error", "failure", "skipped"}
+        ]
+        if len(children) > 1:
+            issues.append(
+                {
+                    "case": case.attrib,
+                    "multiple_status_children": [c.tag for c in children],
+                }
+            )
+        status = (
+            "ERROR"
+            if case.find("error") is not None
+            else "FAIL"
+            if case.find("failure") is not None
+            else "SKIP"
+            if case.find("skipped") is not None
+            else "PASS"
+        )
+        counts["cases"] += 1
+        counts[status_keys[status]] += 1
+        pair = (case.get("classname", ""), case.get("name", ""))
+        ids[pair] += 1
+        cases.append(
+            {
+                "job": job,
+                "ordinal": ordinal,
+                "classname": pair[0],
+                "name": pair[1],
+                "file": case.get("file"),
+                "line": case.get("line"),
+                "outcome": status,
+                "seconds": case.get("time"),
+                "status_details": [
+                    {
+                        "kind": c.tag,
+                        "message": c.get("message"),
+                        "type": c.get("type"),
+                        "text": c.text or "",
+                    }
+                    for c in children
+                ],
+            }
+        )
+    suite_checks = []
+    for suite in root.iter("testsuite"):
+        direct_cases = list(suite.findall("testcase"))
+        if not direct_cases:
+            continue
+        actual = Counter(
+            "errors"
+            if c.find("error") is not None
+            else "failures"
+            if c.find("failure") is not None
+            else "skipped"
+            if c.find("skipped") is not None
+            else "passed"
+            for c in direct_cases
+        )
+        suite_count = {
+            "tests": len(direct_cases),
+            "failures": actual["failures"],
+            "errors": actual["errors"],
+            "skipped": actual["skipped"],
+        }
+        for key, value in suite_count.items():
+            if key in suite.attrib and int(suite.get(key)) != value:
+                issues.append(
+                    {
+                        "suite": suite.get("name"),
+                        "attribute": key,
+                        "declared": suite.get(key),
+                        "actual": value,
+                    }
+                )
+        suite_checks.append(
+            {
+                "name": suite.get("name"),
+                "recomputed": suite_count,
+                "declared": dict(suite.attrib),
+            }
+        )
+    duplicates = [
+        {"classname": c, "name": n, "occurrences": amount}
+        for (c, n), amount in ids.items()
+        if amount > 1
+    ]
+    return {
+        "identity": identity(path),
+        "counts": counts,
+        "cases": cases,
+        "suite_checks": suite_checks,
+        "duplicate_case_identity": duplicates,
+        "issues": issues,
+    }
+
+
+def source_snapshot(repo: Path, sha: str) -> tuple[dict, dict]:
+    """Independent immutable-Git framed source hash, no author helper imports."""
+    entries = []
+    for raw in git(repo, "ls-tree", "-rz", sha).split(b"\0"):
+        if not raw:
+            continue
+        header, path = raw.split(b"\t", 1)
+        mode, kind, oid = header.split()
+        if kind != b"blob" or mode not in {b"100644", b"100755"}:
+            raise ValueError(f"Unsupported source-frame file mode: {raw!r}")
+        entries.append((path, oid))
+    entries.sort()
+    proc = subprocess.Popen(
+        ["git", "-C", str(repo), "cat-file", "--batch"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+    )
+
+    def feed() -> None:
+        for _, oid in entries:
+            proc.stdin.write(oid + b"\n")
+        proc.stdin.close()
+
+    sender = threading.Thread(target=feed)
+    sender.start()
+    digest = hashlib.sha256()
+    file_ids = {}
+    bytes_count = 0
+    for path, oid in entries:
+        header = proc.stdout.readline().split()
+        if len(header) != 3 or header[0] != oid or header[1] != b"blob":
+            raise ValueError(f"Unexpected immutable source object: {header}")
+        amount = int(header[2])
+        data = proc.stdout.read(amount)
+        if len(data) != amount or proc.stdout.read(1) != b"\n":
+            raise ValueError("Incomplete immutable Git object stream")
+        digest.update(path + b"\0" + data + b"\0")
+        bytes_count += amount
+        file_ids[os.fsdecode(path)] = {
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "bytes": amount,
+            "git_blob": oid.decode(),
+        }
+    sender.join()
+    if proc.wait() != 0:
+        raise ValueError("Immutable Git batch stream failed")
+    return {
+        "tracked_paths": len(entries),
+        "bytes": bytes_count,
+        "framed_sha256": digest.hexdigest(),
+    }, file_ids
+
+
+def known_A_boundary(repo: Path, sha: str) -> dict:
+    prefix = (
+        PLAN_PREFIX + "implementation-handoffs/E/continuation-20261007/frc-native-cas/"
+    )
+    case_rows = []
+    xml_refs = []
+    for name in ["native-core-route-final", "a-core-route-unpatched"]:
+        path = repo / prefix / "checks" / (name + ".xml")
+        parsed = junit(path, name)
+        raw = git(repo, "show", f"{sha}:{path.relative_to(repo)}")
+        if parsed["identity"]["sha256"] != hashlib.sha256(raw).hexdigest():
+            raise ValueError(f"Historical A XML differs from immutable source: {path}")
+        for case in parsed["cases"]:
+            if case["outcome"] != "PASS":
+                case_rows.append(case)
+        xml_refs.append(parsed["identity"])
+    if len(case_rows) != 8 or any(c["outcome"] != "FAIL" for c in case_rows):
+        raise ValueError(
+            "Known historical A boundary denominator is not eight failures"
+        )
+    source_paths = [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "policy-engine/tests/_helpers/forecast.py",
+        prefix + "a-status-reason-tests.py.txt",
+        prefix + "a-status-reason.patch.txt",
+    ]
+    source_rows = []
+    for path in source_paths:
+        data = git(repo, "show", f"{sha}:{path}")
+        source_rows.append(
+            {
+                "repository_path": path,
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "bytes": len(data),
+            }
+        )
+    return {
+        "source": sha,
+        "case_denominator": 8,
+        "cases": case_rows,
+        "historical_xml": xml_refs,
+        "current_source_binding": source_rows,
+        "meaning": "Exact historical status/reason assertions; current wave must replay exact case identities and classify its own outcomes. Canonical A writer owns generation_cycle/defaultHTTP consumer. Synthetic native fixture is admissible; unresolved/malformed CAS remains rejection control.",
+        "P41": "not_established absent the exact required slice-base command/full input replay; file ownership alone does not assign cause of a current red.",
+    }
+
+
+def inventory(repo: Path, sha: str) -> dict:
+    path = PLAN_PREFIX + "closure-decisions/coverage.json"
+    raw = git(repo, "show", f"{sha}:{path}")
+    coverage = json.loads(raw)
+    bundles = [b for b in coverage["bundles"] if b["unit"] == "E"]
+    findings = [f for f in coverage["findings"] if f["unit"] == "E"]
+    denominator = (
+        len(bundles),
+        len(findings),
+        sum(len(b["finding_ids"]) for b in bundles),
+    )
+    if denominator != (22, 54, 55):
+        raise ValueError(f"Complete E inventory differs: {denominator}")
+    return {
+        "source": sha,
+        "coverage_path": path,
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "bundles": bundles,
+        "findings": findings,
+    }
+
+
+def normalized_pytest_command(command: list[str]) -> list[str]:
+    # Output custody roots differ across attempts; execution selectors do not.
+    result = []
+    index = 0
+    while index < len(command):
+        if command[index] in {"--basetemp", "--junitxml"}:
+            index += 2
+            continue
+        result.append(command[index])
+        index += 1
+    return result
+
+
+def reconcile_retry(
+    repo: Path,
+    sha: str,
+    tree: str,
+    snapshot: dict,
+    source_files: dict,
+    job: dict,
+    path: Path,
+) -> dict:
+    receipt = read(path)
+    errors = []
+    for key, expected in [
+        ("candidate_sha", sha),
+        ("candidate_tree_sha", tree),
+        ("head_at_end", sha),
+        ("cwd", job["cwd"]),
+    ]:
+        if receipt.get(key) != expected:
+            errors.append(
+                {"field": key, "expected": expected, "actual": receipt.get(key)}
+            )
+    if normalized_pytest_command(receipt["command"]) != normalized_pytest_command(
+        job["argv"]
+    ):
+        errors.append("Retry selectors/interpreter differ from original admitted group")
+    if (
+        receipt.get("source_identity_before") != snapshot
+        or receipt.get("source_identity_after") != snapshot
+        or receipt.get("source_immutable") is not True
+    ):
+        errors.append(
+            "Retry complete source guard differs from independently reconstructed immutable Git frame"
+        )
+    for name, claimed in receipt.get("input_files", {}).items():
+        expected = source_files.get(name)
+        if expected is None or any(
+            claimed.get(k) != expected[k] for k in ["sha256", "bytes", "git_blob"]
+        ):
+            errors.append({"retry_input_diff": name})
+    original_receipt_path = Path(job["output"]) / (job["name"] + ".json")
+    original_environment = read(original_receipt_path).get("environment", {})
+    observed_environment = receipt.get("environment", {})
+    for key in ["python", "executable", "platform", "cpu_count", "packages"]:
+        if observed_environment.get(key) != original_environment.get(key):
+            errors.append(
+                {
+                    "retry_environment_field": key,
+                    "original": original_environment.get(key),
+                    "retry": observed_environment.get(key),
+                }
+            )
+    original_variables = dict(original_environment.get("selected_variables", {}))
+    retry_variables = dict(observed_environment.get("selected_variables", {}))
+    original_variables.pop("TMPDIR", None)
+    retry_variables.pop("TMPDIR", None)
+    if original_variables != retry_variables:
+        errors.append(
+            {
+                "retry_selected_environment_mismatch": {
+                    "original": original_variables,
+                    "retry": retry_variables,
+                }
+            }
+        )
+    stdout = identity(Path(receipt["stdout_path"]))
+    if (
+        stdout["bytes"] != receipt["stdout_bytes"]
+        or stdout["sha256"] != receipt["stdout_sha256"]
+    ):
+        errors.append("Retry stdout custody mismatch")
+    parsed = None
+    xmlpath = Path(receipt["junit"]) if receipt.get("junit") else None
+    if xmlpath and xmlpath.exists():
+        parsed = junit(xmlpath, job["name"])
+        if parsed["counts"] != receipt["counts"]:
+            errors.append("Retry JUnit counts/state mismatch")
+        if parsed["counts"]["cases"] == 0:
+            errors.append("Admitted retry selector produced zero actual JUnit cases")
+        errors.extend(parsed["issues"])
+    elif receipt.get("exit_code") == 0:
+        errors.append("Zero-exit retry lacks required JUnit")
+    code = receipt.get("exit_code")
+    counts = parsed["counts"] if parsed else None
+    outcome = (
+        "UNRUN"
+        if receipt.get("backend_error")
+        else "FAIL"
+        if code != 0 or errors or (counts and (counts["failed"] or counts["errors"]))
+        else "SKIP"
+        if counts and counts["cases"] > 0 and counts["cases"] == counts["skipped"]
+        else "PASS"
+    )
+    if receipt.get("outcome") != outcome:
+        errors.append(
+            {"declared_retry_outcome": receipt.get("outcome"), "actual": outcome}
+        )
+    cases = parsed["cases"] if parsed else []
+    for case in cases:
+        case["attempt"] = "bounded_retry"
+        case["retry_receipt"] = identity(path)
+    return {
+        "job": job["name"],
+        "attempt": "bounded_retry",
+        "source": sha,
+        "tree": tree,
+        "command": receipt["command"],
+        "cwd": receipt["cwd"],
+        "environment": receipt.get("environment"),
+        "actual_backend_observer": receipt.get("actual_numeric_backend"),
+        "exit_code": code,
+        "outcome": outcome,
+        "counts": counts,
+        "receipt": identity(path),
+        "stdout": stdout,
+        "junit": parsed["identity"] if parsed else None,
+        "cases": cases,
+        "issues": errors,
+        "scope": "Distinct retry observation only. Original interrupted FAIL/signal and unknown original JUnit denominator retained; no whole-wave repeat or retroactive PASS rewriting.",
+    }
+
+
+def recompute(
+    repo: Path,
+    sha: str,
+    wave: Path,
+    out: Path,
+    closeout: Path | None,
+    retry_receipts: list[Path] | None = None,
+) -> dict:
+    plan = read(wave / "plan.json")
+    started = read(wave / "wave-started.json")
+    complete = read(wave / "execution-complete.json")
+    tree = git(repo, "rev-parse", sha + "^{tree}").decode().strip()
+    issues = []
+    if (
+        plan.get("candidate_sha") != sha
+        or plan.get("candidate_tree_sha") != tree
+        or started.get("candidate_sha") != sha
+        or complete.get("candidate_sha") != sha
+    ):
+        issues.append("Plan/start/complete immutable source mismatch")
+    snapshot, files = source_snapshot(repo, sha)
+    all_cases, jobs, evidence = [], [], []
+    source_test_assets = plan.get("source_test_assets", {})
+    for path, claimed in source_test_assets.items():
+        actual = files.get(path)
+        if actual is None or any(
+            claimed.get(k) != actual[k] for k in ["sha256", "bytes"]
+        ):
+            issues.append(
+                {"source_test_asset": path, "claimed": claimed, "immutable": actual}
+            )
+    native_paths = {path for paths in plan.get("groups", {}).values() for path in paths}
+    if native_paths != set(source_test_assets):
+        issues.append(
+            {
+                "native_asset_set_mismatch": sorted(
+                    native_paths ^ set(source_test_assets)
+                )
+            }
+        )
+    if len(native_paths) != plan.get("native_test_path_count"):
+        issues.append(
+            {
+                "native_path_denominator": len(native_paths),
+                "declared": plan.get("native_test_path_count"),
+            }
+        )
+    owner_binding = plan.get("current_A_owner_packet_binding", {})
+    owner_source = files.get(owner_binding.get("source"))
+    if owner_source is None or any(
+        owner_binding.get(k) != owner_source[k] for k in ["sha256", "bytes"]
+    ):
+        issues.append(
+            {"owner_packet_source_binding": owner_binding, "immutable": owner_source}
+        )
+    owner_destinations = [
+        Path(arg)
+        for job in plan["jobs"]
+        for arg in job["argv"]
+        if arg.endswith("test_a_frc_native_cas_status_reason.py")
+    ]
+    if len(owner_destinations) != 1:
+        issues.append({"owner_packet_destination_denominator": len(owner_destinations)})
+    else:
+        destination = identity(owner_destinations[0])
+        evidence.append(destination)
+        if owner_source is not None and any(
+            destination[k] != owner_source[k] for k in ["sha256", "bytes"]
+        ):
+            issues.append(
+                {
+                    "restored_owner_packet_binding": destination,
+                    "immutable": owner_source,
+                }
+            )
+    for job in plan["jobs"]:
+        name = job["name"]
+        directory = Path(job["output"])
+        try:
+            directory.resolve().relative_to(wave.resolve())
+        except ValueError:
+            issues.append({"job": name, "output_path_escape": str(directory)})
+            continue
+        receipt_path = directory / (name + ".json")
+        if not receipt_path.exists():
+            jobs.append(
+                {
+                    "name": name,
+                    "kind": job["kind"],
+                    "recomputed_outcome": "UNRUN",
+                    "reason": "No actual check receipt",
+                }
+            )
+            issues.append({"job": name, "missing_receipt": str(receipt_path)})
+            continue
+        receipt = read(receipt_path)
+        evidence.append(identity(receipt_path))
+        errors = []
+        for key, expected in [
+            ("candidate_sha", sha),
+            ("candidate_tree_sha", tree),
+            ("head_at_end", sha),
+            ("command", job["argv"]),
+            ("cwd", job["cwd"]),
+        ]:
+            if receipt.get(key) != expected:
+                errors.append(
+                    {"field": key, "expected": expected, "actual": receipt.get(key)}
+                )
+        if (
+            receipt.get("source_identity_before") != snapshot
+            or receipt.get("source_identity_after") != snapshot
+            or receipt.get("source_immutable") is not True
+        ):
+            errors.append(
+                {
+                    "source_frame": {
+                        "expected": snapshot,
+                        "before": receipt.get("source_identity_before"),
+                        "after": receipt.get("source_identity_after"),
+                        "immutable": receipt.get("source_immutable"),
+                    }
+                }
+            )
+        environment = receipt.get("environment", {})
+        selected_variables = environment.get("selected_variables", {})
+        if environment.get("executable") != plan.get("interpreter"):
+            errors.append(
+                {
+                    "observed_interpreter_mismatch": environment.get("executable"),
+                    "planned": plan.get("interpreter"),
+                }
+            )
+        for key, expected in job.get("environment", {}).items():
+            if key in selected_variables and selected_variables[key] != expected:
+                errors.append(
+                    {
+                        "observed_selected_variable": key,
+                        "expected": expected,
+                        "actual": selected_variables[key],
+                    }
+                )
+        input_errors = []
+        for path, claimed in receipt.get("input_files", {}).items():
+            expected = files.get(path)
+            if expected is None:
+                input_errors.append(
+                    {
+                        "path": path,
+                        "reason": "Absent from immutable tracked input denominator",
+                    }
+                )
+            elif any(
+                claimed.get(k) != expected[k] for k in ["sha256", "bytes", "git_blob"]
+            ):
+                input_errors.append(
+                    {"path": path, "claimed": claimed, "immutable": expected}
+                )
+        if input_errors:
+            errors.append({"input_files": input_errors})
+        stdout = Path(receipt["stdout_path"])
+        actual_stdout = identity(stdout)
+        evidence.append(actual_stdout)
+        if (actual_stdout["bytes"], actual_stdout["sha256"]) != (
+            receipt.get("stdout_bytes"),
+            receipt.get("stdout_sha256"),
+        ):
+            errors.append({"stdout_custody": actual_stdout})
+        parsed = None
+        counts = None
+        code = receipt.get("exit_code")
+        interrupted_without_junit = False
+        if job.get("junit"):
+            junit_path = Path(job["junit"])
+            if junit_path.exists():
+                parsed = junit(junit_path, name)
+                counts = parsed["counts"]
+                all_cases.extend(parsed["cases"])
+                evidence.append(parsed["identity"])
+                errors.extend(parsed["issues"])
+                if counts["cases"] == 0:
+                    errors.append(
+                        "Admitted numerical selector produced zero actual JUnit cases"
+                    )
+                if receipt.get("counts") != counts or receipt.get("junit") != str(
+                    junit_path
+                ):
+                    errors.append(
+                        {"JUnit_claims": receipt.get("counts"), "recomputed": counts}
+                    )
+            else:
+                # Interrupted nonzero execution is a valid FAIL observation,
+                # not an XML integrity failure and never a case-level PASS.
+                interrupted_without_junit = (
+                    code is not None and code != 0 and receipt.get("counts") is None
+                )
+                if not interrupted_without_junit:
+                    errors.append({"missing_JUnit": str(junit_path)})
+        code = receipt.get("exit_code")
+        if receipt.get("backend_error"):
+            outcome = "UNRUN"
+        elif code != 0 or errors:
+            outcome = "FAIL"
+        elif counts and (counts["failed"] or counts["errors"]):
+            outcome = "FAIL"
+        elif counts and counts["cases"] > 0 and counts["skipped"] == counts["cases"]:
+            outcome = "SKIP"
+        else:
+            outcome = "PASS"
+        if receipt.get("outcome") != outcome:
+            errors.append(
+                {
+                    "declared_outcome": receipt.get("outcome"),
+                    "recomputed_outcome": outcome,
+                }
+            )
+        if errors:
+            issues.append({"job": name, "issues": errors})
+        jobs.append(
+            {
+                "name": name,
+                "kind": job["kind"],
+                "exit_code": code,
+                "signal": signal.Signals(-code).name
+                if isinstance(code, int) and code < 0
+                else None,
+                "interrupted_without_JUnit": interrupted_without_junit,
+                "interruption_cause": "not_established"
+                if interrupted_without_junit
+                else None,
+                "recomputed_outcome": outcome,
+                "declared_outcome": receipt.get("outcome"),
+                "counts": counts,
+                "environment": receipt.get("environment"),
+                "planned_environment_keys_not_in_observer": sorted(
+                    set(job.get("environment", {})) - set(selected_variables)
+                ),
+                "actual_backend_observer": receipt.get("actual_numeric_backend"),
+                "backend_error": receipt.get("backend_error"),
+                "source_frame_equal": receipt.get("source_identity_before")
+                == receipt.get("source_identity_after")
+                == snapshot,
+                "input_denominator": len(receipt.get("input_files", {})),
+                "duplicate_case_identity": parsed["duplicate_case_identity"]
+                if parsed
+                else [],
+                "suite_checks": parsed["suite_checks"] if parsed else [],
+                "receipt": identity(receipt_path),
+            }
+        )
+    retries = []
+    for retry_path in retry_receipts or []:
+        retry_data = read(retry_path)
+        original_job = next(
+            (
+                job
+                for job in plan["jobs"]
+                if normalized_pytest_command(job["argv"])
+                == normalized_pytest_command(retry_data["command"])
+                and job["kind"] == "numerical"
+            ),
+            None,
+        )
+        if original_job is None:
+            issues.append(
+                {
+                    "retry": str(retry_path),
+                    "issue": "No exact original numerical group selector match",
+                }
+            )
+            continue
+        retry = reconcile_retry(
+            repo, sha, tree, snapshot, files, original_job, retry_path
+        )
+        retries.append(retry)
+        all_cases.extend(retry["cases"])
+        evidence.extend([retry["receipt"], retry["stdout"]])
+        if retry["junit"]:
+            evidence.append(retry["junit"])
+        if retry["issues"]:
+            issues.append({"retry": str(retry_path), "issues": retry["issues"]})
+    known = known_A_boundary(repo, sha)
+    current_A = []
+    for case in known["cases"]:
+        hits = [
+            c
+            for c in all_cases
+            if c["name"] == case["name"]
+            and (
+                c["classname"] == case["classname"]
+                or "test_a_frc_native_cas_status_reason" in c["classname"]
+                or "test_a_status_reason" in c["classname"]
+            )
+        ]
+        current_A.append(
+            {
+                "historical_case": {
+                    "classname": case["classname"],
+                    "name": case["name"],
+                },
+                "current_matches": hits,
+                "measured": bool(hits),
+            }
+        )
+    inv = inventory(repo, sha)
+    closeout_rows = {}
+    if closeout:
+        d = read(closeout)
+        closeout_rows = {r["id"]: r for r in d.get("rows", d.get("findings", []))}
+        if set(closeout_rows) != {r["id"] for r in inv["findings"]}:
+            issues.append(
+                "Current closeout IDs do not match complete54finding inventory"
+            )
+        evidence.append(identity(closeout))
+    links = []
+    for finding in inv["findings"]:
+        bundle_ids = [
+            b["id"] for b in inv["bundles"] if finding["id"] in b["finding_ids"]
+        ]
+        group_names = sorted({FAMILIES[b.split("-")[0]] for b in bundle_ids})
+        row = closeout_rows.get(finding["id"])
+        selector_rule = (
+            row.get("criterion_evidence", {}).get("historical_selector_rule")
+            if row
+            else None
+        )
+        selector_cases = []
+        if selector_rule:
+            selector = re.compile(selector_rule)
+            selector_cases = [
+                {
+                    k: case[k]
+                    for k in [
+                        "job",
+                        "ordinal",
+                        "classname",
+                        "name",
+                        "outcome",
+                        "attempt",
+                        "retry_receipt",
+                    ]
+                    if k in case
+                }
+                for case in all_cases
+                if selector.search(case["classname"] + "::" + case["name"])
+            ]
+        links.append(
+            {
+                "finding_id": finding["id"],
+                "bundle_ids": bundle_ids,
+                "ledger_status_historical": finding["ledger_status_historical"],
+                "suite_context_jobs": group_names,
+                "suite_context_observations": [
+                    {
+                        k: j[k]
+                        for k in [
+                            "name",
+                            "kind",
+                            "exit_code",
+                            "recomputed_outcome",
+                            "counts",
+                        ]
+                        if k in j
+                    }
+                    for j in jobs
+                    if j["name"] in group_names
+                ],
+                "criterion_evidence_source": row.get("criterion_evidence")
+                if row
+                else None,
+                "owner_recorded_verdict": (
+                    row.get("proposed_finding_outcome")
+                    or row.get("proposed_verdict")
+                    or row.get("verdict")
+                )
+                if row
+                else None,
+                "owner_acceptance": (
+                    row.get("owner_decision") or row.get("finding_owner_acceptance")
+                )
+                if row
+                else None,
+                "current_selector_navigation": {
+                    "rule": selector_rule,
+                    "exact_case_bindings": selector_cases,
+                    "matched_case_count": len(selector_cases),
+                    "outcome_counts": dict(
+                        Counter(c["outcome"] for c in selector_cases)
+                    ),
+                    "basis": "Same original-row selector applied to independently parsed current JUnit identities; supplemental changed-property witness references retained separately. This is execution navigation, not criterion acceptance.",
+                },
+                "supplemental_deciding_checks": row.get("current_check_links", {}).get(
+                    "affected_supplemental_checks", []
+                )
+                if row
+                else [],
+                "meaning": "Suite context is a bounded execution association, not defining-property acceptance or finding closure. Exact criterion/oracle/negative evidence comes from the accountable original-row disposition.",
+            }
+        )
+    result = {
+        "schema": "policyos.e02.independent_final_numeric_recomputation.v1",
+        "source": sha,
+        "tree": tree,
+        "disposition": "GO for receipt integrity and recomputed observations"
+        if not issues
+        else "NO-GO receipt integrity/denominator discrepancies",
+        "check_findings_separate": True,
+        "independent_source_frame": snapshot,
+        "job_denominator": len(plan["jobs"]),
+        "native_test_path_denominator": len(native_paths),
+        "source_test_asset_denominator": len(source_test_assets),
+        "owner_packet_path_denominator": len(owner_destinations),
+        "jobs": jobs,
+        "bounded_retry_attempts": retries,
+        "case_denominator": len(all_cases),
+        "case_outcome_counts": dict(Counter(c["outcome"] for c in all_cases)),
+        "known_A_failure_boundary": known,
+        "current_A_boundary_cases": current_A,
+        "finding_denominator": 54,
+        "bundle_denominator": 22,
+        "id_to_bundle_links": 55,
+        "finding_links": links,
+        "inventory": {
+            "source": sha,
+            "coverage_path": inv["coverage_path"],
+            "sha256": inv["sha256"],
+        },
+        "issues": issues,
+        "evidence": evidence,
+        "limits": [
+            "No numerical tests, broad wave, source mutations, or gate commands executed by this collector.",
+            "Actual check errors/skips/unrun remain separate from original-row owner verdict.",
+            "Defining negative/oracle interpretation still requires exact original criterion and property review; counts/field presence do not suffice.",
+            "Post-command numeric backend observer is not proof of unmeasured pytest child JAX state.",
+            "Known A red taxonomy does not establish P41 inherited cause without exact base/input replay.",
+        ],
+    }
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "case-index.json").write_text(
+        json.dumps({"source": sha, "tree": tree, "cases": all_cases}, indent=2) + "\n"
+    )
+    result["evidence"].append(identity(out / "case-index.json"))
+    (out / "recomputed-wave.json").write_text(json.dumps(result, indent=2) + "\n")
+    return result
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--source", required=True)
+    parser.add_argument("--wave", type=Path)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--closeout", type=Path)
+    parser.add_argument("--prepare", action="store_true")
+    parser.add_argument("--retry-receipt", type=Path, action="append", default=[])
+    args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=True)
+    if args.prepare:
+        data = {
+            "schema": "policyos.e02.independent_numeric_preparation.v1",
+            "source": args.source,
+            "tree": git(args.repo, "rev-parse", args.source + "^{tree}")
+            .decode()
+            .strip(),
+            "inventory": inventory(args.repo, args.source),
+            "known_A_boundary": known_A_boundary(args.repo, args.source),
+            "collector_source": identity(Path(__file__)),
+            "execute_tests": False,
+            "actual_wave_recomputed": False,
+        }
+        (args.output / "preparation.json").write_text(json.dumps(data, indent=2) + "\n")
+        print(
+            json.dumps(
+                {
+                    "source": args.source,
+                    "bundles": 22,
+                    "findings": 54,
+                    "links": 55,
+                    "known_A_failures": 8,
+                    "actual_wave_recomputed": False,
+                }
+            )
+        )
+        return 0
+    if not args.wave:
+        parser.error("--wave required for actual receipt recomputation")
+    data = recompute(
+        args.repo,
+        args.source,
+        args.wave,
+        args.output,
+        args.closeout,
+        args.retry_receipt,
+    )
+    print(
+        json.dumps(
+            {
+                k: data[k]
+                for k in [
+                    "source",
+                    "tree",
+                    "disposition",
+                    "job_denominator",
+                    "case_denominator",
+                    "case_outcome_counts",
+                    "finding_denominator",
+                    "issues",
+                ]
+            }
+        )
+    )
+    return 0 if not data["issues"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

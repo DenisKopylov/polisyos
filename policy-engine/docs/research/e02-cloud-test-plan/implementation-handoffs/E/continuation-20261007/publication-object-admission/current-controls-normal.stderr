@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current_controls.py", line 28, in <module>
+    case('core_historical_revision_'+repr(value),lambda value=value:core.validate(REPO,receipt,value))
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current_controls.py", line 21, in case
+    if not row['passed']:raise AssertionError(row)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'name': 'core_historical_revision_None', 'callback_count': 1, 'error': 'RuntimeError', 'reason': 'Git callback reached', 'passed': False}

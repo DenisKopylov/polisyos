@@ -1,0 +1,13 @@
+import json,hashlib
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage');L=Path('/workspace/e02-E-frc-20261006');P=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan')
+p=S/'copy-cleanup-description-plan.py.txt';s=p.read_text();(S/'historical-343-copy-cleanup-description-plan.py.txt').write_text(s)
+for n in ('author-custody-controls.json','metadata-admission-controls.json'):(S/('historical-343-'+n)).write_bytes((S/n).read_bytes())
+needle='from pathlib import Path\n'
+if s.count(needle)!=1:raise ValueError('one canonical programmodule import')
+s=s.replace(needle,needle+'TRUSTED_COPIER_BYTES=Path(__file__).read_bytes()\n',1)
+needle=" if metadata_bytes['manifest.json']!=raw_manifest:raise ValueError('manifest changed during custody observation')"
+if s.count(needle)!=1:raise ValueError('one cached selfcompanion admission inlet')
+s=s.replace(needle,needle+"\n if metadata_bytes['copy-cleanup-description-plan.py.txt']!=TRUSTED_COPIER_BYTES:raise ValueError('trusted executing copier companion identity before write')")
+p.write_text(s);(L/P/p.name).write_bytes(p.read_bytes())
+x={'historical_candidate':'343f6d1f74aab12d1fd592dec36ace932ac2ba11','class':'presentfake cachedcopier metadata accepted by distinct actualexecuting trustedprogram','correction':'capture actualtrusted executed __file__ programbytes atmodule load; comparecached copiedprogram beforewrites','new_copier_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'source_native_numeric_execution':False};(S/'self-companion-correction.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps(x,indent=2))

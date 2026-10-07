@@ -1,0 +1,81 @@
+{
+  "candidate_sha": "1186ce5bf60f11ceaafe395f626cee1096d0b878",
+  "reviewer": "/root/lint_r4",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "optimize": 1,
+    "cwd": "/workspace/e02-E-doe-20261006/policy-engine"
+  },
+  "input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py",
+    "bytes": 5518,
+    "sha256": "23a36b48fa09682c8ce82fe2ed6ed434c997f35fc47ce022930fc5dda5a9edde"
+  },
+  "checks": [
+    {
+      "name": "actual_native_validator_exact_immutable",
+      "passed": true
+    },
+    {
+      "name": "real_current_complete_native_49",
+      "passed": true,
+      "count": 49
+    },
+    {
+      "name": "real_current_complete_native_51",
+      "passed": true,
+      "count": 51
+    },
+    {
+      "name": "late_record_preflight_bytes_True",
+      "passed": true,
+      "callback_count": 0
+    },
+    {
+      "name": "late_record_preflight_sha256_0",
+      "passed": true,
+      "callback_count": 0
+    },
+    {
+      "name": "late_record_preflight_copied_path_.",
+      "passed": true,
+      "callback_count": 0
+    },
+    {
+      "name": "late_record_preflight_copied_path_--output=fixture",
+      "passed": true,
+      "callback_count": 0
+    },
+    {
+      "name": "late_record_preflight_copied_path_None",
+      "passed": true,
+      "callback_count": 0
+    },
+    {
+      "name": "exact_one_native_physical_guard_removed",
+      "passed": true
+    },
+    {
+      "name": "actual_removal_diverges_from_current_byte_property",
+      "passed": true,
+      "healthy_refused": true,
+      "mutant_accepted": true,
+      "retained_fields": [
+        "copied_path",
+        "bytes",
+        "sha256",
+        "revision",
+        "immutable_Git_reads"
+      ]
+    },
+    {
+      "name": "actual_missing_current_archive_refused",
+      "passed": true
+    }
+  ],
+  "check_count": 11,
+  "all_controls_passed": true,
+  "source_modified": false,
+  "scope": "Narrow native current-reader optimization/removal observation; no numeric/global gate or finding decision"
+}

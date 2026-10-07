@@ -1,0 +1,201 @@
+{
+  "schema": "policyos.e02.E.complete_owner_validator_peer_copy_index.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "prior_doc_publication": "dfe874313b3172b74fe66663516db68eb6b5b2b8",
+  "selection_sha256": "3dfd1b31a8eac1f62c7661818527fa84d4e2504bbc8524f4aa6c35f1a9f4367b",
+  "files": [
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/probe_summary_admission.py",
+      "portable_path": "owner-validator-corrective/e02-E-owner3932-packet-independent-lint-20261007/probe_summary_admission.py.txt",
+      "bytes": 2168,
+      "sha256": "6214055b7f5146f0a6636528419a11729efdbbd82f480cfceb47eaf784db1f42",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "portable_path": "owner-validator-corrective/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "bytes": 2498,
+      "sha256": "6c621c90ada61bf7fba51ae183aebde057cfb7ef2fe21d1b75d11f2564b8c4d1",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stderr.txt",
+      "portable_path": "author/admission-after-64d-DOE-existing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "portable_path": "owner-validator-corrective/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "bytes": 2501,
+      "sha256": "5dee09f1bffcc06d3e1a4ef25e81c8ddefcb1c5ca7e71d66c554824a614f1b40",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stderr.txt",
+      "portable_path": "author/admission-after-64d-DOE-existing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_literal_inputs.py",
+      "portable_path": "owner-validator-peer-complete/review_literal_inputs.py.txt",
+      "bytes": 12375,
+      "sha256": "603453103df335644b14100c249f24377b14432a0300a88899baaf0108421161",
+      "new_literal_copy": true,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stdout.json",
+      "portable_path": "owner-validator-corrective/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stdout.json",
+      "bytes": 14122,
+      "sha256": "876415babde8b7fd5ff826db0dba723df6de0068076a0043d6023db987b1d48f",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stderr.txt",
+      "portable_path": "owner-validator-peer-complete/literal-review-normal.stderr.txt",
+      "bytes": 299,
+      "sha256": "84da6a9faf70c80d776486951848c3958dcd35c9ccefa70bcf53aaf39c3aea01",
+      "new_literal_copy": true,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stdout.json",
+      "portable_path": "owner-validator-corrective/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stdout.json",
+      "bytes": 14125,
+      "sha256": "6f7e93e561b6c714eb667e60c8e0bbb8f7b5bc93b1ebc472ad61354c8cc43094",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stderr.txt",
+      "portable_path": "owner-validator-peer-complete/literal-review-normal.stderr.txt",
+      "bytes": 299,
+      "sha256": "84da6a9faf70c80d776486951848c3958dcd35c9ccefa70bcf53aaf39c3aea01",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py",
+      "portable_path": "owner-validator-corrective/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py.txt",
+      "bytes": 4656,
+      "sha256": "779ae1412575cecd4ffe16b21cba7753f27fb4efd047b3e3abd9d51ec16dc994",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stdout.json",
+      "portable_path": "owner-validator-corrective/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stdout.json",
+      "bytes": 5400,
+      "sha256": "e6ff9e0e81e3042e4ccf9339a81a589327e9c2c2cf0b67e31a7b99f1b6775e69",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stderr.txt",
+      "portable_path": "author/admission-after-64d-DOE-existing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stdout.json",
+      "portable_path": "owner-validator-corrective/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stdout.json",
+      "bytes": 5403,
+      "sha256": "2fafe4a9099949cbdc707da54fea737ef1eff937237462e396855aac94a52eab",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stderr.txt",
+      "portable_path": "author/admission-after-64d-DOE-existing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-normal.stdout.json",
+      "portable_path": "owner-validator-corrective/ir-compat-independent/owner3932-packet-controls-v2-normal.json",
+      "bytes": 5487,
+      "sha256": "be54d209c5b655bff9db3331576a678e50775212894f61f58a5d59e92f99ba5d",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-normal.stderr.txt",
+      "portable_path": "author/admission-after-64d-DOE-existing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-optimized.stdout.json",
+      "portable_path": "owner-validator-corrective/ir-compat-independent/owner3932-packet-controls-v2-optimized.json",
+      "bytes": 5486,
+      "sha256": "6898a6442ff32d1c83f56751a8e771407a5a3ce87feadd362c485308fc4e81b5",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/author-v2-rerun-optimized.stderr.txt",
+      "portable_path": "author/admission-after-64d-DOE-existing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_literal_copy": false,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/final-peer-acceptance.json",
+      "portable_path": "owner-validator-peer-complete/final-peer-acceptance.json",
+      "bytes": 5761,
+      "sha256": "4da3d11f62afcb388f6bb5b89d420970a6bb988d7336a64275afeca8b1916f3b",
+      "new_literal_copy": true,
+      "role": "closed independent observer/source/actual deciding output"
+    },
+    {
+      "source_path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/publication-selection.json",
+      "portable_path": "owner-validator-peer-complete/publication-selection.json",
+      "bytes": 13606,
+      "sha256": "3dfd1b31a8eac1f62c7661818527fa84d4e2504bbc8524f4aa6c35f1a9f4367b",
+      "new_literal_copy": true,
+      "role": "Complete independent logical selection; historical thin selection remains exact."
+    }
+  ],
+  "logical_asset_rows": 21,
+  "new_literal_files": [
+    {
+      "portable_path": "owner-validator-peer-complete/review_literal_inputs.py.txt",
+      "bytes": 12375,
+      "sha256": "603453103df335644b14100c249f24377b14432a0300a88899baaf0108421161"
+    },
+    {
+      "portable_path": "owner-validator-peer-complete/literal-review-normal.stderr.txt",
+      "bytes": 299,
+      "sha256": "84da6a9faf70c80d776486951848c3958dcd35c9ccefa70bcf53aaf39c3aea01"
+    },
+    {
+      "portable_path": "owner-validator-peer-complete/final-peer-acceptance.json",
+      "bytes": 5761,
+      "sha256": "4da3d11f62afcb388f6bb5b89d420970a6bb988d7336a64275afeca8b1916f3b"
+    },
+    {
+      "portable_path": "owner-validator-peer-complete/publication-selection.json",
+      "bytes": 13606,
+      "sha256": "3dfd1b31a8eac1f62c7661818527fa84d4e2504bbc8524f4aa6c35f1a9f4367b"
+    }
+  ],
+  "no_active_python_added": true
+}

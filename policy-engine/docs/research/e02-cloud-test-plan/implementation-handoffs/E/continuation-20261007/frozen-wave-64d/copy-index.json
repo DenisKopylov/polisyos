@@ -1,0 +1,655 @@
+{
+  "schema": "policyos.e02.literal_frozen_wave_copy_index.v1",
+  "verification_candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "publication_parent_sha": "3eafb85617738c9b398fe67c70d58b3d0d05a5a9",
+  "fixed_selected_outputs": 76,
+  "fixed_selected_output_bytes": 5549441,
+  "copied_files": 90,
+  "copied_bytes": 5740884,
+  "copies": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/plan.json",
+      "portable_path": "wave/plan.json",
+      "role": "actual frozen driver plan/launch/completion",
+      "bytes": 201583,
+      "sha256": "e9779679ee75c23151a7eb57aca123fe3918b78b28f3a61b082c15e7627fcd23"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/wave-started.json",
+      "portable_path": "wave/wave-started.json",
+      "role": "actual frozen driver plan/launch/completion",
+      "bytes": 198,
+      "sha256": "3443b5017e941786f984145792c522fae17309a6894cb4e9a0dfc16c3a935c4c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/execution-complete.json",
+      "portable_path": "wave/execution-complete.json",
+      "role": "actual frozen driver plan/launch/completion",
+      "bytes": 282,
+      "sha256": "6bddda3629c4fe5eb6993d839dccae2c7882723d742a734176b23fb99265283a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "portable_path": "wave/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "role": "original closed canonical check observation",
+      "bytes": 9433,
+      "sha256": "e7d34b6fb91f3301783d6fc14b0bb4870847d2d4a1710b8469be362c1bdcf42b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "portable_path": "wave/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 160,
+      "sha256": "d8b8de5aa45f370d8fca3d3554fc6f6eb91df8892674da930f787edcc91f0d95"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pytest.xml",
+      "portable_path": "wave/checks/pcl-continuous-persistence/pytest.xml",
+      "role": "complete actual JUnit; original interrupted CAL has no such artifact",
+      "bytes": 15059,
+      "sha256": "590659d7422b8103617787f7d42345502a5f6ea718321fff783563cd45017f51"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "portable_path": "wave/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "role": "original closed canonical check observation",
+      "bytes": 9677,
+      "sha256": "3f5055ffa1d657d7fb6bb48aba2f58586a9dff7c477926a46cce4cac4ed38fed"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "portable_path": "wave/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+      "portable_path": "wave/checks/ddm-runtime-and-facade/pytest.xml",
+      "role": "complete actual JUnit; original interrupted CAL has no such artifact",
+      "bytes": 12578,
+      "sha256": "8ec75f41d5be88b055f813772e9c89fdb9ed1ba978df9966b153074d899cfbcd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "portable_path": "wave/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "role": "original closed canonical check observation",
+      "bytes": 10645,
+      "sha256": "2b76b7f27babe3eee1a1b4fe1bf8fa82c839f351c70460ec1ebb0665df527434"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "portable_path": "wave/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 27554,
+      "sha256": "1a1b6fde267fa9a2283b4bbadbff0ea3fe0221e691bf1525f2d63db65c1844fc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "portable_path": "wave/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "role": "complete actual JUnit; original interrupted CAL has no such artifact",
+      "bytes": 83154,
+      "sha256": "eff4ee7af671cae2f9d49bf4bd994533bc52245433d61f1fe0a56ff668e3ebbb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "portable_path": "wave/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "role": "original closed canonical check observation",
+      "bytes": 10457,
+      "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "portable_path": "wave/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 281,
+      "sha256": "840e92795a70320c72cbedd9f1ef462e30cbd062b488ab646e23b5c93c0ea505"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "portable_path": "wave/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "role": "original closed canonical check observation",
+      "bytes": 10594,
+      "sha256": "7227ca411296804de6d5f6cca769b9be0d210009040ef9c9bf3390c36ba1586e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "portable_path": "wave/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 1211,
+      "sha256": "2b8d025fdbc1364f5afbb4edf9717bda621429495f142c349cb8548908c7e235"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "portable_path": "wave/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "role": "complete actual JUnit; original interrupted CAL has no such artifact",
+      "bytes": 73798,
+      "sha256": "16387db180e797b9663e288360f4bd50d4b638b50d357e70453e2e6baf57bdfa"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "portable_path": "wave/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "role": "original closed canonical check observation",
+      "bytes": 9830,
+      "sha256": "74d964a4a6c8e7d6a52592b0c3d3d71ae161279272fc3179577dae62cbfcee93"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "portable_path": "wave/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "portable_path": "wave/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "role": "complete actual JUnit; original interrupted CAL has no such artifact",
+      "bytes": 36923,
+      "sha256": "c2856e7892537f67c965ce385585a206fd5d4a937cd3a0d4eaafd358688ec09b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "portable_path": "wave/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "role": "original closed canonical check observation",
+      "bytes": 9017,
+      "sha256": "c063fcf1288e0a5c17562e71cdf899e5251c93a8c4c3fc4b5ae5f21eca64f66a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "portable_path": "wave/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "portable_path": "wave/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "role": "complete actual JUnit; original interrupted CAL has no such artifact",
+      "bytes": 10247,
+      "sha256": "0a0ebe21740efba221edccd2312a788eb6fb453aafad5b50b48e84cc69bafbb9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/results-importer/results-importer.json",
+      "portable_path": "wave/checks/results-importer/results-importer.json",
+      "role": "original closed canonical check observation",
+      "bytes": 8168,
+      "sha256": "6aaa1261b5ec92bfcd3bd491411ab79a7f8ef0d589b8e73c87e4d9baaaf874e7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/results-importer/results-importer.stdout.txt",
+      "portable_path": "wave/checks/results-importer/results-importer.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.json",
+      "portable_path": "wave/checks/architecture/architecture.json",
+      "role": "original closed canonical check observation",
+      "bytes": 8146,
+      "sha256": "f2fb06dd561d9cb11503d8b70903e6864fe153286725bbc8ad6087754b4786cc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.stdout.txt",
+      "portable_path": "wave/checks/architecture/architecture.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 136159,
+      "sha256": "7e4b0d4c4115b56440e6498dae639fef1329b49960b38bc3371cf6e354b33682"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/runtime-api-contract.json",
+      "portable_path": "wave/checks/runtime-api-contract/runtime-api-contract.json",
+      "role": "original closed canonical check observation",
+      "bytes": 8748,
+      "sha256": "52721551be07b75512ff5015f53c391e5db46ac918a1f3ae91baf0d4666c6132"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+      "portable_path": "wave/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 13147,
+      "sha256": "735d5db073ae7a4e9be3d54e01accbf1118d4aee51f95bfe733c09bef1808e49"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/retained-runtime-catalog.json",
+      "portable_path": "wave/checks/runtime-api-contract/retained-runtime-catalog.json",
+      "role": "single canonical runtime emitter returned catalog metadata",
+      "bytes": 2341,
+      "sha256": "c379560fd9f55c0c22168c7a4bf0b63d02dfac9a01ef9431b3eabd7123a5db38"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.json",
+      "portable_path": "wave/checks/static-invocation/static-invocation.json",
+      "role": "original closed canonical check observation",
+      "bytes": 8422,
+      "sha256": "58c3b82812c3c123343552c2ed53a4d746b49f1c96385f20e430e739f4eac5f3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.stdout.txt",
+      "portable_path": "wave/checks/static-invocation/static-invocation.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 10099,
+      "sha256": "651ac270c247d0e52b2d1c365a94bd563e035786078bffb7dce7a2912f6576cb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff/ruff.json",
+      "portable_path": "wave/checks/ruff/ruff.json",
+      "role": "original closed canonical check observation",
+      "bytes": 50356,
+      "sha256": "bdd1f1417d8b0a8500c5bd9ca605a5023d65811a12a55e9e9f082eed19fbf324"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff/ruff.stdout.txt",
+      "portable_path": "wave/checks/ruff/ruff.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 21533,
+      "sha256": "76b6b7f89005eed8b122f904adcbe9c04025535ded76de567dd268aef2419f36"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff-format/ruff-format.json",
+      "portable_path": "wave/checks/ruff-format/ruff-format.json",
+      "role": "original closed canonical check observation",
+      "bytes": 50394,
+      "sha256": "c3dce64e0c0eda90f5b4d88360478147f2a6b04971ed1fcee99706ad4e7b5d74"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ruff-format/ruff-format.stdout.txt",
+      "portable_path": "wave/checks/ruff-format/ruff-format.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 439,
+      "sha256": "ec72f99fca601ff7c444d76e6ef80fc57ebeddf60ddff744ad49dfd10c9cfbbb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.json",
+      "portable_path": "wave/checks/workspace-verify/workspace-verify.json",
+      "role": "original closed canonical check observation",
+      "bytes": 8640,
+      "sha256": "0a931767d9c7ce564189b1b79d9d199731e4110a9ab70609dcdbb5d3989f67e8"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.stdout.txt",
+      "portable_path": "wave/checks/workspace-verify/workspace-verify.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 7454,
+      "sha256": "0d323368ef32d64a3fe0d64b44831f6152bced2aa15409c3e009ddae9f2070c5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/ci-parity.json",
+      "portable_path": "wave/checks/ci-parity/ci-parity.json",
+      "role": "original closed canonical check observation",
+      "bytes": 8574,
+      "sha256": "8ce46546614f66778a33e41cb9ba21533edab45c97137610f6d8bb56a88114af"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/ci-parity.stdout.txt",
+      "portable_path": "wave/checks/ci-parity/ci-parity.stdout.txt",
+      "role": "original closed canonical check observation",
+      "bytes": 15296,
+      "sha256": "048275b6f4334ea9638817049dabcff2cf1a14e9cbfb4085a30fd5f0a333c8fd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/owner-packets/test_a_frc_native_cas_status_reason.py",
+      "portable_path": "wave/owner-packet/test_a_frc_native_cas_status_reason.py.txt",
+      "role": "byte-identical selected seven-case A owner packet; no A source edit",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/recomputed-wave.json",
+      "portable_path": "independent/recomputed-wave.json",
+      "role": "current independent exact source/receipt/case navigation; owner findings separate",
+      "bytes": 1049493,
+      "sha256": "bb59345873fdc306c98458587354f3caaed45312694c14a51d01edfd08768bbf"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/case-index.json",
+      "portable_path": "independent/case-index.json",
+      "role": "current independent exact source/receipt/case navigation; owner findings separate",
+      "bytes": 701747,
+      "sha256": "73a5974a61fe29424373bac0edfc0bbdff1840b7717dd493e8261c3dff3e7ab0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/defining-current-case-index.json",
+      "portable_path": "independent/defining-current-case-index.json",
+      "role": "current independent exact source/receipt/case navigation; owner findings separate",
+      "bytes": 654655,
+      "sha256": "6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d-corrected.stdout",
+      "portable_path": "independent/final-64d-corrected.stdout",
+      "role": "complete moderate independent deciding output",
+      "bytes": 318,
+      "sha256": "651804d2d4ea68a9bc4d516440832e3b6fc774c00a37d7d14aa1731341d25f8b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d-corrected.stderr",
+      "portable_path": "independent/final-64d-corrected.stderr",
+      "role": "complete moderate independent deciding output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/defining-current-case-index.stdout",
+      "portable_path": "independent/defining-current-case-index.stdout",
+      "role": "complete moderate independent deciding output",
+      "bytes": 360,
+      "sha256": "6f3cbe2ed945bb45670395fc3a87daa165c94d4c39cd060c1f397bcf3fb893ea"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/defining-current-case-index.stderr",
+      "portable_path": "independent/defining-current-case-index.stderr",
+      "role": "complete moderate independent deciding output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/defining-assertion-source-index-64d.json",
+      "portable_path": "independent/defining-assertion-source-index-64d.json",
+      "role": "complete moderate independent deciding output",
+      "bytes": 303981,
+      "sha256": "43db67e8ef9596a2ab1d71a47ea5d6c9cd588e83c35664b2d66dc2025b440ded"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector-controls-final.stdout",
+      "portable_path": "independent/collector-controls-final.stdout",
+      "role": "complete moderate independent deciding output",
+      "bytes": 45,
+      "sha256": "07a8d90979b3ebc92c41a194974c5720fb960512e20a8861746efe8b724a7370"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector-controls-final.stderr",
+      "portable_path": "independent/collector-controls-final.stderr",
+      "role": "complete moderate independent deciding output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory-normal.stdout",
+      "portable_path": "independent/inventory-normal.stdout",
+      "role": "complete moderate independent deciding output",
+      "bytes": 223,
+      "sha256": "a1e3d2cd38d1ddb2f5fe167c4fc2804aa59797e409c3c4a5277822072d5a12fb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory-normal.stderr",
+      "portable_path": "independent/inventory-normal.stderr",
+      "role": "complete moderate independent deciding output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory-optimized.stdout",
+      "portable_path": "independent/inventory-optimized.stdout",
+      "role": "complete moderate independent deciding output",
+      "bytes": 223,
+      "sha256": "a1e3d2cd38d1ddb2f5fe167c4fc2804aa59797e409c3c4a5277822072d5a12fb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory-optimized.stderr",
+      "portable_path": "independent/inventory-optimized.stderr",
+      "role": "complete moderate independent deciding output",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector-controls/results-current.json",
+      "portable_path": "independent/collector-controls/results-current.json",
+      "role": "thirteen effective parser/environment corrupt controls",
+      "bytes": 9332,
+      "sha256": "8b7c049d087b8d00d7f0293f2977f9e007ffafda410ed7d80a2aa486a2a83afd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/recomputed-wave.json.historical-before-A-empty-class-binding",
+      "portable_path": "independent/history/recomputed-before-A-empty-class-source-binding.json",
+      "role": "original complete observer mapping; superseded because external JUnit omitted classnames, not a numeric rerun",
+      "bytes": 1020725,
+      "sha256": "8794fb54cd779b6517b25f5cba0eb8f78d61b78b18161db5c5282a071e257a8a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d.stdout",
+      "portable_path": "independent/history/final-64d-initial.stdout",
+      "role": "original observer stdout before exact omitted-classname binding correction",
+      "bytes": 318,
+      "sha256": "651804d2d4ea68a9bc4d516440832e3b6fc774c00a37d7d14aa1731341d25f8b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d.stderr",
+      "portable_path": "independent/history/final-64d-initial.stderr",
+      "role": "original observer stderr before exact omitted-classname binding correction",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/recompute_wave.py",
+      "portable_path": "independent/reproducers/recompute_wave.py.txt",
+      "role": "literal review/recompute source; archive only, not active publication Python",
+      "bytes": 40909,
+      "sha256": "7d176c1028b07c6974fbb8a97b6f363b005e7439b592039a54fc3a3a107f34b2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/join_defining_source.py",
+      "portable_path": "independent/reproducers/join_defining_source.py.txt",
+      "role": "literal review/recompute source; archive only, not active publication Python",
+      "bytes": 6537,
+      "sha256": "65a18ff4c6747b758731f4650526da16d3138075c9cd85da116c904a9f4904b8"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector_controls.py",
+      "portable_path": "independent/reproducers/collector_controls.py.txt",
+      "role": "literal review/recompute source; archive only, not active publication Python",
+      "bytes": 6159,
+      "sha256": "6878e5cae9a8edff8cf22c46d39dee59625c5a0f2fffcab553415d2f1286a04d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/inventory_control.py",
+      "portable_path": "independent/reproducers/inventory_control.py.txt",
+      "role": "literal review/recompute source; archive only, not active publication Python",
+      "bytes": 1463,
+      "sha256": "f50a74eddb06092c4e0bf03bc871814cc947001e006802ba6a83ec8a962edf4b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/review_cal_retry.py",
+      "portable_path": "independent/reproducers/review_cal_retry.py.txt",
+      "role": "literal review/recompute source; archive only, not active publication Python",
+      "bytes": 4277,
+      "sha256": "73860d158263885fd3e4794a976fc1f06fbc58945c50baedb75411d55b84c4e3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/review_cal_publication.py",
+      "portable_path": "independent/reproducers/review_cal_publication.py.txt",
+      "role": "literal review/recompute source; archive only, not active publication Python",
+      "bytes": 4755,
+      "sha256": "1cc45442dc35f85270dfe02baa9215b10c7cb4592dd87f3b8cc4f81d825c1dbd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/select_publication.py",
+      "portable_path": "independent/reproducers/select_publication.py.txt",
+      "role": "literal review/recompute source; archive only, not active publication Python",
+      "bytes": 7355,
+      "sha256": "7439ed8410a5c1ccd9c4e718810bfe488718f8d661d7306b4e97dca3a0ddca9e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/review.json",
+      "portable_path": "independent/cal-retry/review.json",
+      "role": "separate interrupted-group retry current independent custody observation",
+      "bytes": 257231,
+      "sha256": "ca7158b7ec13ae1343ff8fdfe9058c7d40d869a774a5a1fbbc7101f26bbcbc68"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/case-index.json",
+      "portable_path": "independent/cal-retry/case-index.json",
+      "role": "separate interrupted-group retry current independent custody observation",
+      "bytes": 227258,
+      "sha256": "dba0f3479e68f857c1e445c4e2f217720ee858d6839cbac2e0091ad1317bdf2d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/publication-review.json",
+      "portable_path": "independent/cal-retry/publication-review.json",
+      "role": "separate interrupted-group retry current independent custody observation",
+      "bytes": 10258,
+      "sha256": "f60727e1dadaf3e9225a15e0104a917dad71d6d6422bec15034edb87ada0bace"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/committed-publication-review.json",
+      "portable_path": "independent/cal-retry/committed-publication-review.json",
+      "role": "separate interrupted-group retry current independent custody observation",
+      "bytes": 32807,
+      "sha256": "8df3ddd822df348a430321c0f46cb67d926b7e0c171247de19d4b4ada9337a7d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent-corrected.stdout",
+      "portable_path": "independent/cal-retry/cal-retry-independent-corrected.stdout",
+      "role": "separate retry/review complete deciding stdout/stderr",
+      "bytes": 317,
+      "sha256": "5bc16f72789d1fd02856976a9c5a90f6bc80cd39ac6a757c4787b42febac8dfe"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent-corrected.stderr",
+      "portable_path": "independent/cal-retry/cal-retry-independent-corrected.stderr",
+      "role": "separate retry/review complete deciding stdout/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-publication-review.stdout",
+      "portable_path": "independent/cal-retry/cal-publication-review.stdout",
+      "role": "separate retry/review complete deciding stdout/stderr",
+      "bytes": 323,
+      "sha256": "d6da2fb98f6ad16bd4e88b42340a261d18e0f237373a1e3d7c175defac83dc69"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-publication-review.stderr",
+      "portable_path": "independent/cal-retry/cal-publication-review.stderr",
+      "role": "separate retry/review complete deciding stdout/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/source-freeze-64d7444a.json",
+      "portable_path": "source-and-owner-inputs/source-freeze-64d7444a.json",
+      "role": "frozen source/owner exact input; individual decisions not inferred from cases",
+      "bytes": 3424,
+      "sha256": "41b408e310e4a2b3bf2771ec41298024fd30e5f276bdb455493f33550a0041c2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+      "portable_path": "source-and-owner-inputs/current-prewave-all-54-owner-dispositions.json",
+      "role": "frozen source/owner exact input; individual decisions not inferred from cases",
+      "bytes": 305737,
+      "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/moderate-publication-selection.json",
+      "portable_path": "moderate-publication-selection.json",
+      "role": "fixed independently selected complete15-job moderate observation index",
+      "bytes": 31657,
+      "sha256": "865f0422c6c9f78751a958a0f6aaf825711e014ec425d71cc41a540e1e2f3823"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/admission-resume.json",
+      "portable_path": "publication-admission/admission-resume.json",
+      "role": "exact lane admission or literal copy command source",
+      "bytes": 123184,
+      "sha256": "e4bb230685bdc983bff027c9879c152fa89f79836a8719bef6dec674c3bf85a7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/admission-resume.stderr.txt",
+      "portable_path": "publication-admission/admission-resume.stderr.txt",
+      "role": "exact lane admission or literal copy command source",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/copy-common-wave.py.txt",
+      "portable_path": "publication-admission/copy-common-wave.py.txt",
+      "role": "exact lane admission or literal copy command source",
+      "bytes": 11040,
+      "sha256": "23643efaaf1cf4124b11e47e72cb5ed3d8d7bb75619d95553c6c5e40853c97c1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-common-wave.py.txt",
+      "portable_path": "publication-control/validate-common-wave.py.txt",
+      "role": "literal publication validator archive or actual prearchive observer output; 80-copy/83-path execution stage is labelled explicitly",
+      "bytes": 8246,
+      "sha256": "a6f0cc47bd18db4015fe1f7c266204a94be2f60cc0474d5c0ad7aca284c4d451"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate.stdout.json",
+      "portable_path": "publication-control/prearchive-normal.stdout.json",
+      "role": "literal publication validator archive or actual prearchive observer output; 80-copy/83-path execution stage is labelled explicitly",
+      "bytes": 2030,
+      "sha256": "682c0ad76dc2bafcec241cc0fdfce8472d15c58b702f144b994ef2095b63c6bd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate.stderr.txt",
+      "portable_path": "publication-control/prearchive-normal.stderr.txt",
+      "role": "literal publication validator archive or actual prearchive observer output; 80-copy/83-path execution stage is labelled explicitly",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-optimized.stdout.json",
+      "portable_path": "publication-control/prearchive-optimized.stdout.json",
+      "role": "literal publication validator archive or actual prearchive observer output; 80-copy/83-path execution stage is labelled explicitly",
+      "bytes": 2030,
+      "sha256": "682c0ad76dc2bafcec241cc0fdfce8472d15c58b702f144b994ef2095b63c6bd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-optimized.stderr.txt",
+      "portable_path": "publication-control/prearchive-optimized.stderr.txt",
+      "role": "literal publication validator archive or actual prearchive observer output; 80-copy/83-path execution stage is labelled explicitly",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-common-wave-v2.py.txt",
+      "portable_path": "publication-control/validate-common-wave-v2.py.txt",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 8814,
+      "sha256": "0118719cadfa06c3b4f207191f073186e452de264e33bbe7eb9e10cbbd990318"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive.stdout.json",
+      "portable_path": "publication-control/v2-prearchive-normal.stdout.json",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 2221,
+      "sha256": "ee80e741e4343bc2ff45653ec5a86b77c8b2ae36b8702deb85248f5ec7c15aef"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive.stderr.txt",
+      "portable_path": "publication-control/v2-prearchive-normal.stderr.txt",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive-optimized.stdout.json",
+      "portable_path": "publication-control/v2-prearchive-optimized.stdout.json",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 2221,
+      "sha256": "ee80e741e4343bc2ff45653ec5a86b77c8b2ae36b8702deb85248f5ec7c15aef"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive-optimized.stderr.txt",
+      "portable_path": "publication-control/v2-prearchive-optimized.stderr.txt",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "literal_original_bytes": true,
+  "exclusions": [
+    "private raw *.git-config-private.nul",
+    "temporary/CAS/fixture/cache/environment trees",
+    "large original runtime generated OpenAPI/client/catalog raw inputs; source and original hash refs remain in canonical receipts",
+    "duplicate byte-identical historical case-index (SHA73a5974a... equals current case-index)",
+    "root successor selectors still pending outside original fifteen-job wave; do not invent outcomes"
+  ],
+  "prior_CAL_retry_carrier": {
+    "sha": "3eafb85617738c9b398fe67c70d58b3d0d05a5a9",
+    "tree": "a2981e42fb6a3b456c0ca2b8b08ffb5786dc8e84",
+    "scope": "separate complete original/retry provenance and literals; reused rather than erased"
+  }
+}

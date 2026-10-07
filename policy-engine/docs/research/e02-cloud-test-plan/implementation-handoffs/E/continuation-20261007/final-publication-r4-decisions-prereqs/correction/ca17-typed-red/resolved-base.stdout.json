@@ -1,0 +1,30 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791376409030",
+    "generalDiagnostics": [
+        {
+            "file": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "error",
+            "message": "\"model_dump\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 222,
+                    "character": 53
+                },
+                "end": {
+                    "line": 222,
+                    "character": 63
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 1,
+        "errorCount": 1,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 2.205
+    }
+}

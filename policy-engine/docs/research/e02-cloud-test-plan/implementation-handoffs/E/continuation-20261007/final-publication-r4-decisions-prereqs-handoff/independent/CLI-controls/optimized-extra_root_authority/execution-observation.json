@@ -1,0 +1,25 @@
+{
+  "mode": "optimized",
+  "case": "extra_root_authority",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-O",
+    "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+    "--manifest",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-extra_root_authority/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-extra_root_authority/destination"
+  ],
+  "exit_code": 1,
+  "destination_created": false,
+  "stdout": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-extra_root_authority/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-extra_root_authority/stderr.txt",
+    "bytes": 836,
+    "sha256": "c361f58208512e6fdab1b38e8d81dd41a5d7e53b0a38afe9f3d19e22d01f30c3"
+  }
+}

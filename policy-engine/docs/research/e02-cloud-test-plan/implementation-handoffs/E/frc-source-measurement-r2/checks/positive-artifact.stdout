@@ -1,0 +1,129 @@
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.advanced.prophet@1.0.0 lazy=True namespace=forecasting.advanced override=False tags=['additive', 'advanced', 'builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'prophet', 'time-series'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.decomposition.stl@1.0.0 lazy=True namespace=forecasting.decomposition override=False tags=['builtin', 'decomposition', 'domain:forecasting', 'family:forecasting', 'forecasting', 'seasonal', 'stl', 'time-series'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.ensemble.simple_average@1.0.0 lazy=True namespace=forecasting.ensemble override=False tags=['builtin', 'domain:forecasting', 'ensemble', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.hybrid.guarded_neural@1.0.0 lazy=True namespace=forecasting.hybrid override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hybrid', 'neural', 'time-series', 'trust-region'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.multivariate.vec_forecast@1.0.0 lazy=True namespace=forecasting.multivariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'multivariate', 'time-series', 'var', 'vec'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.bottom_up@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hierarchical', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.general_linear_projection@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'general-linear', 'grouped', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.regime_shift.hybrid@1.0.0 lazy=True namespace=forecasting.regime_shift override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'regime-switching', 'structural-breaks', 'time-series'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'exponential-smoothing', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-06 13:46:06 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.theta@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'theta', 'time-series'] version=1.0.0
+2026-10-06 13:46:06 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:46:06 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=31.74 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "outcome": "PASS",
+  "method": "forecasting.univariate.exponential_smoothing@1.0.0",
+  "seed": 17,
+  "source_schema": {
+    "schema_ref": {
+      "artifact_id": "sha256:48f43b6dd6c6f5bbe06e928be399d0b5d7aa6517d69c13ed19242a97d2ec04d2",
+      "kind": "fabric.data_schema",
+      "media_type": "application/json"
+    },
+    "schema_id": "test.forecast",
+    "schema_version": "1.0.0",
+    "target_metric": "metric",
+    "field_id": "metric",
+    "unit_id": "count",
+    "scale": "source_native",
+    "data_type": "float64",
+    "decimal_storage_scale": null
+  },
+  "request_ref": {
+    "artifact_id": "sha256:f7597d3b46c815714b0e60571cd2760d05f2a3189c030090dab1367189602d4d",
+    "kind": "ir.forecast_owner_request",
+    "media_type": "application/json"
+  },
+  "profile_ref": {
+    "artifact_id": "sha256:fd7e51fc79f57e514d12d1e435332e69ffe6b2620e113389508cc9a4b442d3f1",
+    "kind": "ir.forecast_calibration_profile",
+    "media_type": "application/json"
+  },
+  "refs": {
+    "empirical_evidence_ref": {
+      "artifact_id": "sha256:d6beb7c17fa9d634ae8962b10faeb900ecbb02e7cb0b52181153dc4824451069",
+      "kind": "ir.empirical_calibration_evidence",
+      "media_type": "application/json"
+    },
+    "candidate_receipt_ref": {
+      "artifact_id": "sha256:64cdfcb3bd20dbe2f3613afaddf63ef2d9cd373b364b250642dbaf115685d7aa",
+      "kind": "ir.forecast_candidate_receipt",
+      "media_type": "application/json"
+    },
+    "backtest_report_ref": {
+      "artifact_id": "sha256:1960b4d8575539394d029f307671b430a0b49ed14949843d36f834792528fc1a",
+      "kind": "ir.backtest_report",
+      "media_type": "application/json"
+    },
+    "uncertainty_bundle_ref": {
+      "artifact_id": "sha256:09fde34efbee3ec7b406f3f78f23efb7b56c036f498ab78d3a8ad0e514723129",
+      "kind": "ir.forecasting_uncertainty_bundle",
+      "media_type": "application/json"
+    },
+    "training_slice_ref": {
+      "artifact_id": "sha256:f6c3231f079b2c510c6361945e77e971c808c027f24bbcad5252c14b80c41bb6",
+      "kind": "ir.forecast_training_slice",
+      "media_type": "application/json"
+    },
+    "method_artifact_ref": {
+      "artifact_id": "sha256:22202ea5440672024043af96089adbd8bc3497d46892ab3080126f2b801c1f28",
+      "kind": "foundry.method_artifact",
+      "media_type": "application/json"
+    },
+    "calibration_rule_ref": {
+      "artifact_id": "sha256:f34b9fdcee2813f4f8036feb486188eaa1db422a371c4322b74873415cf698c0",
+      "kind": "ir.forecast_calibration_rule",
+      "media_type": "application/json"
+    },
+    "observed_source_ref": {
+      "artifact_id": "sha256:eeef070ed09bd26fdb6d8e508584978d745a725203dbf186407ffa5cf27f1fea",
+      "kind": "fabric.data_snapshot",
+      "media_type": "application/json"
+    }
+  },
+  "observed_holdout": [
+    31.0,
+    32.0,
+    33.0,
+    34.0
+  ],
+  "persisted_intervals": [
+    [
+      31.0,
+      31.0
+    ],
+    [
+      32.0,
+      32.0
+    ],
+    [
+      33.0,
+      33.0
+    ],
+    [
+      34.0,
+      34.0
+    ]
+  ],
+  "independent_hits": 4,
+  "denominator": 4,
+  "requested_time_roles": {
+    "data_valid_time": "2026-01-01T00:00:00Z",
+    "calibration_window_start": "2026-01-02T00:00:00Z",
+    "calibration_window_end": "2026-01-03T00:00:00Z",
+    "policy_effective_time": "2026-01-04T00:00:00Z",
+    "prediction_time": "2026-01-05T00:00:00Z",
+    "observation_time": "2026-01-06T00:00:00Z"
+  },
+  "adapter_field_names": [
+    "authority_scope",
+    "empirical_calibration_evidence_ref",
+    "expected_rule_version_ref",
+    "forecast_candidate_receipt_ref",
+    "measurement_binding",
+    "temporal_roles",
+    "verifier_provenance"
+  ],
+  "verifier_provenance": "not_established",
+  "authority_scope": "predictive_only"
+}

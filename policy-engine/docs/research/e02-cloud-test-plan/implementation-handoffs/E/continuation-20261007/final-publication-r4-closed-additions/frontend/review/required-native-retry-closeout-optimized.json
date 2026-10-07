@@ -1,0 +1,282 @@
+{
+  "schema": "policyos.e02.E.required_frontend_native_retry_closeout.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "reviewer": "/root/lint_r4",
+  "closed_UTC": "2026-10-07T11:05:12.834321+00:00",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "ROOT_environment_interpreters_used_by_this_observer": false
+  },
+  "checks": [
+    {
+      "name": "actual_story_and_a11y_full_native_FAIL1_source_immutable",
+      "passed": true
+    },
+    {
+      "name": "complete_a11y_five_native_stages_attempted",
+      "passed": true
+    },
+    {
+      "name": "design_checks_three_positive_bodies",
+      "passed": true
+    },
+    {
+      "name": "actual_native_components_completed_87files_161cases",
+      "passed": true
+    },
+    {
+      "name": "native_pages_attempted_setup_failed_not_command_UNRUN",
+      "passed": true
+    },
+    {
+      "name": "page_case_outcomes_not_synthesized",
+      "passed": true,
+      "limit": "Native page command was attempted and failed its webServer bootstrap; no individual page case PASS/FAIL asserted."
+    },
+    {
+      "name": "actual_reader_corrupt_bytehash_refusal",
+      "passed": true,
+      "reason": "Full capture bytes required"
+    },
+    {
+      "name": "actual_reader_corrupt_bytecount_refusal",
+      "passed": true,
+      "reason": "Full capture bytes required"
+    },
+    {
+      "name": "actual_reader_corrupt_source_sha_refusal",
+      "passed": true,
+      "reason": "Immutable full native source binding required"
+    },
+    {
+      "name": "actual_reader_corrupt_immutable_refusal",
+      "passed": true,
+      "reason": "Immutable full native source binding required"
+    },
+    {
+      "name": "actual_reader_corrupt_case_free_PASS_refusal",
+      "passed": true,
+      "reason": "Actual native full command FAIL1 required"
+    },
+    {
+      "name": "actual_byteguard_removal_target",
+      "passed": true
+    },
+    {
+      "name": "effective_byteguard_removal_admits_forged_hash",
+      "passed": true,
+      "independent_property_outcome": "FAIL"
+    },
+    {
+      "name": "positive_substage_count_proxy_diverges",
+      "passed": true
+    },
+    {
+      "name": "exact_source_playwright.config.ts",
+      "passed": true
+    },
+    {
+      "name": "exact_source_serve_fixture_runtime_api.py",
+      "passed": true
+    },
+    {
+      "name": "exact_source_runtime_http.py",
+      "passed": true
+    },
+    {
+      "name": "exact_source_run_lifecycle.py",
+      "passed": true
+    },
+    {
+      "name": "exact_source_store.py",
+      "passed": true
+    },
+    {
+      "name": "exact_source_ownership.md",
+      "passed": true
+    },
+    {
+      "name": "own_launcher_capturer_browser_processes_closed",
+      "passed": true
+    },
+    {
+      "name": "shared_fixture_ports_closed",
+      "passed": true
+    },
+    {
+      "name": "attempt1_ENOSPC_before_native_execution_retained",
+      "passed": true
+    }
+  ],
+  "check_count": 23,
+  "original_scope": "CI22 root-owned interruption FAIL130 and original CI23 failure remain immutable historical receipts; these are required full standalone native retries, not a new numeric/common wave or automatic finding closure.",
+  "storybook_retry": {
+    "receipt": {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/checks/storybook-full-native-retry/storybook-full-native-retry.json",
+      "bytes": 8778,
+      "sha256": "dbc605446e66b1248d2938303924183c1e7f97a71dad22c0dacd2f6dd33e1bcb"
+    },
+    "stdout": {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/checks/storybook-full-native-retry/storybook-full-native-retry.stdout.txt",
+      "bytes": 9844,
+      "sha256": "1eaa888e0b899d7652079c6dadf25b5c7e5e974db7df880d94466c4e1c92d7fe"
+    },
+    "JUnit": {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml",
+      "bytes": 15322,
+      "sha256": "e5dce3ce283dbcba582621af2606c183bc9f18525e76628cbd1ff4f3add19d77"
+    },
+    "command": [
+      "npm",
+      "exec",
+      "--",
+      "vitest",
+      "run",
+      "--config",
+      "vitest.storybook.config.ts",
+      "--browser.screenshotDirectory=/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/screenshots",
+      "--reporter=verbose",
+      "--reporter=junit",
+      "--outputFile.junit=/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml"
+    ],
+    "outcome": "FAIL",
+    "exit_code": 1,
+    "wall_seconds": 25.333369255065918,
+    "source_immutable": true,
+    "actual_JUnit_counts": {
+      "cases": 38,
+      "passed": 37,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_case_scope": "37 authored cases PASS plus one import-failure synthetic suite row;45suites/29empty remain distinguished. Separate unhandled ProvenanceStrip iframe error.",
+    "limitations": "No source/ENOSPC/cache/CORS cause attribution without exact measured positive/negative native reproduction"
+  },
+  "a11y_retry": {
+    "receipt": {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/checks/a11y-full-native-retry/a11y-full-native-retry.json",
+      "bytes": 8124,
+      "sha256": "75161bd3f3d370ca168d4dac011c216d7c53867825cb2569b7c0b96a4ce70c81"
+    },
+    "stdout": {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/checks/a11y-full-native-retry/a11y-full-native-retry.stdout.txt",
+      "bytes": 13880,
+      "sha256": "daf7c673ff203831bdd008ff31c8884af81d85b53c09a27ac8f65fef48a92a52"
+    },
+    "launch": {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/launch.json",
+      "bytes": 4499,
+      "sha256": "c475e6e1882363296bfbacd589120eeff9e404e4a2166b1cd10af45da1be670e"
+    },
+    "command": [
+      "npm",
+      "run",
+      "test:a11y"
+    ],
+    "outcome": "FAIL",
+    "exit_code": 1,
+    "wall_seconds": 237.335143327713,
+    "source_immutable": true,
+    "native_substages": {
+      "contrast": "PASS",
+      "motion": "PASS",
+      "color_blind": "PASS",
+      "components": {
+        "outcome": "PASS",
+        "files": 87,
+        "cases": 161,
+        "native_duration_seconds": 200.85
+      },
+      "pages": {
+        "command_outcome": "FAIL",
+        "setup_outcome": "FAIL: catalog_fetch_source_unreadable before webServer start",
+        "individual_case_outcomes": "Unmeasured; no page test execution was reported"
+      }
+    },
+    "complete_page_setup_traceback": "Traceback (most recent call last):\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py\", line 224, in <module>\n\u001b[2m[WebServer] \u001b[22m    main()\n\u001b[2m[WebServer] \u001b[22m    ~~~~^^\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py\", line 201, in main\n\u001b[2m[WebServer] \u001b[22m    env = _build_dashboard_fixture_env(\n\u001b[2m[WebServer] \u001b[22m        tmp_root,\n\u001b[2m[WebServer] \u001b[22m    ...<2 lines>...\n\u001b[2m[WebServer] \u001b[22m        include_test_client=False,\n\u001b[2m[WebServer] \u001b[22m    )\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py\", line 174, in _build_dashboard_fixture_env\n\u001b[2m[WebServer] \u001b[22m    env = build_runtime_api_env(\n\u001b[2m[WebServer] \u001b[22m        tmp_root,\n\u001b[2m[WebServer] \u001b[22m    ...<6 lines>...\n\u001b[2m[WebServer] \u001b[22m        include_test_client=include_test_client,\n\u001b[2m[WebServer] \u001b[22m    )\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/tests/_helpers/runtime_http.py\", line 1394, in build_runtime_api_env\n\u001b[2m[WebServer] \u001b[22m    else ControlPlaneService(\n\u001b[2m[WebServer] \u001b[22m         ~~~~~~~~~~~~~~~~~~~^\n\u001b[2m[WebServer] \u001b[22m        cas_root=cas_root,\n\u001b[2m[WebServer] \u001b[22m        ^^^^^^^^^^^^^^^^^^\n\u001b[2m[WebServer] \u001b[22m    ...<19 lines>...\n\u001b[2m[WebServer] \u001b[22m        ),\n\u001b[2m[WebServer] \u001b[22m        ^^\n\u001b[2m[WebServer] \u001b[22m    )\n\u001b[2m[WebServer] \u001b[22m    ^\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py\", line 2232, in __init__\n\u001b[2m[WebServer] \u001b[22m    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(\n\u001b[2m[WebServer] \u001b[22m                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n\u001b[2m[WebServer] \u001b[22m        catalog_paths.l1_dcat_path,\n\u001b[2m[WebServer] \u001b[22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\u001b[2m[WebServer] \u001b[22m        catalog_paths.l1_dcat_path.parent,\n\u001b[2m[WebServer] \u001b[22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\u001b[2m[WebServer] \u001b[22m        overlay_path=catalog_read_api.default_acquisition_overlay_path(self._repo_root),\n\u001b[2m[WebServer] \u001b[22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\u001b[2m[WebServer] \u001b[22m    )\n\u001b[2m[WebServer] \u001b[22m    ^\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py\", line 257, in __init__\n\u001b[2m[WebServer] \u001b[22m    self._store = DatasetCatalogStore(\n\u001b[2m[WebServer] \u001b[22m                  ~~~~~~~~~~~~~~~~~~~^\n\u001b[2m[WebServer] \u001b[22m        db_path,\n\u001b[2m[WebServer] \u001b[22m        ^^^^^^^^\n\u001b[2m[WebServer] \u001b[22m        index_dir,\n\u001b[2m[WebServer] \u001b[22m        ^^^^^^^^^^\n\u001b[2m[WebServer] \u001b[22m        overlay_path=overlay_path,\n\u001b[2m[WebServer] \u001b[22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\u001b[2m[WebServer] \u001b[22m    )\n\u001b[2m[WebServer] \u001b[22m    ^\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py\", line 138, in __init__\n\u001b[2m[WebServer] \u001b[22m    self._session_source_identities = self._fetch_source_identities()\n\u001b[2m[WebServer] \u001b[22m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py\", line 982, in _fetch_source_identities\n\u001b[2m[WebServer] \u001b[22m    identify(self._db_path),\n\u001b[2m[WebServer] \u001b[22m    ~~~~~~~~^^^^^^^^^^^^^^^\n\u001b[2m[WebServer] \u001b[22m  File \"/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py\", line 966, in identify\n\u001b[2m[WebServer] \u001b[22m    raise ValueError(\"catalog_fetch_source_unreadable\")\n\u001b[2m[WebServer] \u001b[22mValueError: catalog_fetch_source_unreadable",
+    "early_attempt1": {
+      "completion": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/completion.json",
+        "bytes": 976,
+        "sha256": "81ce5bd3c386a94418ce66d1816eebd5bfad012525e54ea6defad272319934cd"
+      },
+      "stderr": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/capture.stderr.txt",
+        "bytes": 1591,
+        "sha256": "d27a57f4af2f4b84a2c55549fd8daf52c0cbe1ba159d01843ef0ac339e59d39b"
+      },
+      "outcome": "Observer ERROR/native command UNRUN; ENOSPC before Popen, not test/source FAIL"
+    }
+  },
+  "canonical_owner_packet": {
+    "fixture_runtime": "@runtime-owners / A-G canonical fixture producer/config writer",
+    "DataForge_source_reader": "@data-forge-owners",
+    "frontend_storybook_and_pages": "team-frontend / @frontend-owners / @UI via G",
+    "enforceable_CODEOWNERS_reviewer": "@DenisKopylov",
+    "source_inputs": [
+      {
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/apps/runtime-dashboard/playwright.config.ts",
+        "bytes": 2819,
+        "sha256": "04e27f939d43268b2c678bc205c941c0cf1ef719e430bdb65ecf6d197d844927"
+      },
+      {
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+        "bytes": 7457,
+        "sha256": "210a02646fc4bdade933ca85fa53ced9b91dcdea4ca49d62abd265b5d7826dce"
+      },
+      {
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/tests/_helpers/runtime_http.py",
+        "bytes": 56431,
+        "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+      },
+      {
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      },
+      {
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+        "bytes": 42587,
+        "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710"
+      },
+      {
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/docs/reference/ownership.md",
+        "bytes": 11656,
+        "sha256": "fc4931abf31d46c54d01bb7b1d6ffbca0138f628cfdee1fe4975e65962b49d3f"
+      }
+    ],
+    "minimal_required_input": "Admitted existing native DuckDB catalog source plus index/overlay identities at the actual configured catalog_paths.l1_dcat_path. Bind generic test fixture through the canonical producer/config, preserving missing/changed-source refusal. This does not require or establish production history.",
+    "next_concrete_result": "Canonical owner supplies/repairs fixture source before ControlPlaneService materialization, obtains healthy full native pages setup/readback with missing-source/changed-source negative, then full exact a11y script on immutable candidate; frontend owner independently reproduces two Storybook import/iframe boundary failures without exclusions or timeout/cap weakening.",
+    "source_guard_to_preserve": "DatasetCatalogStore constructor snapshots _fetch_source_identities before open_catalog_read_session; _db_path.is_file must hold and reopen identity must match.",
+    "P41": "not_established for inherited source/environment causal claims; exact current source/native commands and input denominator retained"
+  },
+  "lease": {
+    "all_own_capture_interpreters_closed": true,
+    "own_browser_processes_closed": true,
+    "ports": {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/closed-ports.stdout.txt",
+      "bytes": 64,
+      "sha256": "14f4ea5bdea2bd6f8d856ec28619243555e53de100d4bca155a751876e97a843"
+    },
+    "processes": {
+      "source_path": "/tmp/e02-E-frontend-retry-analysis-64d/closed-processes.stdout.txt",
+      "bytes": 34,
+      "sha256": "5c1e8f8b0af884404305369e4eba9db14b127a9881ad29d7041ebb9ab2f8a008"
+    },
+    "ROOT_prereq_install_may_proceed": true,
+    "no_ROOT_environment_change_by_this_leaf": true
+  },
+  "source_patched": false,
+  "dependencies_installed": false,
+  "numeric_wave_repeated": false,
+  "finding_disposition_changed": false
+}

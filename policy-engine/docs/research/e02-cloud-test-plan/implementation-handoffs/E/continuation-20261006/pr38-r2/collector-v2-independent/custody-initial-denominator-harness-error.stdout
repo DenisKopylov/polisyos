@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/custody_review.py", line 40, in <module>
+    assert sum(x['files'] for x in portable)==127
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

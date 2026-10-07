@@ -1,0 +1,24 @@
+{
+  "complete": true,
+  "controls": [
+    {
+      "case": "healthy_canonical_root",
+      "outcome": "PASS",
+      "actual_violation_count": 0
+    },
+    {
+      "case": "present_but_fake_facade",
+      "outcome": "PASS",
+      "actual_violation_count": 1
+    }
+  ],
+  "removal": {
+    "case": "remove_AST_edge_admission_keep_markers",
+    "outcome": "PASS",
+    "negative_gate_outcome": "FAIL",
+    "actual_edges": 0,
+    "actual_violations": 0,
+    "assertion": "actual import boundary checker missed the forbidden deep import"
+  },
+  "baseline_unchanged": true
+}

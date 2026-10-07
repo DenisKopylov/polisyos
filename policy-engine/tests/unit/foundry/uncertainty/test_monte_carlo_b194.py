@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
@@ -25,8 +26,13 @@ from polisyos.ir.analytics.uncertainty import (
     persist_uncertainty_envelope,
 )
 from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node_module
-from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import PropagateUncertaintyNode
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF, INPUT_DATA_SNAPSHOT_REF
+from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
+    PropagateUncertaintyNode,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_SIMULATION_RESULT_REF,
+    INPUT_DATA_SNAPSHOT_REF,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
@@ -82,21 +88,33 @@ def test_partial_failures_are_per_draw_provenanced_candidate_only() -> None:
     )[0]
 
     assert result.diagnostics["n_samples"] == 1000
-    assert result.diagnostics["n_failed"] == 515
-    assert result.diagnostics["n_valid"] == 485
+    assert result.diagnostics["n_failed"] == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
+    assert result.diagnostics["n_valid"] == 1000 - int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert result.diagnostics["missing_output_count"] == 0
     _require_candidate_only(result)
     assert result.envelope.metadata["failure"] == "incomplete_simulation_draws"
-    assert result.envelope.sample_size == 485
-    assert len(result.envelope.distribution_payload.samples) == 485
+    assert result.envelope.sample_size == 1000 - int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
+    assert len(result.envelope.distribution_payload.samples) == 1000 - int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     outcomes = result.diagnostics["draw_outcome_provenance"]
     assert outcomes["requested_draw_count"] == 1000
     assert outcomes["attempted_draw_count"] == 1000
-    assert outcomes["successful_draw_count"] == 485
+    assert outcomes["successful_draw_count"] == 1000 - int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert outcomes["unattempted_draw_count"] == 0
     assert outcomes["outcome_denominator_complete"] is True
     failures = outcomes["failure_records"]
-    assert len(failures) == 515
+    assert len(failures) == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert all(
         row["output_outcomes"]
         == [
@@ -109,7 +127,9 @@ def test_partial_failures_are_per_draw_provenanced_candidate_only() -> None:
         for row in failures
     )
     assert all(len(row["sampled_input_sha256"]) == 64 for row in failures)
-    assert len({row["draw_index"] for row in failures}) == 515
+    assert len({row["draw_index"] for row in failures}) == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
 
 
 def test_missing_and_non_finite_outputs_are_also_not_authoritative() -> None:
@@ -121,7 +141,9 @@ def test_missing_and_non_finite_outputs_are_also_not_authoritative() -> None:
         ["y"],
     )[0]
     _require_candidate_only(missing)
-    assert missing.diagnostics["missing_output_count"] == 515
+    assert missing.diagnostics["missing_output_count"] == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert {
         row["output_outcomes"][0]["outcome_code"]
         for row in missing.diagnostics["draw_outcome_provenance"]["failure_records"]
@@ -160,8 +182,12 @@ def test_one_failed_draw_records_all_affected_outputs_once() -> None:
     for result in results:
         assert result.diagnostics["draw_outcome_provenance"] is provenance
     failures = provenance["failure_records"]
-    assert len(failures) == 515
-    assert len({row["draw_index"] for row in failures}) == 515
+    assert len(failures) == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
+    assert len({row["draw_index"] for row in failures}) == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert all(
         row["output_outcomes"]
         == [
@@ -195,8 +221,12 @@ def test_mixed_output_failures_are_one_record_with_each_typed_outcome() -> None:
 
     provenance = result.diagnostics["draw_outcome_provenance"]
     failures = provenance["failure_records"]
-    assert len(failures) == 515
-    assert len({row["draw_index"] for row in failures}) == 515
+    assert len(failures) == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
+    assert len({row["draw_index"] for row in failures}) == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert all(
         row["output_outcomes"]
         == [
@@ -212,9 +242,7 @@ def test_all_failed_multi_output_draws_remain_candidate_without_crashing() -> No
         del x
         raise RuntimeError("solver refused every draw")
 
-    results = MonteCarloPropagator(
-        _config(mc_n_samples=100, mc_min_valid_samples=50)
-    ).propagate(
+    results = MonteCarloPropagator(_config(mc_n_samples=100, mc_min_valid_samples=50)).propagate(
         failing_outputs,
         {"x": 0.0},
         {"x": _normal_env(0.0, 1.0)},
@@ -249,7 +277,7 @@ def test_complete_fixed_draws_preserve_candidate_authority_control() -> None:
         ["y"],
     )[0]
 
-    assert result.envelope.gate_eligible is True
+    assert result.envelope.gate_eligible is False
     assert result.envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
     assert result.envelope.confidence_level == pytest.approx(0.95)
     assert result.envelope.sample_size == 1000
@@ -257,7 +285,7 @@ def test_complete_fixed_draws_preserve_candidate_authority_control() -> None:
     assert result.diagnostics["draw_outcome_provenance"]["failure_records"] == []
 
 
-def test_adaptively_stopped_candidate_is_not_a_confidence_interval() -> None:
+def test_legacy_adaptive_settings_complete_fixed_maximum_without_optional_peeking() -> None:
     config = _config(
         mc_n_samples=500,
         adaptive_stopping=AdaptiveStoppingConfig(
@@ -275,13 +303,13 @@ def test_adaptively_stopped_candidate_is_not_a_confidence_interval() -> None:
         ["y"],
     )[0]
 
-    assert result.diagnostics["stopped_early"] is True
-    _require_candidate_only(result)
+    assert result.diagnostics["stopped_early"] is False
     assert result.diagnostics["draw_outcome_provenance"]["requested_draw_count"] == 500
-    assert result.diagnostics["draw_outcome_provenance"]["attempted_draw_count"] == 50
-    assert result.diagnostics["draw_outcome_provenance"]["unattempted_draw_count"] == 450
-    assert result.diagnostics["draw_outcome_provenance"]["outcome_denominator_complete"] is False
-    assert result.envelope.sample_size == 50
+    assert result.diagnostics["draw_outcome_provenance"]["attempted_draw_count"] == 500
+    assert result.diagnostics["draw_outcome_provenance"]["unattempted_draw_count"] == 0
+    assert result.diagnostics["draw_outcome_provenance"]["outcome_denominator_complete"] is True
+    assert result.envelope.sample_size == 500
+    assert result.envelope.gate_eligible is False
 
 
 def _build_node_context(
@@ -290,13 +318,14 @@ def _build_node_context(
     run_id: str,
     metric_values: dict[str, float],
     propagation_config: dict[str, Any],
+    input_env: UncertaintyEnvelope | None = None,
 ) -> tuple[FileSystemCAS, ExecutionContext, ExperimentState]:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id=run_id)
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.b194"))
 
-    input_ref = persist_uncertainty_envelope(store, _normal_env(0.0, 1.0))
+    input_ref = persist_uncertainty_envelope(store, input_env or _normal_env(0.0, 1.0))
     state_snapshot_ref = store.put_json(
         {"state": {}},
         PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
@@ -333,14 +362,18 @@ def _build_node_context(
     )
     state = ExperimentState(
         run_id=run_id,
-        inputs={INPUT_DATA_SNAPSHOT_REF: DataSnapshotRef(artifact_id=data_snapshot_ref.artifact_id)},
+        inputs={
+            INPUT_DATA_SNAPSHOT_REF: DataSnapshotRef(artifact_id=data_snapshot_ref.artifact_id)
+        },
         artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: simulation_result_ref},
         params={"propagation_config": propagation_config},
     )
     return store, ctx, state
 
 
-def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(tmp_path, monkeypatch) -> None:
+def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(
+    tmp_path, monkeypatch
+) -> None:
     store, ctx, state = _build_node_context(
         tmp_path,
         run_id="R_b194_mc",
@@ -370,6 +403,7 @@ def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(tmp_path
             schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.0"),
         ),
     )
+
     def build_failing_fn(params, *, base_metric_values, nominal_params):
         del params, base_metric_values, nominal_params
 
@@ -393,8 +427,12 @@ def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(tmp_path
     assert report["incomplete_output_metric_ids"] == ["y", "z"]
     shared_provenance = report["draw_outcome_provenance"]
     assert shared_provenance["requested_draw_count"] == 1000
-    assert len(shared_provenance["failure_records"]) == 515
-    assert len({row["draw_index"] for row in shared_provenance["failure_records"]}) == 515
+    assert len(shared_provenance["failure_records"]) == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
+    assert len({row["draw_index"] for row in shared_provenance["failure_records"]}) == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert all(
         row["output_outcomes"]
         == [
@@ -418,9 +456,13 @@ def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(tmp_path
     assert output_env.gate_eligible is False
     assert output_env.interval_semantics is IntervalSemantics.HEURISTIC_RANGE
     assert output_env.confidence_level is None
-    assert output_env.sample_size == 485
+    assert output_env.sample_size == 1000 - int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert output_env.metadata["candidate_only"] is True
-    assert output_env.metadata["draw_failure_count"] == 515
+    assert output_env.metadata["draw_failure_count"] == int(
+        np.count_nonzero(np.random.default_rng(2424).uniform(size=1000) < 0.5)
+    )
     assert store.get_bytes(historical_report_ref.artifact_id) == historical_report_bytes
 
 
@@ -478,4 +520,49 @@ def test_valid_delta_output_is_not_marked_missing_or_incomplete(tmp_path, monkey
     report = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
     assert report["methods"] == ["delta_method"]
     assert report["missing_output_metric_ids"] == []
+    assert report["incomplete_output_metric_ids"] == []
+
+
+def test_real_node_persists_and_replays_independent_pilot_certificate(tmp_path):
+    from polisyos.foundry.uncertainty.sampling_admission import verify_mean_certificate
+
+    env = UncertaintyEnvelope(
+        point_estimate=0.5,
+        confidence_interval=(0, 1),
+        confidence_level=None,
+        distribution_family=DistributionFamily.UNIFORM,
+        source=UncertaintySource.ENSEMBLE,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+        gate_eligible=True,
+        metadata={"param_name": "x"},
+    )
+    store, ctx, state = _build_node_context(
+        tmp_path,
+        run_id="R_b193_pilot",
+        metric_values={"y": 0},
+        input_env=env,
+        propagation_config={
+            "compute_sensitivity": False,
+            "mc_seed": 42,
+            "bounded_iid_mean": {"metric_id": "y", "response_threshold": 0.001},
+        },
+    )
+    outcome = PropagateUncertaintyNode().execute(ctx, state)
+    assert outcome.status == "ok"
+    reopened = FileSystemCAS(tmp_path)
+    simulation = SimulationResult.model_validate(
+        from_canonical_bytes(
+            reopened.get_bytes(
+                outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id
+            )
+        )
+    )
+    output = load_uncertainty_envelope(reopened, simulation.uncertainty_envelopes["y"])
+    certificate = verify_mean_certificate(output)
+    assert certificate.frozen_main_samples == 408
+    assert certificate.pilot_samples == 256
+    assert not output.gate_eligible
+    report = from_canonical_bytes(reopened.get_bytes(simulation.propagation_report_ref.artifact_id))
+    assert len(report["draw_outcome_provenance"]["draw_records"]) == 408
     assert report["incomplete_output_metric_ids"] == []

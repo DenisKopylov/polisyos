@@ -1,0 +1,343 @@
+{
+  "schema": "policyos.e02.literal_publication_copy_index.v1",
+  "verification_candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "publication_parent_sha": "781acab7a66ac7bbbd40d5a007fae22379e32e85",
+  "fixed_author_outputs": 31,
+  "fixed_author_output_bytes": 257524,
+  "copied_files": 47,
+  "copied_bytes": 1198144,
+  "copies": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/admission.stderr.txt",
+      "portable_path": "admission.stderr.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/admission.stdout.txt",
+      "portable_path": "admission.stdout.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "24d7b4b284f63711a0f5d726066c15a3f371861f4949de70b0426c42ae259066",
+      "bytes": 4051
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+      "portable_path": "checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "2a026082c9ae0f332147d8b121ca6841dcea20d2451ba712753b5160a5b49d35",
+      "bytes": 10726
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt",
+      "portable_path": "checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "878d5c6256968b7eba8ddbccd44ad7d165f61c4a7521d05198d615d5b5289e83",
+      "bytes": 400
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/pytest.xml",
+      "portable_path": "checks/cal-and-welfare-consumer-retry/pytest.xml",
+      "role": "fixed author execution/input observation",
+      "sha256": "e1990adf7d224852294334881d0a06f5a86b44a75c70f3018f7b6061013cde8b",
+      "bytes": 52854
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/finalize-retry.py.txt",
+      "portable_path": "finalize-retry.py.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "6b3e33b92318e1b7272bc1d16ad66d1cbd602de821870240734111f86ab42d9e",
+      "bytes": 5765
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/finalize.stderr.txt",
+      "portable_path": "finalize.stderr.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/finalize.stdout.txt",
+      "portable_path": "finalize.stdout.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "89e305e317c2f881e71683b56d0e7c781aa9e8ab9b97ed91bd6f269feb5261f1",
+      "bytes": 646
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/first-launch-resource-refusal.json",
+      "portable_path": "first-launch-resource-refusal.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "b388aca85ee0f8de8d934252416f79d436cac56f48d475f20684434ef9cd43e5",
+      "bytes": 694
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/initial-custody-metadata-error.json",
+      "portable_path": "initial-custody-metadata-error.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "99cbe214d944c84405a4c9ae8e624c758614a5b4aa979aeda32fd83a320d80f3",
+      "bytes": 827
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/input-reuse.json",
+      "portable_path": "input-reuse.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "b1c69e6b0b9847553ae964c9a8f8960d18d78629352553dbea177714457b91ee",
+      "bytes": 847
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-ready.stderr.txt",
+      "portable_path": "launch-ready.stderr.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-ready.stdout.txt",
+      "portable_path": "launch-ready.stdout.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "914b18d30e51a137fd99b8bdbd4c812e5a2afe36ac66826fd46eeceecf9ca2bd",
+      "bytes": 2677
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-resource-observations.jsonl",
+      "portable_path": "launch-resource-observations.jsonl",
+      "role": "fixed author execution/input observation",
+      "sha256": "03458c23816a660c81b79bfc25732c22796b043584e04a4aea2b7960f8c0e5da",
+      "bytes": 905
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-retry.py.txt",
+      "portable_path": "launch-retry.py.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "879bd64be8f33e5e05c13a34d851eb8c0f8f3c56a0f23426ed959018c6afb2de",
+      "bytes": 2675
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-when-ready.py.txt",
+      "portable_path": "launch-when-ready.py.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "ff024193e238e1901603584e5d1d2092645867241159c1e2cb97c73ca76e70b9",
+      "bytes": 3422
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch.stderr.txt",
+      "portable_path": "launch.stderr.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "1f06f6ba5685a8ed4b6516de11a40b8e76da7758f41c44ad7d03b7b309a5cfa2",
+      "bytes": 385
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch.stdout.txt",
+      "portable_path": "launch.stdout.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/prepare-retry.py.txt",
+      "portable_path": "prepare-retry.py.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "cf1885f9754d5fe36c234c619f96ecd21a813d44e4abb3a14fdc78322d38ad96",
+      "bytes": 7463
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/resource-observations.jsonl",
+      "portable_path": "resource-observations.jsonl",
+      "role": "fixed author execution/input observation",
+      "sha256": "82888103bfe968b6e8979f998bb4c6bad3e234aea25f59739b80914ae8a142be",
+      "bytes": 2285
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/resources-1791366610.json",
+      "portable_path": "resources-1791366610.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "fee08a8ade8bbd0d5143e84120574c3169a29ef4440c0f2cb5b48ef63b85eea3",
+      "bytes": 2408
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-admission.json",
+      "portable_path": "retry-admission.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "054abd501722634289e8f7c88106a236e2900c531d5836c65668dd1b5d6af221",
+      "bytes": 31432
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-completion.json",
+      "portable_path": "retry-completion.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "6e1caf4596a213d169dde9b8925eb196e451e693134a0a2e9fc4d053cd87b109",
+      "bytes": 7025
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-started.json",
+      "portable_path": "retry-started.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "8548493f44099aa6e23b420b51bfd7f9a6cf0e2e69e83df26430cdf20fa97416",
+      "bytes": 6117
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/runtime-observations.jsonl",
+      "portable_path": "runtime-observations.jsonl",
+      "role": "fixed author execution/input observation",
+      "sha256": "1e4496eed90cce4161130c41811b42e5b0a26e788e514c138e44eb86eb5fb4d4",
+      "bytes": 4109
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "portable_path": "original-and-inputs/cal-and-welfare-consumer.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd",
+      "bytes": 10457
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "portable_path": "original-and-inputs/cal-and-welfare-consumer.stdout.txt",
+      "role": "fixed author execution/input observation",
+      "sha256": "840e92795a70320c72cbedd9f1ef462e30cbd062b488ab646e23b5c93c0ea505",
+      "bytes": 281
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/results-importer/results-importer.json",
+      "portable_path": "original-and-inputs/results-importer.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "6aaa1261b5ec92bfcd3bd491411ab79a7f8ef0d589b8e73c87e4d9baaaf874e7",
+      "bytes": 8168
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/admitted-before-deletion.json",
+      "portable_path": "original-and-inputs/admitted-before-deletion.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "3260e86a2c2ca9593df646b075ff814f2598bd152913738f9cad07d0ec93d835",
+      "bytes": 81905
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-result.json",
+      "portable_path": "original-and-inputs/cleanup-result.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "15e2d2a58a1f733d3f744a97b80dc630a78ce8a5d8632f556b69170742cdc2a1",
+      "bytes": 3194
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-publication-receipt.json",
+      "portable_path": "original-and-inputs/cleanup-publication-receipt.json",
+      "role": "fixed author execution/input observation",
+      "sha256": "254d0413a8abc3ecf4ae75d6cb903fcce4ff22e575d4d9bd78d0663019d4dfda",
+      "bytes": 5806
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/moderate-publication-selection.json",
+      "portable_path": "moderate-publication-selection.json",
+      "role": "fixed independently reviewed author selection index",
+      "sha256": "18336786d54225d5db45f5944f9dc6a0138008a76ea300a080f5738263eb058f",
+      "bytes": 10200
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/case-index.json",
+      "portable_path": "independent-review/case-index.json",
+      "role": "independent original/current/historical observer outputs",
+      "sha256": "dba0f3479e68f857c1e445c4e2f217720ee858d6839cbac2e0091ad1317bdf2d",
+      "bytes": 227258
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/historical-recompute-before-output-normalization.py.txt",
+      "portable_path": "independent-review/historical-recompute-before-output-normalization.py.txt",
+      "role": "independent original/current/historical observer outputs",
+      "sha256": "3f8c6d35b0b6d768da823dabaf474f183ec3d88ae0ee61630fbae956729e71cc",
+      "bytes": 35515
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/historical-review-output-map-gap.json",
+      "portable_path": "independent-review/historical-review-output-map-gap.json",
+      "role": "independent original/current/historical observer outputs",
+      "sha256": "a15a27c08e2ead5ce081fa7cf7ac9f9d295a5917eea0459e7656330e45278a39",
+      "bytes": 257535
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/historical-review-output-map-gap.stderr",
+      "portable_path": "independent-review/historical-review-output-map-gap.stderr",
+      "role": "independent original/current/historical observer outputs",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/historical-review-output-map-gap.stdout",
+      "portable_path": "independent-review/historical-review-output-map-gap.stdout",
+      "role": "independent original/current/historical observer outputs",
+      "sha256": "bbd1f669e7704a58c9beb9d0dcf7a32ba34e87b7e13e027f64d082e88596ccff",
+      "bytes": 426
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/publication-review.json",
+      "portable_path": "independent-review/publication-review.json",
+      "role": "independent original/current/historical observer outputs",
+      "sha256": "f60727e1dadaf3e9225a15e0104a917dad71d6d6422bec15034edb87ada0bace",
+      "bytes": 10258
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/review.json",
+      "portable_path": "independent-review/review.json",
+      "role": "independent original/current/historical observer outputs",
+      "sha256": "ca7158b7ec13ae1343ff8fdfe9058c7d40d869a774a5a1fbbc7101f26bbcbc68",
+      "bytes": 257231
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/review_cal_retry-executed.py.txt",
+      "portable_path": "independent-review/review_cal_retry-executed.py.txt",
+      "role": "independent original/current/historical observer outputs",
+      "sha256": "0a543756a4b9e3431f11eb503141a6e19edf3ebea9d19b570c58d8219f9accb5",
+      "bytes": 4292
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/admission-resume.json",
+      "portable_path": "publication-admission/admission-resume.json",
+      "role": "publication admission or literal copy command source",
+      "sha256": "a14f8a94520e1a94dcb075228f300cf2c8318d6eeb74680e7499a50bf63f351f",
+      "bytes": 123184
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/admission-resume.stderr.txt",
+      "portable_path": "publication-admission/admission-resume.stderr.txt",
+      "role": "publication admission or literal copy command source",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/prepublication-ancestry.json",
+      "portable_path": "publication-admission/prepublication-ancestry.json",
+      "role": "publication admission or literal copy command source",
+      "sha256": "946bdf0e81a2cd8e05bc384b12de394bbac4644e1993c551c4870e019b29436f",
+      "bytes": 305
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/copy-packet.py.txt",
+      "portable_path": "publication-admission/copy-packet.py.txt",
+      "role": "publication admission or literal copy command source",
+      "sha256": "5ea57f86f8779528015bea0b3d0b0753fc31e46a6ce43a224679dfdac1f77fb1",
+      "bytes": 10743
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/recompute-copy-custody.py.txt",
+      "portable_path": "publication-control/recompute-copy-custody.py.txt",
+      "role": "Literal final-copy custody observer and six corrupt metadata controls; no source/test execution",
+      "sha256": "1a67c3ac3ed2631db41b9872401f92cb010e266015c718cbe1a91f54d972c3b9",
+      "bytes": 2756
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/recompute-copy-custody.stdout.json",
+      "portable_path": "publication-control/recompute-copy-custody.stdout.json",
+      "role": "Literal final-copy custody observer and six corrupt metadata controls; no source/test execution",
+      "sha256": "e844ebde2784ce6a3163ff82bb4d3fb627a872c3efebbe867ebb5048e66dc20f",
+      "bytes": 917
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/recompute-copy-custody.stderr.txt",
+      "portable_path": "publication-control/recompute-copy-custody.stderr.txt",
+      "role": "Literal final-copy custody observer and six corrupt metadata controls; no source/test execution",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "private_exclusion": "Private Git config contents, environments and raw fixtures excluded",
+  "literal_bytes": true
+}

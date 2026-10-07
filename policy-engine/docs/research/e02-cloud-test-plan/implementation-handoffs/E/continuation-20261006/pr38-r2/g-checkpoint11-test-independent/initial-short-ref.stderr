@@ -1,0 +1,8 @@
+error: short object ID c311 is ambiguous
+hint: The candidates are:
+hint:   c311546de commit 2026-10-06 - docs(e02-E): freeze reviewed dependency assembly before corrected wave
+hint:   c3110e52a tree
+hint:   c311090ff blob
+fatal: ambiguous argument 'c311': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'

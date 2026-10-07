@@ -1,0 +1,11 @@
+[codex/e02-E-doe-20261006 6b6280d1e] docs(e02-E): freeze Layer3 packet predicate bases
+ 9 files changed, 4447 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/README.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/admission-resume.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/admission-resume.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/predicate-basis-correction.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/validate_predicate_basis.py.txt

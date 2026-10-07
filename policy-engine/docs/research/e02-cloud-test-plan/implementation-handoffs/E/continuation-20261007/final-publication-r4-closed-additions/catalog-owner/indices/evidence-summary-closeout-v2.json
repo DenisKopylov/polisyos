@@ -1,0 +1,64 @@
+{
+  "schema": "policyos.e02.catalog_evidence_summary_closeout.v2",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "scope": "Evidence utility correction only. Native/candidate code acceptance and finding closure remain separate.",
+  "historical_corrective_receipt": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/evidence-summary-correction-v2.json",
+    "bytes": 9808,
+    "sha256": "f9ec38a0d6e1ad714cbc19d1bb87625fd967c9d809033ebc6a59a5cc917b67ce"
+  },
+  "historical_pending_selection": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection-v2-pending-review.json",
+    "bytes": 40516,
+    "sha256": "23ffe777140f4361e8a889b5adc6acf6f13fa75777be2ab6cfb6c526dcfb03df"
+  },
+  "original_packet_unchanged": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-ready-catalog-fixture-packet.json",
+    "bytes": 32614,
+    "sha256": "5feed21c81a8e01a68c074571d46182fe3eda1f5fea7f6007db8f06fafa12b80"
+  },
+  "original_selection_unchanged": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection.json",
+    "bytes": 29522,
+    "sha256": "e441715f8effb36bc3197fde4f7f21c2cdcbfa1ac4ec03329a2bc382fe3a1ddd"
+  },
+  "original_validator_unchanged": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet.py",
+    "bytes": 6181,
+    "sha256": "558ea2ebbc183da3d2e1bd6981f9671585931c6ebae7f290c5ba9511e3d44052"
+  },
+  "current_validator": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+    "bytes": 15716,
+    "sha256": "bdfba9995c408064c21e9bd7e779b7ad8705f4100f17c34592ebe41afd1b24c7"
+  },
+  "independent_class_GO": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-summary-class-independent-review.json",
+    "bytes": 9380,
+    "sha256": "7617b8afc76e67d0963725c329a574392772f9bf7bf7e633f26be957d060e570"
+  },
+  "independent_custody_GO": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-publication-custody-independent-review.json",
+    "bytes": 33125,
+    "sha256": "978d1c2db70ff2aefddee3916d0638b550908b201adf52ad729accaf396b248e"
+  },
+  "independent_selection": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/publication-selection-final-v2.json",
+    "bytes": 22017,
+    "sha256": "f695a3fd5c47a63c6fc34b2ead2ad2ef6d4ddd3faf1e3daec51e39673f9eca4e"
+  },
+  "bounded_verdict": "GO evidence summary admission/custody on exact v2 bytes; prior native bounded mechanism/source/CAS GO reused unchanged",
+  "checks": {
+    "author_normal_optimized": "21controls /65typed structured claims each, byte-identical stdout",
+    "independent_normal_optimized": "exact same authorstdout; all3 marker-preserving corrupt summaries refuse",
+    "effective_predicate_removal": "sole new summary-admission call replaced with {}; old v1 then accepts all3 mutants in each interpreter mode, failing independent expected-refusal property",
+    "custody": "all15 input Gitblobs physically equal; original50logical/42unique510011B and pending64logical/51unique591188B unchanged aliases/bytes"
+  },
+  "native_source_or_frontend_repeated": false,
+  "rootenv_or_package_writes": false,
+  "finding_closure": false,
+  "owner_helper_patch_accepted": false,
+  "original_HTTP_outcome": "FAIL1,1585cases675PASS81FAIL827ERROR2SKIP; catalog413=347ERROR66FAIL unchanged",
+  "owner_next": "Canonical A fixture writer reviews/applies concrete helper-only patch or approved typed inlet, preserving process-global fixture seam limitations and strict catalog source/binding refusals; then affected HTTPselectors/fullCI02 and full unchanged native a11y stages. DataForge retains source/schema/authority ownership. No production data needed for generic fixture startup; factual source-law/history claims remain separately scoped local inputs."
+}

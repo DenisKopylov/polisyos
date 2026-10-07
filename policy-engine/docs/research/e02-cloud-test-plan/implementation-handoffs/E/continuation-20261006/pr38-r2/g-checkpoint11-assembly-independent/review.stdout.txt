@@ -1,0 +1,26 @@
+{
+  "disposition": "GO_bounded_source_readiness_for_corrected_freeze",
+  "candidate": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "footprint": {
+    "full_paths": 84,
+    "doc16": 16,
+    "G68": 68,
+    "production_source_changed": 0,
+    "harness_changed": 0,
+    "E_owned_native_tests_changed": 0,
+    "A_installed_native_tests_added": 1,
+    "new_G_evidence_docs": 67,
+    "all_G68_exact_fetched_G_blobs": true
+  },
+  "native_files": 122,
+  "A_packets": 2,
+  "lint_Python_paths": 317,
+  "new_lint_paths_vs94d": [
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+    "tests/unit/remediation/test_req_01_installed.py"
+  ],
+  "negatives": 10,
+  "source_immutable": true
+}

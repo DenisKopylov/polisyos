@@ -164,7 +164,10 @@ def test_incomplete_intervals_remain_unverified_after_report_readback(
 
     assert reopened.metrics.ece == pytest.approx(0.0)
     assert reopened.metrics.intervals == {}
-    assert reopened.metadata["interval_coverage"] == {"status": "incomplete", "n_comparisons": 1}
+    assert reopened.metadata["interval_coverage"]["status"] == "incomplete"
+    assert reopened.metadata["interval_coverage"]["n_comparisons"] == 1
+    assert reopened.metadata["interval_coverage"]["requested"] == 200
+    assert reopened.metadata["interval_coverage"]["eligible"] == 100
     assert len(reopened.curves["interval_coverage"]) == 1
     assert reopened.curves["interval_coverage"][0].count == 100
     assert receipt.runtime_truthfulness_tier == "unverified"
@@ -187,13 +190,14 @@ def test_measured_coverage_controls_survive_report_readback(covered: int, tmp_pa
     reopened = CalibrationDiagnosticsReport.model_validate_json(path.read_text(encoding="utf-8"))
     receipt = reopened.to_truthfulness_receipt()
 
-    assert reopened.metadata["interval_coverage"] == {"status": "evaluated", "n_comparisons": 1}
+    assert reopened.metadata["interval_coverage"]["status"] == "evaluated"
+    assert reopened.metadata["interval_coverage"]["n_comparisons"] == 1
     assert reopened.metrics.ece == pytest.approx(abs(covered / 100 - 0.95))
     assert reopened.curves["interval_coverage"][0].mean_observed == pytest.approx(covered / 100)
     assert reopened.metrics.intervals["ece"].low <= reopened.metrics.ece
     assert reopened.metrics.intervals["ece"].high >= reopened.metrics.ece
-    expected_tier = "approximate_calibrated" if covered == 95 else "unverified"
-    assert receipt.runtime_truthfulness_tier == expected_tier
+    assert receipt.runtime_truthfulness_tier == "unverified"
+    assert "interval_pairs_not_reconciled" in receipt.degradation_reasons
     assert receipt.truthfulness_scope == "predictive_calibration"
 
 
@@ -203,13 +207,9 @@ def test_continuous_rejects_invalid_levels_even_for_skipped_sets(level: float) -
         evaluate_continuous(y_true=[1.0], intervals=[[]], levels=[level])
 
 
-def test_continuous_nonstrict_reversed_bounds_remain_negative_coverage() -> None:
-    report = evaluate_continuous(
-        y_true=[1.0] * 100, intervals={0.95: [(2.0, 0.0)] * 100}, strict=False
-    )
-
-    assert report.curves["interval_coverage"][0].mean_observed == 0.0
-    assert report.to_truthfulness_receipt().runtime_truthfulness_tier == "unverified"
+def test_continuous_reversed_bounds_reject_before_calculation_even_nonstrict() -> None:
+    with pytest.raises(ValueError, match="lower bound"):
+        evaluate_continuous(y_true=[1.0] * 100, intervals={0.95: [(2.0, 0.0)] * 100}, strict=False)
 
 
 @pytest.mark.parametrize("level", [float("nan"), float("inf"), -0.1, 0.0, 1.0, 1.1])
@@ -235,7 +235,8 @@ def test_predictive_samples_do_not_replace_explicit_empty_levels() -> None:
     )
 
     assert report.metadata["nominal_levels"] == []
-    assert report.metadata["interval_coverage"] == {"status": "not_evaluated", "n_comparisons": 0}
+    assert report.metadata["interval_coverage"]["status"] == "not_evaluated"
+    assert report.metadata["interval_coverage"]["n_comparisons"] == 0
     assert report.metrics.ece is None
     assert report.curves["interval_coverage"] == ()
     assert report.to_truthfulness_receipt().runtime_truthfulness_tier == "unverified"
@@ -245,4 +246,5 @@ def test_predictive_samples_retain_default_levels_when_omitted() -> None:
     report = evaluate_continuous(y_true=[1.0] * 100, predictive_samples=[[0.0, 2.0]] * 100)
 
     assert report.metadata["nominal_levels"] == [0.5, 0.8, 0.9]
-    assert report.metadata["interval_coverage"] == {"status": "evaluated", "n_comparisons": 3}
+    assert report.metadata["interval_coverage"]["status"] == "evaluated"
+    assert report.metadata["interval_coverage"]["n_comparisons"] == 3

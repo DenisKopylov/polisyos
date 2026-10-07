@@ -1,0 +1,347 @@
+{
+  "schema": "e02.immutable-property-reuse.v1",
+  "old_source": "43c443b6f1015d57cf624598531ef99c22a296e6",
+  "source": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+  "canonical_companion": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+  "metadata_flag_companion": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "property_source_equal": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "identity": "exact immutable Git bytes equal across43/bf3/7dc/7bc",
+      "records": [
+        {
+          "sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+          "tree": "54cad5e41693804135687f07b463b48900a54ec0",
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "blob": "fc6a1df59013b46c01dcf2eb966923fb896f8498",
+          "bytes": 15902,
+          "sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945"
+        },
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "blob": "fc6a1df59013b46c01dcf2eb966923fb896f8498",
+          "bytes": 15902,
+          "sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "blob": "fc6a1df59013b46c01dcf2eb966923fb896f8498",
+          "bytes": 15902,
+          "sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "blob": "fc6a1df59013b46c01dcf2eb966923fb896f8498",
+          "bytes": 15902,
+          "sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "identity": "exact immutable Git bytes equal across43/bf3/7dc/7bc",
+      "records": [
+        {
+          "sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+          "tree": "54cad5e41693804135687f07b463b48900a54ec0",
+          "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+          "blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+          "bytes": 92721,
+          "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca"
+        },
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+          "blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+          "bytes": 92721,
+          "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+          "blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+          "bytes": 92721,
+          "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+          "blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+          "bytes": 92721,
+          "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "identity": "exact immutable Git bytes equal across43/bf3/7dc/7bc",
+      "records": [
+        {
+          "sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+          "tree": "54cad5e41693804135687f07b463b48900a54ec0",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+          "bytes": 70840,
+          "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+        },
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+          "bytes": 70840,
+          "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+          "bytes": 70840,
+          "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+          "bytes": 70840,
+          "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "identity": "exact immutable Git bytes equal across43/bf3/7dc/7bc",
+      "records": [
+        {
+          "sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+          "tree": "54cad5e41693804135687f07b463b48900a54ec0",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+          "bytes": 24137,
+          "sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f"
+        },
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+          "bytes": 24137,
+          "sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+          "bytes": 24137,
+          "sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+          "bytes": 24137,
+          "sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "identity": "exact immutable Git bytes equal across43/bf3/7dc/7bc",
+      "records": [
+        {
+          "sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+          "tree": "54cad5e41693804135687f07b463b48900a54ec0",
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+          "bytes": 20644,
+          "sha256": "7a6d17749a9012e8b470a87310615c526453e5b7a7eb17628838a55810e86d98"
+        },
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+          "bytes": 20644,
+          "sha256": "7a6d17749a9012e8b470a87310615c526453e5b7a7eb17628838a55810e86d98"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+          "bytes": 20644,
+          "sha256": "7a6d17749a9012e8b470a87310615c526453e5b7a7eb17628838a55810e86d98"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+          "bytes": 20644,
+          "sha256": "7a6d17749a9012e8b470a87310615c526453e5b7a7eb17628838a55810e86d98"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+      "identity": "exact immutable Git bytes equal across43/bf3/7dc/7bc",
+      "records": [
+        {
+          "sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+          "tree": "54cad5e41693804135687f07b463b48900a54ec0",
+          "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+          "blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+          "bytes": 10105,
+          "sha256": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03"
+        },
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+          "blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+          "bytes": 10105,
+          "sha256": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+          "blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+          "bytes": 10105,
+          "sha256": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+          "blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+          "bytes": 10105,
+          "sha256": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03"
+        }
+      ]
+    }
+  ],
+  "facade_identity_routing_delta": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "source_identical_after_bf3": true,
+      "records": [
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/src/polisyos/calibration/__init__.py",
+          "blob": "941e326c19c3823a82756fb9053746b8aed05510",
+          "bytes": 2329,
+          "sha256": "90956911642839c4e79dc6ef30d4d581de88ccb02aa60894eaef0fe68d71a8b6"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/src/polisyos/calibration/__init__.py",
+          "blob": "941e326c19c3823a82756fb9053746b8aed05510",
+          "bytes": 2329,
+          "sha256": "90956911642839c4e79dc6ef30d4d581de88ccb02aa60894eaef0fe68d71a8b6"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/src/polisyos/calibration/__init__.py",
+          "blob": "941e326c19c3823a82756fb9053746b8aed05510",
+          "bytes": 2329,
+          "sha256": "90956911642839c4e79dc6ef30d4d581de88ccb02aa60894eaef0fe68d71a8b6"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "source_identical_after_bf3": true,
+      "records": [
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+          "blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+          "bytes": 2176,
+          "sha256": "339831fa41ff9e46842184fa01bbf2530db7317522bc2139c59343332f94d1ea"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+          "blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+          "bytes": 2176,
+          "sha256": "339831fa41ff9e46842184fa01bbf2530db7317522bc2139c59343332f94d1ea"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+          "blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+          "bytes": 2176,
+          "sha256": "339831fa41ff9e46842184fa01bbf2530db7317522bc2139c59343332f94d1ea"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "source_identical_after_bf3": true,
+      "records": [
+        {
+          "sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+          "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+          "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+          "blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+          "bytes": 5431,
+          "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14"
+        },
+        {
+          "sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+          "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+          "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+          "blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+          "bytes": 5431,
+          "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14"
+        },
+        {
+          "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+          "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+          "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+          "blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+          "bytes": 5431,
+          "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14"
+        }
+      ]
+    }
+  ],
+  "source_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+  ],
+  "canonical_footprint": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md"
+  ],
+  "metadata_flag_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml"
+  ],
+  "canonical_contract_unchanged": true,
+  "publication_status": "Current7bc one-line inventory-reviewed true declaration follows independent7dc canonical-byte confirmation; source Python remains exactbf3"
+}

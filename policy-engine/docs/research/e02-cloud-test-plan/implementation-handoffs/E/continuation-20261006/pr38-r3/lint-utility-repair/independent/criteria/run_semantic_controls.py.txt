@@ -1,0 +1,259 @@
+"""Read-only independent controls for pinned E publication utility source."""
+
+import argparse
+import ast
+import copy
+import hashlib
+import importlib.util
+import io
+import json
+import shutil
+import subprocess
+import sys
+import types
+from pathlib import Path
+
+
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+R2 = PREFIX + "continuation-20261006/pr38-r2/"
+E9 = "e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+
+
+def require(condition, reason):
+    if not condition:
+        raise AssertionError(reason)
+
+
+def load(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+class Output(io.StringIO):
+    def __init__(self):
+        super().__init__()
+        self.flush_calls = 0
+
+    def flush(self):
+        self.flush_calls += 1
+
+
+def stdout_controls(source_root, inputs):
+    signatures = {}
+    helpers = {}
+    calls = 0
+    for path in inputs["owned_paths"]:
+        tree = ast.parse((source_root / path).read_bytes())
+        definitions = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "_write_stdout"]
+        actual = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "_write_stdout"]
+        calls += len(actual)
+        for call in actual:
+            require(all(k.arg == "flush" for k in call.keywords), "unadmitted stdout keyword:" + path)
+        if not definitions:
+            continue
+        require(len(definitions) == 1, "duplicate stdout helper:" + path)
+        node = definitions[0]
+        signature = ast.dump(node, include_attributes=False)
+        signatures.setdefault(signature, []).append(path)
+        helpers[signature] = node
+    rows = []
+    examples = [(), ("",), ("hello",), ("кириллица", "雪", 17, 0.5), (json.dumps({"x": [1, 2], "flag": True}),), ("multiple", None, False, {"unit": "u"})]
+    for signature, node in helpers.items():
+        for values in examples:
+            for flush in (False, True):
+                old = Output()
+                new = Output()
+                print(*values, flush=flush, file=old)
+                namespace = {"sys": types.SimpleNamespace(stdout=new)}
+                body = ast.Module(body=[copy.deepcopy(node)], type_ignores=[])
+                exec(compile(ast.fix_missing_locations(body), "<actual-stdout-helper>", "exec"), namespace)
+                namespace["_write_stdout"](*values, flush=flush)
+                require(new.getvalue().encode() == old.getvalue().encode(), "stdout bytes changed")
+                require(new.flush_calls == old.flush_calls, "stdout flush changed")
+                rows.append({"signature_sha256": hashlib.sha256(signature.encode()).hexdigest(), "bytes": len(new.getvalue().encode()), "flush": flush})
+    return {"actual_call_count": calls, "actual_helper_variants": len(helpers), "control_cases": len(rows), "rows": rows, "scope": "actual positional/flush shapes and completed serializations; arbitrary side-effectful __str__ is not claimed"}
+
+
+def copy_validator_controls(source_root, archive, repo):
+    module = load(source_root / (R2 + "validate_review_copies.py"), "current_copy_validator")
+    records = json.loads((archive / "independent-reviews/copy-index.json").read_text())["records"]
+    module.validate(repo, records, E9, historical=True)
+    refusals = []
+    for field, value in (("sha256", "0" * 64), ("bytes", -1), ("copied_path", "../outside"), ("bytes", True)):
+        modified = copy.deepcopy(records)
+        modified[0][field] = value
+        try:
+            module.validate(repo, modified, E9, historical=True)
+        except ValueError:
+            refusals.append(field + ":" + str(value))
+        else:
+            raise AssertionError("forged historical copy admitted:" + field)
+    live_expected = None
+    try:
+        module.validate(repo, records, E9)
+    except ValueError as error:
+        live_expected = str(error)
+    require(live_expected is not None, "changed live utilities must not validate against old historical copy index")
+    real_git = module._git_bytes
+    invocation_count = 0
+
+    def forbidden_git(*args, **kwargs):
+        nonlocal invocation_count
+        invocation_count += 1
+        raise AssertionError("malformed revision reached Git callback")
+
+    module._git_bytes = forbidden_git
+    invalid_revisions = ["--output=/never-executed", " HEAD", "HEAD\n", "HEAD\0", "", "-h"]
+    for revision in invalid_revisions:
+        try:
+            module.validate(repo, records, revision)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("malformed revision admitted")
+    try:
+        module.validate(repo, records, "HEAD", historical=True)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("mutable historical revision admitted")
+    invalid_records = [("bytes", True), ("copied_path", None), ("copied_path", "."), ("sha256", False), ("copied_path", "--option")]
+    for field, value in invalid_records:
+        damaged = copy.deepcopy(records)
+        damaged[-1][field] = value
+        try:
+            module.validate(repo, damaged, E9, historical=True)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("malformed last record admitted:" + field)
+    require(invocation_count == 0, "revision refusal occurred after Git invocation")
+    module._git_bytes = real_git
+    return {"historical_records": len(records), "historical": "PASS", "corrupt_refusals": refusals, "current_old_index": "REFUSED", "current_old_index_reason": live_expected, "malformed_revision_cases": len(invalid_revisions) + 1, "malformed_record_cases": len(invalid_records), "malformed_revision_git_callbacks": invocation_count}
+
+
+def metadata_ref_controls(source_root, archive, repo):
+    module = load(source_root / (R2 + "criteria-frozen-a9-v2/validate.py"), "current_criteria_refs")
+    directory = archive / "criteria-frozen-a9-v2"
+    names = ["all-54-update.json", "current-local-G-recipes.json", "input-index.json", "current-case-index.json", "current-lint-publication-debt.json"]
+    values = [json.loads((directory / name).read_text()) for name in names]
+    invocation_count = 0
+
+    def forbidden_git(*args, **kwargs):
+        nonlocal invocation_count
+        invocation_count += 1
+        raise AssertionError("malformed metadata reached Git callback")
+
+    module.git = forbidden_git
+    controls = []
+    edits = [("source_ref_option", "inputs", "source_sha", "--output=/not-executed"), ("source_path_none", "inputs", "path", None), ("source_path_dot", "inputs", "path", "."), ("source_path_escape", "inputs", "path", "../outside"), ("source_path_bool", "inputs", "path", True), ("evidence_ref_option", "portable_inputs", "evidence_git_commit", "--output=/not-executed"), ("evidence_path_none", "portable_inputs", "repository_path", None)]
+    for name, bucket, field, value in edits:
+        damaged = copy.deepcopy(values)
+        damaged[2][bucket][-1][field] = value
+        try:
+            module.check(*damaged, repo)
+        except ValueError as error:
+            controls.append({"name": name, "outcome": "REFUSED", "reason": str(error)})
+        else:
+            raise AssertionError("malformed metadata admitted:" + name)
+    require(invocation_count == 0, "metadata admission occurred after a Git callback")
+    return {"controls": controls, "git_callbacks": invocation_count, "corrupted_record": "last row tests whole-input preflight"}
+
+
+def xml_controls(source_root, archive, repo):
+    module = load(source_root / (R2 + "criteria-frozen-a9-v2/validate.py"), "current_criteria_xml")
+    index = json.loads((archive / "criteria-frozen-a9-v2/input-index.json").read_text())
+    row = next(r for r in index["portable_inputs"] if r["repository_path"].endswith(".xml"))
+    data = subprocess.check_output(["git", "show", row["evidence_git_commit"] + ":" + row["repository_path"]], cwd=repo)
+    require(len(data) == row["bytes"] and hashlib.sha256(data).hexdigest() == row["sha256"], "actual JUnit input custody")
+    tree = module.fromstring(data)
+    require(len(list(tree.iter("testcase"))) > 0, "actual JUnit omitted cases")
+    entity = b'<!DOCTYPE x [<!ENTITY safe "entity-marker">]><x>&safe;</x>'
+    try:
+        module.fromstring(entity)
+    except Exception as error:
+        refusal = type(error).__name__
+    else:
+        raise AssertionError("XML entity accepted")
+    require(refusal == "EntitiesForbidden", "unrelated XML failure substituted for entity refusal")
+    return {"real_input": row, "real_testcases": len(list(tree.iter("testcase"))), "entity_control": "REFUSED", "reason": refusal}
+
+
+def executable_controls(source_root, inputs):
+    helpers = {}
+    covered = []
+    subprocess_calls = 0
+    for path in inputs["owned_paths"]:
+        tree = ast.parse((source_root / path).read_bytes())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and node.func.value.id == "subprocess":
+                subprocess_calls += 1
+                for keyword in node.keywords:
+                    if keyword.arg == "shell":
+                        require(isinstance(keyword.value, ast.Constant) and keyword.value.value is False, "shell execution admitted:" + path)
+        for node in tree.body:
+            if isinstance(node, ast.FunctionDef) and node.name == "_resolve_executable":
+                key = ast.dump(node, include_attributes=False)
+                helpers[key] = node
+                covered.append(path)
+    for node in helpers.values():
+        namespace = {"shutil": shutil, "Path": Path}
+        exec(compile(ast.fix_missing_locations(ast.Module(body=[copy.deepcopy(node)], type_ignores=[])), "<actual-resolver>", "exec"), namespace)
+        resolved = namespace["_resolve_executable"]("git")
+        require(Path(resolved).is_absolute() and Path(resolved).is_file(), "actual Git did not resolve absolutely")
+        namespace["shutil"] = types.SimpleNamespace(which=lambda name: None)
+        try:
+            namespace["_resolve_executable"]("unavailable-utility-control")
+        except RuntimeError as error:
+            require("unavailable" in str(error), "missing executable refusal lost its cause")
+        else:
+            raise AssertionError("missing executable admitted")
+    return {"resolver_modules": len(covered), "actual_variants": len(helpers), "subprocess_calls": subprocess_calls, "shell_true": 0, "real_git_absolute": "PASS", "absent_executable": "REFUSED", "absent_executable_child_spawns": 0}
+
+
+def closure_controls(source_root):
+    path = source_root / (R2 + "public-surface-r4/calibration_reader_probe.py")
+    tree = ast.parse(path.read_bytes())
+    node = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "counted_build")
+    callbacks = []
+    counters = []
+
+    def original_build(marker):
+        def evaluator(**params):
+            return marker
+
+        evaluator._sensitivity_map = {"marker": marker}
+        return evaluator, [marker]
+
+    namespace = {"original_build": original_build}
+    body = ast.fix_missing_locations(ast.Module(body=[copy.deepcopy(node)], type_ignores=[]))
+    for marker in ("first", "second"):
+        count = [0]
+        namespace["callback_count"] = count
+        exec(compile(body, "<actual-counted-build>", "exec"), namespace)
+        callback, mapped = namespace["counted_build"](marker)
+        require(mapped == [marker], "callback mapping changed")
+        callbacks.append(callback)
+        counters.append(count)
+    require([callback() for callback in callbacks] == ["first", "second"], "escaped callback basis changed")
+    require(counters == [[1], [1]], "late loop counter shared after creation")
+    return {"actual_source_path": str(path), "escaped_callbacks": 2, "markers": ["first", "second"], "counter_rows": counters, "after_loop": "PASS"}
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-root", type=Path, required=True)
+    parser.add_argument("--archive", type=Path, required=True)
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--inputs", type=Path, required=True)
+    args = parser.parse_args()
+    inputs = json.loads(args.inputs.read_text())
+    result = {"optimized": sys.flags.optimize, "source_root": str(args.source_root), "archive": str(args.archive), "stdout": stdout_controls(args.source_root, inputs), "copy_validator": copy_validator_controls(args.source_root, args.archive, args.repo), "XML": xml_controls(args.source_root, args.archive, args.repo), "executables": executable_controls(args.source_root, inputs), "delegated_review_classes": ["unmatched original assertion predicates", "escaped closure captures", "complete dynamic Git-ref wrapper class"]}
+    sys.stdout.write(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-ir-composition-c539-independent-20261007/probe-gaps.py", line 34, in <module>
+    result=u.push_forward_envelope(lambda x:calls.append(x) or x,forged)
+  File "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py", line 2012, in push_forward_envelope
+    result = UncertaintyEnvelope(
+        schema_version=envelope.schema_version,
+    ...<29 lines>...
+        },
+    )
+  File "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for UncertaintyEnvelope
+  Value error, point_estimate (0.6666666666666666) must lie within confidence_interval [0.010000000000000009, 0.49] [type=value_error, input_value={'schema_version': '1.1',...d_cert_policy': 'auto'}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/value_error

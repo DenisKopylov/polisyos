@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-description-plan-custody-independent/final-3d/immutable-copier.py", line 117, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-custody-independent/final-3d/immutable-copier.py", line 97, in main
+    if metadata_bytes['copy-cleanup-description-plan.py.txt']!=TRUSTED_COPIER_BYTES:raise ValueError('trusted executing copier companion identity before write')
+                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: trusted executing copier companion identity before write

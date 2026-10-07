@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-calibration-objective-binding"
+title = "Bind measurement operands to calibration objective identity"
+type = "fixed"
+component = "foundry-calibration"
+owner = "team-foundry"
+surface_classification = "internal"
+summary = "Freeze adapted measurement sample weights and bind all effective objective operands, scales, metric axes, resolved nodes and runtime registries in typed framed content identity. Unknown callback objects and custom adapters cannot authorize Hessian reuse."
+evidence = ["tests/unit/foundry/calibration/test_calibrator_batch.py", "tests/unit/remediation/test_cal_04.py"]
+compatibility = "Measurement adapters are evaluated once before optimization; custom callbacks remain supported with explicit unestablished functional identity and disabled Hessian reuse."
+limitations = "Content identity establishes neither source truth nor producer provenance. Custom auxiliary objectives are noncacheable until an owner defines a verifiable functional contract."

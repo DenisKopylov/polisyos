@@ -1,0 +1,122 @@
+"""Read-only exact scoped type/codec qualification and canonical-owner packet."""
+from collections import Counter
+import difflib
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+OUT = Path('/tmp/e02-E-forecast-canon-public-route-64d-20261007')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SHA = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+FORECAST = 'policy-engine/src/polisyos/calibration/forecast_bridge.py'
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+def ref(path):
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+def git(*args):
+    result = subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True)
+    require(result.returncode == 0, result.stderr.decode())
+    return result.stdout
+
+before_source = git('show', SHA + ':' + FORECAST)
+after_path = OUT / 'typecheck-overlay/src/polisyos/calibration/forecast_bridge.py'
+after_source = after_path.read_bytes()
+old_lines = before_source.decode().splitlines()
+new_lines = after_source.decode().splitlines()
+line_map = {}
+for tag, i, ie, j, je in difflib.SequenceMatcher(a=old_lines, b=new_lines, autojunk=False).get_opcodes():
+    if tag == 'equal':
+        for offset in range(ie-i):
+            line_map[j+offset] = i+offset
+
+def key(diag, overlay=False):
+    span = diag['range']
+    start = span['start']; end = span['end']
+    def row(line):
+        return line_map.get(line, ('changed', line)) if overlay else line
+    return (diag['severity'], diag.get('rule'), diag['message'], row(start['line']), start['character'], row(end['line']), end['character'])
+
+before = json.loads((OUT / 'typecheck-before.stdout.json').read_text())
+after = json.loads((OUT / 'typecheck-overlay.stdout.json').read_text())
+x = Counter(key(d) for d in before['generalDiagnostics'])
+y = Counter(key(d, True) for d in after['generalDiagnostics'])
+new_diagnostics = [d for d in after['generalDiagnostics'] if key(d, True) not in x]
+require(before['summary']['errorCount'] == len(before['generalDiagnostics']), 'before full diagnostic denominator')
+require(after['summary']['errorCount'] == len(after['generalDiagnostics']), 'overlay full diagnostic denominator')
+require(len(before['generalDiagnostics']) == 33 and len(after['generalDiagnostics']) == 35, 'actual full counts')
+require(sum((x-y).values()) == 0 and sum((y-x).values()) == 2, 'exact line-normalized diagnostic delta')
+require(len(new_diagnostics) == 2 and all(d['rule']=='reportArgumentType' and 'polisyos.core.canon.canon_json.CanonSpec' in d['message'] and 'polisyos.ir.model_layer.canon.CanonSpec' in d['message'] for d in new_diagnostics), 'new nominal type refusal identity')
+require(sorted(d['range']['start']['line'] + 1 for d in new_diagnostics) == [677, 787], 'two actual writer callsites')
+paths = [FORECAST,
+ 'policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py',
+ 'policy-engine/src/polisyos/core/__init__.py', 'policy-engine/src/polisyos/core/canon/__init__.py',
+ 'policy-engine/src/polisyos/core/canon/canon_json.py', 'policy-engine/src/polisyos/core/artifacts/store.py',
+ 'policy-engine/src/polisyos/core/artifacts/ir_adapter.py', 'policy-engine/src/polisyos/core/artifacts/protocol.py',
+ 'policy-engine/src/polisyos/ir/__init__.py', 'policy-engine/src/polisyos/ir/api.py',
+ 'policy-engine/src/polisyos/ir/artifacts/__init__.py', 'policy-engine/src/polisyos/ir/artifacts/io.py',
+ 'policy-engine/src/polisyos/ir/artifacts/contracts.py', 'policy-engine/src/polisyos/ir/model_layer/canon.py',
+ 'policy-engine/src/polisyos/common/canonical.py', 'policy-engine/architecture/public_surface/contract.toml',
+ 'policy-engine/basedpyright.toml', 'policy-engine/architecture/baselines/basedpyright/baseline.json',
+ 'policy-engine/docs/reference/ownership.md', '.github/CODEOWNERS']
+source_bindings = []
+for path in paths:
+    data = git('show', SHA + ':' + path)
+    require((ROOT/path).read_bytes() == data, 'source differs from pinned candidate: ' + path)
+    source_bindings.append({'source_sha': SHA, 'path': path, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest(), 'git_blob': git('rev-parse', SHA + ':' + path).decode().strip(), 'physical_equal_pinned': True})
+qual = {
+ 'schema': 'policyos.e02.forecast_canon_public_route_type_qualification.v2',
+ 'source_sha': SHA, 'tree': git('rev-parse', SHA+'^{tree}').decode().strip(),
+ 'current_root_head_observation': git('rev-parse', 'HEAD').decode().strip(),
+ 'current_root_status_sb_observation': git('status','-sb').decode(),
+ 'verdict': 'change-required', 'private_edge_closed': False,
+ 'runtime_witness': ref(OUT/'native-public-route.json'),
+ 'historical_runtime_only_owner_packet': ref(OUT/'owner-ready-public-route.json'),
+ 'typed_execution': ref(OUT/'scoped-typecheck-execution.json'),
+ 'before': {'check_outcome': 'FAIL','exit_code': 1,'summary': before['summary'], 'stdout': ref(OUT/'typecheck-before.stdout.json'), 'stderr': ref(OUT/'typecheck-before.stderr.txt')},
+ 'overlay': {'check_outcome': 'FAIL','exit_code': 1,'summary': after['summary'], 'stdout': ref(OUT/'typecheck-overlay.stdout.json'), 'stderr': ref(OUT/'typecheck-overlay.stderr.txt')},
+ 'delta': {'matched_original_diagnostics': 33,'added':new_diagnostics,'removed':[], 'comparison': 'Complete diagnostic multiset with exact unchanged-source line mapping; all severity/rule/message/range fields retained in full stdout.'},
+ 'typecheck_version': before['version'],
+ 'canonical_config_and_baseline_unchanged': True,
+ 'scope': 'Explicit actual single-file before/overlay typecheck under product canonical config. This is not a full project typecheck or global gate result. Both original and overlay remain FAIL; no inherited waiver is asserted.',
+ 'codec_implementation': {
+  'actual_ForecastOwner_configured_store': {'path': paths[1], 'line': 780, 'contract': 'Constructor accepts FileSystemCAS and retains self._store=store, without ensure_ir_artifact_store.'},
+  'direct_Core_CAS': {'path': 'policy-engine/src/polisyos/core/artifacts/store.py', 'line': 2460, 'implementation': 'put_json calls Core canon.to_canonical_bytes(obj, canon_spec). Both actual E writer controls used this configured concrete store.'},
+  'CoreToIR_adapter': {'path': 'policy-engine/src/polisyos/core/artifacts/ir_adapter.py','line': 92, 'implementation': 'Nominal IRCanonSpec argument. It calls ir_canon.to_canonical_bytes(obj, spec) and native store.put_bytes; it does not use Core extended tag writer.'},
+  'strict_IR_reader': {'path': 'policy-engine/src/polisyos/ir/artifacts/io.py','line': 54,'implementation': 'get_json_artifact calls IR from_canonical_bytes. Core float_hex support is not IR tag compatibility.'},
+  'bounded_claim': 'Only existing finite empirical/candidate payloads were shown byte/ref/manifest equivalent through the actual configured direct Core CAS. No universal codec equivalence or protocol assignability follows.'},
+ 'source_bindings': source_bindings,
+ 'factory_removal_observation': ref(OUT/'removal-observer-correction-v3.json'),
+ 'runtime_factory_removal_scope': 'One genuine empirical float-bearing discriminator passes; candidate receipt is refs/text/integers and is a separate nondefining case. Both prior observer ERRORs remain historical.',
+ 'owner_required': {'logical': ['@ir-owners','@core-owners','@architecture-owners'], 'enforced_reviewer':'@DenisKopylov', 'fallback':'@platform-owners', 'generic_lease_transferred_by_B201_B202_semantic_appointment': False},
+ 'owner_options': [
+  {'choice':'Narrow export of the existing IR CanonSpec through an admitted IR facade (recommended minimal remedy)',
+   'implementation': 'Reuse the exact existing IR class; admit a typed sub-facade export or narrow root export with canonical API review. E then changes only its private import. No serializer/store/codec copy or protocol widening.',
+   'minimal_source_proposal': 'IR artifacts __init__ import+__all__ and E caller import are attached as an unapplied proposal. The public manifest currently lists IR root/analytics/api; owner must choose admitted sub-facade or root, with inventory/docs/release companions.',
+   'mandatory_companions': ['canonical public API behavioural identity/type tests','public-surface contract/inventory review/regeneration','public-surface documentation and python-public-api release fragment'],
+   'next_checkable_result': 'Same nominal IR class at the public entrypoint; scoped caller has no new reportArgumentType diagnostics; actual configuredCAS/fresh FRC readers retain finite payload/ref/manifest and malformed/NaN/kind/schema refusals.'},
+  {'choice':'Shared configuration protocol/base or explicit Core/IR union',
+   'implementation': 'Canonical owners coordinate every typed inlet: IR put_json_artifact, IR CanonInfo.from_spec, IR ArtifactStore.put_json, CoreToIRAdapter.put_json, and relevant concrete Core protocol signatures. Preserve each codec/tag law and default configuration.',
+   'next_checkable_result': 'Actual affected callers and adapter satisfy the chosen typed contract with no cast/type-ignore/baseline change; independent bounded payload and unsupported-tag refusals preserve semantics.'}],
+ 'separate_existing_forecast_bundle_API_packet': '/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json',
+ 'finding_closure': False,'source_implementation_committed_or_applied': False,
+ 'foreign_facade_or_generated_files_edited': False,'ROOT_environment_or_interpreter_used': False,
+ 'global_architecture_static_or_numeric_wave_repeated': False
+}
+(OUT/'typed-owner-qualification-v2.json').write_text(json.dumps(qual,indent=2)+'\n')
+# Concrete owner review proposal only, not admitted or applied.
+facade = 'policy-engine/src/polisyos/ir/artifacts/__init__.py'
+facade_old = git('show', SHA+':'+facade).decode()
+facade_new = facade_old.replace('from .contracts import (','from polisyos.ir.model_layer.canon import CanonSpec\n\nfrom .contracts import (',1).replace('    "CanonInfo",','    "CanonInfo",\n    "CanonSpec",',1)
+caller_old = before_source.decode()
+caller_new = caller_old.replace('    ArtifactStore,\n','    ArtifactStore,\n    CanonSpec,\n',1).replace('from polisyos.ir.model_layer.canon import CanonSpec\n','',1)
+patch = ''.join(difflib.unified_diff(a.splitlines(keepends=True),b.splitlines(keepends=True),fromfile='a/'+path,tofile='b/'+path) for path,a,b in [(facade,facade_old,facade_new),(FORECAST,caller_old,caller_new)])
+proposal = OUT/'IR-owner-existing-spec-export-and-E-caller-proposal.patch'
+proposal.write_text(patch)
+check = subprocess.run(['git','-C',str(ROOT),'apply','--check',str(proposal)],capture_output=True)
+require(check.returncode==0,'proposal no longer applies: '+check.stderr.decode())
+proposal_record={'schema':'policyos.e02.canonical_ir_spec_owner_proposal.v1','proposal':ref(proposal),'apply_check':{'argv':['git','-C',str(ROOT),'apply','--check',str(proposal)],'exit_code':check.returncode,'stdout':check.stdout.decode(),'stderr':check.stderr.decode(),'applied':False},'exact_proposed_source_footprint':[facade,FORECAST],'owner_generic_export_admission':'Required; source proposal is not public-contract acceptance','required_public_companions':'Owner decides existing subfacade admission vs typed root export and regenerates inventory/doc/release/test companions; generated bytes not hand-edited here','actual_scope_tests':'UNRUN on this foreign-facade proposal; no code acceptance or import-debt closure claimed'}
+(OUT/'ir-export-proposal.json').write_text(json.dumps(proposal_record,indent=2)+'\n')
+print(json.dumps({'qualification':ref(OUT/'typed-owner-qualification-v2.json'),'proposal_record':ref(OUT/'ir-export-proposal.json'),'before_errors':33,'overlay_errors':35,'new_errors':2,'source_guard_count':len(paths),'private_edge_closed':False}))

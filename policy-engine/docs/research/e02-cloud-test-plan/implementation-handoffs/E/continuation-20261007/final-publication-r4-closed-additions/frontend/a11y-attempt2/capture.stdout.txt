@@ -1,0 +1,1 @@
+{"command": ["npm", "run", "test:a11y"], "exit_code": 1, "outcome": "FAIL", "counts": null, "wall_seconds": 237.335143327713, "source_immutable": true}

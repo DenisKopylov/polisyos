@@ -1,0 +1,535 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "ddm-registry-version-20261006",
+  "closure_ids": [
+    "LA-054",
+    "LA-055",
+    "LA-056"
+  ],
+  "bundle_ids": [
+    "DDM-01",
+    "DDM-02"
+  ],
+  "slice_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "slice_base_tree_sha": "a00c054928d7f9bafff6b46f2fb19e95697e6e9b",
+  "implementation_commits": [
+    "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb"
+  ],
+  "candidate_tree_sha": "1a029606997d55eef14cd5e2f29a12daa300b2f1",
+  "branch": "codex/e02-E-ddm-20261006",
+  "worktree": "/workspace/e02-E-ddm-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/41",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+    "policy-engine/src/polisyos/ddm/README.md",
+    "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json",
+    "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py"
+  ],
+  "mandatory_companions": [
+    "legacy v1 schema resource",
+    "directional reader tests",
+    "package README",
+    "registry migration/owner policy documentation",
+    "release fragment",
+    "this separate receipt and full moderate deciding outputs"
+  ],
+  "ownership": {
+    "registry_schema_producer": "team-scientist DDM registry adapter (E mechanism writer)",
+    "classification": "internal",
+    "classification_ref": "policy-engine/architecture/public_surface/contract.toml@028829629a9c30454e44d25e7bea7be3ea05b561#polisyos.ddm",
+    "public_facade_contract_changed": false,
+    "rollout_owner": "team-scientist DDM registry/served consumer owner",
+    "institutional_permission_ratified_by_this_patch": false
+  },
+  "baseline_cells": [],
+  "baseline_navigation": {
+    "route_grade": "candidate_unverified",
+    "semantic_adequacy": "not_established",
+    "LA-054": "15 historical candidate PASS cells; not deciding evidence for schema defect",
+    "LA-055": "same 15 candidate cells",
+    "LA-056": "11 candidate PASS cells; not new closure evidence",
+    "original_cards": [
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md@028829629a9c30454e44d25e7bea7be3ea05b561",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md@028829629a9c30454e44d25e7bea7be3ea05b561"
+    ],
+    "owner_denominators": {
+      "bundle_tsv_rows": 127,
+      "finding_tsv_rows": 282,
+      "DDM_bundle_rows": 2,
+      "DDM_ID_rows": 3
+    }
+  },
+  "environment_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/environment.json",
+    "bytes": 501,
+    "sha256": "3cafa3d07cc1171063b6b125375bba571c2548fbc0b31f031ce300415a511b75"
+  },
+  "admission_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/worktree-resume.json",
+    "bytes": 123184,
+    "sha256": "5fd8f6d7cdda583372cdc33e5e000e284b25f750cf6f17258794622d5c88f7c2"
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/ddm",
+        "tests/unit/remediation/test_ddm_02.py",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/ddm/native-candidate.xml"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+      "target_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "outcome": "PASS",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/native-candidate.stdout",
+        "bytes": 160,
+        "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/native-candidate.json",
+        "bytes": 786,
+        "sha256": "f0146f2ad20826856da8019eb96a495d5620250cd2f071f270b772ebe2f8d130"
+      },
+      "interpretation": "fresh targeted candidate check"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/ddm/removal_probe.py"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+      "target_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "outcome": "PASS",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/removal-candidate.stdout",
+        "bytes": 1338,
+        "sha256": "5f825705eb8511ce3af077ca2c541ae9160f27f021ec4b5fdcfe2f9b5844e4b6"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/removal-candidate.json",
+        "bytes": 674,
+        "sha256": "54a68f1471be81038ededf3d6c0ab412d3b77b8e66dd44ec9e4d7cdd5e2d60cb"
+      },
+      "interpretation": "expected behavioral test failure observed; wrapper exits 0 only for pytest TESTS_FAILED"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/ddm/integration/model_registry.py",
+        "tests/unit/ddm/test_registry_schema_compatibility.py"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+      "target_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "outcome": "PASS",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/ruff-candidate.stdout",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/ruff-candidate.json",
+        "bytes": 754,
+        "sha256": "b85478a5bb4751a767e268ec67961011a228bd37fba446411170f77c835d5c2e"
+      },
+      "interpretation": "fresh targeted candidate check"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/ddm/integration/model_registry.py",
+        "tests/unit/ddm/test_registry_schema_compatibility.py"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+      "target_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "outcome": "PASS",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/format-candidate.stdout",
+        "bytes": 26,
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/format-candidate.json",
+        "bytes": 774,
+        "sha256": "f7fcea57732d454adcc6b42174a10f39732a5c6dc52127f4b49376ec0b04ae83"
+      },
+      "interpretation": "fresh targeted candidate check"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/ddm/old_source_probe.py"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006",
+      "pythonpath": "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src",
+      "target_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "outcome": "PASS",
+      "interpretation": "falsifier confirms old same-ID incompatibility; not product PASS",
+      "script_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/old_source_probe.py.txt",
+        "bytes": 2033,
+        "sha256": "28a9334b8fdd9f626ddedef13add7f1667176bd6b83d2e974a8d85d6b7d4ee0e"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/old_source_probe.stdout",
+        "bytes": 876,
+        "sha256": "dd18a882e2cdf651224da3a94c79dbab01d6fe734ccaaa57ab43b41c88d2933a"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/ddm/legacy_source_probe.py"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006",
+      "pythonpath": "policy-engine/src",
+      "legacy_registry_producer_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "target_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "outcome": "PASS",
+      "interpretation": "actual old registry producer code emits old strict-readable record from current bounded native DTO inputs; new reader preserves wire and remains non-gating",
+      "script_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/legacy_source_probe.py.txt",
+        "bytes": 1928,
+        "sha256": "d16eea915701335649e779beb19c04b635f7cad5933436afd193467689c11b9c"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/legacy_source_probe.stdout",
+        "bytes": 654,
+        "sha256": "2680aecb7b7ac1b4c86d03b172eb7311401952cbf6fb6dcd0e6d4e06235566d2"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/ddm/schema_removal_probe.py"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+      "pythonpath": "src",
+      "target_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "outcome": "PASS",
+      "interpretation": "keep old/new schema IDs and fields, remove old strict-reader additionalProperties refusal; actual producer test fails as required",
+      "script_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/schema_removal_probe.py.txt",
+        "bytes": 569,
+        "sha256": "9373cabddd672271bfd683b97bd89389e4754dcfc7fd7cf25a78b22fea0f554a"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/schema-removal-candidate.stdout",
+        "bytes": 1652,
+        "sha256": "2f85a27b582c5bfef0601743a4cb4d8fa963f2b9d89a337c299bd587cf675c9f"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/architecture.stdout",
+        "bytes": 124511,
+        "sha256": "03f2177f6f757a805de98ce843259e48f7e394ef9f460fefb6049edb4cbcb379"
+      },
+      "input_identity": "Started after source/test edits, before implementation commit; bytes unchanged through commit4c. No immutable pre-execution source/hash receipt was captured for this earlier command. Exact gate-source binding and inherited-red provenance are not_established. Root reruns affected architecture guard after import fixes; no baseline/exception widened.",
+      "p41": "not_established"
+    },
+    {
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006",
+      "target_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "outcome": "PASS",
+      "complete_output": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+    },
+    {
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/validate_receipt.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006",
+      "target_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "outcome": "PASS",
+      "script_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/validate_receipt.py.txt",
+        "sha256": "76b7de3d01e327341d52c96abbeaa9fd1a85ac867e75b766121888ca7b6c09ed",
+        "bytes": 2069
+      },
+      "complete_output": "{\"negative\": \"candidate_tree_sha\", \"result\": \"REJECTED\"}\n{\"negative\": \"output_sha256\", \"result\": \"REJECTED\"}\n{\"negative\": \"native_pass_count\", \"result\": \"REJECTED\"}\n{\"receipt\": \"PASS\", \"XML_cases\": 82, \"output_files\": 19}\n"
+    }
+  ],
+  "property": {
+    "statement": "A closed registry wire contract has one versioned meaning; current producers emit distinct v2, original strict v1 remains unchanged/readable, and read/migration never substitutes for exact fresh source authority.",
+    "runtime_path": [
+      "calibrate_detector on explicit bounded synthetic streams",
+      "build_calibration_audit",
+      "DriftAndDegradationMonitor.evaluate_window",
+      "build_model_registry_record(schema_version=2)",
+      "persist model_dump_json to fresh file",
+      "Draft202012Validator old/new schema readers and ModelRegistryReadinessRecord.model_validate_json",
+      "rebind_calibration_validity with original report/audit/metric/readiness/ordered events",
+      "evaluate_registry_gate veto/source/validity decisions",
+      "DDMWindowResult.registry_record library surface; served deployment remains consumer_missing"
+    ],
+    "independent_oracle": "Original closed v1 JSON Schema at1980768 is a strict independent reader. Actual new producer is rejected there and accepted by distinct v2. Actual old198 registry producer output is accepted by current reader as1, preserves original wire, and cannot gate. Native calibration/monitor fixtures supply exact original inputs for fresh v2 rebind.",
+    "negative_controls": [
+      "same-ID old58 actual producer incompatible with old strict reader",
+      "unversioned enriched read refused until explicit migration",
+      "unknown/ill-typed version refused",
+      "persisted R4/R3 veto retained with or without signoff",
+      "schema-valid all-zero forged source digest refused after full rebind",
+      "unavailable invalidation observations nongating",
+      "version guard removed while markers retained makes test fail",
+      "strict old-reader property removed while schema IDs/markers retained makes test fail"
+    ],
+    "proxy_divergence": "The old same $id plus four optional fields appeared additive, but actual old additionalProperties=false reader rejected current producer bytes. Presence of valid v2/hash-shaped source fields likewise cannot restore private checker authority after JSON reopen."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_boundary": {
+    "wire_version_and_reader_compatibility": "recomputed",
+    "report_digest/source_identity/budget/rebind/expiry/veto_library_checks": "recomputed",
+    "source_distribution_completeness_stationarity_and_label_delay": "not_established",
+    "institutional_R2_signoff_and_deployment_purpose": "not_established",
+    "served_promotion_authority": "not_established"
+  },
+  "input_identity": {
+    "native_fixture": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py@4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+    "calibration_streams": "100 rows of [0.1,0.2,0.3]; seed7",
+    "holdout_streams": "100 rows of [0.01,0.02,0.03]; no production or feed-completeness claim",
+    "time": "2026-04-26T00:00:00Z; explicit regime reference/calibration/holdout periods and original readiness TTL distinct from calibration expiration",
+    "metric": "model-1/v1 accuracy higher-is-better; reference0.9 minimum0.8",
+    "triggers": "explicit synthetic model_version_change rule and observed []/None controls; not institutional observed-feed authority"
+  },
+  "reader_matrix": {
+    "v1_to_old_strict": "accept",
+    "v1_to_new": "accept_as_1_and_preserve_legacy_serialization_no_promotion",
+    "v2_to_old_strict": "reject_expected_directional_break",
+    "v2_to_new": "accept_but_rebind_required",
+    "prerelease_enriched_unversioned_to_new": "ordinary_read_refuses_explicit_candidate_migration_then_rebind",
+    "unknown_version": "refuse"
+  },
+  "legacy_schema_identity": {
+    "origin": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json@198076863e143dea9f89f02734b13d50dae3eed5",
+    "preserved_resource": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json@4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+    "sha256": "92a594ac542a59e1d4dab4d867b11d9430ecd6f56ee2e6f3fea7c9b0b51089a7",
+    "bytes": 4074
+  },
+  "native_result": {
+    "PASS": 82,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "test_paths": "complete tests/unit/ddm/**/*.py plus tests/unit/remediation/test_ddm_02.py",
+    "new_directional_cases": 11
+  },
+  "review": {
+    "independent_reviewer": "root-assigned separate reviewer pending",
+    "author_is_reviewer": false,
+    "code_acceptance": "proposed",
+    "common_wave": "UNRUN_here; root runs once after freeze/all independent reviews"
+  },
+  "capability_state_or_finding_state": "implemented_and_orchestrated_library_version_migration; external_feed/signoff/deployment_not_established",
+  "finding_decisions": [
+    {
+      "id": "LA-054",
+      "ledger_status_preserved": "partial",
+      "verdict": "limited",
+      "available_fix": "versioned source/time registry artifact; current-source rebind/expiry compatibility preserved",
+      "remaining": "actual current observation completeness/delivery, label delay/freshness policy, exact report/application sources and served registry consumer",
+      "next_owner": "team-scientist DDM monitoring/feed and registry consumer owner",
+      "minimal_inputs": [
+        "immutable model/version-bound window/source/cursor delivery receipt",
+        "label-delay and allowed-age profile",
+        "actual invalidation events and observed times",
+        "exact calibration report/audit/readiness/metric/event sources"
+      ],
+      "next_verifiable_result": "persist/reopen one owner-admitted observed-empty window, rebind exact sources and independently refuse unavailable/stale/foreign-model windows; show served registry consumption"
+    },
+    {
+      "id": "LA-055",
+      "ledger_status_preserved": "partial",
+      "verdict": "limited",
+      "available_fix": "reader/rebind versioning does not lift persisted veto; R2 exception and non-overridable failures protected by full affected tests",
+      "remaining": "owner-authorized deployment purpose/current-feed profile and real R2 signoff identity/mandate/effective scope",
+      "next_owner": "team-scientist DDM registry/deployment consumer and authorized model owner",
+      "minimal_inputs": [
+        "versioned purpose/freshness/promotion precedence profile",
+        "R2 signoff bound to actor/mandate/model/version/time and admitted readiness/calibration refs",
+        "observed window evidence including unavailable-vs-empty distinction"
+      ],
+      "next_verifiable_result": "fresh served profile decision on R4/R3 veto; R2 without/with real signoff; R1/R0/certificate failures; mismatched or missing mandate denial, separate from actual deployment"
+    },
+    {
+      "id": "LA-056",
+      "ledger_status_preserved": "partial",
+      "verdict": "limited",
+      "available_fix": "unchanged canonical/lazy facade regression protected by full native suite; no facade mutation in this slice",
+      "remaining": "individual accountable owner acceptance of previous bounded canonical facade proposal",
+      "next_owner": "team-scientist DDM-01 canonical/API owner",
+      "next_verifiable_result": "accept/reject previous identity/pickle/schema/neutral-import-hook evidence individually on final root candidate; no batch automatic closure"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Schema reader migration changes internal wire version only; no IR semantic/public authority ratification. Served reader selection/release promotion remains team-scientist owner action.",
+    "The v1→new direction preserves historical meaning; v2→old is deliberately incompatible. Keep original bytes and do not strip new fields as downgrade.",
+    "Observed [] in synthetic library input does not prove current production-feed delivery/completeness or absence of events. Boolean owner_signoff does not establish institutional authorization.",
+    "Full production data was not used. Only criterion-required feed/history checks go to G/local read-only queue after minimum immutable inputs above.",
+    "Architecture gate FAIL retains P41 not_established; no inheritance waiver or baseline/exception edits. Root performs changed-import fix/replay.",
+    "Independent review and root integrated checks/common wave remain pending; no finding closure asserted."
+  ],
+  "pattern_pass": [
+    "P01/P02 native producer→JSON→fresh reader→rebind→consumer",
+    "P04/P05 permission/status separated from institutional authority",
+    "P07 distinct v2 identity preserves v1 replay",
+    "P08 original calibration/readiness times retained",
+    "P27/P31 existing registry producer and one reader/migration boundary",
+    "P29/P32/P33 strict-reader/removal/corrupt-digest controls",
+    "P35 127/282 owner denominator and all82 cases counted",
+    "P37 predicates frozen by boundary",
+    "P38 same-ID additive proxy falsified",
+    "P40 same source-law compatibility class widened to explicit versioned reader boundary",
+    "P41 architecture provenance not_established"
+  ],
+  "publication": {
+    "source_remote_readback_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+    "source_remote_tree": "1a029606997d55eef14cd5e2f29a12daa300b2f1",
+    "PR_base": "codex/e02-E-continuation-20261006",
+    "PR_readback_changed_files": 7,
+    "append_only": true,
+    "main_or_integration_written": false,
+    "receipt_commit_will_follow": true
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion_performed": false,
+    "candidates_after_receipts_and_no_active_users": [
+      "/workspace/e02-E-pr38-r2-receipts/ddm/model_registry.guard_removed.py",
+      "/workspace/e02-E-pr38-r2-receipts/ddm/old_full_acceptance.py",
+      "/tmp/pytest-of-agent/pytest-140/test_native_new_producer_requi0",
+      "/tmp/pytest-of-agent/pytest-161/test_native_new_producer_requi0"
+    ],
+    "preserve": [
+      "committed source/docs/evidence",
+      "shared root runtime environment still used by other leaves",
+      "shared MC exact58 archive until root closeout; owner MC"
+    ]
+  },
+  "output_refs": {
+    "native-candidate.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/native-candidate.xml",
+      "bytes": 12578,
+      "sha256": "8a48a9c37bb5c516b145d15d883a2bb288d5d0b30bfaf4acc45b99f9f4ff32cf"
+    },
+    "old_source_probe.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/old_source_probe.stdout",
+      "bytes": 876,
+      "sha256": "dd18a882e2cdf651224da3a94c79dbab01d6fe734ccaaa57ab43b41c88d2933a"
+    },
+    "worktree-resume.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/worktree-resume.json",
+      "bytes": 123184,
+      "sha256": "5fd8f6d7cdda583372cdc33e5e000e284b25f750cf6f17258794622d5c88f7c2"
+    },
+    "legacy_source_probe.py.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/legacy_source_probe.py.txt",
+      "bytes": 1928,
+      "sha256": "d16eea915701335649e779beb19c04b635f7cad5933436afd193467689c11b9c"
+    },
+    "ruff-candidate.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/ruff-candidate.json",
+      "bytes": 754,
+      "sha256": "b85478a5bb4751a767e268ec67961011a228bd37fba446411170f77c835d5c2e"
+    },
+    "schema_removal_probe.py.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/schema_removal_probe.py.txt",
+      "bytes": 569,
+      "sha256": "9373cabddd672271bfd683b97bd89389e4754dcfc7fd7cf25a78b22fea0f554a"
+    },
+    "removal-candidate.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/removal-candidate.stdout",
+      "bytes": 1338,
+      "sha256": "5f825705eb8511ce3af077ca2c541ae9160f27f021ec4b5fdcfe2f9b5844e4b6"
+    },
+    "legacy_source_probe.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/legacy_source_probe.stdout",
+      "bytes": 654,
+      "sha256": "2680aecb7b7ac1b4c86d03b172eb7311401952cbf6fb6dcd0e6d4e06235566d2"
+    },
+    "removal_probe.py.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/removal_probe.py.txt",
+      "bytes": 826,
+      "sha256": "a384d69a875600a5136f1ec767fbbd12f3c169c2ad1c24470364d851f6ab8fff"
+    },
+    "old_source_probe.py.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/old_source_probe.py.txt",
+      "bytes": 2033,
+      "sha256": "28a9334b8fdd9f626ddedef13add7f1667176bd6b83d2e974a8d85d6b7d4ee0e"
+    },
+    "format-candidate.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/format-candidate.stdout",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    "schema-removal-candidate.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/schema-removal-candidate.stdout",
+      "bytes": 1652,
+      "sha256": "2f85a27b582c5bfef0601743a4cb4d8fa963f2b9d89a337c299bd587cf675c9f"
+    },
+    "architecture.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/architecture.stdout",
+      "bytes": 124511,
+      "sha256": "03f2177f6f757a805de98ce843259e48f7e394ef9f460fefb6049edb4cbcb379"
+    },
+    "environment.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/environment.json",
+      "bytes": 501,
+      "sha256": "3cafa3d07cc1171063b6b125375bba571c2548fbc0b31f031ce300415a511b75"
+    },
+    "native-candidate.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/native-candidate.stdout",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    "native-candidate.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/native-candidate.json",
+      "bytes": 786,
+      "sha256": "f0146f2ad20826856da8019eb96a495d5620250cd2f071f270b772ebe2f8d130"
+    },
+    "format-candidate.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/format-candidate.json",
+      "bytes": 774,
+      "sha256": "f7fcea57732d454adcc6b42174a10f39732a5c6dc52127f4b49376ec0b04ae83"
+    },
+    "removal-candidate.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/removal-candidate.json",
+      "bytes": 674,
+      "sha256": "54a68f1471be81038ededf3d6c0ab412d3b77b8e66dd44ec9e4d7cdd5e2d60cb"
+    },
+    "ruff-candidate.stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/ruff-candidate.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  }
+}

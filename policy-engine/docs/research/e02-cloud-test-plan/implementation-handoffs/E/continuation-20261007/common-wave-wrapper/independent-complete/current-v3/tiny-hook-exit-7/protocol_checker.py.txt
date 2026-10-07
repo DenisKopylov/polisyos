@@ -1,0 +1,16 @@
+import argparse,json,tempfile
+from pathlib import Path
+Path('/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/checker-callback.marker').write_text("called")
+calls=0
+def _canonical_json(payload):
+ global calls
+ calls+=1
+ return json.dumps(payload,ensure_ascii=False,sort_keys=True)+"\n"
+def main():
+ p=argparse.ArgumentParser();p.add_argument("--exit-code",type=int,required=True);args=p.parse_args()
+ with tempfile.TemporaryDirectory(prefix="runtime_client_contract_") as directory:
+  for name in ["client.js","client.ts","types.ts"]:Path(directory,name).write_bytes((name+"\n").encode())
+ returned=_canonical_json({"unicode":"π","a":1})
+ print(returned,end="")
+ if returned!='{"a": 1, "unicode": "π"}\n' or calls!=1:return 9
+ return args.exit_code

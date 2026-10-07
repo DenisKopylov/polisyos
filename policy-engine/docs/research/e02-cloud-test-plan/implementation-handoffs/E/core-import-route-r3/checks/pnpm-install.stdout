@@ -1,0 +1,24 @@
+ WARN  Unsupported engine: wanted: {"node":">=22 <23"} (current: {"node":"v24.19.0","pnpm":"10.33.2"})
+apps/runtime-dashboard                   |  WARN  Unsupported engine: wanted: {"node":">=22 <23"} (current: {"node":"v24.19.0","pnpm":"10.33.2"})
+apps/runtime-reference-shell             |  WARN  Unsupported engine: wanted: {"node":">=22 <23"} (current: {"node":"v24.19.0","pnpm":"10.33.2"})
+packages/runtime-api-client              |  WARN  Unsupported engine: wanted: {"node":">=22 <23"} (current: {"node":"v24.19.0","pnpm":"10.33.2"})
+Scope: all 6 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1213
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1213, reused 523, downloaded 0, added 0
+Progress: resolved 1213, reused 1211, downloaded 0, added 479
+Progress: resolved 1213, reused 1211, downloaded 0, added 1213, done
+
+apps/runtime-dashboard prepare$ node ../../tools/devx/install_repo_hooks.mjs
+apps/runtime-dashboard prepare: Done
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @sentry/cli@2.58.5, esbuild@0.25.12,                │
+│   esbuild@0.27.7, lefthook@2.1.6, msw@2.14.2, unrs-resolver@1.11.1.          │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Done in 3.9s using pnpm v10.33.2

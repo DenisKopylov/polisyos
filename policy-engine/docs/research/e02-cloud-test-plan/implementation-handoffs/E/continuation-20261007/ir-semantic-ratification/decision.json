@@ -1,0 +1,146 @@
+{
+  "schema": "policyos.e02.E.scoped_semantic_ratification.v1",
+  "canonical_owner": "E (scoped to B201/B202)",
+  "decision_state": "ratified_by_appointed_E_owner; implementation/evidence/independent_acceptance_pending",
+  "source_base_sha": "c4b2ccfb1f8716680f0b431ab4c5757dcc75343f",
+  "source_base_tree": "61e2babec557b813036c194811ceece78ce95ca6",
+  "appointment": {
+    "commit": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.json"
+  },
+  "historical_packet": {
+    "commit": "8e7e6cc28ac336fa9275ed456ac19a74d0e55553",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/ir-semantic-owner-decision.json",
+    "sha256": "9ed9c7c008a15720a405be41af36d5fa123e11ec17bfb4e51477e7cf8e3ba8e0",
+    "immutable": true
+  },
+  "criteria": [
+    {
+      "finding_id": "B201",
+      "card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+      "source_commit": "c4b2ccfb1f8716680f0b431ab4c5757dcc75343f",
+      "card_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b",
+      "fragment_sha256": "f8e025f73bbf89294e6dfb1378e6187e501dfa9b4a2792394f48e2120f461a0d",
+      "historical_ledger_status": "held"
+    },
+    {
+      "finding_id": "B202",
+      "card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+      "source_commit": "c4b2ccfb1f8716680f0b431ab4c5757dcc75343f",
+      "card_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b",
+      "fragment_sha256": "6cb2c25fda23f03546d7f16d4c1de5ff3f16757383daaf4121fe4ae65892a143",
+      "historical_ledger_status": "held"
+    }
+  ],
+  "four_decisions": [
+    {
+      "id": "separate_linked_uncertainty_objects",
+      "decision": "Identification bounds and statistical/model uncertainty remain distinct typed artifacts, linked only by an exact admitted estimand/unit/scale. No identification width becomes statistical confidence or replaces missing uncertainty. Reuse ValueOuterSet/ValueEvidence and existing UncertaintyEnvelopeRef; A B31 stays separately owned.",
+      "rationale": "Neither original B201 nor B202 requires a new identification carrier. Posterior draws are a statistical/model candidate law, not identification bounds or an institutional certification.",
+      "required_binding": [
+        "estimand_id",
+        "unit",
+        "scale",
+        "source/model/fit/rule refs and applicable temporal roles supplied by producer context"
+      ],
+      "absent_binding": "Preserve unknown explicitly; no composition/authority eligibility is manufactured."
+    },
+    {
+      "id": "independent_named_summary_functionals",
+      "decision": "For the new explicitly versioned posterior-summary profile, preserve weighted arithmetic mean separately from the legacy envelope point, name the envelope point median, and name its interval equal-tail inverse-CDF quantiles. Never widen that interval to include mean; never label median mean.",
+      "point_functionals": {
+        "posterior_mean": "sum(p_i*x_i), canonical admitted nonnegative finite float64 probabilities",
+        "legacy_envelope_point": "weighted median = inf{x:F(x)>=0.5}, explicitly labelled median",
+        "nominal_E_consumer": "resolved/recomputed named posterior_mean for this profile; historical unprofiled envelopes retain their existing generic point"
+      },
+      "interval_functional": "equal_tail: inf{x:F(x)>=q}, q=(1-level)/2 and 1-(1-level)/2; stable sorting preserves tied atoms. Zero mass contributes neither mean nor quantile.",
+      "numeric_profile": "Declare finite float64 representation; reuse existing common admission to normalize weights once, compare paired probabilities exactly, reject positive mass/CDF collapse. Existing DECIMAL_EXACT numeric policy preserves admitted carrier samples/weights without round-12 loss. This is no arbitrary-real or float32 backend precision promise.",
+      "refusals": [
+        "non-real/bool/nonfinite draws",
+        "empty or misaligned axes/rows",
+        "negative/nonfinite/all-zero weights",
+        "float64 positive mass collapse",
+        "duplicate/mismatched shared draw IDs",
+        "unit/estimand/scale mismatch for composition",
+        "stale content binding",
+        "unsupported sample shape/compression"
+      ],
+      "oracle": {
+        "draws": "99 zeros plus one 100, equal mass",
+        "posterior_mean": 1,
+        "envelope_point_median": 0,
+        "equal_tail_q05_q95": [
+          0,
+          0
+        ]
+      },
+      "authority": "gate_eligible=false; exact draw retention does not certify chain mixing, effective sample size, likelihood regularity or causal/treatment/policy authority"
+    },
+    {
+      "id": "wire_version_and_compatibility",
+      "decision": "Reuse UncertaintyEnvelope wire 1.1 and its existing reader, numerical validator and inline PosteriorSamplesCarrier unchanged. The original B201 explicitly permits an explicitly labelled median compatibility projection with separate posterior_means. A strict versioned metadata profile supplies the named mean and interval semantics; historical artifacts do not acquire this profile or change interpretation.",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "profile_version": "1.0",
+      "v1_adequacy_evidence": {
+        "validator": "ir/analytics/uncertainty.py:1438 enforces point containment",
+        "existing_carrier": "PosteriorSamplesCarrier already holds finite ordered samples, weights and sample_axis",
+        "existing_ref": "UncertaintyEnvelopeRef plus existing persist/load_uncertainty_envelope stores the full metadata+carrier via configured CAS",
+        "new_requirement": "Actual E readers currently use generic point; they must admit/recompute the explicit profile before selecting named mean."
+      },
+      "no_envelope_v2_reason": "This chosen representation keeps a valid contained generic point and stores a separately named mean, exactly the compatible route in the original card. Changing envelope point to an uncontained mean would require a distinct v2 $id; that alternative is unnecessary for this bounded criterion.",
+      "reader_matrix": [
+        "old unprofiled v1.1 record -> unchanged new v1.1 decoder/consumer meaning",
+        "new profile-bearing v1.1 -> old reader receives a valid explicitly labelled median, exact inline law, and gate_eligible=false; no new mean or law-dependent authority is promised",
+        "new profile -> E named-functional reader validates/recomputes profile/carrier and selects the persisted mean",
+        "unknown/malformed profile -> named-functional computation refuses rather than falling back to generic point"
+      ]
+    },
+    {
+      "id": "joint_law_carrier_and_actual_consumers",
+      "decision": "Choose inline-plus-existing-envelope-CAS-ref. Reuse PosteriorSamplesCarrier for each coordinate, exact shared ordered draw IDs/axes/parameter order/weights and content-bound joint digest; persist the complete carriers/profile through the existing typed envelope writer. Fresh readers resolve the same configured CAS and validate binding before admitted E computation. No second universal law carrier/store/codec or new sampler engine is required.",
+      "rationale": "The original criterion expressly permits the existing small inline carrier and CAS ref. A sole CAS law ref would add a new resolver contract that these consumers do not need for the bounded finite corpus. The persisted envelope includes the exact law bytes, not summary-only moments.",
+      "consumers": [
+        {
+          "owner": "E",
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "boundary": "existing fresh typed-ref read -> admitted named mean -> PropagationDispatcher/MonteCarloPropagator, preserving paired empirical rows"
+        },
+        {
+          "owner": "E",
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "boundary": "existing supported single-coordinate posterior-law path uses admitted named mean; multivariate Welfare without its calibrated-coordinate sampler retains current typed refusal"
+        },
+        {
+          "owner": "C/F",
+          "boundary": "Actual existing v1.1 adjacent readers/producers are inventoried in the independent source trace and receive an owner-ready compatibility/readback packet. They are not newly appointed by this decision, and E does not attest their consumer changes or acceptance."
+        }
+      ],
+      "lineage": "Producer-supplied context binds parameter axis/order, sample_axis, ordered unique shared draw IDs, exact admitted weights, estimand/unit/scale and source/model/fit/rule refs plus applicable time/purpose roles; unavailable provenance remains unknown and non-gating. Thinning/compression is unsupported unless explicitly declared with a restricted computation profile.",
+      "refusal": "Missing/unresolved exact carrier, forged/mismatched binding or incompatible joint law refuses law-dependent computation before any evaluator/nominal callback. Moments never reconstruct the missing law.",
+      "oracles": [
+        "Same summaries/different atoms remain distinguishable by stored exact carriers and probability queries after fresh read",
+        "Paired +1/-1 joint draws remain different after serialize/reopen and yield independently derived difference variances",
+        "Permuting all rows together preserves estimands while content/order identity changes; stale digest/individual-coordinate permutation refuses"
+      ],
+      "compatibility_profile": "Bounded finite real float64 empirical corpus; unchanged shared MC backend range/failed-support/stopping restrictions. Full production source-law claims still require specific scoped local immutable inputs."
+    }
+  ],
+  "implementation_sequence": [
+    "This tracked decision commit precedes changed-semantics source commits.",
+    "Extend existing producer/profile and real E consumer admission only; preserve v1.1 numerical validator, carrier codec and CAS path.",
+    "Independent reviewer reads immutable candidate/tree; actual native producer/CAS/fresh sampler oracles and adversarial/property-removal controls are recorded.",
+    "Provide exact C/F compatibility packet and preserve their consumer ownership; G separately accepts code and adjudicates finding closure."
+  ],
+  "finding_status": "B201/B202 remain held pending criterion evidence and independent adjudication; this decision is not a PASS or G acceptance.",
+  "capability_before_implementation": "consumer_missing",
+  "pattern_basis": {
+    "P01/P02": "actual producer -> persisted carrier -> fresh real node/sampler witness required",
+    "P05/P14/P37": "gate=false; source quality/authority not established by exact bytes; runtime functional/law binding recomputed",
+    "P07/P08": "old replay preserved; supplied temporal roles not synthesized",
+    "P10/P38": "generic contained point is median, named mean independent from equal-tail interval",
+    "P27/P31": "reuse one existing CAS writer/reader and common joint-law admission",
+    "P29/P32/P33": "present fake/carrier-removal/paired reorder/stale digest controls",
+    "P35/P36": "original criteria and complete source consumer census pinned",
+    "P39/P40/P41": "complete mechanism+mandatory companion footprint, classwide profile intake, exact source red provenance"
+  }
+}

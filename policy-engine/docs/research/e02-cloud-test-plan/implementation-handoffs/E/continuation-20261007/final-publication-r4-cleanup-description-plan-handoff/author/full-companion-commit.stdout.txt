@@ -1,0 +1,2 @@
+[codex/e02-E-frc-20261006 343f6d1f7] docs(e02-E): admit every publication companion before copying
+ 2 files changed, 7 insertions(+), 3 deletions(-)

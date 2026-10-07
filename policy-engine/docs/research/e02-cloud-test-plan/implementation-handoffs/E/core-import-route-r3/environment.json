@@ -1,0 +1,33 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "cpu_count": 5,
+  "packages": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "SALib": "1.5.2",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10"
+  },
+  "numerical_backend": "actual SALib 1.5.2 Morris analyzer and existing NumPy consumers",
+  "interpreter_reused_from": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+  "candidate_pythonpath": "/workspace/e02-E-cal-review-20261006/policy-engine/src",
+  "collector_pythonpath": "/workspace/e02-E-cal-review-20261006/policy-engine:/workspace/e02-E-cal-review-20261006/policy-engine/src",
+  "environment_variables_at_publication": {
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "PYTHONPATH": "/workspace/e02-E-cal-review-20261006/policy-engine/src",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "XLA_FLAGS": null,
+    "JAX_ENABLE_X64": null,
+    "PYTEST_ADDOPTS": null,
+    "POLISYOS_PYTEST_WORKERS": null
+  },
+  "cloud_caps": "No orchestration worker/process/CPU/thread cap introduced",
+  "resource_timing": "Separate author wall/RSS timer was not attached; JUnit records suite/case durations. Final frozen wave measures execution resources."
+}

@@ -1,0 +1,1276 @@
+{
+  "schema": "policyos.e02.trust_posture_complete_keyed_census.v1",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "before": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+    "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba",
+    "bytes": 2365635
+  },
+  "observed_generated": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea",
+    "sha256": "8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea",
+    "bytes": 2376644
+  },
+  "sections": {
+    "admitted_sources": {
+      "identity_key": "path",
+      "before_count": 149,
+      "after_count": 152,
+      "unchanged_count": 120,
+      "added": [
+        {
+          "identity": "src/polisyos/calibration/forecast_bridge.py",
+          "record_sha256": "02b636547ca671f6a52bdb6a442f0b99ee01de3c5be40841d747403d810d8af7"
+        },
+        {
+          "identity": "src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py",
+          "record_sha256": "243da41fcc496a974bc93afe8ca8ea318e8c20cd59e18f4906d4a0fa9fc1b89d"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/services/control/generation_cycle.py",
+          "record_sha256": "b52885fcc4b6363c9b94adf5d773b1b5ff242a8dc8bef2980fc8c4398ae0dac9"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+          "record_sha256": "c9c81140d74ab48c848da6534c558e488af7f15df19a20540e8da6c2d59cb0f9"
+        }
+      ],
+      "removed": [
+        {
+          "identity": "src/polisyos/data_forge/domains/ukraine/builders/calibration.py",
+          "record_sha256": "b67677136b96d9391207dd6c0c523e87dd5c8fde484569ef1efad8bd0d9ef123"
+        }
+      ],
+      "changed": [
+        {
+          "identity": "src/polisyos/core/contracts/runtime.py",
+          "before_hash": "c9a0e5340d2dfe80e4d92bd6692e1838fe9fe20b40e17c0977663ab16afb2748",
+          "after_hash": "1d5a0147c9cf365186bb866ba1f3cd5cf358f09a0be9d83a65cee5ac986d0831"
+        },
+        {
+          "identity": "src/polisyos/data_forge/domains/academic/batch/best_snapshot.py",
+          "before_hash": "50d98cd4c1a410cee3a948efb93d0b31b0b4ab3b303ef114da950773ecdf1877",
+          "after_hash": "6f22beba1c94896ce52a01c5580aa9965bb4502b330308837566b1760b75d2f2"
+        },
+        {
+          "identity": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
+          "before_hash": "732d8a261a9fda63228fb90ea345d79891a565ea18196178b897ac035eaa467c",
+          "after_hash": "be14979bfc6f761b355f261e2eeaf5b11cff2b754fc9dba936c80809bb933f82"
+        },
+        {
+          "identity": "src/polisyos/data_requirement/compiler.py",
+          "before_hash": "59804797b13940d2f8b1426293924d57519305f50aa0991ed42fa71ecda636cd",
+          "after_hash": "b4334321e49a2befa480b9c86d72d6136f875c31919d2580cec387eb1f55ab21"
+        },
+        {
+          "identity": "src/polisyos/foundry/data_plane/bindings.py",
+          "before_hash": "d8f944f9f50d596a33208767f00c735d54eefaec3feb387334445eda9f8bb5b0",
+          "after_hash": "3d8fb1d9298f1717174e5c02ccc74be08c80482908983752e886bf99c7c8fe16"
+        },
+        {
+          "identity": "src/polisyos/pdc/_impl/layer2_design_search.py",
+          "before_hash": "67d3b70905baa259caaab93320da4c1132586fb38e9123f6305a337270c604b2",
+          "after_hash": "86dc540c797e2b64d31ea32e9bf29c0641d0d18ce349a8c4814b8dff990c5426"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/openapi_contract.py",
+          "before_hash": "74f4594148ad939c539530e8d53870009bad0f33a988328f490477bac2cd0b8b",
+          "after_hash": "6dd4cd7ddbea8024e63d32fb3d56fb9a968058a71afb3b4862394fefb376ebe0"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/services/control/evaluation_safety.py",
+          "before_hash": "302e2a24db706f548843c5b9721b7c947f88b1595cfa5bf96c88b19cfe2d9132",
+          "after_hash": "a6707662deba3864ea3da5d570519c3d8b2f5b4876204d41c9802252995e656c"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+          "before_hash": "031ca14dd604555d0273ad350751f00f25681ea891e653cc38de4691faf13503",
+          "after_hash": "2683d078e49cb877bfa6ae6a029bad01ccc4fab7b7f20c92cdcfe76e53f9311d"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/services/human_decisions.py",
+          "before_hash": "85904aa92289ed309c96d786ad30bb9c5efd5faf1d17f086b4d2eea1ce81e4d6",
+          "after_hash": "56dc8ec86b9284ac5b8505b662b7d1684067a547e04ac50fd14738d26b1583ce"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/acquisition_planner.py",
+          "before_hash": "929c5c2e0e51293924cafbe6f40d694d2e5af0cb71ff941e7b7d3c28e5667d8d",
+          "after_hash": "74cf42f420514d5edf61c7a42583b2f2ce8fd0a7a8e7f732b55d4eb20ea1a7f4"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/construct_registry.py",
+          "before_hash": "cd2561063daf513fd02ede4d8d661c455942433d604ce7fea051e71f94655ae3",
+          "after_hash": "f38d157b5eca7cc26b4de3b9eb328f2adc2668a1ccdd48c66dd34e761eef6ade"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/cycle_substrate.py",
+          "before_hash": "4a1e8395b7b442d4a1d5d2ed97a7552ce5d3cb6a9b17f34965f92be10744d5cd",
+          "after_hash": "fa44c996679b1f8356f7b039bb6f1c5ee95fdac50361144e8517d9b28c8e0f3c"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/data_forge_binding.py",
+          "before_hash": "3d6e505367ec02c8a6ae3b5ffaedd6ae0a2e3939ffd2fbcaeeb4df2887af68ef",
+          "after_hash": "15ce0061794dd67725022285cfd3817cde9d106d7af9de5f5a361e128e2b1c61"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+          "before_hash": "a8b08b831e983726ec438c628fc8b3c32cd1d8a1899f25ea77b2f7aeef400f04",
+          "after_hash": "3abb2d2540642fbfe3476ea8df5621cbc6292d23a3dbace295bf9c2499d17a4b"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/design_axes/substrate_acquisition.py",
+          "before_hash": "c9dbbc8f10121e5712aa747bfbbb6d9ee496d116c126d8637f7753ac22ad52c7",
+          "after_hash": "300c2e570cb56a4158c9785fb796d100681a7444002ba3480c5afc265d55f760"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+          "before_hash": "eba7fb24edd21a2d97cb2e4d2f858d5dcb8f410aec8b5a63b4fbcd3849d1e6cd",
+          "after_hash": "7c5886cfe9d22baa08bc5c65abea5c1174cf481b06821ce6dc4e439d85525963"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/evaluation_safety.py",
+          "before_hash": "fbdbbf7ed27d0ec39d508301cdd015907c6805dce3cea70d1339cba2bf58473f",
+          "after_hash": "2ddd2aaee30dc2f1ff317b2c8dd56b95965b8fe508dc14ea9f75580020700b62"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/generation_cycle.py",
+          "before_hash": "45868d01bee14b6069070aab75621a5b385affbd9886cb9ad6b471bd9c7a0617",
+          "after_hash": "b3059203752e7b9ee3a8d424572eee5dd2a2e3dbcc0c6fa0561bf00183f13c93"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "before_hash": "2466ed1f505e2278f130886ecc1db12918277a3ed1644e7f944a0f91fea99aae",
+          "after_hash": "df4ca80f3b137fe12c40900c88d760388ce39f094c9a19c09fe1537ece416f27"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/promotion_safety.py",
+          "before_hash": "c7bf23c140e05c5ddc26ebc7d67824aca5fa628dce0e343e5e872ff762abae88",
+          "after_hash": "8b3f1ddf6848f41bbda4b853600e5257e0d28393aa6ae0c2fe7c8cc0e0b65e05"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/promotion_sequence.py",
+          "before_hash": "c8177c9eb88710267e3f5f5cce309aa4c99971769b46a835dac78ae8c98a5c5a",
+          "after_hash": "78ba008d95e34516cfda86f08c7222dcbf2c18aa1759d5dd16257edd6cf0082c"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+          "before_hash": "58c7602344b5c4aaf2e3831f08aa88e298bdaa83019287f55adad92fd7a7c653",
+          "after_hash": "48a3764315d8807174085cb4b24eff312ed11482ba3346c271762ef9ee9a7a35"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
+          "before_hash": "c954d7ebc19c6043bcf22d018d45bf1e0c8e7812b6a4f14512d3b5bc646f0455",
+          "after_hash": "3060a499f78faf7626f36cb2a9a7e31182f2fd42528529cc3b712d2470fb5193"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/public_export.py",
+          "before_hash": "344a699b22b62478d4ef3136dd9029be1c17fd8c1cbc61c464f8d648ea34dcc7",
+          "after_hash": "eca6c75809a42241028382325499551da90c43917bfd9d642db58caec35eaaae"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/workspace/loop.py",
+          "before_hash": "87968ce8be361208ea4eace9c65a6d8da3a6515eea263fd25657d8e12138b9dc",
+          "after_hash": "abf7c5e3502bee81978326a7badccfc2d211a4ce4b36446bcb2351f53a1f1315"
+        },
+        {
+          "identity": "src/polisyos/scientist/governance/continuous/lifecycle_bridge.py",
+          "before_hash": "0e5003f3bd7cf2800df359943ff3e70522952522f37bd9932eaa7117534e0cfb",
+          "after_hash": "09b236e3ea760d30755c69c06f5335eb5d1eac93cd2fe4da432fccd3b767a8bf"
+        },
+        {
+          "identity": "src/polisyos/scientist/governance/continuous/reissue.py",
+          "before_hash": "c6436e749fe2c5c01967d8c2bab4b4e39f889ba1d95586470ed70613aeec80b3",
+          "after_hash": "0bd8deeb4eb22dcf15c5776992daeadc288d8abeb6cfad7921ef51dc74f6db16"
+        }
+      ],
+      "complete_source_delta": {
+        "added": [
+          {
+            "content_digest": "sha256:274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+            "path": "src/polisyos/calibration/forecast_bridge.py"
+          },
+          {
+            "content_digest": "sha256:9509fff89dec5342cc5dbd6c911c92586880a74877a0a1de290f134bc6bbb0d0",
+            "path": "src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py"
+          },
+          {
+            "content_digest": "sha256:cf6522b5c8b3d02c2b334468cb42edf99c5a3575bcc09c41b985c0ce43bfa9f6",
+            "path": "src/polisyos/runtime/http/services/control/generation_cycle.py"
+          },
+          {
+            "content_digest": "sha256:cd9ca0dcda1515932519966071ece46773634bd81dda1e4c93ae7aeae3b225ec",
+            "path": "src/polisyos/runtime/quality/_generation_cycle_history_schema.py"
+          }
+        ],
+        "removed": [
+          {
+            "content_digest": "sha256:20bfab8dacc99da8bc4b1e8da32e24de1e5c8788ce494fc9a9419e41a5cb51a8",
+            "path": "src/polisyos/data_forge/domains/ukraine/builders/calibration.py"
+          }
+        ],
+        "changed": [
+          {
+            "identity": "src/polisyos/core/contracts/runtime.py",
+            "before_hash": "c9a0e5340d2dfe80e4d92bd6692e1838fe9fe20b40e17c0977663ab16afb2748",
+            "after_hash": "1d5a0147c9cf365186bb866ba1f3cd5cf358f09a0be9d83a65cee5ac986d0831",
+            "before": {
+              "content_digest": "sha256:6cd47f5f0517d018a74a6cd42c67b8b078c9399a6c3b2bd980f72f1b0e1d5e44",
+              "path": "src/polisyos/core/contracts/runtime.py"
+            },
+            "after": {
+              "content_digest": "sha256:efa4c1416a651199a3c76b757f924e6818e0d8871c16b90b3b9a9412dbcc6bf9",
+              "path": "src/polisyos/core/contracts/runtime.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/data_forge/domains/academic/batch/best_snapshot.py",
+            "before_hash": "50d98cd4c1a410cee3a948efb93d0b31b0b4ab3b303ef114da950773ecdf1877",
+            "after_hash": "6f22beba1c94896ce52a01c5580aa9965bb4502b330308837566b1760b75d2f2",
+            "before": {
+              "content_digest": "sha256:54a8504817ecdd29c67a806e97eb5964288019bdfd3d5e4ae95034a8b155d3a7",
+              "path": "src/polisyos/data_forge/domains/academic/batch/best_snapshot.py"
+            },
+            "after": {
+              "content_digest": "sha256:2d45e808711c42254cf8da0e3d67df1a9b53c9f6c931f2aa6a7c2b68b3e05140",
+              "path": "src/polisyos/data_forge/domains/academic/batch/best_snapshot.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
+            "before_hash": "732d8a261a9fda63228fb90ea345d79891a565ea18196178b897ac035eaa467c",
+            "after_hash": "be14979bfc6f761b355f261e2eeaf5b11cff2b754fc9dba936c80809bb933f82",
+            "before": {
+              "content_digest": "sha256:be9c2f900e2f24ba2116783ff81ab44cd5c0b0d54d4f6701bfcdaaa09bfac79f",
+              "path": "src/polisyos/data_forge/domains/ukraine/builders/release.py"
+            },
+            "after": {
+              "content_digest": "sha256:c9750605d7d1d70a13eb414169d6fc30384e82c340294c3aaeac2a355169eb71",
+              "path": "src/polisyos/data_forge/domains/ukraine/builders/release.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/data_requirement/compiler.py",
+            "before_hash": "59804797b13940d2f8b1426293924d57519305f50aa0991ed42fa71ecda636cd",
+            "after_hash": "b4334321e49a2befa480b9c86d72d6136f875c31919d2580cec387eb1f55ab21",
+            "before": {
+              "content_digest": "sha256:694b6c3bc1a1ba65e2328c2d8f26e9f8fb90ca0e1ea5a1490e514b03bffabb2f",
+              "path": "src/polisyos/data_requirement/compiler.py"
+            },
+            "after": {
+              "content_digest": "sha256:61dc374072c15e127db6bf91daa3199e96fbf5e583c9f0415dd7b73ee60a9d71",
+              "path": "src/polisyos/data_requirement/compiler.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/foundry/data_plane/bindings.py",
+            "before_hash": "d8f944f9f50d596a33208767f00c735d54eefaec3feb387334445eda9f8bb5b0",
+            "after_hash": "3d8fb1d9298f1717174e5c02ccc74be08c80482908983752e886bf99c7c8fe16",
+            "before": {
+              "content_digest": "sha256:ce409dc776cf89be6df817a6037933c77a51524bc492d87e0a69374a1dea5b6d",
+              "path": "src/polisyos/foundry/data_plane/bindings.py"
+            },
+            "after": {
+              "content_digest": "sha256:67f724b4707781bf361f0bbf59cefaa77e4f6dfd31fce94dcdedd31aa96d53ee",
+              "path": "src/polisyos/foundry/data_plane/bindings.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/pdc/_impl/layer2_design_search.py",
+            "before_hash": "67d3b70905baa259caaab93320da4c1132586fb38e9123f6305a337270c604b2",
+            "after_hash": "86dc540c797e2b64d31ea32e9bf29c0641d0d18ce349a8c4814b8dff990c5426",
+            "before": {
+              "content_digest": "sha256:a1ce7a010c9183835940134f1d257c7c55d9508c0cc6239a3a34b6893573b4f1",
+              "path": "src/polisyos/pdc/_impl/layer2_design_search.py"
+            },
+            "after": {
+              "content_digest": "sha256:914a86f4179e736ab56e49b8e750307f544bcfd30d3eca71bc940ee287dac3c4",
+              "path": "src/polisyos/pdc/_impl/layer2_design_search.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/http/openapi_contract.py",
+            "before_hash": "74f4594148ad939c539530e8d53870009bad0f33a988328f490477bac2cd0b8b",
+            "after_hash": "6dd4cd7ddbea8024e63d32fb3d56fb9a968058a71afb3b4862394fefb376ebe0",
+            "before": {
+              "content_digest": "sha256:477cb53c8ec421c492d4dcccaa82261676fa998a08608bb8b5d29c0c3a84b60f",
+              "path": "src/polisyos/runtime/http/openapi_contract.py"
+            },
+            "after": {
+              "content_digest": "sha256:d0223be603ecdde252a96ded5970f2fedfecf3099401a3a8608bb70fd27b1e3c",
+              "path": "src/polisyos/runtime/http/openapi_contract.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/http/services/control/evaluation_safety.py",
+            "before_hash": "302e2a24db706f548843c5b9721b7c947f88b1595cfa5bf96c88b19cfe2d9132",
+            "after_hash": "a6707662deba3864ea3da5d570519c3d8b2f5b4876204d41c9802252995e656c",
+            "before": {
+              "content_digest": "sha256:6381caff159b642c211d5cf65ba5ce4a35925d99b9677aab4d853aa9ef2d8640",
+              "path": "src/polisyos/runtime/http/services/control/evaluation_safety.py"
+            },
+            "after": {
+              "content_digest": "sha256:bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd",
+              "path": "src/polisyos/runtime/http/services/control/evaluation_safety.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+            "before_hash": "031ca14dd604555d0273ad350751f00f25681ea891e653cc38de4691faf13503",
+            "after_hash": "2683d078e49cb877bfa6ae6a029bad01ccc4fab7b7f20c92cdcfe76e53f9311d",
+            "before": {
+              "content_digest": "sha256:51cb8b1b318c1bbb89c85b6c6e1bc5c213f37adc8e05f571f2def5999db06457",
+              "path": "src/polisyos/runtime/http/services/control/workspace_loop_transition.py"
+            },
+            "after": {
+              "content_digest": "sha256:e0bc1dff0607f23c818ceac4227df8215ee50d4f16283569660f06a0be6f832a",
+              "path": "src/polisyos/runtime/http/services/control/workspace_loop_transition.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/http/services/human_decisions.py",
+            "before_hash": "85904aa92289ed309c96d786ad30bb9c5efd5faf1d17f086b4d2eea1ce81e4d6",
+            "after_hash": "56dc8ec86b9284ac5b8505b662b7d1684067a547e04ac50fd14738d26b1583ce",
+            "before": {
+              "content_digest": "sha256:9279a8b840cc03a5748c6aa2f44d901563c559d00838a6ba7dbe2a36541b3005",
+              "path": "src/polisyos/runtime/http/services/human_decisions.py"
+            },
+            "after": {
+              "content_digest": "sha256:e4268af75a8012f1dbcd7f5c5f1f85d3c9e9c6005f7050b986c8807ebb75d251",
+              "path": "src/polisyos/runtime/http/services/human_decisions.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/acquisition_planner.py",
+            "before_hash": "929c5c2e0e51293924cafbe6f40d694d2e5af0cb71ff941e7b7d3c28e5667d8d",
+            "after_hash": "74cf42f420514d5edf61c7a42583b2f2ce8fd0a7a8e7f732b55d4eb20ea1a7f4",
+            "before": {
+              "content_digest": "sha256:9079a8e29745559ff10b33f53c9ca480c534f3190575f38976dc697c8ade75a3",
+              "path": "src/polisyos/runtime/quality/acquisition_planner.py"
+            },
+            "after": {
+              "content_digest": "sha256:d335ed8e0874c2a1cd89035b937f1dc1e461fb9e32b799e3d63614e541a9d60c",
+              "path": "src/polisyos/runtime/quality/acquisition_planner.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/construct_registry.py",
+            "before_hash": "cd2561063daf513fd02ede4d8d661c455942433d604ce7fea051e71f94655ae3",
+            "after_hash": "f38d157b5eca7cc26b4de3b9eb328f2adc2668a1ccdd48c66dd34e761eef6ade",
+            "before": {
+              "content_digest": "sha256:c9e55a53a4eefc7d0c9d8a842dbdb889a7b2bddac2e36bc6eefd44a2d65f48f2",
+              "path": "src/polisyos/runtime/quality/construct_registry.py"
+            },
+            "after": {
+              "content_digest": "sha256:c202572173128d39d2c03162db41e06f70ad9c175d43a60823dfcb70fb400420",
+              "path": "src/polisyos/runtime/quality/construct_registry.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/cycle_substrate.py",
+            "before_hash": "4a1e8395b7b442d4a1d5d2ed97a7552ce5d3cb6a9b17f34965f92be10744d5cd",
+            "after_hash": "fa44c996679b1f8356f7b039bb6f1c5ee95fdac50361144e8517d9b28c8e0f3c",
+            "before": {
+              "content_digest": "sha256:1e7f14f5634526f120f2f10fb1d7b06bea1e368a2e954734b679a6050b859f88",
+              "path": "src/polisyos/runtime/quality/cycle_substrate.py"
+            },
+            "after": {
+              "content_digest": "sha256:d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74",
+              "path": "src/polisyos/runtime/quality/cycle_substrate.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/data_forge_binding.py",
+            "before_hash": "3d6e505367ec02c8a6ae3b5ffaedd6ae0a2e3939ffd2fbcaeeb4df2887af68ef",
+            "after_hash": "15ce0061794dd67725022285cfd3817cde9d106d7af9de5f5a361e128e2b1c61",
+            "before": {
+              "content_digest": "sha256:3b2c511d2f5a8adac86d45267252c9ae25c1c8a149fcaf411fee55ee079012b6",
+              "path": "src/polisyos/runtime/quality/data_forge_binding.py"
+            },
+            "after": {
+              "content_digest": "sha256:a6091cdb0cd9490dd5f86d046afc122663390223290dfc8f162af6cdcef742ac",
+              "path": "src/polisyos/runtime/quality/data_forge_binding.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+            "before_hash": "a8b08b831e983726ec438c628fc8b3c32cd1d8a1899f25ea77b2f7aeef400f04",
+            "after_hash": "3abb2d2540642fbfe3476ea8df5621cbc6292d23a3dbace295bf9c2499d17a4b",
+            "before": {
+              "content_digest": "sha256:0024b1abd7ac64ef2240f1a9c72684a5e0948fe33cc01e891f47c9444b676df1",
+              "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py"
+            },
+            "after": {
+              "content_digest": "sha256:ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da",
+              "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/design_axes/substrate_acquisition.py",
+            "before_hash": "c9dbbc8f10121e5712aa747bfbbb6d9ee496d116c126d8637f7753ac22ad52c7",
+            "after_hash": "300c2e570cb56a4158c9785fb796d100681a7444002ba3480c5afc265d55f760",
+            "before": {
+              "content_digest": "sha256:a7e0f89d3d2d8445559227bfd4270f856f1ea0771509614009be180fac686358",
+              "path": "src/polisyos/runtime/quality/design_axes/substrate_acquisition.py"
+            },
+            "after": {
+              "content_digest": "sha256:31b61aa32491fa8d5750d14ffa0ff8f7de8b9065df5b65937f145e07a1754c4a",
+              "path": "src/polisyos/runtime/quality/design_axes/substrate_acquisition.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+            "before_hash": "eba7fb24edd21a2d97cb2e4d2f858d5dcb8f410aec8b5a63b4fbcd3849d1e6cd",
+            "after_hash": "7c5886cfe9d22baa08bc5c65abea5c1174cf481b06821ce6dc4e439d85525963",
+            "before": {
+              "content_digest": "sha256:9308670836cb8eb0c690f277e1ec4f082ee052499c5c80789402ea090933ae22",
+              "path": "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py"
+            },
+            "after": {
+              "content_digest": "sha256:5d1e679aca404ef3b33c296ed15c5eec41d3ed22c2af7a054242ccceb2f406c6",
+              "path": "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/evaluation_safety.py",
+            "before_hash": "fbdbbf7ed27d0ec39d508301cdd015907c6805dce3cea70d1339cba2bf58473f",
+            "after_hash": "2ddd2aaee30dc2f1ff317b2c8dd56b95965b8fe508dc14ea9f75580020700b62",
+            "before": {
+              "content_digest": "sha256:74c05bd1c89a5292b61bb935d30a07369f222f1de4bf3d029a64b45487e97407",
+              "path": "src/polisyos/runtime/quality/evaluation_safety.py"
+            },
+            "after": {
+              "content_digest": "sha256:9f5146deb64ce4038fbdb2f8b034e6f88b184a3479e38aff1b43108042c592f8",
+              "path": "src/polisyos/runtime/quality/evaluation_safety.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/generation_cycle.py",
+            "before_hash": "45868d01bee14b6069070aab75621a5b385affbd9886cb9ad6b471bd9c7a0617",
+            "after_hash": "b3059203752e7b9ee3a8d424572eee5dd2a2e3dbcc0c6fa0561bf00183f13c93",
+            "before": {
+              "content_digest": "sha256:7f4eeb68239be05955bd470451f6de7813134690bd5f653d6a74259e880f4aa3",
+              "path": "src/polisyos/runtime/quality/generation_cycle.py"
+            },
+            "after": {
+              "content_digest": "sha256:8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+              "path": "src/polisyos/runtime/quality/generation_cycle.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "before_hash": "2466ed1f505e2278f130886ecc1db12918277a3ed1644e7f944a0f91fea99aae",
+            "after_hash": "df4ca80f3b137fe12c40900c88d760388ce39f094c9a19c09fe1537ece416f27",
+            "before": {
+              "content_digest": "sha256:cc7635b5b7a9ee57dae326506524d22ef1085ba4051434f55c7d5d7b85689886",
+              "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py"
+            },
+            "after": {
+              "content_digest": "sha256:f3e4ade69b23885f14cf06735e35ac42fae460a6a02c99163a0bc2909db09a23",
+              "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/promotion_safety.py",
+            "before_hash": "c7bf23c140e05c5ddc26ebc7d67824aca5fa628dce0e343e5e872ff762abae88",
+            "after_hash": "8b3f1ddf6848f41bbda4b853600e5257e0d28393aa6ae0c2fe7c8cc0e0b65e05",
+            "before": {
+              "content_digest": "sha256:fc81b3a595a4eec27e9290415cc06e3042da21be12873b1be688272fcc519123",
+              "path": "src/polisyos/runtime/quality/promotion_safety.py"
+            },
+            "after": {
+              "content_digest": "sha256:855e988f4e0ffa2336f7f5957108daf5e3c74b29c12bd36fc1ff3f901c7046bc",
+              "path": "src/polisyos/runtime/quality/promotion_safety.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/promotion_sequence.py",
+            "before_hash": "c8177c9eb88710267e3f5f5cce309aa4c99971769b46a835dac78ae8c98a5c5a",
+            "after_hash": "78ba008d95e34516cfda86f08c7222dcbf2c18aa1759d5dd16257edd6cf0082c",
+            "before": {
+              "content_digest": "sha256:0a8aea760583e596d4e9198102b1e11b122d8d82224670d39446c28a58041173",
+              "path": "src/polisyos/runtime/quality/promotion_sequence.py"
+            },
+            "after": {
+              "content_digest": "sha256:21b53b3e001138e7d086b3daa0897103e439dd3ad7c62315f9b90eff4b76b34a",
+              "path": "src/polisyos/runtime/quality/promotion_sequence.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+            "before_hash": "58c7602344b5c4aaf2e3831f08aa88e298bdaa83019287f55adad92fd7a7c653",
+            "after_hash": "48a3764315d8807174085cb4b24eff312ed11482ba3346c271762ef9ee9a7a35",
+            "before": {
+              "content_digest": "sha256:33489489a0e6b6e2f00d7ee2a99e0cd310ef6d125ad3282c8b65c56c1d8fe14c",
+              "path": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py"
+            },
+            "after": {
+              "content_digest": "sha256:8b9444f5c4662bb2b518c2bf9491c68bef786d555ed1634c2bf2bea374f02602",
+              "path": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
+            "before_hash": "c954d7ebc19c6043bcf22d018d45bf1e0c8e7812b6a4f14512d3b5bc646f0455",
+            "after_hash": "3060a499f78faf7626f36cb2a9a7e31182f2fd42528529cc3b712d2470fb5193",
+            "before": {
+              "content_digest": "sha256:6e47c1d6b930df97308cbf3ec4dd9df3614c10445d91249bc7daff907a24cd0a",
+              "path": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py"
+            },
+            "after": {
+              "content_digest": "sha256:076b0be55356e34e556765f3d2daba3ec8d60e6e2dcdd6811a6c793b301ce831",
+              "path": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/public_export.py",
+            "before_hash": "344a699b22b62478d4ef3136dd9029be1c17fd8c1cbc61c464f8d648ea34dcc7",
+            "after_hash": "eca6c75809a42241028382325499551da90c43917bfd9d642db58caec35eaaae",
+            "before": {
+              "content_digest": "sha256:46a5e472a6c037c442d20c132bf074d03dbff4163178762bbefd6bb4a2b99db6",
+              "path": "src/polisyos/runtime/quality/public_export.py"
+            },
+            "after": {
+              "content_digest": "sha256:1dc9c7e4518a58b307e29fb026e4b214f0ff4ec8465351dbd4c181b88fbf5c0d",
+              "path": "src/polisyos/runtime/quality/public_export.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/runtime/quality/workspace/loop.py",
+            "before_hash": "87968ce8be361208ea4eace9c65a6d8da3a6515eea263fd25657d8e12138b9dc",
+            "after_hash": "abf7c5e3502bee81978326a7badccfc2d211a4ce4b36446bcb2351f53a1f1315",
+            "before": {
+              "content_digest": "sha256:921af88b4d6b8d0d14953655486e2ea6b381149b5b870547799301e159a30b52",
+              "path": "src/polisyos/runtime/quality/workspace/loop.py"
+            },
+            "after": {
+              "content_digest": "sha256:1e146574a488c15615bebed6d4e5ae8ca25c9346edba5327efddbcaf0d128196",
+              "path": "src/polisyos/runtime/quality/workspace/loop.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/scientist/governance/continuous/lifecycle_bridge.py",
+            "before_hash": "0e5003f3bd7cf2800df359943ff3e70522952522f37bd9932eaa7117534e0cfb",
+            "after_hash": "09b236e3ea760d30755c69c06f5335eb5d1eac93cd2fe4da432fccd3b767a8bf",
+            "before": {
+              "content_digest": "sha256:3d34e6c408179f65c1993b03011a7487e2e9da695a04988c974bfafe1a8c4eba",
+              "path": "src/polisyos/scientist/governance/continuous/lifecycle_bridge.py"
+            },
+            "after": {
+              "content_digest": "sha256:852526d8f36cb9046453191c9baff06858fb03fee3ff581d91d72c2654d4e8bd",
+              "path": "src/polisyos/scientist/governance/continuous/lifecycle_bridge.py"
+            }
+          },
+          {
+            "identity": "src/polisyos/scientist/governance/continuous/reissue.py",
+            "before_hash": "c6436e749fe2c5c01967d8c2bab4b4e39f889ba1d95586470ed70613aeec80b3",
+            "after_hash": "0bd8deeb4eb22dcf15c5776992daeadc288d8abeb6cfad7921ef51dc74f6db16",
+            "before": {
+              "content_digest": "sha256:01336f3718632617ac1a256467a1b9695a34c9fcd5bbc34778894d783b8e42b1",
+              "path": "src/polisyos/scientist/governance/continuous/reissue.py"
+            },
+            "after": {
+              "content_digest": "sha256:c09438a068da1e45019db939142c0f69c81713fb3ccaf7a83333b8b735b8a9fb",
+              "path": "src/polisyos/scientist/governance/continuous/reissue.py"
+            }
+          }
+        ]
+      }
+    },
+    "claims": {
+      "identity_key": "claim_id",
+      "before_count": 371,
+      "after_count": 375,
+      "unchanged_count": 283,
+      "added": [
+        {
+          "identity": "claim-posture:140bedbf9c3f6d56a9846d2ba7088798683f4da0c248231336e6a05679e4fdfe",
+          "record_sha256": "b378e18dc2f8573e893df00db1166cae5fb895945d157e63ce6453c61feeef41"
+        },
+        {
+          "identity": "claim-posture:17aad0e973d21a356ba7e439eb585e47039d19460942699a6e28e2cff1f494ba",
+          "record_sha256": "15100dfc32fd0671853b38d1dfdd0c1a12200e2bee09ae0697d7c21627895afb"
+        },
+        {
+          "identity": "claim-posture:1a0719fd7f56f1e4fec9486368f3953f267253e978b86db82b6c0433fe7982ef",
+          "record_sha256": "dcc7ca3aaae45178d3bd72f65f49618a9fc5942705ac9496c427a2985f6ab16c"
+        },
+        {
+          "identity": "claim-posture:2f3ea55d9661c818f6380816322dd2c8786e16260adbd8b629a701c345b8b0b1",
+          "record_sha256": "5897afa0cf9fd784c30aa434cc0389276d50b6c5284f8a6a29f97eb963525149"
+        },
+        {
+          "identity": "claim-posture:5892781caa0f73bc50677cce808e561377c4ceaf7c704a479af23ede84f51af3",
+          "record_sha256": "23f04ecb5380b19ea8feecc2c7818132765bcfff507ca3cd3e9ce624def10741"
+        },
+        {
+          "identity": "claim-posture:7d0b7e000e119c47bbbea3e7104ed70e85f555024c61d3224876feb17cbdff18",
+          "record_sha256": "20bded0af66e0fd30088b2e11a7dc7d15f468a22f15e04377bc0fbc8eab69a6e"
+        },
+        {
+          "identity": "claim-posture:7e512159df03d0fab4c4b9f57efb5f98edeb09d27a0e501fcde55b09c6f06eb7",
+          "record_sha256": "1d977e40ffe3af6faa7cb553aa918de3909a355b9a7b2a5a7a3687e1cd70354e"
+        },
+        {
+          "identity": "claim-posture:8319ce634df49c843271e67a70addc6760dca581b8aaecd185f72e24c0abab0c",
+          "record_sha256": "d3f256acf68bbd89a6bf11446f00ada6714f3e275b66f43faa17f9449ecfe057"
+        },
+        {
+          "identity": "claim-posture:8821500229581f9c0a61fdbdbca5af4f23fb7d4b4b88dcf5d6329d476adff482",
+          "record_sha256": "df09b393a44c98970b1dd14d0cf825815e5fac991ddd983777e665bbe0bd8020"
+        },
+        {
+          "identity": "claim-posture:9638f48e3f8c70c7f520f25b838bbf6d30bfece5a75f3feb6eefee5e2d5b529e",
+          "record_sha256": "3f2feb8877657c90f1e0b1c2a0b1d066309134199afda6d405f1ef72ad61a657"
+        },
+        {
+          "identity": "claim-posture:96bcd915edc18cf78205e1e75df0f1192ed54b2031f2bbd1640c2a32833cf012",
+          "record_sha256": "81cd9b0dc1009d8856670df65a5f449661fb4a4a41dc0875211cba6aa902dc5c"
+        },
+        {
+          "identity": "claim-posture:975e8f9bb11b6491e419bae94a2292dbe10d08926ab1843288b22391a704fca3",
+          "record_sha256": "8d1dfd885dcc4dbc58d7e28559cf6e53f799582ed70d1eb325603a020c13dd7d"
+        },
+        {
+          "identity": "claim-posture:b05b677e2a710862ad8da5e5d1636af158e0c902e562aec427a1175bb3d0ade8",
+          "record_sha256": "b48e35f5772653937b6ebf7c5da0c4fc7edd29e8231dbe024947c85a95920525"
+        },
+        {
+          "identity": "claim-posture:c4bdc5dce1a15281480fd949c7a670254d9a9dc775cb9e6b3caa3109ebd0c0c3",
+          "record_sha256": "f9606a187eede0a9628e0550f3bf2244f9c75624cc47af8b9be78180b830ec93"
+        },
+        {
+          "identity": "claim-posture:d65f56bfa53c89caadb86e016c5b8b44ea5d56b1547c89f0b79695ca19533a30",
+          "record_sha256": "020620d1bf126bf02883e57f09e66959fa4f349eb304728e24d0df2c7a6b5e0e"
+        },
+        {
+          "identity": "claim-posture:ebe3b47c8d4844182a72e808d17ac8caead0022464b268877cd6c272e8ca01ee",
+          "record_sha256": "d3e1e130d651bdcc53d9087a860de8453b1069a7029c434dec0b37a0613cb800"
+        },
+        {
+          "identity": "claim-posture:fa6418b44e04af0704ce2b3765524af27baa2e62f046f613077925da7369c79e",
+          "record_sha256": "0195a3cf75bd2b5784802ecd9c3959ee2f8c847fddb846615e722a8a7293c193"
+        }
+      ],
+      "removed": [
+        {
+          "identity": "claim-posture:0626c0c80780120a532b3a1fdb3b20e4ece199171c6594e6202ba284b26e4a99",
+          "record_sha256": "9691edd8da2fba62d8c122928154579374b8973010d57079b780913d2d3f7519"
+        },
+        {
+          "identity": "claim-posture:0bb52bff4ba0c70cf2d75447c02ef0d1020379851e864a1c727982708c6ed056",
+          "record_sha256": "f85d756185609ec82eb050834c872ad671fd196983a4102b53a63c271d252f42"
+        },
+        {
+          "identity": "claim-posture:1b272dbc3d1bdeae00890beabea5f6579bc26276251e496ea1f706ad56bcdb90",
+          "record_sha256": "3de87e3a2570ac1ae9bcf6cbea0635e90a10582ee52dc05b659bee09a00883fc"
+        },
+        {
+          "identity": "claim-posture:56b8faf932569fd7af2c01a69e8034e30d5632c7141fa10128f2257adbd297f1",
+          "record_sha256": "1e090d45b860ce18d57ccbca09ffbbb1864163c826d51ed5a1ce2e9f98f8d3b6"
+        },
+        {
+          "identity": "claim-posture:723a9a4f4761cb18fbcb280099e3382f071fb4e1383ba24fb71de132729c7074",
+          "record_sha256": "9212e1f5b1eabe617811c234f958937a7a6da41f5bdc2a97a2df57eca74f06c0"
+        },
+        {
+          "identity": "claim-posture:73dfb26724cb547151c60249468f033e2c6407be5cd7ae47c48d95a6aa251540",
+          "record_sha256": "e0f7c3a284bc0fae703bffe26a8b345f329a125881b14d1f8fe76b38dc3f7d75"
+        },
+        {
+          "identity": "claim-posture:744d1a6a49bcdbfec48ea42b623fc4b64abc1f64e6c68bc35763230f5732d77d",
+          "record_sha256": "7f1fe5c0ba62525d1bf6ba0d1f262f17a3faa288a65757d797f30e89cb447427"
+        },
+        {
+          "identity": "claim-posture:87e40169b5c3002221d98ca7d5cf467b378c0c7482c57dddf4c3b5a80d3b3fbb",
+          "record_sha256": "7dc96d2ce743df8895ed288856bd1188356882daaee11752ec32e625585e715b"
+        },
+        {
+          "identity": "claim-posture:87ec6240e8880f6b873e577a301fa53d03de73625ad941b25d219818a11ca4ef",
+          "record_sha256": "beb593b3abed13e9ce38bd198de6b02a3e130301e302f28105704ddf232c4ffd"
+        },
+        {
+          "identity": "claim-posture:97732884a1c9c1580b525c673ed09f66bcd7568348930a29c9f85e722ebdf61d",
+          "record_sha256": "73de72bc97484e2411cb8fee3d184f1cc3d2653a91e05e95e53818957165bedf"
+        },
+        {
+          "identity": "claim-posture:adcc162a14a73b39580c345ae807d048182348ce25915ad135184d544ae4036c",
+          "record_sha256": "76a0c96ed91af70ee795af8cf321898cf95355c073f9867600c00bdf3c15236c"
+        },
+        {
+          "identity": "claim-posture:ea5703248358c466d74f56de0cd8747e066eb5ad2f548e3c648f0f497d74e705",
+          "record_sha256": "5dd91086c762d06b64635791e50cdab35e3e87b2ddd4dae31d82091c2e326d6e"
+        },
+        {
+          "identity": "claim-posture:f2f2494df39f68c2f25e5daf3ffcd4631286fd8716663af00aeb4a1eb2a8d2c4",
+          "record_sha256": "c094ed33ca361a2ca3892f927bd06527bc40f1133f8620975579f570ca176fa3"
+        }
+      ],
+      "changed": [
+        {
+          "identity": "claim-posture:031e3d975c633366911afa7fef6de69bd49329ea18012d38092609416a7aae92",
+          "before_hash": "97fe43443d8f0dad32350f627abdd783e677cdbb034b2b29d01286a46dae458c",
+          "after_hash": "b3e1983df91d0cd21cfb87ebc5b5fb38e0302e1d49c300ed325365dd930d753c"
+        },
+        {
+          "identity": "claim-posture:08713458011ee518654e311d0a86162c69689c70fa2257692b01815a3fe85a4b",
+          "before_hash": "39e5b0a67a8544a75b1f5f16fd2312414826cfa26e5b713a64f848c3a4b43641",
+          "after_hash": "6ae2c15b507e47947ee49d57ea41230dfab16cc99af3863e47f029e0b4d77791"
+        },
+        {
+          "identity": "claim-posture:0a5f016204d5be8735f78fe50292d49c64fde621606d81676d86f8fb8cb31bbc",
+          "before_hash": "b2b1b2ed58c4fe20281bd92a25d68cbb275026f97a0c1c9846d73d250a4221b7",
+          "after_hash": "931d33e6c4a278519b8520ac4c88799e725d55c11c50f02c78921f10e7c4c45f"
+        },
+        {
+          "identity": "claim-posture:0a7a99dfebbc594c7f58c83a2eb2024162b5966c09229f310cff48b37ffac418",
+          "before_hash": "fbacda47de5a03279e23967cbe1fc14135f044eab4a084d92022892517954dc9",
+          "after_hash": "a4c250f64b1fc5da0f86b54cfcc6921fbfba6404d83ce744d8ce8433e17ac3a7"
+        },
+        {
+          "identity": "claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca",
+          "before_hash": "e1f372a93ab8dddc8bbfc45fc7e3c372533ba86a583628e2cae101e35f3230d7",
+          "after_hash": "d94545374c99360ac6506b7c44b5fb519ec1869f64a68915a296a15d38fc5fc9"
+        },
+        {
+          "identity": "claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005",
+          "before_hash": "cc7d5a4c48b141e7e03ac685dfea70730f483b59a14fc7235ec48a2e582a9a39",
+          "after_hash": "1d0cb2b895d0cb04e3e551f316444307f3b53bc6d1523c3e5c55ba2c31f78c94"
+        },
+        {
+          "identity": "claim-posture:11ac527acb2cee950dc18efcd4dea9b1b6133579c41bf52d3be29b30519ec9de",
+          "before_hash": "07ae6487b3c1981e295165424bf5a133ef3fb2664320df15a7f7a9bb7cfdfbd5",
+          "after_hash": "d7e478191b2aa13f4569dfbc610dbabd7e0d360263247d5d5b2354027c183b80"
+        },
+        {
+          "identity": "claim-posture:123503beed69874dd2e5113cb6a085512102f6255cd47555ad2222e0f8580846",
+          "before_hash": "33b960a8aedc89485021c5eb5ce6276d55f3f0f6366253675841d8173d8fa6f3",
+          "after_hash": "6114e869685b369824c4c62a13911725ed0500bc21f9cf1d66fa67884905b180"
+        },
+        {
+          "identity": "claim-posture:14f2544506ffe1313712d6fbf0c049f0eae259b10617b690c33e0669911dd708",
+          "before_hash": "0b3c67108c9549c17eaced281b1b8107835839ca23ecf4b765ac84949d331fad",
+          "after_hash": "62716683fa6a26d8148f63b63f289cc5f44cb6274509884ebcde6fb10e61ec58"
+        },
+        {
+          "identity": "claim-posture:17a433872c082a130256abeeed595ef5d7670ea238ea4c9ad3272b6470ee7ed2",
+          "before_hash": "123ef49714f26ee74bb0dcd885c47a24fc97549542461973af898b950c136270",
+          "after_hash": "299e86304a4c9b03f834336a6573e926b6a648f3382ddc445cd3bc4d106f5fa3"
+        },
+        {
+          "identity": "claim-posture:1a49cf7b1215fca7fe432b9f1eafb74feda4912493afe5b48f141df5c7ef3fe2",
+          "before_hash": "73691abb13ec93413828547c6b3a4327a68539954a88c7de3e0077dd6c0f7c8a",
+          "after_hash": "fe863a8be28f9aa5e5bc628e887162d20b856699140970ab7c5a7a1b584e252b"
+        },
+        {
+          "identity": "claim-posture:2036ad39c1ede942380299f2c6489dc5256cf3a98756b6802e606517e37563c5",
+          "before_hash": "a2e1ebd8804db2f67e0ba2ce76b6973d352470a997f8a8fdc913e3e1c0cd52b9",
+          "after_hash": "25d95d721987d96ec97399bc21991a3354f80370a5ef9dc6532fc23864316d4e"
+        },
+        {
+          "identity": "claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab",
+          "before_hash": "48a36bd690fd380540a82ccb45d867f4a0b218692957b63a49f4c79b826631e0",
+          "after_hash": "8bfa0e8b9078a177805eda82e531236bd88ffe5c5f065a549745e4f1ad0b9dbd"
+        },
+        {
+          "identity": "claim-posture:2577f3439cf22d18b9bba8045f958bfc270b63b40d898bc7bc0933da84350ffc",
+          "before_hash": "17e0e827a9724c228802f9daf2fb50f0647da3969fe914a8bef66dc8491fad51",
+          "after_hash": "b8de905a783398318f75aa2d3b84792209624bf8f7bfa3b6b7cc482318886c4c"
+        },
+        {
+          "identity": "claim-posture:2aeb037a3a7c4ec9268c91a75145a44d93b650adbdac9f8bc76668f2a682edc0",
+          "before_hash": "a34590e06921bc988d0aa27a59c0297106c1ce521685d60475f5a03db7660cbb",
+          "after_hash": "1fc447cdabe03821e46fe9fce34792ca620cd053052ea56f18acde0e7dbb44dd"
+        },
+        {
+          "identity": "claim-posture:30217da30f42e64f40bae5c1c64ee15b10400cdb525ed01cd8cc037254bb0ba9",
+          "before_hash": "0d83832be76e6d87f60b5ee55dcffee83ed243969b74b101c21deccce503d935",
+          "after_hash": "0159fa671bb26d3e11cdb5262fe84d6bb5090a3d07e3f3777e1eadf5d5e1b597"
+        },
+        {
+          "identity": "claim-posture:321dd537cb1067439de707ffb9e9020d0e0ef3b24fe771bf433a2b4fbd30bb20",
+          "before_hash": "54f8e962a6276eaaaa5df29cbaafbf9b113870be2989472391138768e889c1f5",
+          "after_hash": "1699d1693de023d63bf33cbee25ad468ead30d9807011ce178d77ddc6ffe2924"
+        },
+        {
+          "identity": "claim-posture:34b2abc7294b511a51bb42bceefeae8a5301988c79596676e3ecb380d588ce41",
+          "before_hash": "443ce2a51a1835b70d9e379edb8222e41dbe8d24a428f6437b85aa43679c4b32",
+          "after_hash": "7b88886e110dbbee5358f16cab79a03ddeefcaa7b63363a0852c933565b86907"
+        },
+        {
+          "identity": "claim-posture:35c14a4f64030ad8263c66f29e975d2c2ca80b4f04bc7801e78cba8889c087fc",
+          "before_hash": "087ef9052094deb064fcc2f09f0a48fbef55db3d89dff11a33d799b15503b606",
+          "after_hash": "387272652388bb3d086c018b2a142fb81bde80bbcaf7fc63044893bccb23bd4d"
+        },
+        {
+          "identity": "claim-posture:382b636ef2b669523f6bb96aca7f6cbf8112e0419759bf1134084048f5715c33",
+          "before_hash": "2e262a7a9e10fab84f891713705801d92d52857c7751060da7c3370be4007113",
+          "after_hash": "920c60e136b5b2fdb554bf531325a83c53e522c573918777ceb28749fcc4c922"
+        },
+        {
+          "identity": "claim-posture:3eababbdeae77874c948f87556788b43403bc3fd454f3552ff6d095a8d717be4",
+          "before_hash": "6b1df270826eb97177b8d80d2af1f09a9de9ca492a3431a79017261e695419e4",
+          "after_hash": "992b88a57a01dc1b730f716d495f8ab6ffd20518b6ffda0a216f1a19f5a85200"
+        },
+        {
+          "identity": "claim-posture:479d3cdb66c1d5b3aa6b4048385039a2fd6944ffbcaf3afd37fa6b073df01fa7",
+          "before_hash": "efd9ca1f7b6c70bf894c887960f4da5c4b2f804359057ddf2ce1b1b975cadc82",
+          "after_hash": "6e516544cf9beac3d88fa379202c00e708a311e2872f08f2316e72d0654f0fef"
+        },
+        {
+          "identity": "claim-posture:4a9a55e9b4452b786b78526b7f3334ade58f76717a8059ba542a88cf5ee3a990",
+          "before_hash": "5ad285a20d445f4c6112509618a9f485fe2e22f00fbd8eab47829a383f90a04f",
+          "after_hash": "b056a92b3705609d7efc7c0126b3cd9c8db01d2cee7b8e3e646c2d70480f55cd"
+        },
+        {
+          "identity": "claim-posture:4e9ff9eeffc0de8809edf76aee5f68d0c034ee6f9b26c0e7e3c082d2d6a2c716",
+          "before_hash": "c84e16eda74a7b18babe3f2c87d0ab73d558361eba70c522ca10246387fcaa4f",
+          "after_hash": "2a0bfff806767b25ff2fcea8a2d4409b573412ab35568ae0d4961c741f034e94"
+        },
+        {
+          "identity": "claim-posture:5218a150fee3d4a0d673188973c1fbe45a037ba86e41df4fe7476e08836154c7",
+          "before_hash": "2e723b0b1ee8eaf66b93abd90d1d6ccf5c3dc7bab875ffc58f2e8501a3a17572",
+          "after_hash": "612350b1bda300357251c40ade9a6822234620836b9126d88f7f62be866a9739"
+        },
+        {
+          "identity": "claim-posture:52f0312d83d8ef4f0d1f1b2e4595603cf7e87f2ef78f6f13a9ea56a41cc21c1e",
+          "before_hash": "7f20b333795fe77d672caecfd2c39ec922552282889a61b8f66cf83498d4cb0c",
+          "after_hash": "b8b1c5ceabf1f3bfc8868ce809538014d146dadc1c714071505ae52dcf667007"
+        },
+        {
+          "identity": "claim-posture:558cd0c0fbe1407a9e97487406d3cf0b924de4cf8ef6001c40550c4a5258d53e",
+          "before_hash": "78fdf270fb68d91f73f901e2030e45bc020fd87c96d034c97aa462717b994011",
+          "after_hash": "9b405f15f1878816c84976f8391f3a079d4d472915a3a1def605ba4257dc05cb"
+        },
+        {
+          "identity": "claim-posture:5dd7ebf0e26878817e7c0d034531e667bc5687000f5c479efe038b16de7d7296",
+          "before_hash": "ff38f46f4f32f320c11cc9d714d7bc16429a2739f1287c8ad9765d75884b4971",
+          "after_hash": "387a98a959adb6184760d89a210f0107d63455cffbae3f5fad3c89269659bcd5"
+        },
+        {
+          "identity": "claim-posture:601a353603a2ac2fbc970f167aa5fbe2d609ac83544ac3d9357d9073fc267fac",
+          "before_hash": "2336a6ed9e115f4062fc96c4d65fe16fbaa424af2aadbcca6ce31ad7fdb4c716",
+          "after_hash": "c29b5e3c41f3395848543e1f501e72029000a1580e0bc7b889f4813a115e915f"
+        },
+        {
+          "identity": "claim-posture:6ac2875882642c5f741f1658fad8481feb18fd43b28e84716cf1f480e0884b46",
+          "before_hash": "a0f0b8eef52acdeb96f77dfc41b014191a4ff356ad123d3caac73ce04b37741d",
+          "after_hash": "0c941711422e447715b5721264e22c6eaa35eda16e1ce4dd2d972623892b5192"
+        },
+        {
+          "identity": "claim-posture:73f36908bf891cf72e22d70d0add6041767adec3b4fb34cad552217f8477845b",
+          "before_hash": "0ae51baf74ebed0e303c286773dbadca81101f085a0fad778e8a378cf3cd3201",
+          "after_hash": "6a03332fff01ca54c2f296d1602fb103fb467fc5e40cfed5d314483939792f96"
+        },
+        {
+          "identity": "claim-posture:780fe380ea5305e23acb9dbdf04945cba496d2917a6590416377240dfabd10bc",
+          "before_hash": "32cdc94eda0a0041d033e3bb0940cdfd42a4ce6b8820582f7f01f089eb072914",
+          "after_hash": "dd7af081561089adbaecc94d635736a9e863095e61733485506c2a3224537dc6"
+        },
+        {
+          "identity": "claim-posture:78350cebbeed6d15d1c031377b2a67e4629735b66db183d44994e66b6d188a2c",
+          "before_hash": "3fdf50517a471028ed87de3a091dd275ffc350df9af0939f83a1f39c3381dcf9",
+          "after_hash": "328178ce34bf961a83fb5c4fdf97d99564e1ad2fe4e575d2442dfdc27ae17985"
+        },
+        {
+          "identity": "claim-posture:7c5bb28a80545d5d1ca06e80374f7813f4c0d4f99595e018e6861228e274c157",
+          "before_hash": "0c0911f5b17ab8105f0b820a0d5e19efa41e6a73424dbe7cfcf73cb6c4ff5d4b",
+          "after_hash": "50b5e910a32d7084de1547fe2b3a4dbc99befe28e6bf22fde46d1d8040df6175"
+        },
+        {
+          "identity": "claim-posture:850e878668b9887462be9649516e3f590d8a3ff8bc6b064c759f29b03e1b659a",
+          "before_hash": "666db207705875d49639a4e96bb2767cd807cfacb986c302cb19a47c2e5d752f",
+          "after_hash": "75e92f74d0185096f1c5594814b3fe5a5f64cf592b713be557b8150f585fb7b3"
+        },
+        {
+          "identity": "claim-posture:88d18a8f3534c33dcc5d6ce271f91b5915029e45db351ce9b0f221cc21904d26",
+          "before_hash": "490b53d8d39de381d34a218df56cc673acf253755246c0dcdd2c739a63d0a41b",
+          "after_hash": "ff28bfe2c48aff3b8ca72b53a1e81af3fe78bcc742364b8b10251e7a535e24f0"
+        },
+        {
+          "identity": "claim-posture:8bbdcfb829e9bdbe2549779dee4589b900b455d0c26d28a16bec4379e9dec400",
+          "before_hash": "8f611facb830950fc28571b767e4726174968d1d53511bb0cd12bac080ec9456",
+          "after_hash": "32ee0deaca8e6a4046492e597493152b09b8388b7cfe81dfeb8b3c7db833685b"
+        },
+        {
+          "identity": "claim-posture:8d50f2ec74ca046114cbc74557b340cf558a1204f5538713ced93d263acd3e2b",
+          "before_hash": "a2d08957c436eac81e31d3cce5883845081fedb42fdc6e50dbf609078f120ce4",
+          "after_hash": "083dde9f1fba3cd8dcddaaae538fe95d952c2aaf0d7085863d35cda5bb841cc6"
+        },
+        {
+          "identity": "claim-posture:8e18409d89b1b87b937f1371b51c5cfe3c4de5646c95f99fe15b00580ca5adb9",
+          "before_hash": "96b446533231401fed02d8984640accb733ff2d7a0d4c164e19f47dd27a9d18e",
+          "after_hash": "d4324b64ed13ed223e6fb96958b62df86201952f9df975cc3383e126f77c1d71"
+        },
+        {
+          "identity": "claim-posture:90fdfaef63543b0428ac626ec56d6a2d00b810ca87bbb72a71cdb68c112e70a5",
+          "before_hash": "d9628d3639528d8bc09cdddf7fabc29faeca714614c04fd42260388cd1007f9b",
+          "after_hash": "12d89de4b3d4ececd14dd53e8a3351a4cd89e44e3c27488ab40a832bdef72bfc"
+        },
+        {
+          "identity": "claim-posture:91b492bab4f86135752cbaaad4be7d14cc619ed1dfb4aeb9bf51ae231668e7c4",
+          "before_hash": "f61e2a1edd79ef39347ad2f61769c2028340789e400472da6ec0b0b7ed729d65",
+          "after_hash": "e109bb9853b7b88ec0976fe6e95d9ed2e0f614cb6fc07c0abf1f1336fd258aef"
+        },
+        {
+          "identity": "claim-posture:91e212ebea0c5d0d81529241346b5ee9dee9b6a3448c2da1dcb416337ffa6a86",
+          "before_hash": "52f477883bde7bab63b0697c7bf3376f77f33ed4c9f16ba5a155168fe175917a",
+          "after_hash": "80b3b5cd9023629f72df01ab062ff5e3fc665b5b00d7234795a144e6f5294a2a"
+        },
+        {
+          "identity": "claim-posture:93a87f455e787dedf5b25afc927630aecb9e78fb20bc703757a77289495fe812",
+          "before_hash": "bb355edfaad56b3af3c181b48b96719db08fc5db6f19e0616e8e0c932af428e9",
+          "after_hash": "02c97dc707ecd612f2a066b8f71f5ec04f303c38c92259ea1a9d41df70a28670"
+        },
+        {
+          "identity": "claim-posture:93f9da36649b63f9735ee085254aec8571d1951c6cc7b10d0a5c28031c4e3cf3",
+          "before_hash": "992616be9ebd2d461f9010f396c9b87b3846db488626cb94c39363bfd31a042f",
+          "after_hash": "2da6fe695e5684350bca249d36c3fed22f5394ca2baeea534ed8509ceb7f4232"
+        },
+        {
+          "identity": "claim-posture:942171dbb63d234222672791c72e9013d048d339ce8af021605c2e28b7fca66b",
+          "before_hash": "73a19d7080f4ffec367f56cb7a3f3a89133d43e9d39c37dfe48b181facad181e",
+          "after_hash": "914d87f905ff69cf2b9fe0b1767a78b906770109c9ebb60f50294ddf19b28174"
+        },
+        {
+          "identity": "claim-posture:9c910dc2b430c4915780d2991537d1afdffa1b43df0c31ddaacda13f982965f1",
+          "before_hash": "6bbb221efd3c9cd819057dc3aa77fc31158e9a1cb3c5e605707a2782196ecf59",
+          "after_hash": "466652e8a22117320b2a252015b194fdccb8c1037ba686f85c619d281faa5f97"
+        },
+        {
+          "identity": "claim-posture:9d7dcb45e8a1284a36ad29a41700c6553692141a7961e279de670411511abe08",
+          "before_hash": "744b5f9adc434f340960f46daeba8796080e59ba149ddc97aa567ab9c718146f",
+          "after_hash": "73a7ec858ad122bd92a40bc44c82d2a1ce0de6bc0cdfb987ae4b62a242b61153"
+        },
+        {
+          "identity": "claim-posture:a19c94dc0147232f371e724dfbfe1fc4c0eab051387d2e3b3bdbf21c255170ea",
+          "before_hash": "4378fa66e24ca74fa095c64d56d9ca05078d65274d2e69f0b73c3030ad5d4b22",
+          "after_hash": "7ce4389719789192a180cdf4c664fbbe39f02687747f0bc6e21af2a12b7076df"
+        },
+        {
+          "identity": "claim-posture:acfa9ce8bb206f930f07b041a8f479fa81ec0fa6a76436c2507970e267452cf6",
+          "before_hash": "0f7f629537e38458b872d50c8f2beea1aad10746964ba2b78fc57ba6b2882ffa",
+          "after_hash": "b0cb9823b451af7f83b379ac4fd4ce0235c067dca51fba7b10080eb74ff22a6c"
+        },
+        {
+          "identity": "claim-posture:ad692ed82840a5623ef815db439340d6bfc6f3ab630896ecad713854f4e338b4",
+          "before_hash": "2aed25952bc1e322c362069b85d2f31fa1fbb09b851449796ed2c59bf347c8e6",
+          "after_hash": "a3511c31496d86e29fe31001c65946d95d839c022f32555d542eed1552ed6b37"
+        },
+        {
+          "identity": "claim-posture:af53cd59359ebbaf8eec729b832347a7d8bc4fc6d93f1671be3e6016253e9110",
+          "before_hash": "5327c084bb37d39daafbca53a9b90ac37f034b035c43a10b565aeb663d791e48",
+          "after_hash": "a2f75d928c19e58986663705e444a970d74576905799397fe8904467afc58d5d"
+        },
+        {
+          "identity": "claim-posture:b3f0613beb2f8bce97ff85a59ee9a281f75ff6f7b096e412168a5444881d7f87",
+          "before_hash": "fade9b0361efff5c5872824d8eb174769231e584dea26ffa7781a0a83fcf5ad0",
+          "after_hash": "5d8f591b89818e1b909a6fb696c7b5c806b6247095c601f0b4dec751eb8403db"
+        },
+        {
+          "identity": "claim-posture:b3f845f7b42c724c2aca5a0f685b21035dbd21d3eefb71319a79d0699875b465",
+          "before_hash": "79c68fc11b4f03ba6e11714406a8fe7eec428fee8c6b45c7172a7ea6f2e9a6e6",
+          "after_hash": "70ba29900de4cc3632de7a85657bb3b3c7ab7836fce7b6a4c282eb413cf333e9"
+        },
+        {
+          "identity": "claim-posture:b4cead62df06bc3df7dc6a0cb162765aa44c1f68db35cd9d64b01c6767a5299f",
+          "before_hash": "e1b757c2181ed2308c3a9d047d1a4f984e027de648c1528a43a685bfb407c717",
+          "after_hash": "9a69422875ddca8ba21f78da108c8efd43a6a82b33e25496d0be7ede0d9d8caa"
+        },
+        {
+          "identity": "claim-posture:b58cd60a7484c0ecba588dae9126310a4f9fef7fb6ad93b66b3f77776a3a3598",
+          "before_hash": "04d883a2774e41f2f6f4bf087f773beff1f4df1c5f97c70ac467131c5942a8a1",
+          "after_hash": "8dd260769d40fba9f6acd8ee77b3cdf04dc848a0479590a063d9e5cd27ad61f5"
+        },
+        {
+          "identity": "claim-posture:bc1c4c6cb4503cae254b4d7bfafe7428104d3e4a8147e9d04a3196304ef46ee3",
+          "before_hash": "48a780eefc87ff7f6121f296248850abeb55d9865e9abdf0d0e4d49d3978f367",
+          "after_hash": "5bd878acc686e1d28a91366bdacc70f2cd47412562d281fe9e9dfb4329bd1a94"
+        },
+        {
+          "identity": "claim-posture:c5cb2707c30768e5cb7859f56fe8503fe0e92631356a9499401e1961f44df4b1",
+          "before_hash": "6cfd8f1d7e2ab2d8c1ad47b86f896bd1cf83e753ee835ff6de123ab5d9afbf05",
+          "after_hash": "9bce412f9c06d9ab17696c6953537ec91e1bc842cf619f9493b9a6575fc3662f"
+        },
+        {
+          "identity": "claim-posture:c853788d644aa3c134bccd89b793495050e40e022455d2a8425961497e0d6cb6",
+          "before_hash": "1661dfb811945a83f91d04ea08b7ca38bd47e51f3c97b110aa00900e620af1c5",
+          "after_hash": "e26742821203d8ef44feae0d815d7007801eb1ef5273368cd430af73a5ef681f"
+        },
+        {
+          "identity": "claim-posture:d06db0100ac28929e39a81e14126fd7d2bb8ecafa3bb4127013b2cae91b9ca06",
+          "before_hash": "f66ab7dde4dc2e6b43e6b5d5bfab7dc088c4a94f776ed28f0c763fa4c788646e",
+          "after_hash": "8f281e080122a5fead4268914b6ca88b554dd0165ef43be2b082482cd50b3639"
+        },
+        {
+          "identity": "claim-posture:d48e603435d6a6869abe2e880cfdf235bbb05235d8552c9391bbb8022b24274e",
+          "before_hash": "e7a6f7d23b3d4d08ab430677a56f5785bd4a7df10560df9272661d751c033269",
+          "after_hash": "e470d3e311692e725e7ed9280b9100d8f63efff80a8d0109793ff7f57a66a925"
+        },
+        {
+          "identity": "claim-posture:d831a76146b28e223de87de3b3bcdaede4d663d00f5186f6ccc7cab9168b8550",
+          "before_hash": "a3d06b236dd82497116c593c8234e0a25fb29b47c16bcd07d5c052d4d2b9dc13",
+          "after_hash": "84783277412b4dd995f6569dfaf71ce0737d9a7e1e9e16e20b379942316c23ef"
+        },
+        {
+          "identity": "claim-posture:e1cd31554c23864aed5fddefae525a1e3a7a13951a69abcea0d3de70837152d2",
+          "before_hash": "c48723346a46caca9142849b602099225150f7fdd37b271184c518e2a984ae4b",
+          "after_hash": "1f6c09ce5e0f4477c96194aee620c01524d32f75dafe10b5bb80bdfafd451745"
+        },
+        {
+          "identity": "claim-posture:e1e52f6175d6d02ab06bafa3949573804879cfaf5284fee84484905bf8b5e311",
+          "before_hash": "54025ffa9dad44431b30a5c176d6d89c62f2515e9960ad002ada34dd3e05b107",
+          "after_hash": "559253e645af21cf2e604265148970a31c70cee98b6c91aea9f95837229e8274"
+        },
+        {
+          "identity": "claim-posture:e206ef1dcdcc1b68f37b8f9ea11f1e54fc367771940f3a2e2987d32b285de0e0",
+          "before_hash": "0cc04aed67c441579d86bde117377a9c40f2645651d1c56c57a71110e4a0b482",
+          "after_hash": "9532c8fe87421cc9af44db56145427da9457a76e515438fc31902b3b4f7b270b"
+        },
+        {
+          "identity": "claim-posture:e2994a2be29ee6c01ae46b245613d8adf552ab5c84bd22c88ea4133ffac5f128",
+          "before_hash": "51f777f5b0eddb313b9ce32f7ae1fdc421e03eafc6080518cc6f467bbd8541da",
+          "after_hash": "47ca84cf47405e5acbaa4341645e480abbe17a2a33b3068377000676e6ceae97"
+        },
+        {
+          "identity": "claim-posture:e38f34ab9139c9a3fb18bd1c31f7bed2d5c56065a3f2ea7488e5246f6561563a",
+          "before_hash": "780da02b548ec0acc1df46a7b6390554482707bf340674269f3ab227e817a83f",
+          "after_hash": "b28c590ae37f41139aefd7f4d5d1a5f611f403e118c414745e35fb710f204ae5"
+        },
+        {
+          "identity": "claim-posture:e9da34d9700e7053566fc4314d34e9d0ba90cc5cb28a4925230d98730f6cb485",
+          "before_hash": "e3808d7c41bbc603706becaec1c61070745f31b0334e1066c30a605f587103ab",
+          "after_hash": "5a104dce1e06c8f922c46ba862f09ff07414fcfa297117fb1915c92bfb3b0f7c"
+        },
+        {
+          "identity": "claim-posture:eab98709742e7ec89e67f2ccb1c3db05e1da7d42dfea9f893cfb6209bc2165b9",
+          "before_hash": "554ded073293baf03ad15b0a80701f6e3c0be3889e405570ada4f23283c7509c",
+          "after_hash": "1658e4b1c8c93a74700c8e9e2fb82252a92932daaa45f3e37c38ac6cc5382c97"
+        },
+        {
+          "identity": "claim-posture:f183aedb1db2c510b086856b87770c2cbbb2412b19f53fa8c76550d80addf9cb",
+          "before_hash": "e1bc777501737894030b5a457e26b661d14cf91857045ea652e7fcc8d5fce41b",
+          "after_hash": "01b9599e8d13f5a42b7b561d45c564102f03ed46859f5addfefa171bf99823e1"
+        },
+        {
+          "identity": "claim-posture:f1c2e8d644e455520f5b1981eb3c2b9af7e20268afb4068ad1af916e5b791362",
+          "before_hash": "8e37c278d4bbbdf70a0514d3618490ea284002033916c9e89a86524229b334ec",
+          "after_hash": "d446e993e7a7519629c5fdff96a45fbc96d660572d9f5cee188892e0a6bb5c87"
+        },
+        {
+          "identity": "claim-posture:f49be60fde3abd7795dc80b804c1ab350175e69807f0b7187eb188aef4aa7fcd",
+          "before_hash": "3f4f839f681bfc6bac90a8e5a85e67b158bb4fc1f4b0636f6d2ab896871983cd",
+          "after_hash": "5d6bf906fb30e180bf61f55bd398dbf4beeb092ef6356cfae85712453e76938b"
+        },
+        {
+          "identity": "claim-posture:f4abea2d687cd453a0cdc70457806defe67bf5dce8ac4097d1c704cc51f86fbb",
+          "before_hash": "8992beef05a302c2fc164a6887853432416f4a911698c2dfb31c9a6367dde21a",
+          "after_hash": "7eda58e864dc2d117c1552e1e877ff4f98a7bcef23c0a79f9a1ca3d4b0bd0f8d"
+        },
+        {
+          "identity": "claim-posture:f6bff40355ea7faffa529282388b5624498a0e045bc51793c4520df87469a75f",
+          "before_hash": "64233d969dc6b9bf96a21278bce701668f8d8bc9c48246c545836ed4677ed4cb",
+          "after_hash": "f242fd99577bf9040c9cc7ffbaed74a75cb6af5653b7a31f7723f02e0a2927f7"
+        },
+        {
+          "identity": "claim-posture:fab90e540830744f138fa1119a3eb3954ce5172ad746948d4382d4044098fd51",
+          "before_hash": "274241255c716491690dbf3e3848e22db5838a7fd00ee1fbd84464edaeabc2db",
+          "after_hash": "01caeccf28c15d65e3ad898e5c60c6781e5ab4acf16e57821ff0972590e863da"
+        },
+        {
+          "identity": "claim-posture:fb3a1a475804718419e69d5d9db28ce036b16322d82c9c2141e3a3fe182c85d7",
+          "before_hash": "4fa5e2327f3e2e9307d5b7999c44debc77a6d8df8bb4981d53ee98db6adabf34",
+          "after_hash": "15378cfb49f49f67eec6c9b7e2f0c1f34b091795569989abb586e0e4066cd548"
+        }
+      ]
+    },
+    "source_inventory": {
+      "identity_key": "path",
+      "before_count": 126,
+      "after_count": 128,
+      "unchanged_count": 102,
+      "added": [
+        {
+          "identity": "src/polisyos/runtime/http/services/control/generation_cycle.py",
+          "record_sha256": "f4212c1d819d47298cf088593465ea56c2b87d2ff47e7c2b900cf04eb47f05dd"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+          "record_sha256": "32433fdcb1af023fc377e6e67f3b7841cdd9e33bb205aaa2d5fe484f0a40a850"
+        }
+      ],
+      "removed": [],
+      "changed": [
+        {
+          "identity": "src/polisyos/core/contracts/runtime.py",
+          "before_hash": "fb6b1d6d9d9c087186c4e5bfed9a1578cfb2eb7842f6141f3411531bcc42311c",
+          "after_hash": "3a77fcdd24160979c7c0ed5fa537ecbde9030f252848b6270ec2ca6fcfcd10d2"
+        },
+        {
+          "identity": "src/polisyos/data_forge/domains/academic/batch/best_snapshot.py",
+          "before_hash": "895a8025278fcfe9be504c322901fe08d6440b862c10dea0e5bb82db61fe122e",
+          "after_hash": "b9042d71bd9481c1d5ba25a8ec8f50f2bcd89f66a8ef1f602ea0b600b99de0be"
+        },
+        {
+          "identity": "src/polisyos/foundry/data_plane/bindings.py",
+          "before_hash": "34c4fb4af28d87cdc8171400a1ff04359e27bdaff05a949060645e0f728ce7df",
+          "after_hash": "809d1c49fbb98f5d01ade2a27c9e9992f21c63863a096298c009c0196b477ae9"
+        },
+        {
+          "identity": "src/polisyos/pdc/_impl/layer2_design_search.py",
+          "before_hash": "217f3a7bf79cc7027388f968e08d0ecc2dc3d6210fe72d1c2e8db46e9f32c0cd",
+          "after_hash": "9652f84f72dae802749a6cbc3a0efa6afeb973f50a2d77e1e546dd34e772cc5b"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/openapi_contract.py",
+          "before_hash": "5c66be44a24e8a5a333137632b74b824e115b63f4905da160d3356f5d5c784e1",
+          "after_hash": "a938900c674a5acd7128bcdf79a3b8e5a3ce04a05574a405500283a41652f854"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/services/control/evaluation_safety.py",
+          "before_hash": "2d7892079353a7f3801129f4ece7c84d6a940e15bb76374ce0783e526b1d58b0",
+          "after_hash": "64444a465c3a4fd2167b78c48207c5344046f41af18de945d2fa368296948b86"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+          "before_hash": "2b91ed39f142d0b9985df6568f8fe7d29cd93d7cc2c37d5f639f2876947a3dfa",
+          "after_hash": "cc98a0cb93f718db15ad45983edd9437d15e59e15636047930f638efd639f755"
+        },
+        {
+          "identity": "src/polisyos/runtime/http/services/human_decisions.py",
+          "before_hash": "0ef4fb384dea9bdb2f16497e8d8fd649116105d5e9c4f4f7fe1d0a70474029f9",
+          "after_hash": "52ec140f35cddf4fc4b375d705190a8af2eee96b18fe31d71e8a15253270e516"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/acquisition_planner.py",
+          "before_hash": "a7c34cf4eb5303905db9139ee906e313b3b8ce77d90351d68ae2343ddd1744aa",
+          "after_hash": "e81f41300dc994af48270ea769d70de741c97414e474153560e8941156ff0807"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/construct_registry.py",
+          "before_hash": "8b2e925f5f52172474d0fd3ed0ab6b83d90167d8033170dc0e92b5f710544980",
+          "after_hash": "ded8dadcd1bfcfde4dd6881ff9db63720ed54aa5a9d3575c344de8eeefffdfe6"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/data_forge_binding.py",
+          "before_hash": "d142d1fa44c52c4015eeac2a738509f65898686417a9cc25044c335fee971bd1",
+          "after_hash": "8c73ee21a9f291f5ba16c48c98e2082e416df48fb3e517c5f3a3a11353f59791"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+          "before_hash": "0f9578e9d1bfd21e8931aac97c2a4427e1c9a7ff58a2ddf766c9caa6cacdda6d",
+          "after_hash": "60af4345488f5b70e2cdd8aadced19319e29f02354a8487727d16845b1274135"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/design_axes/substrate_acquisition.py",
+          "before_hash": "fa7b48244efadc4dc6f9b868b68dd79afe94289dc9b97077b22c9d88289d2ff2",
+          "after_hash": "83d0bd048e6affa7c42ac1574c359d09876fd6d1f487adbc2fccf5090f03560c"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+          "before_hash": "510b467db1c3e03490fcefd06113613445905c7dd64b5d032add9de3b9f35a68",
+          "after_hash": "60c817941379759a26df47fc5532e551cf9819dc9903e5b852904d874a7d8504"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/evaluation_safety.py",
+          "before_hash": "8915723c56a49f0de7d2c3dd7c74364fdf3b4860fb3de606c60692883046803a",
+          "after_hash": "88db91c4d75feeaa8fe74de3fec9d5a7801101e8f45efbf82ee9993812f6db74"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/generation_cycle.py",
+          "before_hash": "ed92c4695e866bb33306306bafc587fd4eb6389b21eed907869d0cafc1c3bb0c",
+          "after_hash": "350ffaffac2eced40f425da4ab4409cd352b6ce58c83da8a3782665b35e7b571"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "before_hash": "0e90b00e7e913fabf4eb49aab8095480bddae63be98fc149898b5bd15ee5496c",
+          "after_hash": "5f3902badf00fd8cd9ee32a186e84925cca1a4854f36cb25c42147c75f75212b"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/promotion_safety.py",
+          "before_hash": "ae31e6041a6e2b58cc376429bd6093bd264825aeb13a0fd32cab6e9b9647f462",
+          "after_hash": "4c376049df59f0932881c748877ea5579ea46949f5f3cbc259590d80726585a6"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/promotion_sequence.py",
+          "before_hash": "405d91bca98942b2cd91d848b414db35a175ad1dff1b87f4931e54d822921c5a",
+          "after_hash": "4b5710a8a76ab3e51a02418ca960ff2ddafb539d85e1a1079d9a4e741b1e3686"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+          "before_hash": "0b69fbb7853bde361bf085c8c3ee041025fe7e42048dd066bde318e00fd8f66e",
+          "after_hash": "c104eb239445515ba633165b00079dd0bbd938a27757b16b2668dc78e6094c73"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
+          "before_hash": "62dc242cc2dc15c5f1e275341b9a4b62d173ff384491af42f1a14f260afc6d1d",
+          "after_hash": "b2a463b139391503c689539e9a8a2ca682971ceb17b344900850b0c945e5cabd"
+        },
+        {
+          "identity": "src/polisyos/runtime/quality/workspace/loop.py",
+          "before_hash": "6d83632fdf937fc2837553e7c8af9fb3c804e3c3f68c799349b7e242ef0c65c6",
+          "after_hash": "fdb242443fd4a0b51af8242f88a73efaa7211d27efb276455b1e7a73d78dbc84"
+        },
+        {
+          "identity": "src/polisyos/scientist/governance/continuous/lifecycle_bridge.py",
+          "before_hash": "3ddc286db458db8b7d08242abd4c8d7eedef8b0a282f3afbee7a4c730450727e",
+          "after_hash": "dfd670aeeb42b5d9d953a057a2d35dc9de0627c1ff0719120d850fe7895a97d5"
+        },
+        {
+          "identity": "src/polisyos/scientist/governance/continuous/reissue.py",
+          "before_hash": "b2e1852c92a07b4c2e2e453a822e8dcd2989a6c8db7509f76850620dfb58db57",
+          "after_hash": "0fc84076e00f82778cc7c7386e8261acf76e5a5a0f3765713bcdd2f606c81e59"
+        }
+      ]
+    },
+    "projection_groups": {
+      "identity_key": "group_id",
+      "before_count": 5,
+      "after_count": 5,
+      "unchanged_count": 3,
+      "added": [],
+      "removed": [],
+      "changed": [
+        {
+          "identity": "limitations",
+          "before_hash": "abe68d7a4ea210d6c12adc31ee598d99be405fb780f0a83e1904098d221b47f2",
+          "after_hash": "2cbdd9124afab33afc3820cd967440864cf915227fe6f31c7dc0871f14e098d9"
+        },
+        {
+          "identity": "methodology",
+          "before_hash": "10fe9f96c1c48f5e28a709baecbc38cd30eba7d3d14ce4506bdba6ebe291060e",
+          "after_hash": "590e61847b6895011165ca9fec17d400f4dedd8b23abcbb77ee1ff648e2c128a"
+        }
+      ]
+    }
+  },
+  "remaining_fields": {
+    "ast_derivation": {
+      "before_record_sha256": "059d10e3af40f49d609f93153088a6d0d9512f661eceb6ef432ba4c8b8a8f996",
+      "after_record_sha256": "92a108c34af974631db4771b55424d772ef3683f27c27ac588e827cb6a2b89ef"
+    },
+    "source_set_digest": {
+      "before_record_sha256": "5b5841d181d00ff2694b89297484c0a401f41b42b7e213d15819eaf607868f53",
+      "after_record_sha256": "f1b32376c6b87d9c18484157e0582f944cd6cc32121acd0b5a04f5bbb15e4035"
+    },
+    "token_derivation": {
+      "before_record_sha256": "1f3d71e9bff2c20680f93898b30deda23ad6351c1e1080c38ed4cc9d77da647a",
+      "after_record_sha256": "269bcf17f7095a12ae7c7b9268f17b26de847668b7b2fb0271ad8d6848979e5d"
+    },
+    "payload_digest": {
+      "before_record_sha256": "4913a6566401f6e0e5c75da602e3c9b9fabc9ef8ee0bd8f8b24a607026f06af4",
+      "after_record_sha256": "edd38437788ec1e370073582c878a3defb984da02512ab3c1a18382386cc074d"
+    }
+  },
+  "complete_verbose_difference_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-keyed-delta.json",
+    "bytes": 2159115,
+    "sha256": "49ad898e14ee41e38f86da10a508ea2c0c51ffdd746c5c8b0debd678b42a6392"
+  },
+  "complete_index_leaf_difference_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-current-delta.json",
+    "bytes": 2797758,
+    "sha256": "4e8f978b4a383376007056c30fe46eb42a426a94dd9d932fc0b261b9b7f60110"
+  },
+  "scope": "Complete unique-key record census/hashes plus complete source identity records; full measured artifact retained separately. Ordering shifts not treated as independent semantic defects. No source/authority/P41 attribution inferred from changed rows."
+}

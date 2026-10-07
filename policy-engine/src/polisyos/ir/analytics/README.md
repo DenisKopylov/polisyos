@@ -23,6 +23,7 @@ Package facade `polisyos.ir.analytics` намеренно уже, чем пол�
 - [`transportability.py`](./transportability.py) — перенос между environments и gap diagnostics.
 - [`privacy_transportability.py`](./privacy_transportability.py) — privacy-aware слой над transportability/recoverability для DP-distorted multi-domain releases.
 - [`uncertainty.py`](./uncertainty.py) — uncertainty algebra, interval semantics и propagation contracts.
+- [`posterior_summary.py`](./posterior_summary.py) — scoped B201/B202 named posterior mean, labelled median/equal-tail profile, shared sampler joint-content digest and complete-group/CAS-protocol readback; v1.1 envelope replay is unchanged and all new outputs remain non-gating.
 - [`strategic.py`](./strategic.py) — strategic-response SCM, equilibria и bundle outputs.
 - [`ecosystem_bridges.py`](./ecosystem_bridges.py) — bridges в DoWhy, EconML, CausalNex, pgmpy и смежные ecosystems.
 - Для upstream/downstream контекста откройте [`../observation/README.md`](../observation/README.md) и [`../artifacts/README.md`](../artifacts/README.md).
@@ -87,3 +88,29 @@ uv run pytest tests/unit/ir/test_interoperability_bridges.py -q
 ## Last updated
 
 `2026-04-20`
+
+Profile2 (`urn:policyos:ir:bayesian-posterior-summary-profile:2`, version2.0)
+uses exact normalized ratios of idempotent power-of-two binary64 weights for
+means and quantiles. Stored ratio weights need not sum to one. Sampling cuts
+round upward for finite-U/right bucket classification; sorted quantile cuts
+round downward for finite-q/left classification. Finite uniform-mesh draws
+approximate the continuous mass law. Unreachable positive atoms refuse before
+callbacks. Multi-coordinate producers and readers require supplied shared row
+IDs; matching lengths or digest presence cannot supply that premise. Profile1
+literal display/decode/replay keeps its original functional implementation.
+
+Profile2 scalar `push_forward_envelope` admits the source carrier before any
+map callback and requires a complete single-coordinate law. It uses the same
+finite-ratio mean, median and inverse-CDF interval, then binds a new profile to
+the actual transformed rows with the original draw IDs and sample axis. An
+arbitrary map clears unit/estimand bindings; parent refs, time roles and purpose
+remain explicitly inherited non-authoritative lineage. Invalid transformed
+draws refuse the whole law rather than produce a success-only posterior.
+
+Particle compression retains the profile only for a content-identical carrier,
+including its axis. Interval and normal moment projections discard all profile
+and joint-law declarations and remain non-gating. A moment projection uses the
+exact finite-law mean and population spread with its own approximate normal
+interval, rather than reinterpret the original equal-tail posterior interval.
+Pull-back remains constraint-only and drops posterior authority. These changes
+apply to Profile2; Profile1 and unprofiled composition retain their legacy behavior.

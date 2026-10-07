@@ -1,0 +1,597 @@
+{
+  "schema": "policyos.e02.G855_two_IR_conditions_actual_probe.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "IR_candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "G_review": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "environment": {
+    "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "prefix": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2"
+  },
+  "source_guard_before": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17116,
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 19970,
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 23932,
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "bytes": 70840,
+      "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "700_equals_64d_equals_physical": true
+    }
+  ],
+  "source_guard_after": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17116,
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 19970,
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 23932,
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "bytes": 70840,
+      "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "700_equals_64d_equals_physical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "700_equals_64d_equals_physical": true
+    }
+  ],
+  "source_unchanged": true,
+  "joint_source_condition": {
+    "outcome": "FAIL current admission premise",
+    "observations": [
+      {
+        "label": "generated_ids_same_marginals",
+        "producer_explicit_draw_ids": null,
+        "profile_row_identity_basis": "producer_input_order",
+        "profile_draw_ids": [
+          "draw:0",
+          "draw:1"
+        ],
+        "context_lineage_refs": {},
+        "parameter_order": [
+          "a",
+          "b"
+        ],
+        "joint_digest": "f0b36f3a874c5e05d0703c6772d6d73d1258f44cb0166524c264a082de7cfc15",
+        "fresh_CAS_refs": {
+          "a": {
+            "artifact_id": "sha256:6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "actual_MC_admission_failure": null,
+        "actual_callback_count": 129,
+        "actual_callback_rows": [
+          {
+            "row": [
+              -1.0,
+              -1.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              1.0,
+              1.0
+            ],
+            "count": 64
+          }
+        ],
+        "actual_difference_population_variance": 0.0,
+        "output_gate_eligible": false,
+        "criterion_condition": "Generated positional IDs and equal lengths are admitted as an exact paired law without explicit shared row IDs or aligned-source lineage. This demonstrates admission, not the factual source law of unknown production inputs."
+      },
+      {
+        "label": "generated_ids_reversed_marginals",
+        "producer_explicit_draw_ids": null,
+        "profile_row_identity_basis": "producer_input_order",
+        "profile_draw_ids": [
+          "draw:0",
+          "draw:1"
+        ],
+        "context_lineage_refs": {},
+        "parameter_order": [
+          "a",
+          "b"
+        ],
+        "joint_digest": "eb0fb2fc40796ff1f2fb29a58203cd6d5b33e96939b7eb693d831670213832f3",
+        "fresh_CAS_refs": {
+          "a": {
+            "artifact_id": "sha256:f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "actual_MC_admission_failure": null,
+        "actual_callback_count": 129,
+        "actual_callback_rows": [
+          {
+            "row": [
+              -1.0,
+              1.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              1.0,
+              -1.0
+            ],
+            "count": 64
+          }
+        ],
+        "actual_difference_population_variance": 4.0,
+        "output_gate_eligible": false,
+        "criterion_condition": "Generated positional IDs and equal lengths are admitted as an exact paired law without explicit shared row IDs or aligned-source lineage. This demonstrates admission, not the factual source law of unknown production inputs."
+      },
+      {
+        "label": "explicit_shared_ids_healthy",
+        "producer_explicit_draw_ids": [
+          "row:0",
+          "row:1"
+        ],
+        "profile_row_identity_basis": "producer_supplied_ids",
+        "profile_draw_ids": [
+          "row:0",
+          "row:1"
+        ],
+        "context_lineage_refs": {},
+        "parameter_order": [
+          "a",
+          "b"
+        ],
+        "joint_digest": "e79e45f090ac924bf9a8f7a1c8bdeb950dab3e6c1b753d808c64f7403aaf460f",
+        "fresh_CAS_refs": {
+          "a": {
+            "artifact_id": "sha256:062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "actual_MC_admission_failure": null,
+        "actual_callback_count": 129,
+        "actual_callback_rows": [
+          {
+            "row": [
+              -1.0,
+              -1.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              1.0,
+              1.0
+            ],
+            "count": 64
+          }
+        ],
+        "actual_difference_population_variance": 0.0,
+        "output_gate_eligible": false,
+        "criterion_condition": "Generated positional IDs and equal lengths are admitted as an exact paired law without explicit shared row IDs or aligned-source lineage. This demonstrates admission, not the factual source law of unknown production inputs."
+      }
+    ],
+    "independent_law_oracle": "Each coordinate has the same two-atom marginal; coupling+1 gives Var(a-b)=0 and coupling-1 gives4. Marginal arrays and equal lengths alone do not select either joint law. Explicit IDs are a bounded positive aligned-row declaration, not production source/quality authority."
+  },
+  "finite_probability_condition": {
+    "outcome": "FAIL current finite convention",
+    "observation": {
+      "label": "same_finite_probability_convention_counterexample",
+      "fresh_CAS_ref": {
+        "artifact_id": "sha256:9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "source_values": "99 zero atoms, last atom=1e15; all100 weights default1",
+      "stored_probabilities": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+      ],
+      "actual_inverse_CDF": [
+        0.01,
+        0.02,
+        0.03,
+        0.04,
+        0.05,
+        0.060000000000000005,
+        0.07,
+        0.08,
+        0.09,
+        0.09999999999999999,
+        0.10999999999999999,
+        0.11999999999999998,
+        0.12999999999999998,
+        0.13999999999999999,
+        0.15,
+        0.16,
+        0.17,
+        0.18000000000000002,
+        0.19000000000000003,
+        0.20000000000000004,
+        0.21000000000000005,
+        0.22000000000000006,
+        0.23000000000000007,
+        0.24000000000000007,
+        0.25000000000000006,
+        0.26000000000000006,
+        0.2700000000000001,
+        0.2800000000000001,
+        0.2900000000000001,
+        0.3000000000000001,
+        0.3100000000000001,
+        0.3200000000000001,
+        0.3300000000000001,
+        0.34000000000000014,
+        0.35000000000000014,
+        0.36000000000000015,
+        0.37000000000000016,
+        0.38000000000000017,
+        0.3900000000000002,
+        0.4000000000000002,
+        0.4100000000000002,
+        0.4200000000000002,
+        0.4300000000000002,
+        0.4400000000000002,
+        0.45000000000000023,
+        0.46000000000000024,
+        0.47000000000000025,
+        0.48000000000000026,
+        0.49000000000000027,
+        0.5000000000000002,
+        0.5100000000000002,
+        0.5200000000000002,
+        0.5300000000000002,
+        0.5400000000000003,
+        0.5500000000000003,
+        0.5600000000000003,
+        0.5700000000000003,
+        0.5800000000000003,
+        0.5900000000000003,
+        0.6000000000000003,
+        0.6100000000000003,
+        0.6200000000000003,
+        0.6300000000000003,
+        0.6400000000000003,
+        0.6500000000000004,
+        0.6600000000000004,
+        0.6700000000000004,
+        0.6800000000000004,
+        0.6900000000000004,
+        0.7000000000000004,
+        0.7100000000000004,
+        0.7200000000000004,
+        0.7300000000000004,
+        0.7400000000000004,
+        0.7500000000000004,
+        0.7600000000000005,
+        0.7700000000000005,
+        0.7800000000000005,
+        0.7900000000000005,
+        0.8000000000000005,
+        0.8100000000000005,
+        0.8200000000000005,
+        0.8300000000000005,
+        0.8400000000000005,
+        0.8500000000000005,
+        0.8600000000000005,
+        0.8700000000000006,
+        0.8800000000000006,
+        0.8900000000000006,
+        0.9000000000000006,
+        0.9100000000000006,
+        0.9200000000000006,
+        0.9300000000000006,
+        0.9400000000000006,
+        0.9500000000000006,
+        0.9600000000000006,
+        0.9700000000000006,
+        0.9800000000000006,
+        0.9900000000000007,
+        1.0
+      ],
+      "effective_inverse_CDF_masses": [
+        0.01,
+        0.01,
+        0.009999999999999998,
+        0.010000000000000002,
+        0.010000000000000002,
+        0.010000000000000002,
+        0.010000000000000002,
+        0.009999999999999995,
+        0.009999999999999995,
+        0.009999999999999995,
+        0.009999999999999995,
+        0.009999999999999995,
+        0.009999999999999995,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.009999999999999981,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.009999999999999953,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.010000000000000009,
+        0.009999999999999343
+      ],
+      "same_positive_category_support": true,
+      "p_last": 0.01,
+      "CDF_last_residual_mass": 0.009999999999999343,
+      "math_fsum_stored_probabilities": 1.0,
+      "math_fsum_effective_CDF_masses": 1.0,
+      "stored_profile_named_mean": 10000000000000.0,
+      "actual_CDF_law_mean_independent": 9999999999999.342,
+      "mean_difference": 0.658203125,
+      "exact_binary_rational_mean_difference": "11566162109375/17592186044416",
+      "profile_mean_reconciles_from_stored_weights": true,
+      "strict_fresh_profile_reader_admitted": true,
+      "point_median": 0.0,
+      "equal_tail_interval": [
+        0.0,
+        0.0
+      ],
+      "gate_eligible": false,
+      "numerical_oracle": "Mean derived separately from actual finite CDF increments, not callback sample means; all categories remain positive and all inputs are finite float64/backend-range representable."
+    }
+  },
+  "tests_or_wave_repeated": false,
+  "ROOT_interpreter_or_packages_mutated": false,
+  "numeric_execution": "Actual producer/native Core CAS/fresh typed profile and 3 tiny128-net MC NumPy/SciPy callbacks; no JAX autodiff/compile/test wave. Finite probability oracle is exact binary rational/CDF increments.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/generated_ids_same_marginals-cas",
+    "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/generated_ids_reversed_marginals-cas",
+    "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/explicit_shared_ids_healthy-cas",
+    "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/finite_probability_residual-cas"
+  ],
+  "limitations": [
+    "No production posterior source/fit quality is established; unknown relation remains unknown.",
+    "Findings/closure remain separate from current two conditional implementation seams.",
+    "G review pins historical source050/c4; current claims here pin actual700/64d and exact unchanged bytes."
+  ]
+}

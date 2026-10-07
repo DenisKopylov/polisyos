@@ -1,0 +1,400 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "frc-native-cas-20261007",
+  "closure_ids": [
+    "B32",
+    "LA-051"
+  ],
+  "bundle_ids": [
+    "FRC-01",
+    "FRC-02"
+  ],
+  "slice_base_sha": "cd450453cd1dab88e5890ea4f67ae2a6b65269dc",
+  "implementation_commits": [
+    "a305e34042b7ba7497af782e9253a51e0d702a58",
+    "1eba9f9e47a82cca1db341314a748b4980e015fc"
+  ],
+  "candidate_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "candidate_tree_sha": "0b79095f9293a04ca263356b24d22478b46e6688",
+  "branch": "codex/e02-E-frc-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-owner-contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason.patch.txt",
+    "policy-engine/tests/_helpers/forecast.py",
+    "policy-engine/tests/unit/remediation/test_frc_01.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+  ],
+  "mandatory_companions": [
+    "shared native test fixture tests/_helpers/forecast.py",
+    "test_forecast_owner.py replay alias and facade route",
+    "A contract/patch/test packet",
+    "this receipt and complete deciding outputs"
+  ],
+  "canonical_writer": {
+    "E": "native FRC fixture/tests, E producer contract packet",
+    "A": "generation_cycle.py and HTTP run_lifecycle.py; neither was edited"
+  },
+  "baseline_cells": [
+    {
+      "cell": "F04-P095",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt:305",
+      "grade": "source_reported_compact_text_only; raw archive absent"
+    },
+    {
+      "cell": "F08-P097",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt:220",
+      "grade": "source_reported_compact_text_only; raw archive absent"
+    },
+    {
+      "cell": "F13-P109",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:236",
+      "grade": "source_reported_compact_text_only; raw archive absent"
+    }
+  ],
+  "checks": [
+    {
+      "name": "native-core-route-final",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "--basetemp=/workspace/e02-E-pr38-r3-receipts/frc-r4/native-core-route-final-tmp",
+        "--junitxml=/workspace/e02-E-pr38-r3-receipts/frc-r4/native-core-route-final.xml"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "states": {
+        "PASS": 29,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 30,
+      "failing_cases": [
+        "test_missing_calibration_evidence_refs_stays_typed_blocked"
+      ],
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.json",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stdout",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stderr",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.xml",
+      "scope": "actual immutable E candidate and unchanged A source"
+    },
+    {
+      "name": "a-core-route-unpatched",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/workspace/e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py",
+        "--basetemp=/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp",
+        "--junitxml=/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched.xml"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "states": {
+        "PASS": 0,
+        "FAIL": 7,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 7,
+      "failing_cases": [
+        "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+        "test_resolved_limited_evidence_keeps_floor_failure_reason",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]"
+      ],
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.json",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.stdout",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.stderr",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.xml",
+      "scope": "actual immutable E candidate and unchanged A source"
+    },
+    {
+      "name": "a-core-route-overlay",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "a_packet_overlay",
+        "/workspace/e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "--basetemp=/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-overlay-tmp",
+        "--junitxml=/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-overlay.xml"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "states": {
+        "PASS": 20,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 20,
+      "failing_cases": [],
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-overlay.json",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-overlay.stdout",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-overlay.stderr",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-overlay.xml",
+      "scope": "isolated A owner patch/removal packet; not actual A source"
+    },
+    {
+      "name": "a-property-removal",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "a_packet_overlay",
+        "/workspace/e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py",
+        "--basetemp=/workspace/e02-E-pr38-r3-receipts/frc-r4/a-property-removal-tmp",
+        "--junitxml=/workspace/e02-E-pr38-r3-receipts/frc-r4/a-property-removal.xml"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "states": {
+        "PASS": 2,
+        "FAIL": 5,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 7,
+      "failing_cases": [
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+        "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]"
+      ],
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-property-removal.json",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-property-removal.stdout",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-property-removal.stderr",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-property-removal.xml",
+      "scope": "isolated A owner patch/removal packet; not actual A source"
+    },
+    {
+      "name": "ruff",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/_helpers/forecast.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "outcome": "PASS",
+      "target_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/ruff.stdout"
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/_helpers/forecast.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "outcome": "PASS",
+      "target_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/format.stdout"
+    },
+    {
+      "name": "baseline_importer",
+      "command": [
+        "python3",
+        "docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "outcome": "PASS",
+      "target_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/importer.stdout",
+      "scope": "transfer/navigation recomputation only; product closure not_established"
+    },
+    {
+      "name": "A_patch_applicability",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason.patch.txt"
+      ],
+      "outcome": "PASS",
+      "target_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-patch-check.stdout"
+    }
+  ],
+  "property": {
+    "statement": "Actual admitted ETS producer inputs create separate content-bound artifacts, six distinct time roles and source/measurement refs survive fresh CAS loader plus native gateway, and fictional or altered evidence is rejected rather than promoted.",
+    "runtime_path": [
+      "configured_forecast_request persists typed source/schema/request/rule/profile",
+      "ForecastOwner.run through real Foundry MethodDispatcher canonical NumPy Holt ETS",
+      "separate persisted forecast_candidate_receipt and empirical_calibration_evidence",
+      "ForecastOwnerResult.to_s10_input_fields fresh configured CAS",
+      "RealValueOwnerGateway.produce_forecast_inputs canonical loader",
+      "native S10 typed support/calibration result; served persistence is A-owned remaining work"
+    ],
+    "independent_oracle": "Read source data rows 31, 32, 33, 34 from snapshot/data CAS and prediction intervals from a separate issued uncertainty bundle. Linear 1..30 training implies point/bounds 31..34. Compute hit count outside report/evidence results loop, obtaining 4/4; the independent floor control gives 0/4. No nominal-CI or producer-flag substitution.",
+    "proxy_divergence": "Historical finite estimator-shaped mapping with fictional refs and six dates remains rejected. A present candidate receipt plus unchanged time/rule/measurement markers with removed empirical ref is also rejected. Correct S6 reason paired with stale missing-Foundry-report prose demonstrates the separate A status/reason defect.",
+    "negative_controls": [
+      "historical unresolved mapping no calibration record",
+      "missing empirical ref with all other adapter markers retained",
+      "unresolved empirical CAS ID",
+      "wrong artifact kind",
+      "mismatched time",
+      "wrong rule",
+      "existing fresh receipt source/unit/count forgery controls in affected ForecastOwner suite",
+      "A isolated packet removal preserves markers but removes resolver-reason priority: five reason-consistency cases FAIL"
+    ],
+    "P40_bucket": "Same status/reason class one level deeper, widened in three-hunk A owner packet. No E producer numerical defect established."
+  },
+  "predicate_basis": {
+    "source/issued-interval count": {
+      "basis": "independently_reconciled",
+      "evidence": "Independent observer reads raw source rows and separately issued interval CAS, derives bounds and hit count outside the producer results loop."
+    },
+    "CAS/ref/time/rule binding": {
+      "basis": "recomputed",
+      "evidence": "Fresh configured loader resolves actual CAS bytes and compares kind, schema, source/model/request/rule and six time roles; altered refs are refused."
+    },
+    "synthetic profile/threshold": {
+      "basis": "consumer_asserted",
+      "evidence": "Fixture caller supplies threshold .8; no institutional profile admission or trusted verifier authority is established. Denied recommendation/causal/treatment/policy uses remain denied."
+    },
+    "closed-loop default/HTTP trusted verifier": {
+      "basis": "not_established",
+      "evidence": "A-owned independently recomputed verifier provenance, persisted decision and fresh served read remain outstanding."
+    },
+    "production history": {
+      "basis": "not_established",
+      "evidence": "Synthetic fixture is explicitly not production evidence; model-specific claims require scoped read-only local inputs."
+    }
+  },
+  "capability_state_or_finding_state": "implemented_but_not_orchestrated",
+  "finding_outcomes": {
+    "B32": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "owner_decision": "native generic time/ref witness delivered; accountable root disposition required separately"
+    },
+    "LA-051": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "owner_decision": "default/HTTP A producer mapping, independently recomputed verifier, persisted decision and fresh served read remain outstanding"
+    }
+  },
+  "remaining_actual_failure": "Original native missing-ref S6 consistency test still FAILs on unchanged A source. Seven A packet cases FAIL unpatched. Isolated overlay PASS does not imply delivered A implementation or served PASS.",
+  "limitations_and_next_owner": [
+    {
+      "owner": "A",
+      "input": "a-owner-contract.json plus apply-ready three-hunk patch and seven-test packet",
+      "next_result": "same cause for tier/S6/disposition, native/default/HTTP profile/source/request binding and independent verifier provenance persisted/read fresh; causal/treatment/policy purposes refused"
+    },
+    {
+      "owner": "A trusted runtime composition",
+      "input": "actually admitted source/design/rule/profile and purpose selected outside E candidate payload",
+      "next_result": "resolve/recompute profile/source/metric/unit/scale/split/horizon/pairs/counts/threshold/rule/six times, independently rejecting forged producer flags"
+    },
+    {
+      "owner": "G with local source/profile owner",
+      "input": "minimal immutable issued forecasts and matching later outcomes only if model-specific empirical calibration requires history",
+      "next_result": "criterion-dependent read-only local exact-candidate calibration witness; no production-data transfer"
+    },
+    {
+      "owner": "E root/G",
+      "input": "this immutable code candidate and independent oracle_r4 review",
+      "next_result": "code acceptance distinct from original finding disposition; current global gates and final source freeze remain root-owned"
+    }
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "action": "retain all current scratch outputs/source overlays/test CAS stores; exact candidates listed, no permanent deletion",
+    "candidates": [
+      "/workspace/e02-E-pr38-r3-receipts/frc-r4/native-core-route-final-tmp",
+      "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp",
+      "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-overlay-tmp",
+      "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-property-removal-tmp",
+      "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-overlay",
+      "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-removal-overlay"
+    ],
+    "active_users_checked": "All four deciding subprocesses completed; review may still read outputs, so no cleanup executed"
+  },
+  "preserved_iteration_outputs": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frc-r4",
+    "initial_native_run_modified_during_execution": "not deciding evidence; retained only as iteration diagnostic",
+    "earlier_a305_wave": "Bounded superseded source observations retained; final deciding receipts pin 1eba."
+  },
+  "independent_review": {
+    "reviewer": "oracle_r4; no source authorship",
+    "disposition": "GO for bounded native witness and applicable unapplied A packet",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/frc-independent-review-1eba9f9e.json",
+    "output_copy_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-output-copy-index.json",
+    "actual_native_property": "two real NumPy ETS runs; same configured CAS; source-to-issued-interval 4/4 and 0/4 oracle; all six time roles and five admission rejections independently confirmed",
+    "property_removal": "present-but-fake CAS resolver bypass retains metadata but mints a calibration record; independent admission negative fails as expected",
+    "A_check_outcomes": "7 FAIL unpatched / 7 PASS isolated three-hunk overlay; shared A source unchanged",
+    "limitations": "A default/HTTP trusted verifier and fresh persisted decision remain outstanding; finding ledger partial unchanged"
+  },
+  "evidence_builder": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+    "scope": "post-candidate receipt utility only; source candidate six-path footprint unchanged",
+    "runtime_property": "Recompute complete 24-file author deciding-output denominator, all 16 published independent refs (including reused tracked packet), SHA256/size, JUnit counts and exact candidate tree. Reject digest/size/missing-output/forged-count corruption.",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/output-index-validation.stdout",
+    "checks": "Ruff and format pass on this utility; independent delta review bound to fixed current bytes requested.",
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/output-index-validation.stdout",
+        "sha256": "e450ff708081a367fabf702f5d330cb79cac7eee08d3c9f19f5b40576f68f4c6",
+        "bytes": 316
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-utility-ruff.stdout",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-utility-format.stdout",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "bytes": 25
+      }
+    ]
+  },
+  "P41_attribution": "A reason defect reproduced on exact current immutable source with full seven-case packet denominator. No claim that global red is inherited; unrelated global gate attribution remains not_established.",
+  "workspace_admission": {
+    "branch": "codex/e02-E-frc-20261006",
+    "absolute_path": "/workspace/e02-E-frc-20261006",
+    "kind": "resumed existing admitted lane; no checkout created by helper",
+    "full_json_owner_receipt": "/workspace/e02-E-pr38-r3-receipts/admissions/frc-resume.json",
+    "ordinary_merge_base": "cd450453cd1dab88e5890ea4f67ae2a6b65269dc"
+  }
+}

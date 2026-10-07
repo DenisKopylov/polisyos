@@ -1,0 +1,48 @@
+"""Exercise original candidate lambda bodies after independent capture creations."""
+import ast
+import copy
+import hashlib
+import json
+import subprocess
+import sys
+import types
+from pathlib import Path
+REPO=Path('/workspace/e02-E-cal05-20261006');ROOT=Path('/workspace/e02-E-pr38-r3-receipts/import-lint-independent');REF='f3ec0335e992fa7a5107000224f8ba6deefd02e5'
+rows=json.loads((ROOT/'lambda-census.json').read_text())
+def require(value,reason):
+ if not value:raise AssertionError(reason)
+def read(path):return subprocess.check_output(['/usr/bin/git','show',REF+':'+path],cwd=REPO)
+def call(*args,**kwargs):return {'args':args,'kwargs':kwargs}
+class Bridge:
+ def analyze_search_space(self,*args,**kwargs):return call(*args,**kwargs)
+def controls(row,remove=False):
+ node=next(n for n in ast.walk(ast.parse(read(row['path']))) if isinstance(n,ast.Lambda) and n.lineno==row['line']);node=copy.deepcopy(node)
+ if remove:node.args.kwonlyargs=[];node.args.kw_defaults=[];node.args.defaults=[];node.args.args=[]
+ names=[n.id for n in node.args.defaults+node.args.kw_defaults if isinstance(n,ast.Name)]
+ ns={'receipts':{'gate1':'receipt1','gate2':'receipt2'},'validate_stages':call,'verify_record':call,'assert_plan_claim':call,'verify_test_metadata':call,'verify_plan_metadata':call,'verify_law_metadata':call,'read_consumer':call,'analyze_sensitivity':call,'FileSystemCAS':lambda root:('cas',root),'store':types.SimpleNamespace(root='same-store'),'SensitivityBridge':Bridge,'bounds':{'x':(0,1)},'harness':call,'load_continuous_evaluation':call}
+ callbacks=[];captures=[]
+ for i in (1,2):
+  capture={name:('gate'+str(i) if name=='gate' else [] if name=='calls' else 100+i if name=='seed' else {'marker':i}) for name in names}
+  # Removal leaves the source body reading the latest global calls list.
+  if remove:capture['calls']=[]
+  ns.update(capture);callbacks.append(eval(compile(ast.fix_missing_locations(ast.Expression(node)),row['path']+'[actual-capture-lambda]','eval'),ns));captures.append(capture)
+ outputs=[]
+ for callback in callbacks:
+  values={}
+  if node.args.kwarg:result=callback(a=3,b=2,x=0.25)
+  elif any(a.arg=='values' for a in node.args.args):result=callback(values);result={'return':result,'values':values}
+  else:result=callback()
+  outputs.append(result)
+ if 'calls' in captures[0]:require([len(c['calls']) for c in captures]==[1,1],'lambda counters share the last loop list')
+ else:
+  for i,result in enumerate(outputs,1):
+   require(str(i) in repr(result),'captured payload absent')
+   require("'marker': "+str(3-i) not in repr(result),'later captured payload replaced prior case')
+ return {'path':row['path'],'line':row['line'],'signature':row['signature'],'source_sha256':hashlib.sha256(read(row['path'])).hexdigest(),'capture_names':names,'after_loop_outputs':outputs,'captured_rows':captures,'outcome':'PASS'}
+results=[controls(row) for row in rows]
+selected=next(row for row in rows if row['path'].endswith('mc-gaussian-independent.py'))
+try:controls(selected,True)
+except AssertionError as error:removal={'path':selected['path'],'line':selected['line'],'negative_gate_outcome':'FAIL','discriminator':'PASS','reason':str(error)}
+else:raise AssertionError('lambda removal not detected')
+out={'schema':'policyos.e02.independent_lambda_capture_controls.v1','source_sha':REF,'actual_lambda_rows':len(results),'results':results,'removal':removal,'limitations':'Actual candidate lambda argument/body semantics exercised with isolated terminal consumers; captured values differ after loop. Does not execute real validators/backends inside every lambda or confer law/consumer authority.'}
+(ROOT/'lambda-controls.json').write_text(json.dumps(out,indent=2,default=lambda value: vars(value) if isinstance(value, types.SimpleNamespace) else repr(value))+'\n');sys.stdout.write(json.dumps({k:v for k,v in out.items() if k!='results'},indent=2)+'\n')

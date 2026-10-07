@@ -1,0 +1,87 @@
+{
+  "scope": "Collector source/protocol controls/read-only actual measurement author packet",
+  "files": [
+    {
+      "path": "README-5e3e37276-publication.md",
+      "bytes": 3758,
+      "sha256": "baf32f105cee2b6c57ae1dd6c4e1bcd8371d626d6d3f8f9099a624a0f0c5a207"
+    },
+    {
+      "path": "collect_wave.py",
+      "bytes": 31168,
+      "sha256": "01949833ab8b51a87fc0f54ae4192d592aea7b9a39a5a6f6aec9a6ef2624d3e2"
+    },
+    {
+      "path": "collect_wave_v2.py",
+      "bytes": 32636,
+      "sha256": "c1846ca80e2fd5c2cdd6d4dc6f28e1a0497eed273f2013314d608165c340a212"
+    },
+    {
+      "path": "control_collector.py",
+      "bytes": 8934,
+      "sha256": "e3e7017681fc8f521485daf91d08b8549ee8984b2ac8e733e52f1aed477767d3"
+    },
+    {
+      "path": "control_collector_v2.py",
+      "bytes": 9032,
+      "sha256": "6c215e808dff12431ac9e4533ea59c34d5a66c1b9360c1dce14ce42edc930bce"
+    },
+    {
+      "path": "collector-control-results.json",
+      "bytes": 7459,
+      "sha256": "9fd02ed15d987c12bd7573e046b6c51cf15009bcd7a09f20bc863ac5661b1a73"
+    },
+    {
+      "path": "collector-control-results-v2.json",
+      "bytes": 8267,
+      "sha256": "0b383f703b29ff8f9d69abda5f35dd2500597749bd3c93a7b4cbea3d9ee1164d"
+    },
+    {
+      "path": "collector-configured-checks-v2.json",
+      "bytes": 1424,
+      "sha256": "1c1b30893eae580286a4f268148568f38568f4bbb3ea60554c95b26caa257f88"
+    },
+    {
+      "path": "collector-configured-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "collector-configured-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "collector-configured-format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "collector-configured-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failed-wave-analysis-5e3e37276.json",
+      "bytes": 261781,
+      "sha256": "0c4054db6790de110f27e1909d08491545cd116fda34a6ebd19a542df1c6976f"
+    },
+    {
+      "path": "actual-failed-5e3e37276-v2/copy-index.json",
+      "bytes": 17603,
+      "sha256": "bdd6c7101e32f9788aefa9ad9eb630adc22639edcfdb917869fece1ac57ec75f",
+      "complete_nested_index": true
+    },
+    {
+      "path": "actual-failed-5e3e37276/copy-index.json",
+      "bytes": 17603,
+      "sha256": "467613ea6a2fc5be3dcebcb22803ca52ff8790ee80f1cdfcab5f59c73ffdb04b",
+      "complete_nested_index": true
+    }
+  ],
+  "bytes": 399709,
+  "actual_deciding_publication": "actual-failed-5e3e37276-v2/copy-index.json",
+  "synthetic_controls_are_production_evidence": false,
+  "independent_review_performed": false,
+  "no_deletion": true
+}

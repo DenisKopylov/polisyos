@@ -1,0 +1,18 @@
+{
+  "result": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/cleanup-result.json",
+  "removed_only": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base",
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/closed-ci02-pytest-base.tar.gz",
+    "bytes": 92547993,
+    "sha256": "56b94b6379b4c08c91f458c6df6fae269c16c4503574d5567383e6d4fa702d09"
+  },
+  "verified_archive_member_count": 192219,
+  "filesystem_after": {
+    "observed_unix": 1791370631.7467825,
+    "total_bytes": 33770192896,
+    "free_bytes": 5687611392,
+    "available_bytes": 3952848896
+  },
+  "observed_free_delta_bytes": 3824709632,
+  "observed_available_delta_bytes": 3824709632
+}

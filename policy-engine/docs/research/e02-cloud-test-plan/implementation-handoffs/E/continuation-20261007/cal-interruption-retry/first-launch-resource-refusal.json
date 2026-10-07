@@ -1,0 +1,14 @@
+{
+  "schema": "policyos.e02.resource_admission_refusal.v1",
+  "actual_test_backend_started": false,
+  "canonical_runner_started": false,
+  "exit_code": 1,
+  "reason": "observed interrupted-backend resource prerequisite not met before canonical runner",
+  "complete_stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch.stderr.txt",
+    "sha256": "1f06f6ba5685a8ed4b6516de11a40b8e76da7758f41c44ad7d03b7b309a5cfa2",
+    "bytes": 385
+  },
+  "classification": "Operational pre-launch refusal, not CAL check or finding outcome",
+  "next": "same exact admitted canonical argv once observed headroom at least2.4GB; no process/CPU/thread cap"
+}

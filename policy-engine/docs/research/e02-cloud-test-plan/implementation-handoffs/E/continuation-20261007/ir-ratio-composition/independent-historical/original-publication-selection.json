@@ -1,0 +1,179 @@
+{
+  "schema": "e02-moderate-publication-selection:1",
+  "source": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+  "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+  "later_compatibility_probe_source": "218c7bd75f29dea72d86d8c5830137ce0a2d0188",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/review.json",
+      "path": "review.json",
+      "bytes": 26469,
+      "sha256": "728fda5611b3f387aa612b37be1c8efca2044977f7c55fff6ae02829716bf65c"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/gap-review.json",
+      "path": "gap-review.json",
+      "bytes": 7129,
+      "sha256": "39a57db878f95d846507b11ee7e1f3d189ea223469be87d2df9ca19dabe723d7"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/gap.stdout.txt",
+      "path": "gap.stdout.txt",
+      "bytes": 3149,
+      "sha256": "bcb8b4712a54ccc7115cef51731cbf92f760f637c05828e52c001d9b39dd0009"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/gap.stderr.txt",
+      "path": "gap.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/selectors.json",
+      "path": "selectors.json",
+      "bytes": 11781,
+      "sha256": "9353062c3900ff202681d6bf065bf38bfa301344e6cb4e6b2e03722eec6fd1e6"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/selectors.stdout.txt",
+      "path": "selectors.stdout.txt",
+      "bytes": 114,
+      "sha256": "b288db3e11fe8dd3d884ead09c5c06a255314ef8c074881fae005143a0ae194d"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/selectors.stderr.txt",
+      "path": "selectors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/pytest.xml",
+      "path": "pytest.xml",
+      "bytes": 5881,
+      "sha256": "d76e9fd620e3cc9b5560bb747faf3d4a0fa0254f2de1a672013aa73bf9bd6774"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/pytest.stdout.txt",
+      "path": "pytest.stdout.txt",
+      "bytes": 80,
+      "sha256": "12a9a4a8915fb8d2bb5b4227220247cde267c1a0620203589fe47280d5be4a7f"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/pytest.stderr.txt",
+      "path": "pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/independent-fraction-gold.json",
+      "path": "independent-fraction-gold.json",
+      "bytes": 1781,
+      "sha256": "b5c69a6eeca690428ec3ba9aeef1564d8b7c665aac37d681ab82c5190006055b"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/legacy-schema-gap.json",
+      "path": "legacy-schema-gap.json",
+      "bytes": 10703,
+      "sha256": "6c1704dd22e8d20c920a1b0e97e5f5434ec7ae985edebc69e2013a90570618f2"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/legacy-schema.stdout.txt",
+      "path": "legacy-schema.stdout.txt",
+      "bytes": 10703,
+      "sha256": "6c1704dd22e8d20c920a1b0e97e5f5434ec7ae985edebc69e2013a90570618f2"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/legacy-schema.stderr.txt",
+      "path": "legacy-schema.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/probe-gaps.py.txt",
+      "path": "probe-gaps.py.txt",
+      "bytes": 5684,
+      "sha256": "2e2502745e0d62c10e4feffef42c77468a9367cf7f2cda5e177d5f75c5f162fe"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/run-selectors.py.txt",
+      "path": "run-selectors.py.txt",
+      "bytes": 3865,
+      "sha256": "9074c0d4cef1de58166cf7b455edc1df8276cbd1b840e80fd6cfec1e8a48ec51"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/legacy-schema-probe.py.txt",
+      "path": "legacy-schema-probe.py.txt",
+      "bytes": 2440,
+      "sha256": "2b18f5b23a6fa549d4333786a44a06f3f32ba332e6f74aa662ab8c4f8c041e78"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/initial-operational-errors.json",
+      "path": "initial-operational-errors.json",
+      "bytes": 627,
+      "sha256": "116535b314178a546d762970fa8c4a6528582f9744334621cb83bcb60e006223"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-initial-gap.stderr.txt",
+      "path": "historical-initial-gap.stderr.txt",
+      "bytes": 1063,
+      "sha256": "9d77f9333a8f56d366c7820eba751c26c9ba6d9270a0e31fa65fc52ed3687b19"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-initial-gap.stdout.txt",
+      "path": "historical-initial-gap.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-initial-probe-gaps.py.txt",
+      "path": "historical-initial-probe-gaps.py.txt",
+      "bytes": 5650,
+      "sha256": "6953af0788e5702abf1db3f0cdeff84139992342efcb96ff00d0e848ba5bf961"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-initial-pytest.stderr.txt",
+      "path": "historical-initial-pytest.stderr.txt",
+      "bytes": 98,
+      "sha256": "a638fde482278dbb4e0085e3a8dffd741f866654f77984dfc6e25d536fdae37a"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-initial-pytest.stdout.txt",
+      "path": "historical-initial-pytest.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-initial-selectors.stderr.txt",
+      "path": "historical-initial-selectors.stderr.txt",
+      "bytes": 694,
+      "sha256": "95c7371099716d8d03cceb9dde6e9675a5171dfd95593dc81ee827fe2279d53d"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-initial-selectors.stdout.txt",
+      "path": "historical-initial-selectors.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-second-gap.stderr.txt",
+      "path": "historical-second-gap.stderr.txt",
+      "bytes": 382,
+      "sha256": "322c9fa715f2adc7e479c781b1329cb70982bb639fd78666c6272b3ea38920fe"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-second-gap.stdout.txt",
+      "path": "historical-second-gap.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-composition-c539-independent-20261007/historical-second-probe-gaps.py.txt",
+      "path": "historical-second-probe-gaps.py.txt",
+      "bytes": 5649,
+      "sha256": "db670fc562623b4b46e8f1d92f2ac5b4b536d4b782094abf6419c0796753bc28"
+    }
+  ],
+  "asset_count": 28,
+  "asset_bytes": 103942,
+  "scope": "Historical c539 source CHANGE_REQUIRED with36nativePASS separate; later218 same-class wire defect is a distinct exact-source observation. No large CAS fixtures or type raw dumps selected."
+}

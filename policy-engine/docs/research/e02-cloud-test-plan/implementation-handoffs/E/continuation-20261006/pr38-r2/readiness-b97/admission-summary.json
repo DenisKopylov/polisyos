@@ -1,0 +1,17 @@
+{
+  "source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/root-resume.json",
+    "bytes": 123265,
+    "sha256": "e478ce09686c32f901d1137b373e0c2e9a1297580016911f61459356f8591f1b"
+  },
+  "requested": {
+    "branch": "codex/e02-E-continuation-20261006",
+    "mode": "resume",
+    "path": "/workspace/e02-E-continuation-20261006"
+  },
+  "status": "admitted",
+  "complete_verdict": true,
+  "started_at": "2026-10-06T12:44:52.839570+00:00",
+  "finished_at": "2026-10-06T12:44:53.072204+00:00",
+  "limitation": "Readback of prior exact-pair resume receipt; snapshot, not a reservation. No create/resume action run by this planning task."
+}

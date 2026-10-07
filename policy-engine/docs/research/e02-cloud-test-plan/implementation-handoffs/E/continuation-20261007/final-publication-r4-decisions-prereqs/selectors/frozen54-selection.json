@@ -1,0 +1,986 @@
+{
+  "schema": "policyos.e02.E.closed_current54_publication_selection.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.json",
+      "portable_path": "current/current-all-54-source-wave-update-v2.json",
+      "role": "current-closed-owner-wave-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.json",
+      "bytes": 948332,
+      "sha256": "9ce6df09fe956cb4fc3c55021649ceb4fbc92fb89b341dc4e4a66b08f8778872"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+      "portable_path": "inputs/prewave.json",
+      "role": "immutable-join-input:prewave",
+      "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+      "bytes": 314142,
+      "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/recomputed-wave.json",
+      "portable_path": "inputs/numeric.json",
+      "role": "immutable-join-input:numeric",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/recomputed-wave.json",
+      "bytes": 1049493,
+      "sha256": "bb59345873fdc306c98458587354f3caaed45312694c14a51d01edfd08768bbf"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/case-index.json",
+      "portable_path": "inputs/case_index.json",
+      "role": "immutable-join-input:case_index",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/case-index.json",
+      "bytes": 701747,
+      "sha256": "73a5974a61fe29424373bac0edfc0bbdff1840b7717dd493e8261c3dff3e7ab0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-37-selector-dispositions-v5.json",
+      "portable_path": "inputs/successor_index.json",
+      "role": "immutable-join-input:successor_index",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-37-selector-dispositions-v5.json",
+      "bytes": 115563,
+      "sha256": "ed043655af120349142c669db39b4f5822ff354e7a33610690b0fab046159175"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/defining-current-case-index.json",
+      "portable_path": "inputs/defining_case_index.json",
+      "role": "immutable-join-input:defining_case_index",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/defining-current-case-index.json",
+      "bytes": 654655,
+      "sha256": "6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/individual-dispositions.json",
+      "portable_path": "prior-inputs/individual-dispositions.json",
+      "role": "bounded-owner-basis",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/individual-dispositions.json",
+      "bytes": 85823,
+      "sha256": "816e1dacd1d77c40b067f779691e8e7bef5fab95faa3a0459c15aaad389d497f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-independent-original-disposition.json",
+      "portable_path": "prior-inputs/B193-independent-original-disposition.json",
+      "role": "bounded-owner-basis",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-independent-original-disposition.json",
+      "bytes": 37973,
+      "sha256": "2384db375b90ed7dcd3ab6e88fefccd0f2cffbeacfe93e1356d178df0019abf5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-final-affected-verification-700f9d5a.json",
+      "portable_path": "prior-inputs/B193-final-affected-verification-700f9d5a.json",
+      "role": "bounded-owner-basis",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-final-affected-verification-700f9d5a.json",
+      "bytes": 4167,
+      "sha256": "9cbf49f50b7c0fec2a3fbf4a55ed7b08d69ed643bd6f1cc0af9263336ac9b4d2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B201-B202-independent-original-dispositions-700f9d5a.json",
+      "portable_path": "prior-inputs/B201-B202-independent-original-dispositions-700f9d5a.json",
+      "role": "bounded-owner-basis",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B201-B202-independent-original-dispositions-700f9d5a.json",
+      "bytes": 30900,
+      "sha256": "686ab5877a8f2147ab94388ae8cb5596c02f9cf9a4c5aedda62d54353c7b19f9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/source-freeze-64d7444a.json",
+      "portable_path": "prior-inputs/source-freeze-64d7444a.json",
+      "role": "bounded-owner-basis",
+      "path": "/workspace/e02-E-pr38-r3-receipts/source-freeze-64d7444a.json",
+      "bytes": 3424,
+      "sha256": "41b408e310e4a2b3bf2771ec41298024fd30e5f276bdb455493f33550a0041c2"
+    },
+    {
+      "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+      "portable_path": "historical-e9/all-54-update.json",
+      "role": "complete-original54-historical-ledger-and-criterion-input",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+      "bytes": 1599060,
+      "sha256": "0a3ca0f80d768e922cd25b6bd0fbd579bdf1d217948fe72632c79aafe4331b28"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-publication-selection.json",
+      "portable_path": "prewave/publication-selection.json",
+      "role": "closed-input-selection",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-publication-selection.json",
+      "bytes": 4693,
+      "sha256": "4195529046621250e83e95f7512ae94e8a9429fe6624c95d25b0d573aaf71dfe"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+      "portable_path": "prewave/00/criteria-prewave/current-prewave-all-54-owner-dispositions.json",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+      "bytes": 305737,
+      "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-owner-decisions-summary.json",
+      "portable_path": "prewave/01/criteria-prewave/current-prewave-owner-decisions-summary.json",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-owner-decisions-summary.json",
+      "bytes": 35512,
+      "sha256": "24912ce99b76d14831faa03f38592ecfb3956c65bb74aa53c5c05fd6a5be226c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-prewave-dispositions.py.txt",
+      "portable_path": "prewave/02/criteria-prewave/build-prewave-dispositions.py.txt",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-prewave-dispositions.py.txt",
+      "bytes": 17219,
+      "sha256": "8c889e151a532c312cd93effc45dc50497d32a2c43afafdd18afcdf8deb38062"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/validate-prewave-dispositions.py.txt",
+      "portable_path": "prewave/03/criteria-prewave/validate-prewave-dispositions.py.txt",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/validate-prewave-dispositions.py.txt",
+      "bytes": 3160,
+      "sha256": "cdd13216c5c9a431d3ac6a28912dc336c7dca7800ce82016d28356803e54fc03"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build.stdout.json",
+      "portable_path": "prewave/04/criteria-prewave/current-prewave-build.stdout.json",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build.stderr.txt",
+      "portable_path": "prewave/05/criteria-prewave/current-prewave-build.stderr.txt",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build.stderr.txt",
+      "bytes": 1174,
+      "sha256": "59ae10b3c1fd66ef1ac318b2c2f46a768d2565d80ab440f57bd1117fe8b8158f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build-corrected.stdout.json",
+      "portable_path": "prewave/06/criteria-prewave/current-prewave-build-corrected.stdout.json",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build-corrected.stdout.json",
+      "bytes": 316,
+      "sha256": "287d6f11c363c7c808eb2134d45ae93943bb95f697a1723d1bcb0e55df99b0c6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-normal.stdout.json",
+      "portable_path": "prewave/08/criteria-prewave/current-prewave-validation-normal.stdout.json",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-normal.stdout.json",
+      "bytes": 1820,
+      "sha256": "e56a961049864e225dc9d58bef833653699f175f48d1819a47a6f318772bedfb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-optimized.stdout.json",
+      "portable_path": "prewave/10/criteria-prewave/current-prewave-validation-optimized.stdout.json",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-optimized.stdout.json",
+      "bytes": 1820,
+      "sha256": "9ced811541ef36e3849ab6efe5a000bf54fbb00b18b01af37e25e081a3fb8746"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-packet-custody.json",
+      "portable_path": "prewave/12/criteria-prewave/current-prewave-packet-custody.json",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-packet-custody.json",
+      "bytes": 3913,
+      "sha256": "1f52a048902560529a2f2458abf17b00db351c653e2ab35b9db0b890e632e023"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-preparation-publication-selection.json",
+      "portable_path": "join-guard-preparation/publication-selection.json",
+      "role": "closed-input-selection",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-preparation-publication-selection.json",
+      "bytes": 1489,
+      "sha256": "6248e482bde0dacfb943cd8449d265e6177ddb111f541364416f39da261ab871"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-final-all-54-update.py.txt",
+      "portable_path": "join-guard-preparation/00/build-final-all-54-update.py.txt",
+      "role": "join-guard-preparation",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-final-all-54-update.py.txt",
+      "bytes": 9402,
+      "sha256": "2a3ce838f1b48a605ad61b5d41eb254a890f161f8f5062a11358e1df13777e40"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/check-final-builder-guards.py.txt",
+      "portable_path": "join-guard-preparation/01/check-final-builder-guards.py.txt",
+      "role": "join-guard-preparation",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/check-final-builder-guards.py.txt",
+      "bytes": 3519,
+      "sha256": "4396efad1380845b48d47ecdecf4ea109151407d2591946fe58a5fed9acffc37"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-preparation-receipt.json",
+      "portable_path": "join-guard-preparation/02/final-builder-preparation-receipt.json",
+      "role": "join-guard-preparation",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-preparation-receipt.json",
+      "bytes": 3594,
+      "sha256": "c720a858ae521febd9f7c96a516b87f5428f5bc0c10551091c3995b60ddad5ce"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-controls-normal-v2/guard-controls.json",
+      "portable_path": "join-guard-preparation/03/guard-controls.json",
+      "role": "join-guard-preparation",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-controls-normal-v2/guard-controls.json",
+      "bytes": 2313,
+      "sha256": "8a23012f8763ffbb16fbeb72b99aa0ba9a08daa1a3b223f0fed67434b3045df4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-controls-optimized/guard-controls.json",
+      "portable_path": "join-guard-preparation/04/guard-controls.json",
+      "role": "join-guard-preparation",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-controls-optimized/guard-controls.json",
+      "bytes": 2313,
+      "sha256": "11265af9a2b085d6794eb969c5f6d464f03566c01995bb846bd483aecb7363f4"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/publication-selection.json",
+      "portable_path": "independent-original-criteria/publication-selection.json",
+      "role": "closed-input-selection",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/publication-selection.json",
+      "bytes": 2658,
+      "sha256": "96fbde7b717991a73d02834456e7af845bb24ac39c532af652c151b1a7226bb9"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/criteria-decision-review.json",
+      "portable_path": "independent-original-criteria/00/historical-v1-original-criterion-review.json",
+      "role": "independent-original-criteria",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/criteria-decision-review.json",
+      "bytes": 62079,
+      "sha256": "4f984ade4d1d68f30fda5cb6220fced6c61092beb8f5288131918d70695cf555"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/criteria-decision-v2-delta-review.json",
+      "portable_path": "independent-original-criteria/01/current-v2-original-criterion-review.json",
+      "role": "independent-original-criteria",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/criteria-decision-v2-delta-review.json",
+      "bytes": 6925,
+      "sha256": "ff89f37488ca3101084b3b836adf5143c00318043493e080cc34e07f7933796e"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/review_criteria.py",
+      "portable_path": "independent-original-criteria/02/review_criteria.py.txt.txt",
+      "role": "independent-original-criteria",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/review_criteria.py",
+      "bytes": 17520,
+      "sha256": "566bbdc43847b96f16a2b259f916b60724703b405d8f85d2255b68935e216a13"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/review_criteria_v2_delta.py",
+      "portable_path": "independent-original-criteria/03/review_criteria_v2_delta.py.txt.txt",
+      "role": "independent-original-criteria",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/review_criteria_v2_delta.py",
+      "bytes": 5277,
+      "sha256": "240cfa5289e8f0299f625821bf6ca4362fc3d4a6cf32d9e628defa24ad7e2d87"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/review.stdout",
+      "portable_path": "independent-original-criteria/04/historical-v1-review.stdout",
+      "role": "independent-original-criteria",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/review.stdout",
+      "bytes": 482,
+      "sha256": "faa251fea66633245191bddef96772207f7fd1be404bfd7b681db14dd3d88b55"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/v2-delta.stdout",
+      "portable_path": "independent-original-criteria/06/current-v2-review.stdout",
+      "role": "independent-original-criteria",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/v2-delta.stdout",
+      "bytes": 473,
+      "sha256": "48415d385fa4795eeca7178b346248cb986680278d613b2008c043e9e10fdfc0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/independent-final-join-publication-selection-v1.json",
+      "portable_path": "independent-current54-join/publication-selection.json",
+      "role": "closed-input-selection",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/independent-final-join-publication-selection-v1.json",
+      "bytes": 10314,
+      "sha256": "e5a12b94d0619db98e53cc7aae6cc5cc647abcfe7acb6e60b2e7576fc4de548e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_doc_merge_prerequisites.v3.py.txt",
+      "portable_path": "independent-current54-join/00/review_doc_merge_prerequisites.v3.py.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_doc_merge_prerequisites.v3.py.txt",
+      "bytes": 8406,
+      "sha256": "6607ebf61de85f0fa31daa7f7b1c5c3d2460a81cfa1d1e23b733c98127c6c334"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-prerequisites-v3.json",
+      "portable_path": "independent-current54-join/01/doc-merge-prerequisites-v3.json",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-prerequisites-v3.json",
+      "bytes": 425375,
+      "sha256": "efb44a320545b1f1c63b9ee1c382a15ebe9b5fb789802d7ab7deb024f94a0769"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-review-v3.stdout.txt",
+      "portable_path": "independent-current54-join/02/doc-merge-review-v3.stdout.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-review-v3.stdout.txt",
+      "bytes": 428,
+      "sha256": "cc33b741d72e330f5f1c22a91838fb7df4e07f5fb890ba28d6c63690b3629aac"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_current54_independent.v2.py.txt",
+      "portable_path": "independent-current54-join/04/review_current54_independent.v2.py.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_current54_independent.v2.py.txt",
+      "bytes": 19504,
+      "sha256": "8df5f6cf073e82bf00037d036c8958dc7a0f449dda5c548155b402b745505c99"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.json",
+      "portable_path": "independent-current54-join/05/current54-independent-normal-v2.json",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.json",
+      "bytes": 74182,
+      "sha256": "217eac581654df16c444b610c442c7ea51b9a9dff3bf64186b93c8812f774a59"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.stdout.txt",
+      "portable_path": "independent-current54-join/06/current54-independent-normal-v2.stdout.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.stdout.txt",
+      "bytes": 208,
+      "sha256": "38e3b0547727ea93fc8a1389a349b21dae7590d841bae0cba55ba84002cb1e9d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.json",
+      "portable_path": "independent-current54-join/08/current54-independent-optimized-v2.json",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.json",
+      "bytes": 74181,
+      "sha256": "b036e3919e18c522b9288d1aee44126b528d65621681e092c7a2822d98bf92cc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.stdout.txt",
+      "portable_path": "independent-current54-join/09/current54-independent-optimized-v2.stdout.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.stdout.txt",
+      "bytes": 211,
+      "sha256": "da570c8187144373203f278d1dccfb43aed79529dd900b22340d60bb5ce9ad20"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/FRC-a502-publication-validation.stdout.txt",
+      "portable_path": "independent-current54-join/11/FRC-a502-publication-validation.stdout.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/FRC-a502-publication-validation.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.json",
+      "portable_path": "independent-current54-join/12/current54-recomputing-validation-normal.json",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.json",
+      "bytes": 3488,
+      "sha256": "7873aab3d96cdcdecbd7a2d1facb30668780aceb7fb86ec28c8b1ceaefef3e33"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stdout.txt",
+      "portable_path": "independent-current54-join/13/current54-recomputing-validation-normal.stdout.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stdout.txt",
+      "bytes": 204,
+      "sha256": "fb88cf21659752f82f976b35e0ce316a658d53722e63ee49d7de7e3550def131"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.json",
+      "portable_path": "independent-current54-join/15/current54-recomputing-validation-optimized.json",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.json",
+      "bytes": 3487,
+      "sha256": "81d15325e92e1ea69833d2757e79b0f8664ed4ae3aa3cab5696d517724471043"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stdout.txt",
+      "portable_path": "independent-current54-join/16/current54-recomputing-validation-optimized.stdout.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stdout.txt",
+      "bytes": 207,
+      "sha256": "e3db222ab81828a0f98039e2e972083721b1e044b51a26572f618f27fe1d8a7a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/publish_independent_selection.v1.py.txt",
+      "portable_path": "independent-current54-join/18/publish_independent_selection.v1.py.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/publish_independent_selection.v1.py.txt",
+      "bytes": 6222,
+      "sha256": "506cf55cf8ffe555ab0e3aacf4b6dae9ebbc059b7276a72d57f9a745f4cdcc3a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-current-37-selector-index.py.txt",
+      "portable_path": "builders/build-current-37-selector-index.py.txt",
+      "role": "37-index-builder",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-current-37-selector-index.py.txt",
+      "bytes": 16865,
+      "sha256": "a4b115a24caec4f6465010681495b34aed1e2780fb036312d407c3ca43deea60"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-r4-current54-v2/build-current-owner-v2.py.txt",
+      "portable_path": "builders/build-current-owner-v2.py.txt",
+      "role": "owner-v2-builder",
+      "path": "/tmp/e02-E-criteria-r4-current54-v2/build-current-owner-v2.py.txt",
+      "bytes": 7050,
+      "sha256": "80ce9012cda53b098f8d669369556d9d9535a119fa6f1b29c52f663e4760d925"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-r4-current54-v2/join-final-all-54-current-v2.py.txt",
+      "portable_path": "builders/join-final-all-54-current-v2.py.txt",
+      "role": "join-v2-builder",
+      "path": "/tmp/e02-E-criteria-r4-current54-v2/join-final-all-54-current-v2.py.txt",
+      "bytes": 12370,
+      "sha256": "245c0c17a8ac24d88906bf71c66242145bebb502bbf1dffb619a6a6a3024f75f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/validate-current-all-54-v2.py.txt",
+      "portable_path": "builders/validate-current-all-54-v2.py.txt",
+      "role": "recomputing-v2-validator",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/validate-current-all-54-v2.py.txt",
+      "bytes": 6197,
+      "sha256": "22b8dcfe076b3bdc63311f1ebebca241541319241dc35b438e048a2f9397845a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/check-attempt-receipt-admission.py.txt",
+      "portable_path": "builders/check-attempt-receipt-admission.py.txt",
+      "role": "attempt-admission-controls",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/check-attempt-receipt-admission.py.txt",
+      "bytes": 5016,
+      "sha256": "3ec25fdb90c455795b204b3fc8d863dd3a0b3c92cbe3b1b16bdb823bc8481f12"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.stdout.txt",
+      "portable_path": "commands/current-all-54-source-wave-update-v2.stdout.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.stdout.txt",
+      "bytes": 203,
+      "sha256": "00abdc26a1a95e7bdad561ade95739776cd5303b5beff04ac66f76b9502841c0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-37-index-v5.stdout.txt",
+      "portable_path": "commands/current-37-index-v5.stdout.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-37-index-v5.stdout.txt",
+      "bytes": 202,
+      "sha256": "6056599935296c52048aae2790d5455d7251075bb8e88ac42a909ad5b0101dd9"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-r4-current54-v2/build-current-owner-v2.stdout.txt",
+      "portable_path": "commands/build-current-owner-v2.stdout.txt",
+      "role": "complete-closed-command-output",
+      "path": "/tmp/e02-E-criteria-r4-current54-v2/build-current-owner-v2.stdout.txt",
+      "bytes": 201,
+      "sha256": "90362b16fababd4255b751522783d79f339a2125f5d4eb432d4b82f62a48aef4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-capacity-restored-normal.stdout.txt",
+      "portable_path": "commands/attempt-admission-capacity-restored-normal.stdout.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-capacity-restored-normal.stdout.txt",
+      "bytes": 189,
+      "sha256": "c589e8725c8d401e6022c71395b8da0df6b0a0a44e1ec96f2a48e2c9f4631954"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-capacity-restored-optimized.stdout.txt",
+      "portable_path": "commands/attempt-admission-capacity-restored-optimized.stdout.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-capacity-restored-optimized.stdout.txt",
+      "bytes": 192,
+      "sha256": "6fb4c8bc1bfac7db8592f751bc244087f7806bff154a52f1e1c97a284492ee4c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-normal.json",
+      "portable_path": "controls/attempt-admission-normal.json",
+      "role": "actual-normal-or-optimized-negative",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-normal.json",
+      "bytes": 2830,
+      "sha256": "bf132bc6ac1049a67641f85bf628bc32af1098b2c7ee36be0c5283c056504096"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-optimized.json",
+      "portable_path": "controls/attempt-admission-optimized.json",
+      "role": "actual-normal-or-optimized-negative",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-optimized.json",
+      "bytes": 2829,
+      "sha256": "0ea13fd050dfbfa6ebaf92e638fb90079f16b48ea633adef9e4b49273f3edf6a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install-execution.json",
+      "portable_path": "environment/install-execution.json",
+      "role": "separate-closed-root203-to207-environment-lineage",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install-execution.json",
+      "bytes": 2857,
+      "sha256": "b9f262deaf2a01f13a6f072e31cfcac59673bc3ad6bd83271097823a81b10167"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+      "portable_path": "environment/environment-after.json",
+      "role": "separate-closed-root203-to207-environment-lineage",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+      "bytes": 70628,
+      "sha256": "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/metadata-delta.json",
+      "portable_path": "environment/metadata-delta.json",
+      "role": "separate-closed-root203-to207-environment-lineage",
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/metadata-delta.json",
+      "bytes": 1740,
+      "sha256": "01e311f58d25e4919d1a09ed447819d0a23d8cfd8e790e6f95701a119a5e3c29"
+    },
+    {
+      "source_path": "/tmp/e02-E-backend-prereq-observation-20261007-1110.json",
+      "portable_path": "environment/e02-E-backend-prereq-observation-20261007-1110.json",
+      "role": "separate-closed-root203-to207-environment-lineage",
+      "path": "/tmp/e02-E-backend-prereq-observation-20261007-1110.json",
+      "bytes": 69302,
+      "sha256": "25a99b2fd9f6316a9bd2617c9ecc7e130ee213b182e69378b6518ed9e0e26dc4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-publication-receipt.json",
+      "portable_path": "current-cleanup/0/cleanup-publication-receipt.json",
+      "role": "closed-cloud-authorized-action",
+      "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-publication-receipt.json",
+      "bytes": 5806,
+      "sha256": "254d0413a8abc3ecf4ae75d6cb903fcce4ff22e575d4d9bd78d0663019d4dfda"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/cleanup-summary.json",
+      "portable_path": "current-cleanup/1/cleanup-summary.json",
+      "role": "closed-cloud-authorized-action",
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/cleanup-summary.json",
+      "bytes": 9852,
+      "sha256": "cd89e6ce848f6fa23e565f97822ad17eb4d1fe98df119212bde7968348f85438"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/cleanup-result.json",
+      "portable_path": "current-cleanup/2/cleanup-result.json",
+      "role": "closed-cloud-authorized-action",
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/cleanup-result.json",
+      "bytes": 2053,
+      "sha256": "20986075a881a248b477cc81a1bb3c7f90391128cd4719c4acf513588ed4c72f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/select-closed-current54.py.txt",
+      "portable_path": "builders/select-closed-current54.py.txt",
+      "role": "literal-selection-builder",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/select-closed-current54.py.txt",
+      "bytes": 11307,
+      "sha256": "ae5ad724e2943f0265f01f457740fe44be5d293ac9bbbf9dd2c581f6bade5be8"
+    }
+  ],
+  "identical_byte_aliases": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build-corrected.stderr.txt",
+      "portable_path": "prewave/07/criteria-prewave/current-prewave-build-corrected.stderr.txt",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-normal.stderr.txt",
+      "portable_path": "prewave/09/criteria-prewave/current-prewave-validation-normal.stderr.txt",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-optimized.stderr.txt",
+      "portable_path": "prewave/11/criteria-prewave/current-prewave-validation-optimized.stderr.txt",
+      "role": "prewave",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/review.stderr",
+      "portable_path": "independent-original-criteria/05/historical-v1-review.stderr",
+      "role": "independent-original-criteria",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-decision-independent-64d/v2-delta.stderr",
+      "portable_path": "independent-original-criteria/07/current-v2-review.stderr",
+      "role": "independent-original-criteria",
+      "path": "/tmp/e02-E-criteria-decision-independent-64d/v2-delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-review-v3.stderr.txt",
+      "portable_path": "independent-current54-join/03/doc-merge-review-v3.stderr.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-review-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.stderr.txt",
+      "portable_path": "independent-current54-join/07/current54-independent-normal-v2.stderr.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.stderr.txt",
+      "portable_path": "independent-current54-join/10/current54-independent-optimized-v2.stderr.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stderr.txt",
+      "portable_path": "independent-current54-join/14/current54-recomputing-validation-normal.stderr.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stderr.txt",
+      "portable_path": "independent-current54-join/17/current54-recomputing-validation-optimized.stderr.txt",
+      "role": "independent-current54-join",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.stderr.txt",
+      "portable_path": "commands/current-all-54-source-wave-update-v2.stderr.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-37-index-v5.stderr.txt",
+      "portable_path": "commands/current-37-index-v5.stderr.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-37-index-v5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-criteria-r4-current54-v2/build-current-owner-v2.stderr.txt",
+      "portable_path": "commands/build-current-owner-v2.stderr.txt",
+      "role": "complete-closed-command-output",
+      "path": "/tmp/e02-E-criteria-r4-current54-v2/build-current-owner-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stdout.txt",
+      "portable_path": "commands/current54-recomputing-validation-normal.stdout.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stdout.txt",
+      "bytes": 204,
+      "sha256": "fb88cf21659752f82f976b35e0ce316a658d53722e63ee49d7de7e3550def131",
+      "same_bytes_as": "independent-current54-join/13/current54-recomputing-validation-normal.stdout.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stderr.txt",
+      "portable_path": "commands/current54-recomputing-validation-normal.stderr.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stdout.txt",
+      "portable_path": "commands/current54-recomputing-validation-optimized.stdout.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stdout.txt",
+      "bytes": 207,
+      "sha256": "e3db222ab81828a0f98039e2e972083721b1e044b51a26572f618f27fe1d8a7a",
+      "same_bytes_as": "independent-current54-join/16/current54-recomputing-validation-optimized.stdout.txt"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stderr.txt",
+      "portable_path": "commands/current54-recomputing-validation-optimized.stderr.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-capacity-restored-normal.stderr.txt",
+      "portable_path": "commands/attempt-admission-capacity-restored-normal.stderr.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-capacity-restored-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-capacity-restored-optimized.stderr.txt",
+      "portable_path": "commands/attempt-admission-capacity-restored-optimized.stderr.txt",
+      "role": "complete-closed-command-output",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-capacity-restored-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_as": "prewave/04/criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.json",
+      "portable_path": "controls/current54-recomputing-validation-normal.json",
+      "role": "actual-normal-or-optimized-negative",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.json",
+      "bytes": 3488,
+      "sha256": "7873aab3d96cdcdecbd7a2d1facb30668780aceb7fb86ec28c8b1ceaefef3e33",
+      "same_bytes_as": "independent-current54-join/12/current54-recomputing-validation-normal.json"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.json",
+      "portable_path": "controls/current54-recomputing-validation-optimized.json",
+      "role": "actual-normal-or-optimized-negative",
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.json",
+      "bytes": 3487,
+      "sha256": "81d15325e92e1ea69833d2757e79b0f8664ed4ae3aa3cab5696d517724471043",
+      "same_bytes_as": "independent-current54-join/15/current54-recomputing-validation-optimized.json"
+    }
+  ],
+  "unique_assets": 71,
+  "logical_assets": 92,
+  "unique_bytes": 6893614,
+  "logical_bytes": 6901000,
+  "original_owner_source_Git_refs": [
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 551054,
+      "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md",
+      "bytes": 16141,
+      "sha256": "c76f38ce7aca6293c316ce907f94ca3fd4d4116d61dc30aac914aebb7177d82b"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md",
+      "bytes": 18633,
+      "sha256": "2cc34165f61681fcb2f1023dbdbfcfa106f6cf8820ad7320028d87b891e8aa7e"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-03.md",
+      "bytes": 11599,
+      "sha256": "43aa433c3d5eac777cd0faa5ed1b3750c52736722b34b9126b7295a55a930927"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md",
+      "bytes": 11670,
+      "sha256": "86af1ed996f8559cafb44bcf23b0c788d23fc7dabf9b67e3fe0bf55b43b3aa7b"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md",
+      "bytes": 16603,
+      "sha256": "9d3822691086ba6ffa1197eb372cd4cc4eeadc05c7573097f85fa7edceec8a2c"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-02.md",
+      "bytes": 18194,
+      "sha256": "0fbe3f83c4133db4bdaed0dc8e3b58c375e7fdbb18c16c0c7a35c49b77c241d4"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-03.md",
+      "bytes": 12435,
+      "sha256": "acd14aa7268335498e80c80de546ba45818b73ff8ab6270edb30337338852bee"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-04.md",
+      "bytes": 16147,
+      "sha256": "ff37afe78ab90e8963660412e38bc92b8094f2bc90532500be115fdf34877c37"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-05.md",
+      "bytes": 8483,
+      "sha256": "da87f868baf7c76653f12519ab36da5510703e2b07b4377043ff96865941278f"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md",
+      "bytes": 12126,
+      "sha256": "b4f37731da45d3605f24e81c3763dddc0d351d0fcffdca91b38bf0c5e1ba5a12"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md",
+      "bytes": 20646,
+      "sha256": "0578a277129749948d051f331b92fe3e8670e321ae4c93cc212e7ab199c17a33"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md",
+      "bytes": 35954,
+      "sha256": "02fc4f7f19d1e668b35edf2d4ef547cc85c4ae1c4411e3e4182a9f2aaa48db98"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md",
+      "bytes": 15045,
+      "sha256": "50f7d9acd0a0b44c97c9899d6ff29fc921ed2d8f6a1ba4a9bc33ffbce144dc78"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md",
+      "bytes": 11143,
+      "sha256": "363b590d944a8a9cc1bb076de15c784d2824ea1c57aa9a9b5a533474b1d1ad50"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md",
+      "bytes": 18100,
+      "sha256": "1761291fa68845ee9281161466d1fbea9a448ad093e591869fc2712d32d6eb0c"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md",
+      "bytes": 20737,
+      "sha256": "a2468ee3188ab13bd145b746bd0836c239fa20b9526b7545e887460eb418c5ee"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md",
+      "bytes": 19111,
+      "sha256": "95ae741769251f9e6f986f287a5fa48673689e57ea75219b7ef18b8a27ec36f6"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md",
+      "bytes": 25021,
+      "sha256": "3d36d370ac353f97551d1df132fded4671812a4c37af9368d35644a0c89ff7b7"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-01.md",
+      "bytes": 17548,
+      "sha256": "58c62ceb3fe995a42f495536403fe569dfb25bddca12d6ef6d507fd8b87596e9"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md",
+      "bytes": 14877,
+      "sha256": "7ae1f146ad90056b33cd0532da4104103cbd5a60ff47d7eff7d313c2a6739adf"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-03.md",
+      "bytes": 12480,
+      "sha256": "73e8a48332fd1b21a89348b92fc3c0ad62fc843588290853a64a4cef4f539811"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+      "bytes": 20683,
+      "sha256": "14c375c5bfcb8175abd51fe7ff71c54016e2801282fcd4bda73af753365f5a14"
+    }
+  ],
+  "original_full54_Git_ref": {
+    "revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+    "bytes": 1599060,
+    "sha256": "0a3ca0f80d768e922cd25b6bd0fbd579bdf1d217948fe72632c79aafe4331b28",
+    "current_frozen_bytes_equal": true
+  },
+  "current_labels": {
+    "prewave": "Individual owner criterion decisions; current scoped IR decisions, not test counts",
+    "original_wave": "64d actual common wave;1549 native cases1541PASS8AFAIL",
+    "initial37": "Original closed selector disposition21FAIL15PASS1UNRUN",
+    "later_checks": "Separate supplemental layer; running fullbackend excluded"
+  },
+  "decisions": {
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "E_bounded_owner_proposals": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "formal_G_intake_separate": true,
+    "formal_ledger_changed": false
+  },
+  "current_cleanup_qualification": {
+    "historical_V1_V2_cleanup_text_preserved": true,
+    "user_authorization_verbatim": "Важное уточненние. Работая в облаке ти можешь если требуеться удалять уже не нужние результати тестов или созданние оркежунния. Деректива об работе через корзину отоситься лишь к локлаьной работе. В остальном продолжай работу",
+    "current_rule": "Cloud unused repeatable environments/results may be deleted after saved evidence and no-active-users proof. Local cleanup uses native Trash; never empty Trash.",
+    "closed_current_ten_child_actions": "Earlier4/tmpfs + later5/overlay + separateCI11site1",
+    "cleanup_receipt_refs": [
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-publication-receipt.json",
+        "bytes": 5806,
+        "sha256": "254d0413a8abc3ecf4ae75d6cb903fcce4ff22e575d4d9bd78d0663019d4dfda"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/cleanup-summary.json",
+        "bytes": 9852,
+        "sha256": "cd89e6ce848f6fa23e565f97822ad17eb4d1fe98df119212bde7968348f85438"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/cleanup-result.json",
+        "bytes": 2053,
+        "sha256": "20986075a881a248b477cc81a1bb3c7f90391128cd4719c4acf513588ed4c72f"
+      }
+    ],
+    "resource_scope": "Distinct filesystems/times; no summed RAM claim or blanket cause attribution"
+  },
+  "copy_protocol": "Copy each unique literal asset; resolve identical-byte aliases via this index",
+  "private_raw_exclusions": [
+    "Production datasets and unique user inputs",
+    "Git private configuration bodies and reproducible environments",
+    "Running backend stdout/JUnit/receipts and final supplemental packet"
+  ],
+  "selection_builder": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/select-closed-current54.py.txt",
+    "bytes": 11307,
+    "sha256": "ae5ad724e2943f0265f01f457740fe44be5d293ac9bbbf9dd2c581f6bade5be8"
+  },
+  "ROOT_code_or_environment_mutated": false,
+  "native_checks_reexecuted": false
+}

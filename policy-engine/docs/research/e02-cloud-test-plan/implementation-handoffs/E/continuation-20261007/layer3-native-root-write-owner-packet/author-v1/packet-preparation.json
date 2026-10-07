@@ -1,0 +1,31 @@
+{
+  "source_commit": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "author_mode": "read-only external stdlib; no runtime validator/generator/bundle execution",
+  "test_calls": 13,
+  "modified_paths": 29,
+  "family_counts": {
+    "6": 9,
+    "7": 14,
+    "8": 6
+  },
+  "patch_paths": [
+    "policy-engine/tests/repo_quality/conftest.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py"
+  ],
+  "patch": {
+    "bytes": 4884,
+    "sha256": "9f041635d8ce8be972e68019bf902bbad0a8d8e9791e16c63a1857696c80a7e1"
+  },
+  "runtime_caller_attribution": "not_established",
+  "native_selector": "-m not integration; repo_quality tests match by frozen taxonomy; no exact per-test runtime event observed",
+  "native_backend_terminal_outcome": "UNRUN/pending; no terminal count",
+  "proposal_limitations": [
+    "UNAPPLIED canonical G/tool-test-owner patch; no shared writers altered",
+    "Complete Git-snapshot fixture intentionally copies full tracked product once per readiness module, excluding ignored env/cache; future owner may narrow only with complete input-denominator proof",
+    "Full real runtime/fixture selectors UNRUN; bounded writer controls are insufficient to claim native runtime fixture PASS",
+    "Current active backend can itself change checkout; fingerprint guard would detect real concurrent source mutation rather than waive it"
+  ]
+}

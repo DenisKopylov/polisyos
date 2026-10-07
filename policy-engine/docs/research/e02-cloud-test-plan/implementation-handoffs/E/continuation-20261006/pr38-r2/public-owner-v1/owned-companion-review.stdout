@@ -1,0 +1,46 @@
+{
+  "verdict": "GO",
+  "candidate_sha": "c0f146702219cd3280c3b7d06e9d2bc4c7b95dd6",
+  "tree": "b44e33a60b40f95f8993855aed65254aa25e72b3",
+  "controls": [
+    {
+      "label": "historical-count-markers-retained",
+      "outcome": "REJECTED",
+      "reason": "('polisyos.calibration', 'count')"
+    },
+    {
+      "label": "removed-export-count-marker-retained",
+      "outcome": "REJECTED",
+      "reason": "('polisyos.foundry.uncertainty', 'names')"
+    },
+    {
+      "label": "mode-marker-forged",
+      "outcome": "REJECTED",
+      "reason": "('polisyos.foundry.uncertainty', 'mode')"
+    },
+    {
+      "label": "old-README-current-inventory",
+      "outcome": "REJECTED",
+      "reason": "README count"
+    },
+    {
+      "label": "exact-base-snapshot-divergence",
+      "outcome": "REJECTED",
+      "reason": "('polisyos.calibration', 'names')"
+    }
+  ],
+  "surface": {
+    "polisyos.calibration": {
+      "count": 28,
+      "mode": "eager_exports",
+      "source_path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "source_sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc"
+    },
+    "polisyos.foundry.uncertainty": {
+      "count": 16,
+      "mode": "eager_exports",
+      "source_path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "source_sha256": "f555f6960f0fdb140ca4d393004dc358dcd82066297f16561160cc4875802d8d"
+    }
+  }
+}

@@ -1,0 +1,649 @@
+{
+  "schema": "policyos.e02.cleanup_description_plan_author_custody_controls.v1",
+  "copier_sha256": "00cafa8cb9173e72ce58a9c6dde148f4b8c775b039e2eb0033ffd10885c53fd7",
+  "manifest_sha256": "4277a443663d425f3749bc587a37204a2fa9c4e0ab5386fd5e776e81bcdf8f5f",
+  "normal_optimized_healthy": 2,
+  "negative_controls_per_mode": 15,
+  "controls": [
+    {
+      "name": "healthy",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-healthy/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-healthy/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-healthy/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-healthy/stderr.txt"
+    },
+    {
+      "name": "logical_count_bool",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-logical_count_bool/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-logical_count_bool/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-logical_count_bool/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-logical_count_bool/stderr.txt"
+    },
+    {
+      "name": "logical_bytes_plus1",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-logical_bytes_plus1/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-logical_bytes_plus1/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-logical_bytes_plus1/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-logical_bytes_plus1/stderr.txt"
+    },
+    {
+      "name": "carrier_bytes_plus1",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-carrier_bytes_plus1/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-carrier_bytes_plus1/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-carrier_bytes_plus1/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-carrier_bytes_plus1/stderr.txt"
+    },
+    {
+      "name": "missing_original_selector",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-missing_original_selector/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-missing_original_selector/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-missing_original_selector/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-missing_original_selector/stderr.txt"
+    },
+    {
+      "name": "selector_vector_missing",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-selector_vector_missing/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-selector_vector_missing/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-selector_vector_missing/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-selector_vector_missing/stderr.txt"
+    },
+    {
+      "name": "selected_raw_role_mutation",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-selected_raw_role_mutation/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-selected_raw_role_mutation/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-selected_raw_role_mutation/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-selected_raw_role_mutation/stderr.txt"
+    },
+    {
+      "name": "forged_source_head",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-forged_source_head/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-forged_source_head/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-forged_source_head/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-forged_source_head/stderr.txt"
+    },
+    {
+      "name": "ROOT_full_input_immutable_true",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-ROOT_full_input_immutable_true/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-ROOT_full_input_immutable_true/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-ROOT_full_input_immutable_true/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-ROOT_full_input_immutable_true/stderr.txt"
+    },
+    {
+      "name": "lint_Ruff_PASS",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-lint_Ruff_PASS/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-lint_Ruff_PASS/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-lint_Ruff_PASS/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-lint_Ruff_PASS/stderr.txt"
+    },
+    {
+      "name": "lint366_bool",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-lint366_bool/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-lint366_bool/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-lint366_bool/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-lint366_bool/stderr.txt"
+    },
+    {
+      "name": "cleanup_tarcount_float",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-cleanup_tarcount_float/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-cleanup_tarcount_float/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-cleanup_tarcount_float/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-cleanup_tarcount_float/stderr.txt"
+    },
+    {
+      "name": "new_G_fixture_authority",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-new_G_fixture_authority/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-new_G_fixture_authority/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-new_G_fixture_authority/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-new_G_fixture_authority/stderr.txt"
+    },
+    {
+      "name": "same_bytes_counter_member_substitution",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-same_bytes_counter_member_substitution/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-same_bytes_counter_member_substitution/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-same_bytes_counter_member_substitution/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-same_bytes_counter_member_substitution/stderr.txt"
+    },
+    {
+      "name": "duplicate_JSON_key",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-duplicate_JSON_key/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-duplicate_JSON_key/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-duplicate_JSON_key/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-duplicate_JSON_key/stderr.txt"
+    },
+    {
+      "name": "nonfinite_JSON_metadata",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-nonfinite_JSON_metadata/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-nonfinite_JSON_metadata/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-nonfinite_JSON_metadata/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-nonfinite_JSON_metadata/stderr.txt"
+    },
+    {
+      "name": "healthy",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-healthy/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-healthy/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-healthy/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-healthy/stderr.txt"
+    },
+    {
+      "name": "logical_count_bool",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-logical_count_bool/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-logical_count_bool/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-logical_count_bool/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-logical_count_bool/stderr.txt"
+    },
+    {
+      "name": "logical_bytes_plus1",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-logical_bytes_plus1/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-logical_bytes_plus1/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-logical_bytes_plus1/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-logical_bytes_plus1/stderr.txt"
+    },
+    {
+      "name": "carrier_bytes_plus1",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-carrier_bytes_plus1/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-carrier_bytes_plus1/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-carrier_bytes_plus1/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-carrier_bytes_plus1/stderr.txt"
+    },
+    {
+      "name": "missing_original_selector",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-missing_original_selector/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-missing_original_selector/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-missing_original_selector/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-missing_original_selector/stderr.txt"
+    },
+    {
+      "name": "selector_vector_missing",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-selector_vector_missing/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-selector_vector_missing/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-selector_vector_missing/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-selector_vector_missing/stderr.txt"
+    },
+    {
+      "name": "selected_raw_role_mutation",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-selected_raw_role_mutation/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-selected_raw_role_mutation/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-selected_raw_role_mutation/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-selected_raw_role_mutation/stderr.txt"
+    },
+    {
+      "name": "forged_source_head",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-forged_source_head/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-forged_source_head/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-forged_source_head/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-forged_source_head/stderr.txt"
+    },
+    {
+      "name": "ROOT_full_input_immutable_true",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-ROOT_full_input_immutable_true/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-ROOT_full_input_immutable_true/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-ROOT_full_input_immutable_true/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-ROOT_full_input_immutable_true/stderr.txt"
+    },
+    {
+      "name": "lint_Ruff_PASS",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-lint_Ruff_PASS/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-lint_Ruff_PASS/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-lint_Ruff_PASS/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-lint_Ruff_PASS/stderr.txt"
+    },
+    {
+      "name": "lint366_bool",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-lint366_bool/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-lint366_bool/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-lint366_bool/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-lint366_bool/stderr.txt"
+    },
+    {
+      "name": "cleanup_tarcount_float",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-cleanup_tarcount_float/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-cleanup_tarcount_float/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-cleanup_tarcount_float/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-cleanup_tarcount_float/stderr.txt"
+    },
+    {
+      "name": "new_G_fixture_authority",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-new_G_fixture_authority/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-new_G_fixture_authority/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-new_G_fixture_authority/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-new_G_fixture_authority/stderr.txt"
+    },
+    {
+      "name": "same_bytes_counter_member_substitution",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-same_bytes_counter_member_substitution/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-same_bytes_counter_member_substitution/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-same_bytes_counter_member_substitution/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-same_bytes_counter_member_substitution/stderr.txt"
+    },
+    {
+      "name": "duplicate_JSON_key",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-duplicate_JSON_key/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-duplicate_JSON_key/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-duplicate_JSON_key/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-duplicate_JSON_key/stderr.txt"
+    },
+    {
+      "name": "nonfinite_JSON_metadata",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-nonfinite_JSON_metadata/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-nonfinite_JSON_metadata/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-nonfinite_JSON_metadata/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/optimized-nonfinite_JSON_metadata/stderr.txt"
+    },
+    {
+      "name": "Counter-effective-removal",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/Counter-predicate-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-Counter-effective-removal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-Counter-effective-removal/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-Counter-effective-removal/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-Counter-effective-removal/stderr.txt"
+    },
+    {
+      "name": "header-effective-removal",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/header-predicate-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-header-effective-removal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-header-effective-removal/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-header-effective-removal/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-header-effective-removal/stderr.txt"
+    },
+    {
+      "name": "qualification-effective-removal",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/qualification-predicate-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-qualification-effective-removal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-qualification-effective-removal/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-qualification-effective-removal/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-qualification-effective-removal/stderr.txt"
+    }
+  ],
+  "effective_removals": [
+    {
+      "name": "Counter-effective-removal",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/Counter-predicate-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-Counter-effective-removal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-Counter-effective-removal/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-Counter-effective-removal/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-Counter-effective-removal/stderr.txt",
+      "defining_property_outcome": "FAIL",
+      "only_predicate_removed": true,
+      "marker_preserved": true,
+      "source": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/Counter-predicate-removal.py.txt"
+    },
+    {
+      "name": "header-effective-removal",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/header-predicate-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-header-effective-removal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-header-effective-removal/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-header-effective-removal/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-header-effective-removal/stderr.txt",
+      "defining_property_outcome": "FAIL",
+      "only_predicate_removed": true,
+      "marker_preserved": true,
+      "source": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/header-predicate-removal.py.txt"
+    },
+    {
+      "name": "qualification-effective-removal",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/qualification-predicate-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-qualification-effective-removal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-qualification-effective-removal/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-qualification-effective-removal/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/normal-qualification-effective-removal/stderr.txt",
+      "defining_property_outcome": "FAIL",
+      "only_predicate_removed": true,
+      "marker_preserved": true,
+      "source": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/author-custody-trustedself-final/qualification-predicate-removal.py.txt"
+    }
+  ],
+  "source_native_numeric_gate_execution": false,
+  "ROOT_source_env_locks_written": false
+}

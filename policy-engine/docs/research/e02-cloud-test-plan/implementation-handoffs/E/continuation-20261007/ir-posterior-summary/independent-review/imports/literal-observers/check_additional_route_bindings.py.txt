@@ -1,0 +1,81 @@
+"""Observe the new Core annotation route and old shared digest delegate."""
+from __future__ import annotations
+import argparse
+import ast
+import hashlib
+import importlib
+import json
+import subprocess
+import sys
+import typing
+from pathlib import Path
+
+p = argparse.ArgumentParser()
+p.add_argument('--candidate', required=True)
+p.add_argument('--base', required=True)
+p.add_argument('--repo', required=True)
+p.add_argument('--output', required=True)
+a = p.parse_args()
+lane = Path(a.repo)
+sys.path.insert(0, str(lane / 'policy-engine/src'))
+def git(*args):
+    return subprocess.check_output(['/usr/bin/git', '-C', str(lane), *args])
+def require(value, reason):
+    if not value:
+        raise AssertionError(reason)
+paths = git('diff', '--name-only', a.base, a.candidate).decode().splitlines()
+bindings = []
+for path in paths:
+    exact = git('show', a.candidate + ':' + path)
+    require((lane / path).read_bytes() == exact, 'source drift before invocation: ' + path)
+    bindings.append({'path': path, 'bytes': len(exact), 'sha256': hashlib.sha256(exact).hexdigest()})
+core = importlib.import_module('polisyos.core')
+report = importlib.import_module('polisyos.foundry.calibration.report')
+require(report.core_artifacts is core.artifacts, 'report route is not existing Core root module')
+annotations = []
+for name in ('put_calibration_config', 'put_calibration_report', 'load_calibration_report'):
+    function = getattr(report, name)
+    observed = typing.get_type_hints(function)['store']
+    require(observed is core.artifacts.ArtifactStore, 'store annotation returns different protocol: ' + name)
+    annotations.append({'function': function.__module__ + '.' + name, 'store_is_existing_Core_root_ArtifactStore': True})
+analytics = importlib.import_module('polisyos.ir.analytics')
+producer = importlib.import_module('polisyos.foundry.calibration.uncertainty_adapter')
+sampling = importlib.import_module('polisyos.foundry.uncertainty.sampling_admission')
+require(sampling.posterior_joint_carrier_digest is analytics.posterior_joint_carrier_digest, 'old digest helper bypasses curated IR function')
+summary = producer.summarize_bayesian_calibration_posterior({'theta': [0.0, 2.0, 4.0]}, weights=[1.0,1.0,2.0], draw_ids=['r0','r1','r2'])
+envelopes = summary.parameter_envelopes
+observed = sampling.joint_carrier_digest(['theta'], envelopes, ['r0','r1','r2'])
+expected = analytics.posterior_joint_carrier_digest(['theta'], envelopes, ['r0','r1','r2'])
+require(observed == expected, 'actual old helper digest differs from curated IR function')
+visits = []
+original = sampling.posterior_joint_carrier_digest
+def traced(*args, **kwargs):
+    visits.append((list(args[0]), list(args[2])))
+    return original(*args, **kwargs)
+sampling.posterior_joint_carrier_digest = traced
+try:
+    require(sampling.joint_carrier_digest(['theta'], envelopes, ['r0','r1','r2']) == expected, 'delegate trace changed observed digest')
+finally:
+    sampling.posterior_joint_carrier_digest = original
+require(visits == [(['theta'], ['r0','r1','r2'])], 'old helper did not call configured native delegate exactly once')
+new_test_imports = []
+for path in paths:
+    if not path.startswith('policy-engine/tests/') or not path.endswith('.py'):
+        continue
+    tree = ast.parse(git('show', a.candidate + ':' + path))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module == 'polisyos.core':
+            for alias in node.names:
+                if alias.name in ('artifacts', 'canon'):
+                    actual = getattr(core, alias.name)
+                    require(actual is importlib.import_module('polisyos.core.' + alias.name), 'Core root module definition identity differs')
+                    new_test_imports.append({'path': path, 'line': node.lineno, 'symbol': alias.name, 'alias': alias.asname, 'actual_module_identity_equal': True})
+for path in paths:
+    require((lane/path).read_bytes() == git('show', a.candidate + ':' + path), 'source drift during route controls: ' + path)
+result = {'schema': 'policyos.e02.independent_ir_additional_route_binding.v1', 'candidate': a.candidate,
+          'tree': git('rev-parse', a.candidate+'^{tree}').decode().strip(), 'base': a.base,
+          'predicate_basis': 'recomputed', 'Core_report_route': annotations, 'actual_old_digest_delegate': {'observed_digest': observed, 'same_curated_function_bound': True, 'actual_delegate_calls': visits},
+          'existing_Core_root_test_routes': new_test_imports, 'complete_changed_source_bindings': bindings,
+          'limits': ['Actual route/delegate observation only; independent digest arithmetic is oracle scope.', 'Canonical Core adapter is not publicly exported; its explicitly owner-attributed native test seam is recorded separately.', 'No Core539 implementation or full optional public API was reviewed by its author.']}
+Path(a.output).write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({k:v for k,v in result.items() if k!='complete_changed_source_bindings'},indent=2))

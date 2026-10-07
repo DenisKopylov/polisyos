@@ -1,0 +1,9 @@
+{
+  "source_and_footprint": "PASS",
+  "moderate_files": 47,
+  "checks": 10,
+  "corrupt_digest_negative": {
+    "result": "REJECTED",
+    "reason": "Digest mismatch: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/README.md"
+  }
+}

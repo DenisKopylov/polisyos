@@ -154,7 +154,7 @@ def test_orchestrator_rejects_malformed_metadata_report_id(tmp_path) -> None:
 
 @pytest.mark.parametrize(
     "invalid_report_id",
-    ("", " ", " leading", "trailing ", "line\nbreak", "nul\x00byte"),
+    ["", " ", " leading", "trailing ", "line\nbreak", "nul\x00byte"],
 )
 def test_orchestrator_rejects_malformed_preallocated_report_id(
     invalid_report_id: str,
@@ -180,8 +180,8 @@ def test_trust_scorer_coverage_gate_caps_grade() -> None:
         )
     ]
     score, grade = scorer.compute(scenarios=scenarios, biases=[])
-    assert score is not None
-    assert grade in {"C", "D", "F"}
+    assert score is None
+    assert grade is None
 
 
 def test_backtesting_scientist_fallback_marks_report_degraded(tmp_path) -> None:
@@ -231,14 +231,11 @@ def test_predictive_trust_screening_only_denies_trust(tmp_path) -> None:
         trust_screening=TrustScreeningMode.PREDICTIVE_ONLY_BRIDGE_PENDING,
     )
 
-    assert default_report.trust_eligible is True
-    assert default_report.trust_score is not None
+    assert default_report.trust_eligible is False
+    assert default_report.trust_score is None
     assert screened_report.trust_eligible is False
     assert screened_report.trust_score is None
-    assert (
-        "trust_screening:predictive_only_bridge_pending"
-        in screened_report.degraded_reasons
-    )
+    assert "trust_screening:predictive_only_bridge_pending" in screened_report.degraded_reasons
     assert screened_report.metadata["trust_screening"] == "predictive_only_bridge_pending"
 
 
@@ -309,11 +306,7 @@ def _put_backtest_artifact(
             kind=kind,
             media_type="application/json",
             schema={"name": kind, "version": "1.0"},
-            producer=(
-                {"component": "test.bkt01", "version": "1.0"}
-                if include_producer
-                else None
-            ),
+            producer=({"component": "test.bkt01", "version": "1.0"} if include_producer else None),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -351,7 +344,8 @@ def _scientist_result_with_artifacts(
 
     captured: dict[str, Any] = {}
 
-    def _run_experiment(state: dict[str, Any]) -> dict[str, Any]:
+    def _run_experiment(state: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
+        assert kwargs["store"] is orchestrator._scientist_store
         captured["state"] = state
         return {"artifacts_index": artifacts}
 
@@ -385,7 +379,7 @@ def test_scientist_dispatch_binds_masked_view_to_backend_input(monkeypatch, tmp_
     assert 901.0 not in view["metric"]
 
 
-def test_scientist_dispatch_passes_requested_replica_count(monkeypatch, tmp_path) -> None:
+def test_scientist_dispatch_requires_expanded_scalar_replay(monkeypatch, tmp_path) -> None:
     orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
     plan = _scientist_plan(tmp_path, n_simulation_runs=7, random_seed=12)
     _artifacts, captured = _scientist_result_with_artifacts(
@@ -394,10 +388,9 @@ def test_scientist_dispatch_passes_requested_replica_count(monkeypatch, tmp_path
         metrics_payload={},
     )
 
-    orchestrator._predict_with_scientist(plan, {"metric": [1.0, 2.0]})
-
-    assert captured["state"]["params"]["random_seed"] == 12
-    assert captured["state"]["params"]["n_simulation_runs"] == 7
+    with pytest.raises(ValueError, match="expanded scalar replay"):
+        orchestrator._predict_with_scientist(plan, {"metric": [1.0, 2.0]})
+    assert captured == {}
 
 
 def test_scientist_scalar_without_constant_profile_is_not_a_trajectory(

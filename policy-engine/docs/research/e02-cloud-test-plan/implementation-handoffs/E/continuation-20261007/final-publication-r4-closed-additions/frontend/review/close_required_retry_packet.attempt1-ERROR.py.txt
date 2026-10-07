@@ -1,0 +1,99 @@
+"""Close full native Storybook/a11y receipts without ROOT environment reads."""
+from __future__ import annotations
+
+import ast
+import copy
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+REPO = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+PREP = Path('/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007')
+STORY = PREP / 'storybook'
+A11Y = Path('/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y')
+OUT = Path('/tmp/e02-E-frontend-retry-analysis-64d')
+checks = []
+
+def check(name, value, **details):
+    checks.append({'name': name, 'passed': bool(value), **details})
+    if not value:
+        raise ValueError(name)
+
+def bind(path):
+    body = path.read_bytes()
+    return {'source_path': str(path), 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()}
+
+def admit_capture(receipt, body):
+    if receipt['candidate_sha'] != SOURCE or receipt['candidate_tree_sha'] != TREE or receipt['source_immutable'] is not True or receipt['source_identity_before'] != receipt['source_identity_after']:
+        raise ValueError('Immutable full native source binding required')
+    if receipt['stdout_bytes'] != len(body) or receipt['stdout_sha256'] != hashlib.sha256(body).hexdigest():
+        raise ValueError('Full capture bytes required')
+    if type(receipt['exit_code']) is not int or receipt['exit_code'] != 1 or receipt['outcome'] != 'FAIL':
+        raise ValueError('Actual native full command FAIL1 required')
+    return body.decode()
+
+story_path = STORY / 'checks/storybook-full-native-retry/storybook-full-native-retry.json'
+a11y_path = A11Y / 'checks/a11y-full-native-retry/a11y-full-native-retry.json'
+story_receipt = json.loads(story_path.read_bytes())
+a11y_receipt = json.loads(a11y_path.read_bytes())
+story = admit_capture(story_receipt, Path(story_receipt['stdout_path']).read_bytes())
+a11y = admit_capture(a11y_receipt, Path(a11y_receipt['stdout_path']).read_bytes())
+check('actual_story_and_a11y_full_native_FAIL1_source_immutable', True)
+check('complete_a11y_five_native_stages_attempted', all(' ' + command + ' ' in a11y or ' ' + command + '\n' in a11y for command in ['a11y:contrast', 'a11y:motion', 'a11y:color-blind', 'test:a11y:components', 'test:a11y:pages']))
+check('design_checks_three_positive_bodies', all(text in a11y for text in ['Contrast checks passed.', 'Reduced-motion checks passed.', 'Color-blind checks passed.']))
+file_counts = re.search(r'Test Files\s+87 passed \(87\)', a11y)
+case_counts = re.search(r'Tests\s+161 passed \(161\)', a11y)
+check('actual_native_components_completed_87files_161cases', file_counts is not None and case_counts is not None and 'Failed Tests' not in a11y)
+check('native_pages_attempted_setup_failed_not_command_UNRUN', '> PLAYWRIGHT_INCLUDE_BOUND_RUN_PAPER_FIXTURE=1 playwright test e2e/a11y --project=chromium' in a11y and 'ValueError: catalog_fetch_source_unreadable' in a11y and 'Process from config.webServer was not able to start. Exit code: 1' in a11y)
+check('page_case_outcomes_not_synthesized', 'Running ' not in a11y[a11y.index('test:a11y:pages'):], limit='Native page command was attempted and failed its webServer bootstrap; no individual page case PASS/FAIL asserted.')
+for label, key, value in [('bytehash', 'stdout_sha256', '0' * 64), ('bytecount', 'stdout_bytes', a11y_receipt['stdout_bytes'] + 1), ('source_sha', 'candidate_sha', '0' * 40), ('immutable', 'source_immutable', False), ('case_free_PASS', 'outcome', 'PASS')]:
+    forged = copy.deepcopy(a11y_receipt)
+    forged[key] = value
+    try:
+        admit_capture(forged, Path(a11y_receipt['stdout_path']).read_bytes())
+    except ValueError as exc:
+        check('actual_reader_corrupt_' + label + '_refusal', True, reason=str(exc))
+    else:
+        check('actual_reader_corrupt_' + label + '_refusal', False)
+parsed = ast.parse(Path(__file__).read_text())
+function = next(row for row in parsed.body if isinstance(row, ast.FunctionDef) and row.name == 'admit_capture')
+mutant = copy.deepcopy(function)
+guards = [row for row in mutant.body if isinstance(row, ast.If)]
+check('actual_byteguard_removal_target', len(guards) == 3 and 'stdout_sha256' in ast.unparse(guards[1].test))
+mutant.body.remove(guards[1])
+scope = {'SOURCE': SOURCE, 'TREE': TREE, 'hashlib': hashlib}
+exec(compile(ast.fix_missing_locations(ast.Module(body=[mutant], type_ignores=[])), '<removed-capture-byteguard>', 'exec'), scope)
+forged = copy.deepcopy(a11y_receipt)
+forged['stdout_sha256'] = '0' * 64
+accepted = scope['admit_capture'](forged, Path(a11y_receipt['stdout_path']).read_bytes())
+check('effective_byteguard_removal_admits_forged_hash', accepted == a11y, independent_property_outcome='FAIL')
+check('positive_substage_count_proxy_diverges', case_counts is not None and a11y_receipt['outcome'] == 'FAIL')
+failure = a11y.index('Traceback (most recent call last):')
+reason = a11y.index('ValueError: catalog_fetch_source_unreadable', failure)
+failure_body = a11y[failure:reason + len('ValueError: catalog_fetch_source_unreadable')]
+source_paths = ['policy-engine/apps/runtime-dashboard/playwright.config.ts', 'policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py', 'policy-engine/tests/_helpers/runtime_http.py', 'policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py', 'policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py', 'policy-engine/docs/reference/ownership.md']
+sources = []
+for relative in source_paths:
+    body = subprocess.check_output(['/usr/bin/git', 'show', SOURCE + ':' + relative], cwd=REPO)
+    check('exact_source_' + relative.rsplit('/', 1)[-1], body == (REPO / relative).read_bytes())
+    sources.append({'source_sha': SOURCE, 'path': relative, 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()})
+snapshot = subprocess.check_output(['/usr/bin/ps', '-p', '532697,532701,532820,532870', '-o', 'pid,ppid,etimes,state,args']).decode()
+listeners = subprocess.check_output(['/usr/bin/ss', '-ltnp', 'sport = :63315 or sport = :8000 or sport = :5173']).decode()
+check('own_launcher_capturer_browser_processes_closed', len(snapshot.splitlines()) == 1)
+check('shared_fixture_ports_closed', len(listeners.splitlines()) == 1)
+for name, body in [('closed-processes.stdout.txt', snapshot), ('closed-ports.stdout.txt', listeners)]:
+    (OUT / name).write_text(body)
+attempt1 = PREP / 'a11y'
+first = json.loads((attempt1 / 'completion.json').read_bytes())
+first_error = (attempt1 / 'capture.stderr.txt').read_text()
+check('attempt1_ENOSPC_before_native_execution_retained', first['native_receipt'] is None and 'args.output.mkdir' in first_error and 'Errno 28' in first_error)
+report = {'schema': 'policyos.e02.E.required_frontend_native_retry_closeout.v1', 'candidate_sha': SOURCE, 'candidate_tree_sha': TREE, 'reviewer': '/root/lint_r4', 'closed_UTC': datetime.now(timezone.utc).isoformat(), 'environment': {'python': sys.version, 'executable': sys.executable, 'ROOT_environment_interpreters_used_by_this_observer': False}, 'checks': checks, 'check_count': len(checks), 'original_scope': 'CI22 root-owned interruption FAIL130 and original CI23 failure remain immutable historical receipts; these are required full standalone native retries, not a new numeric/common wave or automatic finding closure.', 'storybook_retry': {'receipt': bind(story_path), 'stdout': bind(Path(story_receipt['stdout_path'])), 'JUnit': bind(STORY / 'storybook.junit.xml'), 'command': story_receipt['command'], 'outcome': 'FAIL', 'exit_code': 1, 'wall_seconds': story_receipt['wall_seconds'], 'source_immutable': True, 'actual_JUnit_counts': story_receipt['counts'], 'native_case_scope': '37 authored cases PASS plus one import-failure synthetic suite row;45suites/29empty remain distinguished. Separate unhandled ProvenanceStrip iframe error.', 'limitations': 'No source/ENOSPC/cache/CORS cause attribution without exact measured positive/negative native reproduction'}, 'a11y_retry': {'receipt': bind(a11y_path), 'stdout': bind(Path(a11y_receipt['stdout_path'])), 'launch': bind(A11Y / 'launch.json'), 'command': a11y_receipt['command'], 'outcome': 'FAIL', 'exit_code': 1, 'wall_seconds': a11y_receipt['wall_seconds'], 'source_immutable': True, 'native_substages': {'contrast': 'PASS', 'motion': 'PASS', 'color_blind': 'PASS', 'components': {'outcome': 'PASS', 'files': 87, 'cases': 161, 'native_duration_seconds': 200.85}, 'pages': {'command_outcome': 'FAIL', 'setup_outcome': 'FAIL: catalog_fetch_source_unreadable before webServer start', 'individual_case_outcomes': 'Unmeasured; no page test execution was reported'}}, 'complete_page_setup_traceback': failure_body, 'early_attempt1': {'completion': bind(attempt1 / 'completion.json'), 'stderr': bind(attempt1 / 'capture.stderr.txt'), 'outcome': 'Observer ERROR/native command UNRUN; ENOSPC before Popen, not test/source FAIL'}}, 'canonical_owner_packet': {'fixture_runtime': '@runtime-owners / A-G canonical fixture producer/config writer', 'DataForge_source_reader': '@data-forge-owners', 'frontend_storybook_and_pages': 'team-frontend / @frontend-owners / @UI via G', 'enforceable_CODEOWNERS_reviewer': '@DenisKopylov', 'source_inputs': sources, 'minimal_required_input': 'Admitted existing native DuckDB catalog source plus index/overlay identities at the actual configured catalog_paths.l1_dcat_path. Bind generic test fixture through the canonical producer/config, preserving missing/changed-source refusal. This does not require or establish production history.', 'next_concrete_result': 'Canonical owner supplies/repairs fixture source before ControlPlaneService materialization, obtains healthy full native pages setup/readback with missing-source/changed-source negative, then full exact a11y script on immutable candidate; frontend owner independently reproduces two Storybook import/iframe boundary failures without exclusions or timeout/cap weakening.', 'source_guard_to_preserve': 'DatasetCatalogStore constructor snapshots _fetch_source_identities before open_catalog_read_session; _db_path.is_file must hold and reopen identity must match.', 'P41': 'not_established for inherited source/environment causal claims; exact current source/native commands and input denominator retained'}, 'lease': {'all_own_capture_interpreters_closed': True, 'own_browser_processes_closed': True, 'ports': bind(OUT / 'closed-ports.stdout.txt'), 'processes': bind(OUT / 'closed-processes.stdout.txt'), 'ROOT_prereq_install_may_proceed': True, 'no_ROOT_environment_change_by_this_leaf': True}, 'source_patched': False, 'dependencies_installed': False, 'numeric_wave_repeated': False, 'finding_disposition_changed': False}
+output = OUT / ('required-native-retry-closeout-optimized.json' if sys.flags.optimize else 'required-native-retry-closeout-normal.json')
+output.write_text(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'all_passed': all(row['passed'] for row in checks), 'controls': len(checks), 'native_storybook': 'FAIL1', 'native_a11y': 'FAIL1', 'components': '87files161casesPASS', 'pages': 'ATTEMPTED setupFAIL; case outcomesunmeasured', 'browser_ROOT_env_lease': 'CLOSED', 'output': str(output)}))

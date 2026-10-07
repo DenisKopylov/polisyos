@@ -1,0 +1,22 @@
+--- a/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
++++ b/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+@@ -10837,6 +10837,7 @@
+         "pass_rate": pass_rate,
+         "floor_passed": floor_passed,
+         "calibration_status": calibration_status,
++        "failure_codes": list(failure_codes),
+         "forecast_tier": forecast_tier,
+         "counterfactual_credibility": "credible" if usable else "insufficient_history",
+         "interval_coverage_metric": pass_rate if denominator else None,
+@@ -10962,6 +10963,11 @@
+         and temporal_roles is not None
+         and calibration_refs is not None
+     )
++    if not calibration_bound and calibration_status is not None:
++        # One named refusal drives both tier downgrade and S6 limitations.
++        empirical_evidence_error = (
++            empirical_evidence_error or "empirical_evidence_ref_missing"
++        )
+     effective_calibration_status = (
+         str(evidence.get("calibration_status")) if calibration_bound else None
+     )

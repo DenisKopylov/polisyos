@@ -1,0 +1,45 @@
+{
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.py",
+      "bytes": 16861,
+      "sha256": "c893842c44de10a959f84c2c13225aaa65b6496db7486a8e387ec2a03b289331"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.stdout",
+      "bytes": 828,
+      "sha256": "3b66b28ed9e66a15ca251d26ccff34d7691623ba5a4cb0e1e4e82674a4298a2b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/source-census.json",
+      "bytes": 8613,
+      "sha256": "7ee1036dfe7a7f6005206bc1ee71286082a36d86a313f9d10aee104d36bc1146"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/native-deciding.json",
+      "bytes": 171757,
+      "sha256": "45c335d5662353339b387d4fcdc2dbfd1017e2771d6bc946d61a277df6017fe8"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.py",
+      "bytes": 4752,
+      "sha256": "b28d8ad25177cd84ee81bb00894dc7f601029dd9f7237bc16cee83057d82d132"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.stdout",
+      "bytes": 333,
+      "sha256": "0b0cae689d4fdff35d72bf0db537fbd601f12d1e83c776c24e7ac2d8eaaba7b6"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls-deciding.json",
+      "bytes": 8053,
+      "sha256": "70c74a98cae4aa0491fee9d010778c445b4fe475c5e91d33402ed57564d11f11"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/receipt.json",
+      "bytes": 14027,
+      "sha256": "64790b40df5053ba6a5f7607bb03cced736be13ce1a0b5758b257a22dc79e47e"
+    }
+  ],
+  "scope": "Read-only exactD3f38memoryoverlay plusE native source blobs; not G D codeadmission/not production"
+}

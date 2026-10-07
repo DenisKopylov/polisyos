@@ -1,0 +1,388 @@
+{
+  "schema": "policyos.e02.independent_P37_basis_metadata_review.v1",
+  "outcome": "CHANGE_REQUIRED whole unknown check-status claim admission",
+  "candidate": "6b6280d1e66edf26031568e8773e93726fde9928",
+  "tree": "e8b0672320d13329560306a9c8c6cc506f1567ce",
+  "original_passive_DOC_delta": 9,
+  "healthy": {
+    "predicate_count": 10,
+    "basis_counts": {
+      "consumer_asserted": 0,
+      "independently_reconciled": 3,
+      "institutionally_supplied": 0,
+      "not_established": 4,
+      "recomputed": 3
+    },
+    "native_execution": false
+  },
+  "marker_preserving_false_status_accepted": {
+    "predicate_count": 10,
+    "basis_counts": {
+      "consumer_asserted": 0,
+      "independently_reconciled": 3,
+      "institutionally_supplied": 0,
+      "not_established": 4,
+      "recomputed": 3
+    },
+    "native_execution": false
+  },
+  "current_defect": "Canonical bases and positive_claim=false remain unchanged; full_native_fixture_outcome.check_status UNRUN\u2192PASS passes actual native utility publicCLI in normal/-O. Prior111DOC/106literal custody still passes. This promotes an unexecuted fullfixture check in raw metadata despite preserved unknown basis markers.",
+  "actual_results": [
+    {
+      "mode": "normal",
+      "case": "immutable-packet",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-DoE-basis6b-independent/immutable-validator.py.txt",
+        "--repo",
+        "/workspace/e02-E-doe-20261006",
+        "--packet",
+        "/tmp/e02-E-DoE-basis6b-independent/immutable-packet.json"
+      ],
+      "exit_code": 0,
+      "stdout": "/tmp/e02-E-DoE-basis6b-independent/normal-immutable-packet.stdout.txt",
+      "stderr": "/tmp/e02-E-DoE-basis6b-independent/normal-immutable-packet.stderr.txt",
+      "output": {
+        "schema": "policyos.e02.passive_P37_metadata_validation.v1",
+        "outcome": "PASS",
+        "prior_publication_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "prior_publication_tree_sha": "33ec3a2ecdc2a36211f220d78dd6dc925734c15f",
+        "prior111DOC_paths_byte_identical": true,
+        "preserved_literal_copies": 106,
+        "preserved_literal_bytes": 1464071,
+        "healthy": {
+          "predicate_count": 10,
+          "basis_counts": {
+            "consumer_asserted": 0,
+            "independently_reconciled": 3,
+            "institutionally_supplied": 0,
+            "not_established": 4,
+            "recomputed": 3
+          },
+          "native_execution": false
+        },
+        "controls": [
+          {
+            "case": "upgrade_current_native_P41_to_recomputed",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "drop_one_predicate",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "wrong_candidate_tree",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "wrong_evidence_digest_keep_basis",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "bool_evidence_bytes",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "claim_full_input_isolation_under_unknown",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "invent_current_native_PASS",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "unknown_basis_word",
+            "outcome": "REFUSED"
+          }
+        ],
+        "controls_refused": 8,
+        "effective_removal": {
+          "sole_predicate_removed": "frozen predicate basis",
+          "marker_preservation": true,
+          "actual_corrupt_P41_basis_admitted": {
+            "predicate_count": 10,
+            "basis_counts": {
+              "consumer_asserted": 0,
+              "independently_reconciled": 3,
+              "institutionally_supplied": 0,
+              "not_established": 3,
+              "recomputed": 4
+            },
+            "native_execution": false
+          },
+          "defining_provenance_property": "FAIL"
+        },
+        "native_or_global_test_callbacks": 0,
+        "author_verification_not_independent_GO": true
+      }
+    },
+    {
+      "mode": "normal",
+      "case": "present_fake_native_PASS",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-DoE-basis6b-independent/immutable-validator.py.txt",
+        "--repo",
+        "/workspace/e02-E-doe-20261006",
+        "--packet",
+        "/tmp/e02-E-DoE-basis6b-independent/present_fake_native_PASS.json"
+      ],
+      "exit_code": 0,
+      "stdout": "/tmp/e02-E-DoE-basis6b-independent/normal-present_fake_native_PASS.stdout.txt",
+      "stderr": "/tmp/e02-E-DoE-basis6b-independent/normal-present_fake_native_PASS.stderr.txt",
+      "output": {
+        "schema": "policyos.e02.passive_P37_metadata_validation.v1",
+        "outcome": "PASS",
+        "prior_publication_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "prior_publication_tree_sha": "33ec3a2ecdc2a36211f220d78dd6dc925734c15f",
+        "prior111DOC_paths_byte_identical": true,
+        "preserved_literal_copies": 106,
+        "preserved_literal_bytes": 1464071,
+        "healthy": {
+          "predicate_count": 10,
+          "basis_counts": {
+            "consumer_asserted": 0,
+            "independently_reconciled": 3,
+            "institutionally_supplied": 0,
+            "not_established": 4,
+            "recomputed": 3
+          },
+          "native_execution": false
+        },
+        "controls": [
+          {
+            "case": "upgrade_current_native_P41_to_recomputed",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "drop_one_predicate",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "wrong_candidate_tree",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "wrong_evidence_digest_keep_basis",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "bool_evidence_bytes",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "claim_full_input_isolation_under_unknown",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "invent_current_native_PASS",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "unknown_basis_word",
+            "outcome": "REFUSED"
+          }
+        ],
+        "controls_refused": 8,
+        "effective_removal": {
+          "sole_predicate_removed": "frozen predicate basis",
+          "marker_preservation": true,
+          "actual_corrupt_P41_basis_admitted": {
+            "predicate_count": 10,
+            "basis_counts": {
+              "consumer_asserted": 0,
+              "independently_reconciled": 3,
+              "institutionally_supplied": 0,
+              "not_established": 3,
+              "recomputed": 4
+            },
+            "native_execution": false
+          },
+          "defining_provenance_property": "FAIL"
+        },
+        "native_or_global_test_callbacks": 0,
+        "author_verification_not_independent_GO": true
+      }
+    },
+    {
+      "mode": "optimized",
+      "case": "immutable-packet",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-DoE-basis6b-independent/immutable-validator.py.txt",
+        "--repo",
+        "/workspace/e02-E-doe-20261006",
+        "--packet",
+        "/tmp/e02-E-DoE-basis6b-independent/immutable-packet.json"
+      ],
+      "exit_code": 0,
+      "stdout": "/tmp/e02-E-DoE-basis6b-independent/optimized-immutable-packet.stdout.txt",
+      "stderr": "/tmp/e02-E-DoE-basis6b-independent/optimized-immutable-packet.stderr.txt",
+      "output": {
+        "schema": "policyos.e02.passive_P37_metadata_validation.v1",
+        "outcome": "PASS",
+        "prior_publication_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "prior_publication_tree_sha": "33ec3a2ecdc2a36211f220d78dd6dc925734c15f",
+        "prior111DOC_paths_byte_identical": true,
+        "preserved_literal_copies": 106,
+        "preserved_literal_bytes": 1464071,
+        "healthy": {
+          "predicate_count": 10,
+          "basis_counts": {
+            "consumer_asserted": 0,
+            "independently_reconciled": 3,
+            "institutionally_supplied": 0,
+            "not_established": 4,
+            "recomputed": 3
+          },
+          "native_execution": false
+        },
+        "controls": [
+          {
+            "case": "upgrade_current_native_P41_to_recomputed",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "drop_one_predicate",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "wrong_candidate_tree",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "wrong_evidence_digest_keep_basis",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "bool_evidence_bytes",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "claim_full_input_isolation_under_unknown",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "invent_current_native_PASS",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "unknown_basis_word",
+            "outcome": "REFUSED"
+          }
+        ],
+        "controls_refused": 8,
+        "effective_removal": {
+          "sole_predicate_removed": "frozen predicate basis",
+          "marker_preservation": true,
+          "actual_corrupt_P41_basis_admitted": {
+            "predicate_count": 10,
+            "basis_counts": {
+              "consumer_asserted": 0,
+              "independently_reconciled": 3,
+              "institutionally_supplied": 0,
+              "not_established": 3,
+              "recomputed": 4
+            },
+            "native_execution": false
+          },
+          "defining_provenance_property": "FAIL"
+        },
+        "native_or_global_test_callbacks": 0,
+        "author_verification_not_independent_GO": true
+      }
+    },
+    {
+      "mode": "optimized",
+      "case": "present_fake_native_PASS",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-DoE-basis6b-independent/immutable-validator.py.txt",
+        "--repo",
+        "/workspace/e02-E-doe-20261006",
+        "--packet",
+        "/tmp/e02-E-DoE-basis6b-independent/present_fake_native_PASS.json"
+      ],
+      "exit_code": 0,
+      "stdout": "/tmp/e02-E-DoE-basis6b-independent/optimized-present_fake_native_PASS.stdout.txt",
+      "stderr": "/tmp/e02-E-DoE-basis6b-independent/optimized-present_fake_native_PASS.stderr.txt",
+      "output": {
+        "schema": "policyos.e02.passive_P37_metadata_validation.v1",
+        "outcome": "PASS",
+        "prior_publication_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "prior_publication_tree_sha": "33ec3a2ecdc2a36211f220d78dd6dc925734c15f",
+        "prior111DOC_paths_byte_identical": true,
+        "preserved_literal_copies": 106,
+        "preserved_literal_bytes": 1464071,
+        "healthy": {
+          "predicate_count": 10,
+          "basis_counts": {
+            "consumer_asserted": 0,
+            "independently_reconciled": 3,
+            "institutionally_supplied": 0,
+            "not_established": 4,
+            "recomputed": 3
+          },
+          "native_execution": false
+        },
+        "controls": [
+          {
+            "case": "upgrade_current_native_P41_to_recomputed",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "drop_one_predicate",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "wrong_candidate_tree",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "wrong_evidence_digest_keep_basis",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "bool_evidence_bytes",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "claim_full_input_isolation_under_unknown",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "invent_current_native_PASS",
+            "outcome": "REFUSED"
+          },
+          {
+            "case": "unknown_basis_word",
+            "outcome": "REFUSED"
+          }
+        ],
+        "controls_refused": 8,
+        "effective_removal": {
+          "sole_predicate_removed": "frozen predicate basis",
+          "marker_preservation": true,
+          "actual_corrupt_P41_basis_admitted": {
+            "predicate_count": 10,
+            "basis_counts": {
+              "consumer_asserted": 0,
+              "independently_reconciled": 3,
+              "institutionally_supplied": 0,
+              "not_established": 3,
+              "recomputed": 4
+            },
+            "native_execution": false
+          },
+          "defining_provenance_property": "FAIL"
+        },
+        "native_or_global_test_callbacks": 0,
+        "author_verification_not_independent_GO": true
+      }
+    }
+  ],
+  "repair": "Bind the full authority_bounds typed claim record (including check_status and complete field set) to scoped actual unknown outcome; refuse unjustified status/context promotions before evidence acceptance, preserving original6b metadata/history. Fix the claim class rather than this field only. No native/mathematical tests required.",
+  "prior_custody_reuse": "Existing9d6 111DOC/106literal independentGO retained; no source/native execution or rewriting by reviewer."
+}

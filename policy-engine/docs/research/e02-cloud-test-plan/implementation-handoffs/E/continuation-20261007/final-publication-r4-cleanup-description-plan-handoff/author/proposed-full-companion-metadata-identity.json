@@ -1,0 +1,34 @@
+{
+  "build-stage.py.txt": {
+    "bytes": 19033,
+    "sha256": "32d513ddf108ccbe15e9fe3120deeda0458bd6a9cd07834b55bd6ee45379569e"
+  },
+  "README.md": {
+    "bytes": 1180,
+    "sha256": "fc686b319366666342267355adac0d184c2a2c6731591faf5166324f82ecf17c"
+  },
+  "qualification.json": {
+    "bytes": 3078,
+    "sha256": "9ae9fed8b53b141ba98317581ce451fd9b45a35334296fcf5aa4360dd954f6ad"
+  },
+  "build.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "resume-admission.json": {
+    "bytes": 123184,
+    "sha256": "216c537435382e64dbc5a4ce11cf4a760a340ef411cfb054d67810c59925f704"
+  },
+  "resume-admission.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "metadata-admission-correction.py.txt": {
+    "bytes": 2815,
+    "sha256": "ca96ef7f6d52bfd34b5b6acefb9f6def55dba4e099db20a4f6760d4e8a743891"
+  },
+  "correct-raw-stream-portable.py.txt": {
+    "bytes": 3882,
+    "sha256": "d4bf48fb4c13f7e73e00a478f45eaf452c4fca43714693eb00863146372975bb"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema": "policyos.e02.umbrella_stages.v1",
+  "gate": "verify",
+  "exit_code": 0,
+  "numerical_thread_caps": null,
+  "scopes": [
+    {
+      "gate": "verify",
+      "argv": [
+        "--skip-doctor",
+        "--backend-only"
+      ],
+      "steps": [
+        {
+          "label": "tiny actual uncapped pytest child",
+          "command": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "--confcutdir",
+            "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3",
+            "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_uncapped_environment.py",
+            "--basetemp",
+            "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/retained-pytest-scratch/1-pytest",
+            "-o",
+            "cache_dir=/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/retained-pytest-scratch/1-pytest-cache",
+            "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/retained-pytest-scratch/1-benchmarks"
+          ],
+          "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+          "outcome": "PASS",
+          "env": {
+            "HARNESS_ENV_OBSERVER": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/observed-child-environment.json"
+          },
+          "started_unix": 1791360393.532672,
+          "exit_code": 0,
+          "wall_seconds": 2.8458335399627686
+        },
+        {
+          "label": "tiny deliberate exit 7",
+          "command": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "-c",
+            "raise SystemExit(7)"
+          ],
+          "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+          "outcome": "FAIL",
+          "env": {},
+          "started_unix": 1791360396.3785982,
+          "error_type": "CalledProcessError",
+          "reason": "Command '['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python', '-c', 'raise SystemExit(7)']' returned non-zero exit status 7.",
+          "exit_code": 7,
+          "wall_seconds": 0.07312488555908203
+        },
+        {
+          "label": "tiny successor actual marker",
+          "command": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "-c",
+            "from pathlib import Path;Path('/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/successor-ran.txt').write_text(\"successor actually executed\\n\")"
+          ],
+          "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+          "outcome": "PASS",
+          "env": {},
+          "started_unix": 1791360396.4517863,
+          "exit_code": 0,
+          "wall_seconds": 0.09572148323059082
+        }
+      ]
+    }
+  ],
+  "required_steps_preserved": true,
+  "doctor_is_full_ci": false,
+  "finding_closure": false
+}

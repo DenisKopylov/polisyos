@@ -1,0 +1,62 @@
+from pathlib import Path
+import argparse,copy,hashlib,importlib.util,json,re,subprocess
+ROOT=Path('/workspace/e02-E-cal05-20261006')
+REL='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/'
+HANDOFF=ROOT/REL/'lint-utility-repair-r3-20261007.json'
+FOLDER=ROOT/REL/'continuation-20261006/pr38-r3/lint-utility-repair'
+CANDIDATE='74d0452848a7461d82ea7f150f126631d9fc8399'
+BASE='8047bfdbb1a7e8c4b031384acf6b45e302591620'
+
+def validate(data):
+ if data['candidate_sha']!=CANDIDATE or data['slice_base_sha']!=BASE:raise ValueError('source identity differs')
+ if data['candidate_tree_sha']!=subprocess.check_output(['/usr/bin/git','rev-parse',CANDIDATE+'^{tree}'],cwd=ROOT,text=True).strip():raise ValueError('tree identity differs')
+ expected=subprocess.check_output(['/usr/bin/git','diff','--name-only',BASE,CANDIDATE],cwd=ROOT,text=True).splitlines()
+ if data['complete_base_candidate_diff_paths']!=expected or data['footprint_count']!=len(expected):raise ValueError('source footprint differs')
+ assets=data['evidence_assets'];paths=[x['path'] for x in assets]
+ if len(set(paths))!=len(paths):raise ValueError('duplicate asset')
+ if set(paths)!={p.relative_to(ROOT).as_posix() for p in FOLDER.rglob('*') if p.is_file()}:raise ValueError('incomplete asset denominator')
+ for row in assets:
+  path=row['path']
+  if not isinstance(path,str) or Path(path).is_absolute() or '..' in Path(path).parts or not path.startswith(FOLDER.relative_to(ROOT).as_posix()+'/'):raise ValueError('asset path not admitted')
+  raw=(ROOT/path).read_bytes()
+  if type(row['bytes']) is not int or row['bytes']!=len(raw) or hashlib.sha256(raw).hexdigest()!=row['sha256']:raise ValueError('asset integrity differs')
+ if len(data['independent_reviews'])!=3:raise ValueError('independent review denominator differs')
+ for review in data['independent_reviews']:
+  if review['source_candidate_sha']!=CANDIDATE or review['candidate_tree']!=data['candidate_tree_sha']:raise ValueError('review source differs')
+  ref=review['receipt'];raw=(ROOT/ref['copied_path']).read_bytes()
+  if len(raw)!=ref['bytes'] or hashlib.sha256(raw).hexdigest()!=ref['sha256']:raise ValueError('review receipt differs')
+ if data['finding_closure'] or data['ledger_reclassification']:raise ValueError('utility slice confers no finding closure')
+ return len(assets)
+
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('--publication-revision');args=parser.parse_args()
+ if args.publication_revision is not None and re.fullmatch('[0-9a-f]{40}',args.publication_revision) is None:raise ValueError('publication revision must be exact SHA')
+ data=json.loads(HANDOFF.read_text());count=validate(data);negatives={}
+ for name in ('size','digest','omission','duplicate','tree','footprint','review_source','closure'):
+  broken=copy.deepcopy(data)
+  if name=='size':broken['evidence_assets'][0]['bytes']+=1
+  elif name=='digest':broken['evidence_assets'][0]['sha256']='0'*64
+  elif name=='omission':broken['evidence_assets'].pop()
+  elif name=='duplicate':broken['evidence_assets'].append(broken['evidence_assets'][0])
+  elif name=='tree':broken['candidate_tree_sha']='0'*40
+  elif name=='footprint':broken['complete_base_candidate_diff_paths'].pop()
+  elif name=='review_source':broken['independent_reviews'][0]['source_candidate_sha']='0'*40
+  elif name=='closure':broken['finding_closure']=True
+  try:validate(broken)
+  except ValueError:negatives[name]='rejected'
+  else:raise RuntimeError(f'{name} accepted')
+ git_validation='UNRUN'
+ if args.publication_revision:
+  source=ROOT/REL/'continuation-20261006/pr38-r2/validate_review_copies.py'
+  if source.read_bytes()!=subprocess.check_output(['/usr/bin/git','show',CANDIDATE+':'+source.relative_to(ROOT).as_posix()],cwd=ROOT):raise ValueError('validator source differs from immutable candidate')
+  spec=importlib.util.spec_from_file_location('pinned_copy_validator',source);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+  records=[{'copied_path':x['path'],'bytes':x['bytes'],'sha256':x['sha256']} for x in data['evidence_assets']]
+  module.validate(ROOT,records,args.publication_revision)
+  for field,value in [('bytes',-1),('sha256','0'*64),('copied_path','../outside')]:
+   corrupt=copy.deepcopy(records);corrupt[0][field]=value
+   try:module.validate(ROOT,corrupt,args.publication_revision)
+   except ValueError:negatives['pinned_Git_'+field]='rejected'
+   else:raise RuntimeError(f'Git {field} accepted')
+  git_validation='PASS'
+ print(json.dumps({'candidate_sha':CANDIDATE,'candidate_tree':data['candidate_tree_sha'],'published_revision':args.publication_revision,'assets':count,'healthy':'PASS','corrupt_controls':negatives,'pinned_Git_copy_validation':git_validation,'finding_closure':False},indent=2))
+if __name__=='__main__':main()

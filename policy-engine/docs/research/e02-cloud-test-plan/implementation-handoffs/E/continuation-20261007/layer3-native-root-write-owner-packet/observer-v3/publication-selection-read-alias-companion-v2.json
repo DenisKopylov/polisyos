@@ -1,0 +1,13 @@
+{
+  "assets": [
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-read-alias-companion-v2.json",
+      "portable_path": "fixture-read-alias-companion-v2.json",
+      "bytes": 17904,
+      "sha256": "fb9c791f576a106560c890f000181db1eda59ae391eb5a4fff421932953fc85e"
+    }
+  ],
+  "asset_count": 1,
+  "total_bytes": 17904,
+  "previous_explicit_alias_companion_preserved": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-read-alias-companion.json"
+}

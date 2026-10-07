@@ -1,0 +1,21 @@
+{
+  "target_sha": "d94b1116cb852eb66722d47610dcd65d75faf503",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+    "--mode",
+    "trust",
+    "-q",
+    "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_real_student_t_oracle_does_not_prove_equivalence",
+    "tests/unit/scientist/governance/test_backtest_matrix.py::test_matrix_reconciles_present_but_fake_trust_fields",
+    "-o",
+    "cache_dir=/workspace/e02-E-20261006-receipts/backtest-trust-cache",
+    "--basetemp=/workspace/e02-E-20261006-receipts/backtest-removal-trust-001"
+  ],
+  "outcome": "FAIL",
+  "returncode": 1,
+  "wall_s": 22.246408236998832,
+  "rss_kib_direct_and_children": 515028,
+  "expected_removed_property_result": "FAIL",
+  "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/trust-removal.log"
+}

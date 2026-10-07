@@ -1,0 +1,64 @@
+import ast,copy,hashlib,importlib.util,json,subprocess,sys
+from pathlib import Path
+repo=Path('/workspace/e02-E-continuation-20261006');lane=Path('/workspace/e02-E-cal05-20261006')
+base='8fa11f569ebb2c952948e09d4db5c1f37be84b83';candidate='ba0ec650b3308a4faa9893f645d2cb6c83041662';root=Path(__file__).resolve().parent
+paths=['policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py','policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py','policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py']
+rows=[];bindings=[]
+def load(ref,path):
+ data=subprocess.check_output(['git','show',ref+':'+path],cwd=repo); dest=root/(ref[:8]+'-'+Path(path).name);dest.write_bytes(data)
+ spec=importlib.util.spec_from_file_location('review_'+ref[:8]+'_'+str(len(bindings)),dest);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ bindings.append({'commit':ref,'path':path,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()});return module
+old=load(base,paths[0]);new=load(candidate,paths[0]);receipt=json.loads((repo/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json').read_text())
+for label,module,removed in [('old',old,False),('new',new,False),('removed',new,True)]:
+ original=module._git;calls=[]
+ def counted(r,*a):
+  calls.append(a)
+  if a[0]=='rev-parse':return (receipt['candidate_tree_sha']+'\n').encode()
+  if a[0]=='diff':return ('\n'.join(receipt['changed_paths'])+'\n').encode()
+  return original(r,*a)
+ module._git=counted
+ admission=getattr(module,'_admit_receipt',None)
+ if removed:module._admit_receipt=lambda *_:None
+ damaged=copy.deepcopy(receipt);damaged['footprint'][-1]['path']='.'
+ try:module.validate(repo,damaged)
+ except Exception as error:state=type(error).__name__
+ else:state='ESCAPED'
+ expected=0 if label=='new' else 2
+ rows.append({'case':'last-footprint-dot-'+label,'git_callbacks':len(calls),'error':state,'PASS':len(calls)==expected and state!='ESCAPED'})
+ module._git=original
+ if removed:module._admit_receipt=admission
+frc=load(candidate,paths[1]);fr=repo/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas';records=json.loads((fr/'deciding-output-index.json').read_text())['records'];fr_receipt=json.loads((fr/'implementation-handoff.json').read_text())
+for mutation in ['late-bool-size','late-bad-hash','forged-count','candidate-option']:
+ r=copy.deepcopy(records);q=copy.deepcopy(fr_receipt)
+ if mutation=='late-bool-size':r[-1]['bytes']=True
+ elif mutation=='late-bad-hash':r[-1]['sha256']='bad'
+ elif mutation=='candidate-option':q['candidate_sha']='--output=escape'
+ else:next(x for x in q['checks'] if 'junit'in x)['states']['PASS']+=1
+ calls=[];original=frc.subprocess.check_output
+ def denied(*a,**k):calls.append(a);raise RuntimeError('callback should never happen')
+ frc.subprocess.check_output=denied
+ try:frc.validate(fr,repo,r,q)
+ except Exception as e:state=type(e).__name__
+ else:state='ESCAPED'
+ finally:frc.subprocess.check_output=original
+ rows.append({'case':mutation,'git_callbacks':len(calls),'error':state,'PASS':not calls and state=='ValueError'})
+builder=load(candidate,paths[2]);calls=[];original=builder._git
+builder._git=lambda *a:(calls.append(a) or 'must not call')
+try:builder.build(repo,candidate,[('valid',base),('late-bad','--output=outside')])
+except Exception as e:state=type(e).__name__
+else:state='ESCAPED'
+finally:builder._git=original
+rows.append({'case':'complete-ref-set-before-resolve','git_callbacks':len(calls),'error':state,'PASS':not calls and state=='ValueError'})
+commands=[]
+for name,argv,cwd,expected in [
+ ('core-historical',['--repo-root',str(lane),'--receipt',str(lane/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json'),'--publication-revision',base],lane,0),
+ ('core-current-refusal',['--repo-root',str(lane),'--receipt',str(lane/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json')],lane,1),
+ ('frc-current',[],lane,0)]:
+ path=paths[1] if name=='frc-current' else paths[0]
+ cmd=[sys.executable,str(lane/path),*argv];p=subprocess.run(cmd,cwd=cwd,capture_output=True)
+ for kind,data in [('stdout',p.stdout),('stderr',p.stderr)]:
+  (root/(name+'.'+kind+('.optimized' if not __debug__ else ''))).write_bytes(data)
+ commands.append({'name':name,'argv':cmd,'cwd':str(cwd),'exit':p.returncode,'expected':expected,'PASS':p.returncode==expected})
+result={'schema':'policyos.e02.independent-utility-review.v1','reviewer':'E root; not utility author','candidate':candidate,'tree':subprocess.check_output(['git','rev-parse',candidate+'^{tree}'],cwd=repo,text=True).strip(),'base':base,'optimized':not __debug__,'source_bindings':bindings,'controls':rows,'commands':commands,'GO':all(x['PASS']for x in rows+commands),'finding_closure':False,'limits':['No numeric/common wave; narrow 3 publication utilities only.','Existing publication history bytes unchanged; current changed helper is correctly refused by historical index.']}
+(root/('review-optimized.json' if not __debug__ else 'review-normal.json')).write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'GO':result['GO'],'controls':len(rows),'commands':len(commands),'optimized':result['optimized']}));sys.exit(0 if result['GO']else 1)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from operator import index
 from typing import Literal
 
 import numpy as np
@@ -76,6 +77,12 @@ def bootstrap_metric(
         Random seed for reproducibility.
     """
     arr = np.asarray(values, dtype=float)
+    if arr.ndim != 1:
+        raise BootstrapValidationError(
+            "bootstrap_metric requires one-dimensional observed values",
+            code="invalid_values_shape",
+            details={"ndim": arr.ndim},
+        )
     if arr.size == 0:
         raise BootstrapValidationError(
             "bootstrap_metric requires at least one observed value",
@@ -86,6 +93,15 @@ def bootstrap_metric(
             "bootstrap_metric requires finite observed values",
             code="non_finite_values",
         )
+    try:
+        if isinstance(n_bootstrap, (bool, np.bool_)):
+            raise TypeError("boolean is not a resample count")
+        n_bootstrap = int(index(n_bootstrap))
+    except TypeError as exc:
+        raise BootstrapValidationError(
+            "n_bootstrap must be an integer",
+            code="invalid_n_bootstrap",
+        ) from exc
     if n_bootstrap <= 0:
         raise BootstrapValidationError(
             "n_bootstrap must be greater than zero",
@@ -192,6 +208,11 @@ def _resolve_statistic(statistic: str | StatisticFn) -> StatisticFn:
 def _evaluate_statistic(stat_fn: StatisticFn, values: np.ndarray) -> float:
     """Evaluate a statistic and reject non-scalar or non-finite results."""
     raw_result = stat_fn(values)
+    if np.ndim(raw_result) != 0:
+        raise BootstrapValidationError(
+            "bootstrap statistic must return a scalar",
+            code="invalid_statistic_result",
+        )
     try:
         result = float(raw_result)
     except (OverflowError, TypeError, ValueError) as exc:

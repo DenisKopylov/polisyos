@@ -1,0 +1,101 @@
+{
+  "actions": [
+    {
+      "action": "pytest",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate_runtime.py",
+        "pytest"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine",
+      "elapsed_seconds": 6.574,
+      "returncode": 2,
+      "stderr": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/pytest.stderr",
+      "stdout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/pytest.stdout",
+      "timed_out": false,
+      "timeout_seconds": 180
+    },
+    {
+      "action": "probe",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate_runtime.py",
+        "probe"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine",
+      "elapsed_seconds": 0.404,
+      "returncode": 5,
+      "stderr": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/probe.stderr",
+      "stdout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/probe.stdout",
+      "timed_out": false,
+      "timeout_seconds": 180
+    }
+  ],
+  "candidate_commit": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+  "candidate_tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+  "environment_allowlist": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTEST_ADDOPTS": "",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/src"
+  },
+  "g_branch": "codex/e02-integration",
+  "g_branch_after": "codex/e02-integration",
+  "g_branch_head": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "g_git_status_after": "",
+  "g_head_after": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "python": "Python 3.14.3",
+  "python_executable": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+  "root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+  "runtime_versions": {
+    "loguru": "0.7.3",
+    "opentelemetry-api": "1.39.1",
+    "opentelemetry-sdk": "1.39.1",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "pytest-asyncio": "1.3.0"
+  },
+  "snapshots": [
+    {
+      "disk_free_bytes": 24967897088,
+      "disk_total_bytes": 245107195904,
+      "disk_used_bytes": 220139298816,
+      "label": "before",
+      "selected_processes": [
+        "  829   0.0   2704 /System/Library/Frameworks/CoreMediaIO.framework/Versions/A/Resources/UVCAssistant.systemextension/Contents/MacOS/UVCAssistant",
+        " 1149   0.0   4736 /System/Library/CoreServices/Screen Time.app/Contents/PlugIns/ScreenTimeWidgetExtension.appex/Contents/MacOS/ScreenTimeWidgetExtension -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJ0eXBlIjoxLCJzZXJ2aWNlTmFtZSI6ImNvbS5hcHBsZS5TY3JlZW5UaW1lV2lkZ2V0QXBwbGljYXRpb24uU2NyZWVuVGltZVdpZGdldEV4dGVuc2lvbiIsImVuaGFuY2VkU2VjdXJpdHkiOmZhbHNlfQ==",
+        " 1279   0.0   2224 /System/Applications/VoiceMemos.app/Contents/PlugIns/VoiceMemosSettingsWidgetExtension.appex/Contents/MacOS/VoiceMemosSettingsWidgetExtension -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJ0eXBlIjoxLCJlbmhhbmNlZFNlY3VyaXR5IjpmYWxzZSwic2VydmljZU5hbWUiOiJjb20uYXBwbGUuVm9pY2VNZW1vcy5Wb2ljZU1lbW9zU2V0dGluZ3NXaWRnZXQifQ==",
+        " 1347   0.0   1760 /System/Applications/Reminders.app/Contents/PlugIns/RemindersWidgetExtension.appex/Contents/MacOS/RemindersWidgetExtension -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJ0eXBlIjoxLCJzZXJ2aWNlTmFtZSI6ImNvbS5hcHBsZS5yZW1pbmRlcnMuV2lkZ2V0RXh0ZW5zaW9uIiwiZW5oYW5jZWRTZWN1cml0eSI6ZmFsc2V9",
+        " 1411   0.0   3104 /System/Library/ExtensionKit/Extensions/ScreenTimeAppIntentsExtension.appex/Contents/MacOS/ScreenTimeAppIntentsExtension -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJlbmhhbmNlZFNlY3VyaXR5IjpmYWxzZSwidHlwZSI6MSwic2VydmljZU5hbWUiOiJjb20uYXBwbGUuU2NyZWVuVGltZUFwcEludGVudHNFeHRlbnNpb24ifQ==",
+        " 1432   0.0   1408 /System/Library/ExtensionKit/Extensions/NeptuneOneWallpaper.appex/Contents/MacOS/NeptuneOneWallpaper -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJlbmhhbmNlZFNlY3VyaXR5IjpmYWxzZSwidHlwZSI6MSwic2VydmljZU5hbWUiOiJjb20uYXBwbGUuTmVwdHVuZU9uZUV4dGVuc2lvbiJ9",
+        "39919   0.0   7568 /opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -",
+        "83875   0.0  26544 policy-engine/.venv/bin/python policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/run_checks.py"
+      ],
+      "time_utc": "2026-10-07T13:37:53Z",
+      "vm_stat": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                     8283.\nPages active:                                 263551.\nPages inactive:                               261613.\nPages speculative:                              1487.\nPages throttled:                                   0.\nPages wired down:                             211613.\nPages purgeable:                                3458.\n\"Translation faults\":                     4925723039.\nPages copy-on-write:                       380061638.\nPages zero filled:                        1575945783.\nPages reactivated:                         227168837.\nPages purged:                               10656111.\nFile-backed pages:                            161819.\nAnonymous pages:                              364832.\nPages stored in compressor:                   428784.\nPages occupied by compressor:                 265353.\nDecompressions:                            478245179.\nCompressions:                              512479469.\nPageins:                                   147558571.\nPageouts:                                     110897.\nSwapins:                                     2869013.\nSwapouts:                                    3999918.\n"
+    },
+    {
+      "disk_free_bytes": 24967692288,
+      "disk_total_bytes": 245107195904,
+      "disk_used_bytes": 220139503616,
+      "label": "after",
+      "selected_processes": [
+        "  829   0.0   2704 /System/Library/Frameworks/CoreMediaIO.framework/Versions/A/Resources/UVCAssistant.systemextension/Contents/MacOS/UVCAssistant",
+        " 1149   0.0   4736 /System/Library/CoreServices/Screen Time.app/Contents/PlugIns/ScreenTimeWidgetExtension.appex/Contents/MacOS/ScreenTimeWidgetExtension -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJ0eXBlIjoxLCJzZXJ2aWNlTmFtZSI6ImNvbS5hcHBsZS5TY3JlZW5UaW1lV2lkZ2V0QXBwbGljYXRpb24uU2NyZWVuVGltZVdpZGdldEV4dGVuc2lvbiIsImVuaGFuY2VkU2VjdXJpdHkiOmZhbHNlfQ==",
+        " 1279   0.0   2224 /System/Applications/VoiceMemos.app/Contents/PlugIns/VoiceMemosSettingsWidgetExtension.appex/Contents/MacOS/VoiceMemosSettingsWidgetExtension -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJ0eXBlIjoxLCJlbmhhbmNlZFNlY3VyaXR5IjpmYWxzZSwic2VydmljZU5hbWUiOiJjb20uYXBwbGUuVm9pY2VNZW1vcy5Wb2ljZU1lbW9zU2V0dGluZ3NXaWRnZXQifQ==",
+        " 1347   0.0   1760 /System/Applications/Reminders.app/Contents/PlugIns/RemindersWidgetExtension.appex/Contents/MacOS/RemindersWidgetExtension -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJ0eXBlIjoxLCJzZXJ2aWNlTmFtZSI6ImNvbS5hcHBsZS5yZW1pbmRlcnMuV2lkZ2V0RXh0ZW5zaW9uIiwiZW5oYW5jZWRTZWN1cml0eSI6ZmFsc2V9",
+        " 1411   0.0   3104 /System/Library/ExtensionKit/Extensions/ScreenTimeAppIntentsExtension.appex/Contents/MacOS/ScreenTimeAppIntentsExtension -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJlbmhhbmNlZFNlY3VyaXR5IjpmYWxzZSwidHlwZSI6MSwic2VydmljZU5hbWUiOiJjb20uYXBwbGUuU2NyZWVuVGltZUFwcEludGVudHNFeHRlbnNpb24ifQ==",
+        " 1432   0.0   1408 /System/Library/ExtensionKit/Extensions/NeptuneOneWallpaper.appex/Contents/MacOS/NeptuneOneWallpaper -BSServiceDomains {\"XPCService\":{\"Services\":{\"MainService\":{}}}} -LaunchArguments eyJlbmhhbmNlZFNlY3VyaXR5IjpmYWxzZSwidHlwZSI6MSwic2VydmljZU5hbWUiOiJjb20uYXBwbGUuTmVwdHVuZU9uZUV4dGVuc2lvbiJ9",
+        "39919   0.0   7568 /opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -",
+        "83875   0.1  26736 policy-engine/.venv/bin/python policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/run_checks.py"
+      ],
+      "time_utc": "2026-10-07T13:38:00Z",
+      "vm_stat": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                    24318.\nPages active:                                 246374.\nPages inactive:                               244594.\nPages speculative:                              1120.\nPages throttled:                                   0.\nPages wired down:                             211209.\nPages purgeable:                                1362.\n\"Translation faults\":                     4925823643.\nPages copy-on-write:                       380066326.\nPages zero filled:                        1576010087.\nPages reactivated:                         227213901.\nPages purged:                               10658574.\nFile-backed pages:                            168988.\nAnonymous pages:                              323100.\nPages stored in compressor:                   460034.\nPages occupied by compressor:                 284285.\nDecompressions:                            478247620.\nCompressions:                              512513820.\nPageins:                                   147565822.\nPageouts:                                     110897.\nSwapins:                                     2869013.\nSwapouts:                                    3999918.\n"
+    }
+  ]
+}

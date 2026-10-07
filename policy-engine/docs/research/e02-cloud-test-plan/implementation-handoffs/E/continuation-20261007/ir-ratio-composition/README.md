@@ -1,0 +1,9 @@
+Profile2 composition now uses the already ratified finite-ratio functionals, admits every profile declaration before callbacks, reissues carrier-bound profiles after complete scalar transforms, and clears original-law declarations for lossy/constraint outputs. Legacy schema, reducer and per-row callback behavior remain compatible.
+
+Source candidate `ecde9d2d8d9d13cba87420930105e378010a1acc`, tree `41d52f7b26d7d10757b479f55dd412d97fa051c4`, base `bfbd53a1f45795ad6901bc4bb7685237b0c3d20b`; five source/test/README/release paths. The separate evidence commit pins this existing candidate and never its own future SHA.
+
+The independent review records 54 native PASS cases, 31 independent Fraction/native CAS/legacy controls, three effective property-removal failures and eleven receipt-corruption refusals per normal/optimized mode. The author adds 44 new native cases and twenty public-helper/fresh-CAS controls per mode. Whole scientific authority, default generic orchestration and final gates remain unestablished. Historical ledger statuses and code intake are separate from original finding acceptance.
+
+Every copy is literal and indexed. `.py.txt` files archive executed observers without introducing active utilities. Non-JSON or empty native stdout uses `.txt` in this publication while preserving its original path/hash. Raw baseline snapshots remain ignored with exact refs. The original overwritten old JSON incident, unsupported `.json.tmp` invocation, native baseline pruning/restoration, and c539/218 source defects remain explicitly historical; none is relabeled current PASS.
+
+`independent-final/commands.json` and `selectors.json` contain literal executed argv/cwd/environment. `author/basedpyright-ecde-receipt.json` binds the supported private config to original settings/baseline: two files, zero diagnostics, scoped baseline-relative only. The final affected defining wave is UNRUN until the parent freezes its actual merged source.

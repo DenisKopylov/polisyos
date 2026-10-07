@@ -1,0 +1,51 @@
+{
+  "schema": "policyos.e02.scoped_type_binding.v1",
+  "source_sha": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+  "tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+  "argv": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "basedpyright",
+    "--project",
+    "e02-composition-ecde-type-private.json",
+    "--outputjson",
+    "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py"
+  ],
+  "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+  "env": {
+    "PYTHONPATH": "src",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "summary": {
+    "filesAnalyzed": 2,
+    "errorCount": 0,
+    "warningCount": 0,
+    "informationCount": 0,
+    "timeInSec": 4.254
+  },
+  "config_archive": "basedpyright-ecde-config.json",
+  "settings_equal_except_baselineFile": true,
+  "same_project_root": true,
+  "original_config_sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2",
+  "actual_config_sha256": "89e54ed05f83accb8589fde9c75b54946cd84a09722908a8a66a043f4eb4db2b",
+  "canonical_baseline_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+  "canonical_baseline_equals_exact_original": true,
+  "private_baseline_input_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+  "private_baseline_after_sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4",
+  "original_stdout_prefix": "updated undefined with 3041 errors (went down by 1124)\n\n",
+  "source_files": [
+    {
+      "path": "src/polisyos/ir/analytics/uncertainty.py",
+      "sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d"
+    },
+    {
+      "path": "src/polisyos/ir/analytics/posterior_summary.py",
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    }
+  ],
+  "whole_type_gate": "UNRUN",
+  "unbaselined_type_claim": false,
+  "temporary_config_removed_after_native_close": true
+}

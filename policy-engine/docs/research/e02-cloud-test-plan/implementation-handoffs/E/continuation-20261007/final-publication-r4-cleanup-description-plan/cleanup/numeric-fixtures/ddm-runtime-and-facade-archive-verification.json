@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade.tar.gz",
+    "bytes": 1519,
+    "sha256": "8ca3901cf55e93692aa62644523d89db7a93b9c0b7076f4b435a6a4738c103d3"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-full-inventory.json",
+    "bytes": 2536,
+    "sha256": "8b826e06c55b2e9d929da341d53e8e665366b13b09765fc5dfce5672d8bf9e2c"
+  },
+  "members": 6,
+  "verified_file_bytes": 3375,
+  "all_modes_links_byte_identities": true,
+  "no_unmatched_unique_input_or_diagnostic_dropped": true
+}

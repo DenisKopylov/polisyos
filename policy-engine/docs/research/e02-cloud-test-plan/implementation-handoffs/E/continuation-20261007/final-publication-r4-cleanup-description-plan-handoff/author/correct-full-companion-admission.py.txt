@@ -1,0 +1,20 @@
+import hashlib,json
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage');L=Path('/workspace/e02-E-frc-20261006');P=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan')
+p=S/'copy-cleanup-description-plan.py.txt';old=(S/'historical-7f-copy-cleanup-description-plan.py.txt').read_text()
+# Original205 builder snapshot remains immutable from first execution.
+(S/'historical-7f-author-custody-controls.json').write_bytes((S/'author-custody-controls.json').read_bytes());(S/'historical-7f-metadata-admission-controls.json').write_bytes((S/'metadata-admission-controls.json').read_bytes())
+needle="'resume-admission.stderr.txt']"
+if old.count(needle)!=1:raise ValueError('one full original9metadata vector')
+s=old.replace(needle,"'resume-admission.stderr.txt', 'metadata-admission-correction.py.txt', 'correct-raw-stream-portable.py.txt']")
+frozen=json.loads((S/'proposed-full-companion-metadata-identity.json').read_bytes())
+if s.count('def sha(b):')!=1:raise ValueError('one canonical hash helper')
+s=s.replace('def sha(b):', 'FIXED_METADATA='+repr(frozen)+'\ndef sha(b):',1)
+needle=" if metadata_bytes['manifest.json']!=raw_manifest:raise ValueError('manifest changed during custody observation')"
+replacement=needle+"\n for name,identity in FIXED_METADATA.items():\n  body=metadata_bytes[name]\n  if len(body)!=identity['bytes'] or sha(body)!=identity['sha256']:raise ValueError('complete mandatory metadata identity before write')"
+if s.count(needle)!=1:raise ValueError('one pre-write metadata identity inlet')
+s=s.replace(needle,replacement);p.write_text(s)
+b=json.loads((S/'build.stdout.json').read_text());b['metadata_files']=11;b['expected_git_paths']=207;(S/'build.stdout.json').write_text(json.dumps(b,indent=2)+'\n')
+for name in ('copy-cleanup-description-plan.py.txt','build.stdout.json'):(L/P/name).write_bytes((S/name).read_bytes())
+x={'schema':'policyos.e02.complete_companion_admission_correction.v1','historical_candidate':'7f872f2119f220ae86510ca89993ed0240efe982','historical_copier_metadata':9,'historical_replay_paths':205,'actual_Git_paths':207,'current_copier_metadata':11,'current_complete_replay_paths':207,'declared_and_actual_denominators_derived':True,'all_noncomputed_metadata_identity':frozen,'original_payload_member_Counter_bytes_unchanged':True,'copier_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'build_stdout_sha256':hashlib.sha256((S/'build.stdout.json').read_bytes()).hexdigest(),'source_native_numeric_gate_execution':False,'ROOT_source_env_locks_written':False}
+(S/'full-companion-admission-correction.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps(x,indent=2))

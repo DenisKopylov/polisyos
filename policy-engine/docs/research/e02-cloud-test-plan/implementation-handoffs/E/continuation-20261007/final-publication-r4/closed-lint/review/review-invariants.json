@@ -1,0 +1,125 @@
+{
+  "schema": "policyos.e02.E.closed_lint_review_custody.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "source_before_after": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "complete360physical_Git_bytes": "PASS; full framed source receipt and every input hash bound",
+  "original229_scope": "All229 admitted74 hashes are unchanged at frozen64d, and each is included exactly once",
+  "actual_selector": "Canonical policy-engine cwd; discovered ruff.toml extends generated.toml. Actual gate output is human text; planned --output-format json argv was never executed. Explicit root --config is a separate selector.",
+  "normal_optimized_review_byte_equivalence": true,
+  "optimized_review_body": {
+    "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/closed-lint-review.json",
+    "bytes": 474146,
+    "sha256": "7ea12c7be7043c90aac8d8319de3028ee0b94c01fd436f4ca0d3dde59ee5de80"
+  },
+  "normal_optimized_denominator_controls_byte_equivalence": true,
+  "reader_controls_each_mode": 31,
+  "denominator_controls_each_mode": {
+    "classes": 10,
+    "malformed_source_refs": 6,
+    "effective_deleted_path_predicate_removal": 1
+  },
+  "observed_factual_writer_counts": {
+    "A": 2,
+    "B": 13,
+    "E": 342,
+    "F": 2,
+    "G": 1
+  },
+  "canonical_shared_ownership": "Factual E14IR-slice attribution uses scoped appointment. Broader IR/shared public facade authority is not transferred.",
+  "commands": [
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/review_closed.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/review.stdout.txt",
+        "bytes": 213,
+        "sha256": "b0f781f220f28927d027a17c284379de040c80abc472fbf39f3618fc3732e810"
+      },
+      "stderr": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/review.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/review_closed.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/review.stdout.txt",
+        "bytes": 213,
+        "sha256": "b0f781f220f28927d027a17c284379de040c80abc472fbf39f3618fc3732e810"
+      },
+      "stderr": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/review.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-normal.stdout.txt",
+        "bytes": 1620,
+        "sha256": "06e9e1669668aa1669f8b419b3b7c5c551a0041b46887c861dbf243e6af23f48"
+      },
+      "stderr": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-optimized.stdout.txt",
+        "bytes": 1620,
+        "sha256": "06e9e1669668aa1669f8b419b3b7c5c551a0041b46887c861dbf243e6af23f48"
+      },
+      "stderr": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/controls-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "gate_tool_calls_by_reviewer": 0,
+  "tracked_root_writes": 0,
+  "finding_dispositions_changed": false,
+  "source_after_review": {
+    "HEAD": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n",
+    "interpretation": "Tracked source unchanged. Native runtime-dashboard gate created an untracked screenshot directory; this reviewer neither opened nor changed it."
+  },
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/live-path-fixture",
+    "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay/__pycache__"
+  ],
+  "cleanup": "No native Trash operation by this reviewer; nothing permanently deleted",
+  "postfreeze_final_current361_Ruff_format": "UNRUN until final publication merge; no frozen360 result projects to it",
+  "global_gate_outcomes": "Both actual closed gates FAIL; no inheritance waiver or code/finding closure override"
+}

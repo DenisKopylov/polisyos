@@ -1,0 +1,163 @@
+{
+  "schema": "policyos.e02.decisions_prereqs_author_actual_custody_controls.v1",
+  "manifest_sha256": "d9daf60588d052f02078edfd3d18e87b2ef6943f9a80441e6cf0490ab945bd93",
+  "copier_sha256": "e663d9bc1edf8c160a093e6ba3a857be84cbdcf55df6c887244b304d05c7dc44",
+  "controls": [
+    {
+      "case": "healthy",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/healthy/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/healthy/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/healthy/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/healthy/stderr.txt"
+    },
+    {
+      "case": "carrier_digest",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/carrier_digest/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/carrier_digest/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/carrier_digest/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/carrier_digest/stderr.txt"
+    },
+    {
+      "case": "carrier_size",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/carrier_size/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/carrier_size/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/carrier_size/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/carrier_size/stderr.txt"
+    },
+    {
+      "case": "selector_digest",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/selector_digest/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/selector_digest/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/selector_digest/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/selector_digest/stderr.txt"
+    },
+    {
+      "case": "selector_omission",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/selector_omission/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/selector_omission/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/selector_omission/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/selector_omission/stderr.txt"
+    },
+    {
+      "case": "qualifier_omission",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/qualifier_omission/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/qualifier_omission/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/qualifier_omission/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/qualifier_omission/stderr.txt"
+    },
+    {
+      "case": "false_frozen_closure_claim",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/false_frozen_closure_claim/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/false_frozen_closure_claim/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/false_frozen_closure_claim/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/false_frozen_closure_claim/stderr.txt"
+    },
+    {
+      "case": "false_ca17_closure_claim",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/false_ca17_closure_claim/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/false_ca17_closure_claim/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/false_ca17_closure_claim/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/false_ca17_closure_claim/stderr.txt"
+    },
+    {
+      "case": "same_body_alias_substitution",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/same_body_alias_substitution/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/same_body_alias_substitution/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/same_body_alias_substitution/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/same_body_alias_substitution/stderr.txt"
+    }
+  ],
+  "negative_count": 8,
+  "removal": {
+    "case": "effective_counter_removal",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/exact-counter-removal.py.txt",
+      "--manifest",
+      "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/effective_counter_removal/manifest.json",
+      "--destination-root",
+      "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/effective_counter_removal/destination"
+    ],
+    "exit_code": 0,
+    "destination_created": true,
+    "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/effective_counter_removal/stdout.txt",
+    "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-cli-controls/effective_counter_removal/stderr.txt",
+    "defining_property_outcome": "FAIL",
+    "marker_preserved": true,
+    "reason": "One required raw frozen54 alias identity is replaced by another equal-body occurrence. Counts/content/markers stay intact; the exact Counter alone detects lost source membership."
+  },
+  "source_numeric_gate_execution": false,
+  "ROOT_written": false
+}

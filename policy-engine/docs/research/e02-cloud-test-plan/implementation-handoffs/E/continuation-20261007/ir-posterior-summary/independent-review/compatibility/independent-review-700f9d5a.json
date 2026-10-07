@@ -1,0 +1,454 @@
+{
+  "reviewer": "criteria_r4; read-only independent public/compatibility/native consumer lease; authorfrc_r4",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "scoped_source_decision": "GO",
+  "overall_publication_state": "surface_missing",
+  "scope": "Scoped B201/B202 public/API compatibility and actual native E consumer companions plus B193 affected dependency. Mathematical functionals/jointlaw/collapse independently owned oracle review; architecture/imports independent peer. No full/global wave.",
+  "complete_footprint_bindings": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+      "bytes": 1712,
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "bytes": 16300,
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17116,
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "bytes": 5742,
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 23932,
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "bytes": 7397,
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 19970,
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 49444,
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "bytes": 27404,
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "bytes": 9674,
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "bytes": 15782,
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "bytes": 15822,
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "bytes": 16962,
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e"
+    }
+  ],
+  "source_delta_reviewed": {
+    "c87": "Original14path implementation plus canonicalIRadapter transport red, historicalNO_GO retained",
+    "c861": "16paths/14Python; adapter bytes+manifest/content binding, shared joint digest+complete consumer group admission resolve prior transport/singlefakejoint blockers; oldgenericlabel compatibility red retained",
+    "700": "Fourpath delta, genuineNEWID/version discriminator, canonicalpositivezero beforeproducer law hash, existingSampling facade Carrier route. Prior source/consumer controls reused and affected defining controls rerun."
+  },
+  "native_property_evidence": {
+    "compatibility_controls": 33,
+    "protocol_transport_controls": 6,
+    "old_wire_source": {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "candidate_bytes_equal": true,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+    },
+    "native_legacy": "Exact c4/basev1.1 model bytes unchanged; oldunprofiled paired carrier actualnode remains usable; legacy median/equal-tail labels/separate mean retain oldgenericpoint0/profileNone/gatefalse and canonicalbyte replay. Newproducer\u2192exactoldreader/writer\u2192freshnewreader retains median0/equal-tail[0,0]/namedmean1, exact100drawlaw, no interval widening.",
+    "native_consumers": "Actual PropagateUncertaintyNode and single-coordinate PropagateWelfareNode use recomputed namedmean on fresh CAS; directstate and inline CalibrationReport included; reader-removal preservesname but exposes actualmedian0 nominal divergence.",
+    "inlet_negative": "RawCAS/inlineReport/directState bool/string; malformedprofile; missingcarrier/target mismatch; profile+requiredremoved butgenuineNEWID/version retained; consistentfakejoint digest allrefuse before actualbuilder/simulation callbacks.",
+    "actual_supported_transport": "CoreToIRArtifactStoreAdapter lacksverify by existingprotocol. Newloader reads requiredbytesonce, canonicaldecode/typedkind/schema/ref contenthash; actualadapterhealthy andcorruptbytes/wrongkind refuse. Exact oldc87 source counterexample reproduced separately.",
+    "signed_zero": "Actual producer sample[-0,+0,1] andweight[1,-0,1] canonicalizepositivezeros before hashes; freshactualIRadapter read retains samples[0,0,1]/weights[.5,0,.5]/mean.5.",
+    "authority": "gate_eligible remainsfalse. Bounded finiteempiricalcorpus representation/consumer semantics only, no likelihood/Bayesianfit, productionhistory, causal/treatment/policy/institutional authority."
+  },
+  "B193_adjacent": {
+    "check_outcome": "PASS",
+    "exact_cases": [
+      {
+        "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+        "name": "test_pilot_budget_native_mean_and_fresh_cas_readback",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+        "name": "test_opaque_evaluator_cannot_self_certify_bounded_iid_mean",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+        "name": "test_rqmc_complete_nets_and_replica_estimator_error",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+        "name": "test_legacy_predictive_spread_never_authorizes_optional_stopping",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+        "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[200]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+        "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[663]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+        "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[664]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.uncertainty.test_monte_carlo_b194",
+        "name": "test_real_node_persists_and_replays_independent_pilot_certificate",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_uqp_03",
+        "name": "test_legacy_adaptive_peeking_is_disabled_without_bounded_mean_profile",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_uqp_03",
+        "name": "test_adaptive_distribution_width_does_not_shrink_for_stable_wide_outputs",
+        "outcome": "PASS"
+      }
+    ],
+    "scope": "10 affectedmean/RQMC/opaque/legacywide/budget/nativeCAS selectors, no full priorwave repetition. Independent originalcriterion acceptance supplement follows; historicalpartial untouched."
+  },
+  "canonical_owner_packet": {
+    "actual_ABI_models": 102,
+    "module_manifests": [
+      {
+        "module": "fabric",
+        "old_count": 2,
+        "projected_count": 2,
+        "old_keys_retained": true,
+        "added_keys": [],
+        "changed_old_entries": [],
+        "canonical_content_hash_verified": true,
+        "compatibility": {
+          "breaking_change_requires_fragment": "true",
+          "compatibility_class": "schema-openapi-abi",
+          "deprecation_window": "2 minor releases",
+          "release_fragment_change_class": "schema-openapi-abi",
+          "version_owner": "team-fabric"
+        }
+      },
+      {
+        "module": "ir",
+        "old_count": 99,
+        "projected_count": 100,
+        "old_keys_retained": true,
+        "added_keys": [
+          "posterior_summary_profile"
+        ],
+        "changed_old_entries": [
+          "feedback_solve_result"
+        ],
+        "canonical_content_hash_verified": true,
+        "compatibility": {
+          "breaking_change_requires_fragment": "true",
+          "compatibility_class": "persisted-artifact-format",
+          "deprecation_window": "2 minor releases",
+          "release_fragment_change_class": "persisted-artifact-format",
+          "version_owner": "team-ir"
+        }
+      }
+    ],
+    "full_public_manifest_packages": 20,
+    "full_public_generated_families": 13,
+    "changed_generated_companions": [
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "old_bytes": 222856,
+        "old_sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+        "projected_bytes": 223082,
+        "projected_sha256": "20e6fd9e5b427ad2ed91fc5bc3bd228d17a962bcea471ff3642229e5ce2a68b6",
+        "owner": "team-architecture/G public surface generator",
+        "same_as_source_candidate": false
+      },
+      {
+        "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+        "old_bytes": 1635334,
+        "old_sha256": "a62664c41c7f7cb75e7447674925ef9fba38b66e4f79f4ec03f39f33ebb9a315",
+        "projected_bytes": 1639768,
+        "projected_sha256": "820dd9055dd5e014b5ba5fce88d25539265f2edc019085f3632ad58ff07fbb31",
+        "owner": "team-ir/G canonical generator",
+        "same_as_source_candidate": false
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "old_bytes": 154167,
+        "old_sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+        "projected_bytes": 154315,
+        "projected_sha256": "daf79ae716a36244d8228515308c5a646b4b9c9fd081c000d50910b5b416090f",
+        "owner": "team-architecture/G public surface generator",
+        "same_as_source_candidate": false
+      },
+      {
+        "path": "policy-engine/docs/reference/schemas.md",
+        "old_bytes": 29371,
+        "old_sha256": "538414f0c110610aa21a85aca0dbc48a31894f54669fde4cfae9e2d01f8fbda2",
+        "projected_bytes": 29701,
+        "projected_sha256": "3c35dc5d2e3f18868cf6c45acff40e4058b47498c0a2b39ca209abc5e7ec9895",
+        "owner": "team-ir/G canonical generator",
+        "same_as_source_candidate": false
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "old_bytes": 52447,
+        "old_sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27",
+        "projected_bytes": 52990,
+        "projected_sha256": "7a271d42ecb245ffbe87b0123e58419e17c05c21a002faa95609ffcd3665626e",
+        "owner": "team-ir/G canonical generator",
+        "same_as_source_candidate": false
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "old_bytes": 8853,
+        "old_sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42",
+        "projected_bytes": 10458,
+        "projected_sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3",
+        "owner": "team-ir/G canonical generator",
+        "same_as_source_candidate": false
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json",
+        "old_bytes": 0,
+        "old_sha256": null,
+        "projected_bytes": 6257,
+        "projected_sha256": "fb26ce985c4b99092bd1a9d75a2f9b3940415eff83cbb9383fbb63a89b2dccf6",
+        "owner": "team-ir/G canonical generator",
+        "same_as_source_candidate": false
+      }
+    ],
+    "applicable_full_generator_patch": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/canonical-generated-full.patch",
+      "bytes": 27313,
+      "sha256": "3838278b4419d3d17053282e0a3f5c248ef100b6b2c3b41c34d032b499dc0580"
+    },
+    "read_only_apply_check": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/read-only-apply-check.json",
+      "bytes": 486,
+      "sha256": "2f7605988fb8c2cd78eedc8519378b23008249f35d96d2945f6ea4c7451792c9"
+    },
+    "writer": "G/canonical ABI generator/team-ir and publicinventory/team-architecture retainsharedwriter ownership. A/runtime generator owners handle FeedbackSolveResult/OpenAPI companions.",
+    "next_concrete_result": "Fetch exact700f9d5a source and apply/reproduce fullcanonical generator projection, preserve allold99IRkeys+fabric2/full20package13family manifest, commit7actualcompanions aftercanonical review, runfullcanonical gen-schema and public guardrails recomputingchecks onnew integration candidate; corruptedadditionalProperties control remainsrefused. No manual generated edits/exception widening.",
+    "release_companion": "Existingfragment accuratelyclassifies PythonpublicAPI; generated IRmanifest explicitlyclassifies profile persisted-artifact-format. Add/review scopedcompatibility_change record/publicpromise with team-ir deprecation/versionowner asappropriate and markinventoryreview onlyafteractualcanonical review.",
+    "limitation": "SourceGO doesnotclaim generatedsurface/global gates PASS. Pendingcompanions areexecutable owner-readydebt, notblanketproductiondata gate."
+  },
+  "moderate_deciding_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat_controls-final.py",
+      "bytes": 28231,
+      "sha256": "1d3aeaf7a3f3f716ac747754699cd9bdf31ed1908671f9ada0842283662ea35c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport_controls-final.py",
+      "bytes": 10191,
+      "sha256": "c0c27bcc8dfc75663c019502510861ead8df286811bfedb437f5ab48023dcc84"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator_packet-final.py",
+      "bytes": 9866,
+      "sha256": "9b53c3458cef35f9a635e8bd52a6140dc81d6a2b8e69106cf016c745a4309985"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-700f9d5a/controls.json",
+      "bytes": 15005,
+      "sha256": "1820f9df1558a1d1d78a9a115ef4909fdacd9283d1a2ac1150e7d29197ead3c8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-700f9d5a/transport-controls.json",
+      "bytes": 5227,
+      "sha256": "62f797e823f8e75bfa1e488e05fe194ed781efb4359bb7a3153e32e1a19c305c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/generator-packet.json",
+      "bytes": 6750,
+      "sha256": "e81fdcff4b6e4bf9c70a775d0821d6be4719ce74ac1e1b5617d3f8ae3eea3289"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/canonical-generated-full.patch",
+      "bytes": 27313,
+      "sha256": "3838278b4419d3d17053282e0a3f5c248ef100b6b2c3b41c34d032b499dc0580"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/read-only-apply-check.json",
+      "bytes": 486,
+      "sha256": "2f7605988fb8c2cd78eedc8519378b23008249f35d96d2945f6ea4c7451792c9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/final-helper-verification.json",
+      "bytes": 9420,
+      "sha256": "6024ff6f8b5c09c63f4e94b0bb9d1cf3f586a674cf92968d1e09712d7888c663"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/final-environment.json",
+      "bytes": 351,
+      "sha256": "9c2c4ff4c734c2bae07f8eda961548d2a6c7562836db1dd9fc4da74f6da572e0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/final-git-readback.json",
+      "bytes": 340,
+      "sha256": "49585e3e151c6c5c0aab97237cfcadbaf32dbdbdc3a6678c642aaeeffa93aa1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/independent-review-c87f532e.json",
+      "bytes": 14062,
+      "sha256": "3a8b3e743822c0a1a40ea7ea8859331d0814e4eb39d7a381f282697b1bc8ab7f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/c87-public-transport-red-supplement.json",
+      "bytes": 1273,
+      "sha256": "169f2915de10691fe08a3902d8f649127c11fbba25deea217170425409345c38"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/independent-review-c8616e2b.json",
+      "bytes": 4206,
+      "sha256": "fda7dca20edb516774b97d3734dac0aca5eca22c4fa2acfae5c17e0275f2bad2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-700f9d5a-command.json",
+      "bytes": 1532,
+      "sha256": "74a18a58dbd0f0b7fb00007366673038ea7303bb7dcb3ebebd494d28d555f52d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-700f9d5a.stdout",
+      "bytes": 15005,
+      "sha256": "1820f9df1558a1d1d78a9a115ef4909fdacd9283d1a2ac1150e7d29197ead3c8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-700f9d5a.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-700f9d5a-command.json",
+      "bytes": 1542,
+      "sha256": "48edfd2e36a9fc23f5014fcebe837ff02cfcd6e7d147ed7c12fd7e924d873d33"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-700f9d5a.stdout",
+      "bytes": 5227,
+      "sha256": "62f797e823f8e75bfa1e488e05fe194ed781efb4359bb7a3153e32e1a19c305c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-700f9d5a.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a-command.json",
+      "bytes": 1542,
+      "sha256": "303e3195861cdf8b91f7c2379a8b88d620bcf2c62cef35d25371e38e66adc27b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a.stdout",
+      "bytes": 6750,
+      "sha256": "e81fdcff4b6e4bf9c70a775d0821d6be4719ce74ac1e1b5617d3f8ae3eea3289"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/B193-700f9d5a/command.json",
+      "bytes": 5352,
+      "sha256": "d9405811cf307e2fa734272aeea91d7ec6374a29703e3f131f2e251d26d773a7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/B193-700f9d5a/stdout",
+      "bytes": 597,
+      "sha256": "62d65bb400a9e34a879bbe16cb3008485a5e3895947c265cb477f16ad0bb1fbf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/B193-700f9d5a/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/B193-700f9d5a/pytest.xml",
+      "bytes": 1845,
+      "sha256": "81114e7a67d598960efe266de3e601fe6ef8a5a74dcf6674121c1f84b3352eeb"
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2"
+    }
+  },
+  "parallelism": "Independent read-only/native fixtures launchedparallel; numericjobs use existingmetricsport0 for actualOSephemeralobservability; generator hasnooverride; no CPU/thread/process/worker caps.",
+  "historical_errors_preserved": "c87 reportobserver missingconfiguredInputRef andfirstpublicobserverexitclassification preserved; c861 wrongkind observer usedidenticalcontentbytes so existingirmanifest retained. Corrected distinctcontent wrongkind control passes on same source; no productdefect inferred fromobservererror.",
+  "finding_status": "Historical49partial/4held/B198closed ledger untouched; code/scoped checks separate from Eaccountable originalcriterion closure proposal andGformalacceptance.",
+  "source_writes": false,
+  "new_environment": false,
+  "broad_wave": false,
+  "cleanup_candidates": [
+    "compat-700f9d5a repeatable CAS/native fixture subdirectories",
+    "transport-700f9d5a/canonical-adapter-cas",
+    "B193-700f9d5a/pytest-fixtures",
+    "generator-700f9d5a/projected unchanged baseline snapshots aftermoderatechangedpatch/source refs arepreserved"
+  ],
+  "cleanup_policy": "No nativeTrash; listonly/no permanentdeletion. Preserve useful source/helpers, docs, unique decidingoutputs/receipts/history."
+}

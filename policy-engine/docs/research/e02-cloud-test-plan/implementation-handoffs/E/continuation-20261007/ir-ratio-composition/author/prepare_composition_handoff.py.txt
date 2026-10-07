@@ -1,0 +1,229 @@
+"""Publish closed composition receipts only; never execute a numerical selector."""
+from __future__ import annotations
+
+import collections
+import hashlib
+import json
+import subprocess
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-doe-20261006')
+RAW = Path('/tmp/e02-E-ir-composition-r4-20261007')
+BASE = 'bfbd53a1f45795ad6901bc4bb7685237b0c3d20b'
+CAND = 'ecde9d2d8d9d13cba87420930105e378010a1acc'
+TREE = '41d52f7b26d7d10757b479f55dd412d97fa051c4'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-ratio-composition'
+HERE = ROOT / PREFIX
+FILES = [
+    'policy-engine/src/polisyos/ir/analytics/uncertainty.py',
+    'policy-engine/src/polisyos/ir/analytics/posterior_summary.py',
+    'policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py',
+    'policy-engine/src/polisyos/ir/analytics/README.md',
+    'policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml',
+]
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+
+def req(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def write(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2) + '\n')
+
+
+def source(path, ref=CAND):
+    data = git('show', ref + ':' + path)
+    return dict(path=path, source_sha=ref, git_blob=git('rev-parse', ref + ':' + path).decode().strip(), bytes=len(data), sha256=digest(data))
+
+
+def file_ref(path):
+    data = path.read_bytes()
+    return dict(path=str(path), bytes=len(data), sha256=digest(data))
+
+
+req(git('rev-parse', 'HEAD').decode().strip() == CAND, 'immutable implementation source changed')
+req(git('rev-parse', 'HEAD^{tree}').decode().strip() == TREE, 'immutable source tree changed')
+req(git('status', '--porcelain').decode() == '', 'clean lane required before DOC handoff')
+req(not HERE.exists(), 'fresh publication prefix required')
+HERE.mkdir(parents=True)
+records = []
+
+
+def copy(path, destination, group, role):
+    data = path.read_bytes()
+    dest = HERE / destination
+    req(not dest.exists(), 'duplicate publication destination: ' + destination)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(data)
+    req(dest.read_bytes() == data, 'literal copy mismatch')
+    records.append(dict(group=group, role=role, original_path=str(path), copied_path=dest.relative_to(ROOT).as_posix(), bytes=len(data), sha256=digest(data)))
+
+
+selectors = []
+for group, path, expected in [
+    ('independent-final', Path('/tmp/e02-E-ir-composition-ecde-independent-20261007/publication-selection.json'), 'ddc8785b0a1c506cc7200fbe8f19475cdc6ee33dda52499cc89ff42366bdd215'),
+    ('independent-historical', Path('/tmp/e02-E-ir-composition-c539-independent-20261007/publication-selection.json'), '82ad34c6e000a31f7c5644b8eeff179f19b46fa955bb1e78052426f07c33d14f'),
+]:
+    data = path.read_bytes()
+    req(digest(data) == expected, 'closed independent selection changed')
+    selection = json.loads(data)
+    destination = group + '/original-publication-selection.json'
+    copy(path, destination, group, 'closed independent selection; scope and historical errors preserved')
+    selectors.append(dict(group=group, copied_path=PREFIX + '/' + destination, original_path=str(path), bytes=len(data), sha256=digest(data), member_count=len(selection['assets'])))
+    for row in selection['assets']:
+        original = Path(row['source_path'])
+        body = original.read_bytes()
+        req(len(body) == row['bytes'] and digest(body) == row['sha256'], 'independent selected body changed')
+        copy(original, group + '/' + row['path'], group, 'final source GO' if group == 'independent-final' else 'historical source CHANGE_REQUIRED / observer error')
+
+excluded = {
+    'ROOT-supported-finite-bucket-companion-merge.stdout.txt',
+    'basedpyright-original-baseline.json', 'configured-basedpyright-baseline-sideeffect.json',
+    'basedpyright-final-baseline.json', 'basedpyright-final-real-sideeffect-baseline.json',
+    'basedpyright-private-baseline.json', 'basedpyright-final-delta-baseline.json',
+    'basedpyright-ecde-baseline.json', 'prepare_composition_handoff.py',
+    'handoff-preparation.stdout.txt', 'handoff-preparation.stderr.txt',
+}
+capture_names = {path.name for path in RAW.glob('handoff-preparation*') if path.is_file()}
+excluded.update(capture_names)
+raw_refs = [file_ref(RAW / name) for name in sorted(excluded - capture_names - {'prepare_composition_handoff.py'}) if (RAW / name).is_file()]
+own = []
+for path in sorted(RAW.iterdir()):
+    if not path.is_file() or path.name in excluded:
+        continue
+    destination = 'author/' + path.name
+    role = 'closed author observation; exact scope summarized in implementation-handoff.json'
+    if path.name.endswith('.py'):
+        destination += '.txt'
+    elif path.name.endswith('.json'):
+        try:
+            json.loads(path.read_bytes())
+        except (ValueError, UnicodeDecodeError):
+            destination = 'author/' + path.name.removesuffix('.json') + '.stdout.txt'
+            role = 'literal native/observer stdout; original .json filename was not a typed JSON receipt'
+    if path.name == 'old-composition-falsifiers.json':
+        destination = 'author/historical-overwritten-old-name-candidate-body.json'
+        role = 'historical observer output overwrite; candidate physical source was not bound; not old-source evidence'
+    own.append((path, destination, role))
+for relative in [
+    'author-controls-ecde-normal/receipt.json',
+    'author-controls-ecde-optimized/receipt.json',
+    'author-controls-final-normal/receipt.json',
+    'author-controls-final-optimized/receipt.json',
+    'author-controls-normal/receipt.json',
+    'author-controls-optimized/receipt.json',
+    'old-exact-source-replay/old-composition-falsifiers.json',
+    'old-exact-source-replay/replay.py',
+    'old-exact-source-replay/stdout.txt',
+    'old-exact-source-replay/stderr.txt',
+]:
+    path = RAW / relative
+    if path.is_file():
+        own.append((path, 'author/' + relative + ('.txt' if path.suffix == '.py' else ''), 'closed actual public-helper/CAS control' if relative.startswith('author-controls') else 'new exact old-source replay, not recovered overwritten bytes'))
+for path, destination, role in own:
+    copy(path, destination, 'author', role)
+
+validator_relative = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/validate_review_copies.py.txt'
+copy(ROOT / validator_relative, 'validate_review_copies.py.txt', 'existing-validator', 'unchanged existing current/Git validator; no duplicate codec or active Python utility')
+copy(Path(__file__), 'author/prepare_composition_handoff.py.txt', 'author', 'executed closed receipt copier; no source/numerical execution')
+footprint = [source(path) for path in FILES]
+req(sorted(FILES) == sorted(git('diff', '--name-only', BASE, CAND).decode().splitlines()), 'complete five-path implementation footprint changed')
+for row in footprint:
+    req((ROOT / row['path']).read_bytes() == git('show', CAND + ':' + row['path']), 'physical source differs from candidate')
+
+def junit(path):
+    cases = list(ET.fromstring(path.read_bytes()).iter('testcase'))
+    counter = collections.Counter('ERROR' if c.find('error') is not None else 'FAIL' if c.find('failure') is not None else 'SKIP' if c.find('skipped') is not None else 'PASS' for c in cases)
+    return dict(cases=len(cases), **dict(counter), receipt='author/' + path.name)
+
+current44 = junit(RAW / 'pytest-ecde.xml')
+req(current44['cases'] == 44 and current44['PASS'] == 44, 'current native cases changed')
+controls = []
+for mode in ['normal', 'optimized']:
+    packet = json.loads((RAW / ('author-controls-ecde-' + mode) / 'receipt.json').read_text())
+    req(packet['source_sha'] == CAND and packet['tree'] == TREE, 'wrong property-control source')
+    req(packet['control_count'] == len(packet['rows']) == 20, 'complete property-control denominator changed')
+    counts = collections.Counter(row['mode'] for row in packet['rows'])
+    req(counts == {'healthy': 10, 'property_removed': 10}, 'property control modes changed')
+    req(all(row['control_result'] == 'PASS' for row in packet['rows']), 'current control result changed')
+    req(all(row['defining_property'] == ('PASS' if row['mode'] == 'healthy' else 'FAIL') for row in packet['rows']), 'property removal no longer diverges')
+    controls.append(dict(mode=mode, cases=20, healthy=10, effective_removals=10, receipt='author/author-controls-ecde-' + mode + '/receipt.json'))
+peer = json.loads((HERE / 'independent-final/review.json').read_text())
+type_packet = json.loads((RAW / 'basedpyright-ecde-receipt.json').read_text())
+req(type_packet['source_sha'] == CAND and type_packet['exit_code'] == 0 and type_packet['summary']['filesAnalyzed'] == 2 and type_packet['summary']['errorCount'] == 0, 'scoped type receipt changed')
+req(type_packet['canonical_baseline_equals_exact_original'] is True and type_packet['settings_equal_except_baselineFile'] is True, 'baseline/config custody not established')
+actual_check_commands = json.loads((HERE / 'independent-final/commands.json').read_text())
+refs = [source('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/composition-and-fit-admission-20261007.json', 'a6701835f15944f860033df64fdf06c0350a972d')]
+refs += [source('policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/' + name, 'c75eb7125ae0b4b296fc469b13bba9653f1dd42d') for name in ['owner-actions.md', 'E-ratio-runtime.md', 'E-ratio-oracle.md', 'E-companion-plan.md']]
+refs.append(source('policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md'))
+index = dict(schema='policyos.e02.literal_handoff_copy_index.v1', source_sha=CAND, source_tree=TREE, slice_base_sha=BASE, records=records, copies=len(records), total_bytes=sum(r['bytes'] for r in records), selector_inputs=selectors, raw_not_copied=raw_refs, literal_original_and_copy_bytes=True, active_python_added=False)
+write(HERE / 'copy-index.json', index)
+handoff = dict(
+    schema='policyos.e02.implementation_handoff.v1', unit='E', slice='ir-ratio-composition',
+    closure_ids=['B201', 'B202'], bundle_ids=['UQS-01'],
+    slice_base_sha=BASE, candidate_sha=CAND, candidate_tree_sha=TREE,
+    implementation_commits=['c539dba7d25b1495f80587422145cbd55e5f03e6', '21a8bd8fa1decf140d8c177fbf532d63f0a2d0188', '218c7bd75f29dea72d86d8c5830137ce0a2d0188', CAND],
+    branch='codex/e02-E-doe-20261006', worktree=str(ROOT), pull_request='https://github.com/DenisKopylov/polisyos/pull/38',
+    changed_paths=FILES, complete_source_footprint=footprint, canonical_writer='E appointed scoped IR composition/type writer under a670; no facade/schema/generated lease used',
+    baseline_cells=[], baseline_navigation='Original card and fetched c75 exact-source falsifiers; imported baseline is not current candidate PASS. This residual was discovered on the already published finite-ratio source.',
+    source_and_decision_refs=refs,
+    property=dict(statement='Declared Profile2 is admitted before all public composition helpers; exact-ratio scalar transforms reissue carrier-bound functionals/context. Lossy projections and pullbacks clear original-law declarations. Genuine legacy output schema, reducers and callback ordering remain compatible.',
+        runtime_path=['configured summarize_bayesian_calibration_posterior', 'complete carrier/Profile2/context', 'compress_envelope / push_forward_envelope / pull_back_envelope', 'persist_uncertainty_envelope into FileSystemCAS', 'fresh FileSystemCAS load_uncertainty_envelope + read_posterior_summary_profile'],
+        surface='Existing public IR composition helpers; unchanged outer schema/facade. No default generic orchestration witness.',
+        proxy_divergence='Finite equal 1.6e308 draws have finite exact mean while legacy sum overflows; inverse-CDF (0,1), weights 1:2, q=.34 returns atom1 while old reducer interpolates; stale copied Profile2 metadata looks present but strict fresh reader refuses carrier mismatch.',
+        independent_oracle='Fraction-based huge/atom/dyadic/asymmetric expected functionals, exact-base complete legacy JSON/callback replay; actual native producer/helper/CAS/fresh reader.',
+        negative_controls=[r['case'] for r in peer['checks']['effective_property_removals']] + ['all three helpers reject required/missing/unknown declared profiles before callbacks/publication', 'incomplete multi-coordinate scalar law rejects before map callbacks', 'bool/string/nonfinite mapped support rejects whole law', 'unchanged markers do not rescue forged/stale profile'],
+        authority_purpose='Representation/finite-law computation only; gate_eligible=false; arbitrary map unit/estimand identity and source-fit authority not inferred.',
+        time_roles='Parent context refs/time/purpose retained only as explicitly inherited non-authoritative lineage, parent profile hash retained; active parameter binding/context.parameters cleared for arbitrary scalar map.'),
+    checks=[
+        dict(command=actual_check_commands, target_sha=CAND, environment='Existing DoE environment 184 packages; independent-final/selectors.json carries actual pytest argv/cwd/env and source inputs.', input_closure='complete five source/test/README/release paths + explicit selector/env/hash refs', outcome='PASS', output='independent-final/review.json; complete commands/selectors/JUnit/native-probes/raw stdout/stderr'),
+        dict(command='Author full new test module (44 cases); original argv not separately journaled, complete XML/stdout preserved; independent exact argv/selectors above are deciding reproduction', target_sha=CAND, environment='author/environment-source-inputs.json', input_closure=FILES, outcome='PASS', output=current44),
+        dict(command=[str(ROOT / 'policy-engine/.venv/bin/python'), '[-O in optimized mode]', str(RAW / 'composition_property_controls.py'), '--output', '<fresh mode-specific output>'], command_role='reproduce recipe with literal existing mode-specific receipt paths; exact property observer bytes pinned', target_sha=CAND, environment='author/environment-source-inputs.json', input_closure='actual producer/helper and fresh configured CAS, source_inputs in each receipt', outcome='PASS', output=controls),
+        dict(command=type_packet['argv'], cwd=type_packet['cwd'], target_sha=CAND, environment=type_packet['env'], input_closure='Original TOML settings and unchanged original baseline; two actual absolute source files; supported same-root JSON config overrides scratch baselineFile only', outcome='PASS', output='author/basedpyright-ecde-receipt.json + complete stdout/stderr/config/parsed view', limitations='Canonical-baseline-relative scoped two-file result; whole type gate and unbaselined policy UNRUN.'),
+        dict(command='Canonical collect_deep_import_edges on complete 2702 source files plus changed source/test AST and healthy/removal cases', target_sha=CAND, environment='stdlib plus existing canonical collector, exact source inputs recorded', input_closure='author/composition-import-collector.json', outcome='PASS', output='3448 raw edges before baselines/exceptions; zero changed-product deep edges; actual new test producer deep route remains owner-attributed; whole architecture UNRUN.'),
+        dict(command='Source-owned Ruff check / format --check on both product modules + native test; closed complete stdout/stderr preserved', target_sha=CAND, outcome='PASS', output='author/schema-ruff.stdout.txt + author/schema-format.stdout.txt', limitations='Scoped source footprint only, no whole lint/format claim.'),
+        dict(command='Parent final frozen seven-family defining wave and necessary final global gates', target_sha=CAND, outcome='UNRUN', output='Prepare-only selector delta; current final merged source and parent explicit freeze/launch required. Historical31782 results are not current PASS.'),
+    ],
+    predicate_basis=dict(source_hash_size_git_tree='recomputed', complete_copy_custody='recomputed', finite_ratio_functionals_and_legacy_replay='independently_reconciled', fresh_CAS_consumer_profile_validation='recomputed', strict_pre_callback_profile_admission='recomputed', configured_two_file_type_and_baseline_custody='recomputed', scoped_owner_semantics='institutionally_supplied', inherited_unit_estimand_lineage='consumer_asserted', actual_production_generic_orchestration='not_established', scientific_fit_source_law_coverage_authority='not_established', formal_finding_closure='not_established', current_whole_gate_or_inherited_P41='not_established'),
+    capability_state_or_finding_state='implemented_but_not_orchestrated',
+    capability_scope='Generic public composition is implemented and independently verified; default external/dynamic production invocation unmeasured. This label does not deny the tested public producer→CAS→fresh-reader chain.',
+    finding_disposition=dict(ledger_status_preserved={'B201':'held','B202':'held'}, historical_E_ledger={'partial':49,'held':4,'closed':1}, source_disposition='GO bounded source slice', owner_finding_acceptance='pending separate accountable owner/original-row disposition', new_finding_closure=False),
+    independent_review=dict(reviewer='/root/oracle_r4', receipt='independent-final/review.json', receipt_sha256=digest((HERE / 'independent-final/review.json').read_bytes()), source_disposition='GO', selected_native_cases=54, native_fraction_CAS_controls=31, receipt_corruption_controls_per_mode=11),
+    historical_observations=dict(initial_c539={'source_review':'CHANGE_REQUIRED','cases':36,'reason':'common declared profile inlet bypass and changed legacy callback coercion order; both repaired in subsequent append'}, later218={'source_review':'CHANGE_REQUIRED','reason':'legacy v1.0 input returned 1.0 rather than base default1.1; repaired ecde'}, old_exact_replay={'source':'dee36f110824425f8f612874cb111398d9546e7d','receipt':'author/old-exact-source-replay/old-composition-falsifiers.json','role':'new Git-derived replay receipt, not reconstructed original overwritten JSON'}, author_overwrite={'incident':'author/old-receipt-overwrite-correction.json','candidate_body':'author/historical-overwritten-old-name-candidate-body.json','original_stdout':'author/old-falsifiers.stdout.txt','scope':'first candidate JSON had stale HEAD label and unbound physical edits; not source-qualified deciding evidence'}, type_sideeffects={'receipt':'author/basedpyright-baseline-sideeffect-correction.json','raw_induced_byte_refs':raw_refs,'scope':'Earlier actual tracked native baseline pruning was preserved and restored; subsequent supported private configs prune scratch only. No exception/baseline widening.'}, unsupported_config={'stdout':'author/basedpyright-private.stdout.txt','summary':'9 errors/209 warnings under unsupported .json.tmp default config; observer configuration ERROR, not canonical type PASS or inherited waiver.'}, other_native_history=[junit(RAW / name) for name in ['pytest-first.xml','pytest-affected.xml','pytest-affected-corrected.xml','pytest-final.xml','pytest-delta.xml','pytest-style-delta.xml','pytest-legacy-schema-delta.xml']]),
+    limitations_and_next_owner=[
+        'Root/E: merge immutable ecde source, finish any independently reviewed caller facade companion, then freeze actual composed source and execute one final affected seven-family defining wave; unchanged24 CAL/JAX/Hessian tests retain source-qualified historical324 observation only.',
+        'Canonical Calibration/public facade owner and architecture reviewer: new test imports the real existing producer through foundry.calibration.uncertainty_adapter; evaluate the actual admitted existing public facade and narrow export lease before companion edit. No invented depth-only or exception waiver.',
+        'Canonical generator/Core/IR public surface owners: generated API/OpenAPI/schema inventory and architecture/global gate queue remain separate; no hand-edited generated files, P41 inheritance not_established without exact base replay.',
+        'Appointed original finding owners/G: code intake and B201/B202 original criterion disposition separate; producer flags and PASS count do not ratify scientific fit/noise/source law, full joint propagation, coverage or external consumers.',
+        'Actual static5494-file census finds no direct product calls to these generic helpers outside their definitions; dynamic/external caller boundary unmeasured. No full-production evidence or synthetic authority-positive observation claimed.',
+        'Cloud cleanup candidates: only repeated scratch pytest/CAS/archive fixtures after complete receipts and no-active-user proof. Original unique outputs, source, useful docs and production inputs protected; local Trash rule remains distinct.'
+    ],
+    publication=dict(copy_index='copy-index.json', literal_copy_count=len(records), literal_copy_bytes=sum(r['bytes'] for r in records), evidence_commit_self_sha=None, source_first=True, root_source_not_written=True, selected_raw_not_copied=raw_refs),
+)
+write(HERE / 'implementation-handoff.json', handoff)
+(HERE / 'README.md').write_text('''Profile2 composition now uses the already ratified finite-ratio functionals, admits every profile declaration before callbacks, reissues carrier-bound profiles after complete scalar transforms, and clears original-law declarations for lossy/constraint outputs. Legacy schema, reducer and per-row callback behavior remain compatible.
+
+Source candidate `ecde9d2d8d9d13cba87420930105e378010a1acc`, tree `41d52f7b26d7d10757b479f55dd412d97fa051c4`, base `bfbd53a1f45795ad6901bc4bb7685237b0c3d20b`; five source/test/README/release paths. The separate evidence commit pins this existing candidate and never its own future SHA.
+
+The independent review records 54 native PASS cases, 31 independent Fraction/native CAS/legacy controls, three effective property-removal failures and eleven receipt-corruption refusals per normal/optimized mode. The author adds 44 new native cases and twenty public-helper/fresh-CAS controls per mode. Whole scientific authority, default generic orchestration and final gates remain unestablished. Historical ledger statuses and code intake are separate from original finding acceptance.
+
+Every copy is literal and indexed. `.py.txt` files archive executed observers without introducing active utilities. Non-JSON or empty native stdout uses `.txt` in this publication while preserving its original path/hash. Raw baseline snapshots remain ignored with exact refs. The original overwritten old JSON incident, unsupported `.json.tmp` invocation, native baseline pruning/restoration, and c539/218 source defects remain explicitly historical; none is relabeled current PASS.
+
+`independent-final/commands.json` and `selectors.json` contain literal executed argv/cwd/environment. `author/basedpyright-ecde-receipt.json` binds the supported private config to original settings/baseline: two files, zero diagnostics, scoped baseline-relative only. The final affected defining wave is UNRUN until the parent freezes its actual merged source.
+''')
+for p in HERE.rglob('*.json'):
+    json.loads(p.read_bytes())
+req(git('rev-parse', 'HEAD').decode().strip() == CAND, 'source HEAD moved during DOC publication')
+req(all((ROOT / row['path']).read_bytes() == git('show', CAND + ':' + row['path']) for row in footprint), 'source changed during DOC publication')
+print(json.dumps(dict(source=CAND, tree=TREE, copies=len(records), bytes=index['total_bytes'], document_paths=len(list(p for p in HERE.rglob('*') if p.is_file())), scope='closed DOC publication only; no new numerical/type/global invocation', prefix=PREFIX)))

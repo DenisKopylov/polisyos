@@ -1,0 +1,94 @@
+{
+  "schema": "policyos.e02.backend_affected_http_retry_completion.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "reviewer": "oracle_r4",
+  "native_outcome": "PASS",
+  "native_counts": {
+    "cases": 1,
+    "passed": 1,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_native_classname": "tests.unit.runtime.http.test_cycle_board_projection_fact_owners",
+  "actual_native_name": "test_cycle_board_claims_equal_live_owner_recomputation_and_detect_corruption",
+  "canonical_receipt": {
+    "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/checks/cycle-board-owner-recompute-retry/cycle-board-owner-recompute-retry.json",
+    "bytes": 8779,
+    "sha256": "7d4bb04f7f0a2770691e345a53a7c21f077b93769dd8176fcdae59d490c56ab1"
+  },
+  "complete_stdout": {
+    "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/checks/cycle-board-owner-recompute-retry/cycle-board-owner-recompute-retry.stdout.txt",
+    "bytes": 80,
+    "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+  },
+  "junit": {
+    "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/checks/cycle-board-owner-recompute-retry/pytest.xml",
+    "bytes": 435,
+    "sha256": "9c1f551db4c220b30236cc217092a6ab0bedf738815a1ce54701c958f4df1ccc"
+  },
+  "wall_seconds": 60.056872844696045,
+  "source_input_identity_before": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "source_input_identity_after": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "original_full_HTTP_counts_retained": {
+    "cases": 1585,
+    "passed": 675,
+    "failed": 81,
+    "errors": 827,
+    "skipped": 2
+  },
+  "original_full_HTTP_outcome_retained": "FAIL",
+  "original_full_HTTP_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.json",
+    "bytes": 9044,
+    "sha256": "90d0c3c172507dfc8079522f930adcd5f238ff3ee27b4e182db7d9974d9ee2c0"
+  },
+  "original_junit": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+    "bytes": 2421172,
+    "sha256": "b94c3b86ca8edb3b059714e68492faaf31cc2a05297006279201a62dac202c30"
+  },
+  "original_exact_failure_message": "SystemExit: 1",
+  "original_complete_exact_failure_trace_sha256": "0227b3d40b407bd1c23522372445ba915137bda7ba45976f82f00fba93ffc412",
+  "changed_dependency_boundary": "Only already approved declared dependencies were installed by root before this narrowly authorized retry; actual native original missing-ortools chain is preserved. Same source and same single defining test now ran with ortools9.15.6755. No claim about global/generic inherited failure causation.",
+  "current_environment_before": {
+    "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/actual-root-environment-before.json",
+    "bytes": 65148,
+    "sha256": "f0d05c20584103ced3df08d6510514824f58d8826c42607685895dd205976067"
+  },
+  "current_environment_after": {
+    "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/actual-root-environment-after-readback.json",
+    "bytes": 65195,
+    "sha256": "bc317e9891d3a54f876376d0265af4fda064a9b80acc69bf714eadd170467f92"
+  },
+  "root_distribution_count": 207,
+  "current_metadata_framed_sha256": "5feacfce6670021b63c179a12213add9b1a8d28960517d5df5e04e89d584d44e",
+  "executed_defining_control_scope": {
+    "test_source": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py",
+      "bytes": 6065,
+      "sha256": "dfaa94c6bf30f462d6d6119be5fc9f19d17e3b7c849601885cb3080efdbe85f0"
+    },
+    "one_native_case_not_three": true,
+    "healthy": "Actual owner truth recomputation compared with served projection packet rows",
+    "two_existing_corruption_assertions": [
+      "with pytest.raises(AssertionError):\n        _assert_rows_equal_owner(tuple(rows), expected)",
+      "with pytest.raises(AssertionError):\n        _assert_rows_equal_owner(tuple(rows), expected)"
+    ]
+  },
+  "no_other_HTTP_selector_run": true,
+  "no_package_or_source_mutation": true,
+  "no_test_repeat_after_native_result": true,
+  "no_private_config_publication": true,
+  "P41": "not_established",
+  "finding_closure": false
+}

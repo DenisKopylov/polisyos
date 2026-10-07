@@ -1,0 +1,138 @@
+{
+  "observed_unix": 1791376308.559122,
+  "agent_uid": 1000,
+  "candidate_prefixes": [
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry"
+  ],
+  "live_agent_process_count": 15,
+  "active_users": [],
+  "unreadable_agent_processes": [],
+  "privileged_infrastructure_exclusions": [
+    {
+      "pid": 199,
+      "uid": 0,
+      "argv0": "/usr/local/bin/dockerd",
+      "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+    },
+    {
+      "pid": 250,
+      "uid": 0,
+      "argv0": "containerd",
+      "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+    }
+  ],
+  "observations": [
+    {
+      "pid": 1,
+      "uid": 1000,
+      "argv0": "tail",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 2,
+      "uid": 1000,
+      "argv0": "/usr/local/bin/caas-prefix-transfer-server",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 515,
+      "uid": 1000,
+      "argv0": "/opt/codex/bin/codex",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 536899,
+      "uid": 1000,
+      "argv0": "/bin/bash",
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "target_evidence": []
+    },
+    {
+      "pid": 536902,
+      "uid": 1000,
+      "argv0": "python3",
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "target_evidence": []
+    },
+    {
+      "pid": 536903,
+      "uid": 1000,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "target_evidence": []
+    },
+    {
+      "pid": 536937,
+      "uid": 1000,
+      "argv0": "/workspace/.polisyos-environment/uv/bin/uv",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "target_evidence": []
+    },
+    {
+      "pid": 536940,
+      "uid": 1000,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "target_evidence": []
+    },
+    {
+      "pid": 571826,
+      "uid": 1000,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "target_evidence": []
+    },
+    {
+      "pid": 577449,
+      "uid": 1000,
+      "argv0": "/bin/bash",
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "target_evidence": []
+    },
+    {
+      "pid": 577450,
+      "uid": 1000,
+      "argv0": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "target_evidence": []
+    },
+    {
+      "pid": 577497,
+      "uid": 1000,
+      "argv0": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "target_evidence": []
+    },
+    {
+      "pid": 577528,
+      "uid": 1000,
+      "argv0": "/bin/bash",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 577529,
+      "uid": 1000,
+      "argv0": "python3",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 577572,
+      "uid": 1000,
+      "argv0": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "target_evidence": []
+    }
+  ]
+}

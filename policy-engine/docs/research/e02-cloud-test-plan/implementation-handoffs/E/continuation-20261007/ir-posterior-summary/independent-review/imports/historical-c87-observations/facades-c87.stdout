@@ -1,0 +1,65 @@
+{
+  "schema": "policyos.e02.independent_ir_facade_binding.v1",
+  "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "tree": "26a191ee37da336faf5f6f84f14bc54a883bb90b",
+  "predicate_basis": "recomputed",
+  "root_old_mapping_count": 287,
+  "root_new_mapping_count": 290,
+  "old_root_public_names_preserved": true,
+  "analytics_old_mapping_count": 278,
+  "analytics_new_mapping_count": 288,
+  "old_analytics_mappings_preserved": true,
+  "new_root_exports": [
+    "PosteriorParameterBinding",
+    "PosteriorSummaryContext",
+    "PosteriorSummaryProfile"
+  ],
+  "new_analytics_exports": [
+    "PosteriorParameterBinding",
+    "PosteriorSamplesCarrier",
+    "PosteriorSummaryContext",
+    "PosteriorSummaryProfile",
+    "load_posterior_summary_envelope",
+    "posterior_carrier_content_hash",
+    "posterior_nominal_mean",
+    "posterior_summary_functionals",
+    "read_posterior_summary_profile",
+    "validate_raw_posterior_summary_envelope"
+  ],
+  "actual_product_caller_binding_count": 11,
+  "actual_public_calls": {
+    "internal_existing_Bayesian_producer": "polisyos.foundry.calibration.uncertainty_adapter",
+    "new_profile_instance": "PosteriorSummaryProfile",
+    "sample_ids": [
+      "r0",
+      "r1",
+      "r2"
+    ],
+    "named_mean": 2.5,
+    "observed_functionals": [
+      2.5,
+      2.0,
+      [
+        0.0,
+        4.0
+      ]
+    ],
+    "carrier_hash": "sha256:d8a6d8e29b69f9e176ad44853d5488424eec5266e2e1f944d0105a6a927a86d3",
+    "gate_eligible": false,
+    "raw_inlet": "actual admitted raw envelope accepted"
+  },
+  "present_name_identity_removal": {
+    "discriminator": "PASS",
+    "required_identity_gate": "FAIL",
+    "reason": "facade identity property absent while name and numeric observation survive",
+    "same_name": "posterior_nominal_mean",
+    "same_healthy_numeric_observation": true
+  },
+  "unresolved_by_construction": [
+    "Configured CAS loader transport and raw-invalid/historical replay are independent oracle/criteria leases; c87 verify() protocol mismatch is a separate known blocker pending append-only owner fix.",
+    "These public invocation observations establish callability/binding, not independent correctness of the law, posterior quality or finding closure.",
+    "Full generated ABI/schema/public inventory/reference/release compatibility remains criteria/root gate work."
+  ],
+  "limits": "No author files or tests changed; used existing interpreter and exact admitted lane; all13 new public routes and11 product caller bindings enumerated dynamically; old map identities were compared statically, not every optional old API imported."
+}

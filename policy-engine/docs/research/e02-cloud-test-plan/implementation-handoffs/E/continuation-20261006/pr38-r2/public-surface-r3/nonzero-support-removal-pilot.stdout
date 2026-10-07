@@ -1,0 +1,5 @@
+{"removed_property": "nonzero-preservation only", "exports_retained": 19, "source_files_unchanged": true, "pilot_budget": {"U": 0.0995612819216314, "N": 408}, "positive_raw_pilot_becomes_all_zero": true}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/nonzero_support_independent_probe.py", line 108, in <module>
+    raise AssertionError('present-but-fake common guard emitted a certificate for a pilot whose nonzero values were discarded')
+AssertionError: present-but-fake common guard emitted a certificate for a pilot whose nonzero values were discarded

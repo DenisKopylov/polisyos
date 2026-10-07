@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py", line 138, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py", line 89, in main
+    code = module.main()
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/temporary_escape_refused_before_allocation/synthetic_checker.py", line 10, in main
+    with tempfile.TemporaryDirectory(prefix="runtime_client_contract_",dir="/workspace") as name:
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py", line 46, in retained_temporary
+    raise RuntimeError(
+        "runtime client temporary request escapes the stage TMPDIR"
+    )
+RuntimeError: runtime client temporary request escapes the stage TMPDIR

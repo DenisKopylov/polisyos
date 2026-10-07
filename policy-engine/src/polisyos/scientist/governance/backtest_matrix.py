@@ -28,6 +28,7 @@ from polisyos.scientist.methods.backtesting.orchestrator import (
     _resolve_report_id,
 )
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
+from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
 
 
 class BacktestKind(str, Enum):
@@ -175,32 +176,32 @@ class BacktestMatrixRunner:
 
             notes: list[str] = []
             for plan in plans:
-                scenario_plan = self._decorate_plan(kind, bundle, plan)
-                report_plans.append(scenario_plan)
-                (
-                    scenario,
-                    scenario_warnings,
-                    requested_mode,
-                    effective_mode,
-                    scenario_degraded_reasons,
-                ) = self._orchestrator._run_single_scenario(scenario_plan)
-                scenario.metadata = {
-                    **dict(scenario.metadata),
-                    "backtest_kind": kind.value,
-                    "observation_families": [
-                        family.value for family in _BACKTEST_KIND_FAMILIES[kind]
-                    ],
-                    "source_contract_id": bundle.contract_target.contract_id,
-                    "source_contract_fqn": bundle.contract_target.contract_fqn,
-                    "holdout_windows": list(bundle.holdout_windows),
-                }
-                scenario_groups[kind].append(scenario)
-                report_scenarios.append(scenario)
-                requested_modes.append(requested_mode)
-                effective_modes.append(effective_mode)
-                degraded_reasons.extend(str(item) for item in scenario_degraded_reasons)
-                notes.extend(str(item) for item in scenario_warnings)
-
+                decorated = self._decorate_plan(kind, bundle, plan)
+                for scenario_plan in self._orchestrator._expand_replay_plans(decorated):
+                    report_plans.append(scenario_plan)
+                    (
+                        scenario,
+                        scenario_warnings,
+                        requested_mode,
+                        effective_mode,
+                        scenario_degraded_reasons,
+                    ) = self._orchestrator._run_single_scenario(scenario_plan)
+                    scenario.metadata = {
+                        **dict(scenario.metadata),
+                        "backtest_kind": kind.value,
+                        "observation_families": [
+                            family.value for family in _BACKTEST_KIND_FAMILIES[kind]
+                        ],
+                        "source_contract_id": bundle.contract_target.contract_id,
+                        "source_contract_fqn": bundle.contract_target.contract_fqn,
+                        "holdout_windows": list(bundle.holdout_windows),
+                    }
+                    scenario_groups[kind].append(scenario)
+                    report_scenarios.append(scenario)
+                    requested_modes.append(requested_mode)
+                    effective_modes.append(effective_mode)
+                    degraded_reasons.extend(str(item) for item in scenario_degraded_reasons)
+                    notes.extend(str(item) for item in scenario_warnings)
             scenarios_for_kind = scenario_groups[kind]
             kind_results.append(
                 BacktestKindResult(
@@ -241,7 +242,15 @@ class BacktestMatrixRunner:
         )
         report_ref = persist_backtest_report(self._store, report, inputs=manifest_inputs)
         report.cas_artifact_id = str(report_ref.artifact_id)
-        composite_score = _mean_defined(result.score for result in kind_results)
+        admission_score, admission_grade = TrustScorer().compute(
+            scenarios=report.scenarios, biases=report.detected_biases
+        )
+        authority_admitted = (
+            report.trust_eligible and admission_score is not None and admission_grade is not None
+        )
+        composite_score = (
+            _mean_defined(result.score for result in kind_results) if authority_admitted else None
+        )
         scored_results = [result for result in kind_results if result.score is not None]
         worst_kind = (
             min(
@@ -262,6 +271,10 @@ class BacktestMatrixRunner:
                 "n_present_kinds": sum(1 for result in kind_results if result.status == "ok"),
                 "report_degraded": report.degraded,
                 "report_trust_eligible": report.trust_eligible,
+                "authority_admitted": authority_admitted,
+                "authority_purpose": None,
+                "trust_predicate_basis": "not_established",
+                "diagnostic_mean_score": _mean_defined(result.score for result in kind_results),
             },
         )
 

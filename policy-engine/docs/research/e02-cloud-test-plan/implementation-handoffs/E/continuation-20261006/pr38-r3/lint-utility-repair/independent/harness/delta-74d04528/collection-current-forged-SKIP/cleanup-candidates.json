@@ -1,0 +1,30 @@
+[
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/results-importer",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/numeric-skip",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-skip",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/tmp-env/numeric-skip-exit7",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-skip-exit7",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/umbrella-temp/workspace-verify",
+    "kind": "umbrella_temporary"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/umbrella-temp/ci-parity",
+    "kind": "umbrella_temporary"
+  }
+]

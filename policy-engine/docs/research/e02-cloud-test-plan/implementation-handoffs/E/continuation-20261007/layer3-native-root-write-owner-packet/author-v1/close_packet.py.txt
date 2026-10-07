@@ -1,0 +1,72 @@
+from __future__ import annotations
+import ast, hashlib, json, subprocess
+from pathlib import Path
+OUT=Path(__file__).resolve().parent
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+SHA='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+def digest(b):return {'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def save(p,b):p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+def js(p,x):save(p,(json.dumps(x,indent=2,ensure_ascii=False)+'\n').encode())
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+observation=Path('/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/observations/tracked-generated-input-drift-20261007T1259Z/observation.json')
+raw=observation.read_bytes();d=json.loads(raw)
+if digest(raw)!={'bytes':24848,'sha256':'617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0'}:raise ValueError('parent snapshot changed')
+save(OUT/'parent-observation.json',raw)
+for r in d['rows']:
+ for role in ('current','head'):
+  ref=r[role];b=(observation.parent/ref['portable_name']).read_bytes()
+  if digest(b)!={'bytes':ref['bytes'],'sha256':ref['sha256']}:raise ValueError('snapshot custody escape')
+  if role=='head' and git('show',SHA+':'+r['path'])!=b:raise ValueError('snapshot source mismatch')
+js(OUT/'parent-snapshot-custody.json',{'observation':{'original_path':str(observation),**digest(raw)},'outcome':'PASS','row_count':len(d['rows']),'source_identity':{'commit':SHA,'tree':TREE},'captured58assets_byte_bound':True,'individual_file_reads_stat_stable':all(r['same_file_stat_during_read'] for r in d['rows']),'whole_snapshot_atomic':d['snapshot_is_atomic_whole_run'],'runtime_caller_attribution':d['native_caller_attribution'],'original_snapshots':'retained at original parent observation paths, full58byte refs in unchanged observation.json; not copied or reclassified here'})
+# A precise bounded additional source-only census; whole policy-design-case test class remains canonical owner scope.
+extra=[]
+files=git('ls-tree','-r','--name-only',SHA,'--','policy-engine/tests/repo_quality').decode().splitlines()
+for p in files:
+ if not p.endswith('.py') or 'policy_design_case_layer3_' not in p:continue
+ b=git('show',SHA+':'+p);text=b.decode();t=ast.parse(text)
+ for f in t.body:
+  if not isinstance(f,(ast.FunctionDef,ast.AsyncFunctionDef)):continue
+  for c in ast.walk(f):
+   if not isinstance(c,ast.Call) or not isinstance(c.func,ast.Attribute) or not c.func.attr.startswith('validate_layer3_') or not c.args:continue
+   if ast.unparse(c.args[0])!='REPO_ROOT':continue
+   if not any(k.arg=='write' and isinstance(k.value,ast.Constant) and k.value.value is True for k in c.keywords):continue
+   if '_g6_readiness.py' in p or '_g7_readiness.py' in p or '_g8_readiness.py' in p:continue
+   extra.append({'path':p,'git_ref':SHA+':'+p,**digest(b),'function':f.name,'line':c.lineno,'call':ast.get_source_segment(text,c),'observation':'static default-root write=True call only; no actual native-caller attribution'})
+js(OUT/'additional-layer3-default-root-callers.json',{'query_basis':'all tracked policy_design_case_layer3_ Python modules under tests/repo_quality; AST validate_layer3_* first positional REPO_ROOT and literal write=True; excludes G6/G7/G8 current packet','denominator':len(extra),'rows':extra,'scope':'not a full repository write-caller census; canonical G/test owners must extend fixture class to these source-proven neighboring readiness callers'})
+check=subprocess.run(['git','-C',str(ROOT),'apply','--check',str(OUT/'canonical-owner-test-isolation.patch')],capture_output=True)
+save(OUT/'patch-apply-check.stdout.txt',check.stdout);save(OUT/'patch-apply-check.stderr.txt',check.stderr)
+js(OUT/'patch-apply-check.json',{'argv':['git','-C',str(ROOT),'apply','--check',str(OUT/'canonical-owner-test-isolation.patch')],'exit_code':check.returncode,'outcome':'PASS' if check.returncode==0 else 'FAIL','source_mutation':False,'stdout':digest(check.stdout),'stderr':digest(check.stderr)})
+if check.returncode:raise ValueError('patch does not apply')
+normal=json.loads((OUT/'writer-controls.normal.json').read_text());optimized=json.loads((OUT/'writer-controls.optimized.json').read_text())
+if normal['controls']!=15 or optimized['controls']!=15 or [x['name'] for x in normal['checks']]!=[x['name'] for x in optimized['checks']]:raise ValueError('control retotal escape')
+paths=['tests/repo_quality/tools/test_policy_design_case_layer3_g'+str(f)+'_readiness.py' for f in (6,7,8)]
+packet={
+ 'schema':'policyos.e02.layer3_default_root_write_owner_packet.v1',
+ 'source':{'commit':SHA,'tree':TREE,'read_only_source_bindings':'source-index.json'},
+ 'original_native_scope':{'session':61243,'pid':536940,'receipt':'parent-observation.json','exact_proc_argv':'proc-536940-cmdline.txt','cwd':'/workspace/e02-E-continuation-20261006/policy-engine','source_HEAD_unchanged':True,'tracked_generated_inputs_mutated':29,'source_input_immutable_during_native_run':False,'native_run_terminal_outcome':'UNRUN/pending at observation; no terminal count/PASS claimed'},
+ 'observed_class':{'path':'tests REPO_ROOT → validator.validate_*(supplied_root, write=True) → _write_artifacts → _resolve_repo_path → _write_json/typed TOML writer → atomic_write_text → os.replace','source_proven_root_WRITE_true_calls':13,'real_unintercepted_positive_tests':{'G6':[100,135,146],'G7':[210,240,307,338,385],'G8':[51]},'intercepted_notes':['G6 at245 overrides artifact writer but does not write manifest separately; no direct write from this mocked call itself','G7 at297 overrides artifact writer, then validate separately persists readiness manifest','G8 at107/146 intercepts both artifact writer and _write_json; these do not establish actual file-write attribution'],'modified_path_membership':'all-29-writer-membership.json','family_counts':{'G6':9,'G7':14,'G8':6},'selection':'pytest.ini testpaths=tests; taxonomy adds repo_quality, not integration; global fixture changes logger/JAX and does not replace roots'},
+ 'P41':{'individual_actual_native_caller':'not_established','source_static_selected_write_class':'established','reason':'native command/source allows writes and observed paths match output contract; no captured execution stack/per-test runtime event links a specific mutation to a specific call; selected source is not exact runtime causation'},
+ 'owner_patch':{'canonical_next_owner':'G coordinates canonical repo-quality/tools test owners; runtime proving-ground/API writers remain their canonical owners (A/runtime as appropriate); E has no shared writer lease','applied':False,'file':'canonical-owner-test-isolation.patch','footprint':['policy-engine/tests/repo_quality/conftest.py']+['policy-engine/'+p for p in paths],'changes':'module-scoped Git HEAD product snapshot at temporary path; autouse fixtures replace only test-module REPO_ROOT; actual runtime and validators unchanged; source artifact fingerprint checks detect checkout mutation','apply_check':'patch-apply-check.json','scoped_positive_and_removal':'writer-controls.normal.json, writer-controls.optimized.json; actual source write helpers and real atomic replacement; plain bundle payloads in /tmp only','healthy_declared_writes':{'G6':28,'G7':29,'G8':24},'healthy_source_standin_mutations':0,'removal_actual_source_standin_mutations':{'G6':28,'G7':29,'G8':24},'ROOT_writes_from_packet':0},
+ 'required_next_checks':[
+  {'owner':'canonical G/tools repo-quality test owner','result':'review/apply packet under own lease and extend shared isolation class to additional source-proven default-root write callers (additional-layer3-default-root-callers.json), avoiding a G6/G7/G8-only whole-suite claim'},
+  {'owner':'canonical test owner','argv':['uv','run','--no-sync','pytest',*paths],'cwd':'fresh canonical admitted candidate policy-engine','outcome':'UNRUN','result':'actual unchanged runtime constructors and original readiness assertions pass/fail their declared contract against Git-snapshot fixture; ROOT tracked artifact fingerprints remain equal'},
+  {'owner':'independent canonical test reviewer','result':'remove autouse root binding only on isolated source-standin; actual writer returns checkout mutations; verify no test mutates real source checkout','outcome':'UNRUN for full runtime; bounded writer removal already observed FAIL'},
+  {'owner':'G/native backend runner','result':'when current original run closes, retain full JUnit/stdout and any failure traceback/captured per-test event; only then evaluate exact caller/P41 attribution; preserve current mutation snapshots before any restore or publication'},
+  {'owner':'canonical test owner','result':'check nested runtime source/default-root read boundaries and any Git metadata/resource assumptions; Git archive lacks .git. Whole tracked product is conservative complete fixture input, not proof native selectors pass'}],
+ 'limitations':['No shared product/test files edited or restored, no native backend/runtime construction repeated','Bounded81-output writer controls do not prove native bundle semantics, finding closure or CI PASS','Module fixture intentionally snapshots full tracked product once per module; no new environment/worktree; owner may narrow only after exact read-input proof','G2/G3/G4/G5/GL/GY neighboring writers are outside applied patch and remain canonical owner work','Historical prepare.v1 KeyError observerERROR preserved; corrected v2 gets exact G8 runtime path alias; no baseline failure reclassified']}
+# Derive count rather than summary placeholder.
+packet['observed_class']['source_proven_root_WRITE_true_calls']=len(json.loads((OUT/'write-true-callmap.json').read_text()))
+js(OUT/'owner-packet.json',packet)
+# Close moderate selection; control scratch trees/output fixtures excluded, all original deciding references explicit.
+select=[]
+for p in sorted(OUT.rglob('*')):
+ if not p.is_file() or any(c.startswith(('g6-healthy-','g7-healthy-','g8-healthy-','g6-root-binding-removal-','g7-root-binding-removal-','g8-root-binding-removal-','__pycache__')) for c in p.relative_to(OUT).parts):continue
+ if p.name=='publication-selection.json':continue
+ b=p.read_bytes();relative=p.relative_to(OUT).as_posix()
+ portable=relative+'.txt' if p.suffix=='.py' else relative
+ # Empty streams are text; actual JSON always parses.
+ if p.suffix=='.json':json.loads(b)
+ select.append({'original_path':str(p),'portable_path':portable,**digest(b),'role':'historical observer ERROR' if '.v1.' in p.name or p.name=='prepare.stderr.txt' else 'current source/owner packet or complete bounded deciding output'})
+js(OUT/'publication-selection.json',{'source_commit':SHA,'source_tree':TREE,'outcome':'owner-ready read-only packet, individual P41 not_established; full native fixture selectors UNRUN','assets':select,'asset_count':len(select),'total_bytes':sum(x['bytes'] for x in select),'excluded':'/tmp writer fixture catalogs are repeatable bounded control inputs; full parent58snapshots retained at exact original refs; no production data'})
+print(json.dumps({'asset_count':len(select),'total_bytes':sum(x['bytes'] for x in select),'additional_static_calls':len(extra),'patch_apply':check.returncode,'controls_per_mode':normal['controls'],'packet':str(OUT/'owner-packet.json')},indent=2))

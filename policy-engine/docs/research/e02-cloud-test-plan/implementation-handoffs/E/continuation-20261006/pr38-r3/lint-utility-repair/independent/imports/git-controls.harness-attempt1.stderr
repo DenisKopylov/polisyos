@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git_controls.py", line 41, in <module>
+    ns,fn,prefix,child,data=prepare(row); healthy=fn(*prefix,'show',E9+':AGENTS.md');require(healthy==b'fixture\n' and len(child.calls)==1,'healthy argument routing')
+                                                  ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/validate_independently_f445.py[actual-immutable-definitions]", line 117, in git
+NameError: name '_admit_require' is not defined

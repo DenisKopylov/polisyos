@@ -1,0 +1,68 @@
+{
+  "schema": "policyos.e02.E.readonly-engineering-packet-index.v1",
+  "role": "Moderate owner-ready deciding receipts, not source/gate/finding PASS; raw OpenAPI emit JSON stays scratch with exact identities in packet",
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/gate-queue-current.json",
+      "bytes": 168637,
+      "sha256": "859694c16ab33c59fb357e51b7033f913bb43e5b5b36dd919076494f5be7be1a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/gate-successor-readiness.json",
+      "bytes": 94329,
+      "sha256": "8d6bd49768da3d011b25fb8c2db2c7b6d9d3ceb41d7e8b39f01308b6ca1a2fe9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/static-runtime-witness-map.json",
+      "bytes": 20077,
+      "sha256": "92bb6032b5e7378b5ed0c4d6f4efc93a99ba72fee70d853978f9c5f22c70c7da"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/generator-owner-packet.json",
+      "bytes": 32578,
+      "sha256": "f271b4cf47f49f305621c28619a1cf24f8c9c86b61fffe534e4d71319f074945"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/component-receipt.json",
+      "bytes": 53707,
+      "sha256": "4006003b0c33ab6c5a816236ca4f4590e4b7366aab198ca5510c41866c14569c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/feedback_solve_result.diff.txt",
+      "bytes": 2800,
+      "sha256": "66bb39deb2c0187e69377d1c955005b01e303148f38fbee8e1ca4862da7101c3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/target-only-manifest.diff.txt",
+      "bytes": 1051,
+      "sha256": "e71577f74275a0a66e3f86da385e2d2edacde30a4f64571be0631431fe221f5c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/openapi.diff.txt",
+      "bytes": 5722,
+      "sha256": "8a1f4073dc0be4fdfc8510c1e76ed1ce27bf382655254dd7691948b32744c6a5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/openapi-leaf-diff.json",
+      "bytes": 4387,
+      "sha256": "67530ba28d61100933a3eacec3f4e3c69959e59a1fb3eb92fa5a30c50dc00bdd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/emit.stdout.txt",
+      "bytes": 110,
+      "sha256": "91ec80686cce6dcbc5a00c60ada157087c90685065eb92138383ee05176bbe1e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/emit.stderr.txt",
+      "bytes": 6851,
+      "sha256": "eb1ac5ca3918aaa48074f35c35eced8fc550242d2eda28eaedc73655b11a41d1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/tool-final-observations.json",
+      "bytes": 1292,
+      "sha256": "72def7baf0a8db632da0e681d421d4b3a5b2895daff1b4a7e67e8995d3dd6d73"
+    }
+  ],
+  "total_moderate_bytes": 391541,
+  "no_git_product_source_changes": true
+}

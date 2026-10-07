@@ -1,0 +1,244 @@
+{
+  "independent_reviewer": "/root/lint_r4",
+  "wrapper_sha256": "b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641",
+  "hook_sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288",
+  "current_review": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/independent-wrapper-review.json",
+  "records": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/effective-byte-comparison-removal/actual-source-callback.marker",
+      "portable_path": "current-v3/effective-byte-comparison-removal/actual-source-callback.marker",
+      "bytes": 6,
+      "sha256": "8c90cbf5d27d61f534ee012ea472714b0149ee526e43e0903ff7f07ce7ea4758"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/independent-native-baseline-plan.json",
+      "portable_path": "current-v3/independent-native-baseline-plan.json",
+      "bytes": 196741,
+      "sha256": "742ade407b84c5c54d88730e6802a0a21fb1b9720d44fbbb5be14d5acba3e0f0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/independent-prepared-plan.json",
+      "portable_path": "current-v3/independent-prepared-plan.json",
+      "bytes": 201864,
+      "sha256": "adb88d1b6a9283743f977c94fe0e072ddbf93d0026e9183ea475c4b40fa4d2ab"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/independent-wrapper-review.json",
+      "portable_path": "current-v3/independent-wrapper-review.json",
+      "bytes": 6545,
+      "sha256": "c0795ffc368e4ede4c052574aa782c336bcee2457464dbe62da5360e9af2a8be"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/catalog.json",
+      "portable_path": "current-v3/tiny-hook-exit-0/catalog.json",
+      "bytes": 2216,
+      "sha256": "eeea58537991a3aeec2458615d45495041bb6355de5a2e800f482841f2e9f2a3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/checker-callback.marker",
+      "portable_path": "current-v3/tiny-hook-exit-0/checker-callback.marker",
+      "bytes": 6,
+      "sha256": "8c90cbf5d27d61f534ee012ea472714b0149ee526e43e0903ff7f07ce7ea4758"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/command.json",
+      "portable_path": "current-v3/tiny-hook-exit-0/command.json",
+      "bytes": 1284,
+      "sha256": "39e6358895de97a770681641c426812ff8663e327942d0c04b967a7bbf2cada0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/protocol_checker.py",
+      "portable_path": "current-v3/tiny-hook-exit-0/protocol_checker.py.txt",
+      "bytes": 789,
+      "sha256": "80b3b3eaf63e707a1fe3b5004b100586b800517a33e7af6351000a2933e4dcb1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/stderr",
+      "portable_path": "current-v3/tiny-hook-exit-0/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/stdout",
+      "portable_path": "current-v3/tiny-hook-exit-0/stdout",
+      "bytes": 26,
+      "sha256": "c9b26e7eb9ff1ab770dc99536b07574dd17385414a7982c7aa9424261f9a6f0b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/tmp/retained-runtime-openapi.raw.json",
+      "portable_path": "current-v3/tiny-hook-exit-0/tmp/retained-runtime-openapi.raw.json",
+      "bytes": 26,
+      "sha256": "c9b26e7eb9ff1ab770dc99536b07574dd17385414a7982c7aa9424261f9a6f0b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/tmp/runtime_client_contract_d5or5aen/client.js",
+      "portable_path": "current-v3/tiny-hook-exit-0/tmp/runtime_client_contract_d5or5aen/client.js",
+      "bytes": 10,
+      "sha256": "bce51c403e48b551bd7a2d54dc500b972769efe80cf69fc5515d671ba502b624"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/tmp/runtime_client_contract_d5or5aen/client.ts",
+      "portable_path": "current-v3/tiny-hook-exit-0/tmp/runtime_client_contract_d5or5aen/client.ts",
+      "bytes": 10,
+      "sha256": "ee7aa60dc1325fb9dce9dcd50c967281db5c47a7eb49c3eeeb18ad98585d60c5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0/tmp/runtime_client_contract_d5or5aen/types.ts",
+      "portable_path": "current-v3/tiny-hook-exit-0/tmp/runtime_client_contract_d5or5aen/types.ts",
+      "bytes": 9,
+      "sha256": "0844839121050b57453c65ba6ff3755fc336ffa1d381485a4dac0cea011ba8c2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/catalog.json",
+      "portable_path": "current-v3/tiny-hook-exit-7/catalog.json",
+      "bytes": 2216,
+      "sha256": "6fb1158ffef8119f4522bd0083cd910640aca364658fc10df3e20c3bbcfa3639"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/checker-callback.marker",
+      "portable_path": "current-v3/tiny-hook-exit-7/checker-callback.marker",
+      "bytes": 6,
+      "sha256": "8c90cbf5d27d61f534ee012ea472714b0149ee526e43e0903ff7f07ce7ea4758"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/command.json",
+      "portable_path": "current-v3/tiny-hook-exit-7/command.json",
+      "bytes": 1284,
+      "sha256": "85d51b82dd2b2c24752e4cdfe630f74523eb45e564b7cebd47de07b96e27e429"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/protocol_checker.py",
+      "portable_path": "current-v3/tiny-hook-exit-7/protocol_checker.py.txt",
+      "bytes": 789,
+      "sha256": "265dff5f581aef44ae0515d22ea9f12c52184da621c4d19f637da2d3592ca397"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/stderr",
+      "portable_path": "current-v3/tiny-hook-exit-7/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/stdout",
+      "portable_path": "current-v3/tiny-hook-exit-7/stdout",
+      "bytes": 26,
+      "sha256": "c9b26e7eb9ff1ab770dc99536b07574dd17385414a7982c7aa9424261f9a6f0b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/retained-runtime-openapi.raw.json",
+      "portable_path": "current-v3/tiny-hook-exit-7/tmp/retained-runtime-openapi.raw.json",
+      "bytes": 26,
+      "sha256": "c9b26e7eb9ff1ab770dc99536b07574dd17385414a7982c7aa9424261f9a6f0b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/client.js",
+      "portable_path": "current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/client.js",
+      "bytes": 10,
+      "sha256": "bce51c403e48b551bd7a2d54dc500b972769efe80cf69fc5515d671ba502b624"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/client.ts",
+      "portable_path": "current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/client.ts",
+      "bytes": 10,
+      "sha256": "ee7aa60dc1325fb9dce9dcd50c967281db5c47a7eb49c3eeeb18ad98585d60c5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/types.ts",
+      "portable_path": "current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/types.ts",
+      "bytes": 9,
+      "sha256": "0844839121050b57453c65ba6ff3755fc336ffa1d381485a4dac0cea011ba8c2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/wrong-hook-source/checker.py",
+      "portable_path": "current-v3/wrong-hook-source/checker.py.txt",
+      "bytes": 158,
+      "sha256": "951a793999432f280c14882ce562b4f963ea69c66f0089f33237bd5903f10aaa"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/wrong-hook-source/stderr",
+      "portable_path": "current-v3/wrong-hook-source/stderr",
+      "bytes": 545,
+      "sha256": "b0bb9aa6a8bc4a7d24a217e8edd070651edd8e702affdae1d71b6a91d2872ee0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/wrong-hook-source/stdout",
+      "portable_path": "current-v3/wrong-hook-source/stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/historical-observer-v1.py.txt",
+      "portable_path": "historical-observer-v1.py.txt",
+      "bytes": 11888,
+      "sha256": "43c286017c8ecfd6b548f72354e26ea6b0ccc71415079d05f78013196b15f7e5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/historical-observer-v2.py.txt",
+      "portable_path": "historical-observer-v2.py.txt",
+      "bytes": 12044,
+      "sha256": "3e9901ab84c30bee71e7209c7e43bc914dfad9e73ad50572840e88bbef686a41"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review-v2.stderr",
+      "portable_path": "review-v2.stderr",
+      "bytes": 939,
+      "sha256": "8b5aad5969e588455ee103e5b55acb4c8db31d3f78dd907fcbf4fbd67ae21f3e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review-v2.stdout",
+      "portable_path": "review-v2.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review-v3.stderr",
+      "portable_path": "review-v3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review-v3.stdout",
+      "portable_path": "review-v3.stdout",
+      "bytes": 167,
+      "sha256": "85996977ba035213a0fce741732c6ecfcd82050a5137057049779ac4f16fc354"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review.stderr",
+      "portable_path": "review.stderr",
+      "bytes": 863,
+      "sha256": "4941eb11c841748d8975f02a11e5a59f93d8c02ee779c6061a376156ebf55f9e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review.stdout",
+      "portable_path": "review.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review_wrapper.py",
+      "portable_path": "review_wrapper.py.txt",
+      "bytes": 12045,
+      "sha256": "437f19d61ab769821b4accfe57cd95338dfdff3cd355dafc8c7bfd33f0068c55"
+    }
+  ],
+  "count": 36,
+  "bytes": 452557,
+  "historical_observer_errors": [
+    "v1 used wrong hardcoded argv slice",
+    "v2 unmatched actual companion variable so removal did not happen"
+  ],
+  "source_fixtures": "Mirrored catalogs contain only exact8fa inputs and appended callback controls. Six copies of upstream source omitted from moderate publication; exactGit inputs and literal observer reconstruct them. Not Git checkouts.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/physical-corruption-uncapped_umbrella_py",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-0",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/physical-corruption-plan_wave_py",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/physical-corruption-run_check_py",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/physical-corruption-proposal_json",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/physical-corruption-original-wave-groups_json",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/effective-byte-comparison-removal",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/wrong-hook-source",
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/physical-corruption-collect_wave_py"
+  ],
+  "cleanup_policy": "No permanent deletion; native Trash unavailable. Retained tiny fixtures and raw inputs for deciding receipt."
+}

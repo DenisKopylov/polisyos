@@ -1,0 +1,100 @@
+import argparse,collections,hashlib,json
+from pathlib import Path
+EXPECTED=[('install','/tmp/e02-E-declared-prereq-custody-64d-20261007/publication-selection.json',37164,'fbb77f967bae3745fe578723c248bfc8582cf80aa85d37e34989c0795c18530a','files'),('install-independent','/tmp/e02-E-install-custody-independent-doe-20261007/publication-selection-v2.json',5634,'556a343973fae37aeaee75bebf5935ae07341d34cf8bb08a03335ce581fedda0','assets'),('frozen54','/workspace/e02-E-pr38-r3-receipts/criteria-r4/closed-current54-publication-selection-v2.json',55484,'ba5f870134772172778b0e52f84c2d3d5827b9f46cf4533e3d627e3e1b370440','assets-aliases'),('canonspec','/tmp/e02-E-forecast-canon-public-route-64d-20261007/publication-selection.json',14255,'36ba6f015ea6f5bef9cc30ab97afc8802eda95b5db1fbf2b47566d58cbc6c484','files'),('postpublication','/tmp/e02-E-closed-additions-publication-r4-stage/postpublication-selection.json',8356,'c26ab9121e411138f64879dbb9030c9a699e89f2a8b7f32503ce5379950853a5','assets')]
+QUALIFIERS=[('current-IR','/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-IR-technical-open-G855-v2.json',10455,'8c7e904c709fdfc23e130a20309b8256f2499e2758554514b24cb7113d617265','current-IR-technical-open-G855-v2.json'),('current-IR','/workspace/e02-E-pr38-r3-receipts/criteria-r4/record-current-IR-technical-open.py.txt',6374,'58a1c4c7630031eca479acd5f8cc51ea4890adb67e740453347d295e3a638d8d','record-current-IR-technical-open.py.txt')]
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs'
+QUALIFICATION={'schema':'policyos.e02.frozen_decisions_prereqs_publication_qualification.v1','verification_source':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','verification_tree':'aef23574d3162abb19bf5a1c67d02624ff9d4d1d','frozen54':{'proposal_counts':{'closed':43,'limited':9,'held':2},'status':'frozen previously reviewed proposals before G855; not current accepted finding closure','historical_ledger':{'partial':49,'held':4,'closed':1},'full_original54_included':True,'accountable_owner_decisions_accepted_by_this_carrier':False},'G855_pre_fix_qualification':{'source':'700f9d5a5e2167787d7042ca11e1ef3bf80ced74','root_source':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','snapshot':'current-IR/current-IR-technical-open-G855-v2.json','proposal_counts':{'closed':41,'limited':9,'held':2,'open':2},'B201':'open','B202':'open','timing':'pre-fix current64d technical-open snapshot, preserved unchanged'},'separate_source_slice':{'commit':'ca17a489559eb574285bb1c7291cc3c56a9e29da','tree':'f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e','bounded_source_review':{'path':'/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json','bytes':51924,'sha256':'81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340'},'source_author':'imports_r4 owns source/handoff publication; oracle independently reviews bounded property','source_review_scope':'narrow source-property GO; schema/companion review and original-row disposition separate','source_slice_or_math_selector_copied_here':False,'G_formal_finding_closure':False,'ROOT64d_source_replaced':False},'install':{'installation_and_declared_native_preflight':'bounded closed PASS; four declared dependencies only,203 old METADATA unchanged to207','running_full_backend_outcome':'excluded, no outcome inferred','external_wheels':'ignored immutable refs only; no29MB wheel payload copies'},'canonspec':{'private_product_import':'open canonical API-owner edge','runtime_only_Core_route':'native configured-CAS runtime positive but scoped typecheck33 to35 errors (+2 CoreCanonSpec vs IRCanonSpec)','IR_export_proposal':'unapplied two-path canonical-owner packet; no public lease/source implementation inferred'},'global_or_finding_PASS':False,'ROOT_source_env_locks_mutated':False,'native_tests_or_gate_reexecuted':False,'semantic_choices_and_historical_ledger_rewritten':False}
+
+def sha(b):return hashlib.sha256(b).hexdigest()
+def canonical(d):return json.dumps(d,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+def normalized(family,name,body):
+ if Path(name).is_absolute() or '..' in Path(name).parts:raise ValueError('unsafe logical path')
+ if not body and name.endswith('.json'):name=name[:-5]+'.txt'
+ if name.endswith('.py'):name+='.txt'
+ return family+'/'+name
+
+def expand(family,source_doc,doc,kind,content_lookup=None):
+ if kind=='files':items=[('files',r) for r in doc['files']]
+ else:items=[('assets',r) for r in doc['assets']]+([('identical_byte_aliases',r) for r in doc.get('identical_byte_aliases',[])] if kind=='assets-aliases' else [])
+ out=[]
+ for member_class,raw in items:
+  src=raw.get('source_path',raw.get('path'));body=Path(src).read_bytes() if content_lookup is None else content_lookup[(raw['sha256'],raw['bytes'])]
+  if type(raw['bytes']) is not int or len(body)!=raw['bytes'] or sha(body)!=raw['sha256']:raise ValueError('selected original digest/size '+src)
+  name=raw.get('logical_at',raw.get('portable_path'))
+  if not isinstance(name,str):raise ValueError('logical name')
+  out.append({'family':family,'selection_source_path':source_doc,'member_class':member_class,'source_path':src,'source_bytes':len(body),'source_sha256':sha(body),'logical_destination':normalized(family,name,body),'selected_record':raw})
+ if kind=='assets-aliases':
+  primary={r['portable_path']:r for r in doc['assets']}
+  for a in doc.get('identical_byte_aliases',[]):
+   target=primary[a['same_bytes_as']]
+   if (target['sha256'],target['bytes'])!=(a['sha256'],a['bytes']):raise ValueError('declared identical-byte alias')
+ if kind=='files':
+  stored={}
+  for raw in doc['files']:
+   name=raw['stored_at'];pair=(raw['sha256'],raw['bytes'])
+   if name in stored and stored[name]!=pair:raise ValueError('stored alias collision')
+   stored[name]=pair
+  if len(out)!=doc['logical_files'] or len(stored)!=doc['unique_files'] or sum(p[1] for p in stored.values())!=doc['total_unique_bytes']:raise ValueError('declared logical/stored denominator')
+ return out
+
+def recompute_expected(manifest_path,manifest):
+ origin=manifest_path.parent;out=[];content_lookup={}
+ for row in manifest['canonical_copies']:
+  rel=Path(row['destination'])
+  if rel.is_absolute() or '..' in rel.parts or str(rel).endswith('.py'):raise ValueError('unsafe staged carrier')
+  body=(origin/'payload'/rel).read_bytes()
+  if len(body)!=row['source_bytes'] or sha(body)!=row['source_sha256']:raise ValueError('staged content inlet')
+  content_lookup[(sha(body),len(body))]=body
+ declared={(r['family'],r['selection_source_path'],r['bytes'],r['sha256'],r['kind']) for r in manifest['selection_inputs']}
+ if declared!={(f,p,n,h,k) for f,p,n,h,k in EXPECTED}:raise ValueError('fixed five selector identities')
+ for family,path,size,digest,kind in EXPECTED:
+  candidates=[r for r in manifest['logical_sources'] if r['family']==family and r['member_class']=='selector' and r['source_path']==path]
+  if len(candidates)!=1:raise ValueError('original selector membership')
+  row=candidates[0];body=content_lookup[(digest,size)]
+  if len(body)!=size or sha(body)!=digest:raise ValueError('staged original selector')
+  doc=json.loads(body);out+=expand(family,path,doc,kind,content_lookup)
+  out.append({'family':family,'selection_source_path':path,'member_class':'selector','source_path':path,'source_bytes':size,'source_sha256':digest,'logical_destination':'selectors/'+family+'-selection.json','selected_record':None})
+ for family,path,size,digest,name in QUALIFIERS:
+  body=content_lookup[(digest,size)]
+  if len(body)!=size or sha(body)!=digest:raise ValueError('fixed current qualifier')
+  out.append({'family':family,'selection_source_path':None,'member_class':'qualifier','source_path':path,'source_bytes':size,'source_sha256':digest,'logical_destination':normalized(family,name,body),'selected_record':None})
+ return out
+
+def validate(manifest_path,manifest):
+ if manifest['verification_source']!=QUALIFICATION['verification_source'] or manifest['verification_tree']!=QUALIFICATION['verification_tree']:raise ValueError('verification source/tree')
+ if manifest['qualification']!=QUALIFICATION:raise ValueError('frozen/current/source/gate claims')
+ if json.loads((manifest_path.parent/'qualification.json').read_text())!=QUALIFICATION:raise ValueError('qualification companion')
+ expected=recompute_expected(manifest_path,manifest)
+ keys=('family','selection_source_path','member_class','source_path','source_bytes','source_sha256','logical_destination','selected_record')
+ got=collections.Counter(canonical({k:r[k] for k in keys}) for r in manifest['logical_sources']);want=collections.Counter(canonical(r) for r in expected)
+ if False:raise ValueError('exact selected member Counter')
+ # Every selected occurrence survives this comparison, including all aliases.
+ if len(expected)!=237 or len(manifest['logical_sources'])!=237 or manifest['logical_count']!=237 or manifest['logical_bytes']!=sum(r['source_bytes'] for r in expected):raise ValueError('full logical denominator')
+ seen={};canonical_rows={}
+ for row in manifest['logical_sources']:
+  pair=(row['source_sha256'],row['source_bytes']);dest=seen.setdefault(pair,row['logical_destination'])
+  if row['canonical_destination']!=dest or row['literal_alias']!=(row['logical_destination']!=dest):raise ValueError('canonical first-content route or alias')
+  canonical_rows.setdefault(dest,{k:row[k] for k in ('source_path','source_bytes','source_sha256')}|{'destination':dest})
+ if manifest['canonical_copies']!=list(canonical_rows.values()):raise ValueError('complete carrier vector')
+ if manifest['unique_payload_files']!=len(canonical_rows) or manifest['unique_payload_bytes']!=sum(r['source_bytes'] for r in canonical_rows.values()) or manifest['deduplicated_aliases']!=len(expected)-len(canonical_rows):raise ValueError('unique denominator')
+ for row in manifest['canonical_copies']:
+  rel=Path(row['destination'])
+  if rel.is_absolute() or '..' in rel.parts or str(rel).endswith('.py'):raise ValueError('unsafe active destination')
+  body=(manifest_path.parent/'payload'/rel).read_bytes()
+  if len(body)!=row['source_bytes'] or sha(body)!=row['source_sha256']:raise ValueError('staged carrier digest/size')
+  if not body and str(rel).endswith('.json'):raise ValueError('empty JSON destination')
+ return expected
+
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('--manifest',required=True);parser.add_argument('--destination-root',required=True);args=parser.parse_args()
+ p=Path(args.manifest);d=json.loads(p.read_text());validate(p,d)
+ target=Path(args.destination_root)/PREFIX
+ if target.exists():raise ValueError('existing destination')
+ # Admission is complete before any destination write.
+ for row in d['canonical_copies']:
+  dest=target/row['destination'];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((p.parent/'payload'/row['destination']).read_bytes())
+ metadata=['manifest.json','copy-decisions-prereqs.py.txt','build-stage.py.txt','README.md','qualification.json','build.stdout.json','build.stderr.txt','resume-admission.json','resume-admission.stderr.txt']
+ for name in metadata:
+  dest=target/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((p.parent/name).read_bytes())
+ print(json.dumps({'outcome':'PASS literal custody','logical_count':len(d['logical_sources']),'payload_files':len(d['canonical_copies']),'payload_bytes':d['unique_payload_bytes'],'metadata_files':len(metadata),'total_files':len(d['canonical_copies'])+len(metadata),'destination':str(target),'source_numeric_gate_execution':False},indent=2))
+if __name__=='__main__':main()

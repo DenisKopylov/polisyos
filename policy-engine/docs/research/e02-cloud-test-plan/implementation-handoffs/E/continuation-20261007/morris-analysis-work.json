@@ -1,0 +1,485 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "morris-analysis-work",
+  "bundle_ids": [
+    "DOE-01",
+    "DOE-02",
+    "DOE-03"
+  ],
+  "closure_ids": [
+    "B99",
+    "B100",
+    "B102",
+    "B103",
+    "B104",
+    "B105"
+  ],
+  "slice_base_sha": "82c261b37b742fa46c83af7632cf7d5a34d66dfc",
+  "slice_base_tree": "211636937e6e9c3d9fcb8480084d624c7ae746f3",
+  "implementation_commits": [
+    "767119d44d2272c89f8b441df8e8d2fbcef8ceb9",
+    "5840d477346912b0502689a3eeeb6504e6bc2711"
+  ],
+  "candidate_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+  "candidate_tree_sha": "32b8183ea9cf38bb656a807f79428e50e204a041",
+  "branch": "codex/e02-E-doe-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "canonical_writer": "team-scientist / E DoE; source author doe_r4; independent reviewer oracle_r4",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-doe-morris-analysis-work.toml",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py"
+  ],
+  "mechanism_paths": [
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-doe-morris-analysis-work.toml",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py"
+  ],
+  "classification": "internal; equivalent existing Core artifacts facade route; intentional bug fix refusing undeclared Morris analysis rows",
+  "baseline_cells": [],
+  "baseline_scope": "Imported source-reported VM rows are not this new native analyzer counterexample. Independent exact 70c/a9 Git-blob replay is the baseline deciding observation.",
+  "criterion_sources": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md#B99@82c261b37b742fa46c83af7632cf7d5a34d66dfc",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md#B100@82c261b37b742fa46c83af7632cf7d5a34d66dfc",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md#B102-B105@82c261b37b742fa46c83af7632cf7d5a34d66dfc",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/E.md@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+  ],
+  "property": {
+    "statement": "Before native Morris analysis, failure filtering, PCA, stability or persisted identity, original actual input rows must not exceed the admitted immutable plan trajectory count times (parameter count + 1).",
+    "runtime_path": [
+      "SensitivityPlan -> designs._admit_sensitivity_plan(actual_run_count)",
+      "analysis._prepare_analysis_inputs before validity masks/drop/imputation -> analyze_sensitivity -> SALib 1.5.2 Morris",
+      "MultiOutputAnalyzer -> shared preparation before PCA -> scalar analysis with preserved original accounting",
+      "RankingStabilityChecker -> same actual-work predicate before insufficient-input shortcut and whole-block bootstrap",
+      "analysis._analysis_identity -> _receipt._persist_analysis -> configured CAS -> fresh FileSystemCAS -> _receipt._load_analysis -> real analyze_sensitivity"
+    ],
+    "producer": "Existing native SALib producer/analyzer; no second sampler or analyzer.",
+    "artifact": "Existing doe_sensitivity_analysis 1.0 CAS receipt binds plan + ordered actual rows/outcomes + numerical result/content identities.",
+    "bridge_consumer": "Existing internal _receipt writer/loader and PCA/stability callers; additional default Search consumer remains owned separately by D.",
+    "surface": "Internal typed SensitivityResult and configured CAS readback; no new public/API surface or authority is claimed.",
+    "proxy_divergence": "One-trajectory plan/cap2 + four finite, geometrically valid rows yielded mu_star=2 at old exact source even though only two rows were admitted. Valid geometry, finite outputs and a correct point estimate do not establish actual-work admission.",
+    "negative_controls": [
+      "Four valid rows under one-trajectory plan: refused before SALib/PCA; allow_large_run=true or cap100 does not expand trajectory identity.",
+      "Excess original rows cannot become admitted by DROP_FAILED or IMPUTE_BASELINE.",
+      "Fresh content-valid CAS receipt with smaller forged plan is refused before SALib.",
+      "Remove only actual-work predicate while retaining plan snapshot/markers/import aliases: SALib receives four rows and the property discriminator fails."
+    ],
+    "positive_controls": [
+      "Healthy two rows invoke real SALib once, mu_star2, sigmaNaN and point_only_incomplete.",
+      "Explicit larger two-trajectory plan preserves ordinary allow_large_run and gives four rows, mu_star2, sigma≈0.",
+      "Admitted four original rows with one failed row retain whole-trajectory drop and original4/success3/failed1/effective2 counts.",
+      "Actual native four-row result persists and reproduces from a fresh configured CAS with exact analysis_id."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_details": {
+    "actual_row_count": "recomputed from original arrays before failure filtering",
+    "admitted_work": "recomputed arithmetic from defensively revalidated plan snapshot; request configuration is a scoped design input, not budget authority",
+    "paired_order_identity": "existing content digest binds actual ordered rows/outcomes",
+    "population_law_or_authority": "not_established; existing exploratory limitation preserved"
+  },
+  "input_identity": {
+    "parameters": [
+      "x"
+    ],
+    "physical_support": [
+      0,
+      1
+    ],
+    "num_levels": 4,
+    "rows_exact": [
+      "0",
+      "2/3",
+      "1/3",
+      "1"
+    ],
+    "response": "y=2*x",
+    "seed": 23,
+    "linear_oracle": "Exact Fraction slopes from independently declared response are2,2; mu_star2 and two-effect sample sigma0; one-effect ddof1 undefined."
+  },
+  "historical_backend_correction": {
+    "sources": [
+      "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "a9f78817c873be5b35a08155f2593b229d9fdbb6"
+    ],
+    "two_rows": {
+      "decision": "accepted",
+      "mu_star": 2,
+      "sigma": "NaN",
+      "SALib_calls": 1
+    },
+    "four_rows": {
+      "decision": "accepted despite one-trajectory/two-row plan",
+      "mu_star": 2,
+      "sigma": 4.440892098500626e-16,
+      "SALib_calls": 1
+    },
+    "correction": "NaN is the one-trajectory control dispersion. The excess four-row counterexample has near-zero finite dispersion; neither output establishes inference. Actual work admission is the defect."
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "target_sha": "82c261b37b742fa46c83af7632cf7d5a34d66dfc",
+      "test_source_sha": "767119d44d2272c89f8b441df8e8d2fbcef8ceb9",
+      "outcome": "FAIL",
+      "case_counts": {
+        "total": 21,
+        "PASS": 3,
+        "FAIL": 18,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "output": "morris-analysis-work/author-baseline-red.stdout + .stderr + .xml",
+      "scope": "Future regression executed against unchanged slice-base modules; expected red. Eighteen failing assertions are not eighteen distinct product defects."
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "target_sha": "767119d44d2272c89f8b441df8e8d2fbcef8ceb9",
+      "outcome": "PASS",
+      "case_counts": {
+        "total": 21,
+        "PASS": 21,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "output": "morris-analysis-work/author-admission.stdout + .stderr + .xml"
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/scientist/methods/doe tests/unit/remediation/test_doe_01.py tests/unit/remediation/test_doe_02.py tests/unit/remediation/test_doe_03.py tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py tests/unit/scientist/methods/search/test_sensitivity_adapter.py",
+      "target_sha": "767119d44d2272c89f8b441df8e8d2fbcef8ceb9",
+      "outcome": "ERROR",
+      "exit_code": 4,
+      "case_counts": {
+        "total": 0
+      },
+      "output": "morris-analysis-work/author-family.stdout + .stderr",
+      "scope": "Nonexistent selector; corrected to actual existing receipt consumer tests in DoE directory. This attempt is not a product FAIL or PASS."
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/scientist/methods/doe tests/unit/remediation/test_doe_01.py tests/unit/remediation/test_doe_02.py tests/unit/remediation/test_doe_03.py tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "target_sha": "767119d44d2272c89f8b441df8e8d2fbcef8ceb9",
+      "outcome": "PASS",
+      "case_counts": {
+        "total": 221,
+        "PASS": 221,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "output": "morris-analysis-work/author-family-resolved.stdout + .stderr + .xml",
+      "unchanged_dependency_reuse": "All runtime and existing family test blobs unchanged at5840; only new regression Core module binding changed and that21-case file rerun on5840."
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "target_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "outcome": "PASS",
+      "case_counts": {
+        "total": 21,
+        "PASS": 21,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "output": "morris-analysis-work/author-import-delta.stdout + .stderr + .xml"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/oracle-r4/probe_morris_candidate.py",
+        "--ref",
+        "5840d477346912b0502689a3eeeb6504e6bc2711",
+        "--output-dir",
+        "/workspace/e02-E-pr38-r3-receipts/oracle-r4/candidate-5840d477-final"
+      ],
+      "target_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "outcome": "PASS",
+      "case_counts": {
+        "total": 11,
+        "PASS": 11
+      },
+      "effective_removal_gate": "FAIL as required (4 native rows admitted against2 when property removed)",
+      "output": "morris-analysis-work/independent-candidate-oracle.json",
+      "executed_source": "morris-analysis-work/independent-candidate-probe.py.txt"
+    },
+    {
+      "command": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff check src/polisyos/scientist/methods/doe/analysis.py src/polisyos/scientist/methods/doe/designs.py src/polisyos/scientist/methods/doe/morris_geometry.py src/polisyos/scientist/methods/doe/stability.py tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "target_sha": "767119d44d2272c89f8b441df8e8d2fbcef8ceb9",
+      "outcome": "PASS",
+      "output": "morris-analysis-work/ruff.stdout + .stderr",
+      "denominator": 5
+    },
+    {
+      "command": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/scientist/methods/doe/analysis.py src/polisyos/scientist/methods/doe/designs.py src/polisyos/scientist/methods/doe/morris_geometry.py src/polisyos/scientist/methods/doe/stability.py tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "target_sha": "767119d44d2272c89f8b441df8e8d2fbcef8ceb9",
+      "outcome": "PASS",
+      "output": "morris-analysis-work/format.stdout + .stderr",
+      "denominator": 5
+    },
+    {
+      "command": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff check tests/unit/scientist/methods/doe/test_morris_analysis_admission.py; /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff format --check tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "target_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "outcome": "PASS",
+      "output": "morris-analysis-work/import-delta-ruff.stdout + import-delta-format.stdout",
+      "denominator": 1
+    }
+  ],
+  "environment_ref": "morris-analysis-work/environment.json",
+  "finding_states": {
+    "B99": {
+      "historical_ledger_status": "partial",
+      "finding_outcome_proposal": "limited",
+      "owner_decision": "accountable original-criterion owner disposition remains separate from this bounded code review"
+    },
+    "B100": {
+      "historical_ledger_status": "partial",
+      "finding_outcome_proposal": "limited",
+      "owner_decision": "accountable original-criterion owner disposition remains separate from this bounded code review"
+    },
+    "B102": {
+      "historical_ledger_status": "partial",
+      "finding_outcome_proposal": "limited",
+      "owner_decision": "accountable original-criterion owner disposition remains separate from this bounded code review"
+    },
+    "B103": {
+      "historical_ledger_status": "partial",
+      "finding_outcome_proposal": "limited",
+      "owner_decision": "accountable original-criterion owner disposition remains separate from this bounded code review"
+    },
+    "B104": {
+      "historical_ledger_status": "partial",
+      "finding_outcome_proposal": "limited",
+      "owner_decision": "accountable original-criterion owner disposition remains separate from this bounded code review"
+    },
+    "B105": {
+      "historical_ledger_status": "partial",
+      "finding_outcome_proposal": "limited",
+      "owner_decision": "accountable original-criterion owner disposition remains separate from this bounded code review"
+    }
+  },
+  "criterion_separation": {
+    "B99": "Adaptive child preserves explicit override and blocks oversized plan before evaluator; existing native controls reused. Actual analyzer-input defect is separate and does not redefine B99.",
+    "B100": "Original sampler/analyzer distribution transform/support/quantile/truncation/fingerprint/readback criterion remains E; D additional Search edge cannot hold its owner adjudication.",
+    "B102_B103": "Whole Morris blocks and original failure denominators remain preserved; this repair adds shared actual-input admission.",
+    "B104_B105": "PCA rank and normalized effect-unit controls unchanged and included in affected family replay."
+  },
+  "capability_state_or_finding_state": "partial",
+  "limitations_and_next_owner": [
+    "E root merges exact source then rechecks affected consumers after import sibling changes; source freeze/common numeric and global gates remain with root.",
+    "D owns additional default Search analysis_ref/codec/reopen/ranking bridge; no D source changed and this edge is not B100 acceptance.",
+    "G accepts code separately from original finding closure; accountable team-scientist owners decide each original criterion individually.",
+    "No population law, sampling provenance, statistical inference, cumulative resource authority or production history is established by these fixtures.",
+    "No new dependencies or semantic/schema contracts; standalone coordinate-based elementary-effect helper has no SensitivityPlan and is outside the plan actual-work predicate."
+  ],
+  "receipt_assets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-admission.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-admission.stdout",
+      "bytes": 1195,
+      "sha256": "dce9e850861fe733566b7d99a23b599cc77a2fc8f92126e9e2b4e81a230d2b57"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-admission.xml",
+      "bytes": 4005,
+      "sha256": "e91c8b9aeb3fbde2d6c379bde03c32f81ed922f5584ed5f8deadb126b5b85c3f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-baseline-red.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-baseline-red.stdout",
+      "bytes": 48966,
+      "sha256": "988d72894ebdb39e4599f6d539893791ff8e6b33dc185e15ff98c27d2c92d572"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-baseline-red.xml",
+      "bytes": 49703,
+      "sha256": "73dd5798e5c77727457b4449644d88fb42e90de37062d645efef1c2a6d84afc3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family-resolved.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family-resolved.stdout",
+      "bytes": 2280,
+      "sha256": "1482a396423b3c5feba35c06cc6bc0ef8ac50273823391ab68aa1ddf279c954a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family-resolved.xml",
+      "bytes": 36923,
+      "sha256": "49ef5f2b8f552553e69deb811f749ba230a4fa10411214ba1e822eb202e33ab5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family.stderr",
+      "bytes": 101,
+      "sha256": "0a305126a50aa8931de0e84ced54211c1af31a3daede70596f41843b7755cfe0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family.stdout",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-import-delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-import-delta.stdout",
+      "bytes": 1195,
+      "sha256": "dce9e850861fe733566b7d99a23b599cc77a2fc8f92126e9e2b4e81a230d2b57"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-import-delta.xml",
+      "bytes": 4005,
+      "sha256": "a81ecdb5863eb223befd7c3a54a20699f3712b9558623888c7b4086ed2882b00"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/environment.json",
+      "bytes": 1571,
+      "sha256": "c9ca9d11d14081c70187c1a53adf7d1e2beb5414219c0382df7b5533d89638d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/format.stdout",
+      "bytes": 26,
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/import-delta-format.stdout",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/import-delta-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-candidate-oracle.json",
+      "bytes": 26303,
+      "sha256": "8e966990ed4cccaf2fa2fed11a35fbb64b6d6cec413db9a79f6eaaa6c81352c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-candidate-probe.py.txt",
+      "bytes": 9613,
+      "sha256": "296fba140ea56fc3f510f238a8d213fc6e272006e76493fa6e02a45b2f4337d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-candidate.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-candidate.stdout",
+      "bytes": 468,
+      "sha256": "95341771137e8ede3c2913b4c121872a50b2e015ad9295f6b83ef11fb9f8b2ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-historical-oracle.json",
+      "bytes": 18803,
+      "sha256": "53aa2676ce63ad138cc4d265147080a3c81c63e9f2eda00d1096b7378e8242a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-historical-probe.py.txt",
+      "bytes": 6854,
+      "sha256": "dd8111b3301f2486d2ead5abf7f2c3099928e703d66fe480540f1caca75f84ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-historical.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-historical.stdout",
+      "bytes": 1521,
+      "sha256": "6d6dfcdca38a4af6a741254122bec44b8cdc06f2b19976f23b5ae79989f38608"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-old-falsifier.stderr",
+      "bytes": 640,
+      "sha256": "3b69efee2276891668a8ffa3283dc87172ac4aa7dae7a129c206221cef869cbf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-review.json",
+      "bytes": 6632,
+      "sha256": "18eedd7fefd1da0702b3203cd0232256acfb0da12f2805a2900a0bd650886b31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "cleanup_candidates": {
+    "native_trash": "unavailable; no deletion performed",
+    "repeatable": [
+      "/workspace/e02-E-pr38-r3-receipts/doe-r4"
+    ],
+    "preserve": [
+      "source topic commits",
+      "committed deciding outputs",
+      "shared configured venv while active users remain"
+    ],
+    "action": "Root lists only; do not delete permanently or clear Trash."
+  },
+  "pattern_pass": {
+    "P31_P40": "Actual analyzed work is the same admitted-plan mismatch class at a deeper consumer level; widen shared plan admission across preparation/identity/geometry/stability, not backend-local exceptions.",
+    "P29_P37_P38": "Actual original count recomputed against admitted snapshot; valid geometry/point estimate proxy divergence plus effective runtime property removal.",
+    "P39": "Four mechanism modules; README/regression/release fragment/evidence are required companions outside any mechanism cap.",
+    "P41": "Old exact70c/a9 native defect replayed; no global inherited-red claim."
+  },
+  "independent_review": {
+    "disposition": "GO",
+    "reviewer": "/root/oracle_r4",
+    "target_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+    "target_tree": "32b8183ea9cf38bb656a807f79428e50e204a041",
+    "full_footprint": 7,
+    "output": "morris-analysis-work/independent-review.json",
+    "scope": "Additional analysis-work admission and artifact consumer; not original finding closure or global CI."
+  },
+  "independent_replay": {
+    "historical_script": "morris-analysis-work/independent-historical-probe.py.txt",
+    "candidate_script": "morris-analysis-work/independent-candidate-probe.py.txt",
+    "role": "Literal executed observer source, archived as text; no active publication builder or alternate product implementation.",
+    "portability": "Original executed scripts pin absolute cloud REPO/root path; local G may use the mirrored native test module on exact candidate with SALib1.5.2, or explicitly rebind only REPO to its fetched local checkout and record that path/environment. No production inputs required for this generic property.",
+    "canonical_tracked_test_command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+    "source_identity": "Candidate/tree and every loaded DoE/Core blob checked by independent final oracle output."
+  },
+  "handoff_validation": {
+    "command": "inline Python recomputes git candidate/tree/source footprint and all 31 deciding asset hashes/sizes, then mutates each bound field independently",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work.validation.stdout",
+    "healthy": "PASS",
+    "corrupt_field_controls": 5,
+    "scope": "Metadata reference integrity only; defining runtime property established separately by native checks and independent removal"
+  }
+}

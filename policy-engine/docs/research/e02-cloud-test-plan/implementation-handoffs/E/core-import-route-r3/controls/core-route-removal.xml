@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="9.436" timestamp="2026-10-07T07:44:28.205532+00:00" hostname="b5f0914494dc"><testcase classname="tests.unit.calibration.test_core_artifact_routes" name="test_actual_persistence_consumes_core_root_binding" time="0.040"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f1b9d29c050&gt;
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-225/test_actual_persistence_consum0')
+
+    def test_actual_persistence_consumes_core_root_binding(monkeypatch, tmp_path: Path):
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+    
+        def unavailable_options(**kwargs):
+            raise RuntimeError("Core artifact export unavailable")
+    
+        # Keep the public names present, but remove the actual writer capability.
+        monkeypatch.setattr(
+            core,
+            "artifacts",
+            SimpleNamespace(ArtifactWriteOptions=unavailable_options, SchemaInfo=artifacts.SchemaInfo),
+        )
+&gt;       with pytest.raises(RuntimeError, match="Core artifact export unavailable"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+tests/unit/calibration/test_core_artifact_routes.py:69: Failed</failure></testcase></testsuite></testsuites>

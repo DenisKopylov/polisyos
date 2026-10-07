@@ -1,0 +1,23 @@
+import collections,hashlib,json,subprocess
+from pathlib import Path
+R=Path('/workspace/e02-E-frc-20261006');C='7f872f2119f220ae86510ca89993ed0240efe982';B='66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd';P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan';S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage');O=Path('/tmp/e02-E-cleanup-description-plan-custody-independent')
+def need(c,m):
+ if not c:raise ValueError(m)
+def git(*x):return subprocess.check_output(['git','-C',str(R),*x])
+def raw(p):return git('show',C+':'+p)
+def h(b):return hashlib.sha256(b).hexdigest()
+m=json.loads(raw(P+'/manifest.json'));q=json.loads(raw(P+'/qualification.json'));code=raw(P+'/copy-cleanup-description-plan.py.txt');ns={'__name__':'immutable_copier'};exec(compile(code,'immutable7f','exec'),ns)
+need(git('rev-parse',C+'^{tree}').decode().strip()=='8b5728addc9e4ab5702cba8aec7cb73730b366f2','candidate tree');need(git('rev-parse',C+'^').decode().strip()==B,'append ancestry')
+need(raw(P+'/manifest.json')==(S/'manifest.json').read_bytes(),'stage manifest immutable');want=ns['validate'](S/'manifest.json',m);need(len(want)==237,'native actualsixselectorCounter');need(sum(x['member_class']!='selector' for x in want)==231,'actualselected231')
+for row in m['logical_sources']:
+ b=Path(row['source_path']).read_bytes();need(h(b)==row['source_sha256'] and len(b)==row['source_bytes'],'actualoriginal logicalsource byteidentity')
+paths=git('diff','--name-status',B,C).decode().splitlines();foot=[]
+for x in paths:
+ state,p=x.split('\t');need(state=='A' and p.startswith(P+'/') and not p.endswith('.py'),'fullpassiveadditive footprint');b=raw(p);need(b==(R/p).read_bytes(),'all207 currentGitbytes');foot.append({'path':p,'bytes':len(b),'sha256':h(b)})
+need(len(foot)==207 and sum(x['bytes'] for x in foot)==4091642,'fullGitpath/bytes');payload={P+'/'+x['destination'] for x in m['canonical_copies']}
+need(len(payload)==196,'unique196');need(m['deduplicated_aliases']==41,'aliases41')
+for row in m['canonical_copies']:
+ b=raw(P+'/'+row['destination']);need(len(b)==row['source_bytes'] and h(b)==row['source_sha256'],'actual196Gitpayload hashes')
+for x in ns['METADATA']:need(raw(P+'/'+x)==(S/x).read_bytes(),'literal admittedmetadata stageGit')
+extra={x['path'] for x in foot}-payload-{P+'/'+x for x in ns['METADATA']};need(extra=={P+'/correct-raw-stream-portable.py.txt',P+'/metadata-admission-correction.py.txt'},'exactunadmittedcompanions')
+r={'schema':'policyos.e02.six_chain_immutable_custody.v1','source_candidate':C,'source_tree':'8b5728addc9e4ab5702cba8aec7cb73730b366f2','base':B,'verification_source':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','custody_of_current207Gitfiles':'GO','copier_complete_companion_admission':'CHANGE_REQUIRED','defect':'Copier admitted9metadata+196payload=205 but actualGitpacket207. Exacttwo passive correctionrecipes neither admitted before callback nor replayed. Preserve historical7f/build205, appendall11metadata+recomputed207 beforewrite; addactualmissing/forged recipe controls.','exact_missing_companions':sorted(extra),'actual_full_git_paths':207,'actual_full_git_bytes':4091642,'actual_selected_occurrences':231,'actual_original_selectors':6,'logical_rows':237,'unique_payloads':196,'aliases':41,'unique_payload_bytes':3554254,'full_footprint':foot,'qualification':q,'no_native_numeric_source_or_gate_repeat':True};(O/'independent-7f-custody-and-companion-gap.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k not in ('full_footprint','qualification')},indent=2))

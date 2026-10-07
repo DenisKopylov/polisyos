@@ -1,0 +1,59 @@
+{
+  "source_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "source_tree": "cee54ddfec357aedc96a8495b4a9fff5b5cec167",
+  "inputs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "canonical_sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+      "canonical_bytes": 47862,
+      "overlay_sha256": "4adf58112ce83c8ae8c3ada23bebae5b5b724acf8350e60af9bbf2bc2a92d86e",
+      "overlay_bytes": 48558
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "canonical_sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1",
+      "canonical_bytes": 1561,
+      "overlay_sha256": "385321444290222cf3b3b9e8e0900acb0298fef181aa02ecf675be8cfc34e3e7",
+      "overlay_bytes": 1906
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "canonical_sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f",
+      "canonical_bytes": 24137,
+      "overlay_sha256": "341749d49ea9df845b32cb0bbf1501b49986656669ead5fd2269b77baa92cada",
+      "overlay_bytes": 24125
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "canonical_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "canonical_bytes": 81721,
+      "overlay_sha256": "a2f98071ff7fbfe7a9173424d8ffbf36e2b514046a2807fdeded133d60e4fb9c",
+      "overlay_bytes": 81680
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "canonical_sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0",
+      "canonical_bytes": 27666,
+      "overlay_sha256": "f41eb3ba073980a6a3e2998a78967a592f5eae7ade9bac448169ffedec3a4f68",
+      "overlay_bytes": 27657
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "canonical_sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def",
+      "canonical_bytes": 192619,
+      "overlay_sha256": "0e9259e1ec4f2b6a9e08cf7dc6c1cf49ab4f7f3c81b05c6958330899f455ad0f",
+      "overlay_bytes": 192607
+    }
+  ],
+  "packet_hashes": {
+    "canonical-owner-exports.patch": "4fb418b33121c9b7abe38cdff6ae8083fd78f92045ec68a0a38f49cefdf0870f",
+    "E-consumers-after-owner-exports.patch": "91f366fec701106259e9a24c55064d633d403cd282157dc87359f4ff42472698"
+  },
+  "unchanged_from_four_IR_export_draft": [
+    "policy-engine/src/polisyos/foundry/execute/__init__.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py"
+  ],
+  "canonical_sources_unchanged": true
+}

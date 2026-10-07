@@ -1,0 +1,488 @@
+{
+  "candidate": "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af",
+  "tree": "2e3a5460ffbee38b86b4a771ff8090b426f0dc07",
+  "property": "Actual welfare producer persists every terminal draw; fresh CAS consumer reconciles denominator, row/input identity, output values and success-array order; partial support is conditional only.",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "backend": "NumPy native welfare path",
+    "source_import": "/workspace/e02-E-cal-review-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "threads_processes_cpu_caps": "none imposed"
+  },
+  "input": "Bounded Uniform[-1,1], numpy.default_rng(23); deterministic independent terminal fixtures; no production history.",
+  "command_argv": [
+    "/workspace/e02-E-20261006-receipts/cal-independent/welfare_repaired_review.py",
+    "/workspace/e02-E-cal-review-20261006",
+    "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af"
+  ],
+  "source_sha256": {
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": "56672a2e5b97ad88f7022122f981b04e838bfa0a1fc3553b3aa51bb85b090b53",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": "abad157b3b2775eb4b6ac135d738e97efc59b914b973fed30d131c892e6ed39b",
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py": "ecd18058f2541334469654bf109f3f09ed789330ec4d422967105c09d317e200",
+    "policy-engine/src/polisyos/foundry/calibration/hessian.py": "516fb0a8d02d76494f1990bf36ddc6e074f1a5891e8607f25254e689495ba00a",
+    "policy-engine/src/polisyos/foundry/calibration/report.py": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945",
+    "policy-engine/src/polisyos/ir/analytics/welfare.py": "58da810d7c06634d459edf55884147eb8e4265cece1c018eef902c30a4cea58b"
+  },
+  "artifact_refs": {
+    "partial_sample": {
+      "artifact_id": "sha256:ebfb58e38dc8283574cf03afd5c3ad43a9b9860e110884e39e6592ee3a28a061",
+      "kind": "ir.welfare_sample_bundle",
+      "media_type": "application/json"
+    },
+    "partial_outcomes": {
+      "artifact_id": "sha256:22993b8383ffa3c354001e78f216681f0b5c7084d1a815eecd39ea53a456c829",
+      "kind": "foundry.welfare_draw_outcomes",
+      "media_type": "application/json"
+    },
+    "all_failed_outcomes": {
+      "artifact_id": "sha256:113c57cd1f6fe31fc50a6f80771d9ae6886b77428e2fc9b090601def419e34bd",
+      "kind": "foundry.welfare_draw_outcomes",
+      "media_type": "application/json"
+    },
+    "native_B197_report": {
+      "artifact_id": "sha256:cb5f0cebb93c60cf49260e98dd7ba2a3854ef7344a8bc92b47ffbef66991f53a",
+      "kind": "foundry.calibration_report",
+      "media_type": "application/json"
+    }
+  },
+  "checks": [
+    {
+      "name": "actual_uniform_partial_support_with_fresh_CAS_read",
+      "outcome": "PASS",
+      "details": {
+        "requested": 2048,
+        "successful": 1033,
+        "failed": 1015,
+        "unconditional_input_mean": 0.002223493846691546,
+        "conditional_output_mean": 0.4857377689202541,
+        "unconditional_evaluator_mean": "undefined_without_owner_completion_rule",
+        "conditional_interval": [
+          0.020814942885774287,
+          0.9653262405509142
+        ]
+      }
+    },
+    {
+      "name": "complete_bounded_predictive_draws_remain_nongating",
+      "outcome": "PASS",
+      "details": {
+        "draws": 256,
+        "observed_mean": 0.033390110780731994,
+        "analytic_input_mean": 0.0,
+        "no_mean_error_certificate_claimed": true
+      }
+    },
+    {
+      "name": "missing_sibling_non_numeric_nonfinite_invalid_and_exception_outcomes",
+      "outcome": "PASS",
+      "details": {
+        "failed_draws": [
+          1,
+          3,
+          5,
+          7,
+          9
+        ],
+        "codes": {
+          "1": [
+            "missing_output"
+          ],
+          "3": [
+            "non_numeric_output"
+          ],
+          "5": [
+            "non_finite_output"
+          ],
+          "7": [
+            "invalid_response"
+          ],
+          "9": [
+            "simulation_exception"
+          ]
+        },
+        "all_output_support": "conditional"
+      }
+    },
+    {
+      "name": "single_failed_draw_remains_explicit_conditional_support",
+      "outcome": "PASS",
+      "details": {
+        "failed": 1,
+        "successful": 127,
+        "scope": "conditional_on_all_outputs_finite"
+      }
+    },
+    {
+      "name": "all_failed_budget_retains_receipt_without_estimate",
+      "outcome": "PASS",
+      "details": {
+        "native_error_code": "ERROR_MONTE_CARLO_NOT_CONVERGED",
+        "attempted": 128,
+        "failed": 128,
+        "persisted_terminal_ref": "sha256:113c57cd1f6fe31fc50a6f80771d9ae6886b77428e2fc9b090601def419e34bd"
+      }
+    },
+    {
+      "name": "unknown_multi_input_law_admission_monte_carlo",
+      "outcome": "PASS",
+      "details": {
+        "deterministic_nominal_callbacks": 0,
+        "stochastic_callbacks": 0,
+        "missing_owner": "Welfare input-law owner",
+        "iid_product_law": "not_established"
+      }
+    },
+    {
+      "name": "unknown_multi_input_law_admission_delta",
+      "outcome": "PASS",
+      "details": {
+        "deterministic_nominal_callbacks": 0,
+        "stochastic_callbacks": 0,
+        "missing_owner": "Welfare input-law owner",
+        "iid_product_law": "not_established"
+      }
+    },
+    {
+      "name": "invalid_scale_admission_precedes_every_draw_callback",
+      "outcome": "PASS",
+      "details": {
+        "invalid_scales": [
+          "NaN",
+          "+Inf",
+          "-1"
+        ],
+        "callbacks": 0
+      }
+    },
+    {
+      "name": "native_B197_tie_and_invalid_covariance_before_callback",
+      "outcome": "PASS",
+      "details": {
+        "actual_tied_projected_covariance": [
+          [
+            0.0024999999441206455,
+            0.0024999999441206455
+          ],
+          [
+            0.0024999999441206455,
+            0.0024999999441206455
+          ]
+        ],
+        "contrast_variance": 0.0,
+        "independent_marginal_proxy_variance": 0.004999999888241291,
+        "invalid_admission_controls": [
+          {
+            "method": "monte_carlo",
+            "bad_covariance": "inf",
+            "limitation_codes": [
+              "calibration_covariance_invalid"
+            ],
+            "callbacks": 0
+          },
+          {
+            "method": "monte_carlo",
+            "bad_covariance": "-1.0",
+            "limitation_codes": [
+              "calibration_covariance_invalid"
+            ],
+            "callbacks": 0
+          },
+          {
+            "method": "delta",
+            "bad_covariance": "inf",
+            "limitation_codes": [
+              "calibration_covariance_invalid"
+            ],
+            "callbacks": 0
+          },
+          {
+            "method": "delta",
+            "bad_covariance": "-1.0",
+            "limitation_codes": [
+              "calibration_covariance_invalid"
+            ],
+            "callbacks": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "present_but_fake_successful_count",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "successful_count",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "successful draw denominator does not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:47a9ada8828812314a0f700e774572c16410bcbf222321329dea4e3fd212e86e",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_orphan_failure",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "orphan_failure",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "failure records do not match the attempted draw denominator",
+        "sample_ref": {
+          "artifact_id": "sha256:99e36027372dc4df02d59cde588092861871e1925ef1184184d2773668ab7070",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_out_of_denominator_failure",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "out_of_denominator_failure",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "failure records do not match the attempted draw denominator",
+        "sample_ref": {
+          "artifact_id": "sha256:9059bbd914c807f574afbf423645cdf526556aee6dc85f9d44e38763766d66a5",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_out_of_denominator_draw",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "out_of_denominator_draw",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "draw denominator does not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:bb1b4cfad3615e68a7241f7c3e89bf0bff08b1d2575505b6126156454fb29c6f",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_successful_null_input",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "successful_null_input",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "successful welfare output lacks its sampled input identity",
+        "sample_ref": {
+          "artifact_id": "sha256:32f0adc200d4d7a0544297c1e1d20d909b9755d211ce1a95576bde67754b21ee",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_row_hash",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "row_hash",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare sampled input content does not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:49a00032f8e0bc7810d8dfc6aa0a0e9c5241696fc4adcd19558d902c927e1bd5",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_wrong_output_value",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "wrong_output_value",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare sample arrays do not match ordered outcome records",
+        "sample_ref": {
+          "artifact_id": "sha256:4b1510c4cfcbbf413a0e560fa5cce101a48eb1cd0e5cd488f085f47648f8637d",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_missing_metric",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "missing_metric",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "draw output denominator does not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:65d4bf2759037903639cb6756515cb7056171997d1753ac7a039204ce429eb94",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_failure_reason_missing",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "failure_reason_missing",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "draw terminal outcomes disagree with failure records",
+        "sample_ref": {
+          "artifact_id": "sha256:a645fd7d912bdde13f9a432d98da7fa4c10e7dc3cb579d030de1e236b46c59e9",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_reordered_sample",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "reordered_sample",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare sample arrays do not match ordered outcome records",
+        "sample_ref": {
+          "artifact_id": "sha256:348cf56fb711750c7736d741351c9ccb5a7327c2192becc552ed46c2ed75a7a0",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_false_scope",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "false_scope",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare sample estimate scope does not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:aac6da943c97e4125c53f7080713f613731552cd441169d8ad050574c34e1ce4",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_boolean_count",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "boolean_count",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "draw denominator does not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:da4f0abd867c97044dc6c70f3f2322a84951ae002a17bf1690265e053d42b2f1",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_boolean_failed_count",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "boolean_failed_count",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare support claims do not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:a0734370262c1af387db2af05510c007d4023217807ae221561051304e6adf99",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_integer_support_flag",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "integer_support_flag",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare support claims do not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:a4da3d27d7fb9369f8d944d59a017f0ce69950bf733b7526d7482070ff7acef8",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_string_parameter_order",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "string_parameter_order",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare requested draw/input identities do not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:806d8734eade1caeaffea6565bbba79b84c3c608174e82a7a950c750acbf8acb",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_wrong_typed_outcomes",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "wrong_typed_outcomes",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare draw-outcome manifest admission failed",
+        "sample_ref": {
+          "artifact_id": "sha256:c97ffcd0bd4113c8a7c68ecefe0296b441d7a65673fe65cce91ffbac3e1fb48c",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "present_but_fake_orphan_sample",
+      "outcome": "PASS",
+      "details": {
+        "negative_kind": "orphan_sample",
+        "CAS_hash_and_schema_valid": true,
+        "old_payload_proxy_accepts": true,
+        "strict_consumer_rejection": "welfare sample draw-outcome lineage does not reconcile",
+        "sample_ref": {
+          "artifact_id": "sha256:88fed7e0a6942bfd3e468475f1a8602eb820d16ae395ab10cf428f3a7a6e18a1",
+          "kind": "ir.welfare_sample_bundle",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "denominator_property_removal_negative_control",
+      "outcome": "PASS",
+      "details": {
+        "property_removal_admits_forged_count": true,
+        "same_fake_markers_preserved": true,
+        "normal_rejection_before": "successful draw denominator does not reconcile",
+        "normal_rejection_after": "successful draw denominator does not reconcile"
+      }
+    }
+  ],
+  "outcome": "PASS",
+  "wall_seconds": 10.788851466990309,
+  "P37_basis": "Preserve requested/attempted/success/failed/unattempted; evaluate finite output conjunction; mathematical DGP is candidate evidence, not served/source law. Nominal point differs from conditional/unconditional mean.",
+  "P40_class": "All outcome/support summaries and consumer sample records, including sibling metrics and exception/missing-output failures; no patch-by-marker closure.",
+  "P41_basis": "Exact imported source blobs, native producing caller and fresh CAS reads; old payload-only proxy explicitly diverges.",
+  "limitations": [
+    "No production or served evaluator provenance established.",
+    "No mean-error certificate, IID source law, causal authority, IR point/interval wire ratification, or finding closure claimed.",
+    "Public legacy IR sample loader remains a payload-only proxy; strict sample reconciliation is exercised at the welfare producer and fresh strict-loader seam."
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-cas-9dde740f6c5e"
+  ]
+}

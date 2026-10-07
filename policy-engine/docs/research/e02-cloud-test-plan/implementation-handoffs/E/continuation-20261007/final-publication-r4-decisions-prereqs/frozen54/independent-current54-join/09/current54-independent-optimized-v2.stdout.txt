@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.json",
+  "bytes": 74181,
+  "sha256": "b036e3919e18c522b9288d1aee44126b528d65621681e092c7a2822d98bf92cc"
+}

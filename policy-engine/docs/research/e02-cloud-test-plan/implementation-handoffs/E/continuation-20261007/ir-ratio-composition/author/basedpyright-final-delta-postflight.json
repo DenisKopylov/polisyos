@@ -1,0 +1,20 @@
+{
+  "source_sha": "218c7bd75f29dea72d86d8c5830137ce0a2d0188",
+  "source_tree": "25d24e62b0d9aa5775e984070c015c23445f9237",
+  "native_summary": {
+    "filesAnalyzed": 2,
+    "errorCount": 0,
+    "warningCount": 0,
+    "informationCount": 0,
+    "timeInSec": 4.123
+  },
+  "native_stdout_prefix": "updated undefined with 3041 errors (went down by 1124)\n\n",
+  "canonical_baseline_unchanged": true,
+  "canonical_baseline_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+  "scratch_baseline_input_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+  "scratch_baseline_after_sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4",
+  "private_config_sha256": "45b1cedbfd8339ad3f8a084b2f151f01a0bc67ae8be0e0a6e44e6a2b4115c041",
+  "same_project_root": true,
+  "effective_options_unchanged_except_baseline_destination": true,
+  "temporary_config_removed_after_capture": true
+}

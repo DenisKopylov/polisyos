@@ -1,0 +1,42 @@
+{
+  "collapse": {
+    "refused": "positive empirical category collapses in the finite CDF"
+  },
+  "first": {
+    "indices": [
+      0,
+      0
+    ]
+  },
+  "halton": {
+    "callbacks": 0,
+    "failure": "unsupported_joint_sampling_law",
+    "gate": false
+  },
+  "interior": {
+    "indices": [
+      1,
+      1
+    ]
+  },
+  "last": {
+    "indices": [
+      1,
+      1
+    ]
+  },
+  "random": {
+    "callbacks": 0,
+    "failure": "unsupported_joint_sampling_law",
+    "gate": false
+  },
+  "sobol": {
+    "callbacks": 0,
+    "failure": "unsupported_joint_sampling_law",
+    "gate": false
+  },
+  "unequal_weights": {
+    "admitted": false,
+    "failure": "incompatible_joint_law"
+  }
+}

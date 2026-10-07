@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/immutable-copy-closed-additions.py.txt", line 102, in <module>
+    rows = check_manifest(manifest)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/immutable-copy-closed-additions.py.txt", line 54, in check_manifest
+    require((item['bytes'], item['sha256'], item['selection_source_path']) == (anchor['bytes'], anchor['sha256'], anchor['source_path']), 'original selector identity')
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/immutable-copy-closed-additions.py.txt", line 20, in require
+    raise ValueError(reason)
+ValueError: original selector identity

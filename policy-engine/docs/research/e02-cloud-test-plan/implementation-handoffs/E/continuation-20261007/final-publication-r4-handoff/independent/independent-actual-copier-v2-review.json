@@ -1,0 +1,279 @@
+{
+  "schema": "policyos.e02.independent_actual_copier_v2_review.v1",
+  "verdict": "GO for bounded literal publication copier/custody only",
+  "original_manifest": {
+    "path": "/tmp/e02-E-final-publication-r4-staging/staging-manifest.json",
+    "bytes": 148233,
+    "sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4"
+  },
+  "copier_source": {
+    "path": "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+    "bytes": 9598,
+    "sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f"
+  },
+  "reviewer_source": {
+    "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review_copier_v2.py",
+    "bytes": 7691,
+    "sha256": "61bfab886d5843c2c25b0a53c312bbff1cea9cb8fc6d7c1601ed0c71b7b6fe8e"
+  },
+  "native_healthy": {
+    "name": "actual-copier-v2-healthy",
+    "source": {
+      "path": "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+      "bytes": 9598,
+      "sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f"
+    },
+    "input": {
+      "path": "/tmp/e02-E-final-publication-r4-staging/staging-manifest.json",
+      "bytes": 148233,
+      "sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4"
+    },
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+      "--manifest",
+      "/tmp/e02-E-final-publication-r4-staging/staging-manifest.json",
+      "--destination-root",
+      "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-v2-healthy-written-root"
+    ],
+    "cwd": "/workspace",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-v2-healthy.stdout.txt",
+      "bytes": 557,
+      "sha256": "9a7718988bf10f4ed96178cf64cac4283e6b6cbec9aff7cded327e7d73a58263"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-v2-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "destination": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-v2-healthy-written-root",
+    "destination_created": true,
+    "readback_paths": 114,
+    "literal_payload_paths": 107,
+    "metadata_paths": 7
+  },
+  "native_negative_controls": [
+    {
+      "name": "actual-v2-corrupt_payload_digest",
+      "source": {
+        "path": "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "bytes": 9598,
+        "sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f"
+      },
+      "input": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-corrupt_payload_digest-input/staging-manifest.json",
+        "bytes": 148233,
+        "sha256": "159d3bbb65555a1ba539ee68fc6310152621c42cf6e56f7e7523dafb9d1b5eb9"
+      },
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-corrupt_payload_digest-input/staging-manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_digest-written-root"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_digest.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_digest.stderr.txt",
+        "bytes": 620,
+        "sha256": "d84c0b4cc3074cd6309fd02561e32f2197d1d494853f13f6fcd8b6b32d3a8045"
+      },
+      "destination": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_digest-written-root",
+      "destination_created": false
+    },
+    {
+      "name": "actual-v2-corrupt_payload_size",
+      "source": {
+        "path": "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "bytes": 9598,
+        "sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f"
+      },
+      "input": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-corrupt_payload_size-input/staging-manifest.json",
+        "bytes": 148233,
+        "sha256": "c7fb329109d359c2845c1037fe0b38749181e73cee6319a556b9859fc536e54b"
+      },
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-corrupt_payload_size-input/staging-manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_size-written-root"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_size.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_size.stderr.txt",
+        "bytes": 620,
+        "sha256": "d84c0b4cc3074cd6309fd02561e32f2197d1d494853f13f6fcd8b6b32d3a8045"
+      },
+      "destination": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_size-written-root",
+      "destination_created": false
+    },
+    {
+      "name": "actual-v2-omitted_mandatory_member",
+      "source": {
+        "path": "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "bytes": 9598,
+        "sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f"
+      },
+      "input": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-omitted_mandatory_member-input/staging-manifest.json",
+        "bytes": 147062,
+        "sha256": "15e8a6ecefc6eda6575c5dabcb408345062dd32eeb99b846ab8d230b7dc33bb7"
+      },
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-omitted_mandatory_member-input/staging-manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-omitted_mandatory_member-written-root"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-omitted_mandatory_member.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-omitted_mandatory_member.stderr.txt",
+        "bytes": 634,
+        "sha256": "7a43174bd9bd194a14913fcdc079a92f821012954431bf3c5e00b526871a71a8"
+      },
+      "destination": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-omitted_mandatory_member-written-root",
+      "destination_created": false
+    },
+    {
+      "name": "actual-v2-drop_mandatory_selector",
+      "source": {
+        "path": "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "bytes": 9598,
+        "sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f"
+      },
+      "input": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-drop_mandatory_selector-input/staging-manifest.json",
+        "bytes": 147815,
+        "sha256": "9d13745c0c2102b34f6c0146f67cbd93536fb8009f363fe3af43482e45e9c184"
+      },
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-drop_mandatory_selector-input/staging-manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-drop_mandatory_selector-written-root"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-drop_mandatory_selector.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-drop_mandatory_selector.stderr.txt",
+        "bytes": 642,
+        "sha256": "4b69a4d13511c87c1211ce611dbc5590497e0d5c254c2257786ee8d8cc48139c"
+      },
+      "destination": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-drop_mandatory_selector-written-root",
+      "destination_created": false
+    },
+    {
+      "name": "actual-v2-substitute_selector_hash",
+      "source": {
+        "path": "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "bytes": 9598,
+        "sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f"
+      },
+      "input": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-substitute_selector_hash-input/staging-manifest.json",
+        "bytes": 148233,
+        "sha256": "bcb4143660442ea509594945568ac4f677be5206e2f20ee45f24e9fad0bc193b"
+      },
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-substitute_selector_hash-input/staging-manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-substitute_selector_hash-written-root"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-substitute_selector_hash.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-substitute_selector_hash.stderr.txt",
+        "bytes": 661,
+        "sha256": "78898a63e88aba9eb03fc2a742e1af80ded65b803283a2a7972d3c738d2e9b4b"
+      },
+      "destination": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-substitute_selector_hash-written-root",
+      "destination_created": false
+    }
+  ],
+  "effective_original_member_guard_removal": {
+    "name": "actual-v2-exactmember-removal",
+    "source": {
+      "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/copy-proposed-publication-v2-exactmember-removal.py.txt",
+      "bytes": 9556,
+      "sha256": "5f8b30ce5c538b08c60c22229c6206bd522537a5419a3b65338f0c5c08c7923a"
+    },
+    "input": {
+      "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-omitted_mandatory_member-input/staging-manifest.json",
+      "bytes": 147062,
+      "sha256": "15e8a6ecefc6eda6575c5dabcb408345062dd32eeb99b846ab8d230b7dc33bb7"
+    },
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-E-publication-custody-independent-doe-20261007/copy-proposed-publication-v2-exactmember-removal.py.txt",
+      "--manifest",
+      "/tmp/e02-E-publication-custody-independent-doe-20261007/v2-omitted_mandatory_member-input/staging-manifest.json",
+      "--destination-root",
+      "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-exactmember-removal-written-root"
+    ],
+    "cwd": "/workspace",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-exactmember-removal.stdout.txt",
+      "bytes": 562,
+      "sha256": "1e6da7e7c5d5a50f9e6d0b5a498f2ccc30023666e5ed74d2f32078549fe6822c"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-exactmember-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "destination": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-exactmember-removal-written-root",
+    "destination_created": true,
+    "original_selector_set_and_payloads_unchanged": true,
+    "all_superficial_totals_recomputed": true,
+    "missing_mandatory_file_admitted_after_removal": true,
+    "reason_marker_preserved": true
+  },
+  "old_V1_actual_fail_witness": {
+    "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-omitted-mandatory-probe.json",
+    "bytes": 2033,
+    "sha256": "32d9f2165adbd848b47e80c4eba703b0f6a59cc3ad8d0b483d1fe58bed66adc8"
+  },
+  "scope": "No ROOT/leaf/env or source/gate/numeric writes; all actual copies are fresh /tmp only. Own prior DoE/cleanup semantics excluded; custody observations do not accept original findings, global gates, scientific authority or pending frontend/backend/final54."
+}

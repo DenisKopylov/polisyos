@@ -1,0 +1,2 @@
+[codex/e02-E-frc-20261006 3d0029873] docs(e02-E): bind copied program to trusted executing bytes
+ 1 file changed, 2 insertions(+)

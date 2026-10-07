@@ -1,0 +1,36 @@
+{
+  "schema": "policyos.e02.raw_stream_portable_control.v1",
+  "current_rejects_wrong_route_before_write": true,
+  "old_present_normalizer_divergent": true,
+  "original_bytes_preserved": true,
+  "rows": [
+    {
+      "name": "current-shared-route-admission",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/raw-stream-property-control/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/raw-stream-property-control/current-shared-route-admission"
+      ],
+      "exit_code": 1,
+      "destination_created": false
+    },
+    {
+      "name": "old-present-normalizer-divergence",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/raw-stream-property-control/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/raw-stream-property-control/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/raw-stream-property-control/old-present-normalizer-divergence"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "JSON_extension_defining_property": "FAIL preserved historical rawstream"
+    }
+  ],
+  "native_source_numeric_gate_execution": false
+}

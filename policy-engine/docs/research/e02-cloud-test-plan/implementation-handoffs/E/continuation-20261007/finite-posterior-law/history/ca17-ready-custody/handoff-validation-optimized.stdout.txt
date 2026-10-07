@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.e02.E.handoff_recomputing_validation.v1",
+  "healthy": {
+    "source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+    "tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+    "copy_files": 96,
+    "copy_bytes": 2885949,
+    "footprint": 24,
+    "Python": 12,
+    "native_XML": {
+      "cases": 414,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "qualified_independent_controls": 33
+  },
+  "controls": [
+    {
+      "case": "wrong_candidate",
+      "outcome": "PASS refused",
+      "reason": "Command '['git', '-C', '/workspace/e02-E-mc-20261006', 'rev-parse', '0000000000000000000000000000000000000000^{tree}']' returned non-zero exit status 128."
+    },
+    {
+      "case": "wrong_tree",
+      "outcome": "PASS refused",
+      "reason": "tree_identity"
+    },
+    {
+      "case": "removed_path_keep_count_markers",
+      "outcome": "PASS refused",
+      "reason": "full_changed_footprint"
+    },
+    {
+      "case": "wrong_environment_ref",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/author/runtime-environment-public-bindings.json"
+    },
+    {
+      "case": "wrong_independent_ref",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent/independent-final-review-ca17.json"
+    },
+    {
+      "case": "actual_ABI_count_forged",
+      "outcome": "PASS refused",
+      "reason": "actual_ABI_registry_count"
+    },
+    {
+      "case": "numeric_rebranded_as_companion",
+      "outcome": "PASS refused",
+      "reason": "numeric_tree_identity"
+    },
+    {
+      "case": "copy_index_changed_hash",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/copy-index.json"
+    }
+  ],
+  "limitations": "Custody/source/actual closed-output recomputation only; defining runtime math and original finding decision remain separate independent evidence. No new numerical or global gate run."
+}

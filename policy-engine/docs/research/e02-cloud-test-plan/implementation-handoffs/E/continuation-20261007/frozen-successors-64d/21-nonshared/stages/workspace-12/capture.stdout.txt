@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "tools/quality/validation/check_extension_examples.py", "--skip-install", "--skip-discovery", "--skip-pytest"], "exit_code": 0, "outcome": "PASS", "counts": null, "wall_seconds": 24.39104700088501, "source_immutable": true}

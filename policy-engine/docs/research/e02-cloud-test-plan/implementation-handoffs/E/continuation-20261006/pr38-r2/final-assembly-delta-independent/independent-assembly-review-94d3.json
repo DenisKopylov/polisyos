@@ -1,0 +1,329 @@
+{
+  "schema": "e02.E.independent-final-assembly-delta.v1",
+  "reviewer": "/root/cal_uq_r3; assembly joins only, own CAL source uses DoE independent judgment",
+  "disposition": "GO_bounded_source_readiness_for_distinct_corrected_freeze",
+  "base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "candidate": "94d3e6ee67b70a5ef4f71e529275aa7db0fddcde",
+  "tree": "2220bc48d1ccfd62310de0737c3be939c06d2d2f",
+  "source_before": {
+    "head": "94d3e6ee67b70a5ef4f71e529275aa7db0fddcde",
+    "tree": "2220bc48d1ccfd62310de0737c3be939c06d2d2f",
+    "tracked_dirty": "",
+    "tracked_paths": 15754,
+    "tracked_bytes": 489212948,
+    "frame_format": "sorted UTF8path NUL decimalBytes NUL rawSHA256digest",
+    "framed_sha256": "792f14a13a9ed002724e2d1bf882caeeaea03d1e6b3a084c4e8720f97ebcac9f",
+    "private_Git_config": {
+      "bytes": 2216,
+      "sha256": "a5e378e23dee171d707f9e15145ea4b54c3d37e8df15339e9275635b70b0dd6e",
+      "payload_copied": false
+    }
+  },
+  "source_after": {
+    "head": "94d3e6ee67b70a5ef4f71e529275aa7db0fddcde",
+    "tree": "2220bc48d1ccfd62310de0737c3be939c06d2d2f",
+    "tracked_dirty": "",
+    "tracked_paths": 15754,
+    "tracked_bytes": 489212948,
+    "frame_format": "sorted UTF8path NUL decimalBytes NUL rawSHA256digest",
+    "framed_sha256": "792f14a13a9ed002724e2d1bf882caeeaea03d1e6b3a084c4e8720f97ebcac9f",
+    "private_Git_config": {
+      "bytes": 2216,
+      "sha256": "a5e378e23dee171d707f9e15145ea4b54c3d37e8df15339e9275635b70b0dd6e",
+      "payload_copied": false
+    }
+  },
+  "immutable": true,
+  "full_footprint": {
+    "paths": 587,
+    "operational_paths": 15,
+    "root_binding_paths": 5,
+    "portable_delta_paths": 567,
+    "complete_asset": "full-footprint-5e-to-94d3.json"
+  },
+  "source_deltas": {
+    "harness": "06aec834d817b1cc90d98308f0755729a4153031",
+    "facade": "cfd79255aab85544082fcf24f93db894202fbfa2",
+    "collector": "2f7e7e12516dd98678903c5b4a89553a28b08608",
+    "all_postimages_reviewed_and_exact": true
+  },
+  "product_source": {
+    "paths": 2914,
+    "changed_paths": [
+      "policy-engine/src/polisyos/calibration/README.md",
+      "policy-engine/src/polisyos/calibration/__init__.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+    ],
+    "unchanged_paths": 2908,
+    "four_runtime_Python_files_are_only_import_facade_or_caller_routes": true,
+    "both_consumer_nonimport_AST_equal": true,
+    "fixed_CAL_UQ_wholeblob_paths": 29,
+    "covariance_and_CAL_scalar_std_preflight_wholeblob_equal": true,
+    "CAL_mechanism_reviewer": "root/doe_r2 (DoE author; independent from CAL/DDM authors)",
+    "new_CAL_self_review": false
+  },
+  "canonical_exports": {
+    "polisyos.calibration": {
+      "exports": [
+        "PREDICTIVE_AUTHORITY_DENIALS",
+        "REFERENCE_PROFILES",
+        "CalibrationPoint",
+        "CalibrationResult",
+        "EmpiricalCalibrationContext",
+        "EmpiricalCalibrationEvidenceRef",
+        "EvidenceArtifactRef",
+        "ForecastCalibrationProfile",
+        "ForecastCandidateReceipt",
+        "ForecastCandidateReceiptRef",
+        "ForecastMeasurementBinding",
+        "apply_calibrator",
+        "compare_calibrators",
+        "compute_calibration_curve",
+        "evaluate_binary",
+        "evaluate_continuous",
+        "evaluate_multiclass",
+        "fit_calibrator",
+        "load_continuous_evaluation",
+        "load_empirical_calibration_evidence",
+        "load_forecast_calibration_profile",
+        "load_forecast_candidate_receipt",
+        "persist_continuous_evaluation",
+        "persist_empirical_calibration_evidence",
+        "persist_forecast_candidate_receipt",
+        "produce_empirical_calibration_evidence",
+        "resolve_forecast_measurement_binding",
+        "to_validation_report"
+      ],
+      "count": 28,
+      "classification": "public_experimental",
+      "owner": "team-scientist",
+      "inventory_and_source_equal": true
+    },
+    "polisyos.foundry.uncertainty": {
+      "exports": [
+        "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+        "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+        "AdaptiveStoppingConfig",
+        "AggregationStrategy",
+        "BoundedIndicatorResponse",
+        "FabricUncertaintyContext",
+        "PropagationConfig",
+        "PropagationDispatcher",
+        "PropagationResult",
+        "PropagationStrategy",
+        "QuasiMCSampler",
+        "admit_empirical_weights",
+        "admit_unit_uniform",
+        "aggregate_envelopes",
+        "build_covariance_matrix",
+        "calibration_covariance_blocks_agree_v1",
+        "compute_first_order_indices",
+        "empirical_cdf",
+        "extract_std",
+        "fabric_uncertainty_context_from_decision_data",
+        "load_foundry_calibration_report",
+        "preserve_singular_covariance",
+        "reconcile_draw_outcomes",
+        "sampling_content_digest",
+        "verify_mean_certificate"
+      ],
+      "count": 25,
+      "classification": "public_stable",
+      "owner": "team-polisyos",
+      "inventory_and_source_equal": true
+    },
+    "polisyos.ddm": {
+      "exports": [
+        "AffectedFeature",
+        "AffectedSlice",
+        "CalibrationAudit",
+        "DDMWindowResult",
+        "DataQualitySignal",
+        "DriftAndDegradationMonitor",
+        "IncidentPayload",
+        "MetricDirection",
+        "ModelRegistryReadinessRecord",
+        "MonitoringWindow",
+        "PerformanceDegradationEvent",
+        "ReadinessState",
+        "ReadinessStateEvent",
+        "RegistryGateDecision",
+        "RootCauseBundle",
+        "ShiftDetectedEvent",
+        "ShiftRiskEvent"
+      ],
+      "count": 17,
+      "classification": "internal",
+      "owner": "team-scientist",
+      "inventory_and_source_equal": true
+    }
+  },
+  "portable_custody": {
+    "indices": 16,
+    "indexed_records": 551,
+    "indexed_payload_bytes": 15388762,
+    "all_local_and_Git_exact": true,
+    "actual_raw171MB_and_private_config_copied": false
+  },
+  "prepared_not_executed": {
+    "native_files": 122,
+    "A_owner_packet_files": 2,
+    "total_file_inputs": 124,
+    "lint_Python_paths": 314,
+    "group_path_counts": {
+      "PCL_continuous_persistence": 10,
+      "DDM_runtime_and_facade": 16,
+      "BKT_FRC_S10_and_adjacent_report_consumers": 25,
+      "CAL_and_welfare_consumer": 29,
+      "MC_joint_law_support_and_Scientist_consumer": 26,
+      "DOE_SALib_and_consumer_factory": 15,
+      "G_checkpoint10_ControlPlaneStore_companion": 1
+    },
+    "actual_new_native_files_vs5e": [
+      "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py"
+    ],
+    "actual_parametrized_JUnit_cases": "UNRUN",
+    "global_gates": "UNRUN",
+    "planning_output_root_exists": false,
+    "no_owner_packet_materialization": true
+  },
+  "source_scope": {
+    "foreign_A_B_C_D_Core_IR_shared_schema_baseline_edits": false,
+    "dependency_ancestry": {
+      "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "G_owner_audit53": "53b309019913b938909d6dc0fc13f8edb409f368",
+      "G_docs363": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "origin/main_current_tracking": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    "G_remote_freshness": "existing parent-provided last fetch plus current tracking/ancestry; no fetch or remote mutation in this read-only review"
+  },
+  "P37": "Exact source/read-only input denominator, canonical caller object routes and support quantities retain frozen basis; metadata and numerical result remain separate. Unknown multi-input law nominal diagnostic remains allowed, stochastic claims withheld. Current prepare is not an execution receipt.",
+  "P40": "Single harness parent admission includes full job set and second guard; canonical facade repairs actual owned import seams; collector role admission covers complete public roles/full source components. Exact independent negative/removal controls are reused only for unchanged reviewed source.",
+  "P41": "Actual5e first attempt remains1086PASS/3FAIL/351ERROR. Previous red cause/old fullguard replay not_established; no inherited failure waiver and no new common-wave PASS in this review.",
+  "boundaries": {
+    "held": [
+      "B194",
+      "B197",
+      "B201",
+      "B202"
+    ],
+    "B198": "historical closed regression retained; no falsifier measured here",
+    "partial_open": "preserved current ledger, no automatic reclassification",
+    "A": "default configured ForecastOwner/strict CAS independent verifier/fresh served read and named S6/tier reason seam remain A-owned; prior8486 positives not current5ePASS",
+    "D": "actual Search sensitivity codec/default proposal-ranking consumer remains bridge_missing/consumer_missing; E producer does not ratify D codec",
+    "Core_IR_execute": "owner facade/wire packets unratified and no baseline/admission exception applied",
+    "G": "canonical generator/source schema/OpenAPI client compatibility and production history/source law local checks remain separate owner actions"
+  },
+  "negative_controls": [
+    {
+      "control": "portable_bytes",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "portable_sha256",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "portable_copied_path",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "plan_candidate_sha",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "plan_native_test_path_count",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "plan_execution_state",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "plan_runtime_test_case_count",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "plan_omitted_lint_path",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "reviewed_postimage_false_digest",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "same_import_markers_changed_actual_Welfare_empirical_weight_predicate",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "own_CAL_author_substituted_as_independent_reviewer",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    },
+    {
+      "control": "old_uncertainty20_count_retained",
+      "state": "REJECTED",
+      "mechanism": "actual independent byte/property validator"
+    }
+  ],
+  "next_owners": [
+    "Root publishes exact moderate review/index append-only, then freezes distinct candidate and executes corrected common wave once",
+    "CAL independently recomputes actual frozen wave inputs/check/JUnit/staged UNRUN/source custody without own CAL source approval",
+    "PCL all54 criteria and DDM closeout; G integration/source/local production checks separate",
+    "A/D/Core/IR/generator owners resolve concrete unapplied consumer/authority seams"
+  ],
+  "finding_closure": false,
+  "numerical_or_global_wave_launched": false,
+  "command": {
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/review_assembly.py"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "environment": {
+      "UV_NO_SYNC": "1",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "complete_stdout": "review.stdout.txt",
+    "complete_stderr": "review.stderr.txt"
+  },
+  "initial_auditor_error": "Non-deciding initial parse expected all facades as top-level inventory packages; Foundry uncertainty is an explicit nested public entrypoint. Full initial script/stdout/stderr preserved; corrected parser joins parent owner/classification and actual entrypoint exports.",
+  "environment": {
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "numeric_imports": false,
+    "caps": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "POLISYOS_PYTEST_WORKERS": null
+    }
+  },
+  "cleanup": {
+    "performed": "none",
+    "native_Trash": "not established; preserve all exact receipts and scripts",
+    "future_repeatable_candidate": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/planned-wave-94d3",
+    "candidate_exists": false,
+    "permanent_delete": false
+  }
+}

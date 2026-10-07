@@ -1,0 +1,18 @@
+def posterior_sampling_cdf(weights: object) -> np.ndarray:
+    """Return exact finite-U bucket cuts for the normalized binary-weight law.
+
+    Args:
+        weights: Finite nonnegative binary64 ratio weights with positive total.
+
+    Returns:
+        Upward-rounded rational cuts for searchsorted with side="right".
+        Uniform finite-mesh randomness approximates the continuous mass law;
+        this guarantees bucket classification for supplied finite U only.
+
+    Raises:
+        ValueError: If a positive atom has no representable finite-U bucket.
+    """
+    array = _finite_weights(weights)
+    cumulative = _ratio_cdf(array, upward=True)
+    increments = np.diff(np.concatenate(([0.0], cumulative)))
+    return cumulative

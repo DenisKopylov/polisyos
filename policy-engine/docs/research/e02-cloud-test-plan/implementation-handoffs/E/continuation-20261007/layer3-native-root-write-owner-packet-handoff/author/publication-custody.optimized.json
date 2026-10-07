@@ -1,0 +1,63 @@
+{
+  "outcome": "PASS",
+  "mode": "optimized",
+  "candidate": "73e298743bb5f56e40d5ad31446ce2728db02ff7",
+  "tree": "0dba6c8a03f009838a72589965ff8676c1177005",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "complete_doc_paths": 97,
+  "literal_copies": 95,
+  "literal_bytes": 1400549,
+  "original_member_count": 87,
+  "original_selectors": 4,
+  "controls": [
+    {
+      "field": "sha256",
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "outcome": "refused"
+    },
+    {
+      "field": "bytes",
+      "value": true,
+      "outcome": "refused"
+    },
+    {
+      "field": "bytes",
+      "value": 1,
+      "outcome": "refused"
+    },
+    {
+      "field": "copied_path",
+      "value": "../outside",
+      "outcome": "refused"
+    },
+    {
+      "field": "copies",
+      "value": true,
+      "outcome": "refused"
+    },
+    {
+      "field": "total_bytes",
+      "value": 1400550,
+      "outcome": "refused"
+    },
+    {
+      "field": "selected_member_omission_with_counts_recomputed",
+      "outcome": "refused"
+    },
+    {
+      "field": "complete_member_guard_removed",
+      "outcome": "admitted omission",
+      "defining_complete_custody_property": "FAIL"
+    },
+    {
+      "field": "unpublished_base",
+      "outcome": "refused"
+    }
+  ],
+  "control_count": 9,
+  "validator_reused_sha256": "23a36b48fa09682c8ce82fe2ed6ed434c997f35fc47ce022930fc5dda5a9edde",
+  "current_source_or_native_reexecution": false,
+  "limits": [
+    "Custody only; actual native fixture/runtime selectors UNRUN, P41 unknown; all source/fullbackend outcomes unchanged."
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schema": "e02.E.corrected-common-wave-handoff.v1",
+  "base_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "base_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "topic": "codex/e02-E-continuation-20261006",
+  "implementation_sources": {
+    "native_parent": "06aec834d817b1cc90d98308f0755729a4153031",
+    "owned_facade": "cfd79255aab85544082fcf24f93db894202fbfa2",
+    "collector_v4": "2f7e7e12516dd98678903c5b4a89553a28b08608",
+    "G_checkpoint11": "127dc7ab8365d29eb656fe32c0c894f6cc971286"
+  },
+  "source_freeze_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/copy-index.json",
+  "actual_wave_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/publication-receipt.json",
+  "independent_wave_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/independent-wave-review-a9f78817c.json",
+  "numeric": {
+    "total": 1445,
+    "PASS": 1441,
+    "FAIL": 4,
+    "ERROR": 0,
+    "SKIP": 0,
+    "native": {
+      "total": 1438,
+      "PASS": 1436,
+      "FAIL": 2
+    },
+    "A_owner_packet": {
+      "total": 7,
+      "PASS": 5,
+      "FAIL": 2
+    }
+  },
+  "inputs": {
+    "native_files": 122,
+    "A_packet_files": 2,
+    "Python_lint_paths": 317,
+    "tracked_source_paths": 15835,
+    "tracked_source_bytes": 490142122
+  },
+  "checks": {
+    "importer": "PASS",
+    "numeric_groups": {
+      "PASS": 6,
+      "FAIL": 1
+    },
+    "global_gates": {
+      "PASS": 0,
+      "FAIL": 7
+    },
+    "workspace_verify_successors_UNRUN": 13,
+    "ci_parity_successors_UNRUN": 23
+  },
+  "numeric_acceptance": "HOLD four assertion failures; no remaining basetemp-parent setup errors",
+  "global_acceptance": "FAIL; no full CI/hosted/browser/deployment acceptance claimed",
+  "A_results_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/actual-owner-results.json",
+  "publication_roles": {
+    "all_review_records": 8,
+    "canonical_collector_candidate_Git_records": 6,
+    "external_content_bound_records": 2,
+    "external_verifier_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-independent-v3/review.json",
+    "original_carrier_input_error": "Preserved Git128 before publication; typed correction does not change source, time, outcomes or original review set"
+  },
+  "runtime_property": "Actual configured CAS/tmp_path/native consumers execute on exact frozen source; all15 actual source/config/stdout/JUnit receipts reconcile and all128 draw outcomes remain present in native Welfare evidence",
+  "oracle_and_negative": "Independent actual JUnit/source/output/backend custody recomputation plus14 fake-summary and2 contradictory exact-source attribution refusals; source/code mechanism oracle/removal reviews reused only for unchanged Git blobs",
+  "P37": "Frozen original numerical/input/purpose predicates; code or metadata presence does not establish authority",
+  "P40": "Shared missing-parent class fixed06; shared cross-boundary facade class fixedcfd; publication review-role class typed and independently verified",
+  "P41": "Global inherited-red attribution not_established without exact base/full command/input replay. Newly executed resolved-limited A assertion was prior setupERROR, never a historical FAIL transfer",
+  "ledger_preserved": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1,
+    "held_IDs": [
+      "B194",
+      "B197",
+      "B201",
+      "B202"
+    ],
+    "closed_regression": "B198"
+  },
+  "findings_vs_code": "All54 current closeout will be separately committed/reviewed; G integration code admission and accountable finding adjudication remain separate",
+  "limitations_and_next_owners": {
+    "A": "Apply missing/ref-unresolved and resolved-floor status/reason packet; bind configured CAS default/HTTP verifier and fresh served read; keep causal/treatment/policy denied",
+    "D": "Persist/reopen exact DoE analysis_ref in canonical default Search ranking consumer",
+    "Core_IR_quality": "Admit existing facades/narrow exports and regenerate owned OpenAPI/manifest/trust posture through canonical generators; no E shared edits",
+    "E": "7951 diagnostics/172 published source-bound witness/review paths remain explicit publication debt; original bytes preserved, no scope exemption or blanket cosmetic label",
+    "IR_semantic_owner": "Absent/unallocated; appoint then ratify four reviewable v2 decisions, keep v1.1 replay unchanged",
+    "G": "Individual owner/code intake and minimum read-only local production/history/source-law recipes only where original criterion requires factual inputs"
+  },
+  "raw_custody": {
+    "static_bytes": 171772302,
+    "static_sha256": "438665b9b62b5860d17d388b0ac9466a0d628773e93059e2ada9fdf410990635",
+    "large_raw_published": false,
+    "private_config_payloads_published": false
+  },
+  "cleanup": "Native Trash unavailable; preserve code/useful docs/unique evidence/production data. Exact repeatable candidates retained in collector receipt; no permanent deletion or Trash emptying",
+  "evidence_publication_commit": "Recorded by subsequent exact Git binding; source candidate is a9, not this companion commit",
+  "full_footprint_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-source-footprint.json",
+  "full_changed_path_count": 671
+}

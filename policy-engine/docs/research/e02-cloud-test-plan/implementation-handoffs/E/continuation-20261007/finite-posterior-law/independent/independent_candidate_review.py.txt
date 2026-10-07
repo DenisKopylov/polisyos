@@ -1,0 +1,266 @@
+"""Independent exact-ratio/source-premise/native CAS review of immutable2c0fb5e."""
+from __future__ import annotations
+from collections import Counter
+from copy import deepcopy
+from fractions import Fraction
+import ast
+import hashlib
+import importlib
+import importlib.metadata
+import importlib.util
+import json
+import math
+import os
+import platform
+import subprocess
+import sys
+import traceback
+from pathlib import Path
+import numpy as np
+from polisyos.core import artifacts as ca, canon as cc
+from polisyos.core.contracts import SimulationResult
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior as produce
+from polisyos.foundry.uncertainty import PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator, _empirical_indices_from_uniform
+from polisyos.foundry.uncertainty import sampling_admission as inlet
+from polisyos.ir import get_ir_type
+from polisyos.ir.analytics import PosteriorSummaryProfile, PosteriorSummaryProfileV2, admit_posterior_summary_profiles, load_posterior_summary_envelope, posterior_nominal_mean, posterior_summary_functionals_v2, posterior_population_std_v2, read_posterior_summary_profile
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, PosteriorSamplesCarrier, DistributionFamily, UncertaintySource, persist_uncertainty_envelope, load_uncertainty_envelope
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF
+from polisyos.schemas.abi_models import IR_ABI_MODELS
+ps=importlib.import_module('polisyos.ir.analytics.posterior_summary')
+ROOT=Path('/workspace/e02-E-mc-20261006')
+OUT=Path('/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e')
+PARENT=OUT.parent
+CAND='2c0fb5e26172129ab3ae032c24b35ed2ced6c80f'
+TREE='237320d4c5db41330b3d61ff6611f0de8e64549f'
+BASE='55422d4f179f56d796794938be66bcb0741b13ed'
+SOURCE_BASE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only',BASE,CAND]).decode().splitlines()
+
+def require(value,message):
+ if not value:raise AssertionError(message)
+def guard():
+ rows={}
+ for path in paths:
+  raw=(ROOT/path).read_bytes();blob=subprocess.check_output(['git','-C',str(ROOT),'show',CAND+':'+path])
+  require(raw==blob,'source_changed:'+path)
+  rows[path]={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+ return rows
+before=guard();cases=[];scratch=[]
+def case(name,fn):
+ if os.environ.get('REVIEW_ONLY') and name not in os.environ['REVIEW_ONLY'].split('|'):return
+ try:detail=fn();cases.append({'id':name,'outcome':'PASS','detail':detail})
+ except Exception as error:cases.append({'id':name,'outcome':'FAIL','error':repr(error),'traceback':traceback.format_exc()})
+def law(weights):
+ exact=[Fraction(float(w)) for w in weights];total=sum(exact,Fraction())
+ return [w/total for w in exact]
+def boundaries(weights):
+ total=Fraction();result=[]
+ for p in law(weights):total+=p;result.append(total)
+ return result
+def bucket(weights,u):
+ target=Fraction(float(u));require(0<=target<1,'oracle_invalid_U')
+ return next(i for i,c in enumerate(boundaries(weights)) if target<c)
+def quantile(samples,weights,q):
+ target=Fraction(float(q));cum=Fraction()
+ for value,p in sorted(zip(samples,law(weights),strict=True),key=lambda row:row[0]):
+  cum+=p
+  if p>0 and cum>=target:return float(value)
+ raise AssertionError('oracle_quantile_missing')
+def directory(label):
+ p=OUT/(label+'-cas-delta');p.mkdir(exist_ok=False);scratch.append(str(p));return p
+def fresh(summary,label):
+ root=directory(label);store=ca.FileSystemCAS(root)
+ refs={name:persist_uncertainty_envelope(store,env) for name,env in summary.parameter_envelopes.items()}
+ reopened=ca.FileSystemCAS(root)
+ loaded={name:load_posterior_summary_envelope(reopened,ref) for name,ref in refs.items()}
+ return loaded,refs,root
+# Gold rows were fixed before candidate creation; expectations never call candidate helpers.
+gold=json.loads((PARENT/'exact-finite-oracle.json').read_bytes())
+weights_cases=[[1,2],[1,0,3],[5e-11,.5,.5-5e-11],[.5,5e-11,.5-5e-11],[.5,.5-5e-11,5e-11],[1e-20,.5,.5],[.5,1e-20,.5]]
+for weights in weights_cases:
+ def boundary(weights=weights):
+  canonical=inlet.admit_empirical_weights(weights,len(weights))
+  require(law(weights)==law(canonical),'canonicalization_changed_exact_input_ratios')
+  require(np.array_equal(inlet.admit_empirical_weights(canonical,len(weights)),canonical),'canonicalization_not_idempotent')
+  probes={0.,np.nextafter(1.,0.)}
+  for cut in boundaries(weights):
+   value=float(cut)
+   for u in [value,np.nextafter(value,0.),np.nextafter(value,1.)]:
+    if 0<=u<1:probes.add(float(u))
+  ordered=sorted(probes);actual=_empirical_indices_from_uniform(np.asarray(ordered),canonical).tolist()
+  expected=[bucket(weights,u) for u in ordered]
+  require(actual==expected,'exact_finite_boundary_mismatch')
+  samples=(0.,-1.,1.) if weights==[1e-20,.5,.5] else tuple(float(i) for i in reversed(range(len(weights))))
+  mean,median,interval=posterior_summary_functionals_v2(samples,tuple(canonical),.9)
+  expected_mean=float(sum((Fraction(x)*p for x,p in zip(samples,law(weights),strict=True)),Fraction()))
+  require(mean==expected_mean and median==quantile(samples,weights,.5) and interval==(quantile(samples,weights,(1-.9)/2),quantile(samples,weights,1-(1-.9)/2)),'sorted_quantile_or_mean_not_same_exact_law')
+  return {'raw_weights':weights,'canonical_weights':canonical.tolist(),'exact_ratios':[str(x) for x in law(weights)],'finite_U_probes':ordered,'actual_buckets':actual,'mean':mean,'median':median,'interval':interval}
+ case('exact_boundary_sorted_quantile_'+str(weights),boundary)
+for bad in [[1,1e-20],[.5,.5,1e-20],[np.finfo(float).max,np.nextafter(0.,1.)],[True,1],['1',1],[0,0],[-1,1],[np.inf,1]]:
+ def refuse(bad=bad):
+  try:inlet.admit_empirical_weights(bad,len(bad))
+  except (ValueError,TypeError) as error:return {'raw_weights':repr(bad),'actual_refusal':str(error)}
+  raise AssertionError('bad_weights_or_unsupported_bucket_admitted')
+ case('weights_or_bucket_refusal_'+repr(bad),refuse)
+
+def hundred():
+ loaded,refs,root=fresh(produce({'x':[0.]*99+[1e15]}),'hundred')
+ env=loaded['x'];profile=read_posterior_summary_profile(env)
+ require(type(profile) is PosteriorSummaryProfileV2 and profile.profile_id.endswith(':2') and profile.profile_version=='2.0','new_profile_not_distinct')
+ require(law(env.distribution_payload.weights)==[Fraction(1,100)]*100,'stored_exact_ratios_changed')
+ require(posterior_nominal_mean(env)==1e13 and env.point_estimate==0 and env.confidence_interval==(0,0),'atom_named_functionals_wrong')
+ require(profile.sampling_approximation=='finite_uniform_mesh_discretization' and not env.gate_eligible,'grid_or_authority_scope_wrong')
+ # Read every actual supplied finite boundary neighbor against rational source probabilities.
+ us=[]
+ for cut in boundaries([1]*100):
+  u=float(cut)
+  us.extend(float(x) for x in [np.nextafter(u,0),u,np.nextafter(u,1)] if 0<=x<1)
+ actual=_empirical_indices_from_uniform(np.asarray(us),np.asarray(profile.probabilities)).tolist()
+ require(actual==[bucket([1]*100,u) for u in us],'hundred_boundary_predicate_wrong')
+ return {'mean':posterior_nominal_mean(env),'median':env.point_estimate,'interval':env.confidence_interval,'exact_ratio':'1/100','all100_boundary_neighbor_comparisons':len(us),'stored_weight_sum':sum(profile.probabilities),'fresh_ref':refs['x'].model_dump(mode='json'),'explicit_grid_approximation':profile.sampling_approximation,'gate_eligible':env.gate_eligible}
+case('hundred_atoms_fresh_CAS_exact_law_not_old_residual',hundred)
+
+def missing_ids():
+ try:produce({'a':[-1,1],'b':[-1,1]})
+ except ValueError as error:
+  require('explicit producer-supplied' in str(error),'missing_ids_not_actual_premise_refusal')
+  return {'actual_refusal':str(error),'nominal_or_evaluator_callbacks':0,'scope':'producer has no callback/store arguments; no emitter/consumer is invoked'}
+ raise AssertionError('generated_multivariate_ids_admitted')
+case('producer_missing_joint_premise_refused',missing_ids)
+for backend in ['random','sobol','halton']:
+ def paired(backend=backend):
+  summary=produce({'a':[0,1,4],'b':[0,2,5]},weights=[1,1,2],draw_ids=['r0','r1','r2'])
+  loaded,refs,root=fresh(summary,'paired-'+backend)
+  calls=[]
+  def evaluator(**row):calls.append({n:float(x) for n,x in row.items()});return {'y':float(row['a']+row['b'])}
+  results=MonteCarloPropagator(PropagationConfig(mc_n_samples=256,mc_batch_size=256,mc_sampling_method=backend,mc_qmc_scramble=False,compute_sensitivity=False)).propagate(evaluator,{'a':2.25,'b':3.},loaded,['y'])
+  require(len(calls)==257 and len(results)==1,'paired_native_callback_denominator_wrong')
+  counts=Counter((r['a'],r['b']) for r in calls[1:]);require(set(counts)<={(0.,0.),(1.,2.),(4.,5.)},'independent_marginal_pair_draw')
+  if backend=='sobol':
+   require(counts=={(0.,0.):64,(1.,2.):64,(4.,5.):128},'complete256net_rows_wrong')
+   ys=[r['a']+r['b'] for r in calls[1:]];require(sum(ys)/256==5.25 and sum((y-5.25)**2 for y in ys)/256==15.1875,'independent_dyadic_mean_variance_wrong')
+  require(not results[0].envelope.gate_eligible,'producer_flags_gained_authority')
+  return {'callback_count':len(calls),'actual_rows':[{'row':r,'count':c} for r,c in sorted(counts.items())],'fresh_refs':{n:r.model_dump(mode='json') for n,r in refs.items()},'independent_y_mean':'21/4','independent_y_variance':'243/16','gate_eligible':results[0].envelope.gate_eligible}
+ case('actual_all_backend_paired_law_'+backend,paired)
+for backend in ['random','sobol','halton']:
+ def unsupported(backend=backend):
+  env=UncertaintyEnvelope(point_estimate=0,confidence_interval=(0,1),distribution_family=DistributionFamily.BAYESIAN,source=UncertaintySource.CALIBRATION,numeric_policy={'mode':'decimal_exact'},distribution_payload=PosteriorSamplesCarrier(samples=(0.,1.),weights=(1.,1e-20)))
+  calls=[]
+  def evaluator(**row):calls.append(row);return {'y':row['x']}
+  result=MonteCarloPropagator(PropagationConfig(mc_n_samples=256,mc_sampling_method=backend,compute_sensitivity=False)).propagate(evaluator,{'x':0}, {'x':env},['y'])
+  require(calls==[] and not result[0].envelope.gate_eligible,'unsupported_positive_atom_callback_or_authority')
+  return {'actual_callback_count':0,'failure':result[0].envelope.metadata.get('failure'),'gate_eligible':False}
+ case('unreachable_positive_atom_before_callback_'+backend,unsupported)
+
+def fresh_forgery_and_removal():
+ loaded,refs,root=fresh(produce({'a':[-1,1],'b':[-1,1]},draw_ids=['r0','r1']),'forged')
+ store=ca.FileSystemCAS(root);forged={};forged_refs={};strict_rejections=[]
+ for name,env in loaded.items():
+  raw=env.model_dump(mode='python');raw['metadata']['posterior_summary_profile']['row_identity_basis']='producer_input_order'
+  changed=UncertaintyEnvelope.model_validate(raw);ref=persist_uncertainty_envelope(store,changed);require(store.verify(ref.artifact_id).ok,'forged_CAS_not_integrity_valid')
+  forged_refs[name]=ref
+  try:load_posterior_summary_envelope(ca.FileSystemCAS(root),ref)
+  except ValueError as error:strict_rejections.append(str(error))
+  else:raise AssertionError('fresh_reader_accepts_forged_alignment')
+  forged[name]=load_uncertainty_envelope(ca.FileSystemCAS(root),ref)
+ calls=[]
+ def evaluator(**row):calls.append(row);return {'y':row['a']-row['b']}
+ config=PropagationConfig(mc_n_samples=256,compute_sensitivity=False)
+ result=MonteCarloPropagator(config).propagate(evaluator,{'a':0,'b':0},forged,['y'])
+ require(calls==[] and not result[0].envelope.gate_eligible,'forged_premise_not_refused_before_callback')
+ original=inlet.admit_posterior_summary_profiles
+ inlet.admit_posterior_summary_profiles=lambda _:None
+ try:removed=MonteCarloPropagator(config).propagate(evaluator,{'a':0,'b':0},forged,['y'])
+ finally:inlet.admit_posterior_summary_profiles=original
+ require(len(calls)==257,'removal_control_did_not_readmit_same_forgery')
+ return {'fresh_integrity_valid_refs':{n:r.model_dump(mode='json') for n,r in forged_refs.items()},'strict_fresh_reader_rejections':strict_rejections,'current_callback_count':0,'removed_actual_callback_count':len(calls),'required_callback0_control_after_removal':'FAIL','effective_removal_discriminator':'PASS','all_markers_and_digest_fields_retained':True}
+case('fresh_CAS_forged_alignment_shared_admission_removal',fresh_forgery_and_removal)
+
+def rounding_removal():
+ weights=inlet.admit_empirical_weights([1,2],2);u=float(Fraction(1,3));require(int(_empirical_indices_from_uniform(np.array([u]),weights)[0])==bucket([1,2],u)==0,'healthy_third_boundary_wrong')
+ original=inlet.posterior_sampling_cdf;inlet.posterior_sampling_cdf=lambda w:np.cumsum(w/sum(w))
+ try:proxy=int(_empirical_indices_from_uniform(np.array([u]),weights)[0])
+ finally:inlet.posterior_sampling_cdf=original
+ require(proxy==1,'old_nearest_proxy_did_not_diverge')
+ return {'finite_U':u,'same_input_canonical_weights':weights.tolist(),'exact_expected_bucket':0,'actual_with_rounding_removed':proxy,'required_boundary_control_after_removal':'FAIL','effective_removal_discriminator':'PASS','numeric_values_and_helper_presence_retained':True}
+case('nearest_float_proxy_diverges_effective_rounding_removal',rounding_removal)
+
+def old_compat():
+ fixture=ROOT/'policy-engine/tests/fixtures/ir/posterior-summary-profile-v1'
+ index=json.loads((fixture/'index.json').read_bytes());store=ca.FileSystemCAS(directory('old-replay'));rows=[]
+ original_index=json.loads((PARENT/'literal-legacy-profile700-fixture-index.json').read_bytes());old_by_hash={r['sha256']:r for r in original_index['records']}
+ for entry in index['records']:
+  raw=(fixture/entry['path']).read_bytes();sha=hashlib.sha256(raw).hexdigest();require(sha in old_by_hash and raw==Path(old_by_hash[sha]['path']).read_bytes(),'literal_old700_raw_fixture_not_genuine')
+  old=UncertaintyEnvelope.model_validate(cc.from_canonical_bytes(raw));profile=read_posterior_summary_profile(old);require(type(profile) is PosteriorSummaryProfile,'legacy_profile_reinterpreted_as_v2')
+  ref=persist_uncertainty_envelope(store,old);decoded=load_posterior_summary_envelope(ca.FileSystemCAS(store.root),ref)
+  require(store.get_bytes(ref.artifact_id)==raw and decoded==old and posterior_nominal_mean(decoded)==profile.posterior_mean,'old_profile_decode_mean_or_bytes_changed')
+  rows.append({'sha256':sha,'profile_id':profile.profile_id,'named_mean':profile.posterior_mean,'median':decoded.point_estimate,'same_raw_CAS_bytes':True})
+ require(len(rows)==7,'legacy_fixture_denominator_wrong')
+ return {'actual_seven_old700_payloads':rows,'old_generated_multigroup_law':'Group admission now independently refuses positional identity, without changing individual legacy decode/display/replay.'}
+case('seven_literal_old700_profile1_mean_ABI_bytes_replay',old_compat)
+
+fixture_spec=importlib.util.spec_from_file_location('actual_native_candidate_fixture',ROOT/'policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py');fixture=importlib.util.module_from_spec(fixture_spec);fixture_spec.loader.exec_module(fixture)
+def native_node(mutation=None):
+ ctx,state,refs=fixture._posterior_node_fixture(directory('native-'+str(mutation)),{'x':[0]*99+[100]},mutation=mutation)
+ calls=[];builders=[];original=node._build_propagation_fn
+ def observe(*args,**kwargs):
+  builders.append(kwargs['nominal_params']);fn,mapping=original(*args,**kwargs)
+  def evaluate(**row):calls.append(row);return fn(**row)
+  evaluate._sensitivity_map=fn._sensitivity_map
+  return evaluate,mapping
+ node._build_propagation_fn=observe
+ try:
+  try:result=node.PropagateUncertaintyNode().execute(ctx,state)
+  except ValueError as error:
+   require(mutation is not None and not calls and not builders,'raw_native_forgery_reached_builder_or_evaluator')
+   return {'mutation':mutation,'actual_refusal':str(error),'builder_count':0,'callback_count':0}
+  require(mutation is None and result.status=='ok' and len(calls)==257 and builders==[{'x':1.0}],'native_named_mean_or_callback_wrong')
+  simulation=SimulationResult.model_validate(cc.from_canonical_bytes(ctx.store.get_bytes(result.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)))
+  output=load_uncertainty_envelope(ctx.store,simulation.uncertainty_envelopes['y'])
+  require(set(output.distribution_payload.samples)=={-1.,99.} and not output.gate_eligible,'native_actual_mean_consumer_or_authority_changed')
+  return {'actual_nominal_params':builders,'actual_callback_count':len(calls),'persisted_fresh_output_ref':simulation.uncertainty_envelopes['y'].model_dump(mode='json'),'centered_output_support':sorted(set(output.distribution_payload.samples)),'gate_eligible':False}
+ finally:node._build_propagation_fn=original
+case('actual_native_fresh_E_named_mean_consumer',native_node)
+for mutation in ['raw_bool','raw_string','inline_bool','inline_string','consistent_joint','incomplete_joint']:
+ # Group mutations need two parameters; use the already registered authoritative
+ # tests for these shapes rather than mislabeling a singleton missing-coordinate.
+ if mutation in ['consistent_joint','incomplete_joint']:continue
+ case('actual_E_raw_before_builder_'+mutation,lambda mutation=mutation:native_node(mutation))
+
+def population_and_public():
+ import polisyos.ir as ir
+ require(ir.PosteriorSummaryProfile is PosteriorSummaryProfile and ir.PosteriorSummaryProfileV2 is PosteriorSummaryProfileV2,'facade_old_or_new_identity_changed')
+ require(PosteriorSummaryProfile.model_json_schema()['$id'].endswith(':1') and PosteriorSummaryProfileV2.model_json_schema()['$id'].endswith(':2'),'schema_ids_not_distinct')
+ require(get_ir_type('PosteriorSummaryProfileV2').abi_key=='posterior_summary_profile_v2','ABI_model_entry_missing')
+ weights=tuple(inlet.admit_empirical_weights([1,1],2))
+ require(posterior_population_std_v2((0.,1e200),weights)==5e199 and posterior_population_std_v2((0.,2.),weights)==1.,'spread_diagnostic_changed_ratio_or_overflow')
+ baseline=ast.parse(subprocess.check_output(['git','-C',str(ROOT),'show',SOURCE_BASE+':policy-engine/src/polisyos/schemas/abi_models.py']))
+ value=next(n.value for n in baseline.body if isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name) and n.target.id=='IR_ABI_MODELS')
+ old_count=len(value.elts);new_count=len(IR_ABI_MODELS)
+ require(new_count==old_count+1,'actual_ABI_model_inventory_delta_not_one')
+ keys=[row.abi_key for row in IR_ABI_MODELS];require(len(keys)==len(set(keys)),'ABI_duplicate_key')
+ return {'actual_IR_model_inventory_count':new_count,'base_actual_count':old_count,'delta':new_count-old_count,'registered_new_key':'posterior_summary_profile_v2','old_root_type_identity':True,'new_root_type_identity':True,'std_for_0_1e200':5e199,'std_for_0_2':1.,'generated_schema_publication':'Owner packet still pending; no generated-file edits or global-gate PASS claimed.'}
+case('actual_public_facade_ABI_inventory_and_large_finite_spread',population_and_public)
+
+def sorted_unreachable_tail():
+ weights=tuple(inlet.admit_empirical_weights([1e-20,.5,.5],3))
+ # Original first rare atom has U=0; value sort moves it to last. No finite
+ # float64 U lies above the preceding exact rational cumulative boundary.
+ ordered=[.5,.5,1e-20]
+ require(Fraction(float(np.nextafter(1.,0.)))<boundaries(ordered)[1],'independent_tail_reachability_oracle_wrong')
+ try:posterior_summary_functionals_v2((2.,1.,0.),weights,.9)
+ except ValueError as error:
+  require('finite-U bucket' in str(error),'sorted_tail_not_correct_class_refusal')
+  return {'draw_order_reachable_first_rare_atom':True,'sorted_positive_tail_unreachable_on_finite_U':True,'actual_refusal':str(error),'supported_original_inverse_buckets':_empirical_indices_from_uniform(np.array([0.,.5]),np.asarray(weights)).tolist()}
+ raise AssertionError('sorted_unreachable_atom_not_refused')
+case('value_sorted_tiny_tail_refused',sorted_unreachable_tail)
+
+after=guard();require(before==after,'source_changed_during_deciding_review')
+result={'schema':'policyos.e02.independent_exact_finite_profile2_candidate_review.v1','candidate':CAND,'tree':TREE,'precode_decision':BASE,'source_base':SOURCE_BASE,'G_review':'855cb26a7a2c9fea60356663cf81e7d01e20c738','source_unchanged':True,'complete_implementation_footprint':before,'implementation_paths':len(paths),'Python_paths':sum(p.endswith('.py') for p in paths),'environment':{'executable':sys.executable,'prefix':sys.prefix,'python':sys.version,'platform':platform.platform(),**{p:importlib.metadata.version(p) for p in ['numpy','scipy','pydantic','jax','pytest']}},'counts':dict(Counter(c['outcome'] for c in cases)),'cases':cases,'independent_oracle':'Fraction normalized finite raw input weights, exact < classification for supplied finite U and >= quantile for supplied finite q. Candidate ceil/floor helper never used in expected loop. Gold9ecf derived before candidate.','G_conditions':'Missing supplied multivariate premise now refuses; new mean/CDF use declared exact rational source law and finite-U mesh sampling semantics. CDF cuts are classifier boundaries, not asserted continuous effective probability masses.','legacy_replay':'Seven literal genuine old700 Profile1 payloads verified against independent old native CAS. Profile1 decoder and functionals preserved; law-dependent joint eligibility separately admitted/refused.','source_acceptance':'GO bounded reviewed defining mechanisms only' if all(c['outcome']=='PASS' for c in cases) else 'CHANGE_REQUIRED concrete failing cases','finding_closure':False,'authority':'All observed profile/output gate flags false; source/fit quality, independence, coverage, causal authority not established by producer fields.','remaining_owner':'Canonical generator/public API inventory owner publishes Profile2 schema/inventory projections; G accepts source separately from B201/B202 original owner closure and C/F compatibility responses.','cleanup_candidates':scratch,'limits':['No broad wave repeated; only current exact-property/CAS/default-node/removal probes.','ROOT environment/source/backend untouched; existing DOE leaf interpreter reads immutable MC topic source.','Diagnostic spread does not create inferential covariance/noise law or posterior-quality authority.']}
+p=OUT/'independent-candidate-delta-results.json';p.write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'outcome':result['source_acceptance'],'candidate':CAND,'tree':TREE,'receipt':{'path':str(p),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()},'counts':result['counts'],'failed_cases':[x for x in cases if x['outcome']=='FAIL'],'source_unchanged':True},indent=2))
+sys.exit(bool(result['counts'].get('FAIL')))

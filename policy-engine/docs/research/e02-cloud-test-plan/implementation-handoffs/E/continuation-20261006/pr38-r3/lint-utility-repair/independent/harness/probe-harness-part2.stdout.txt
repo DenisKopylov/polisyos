@@ -1,0 +1,1 @@
+{"cases": 16, "failures": 0, "receipt": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json"}

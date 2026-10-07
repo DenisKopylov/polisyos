@@ -1,0 +1,78 @@
+{
+  "observed_unix": 1791371143.6973577,
+  "agent_uid": 1000,
+  "exact_candidate_prefixes": [
+    "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+    "/workspace/e02-E-ddm-20261006/policy-engine/.venv",
+    "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/environment",
+    "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/environment",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base"
+  ],
+  "live_agent_process_count": 10,
+  "observations": [
+    {
+      "pid": 1,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 2,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 515,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 536899,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 536902,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 536903,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 536937,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 536940,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 537012,
+      "uid": 1000,
+      "target_matches": []
+    },
+    {
+      "pid": 537017,
+      "uid": 1000,
+      "target_matches": []
+    }
+  ],
+  "active_users": [],
+  "unreadable_agent_processes": [],
+  "outside_agent_scope": [
+    {
+      "pid": 199,
+      "uid": 0,
+      "reason": "Outside complete live agent UID read scope; no host-wide visibility asserted."
+    },
+    {
+      "pid": 250,
+      "uid": 0,
+      "reason": "Outside complete live agent UID read scope; no host-wide visibility asserted."
+    }
+  ]
+}

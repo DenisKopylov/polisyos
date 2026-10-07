@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat_controls.py", line 236, in <module>
+    main()
+    ~~~~^^
+  File "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat_controls.py", line 143, in main
+    old_report = put_calibration_report(native_store,CalibrationReport(total_loss=0,calibrated_params={name:env.point_estimate for name,env in legacy_pairs.items()},uncertainty_envelope_refs=old_refs))
+  File "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/foundry/calibration/report.py", line 225, in put_calibration_report
+    raise ValueError("versioned calibration reports require their calibration_config input")
+ValueError: versioned calibration reports require their calibration_config input

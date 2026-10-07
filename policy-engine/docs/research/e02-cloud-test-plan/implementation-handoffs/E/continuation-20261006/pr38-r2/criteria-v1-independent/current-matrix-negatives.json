@@ -1,0 +1,26 @@
+{
+  "schema": "policyos.e02.independent-current-matrix-controls.v1",
+  "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+  "packet_publication": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+  "negative_controls": [
+    {
+      "control": "hide_available_Welfare_code",
+      "state": "REJECTED",
+      "reason": "welfare code classfix hidden by externalhold:B194",
+      "mutation_scope": "in-memory only; original source/readyfile bytes preserved"
+    },
+    {
+      "control": "closed_B198_relabel_proposal",
+      "state": "REJECTED",
+      "reason": "closed B198 mistaken as new closure proposal",
+      "mutation_scope": "in-memory only; original source/readyfile bytes preserved"
+    },
+    {
+      "control": "stale58_recipe_under_current_marker",
+      "state": "REJECTED",
+      "reason": "current local recipes still bind historical source",
+      "mutation_scope": "in-memory only; original source/readyfile bytes preserved"
+    }
+  ],
+  "classification": "Matrix/provenance controls only; no new runtime mechanism/closure/wave evidence"
+}

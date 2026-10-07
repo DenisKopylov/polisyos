@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/sparse-original-row-decisions-3932.json",
+  "bytes": 57381,
+  "sha256": "9acba4ad109ffa6c3033cc89f83580951e245bb0f49b73677216c5d40ca85cde"
+}

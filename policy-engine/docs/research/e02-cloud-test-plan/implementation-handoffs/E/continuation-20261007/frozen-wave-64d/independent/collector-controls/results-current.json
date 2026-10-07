@@ -1,0 +1,276 @@
+{
+  "schema": "policyos.e02.independent_receipt_collector_controls.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "scope": "Receipt-parser corruption controls only. No numeric/test/gate command executed; actual full frozen source frame will be independently recomputed once closed wave receipts arrive.",
+  "collector": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/recompute_wave.py",
+    "bytes": 35785,
+    "sha256": "40a3919e5d855f23b9821ed4ecf73e798c648098c0d825d1c146ae002254c025"
+  },
+  "actual_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+    "bytes": 10594,
+    "sha256": "7227ca411296804de6d5f6cca769b9be0d210009040ef9c9bf3390c36ba1586e"
+  },
+  "actual_JUnit": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+    "bytes": 73798,
+    "sha256": "16387db180e797b9663e288360f4bd50d4b638b50d357e70453e2e6baf57bdfa"
+  },
+  "results": [
+    {
+      "name": "healthy_completed_MC_receipt",
+      "outcome": "PASS",
+      "counts": {
+        "cases": 443,
+        "passed": 443,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "forged_passed_count",
+      "outcome": "PASS",
+      "corrupt_receipt_rejected": true,
+      "issues": [
+        "Retry JUnit counts/state mismatch",
+        {
+          "declared_retry_outcome": "PASS",
+          "actual": "FAIL"
+        }
+      ]
+    },
+    {
+      "name": "forged_candidate_tree",
+      "outcome": "PASS",
+      "corrupt_receipt_rejected": true,
+      "issues": [
+        {
+          "field": "candidate_tree_sha",
+          "expected": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+          "actual": "0000000000000000000000000000000000000000"
+        },
+        {
+          "declared_retry_outcome": "PASS",
+          "actual": "FAIL"
+        }
+      ]
+    },
+    {
+      "name": "forged_full_source_frame",
+      "outcome": "PASS",
+      "corrupt_receipt_rejected": true,
+      "issues": [
+        "Retry complete source guard differs from independently reconstructed immutable Git frame",
+        {
+          "declared_retry_outcome": "PASS",
+          "actual": "FAIL"
+        }
+      ]
+    },
+    {
+      "name": "changed_selector_keep_markers",
+      "outcome": "PASS",
+      "corrupt_receipt_rejected": true,
+      "issues": [
+        "Retry selectors/interpreter differ from original admitted group",
+        {
+          "declared_retry_outcome": "PASS",
+          "actual": "FAIL"
+        }
+      ]
+    },
+    {
+      "name": "stdout_hash_mismatch",
+      "outcome": "PASS",
+      "corrupt_receipt_rejected": true,
+      "issues": [
+        "Retry stdout custody mismatch",
+        {
+          "declared_retry_outcome": "PASS",
+          "actual": "FAIL"
+        }
+      ]
+    },
+    {
+      "name": "changed_captured_thread_cap",
+      "outcome": "PASS",
+      "corrupt_receipt_rejected": true,
+      "issues": [
+        {
+          "retry_selected_environment_mismatch": {
+            "original": {
+              "UV_NO_SYNC": "1",
+              "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+              "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+              "RUFF_CACHE_DIR": null,
+              "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+              "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+              "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+              "UV_CACHE_DIR": null,
+              "PNPM_HOME": null,
+              "OMP_NUM_THREADS": null,
+              "OPENBLAS_NUM_THREADS": null,
+              "MKL_NUM_THREADS": null,
+              "NUMEXPR_NUM_THREADS": null,
+              "VECLIB_MAXIMUM_THREADS": null,
+              "BLIS_NUM_THREADS": null,
+              "XLA_FLAGS": null,
+              "JAX_PLATFORMS": null,
+              "JAX_ENABLE_X64": null,
+              "POLISYOS_METRICS_PORT": "0",
+              "POLISYOS_PYTEST_WORKERS": null,
+              "POLISYOS_PYTEST_DIST": null,
+              "PYTEST_ADDOPTS": null
+            },
+            "retry": {
+              "UV_NO_SYNC": "1",
+              "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+              "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+              "RUFF_CACHE_DIR": null,
+              "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+              "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+              "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+              "UV_CACHE_DIR": null,
+              "PNPM_HOME": null,
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": null,
+              "MKL_NUM_THREADS": null,
+              "NUMEXPR_NUM_THREADS": null,
+              "VECLIB_MAXIMUM_THREADS": null,
+              "BLIS_NUM_THREADS": null,
+              "XLA_FLAGS": null,
+              "JAX_PLATFORMS": null,
+              "JAX_ENABLE_X64": null,
+              "POLISYOS_METRICS_PORT": "0",
+              "POLISYOS_PYTEST_WORKERS": null,
+              "POLISYOS_PYTEST_DIST": null,
+              "PYTEST_ADDOPTS": null
+            }
+          }
+        },
+        {
+          "declared_retry_outcome": "PASS",
+          "actual": "FAIL"
+        }
+      ]
+    },
+    {
+      "name": "changed_captured_package_version",
+      "outcome": "PASS",
+      "corrupt_receipt_rejected": true,
+      "issues": [
+        {
+          "retry_environment_field": "packages",
+          "original": {
+            "numpy": "2.3.5",
+            "scipy": "1.16.3",
+            "jax": "0.8.2",
+            "SALib": "1.5.2",
+            "pydantic": "2.12.5",
+            "pytest": "9.0.2",
+            "ruff": "0.14.10",
+            "pytest-xdist": "3.8.0"
+          },
+          "retry": {
+            "numpy": "2.3.5",
+            "scipy": "1.16.3",
+            "jax": "0.8.2",
+            "SALib": "1.5.3",
+            "pydantic": "2.12.5",
+            "pytest": "9.0.2",
+            "ruff": "0.14.10",
+            "pytest-xdist": "3.8.0"
+          }
+        },
+        {
+          "declared_retry_outcome": "PASS",
+          "actual": "FAIL"
+        }
+      ]
+    },
+    {
+      "name": "marker_preserving_failure",
+      "outcome": "PASS",
+      "counts": {
+        "cases": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "issues": [],
+      "duplicate_case_identity": []
+    },
+    {
+      "name": "forged_suite_counts",
+      "outcome": "PASS",
+      "counts": {
+        "cases": 1,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "issues": [
+        {
+          "suite": null,
+          "attribute": "tests",
+          "declared": "2",
+          "actual": 1
+        }
+      ],
+      "duplicate_case_identity": []
+    },
+    {
+      "name": "multiple_status_children",
+      "outcome": "PASS",
+      "counts": {
+        "cases": 1,
+        "passed": 0,
+        "failed": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "issues": [
+        {
+          "case": {
+            "classname": "same",
+            "name": "same"
+          },
+          "multiple_status_children": [
+            "failure",
+            "error"
+          ]
+        }
+      ],
+      "duplicate_case_identity": []
+    },
+    {
+      "name": "duplicate_identity_reported",
+      "outcome": "PASS",
+      "counts": {
+        "cases": 2,
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "issues": [],
+      "duplicate_case_identity": [
+        {
+          "classname": "same",
+          "name": "same",
+          "occurrences": 2
+        }
+      ]
+    },
+    {
+      "name": "external_entity_refusal",
+      "outcome": "PASS",
+      "error": "External/entity XML is not admitted: /workspace/e02-E-pr38-r3-receipts/final-numeric-independent/collector-controls/entity.xml"
+    }
+  ]
+}

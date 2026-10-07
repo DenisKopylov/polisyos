@@ -1,0 +1,423 @@
+{
+  "polisyos.calibration": {
+    "observed_mode": "eager_exports",
+    "literal_all": [
+      "PREDICTIVE_AUTHORITY_DENIALS",
+      "REFERENCE_PROFILES",
+      "CalibrationPoint",
+      "CalibrationResult",
+      "EmpiricalCalibrationContext",
+      "EmpiricalCalibrationEvidenceRef",
+      "EvidenceArtifactRef",
+      "ForecastCalibrationProfile",
+      "ForecastCandidateReceipt",
+      "ForecastCandidateReceiptRef",
+      "apply_calibrator",
+      "compare_calibrators",
+      "compute_calibration_curve",
+      "evaluate_binary",
+      "evaluate_continuous",
+      "evaluate_multiclass",
+      "fit_calibrator",
+      "load_continuous_evaluation",
+      "load_empirical_calibration_evidence",
+      "load_forecast_calibration_profile",
+      "persist_continuous_evaluation",
+      "persist_empirical_calibration_evidence",
+      "persist_forecast_candidate_receipt",
+      "produce_empirical_calibration_evidence",
+      "to_validation_report"
+    ],
+    "export_count": 25,
+    "snapshot_package_rows": [
+      {
+        "module": "polisyos.foundry",
+        "classification": "public_stable",
+        "facade_mode_expected": "lazy_facade",
+        "facade_mode_observed": "lazy_facade",
+        "owner": "team-polisyos",
+        "readme": "src/polisyos/foundry/README.md",
+        "reference_doc": "docs/reference/public-surface.md",
+        "supported_entrypoints": [
+          "polisyos.foundry",
+          "polisyos.foundry.api",
+          "polisyos.foundry.compile",
+          "polisyos.foundry.execute",
+          "polisyos.foundry.uncertainty"
+        ],
+        "major_subsystem": true,
+        "export_count": 27,
+        "exports": [
+          "DependencyProfileResolutionFailure",
+          "EmbedderProtocol",
+          "LegalCorrespondenceRequest",
+          "LegalCorrespondenceResult",
+          "LegalSubjectAnnotationSource",
+          "LegalSubjectIdentity",
+          "LegalSubjectMembership",
+          "LegalSubjectMembershipSource",
+          "MethodCatalogDependencyAuthorityRequest",
+          "MethodRouteConstraint",
+          "InputContractMethodSelection",
+          "select_method_for_input_contract",
+          "SentenceTransformerEmbedder",
+          "TFIDFEmbedder",
+          "bind_legal_subject_annotations",
+          "build_method_catalog_provenance_manifest",
+          "build_method_catalog_runtime_identity",
+          "compile",
+          "compile_program",
+          "execute",
+          "method_accepts_input_contract",
+          "persist_legal_correspondence_result",
+          "persist_legal_subject_annotations",
+          "persist_legal_subject_membership_source",
+          "produce_legal_subject_spine",
+          "recognize_legal_correspondence",
+          "select_method_candidates_for_requirements"
+        ],
+        "has___getattr__": true,
+        "has___dir__": true,
+        "source_file": "src/polisyos/foundry/__init__.py",
+        "summary": "Expose the stable Foundry compile/execute entrypoints behind lazy imports.",
+        "notes": "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.",
+        "entrypoints": [
+          {
+            "module": "polisyos.foundry",
+            "facade_mode_observed": "lazy_facade",
+            "export_count": 27,
+            "exports": [
+              "DependencyProfileResolutionFailure",
+              "EmbedderProtocol",
+              "LegalCorrespondenceRequest",
+              "LegalCorrespondenceResult",
+              "LegalSubjectAnnotationSource",
+              "LegalSubjectIdentity",
+              "LegalSubjectMembership",
+              "LegalSubjectMembershipSource",
+              "MethodCatalogDependencyAuthorityRequest",
+              "MethodRouteConstraint",
+              "InputContractMethodSelection",
+              "select_method_for_input_contract",
+              "SentenceTransformerEmbedder",
+              "TFIDFEmbedder",
+              "bind_legal_subject_annotations",
+              "build_method_catalog_provenance_manifest",
+              "build_method_catalog_runtime_identity",
+              "compile",
+              "compile_program",
+              "execute",
+              "method_accepts_input_contract",
+              "persist_legal_correspondence_result",
+              "persist_legal_subject_annotations",
+              "persist_legal_subject_membership_source",
+              "produce_legal_subject_spine",
+              "recognize_legal_correspondence",
+              "select_method_candidates_for_requirements"
+            ],
+            "has___getattr__": true,
+            "has___dir__": true,
+            "source_file": "src/polisyos/foundry/__init__.py",
+            "summary": "Expose the stable Foundry compile/execute entrypoints behind lazy imports."
+          },
+          {
+            "module": "polisyos.foundry.api",
+            "facade_mode_observed": "eager_exports",
+            "export_count": 3,
+            "exports": [
+              "compile",
+              "compile_program",
+              "execute"
+            ],
+            "has___getattr__": false,
+            "has___dir__": false,
+            "source_file": "src/polisyos/foundry/api.py",
+            "summary": "Stable Foundry public facade for compile and execute entrypoints."
+          },
+          {
+            "module": "polisyos.foundry.compile",
+            "facade_mode_observed": "lazy_facade",
+            "export_count": 1,
+            "exports": [
+              "compile"
+            ],
+            "has___getattr__": true,
+            "has___dir__": false,
+            "source_file": "src/polisyos/foundry/compile/__init__.py",
+            "summary": "Expose the compile facade without importing the Trinity compiler eagerly."
+          },
+          {
+            "module": "polisyos.foundry.execute",
+            "facade_mode_observed": "lazy_facade",
+            "export_count": 3,
+            "exports": [
+              "ResolvedExecutionPosture",
+              "execute",
+              "resolve_execution_posture"
+            ],
+            "has___getattr__": true,
+            "has___dir__": true,
+            "source_file": "src/polisyos/foundry/execute/__init__.py",
+            "summary": "Stable execute facade for compiled Foundry plans."
+          },
+          {
+            "module": "polisyos.foundry.uncertainty",
+            "facade_mode_observed": "eager_exports",
+            "export_count": 12,
+            "exports": [
+              "AdaptiveStoppingConfig",
+              "AggregationStrategy",
+              "FabricUncertaintyContext",
+              "PropagationConfig",
+              "PropagationDispatcher",
+              "PropagationResult",
+              "PropagationStrategy",
+              "QuasiMCSampler",
+              "aggregate_envelopes",
+              "compute_first_order_indices",
+              "extract_std",
+              "fabric_uncertainty_context_from_decision_data"
+            ],
+            "has___getattr__": false,
+            "has___dir__": false,
+            "source_file": "src/polisyos/foundry/uncertainty/__init__.py",
+            "summary": "Expose uncertainty propagation helpers used around Foundry simulation outputs."
+          }
+        ]
+      },
+      {
+        "module": "polisyos.calibration",
+        "classification": "public_experimental",
+        "facade_mode_expected": "eager_exports",
+        "facade_mode_observed": "eager_exports",
+        "owner": "team-scientist",
+        "readme": "src/polisyos/calibration/README.md",
+        "reference_doc": "docs/reference/public-surface.md",
+        "supported_entrypoints": [
+          "polisyos.calibration"
+        ],
+        "major_subsystem": false,
+        "export_count": 10,
+        "exports": [
+          "CalibrationPoint",
+          "CalibrationResult",
+          "apply_calibrator",
+          "compare_calibrators",
+          "compute_calibration_curve",
+          "evaluate_binary",
+          "evaluate_continuous",
+          "evaluate_multiclass",
+          "fit_calibrator",
+          "to_validation_report"
+        ],
+        "has___getattr__": false,
+        "has___dir__": false,
+        "source_file": "src/polisyos/calibration/__init__.py",
+        "summary": "Calibration diagnostics public entrypoints.",
+        "notes": "Canonical shared calibration diagnostics, recalibration, and validation-report API. Foundry and DDM calibration contexts remain package-specific.",
+        "entrypoints": [
+          {
+            "module": "polisyos.calibration",
+            "facade_mode_observed": "eager_exports",
+            "export_count": 10,
+            "exports": [
+              "CalibrationPoint",
+              "CalibrationResult",
+              "apply_calibrator",
+              "compare_calibrators",
+              "compute_calibration_curve",
+              "evaluate_binary",
+              "evaluate_continuous",
+              "evaluate_multiclass",
+              "fit_calibrator",
+              "to_validation_report"
+            ],
+            "has___getattr__": false,
+            "has___dir__": false,
+            "source_file": "src/polisyos/calibration/__init__.py",
+            "summary": "Calibration diagnostics public entrypoints."
+          }
+        ]
+      }
+    ]
+  },
+  "polisyos.foundry.uncertainty": {
+    "observed_mode": "eager_exports",
+    "literal_all": [
+      "AdaptiveStoppingConfig",
+      "AggregationStrategy",
+      "BoundedIndicatorResponse",
+      "FabricUncertaintyContext",
+      "PropagationConfig",
+      "PropagationDispatcher",
+      "PropagationResult",
+      "PropagationStrategy",
+      "QuasiMCSampler",
+      "aggregate_envelopes",
+      "compute_first_order_indices",
+      "extract_std",
+      "fabric_uncertainty_context_from_decision_data",
+      "reconcile_draw_outcomes",
+      "sampling_content_digest",
+      "verify_mean_certificate"
+    ],
+    "export_count": 16,
+    "snapshot_package_rows": [
+      {
+        "module": "polisyos.foundry",
+        "classification": "public_stable",
+        "facade_mode_expected": "lazy_facade",
+        "facade_mode_observed": "lazy_facade",
+        "owner": "team-polisyos",
+        "readme": "src/polisyos/foundry/README.md",
+        "reference_doc": "docs/reference/public-surface.md",
+        "supported_entrypoints": [
+          "polisyos.foundry",
+          "polisyos.foundry.api",
+          "polisyos.foundry.compile",
+          "polisyos.foundry.execute",
+          "polisyos.foundry.uncertainty"
+        ],
+        "major_subsystem": true,
+        "export_count": 27,
+        "exports": [
+          "DependencyProfileResolutionFailure",
+          "EmbedderProtocol",
+          "LegalCorrespondenceRequest",
+          "LegalCorrespondenceResult",
+          "LegalSubjectAnnotationSource",
+          "LegalSubjectIdentity",
+          "LegalSubjectMembership",
+          "LegalSubjectMembershipSource",
+          "MethodCatalogDependencyAuthorityRequest",
+          "MethodRouteConstraint",
+          "InputContractMethodSelection",
+          "select_method_for_input_contract",
+          "SentenceTransformerEmbedder",
+          "TFIDFEmbedder",
+          "bind_legal_subject_annotations",
+          "build_method_catalog_provenance_manifest",
+          "build_method_catalog_runtime_identity",
+          "compile",
+          "compile_program",
+          "execute",
+          "method_accepts_input_contract",
+          "persist_legal_correspondence_result",
+          "persist_legal_subject_annotations",
+          "persist_legal_subject_membership_source",
+          "produce_legal_subject_spine",
+          "recognize_legal_correspondence",
+          "select_method_candidates_for_requirements"
+        ],
+        "has___getattr__": true,
+        "has___dir__": true,
+        "source_file": "src/polisyos/foundry/__init__.py",
+        "summary": "Expose the stable Foundry compile/execute entrypoints behind lazy imports.",
+        "notes": "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.",
+        "entrypoints": [
+          {
+            "module": "polisyos.foundry",
+            "facade_mode_observed": "lazy_facade",
+            "export_count": 27,
+            "exports": [
+              "DependencyProfileResolutionFailure",
+              "EmbedderProtocol",
+              "LegalCorrespondenceRequest",
+              "LegalCorrespondenceResult",
+              "LegalSubjectAnnotationSource",
+              "LegalSubjectIdentity",
+              "LegalSubjectMembership",
+              "LegalSubjectMembershipSource",
+              "MethodCatalogDependencyAuthorityRequest",
+              "MethodRouteConstraint",
+              "InputContractMethodSelection",
+              "select_method_for_input_contract",
+              "SentenceTransformerEmbedder",
+              "TFIDFEmbedder",
+              "bind_legal_subject_annotations",
+              "build_method_catalog_provenance_manifest",
+              "build_method_catalog_runtime_identity",
+              "compile",
+              "compile_program",
+              "execute",
+              "method_accepts_input_contract",
+              "persist_legal_correspondence_result",
+              "persist_legal_subject_annotations",
+              "persist_legal_subject_membership_source",
+              "produce_legal_subject_spine",
+              "recognize_legal_correspondence",
+              "select_method_candidates_for_requirements"
+            ],
+            "has___getattr__": true,
+            "has___dir__": true,
+            "source_file": "src/polisyos/foundry/__init__.py",
+            "summary": "Expose the stable Foundry compile/execute entrypoints behind lazy imports."
+          },
+          {
+            "module": "polisyos.foundry.api",
+            "facade_mode_observed": "eager_exports",
+            "export_count": 3,
+            "exports": [
+              "compile",
+              "compile_program",
+              "execute"
+            ],
+            "has___getattr__": false,
+            "has___dir__": false,
+            "source_file": "src/polisyos/foundry/api.py",
+            "summary": "Stable Foundry public facade for compile and execute entrypoints."
+          },
+          {
+            "module": "polisyos.foundry.compile",
+            "facade_mode_observed": "lazy_facade",
+            "export_count": 1,
+            "exports": [
+              "compile"
+            ],
+            "has___getattr__": true,
+            "has___dir__": false,
+            "source_file": "src/polisyos/foundry/compile/__init__.py",
+            "summary": "Expose the compile facade without importing the Trinity compiler eagerly."
+          },
+          {
+            "module": "polisyos.foundry.execute",
+            "facade_mode_observed": "lazy_facade",
+            "export_count": 3,
+            "exports": [
+              "ResolvedExecutionPosture",
+              "execute",
+              "resolve_execution_posture"
+            ],
+            "has___getattr__": true,
+            "has___dir__": true,
+            "source_file": "src/polisyos/foundry/execute/__init__.py",
+            "summary": "Stable execute facade for compiled Foundry plans."
+          },
+          {
+            "module": "polisyos.foundry.uncertainty",
+            "facade_mode_observed": "eager_exports",
+            "export_count": 12,
+            "exports": [
+              "AdaptiveStoppingConfig",
+              "AggregationStrategy",
+              "FabricUncertaintyContext",
+              "PropagationConfig",
+              "PropagationDispatcher",
+              "PropagationResult",
+              "PropagationStrategy",
+              "QuasiMCSampler",
+              "aggregate_envelopes",
+              "compute_first_order_indices",
+              "extract_std",
+              "fabric_uncertainty_context_from_decision_data"
+            ],
+            "has___getattr__": false,
+            "has___dir__": false,
+            "source_file": "src/polisyos/foundry/uncertainty/__init__.py",
+            "summary": "Expose uncertainty propagation helpers used around Foundry simulation outputs."
+          }
+        ]
+      }
+    ]
+  }
+}

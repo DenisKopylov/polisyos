@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.independent_closed_cleanup_append_final_custody.v1",
+  "outcome": "GO bounded custody",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "current_selector": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/publication-selection-v2.json",
+    "bytes": 51421,
+    "sha256": "f522e7f42a508643e167d66bcbaf7600f6c4c75dace6988039d32d3983f82e6f"
+  },
+  "current_summary": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/cleanup-append-summary-v2.json",
+    "bytes": 10202,
+    "sha256": "8e4b7eedc47c427c09241454f3b6026af60236d6d5ddda8d4c92f42d13cf738b"
+  },
+  "review_normal": {
+    "path": "/tmp/e02-E-cleanup-append-custody-independent/review-normal.json",
+    "bytes": 26083,
+    "sha256": "21ebdd27f58351039d09b9bf43ade4aa4804f197bd630e46ffa2c77e255e9396"
+  },
+  "review_optimized": {
+    "path": "/tmp/e02-E-cleanup-append-custody-independent/review-optimized.json",
+    "bytes": 26086,
+    "sha256": "ad6cb3c202ddbbca93a06cd170c5a01ddeb75876356917627a4b5fefa662dae7"
+  },
+  "full_results_equal_except_optimization_label": true,
+  "actual_corrupt_controls_per_mode": 11,
+  "selected_current_assets": 101,
+  "selected_current_bytes": 1057547,
+  "exact_actions": 10,
+  "payload_inventory_entries": 73758,
+  "top_level_archive_directories": 10,
+  "full_tar_members_from_actual_observer_root_and_payload_proofs": 73768,
+  "denominator_note": "Sourcecopy41073 + numeric32685 are non-root inventory payload rows; each of10 actual tar streams separately validated its one root directory. No aggregate numeric PASS inferred.",
+  "imported_proc_scan_exact_tracked_dependency": {
+    "actual_file": {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/prepare_cleanup.py",
+      "bytes": 10603,
+      "sha256": "5de7f84194dbbdea08645289b1b89b031c273f788f0f72bbcb100a33ecb98d76"
+    },
+    "Git_ref": "737c9e3115abac3fefe76920b08c05e76a5bee17:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4/capacity-cleanup/prepare_cleanup.py.txt",
+    "Git_bytes_equal_actual": true
+  },
+  "original_old_prefix_error": {
+    "executed_source_retained": true,
+    "stale_fourth_PROTECTED_literal": "/workspace/e02-E-pr38-r3-receipts/full-backend-after-prereq-64d-20261007",
+    "current_correction": {
+      "receipt": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/actual-backend-scope-corrective-readback.json",
+        "bytes": 19794,
+        "sha256": "c4d62bd25599ec9faee118acd8509b84ea77670465d96681fdff0bf26b721084"
+      },
+      "actual_prefix": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry",
+      "scoped_observed_active_users": 5,
+      "all_ten_actions_actual_lexically_disjoint": true,
+      "original_stale_executed_literal_preserved": true
+    },
+    "historical93_selector_unchanged": true,
+    "fresh_scope_receipt_does_not_rewrite_executed_guard": true
+  },
+  "archive_scope": "Compressed archive hashes plus full retained inventory sums verified; no archive decompression/member-bytes replay or native/numeric/cleanup execution.",
+  "original_CAL_SIGKILL_distinct_from_324_retry": true,
+  "closure_from_cleanup": false,
+  "limits": [
+    "Ten exact unregistered CLOSED source/pytest children only; all raw unknown/unique bytes remain in complete archives.",
+    "Agent-UID cwd/argv/environment/maps/FD visibility only; privileged daemon exclusion is explicit.",
+    "Observed filesystem capacity deltas are not physical RAM recovery or an additive resource promise.",
+    "Original CAL -9/countsnull and later324PASS remain distinct; cleanup does not change closure or explain interrupted-process cause.",
+    "No source/env/package/checkouts/Git mutations by reviewer."
+  ]
+}

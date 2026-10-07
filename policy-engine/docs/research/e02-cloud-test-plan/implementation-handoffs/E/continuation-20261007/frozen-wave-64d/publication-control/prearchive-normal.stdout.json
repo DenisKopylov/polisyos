@@ -1,0 +1,93 @@
+{
+  "schema": "policyos.e02.frozen_wave_publication_recomputation.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "positive": "PASS",
+  "copied_files_at_execution": 80,
+  "copied_bytes_at_execution": 5715322,
+  "path_count_at_execution": 83,
+  "primary_jobs": 15,
+  "actual_counts": {
+    "cases": 1549,
+    "passed": 1541,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "negative_controls": [
+    {
+      "mutation": "copy_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "copy_bytes",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "path_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "active_python",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "summary_case_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "summary_pass_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "primary_jobs",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "known_A_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "source_sha",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "copy_hash",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "portable_escape",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "collector_case_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "collector_pass_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "fake_original_CAL_counts",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "fake_original_gate_PASS",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "retry_case_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "selected_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "selected_bytes",
+      "outcome": "REFUSED"
+    }
+  ],
+  "numerical_gate_test_execution": false,
+  "scope": "Literal custody and parsed receipts/JUnit; successor selectors outside original15-job carrier remain excluded"
+}

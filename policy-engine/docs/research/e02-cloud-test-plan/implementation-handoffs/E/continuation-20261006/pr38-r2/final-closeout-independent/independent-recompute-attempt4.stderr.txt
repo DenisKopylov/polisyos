@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 247, in <module>
+    main()
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 204, in main
+    semantics = check_semantics(packet, recipes, empirical)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 119, in check_semantics
+    require("Actual" in rows[fid]["minimal_inputs"] and "owner" in rows[fid]["implementation_residual_or_external_boundary"].lower() or "institutional authority" in rows[fid]["implementation_residual_or_external_boundary"], "DDM actual inputs absent")
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 30, in require
+    raise ValueError(reason)
+ValueError: DDM actual inputs absent

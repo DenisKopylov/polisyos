@@ -1,0 +1,754 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "frc-source-measurement-r2",
+  "closure_ids": [
+    "B32",
+    "LA-051"
+  ],
+  "bundle_ids": [
+    "FRC-01",
+    "FRC-02"
+  ],
+  "slice_base_sha": "22998874b5f32434c462065baaca44a78e967f91",
+  "slice_base_tree_sha": "a811678f425cbc4b966ce2474e27e38d6a757168",
+  "integration_review_source_sha": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "integration_review_source_tree_sha": "206a7d82a0d7aac629cdd9607a60949fc753a341",
+  "integration_review_is_ancestor_of_candidate": true,
+  "integration_anchor_sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "implementation_commits": [
+    "8486baad6fdef8063cfaad80b15f6b6d8532460a"
+  ],
+  "candidate_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+  "candidate_tree_sha": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+  "branch": "codex/e02-E-frc-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/40",
+  "pull_request_base": "codex/e02-E-continuation-20261006",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason.patch.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/legacy-replay-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-property-removal.py.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-source-measurement.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+  ],
+  "authorized_companions": [
+    {
+      "sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e",
+      "paths": [
+        "policy-engine/src/polisyos/calibration/__init__.py",
+        "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "scope": "Reviewed root eager imports/literal __all__ and explicit caller test copied; only ForecastMeasurementBinding, resolve_forecast_measurement_binding and existing load_forecast_candidate_receipt added."
+    },
+    {
+      "sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+      "implementation_sha": "67de07c17174fa81d8aef937d4b19446ebe2cb4c",
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "scope": "Coordinated PCL paragraph describes configured NumPy path after this companion is merged; companion is not in standalone FRC candidate and is required."
+    }
+  ],
+  "workspace_admission": {
+    "branch": "codex/e02-E-frc-20261006",
+    "absolute_path": "/workspace/e02-E-frc-20261006",
+    "resume_full_json": "frc-source-measurement-r2/checks/admission-resume.json",
+    "mode": "Exact existing lane resumed; ff-only to229988, no new worktree/reset/rebase/prune."
+  },
+  "baseline_cells": [
+    {
+      "id": "F13-P109",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "state": "FAILED",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "5",
+      "call_failed": "2",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "27.0",
+      "rss_kib": "1622480",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "236",
+      "extra_json": "{}",
+      "findings": [
+        "B32",
+        "LA-051"
+      ],
+      "source_ref": "integration_head",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "environment": {
+        "job": "F13",
+        "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "source_role": "integration_head",
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.22.0",
+          "pnpm": "10.33.2",
+          "installed_distributions": 241,
+          "installed_version_changes": 0,
+          "numeric_threads": 1,
+          "JAX_PLATFORMS": "cpu"
+        },
+        "selected_profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "lock_hashes": {
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+        }
+      },
+      "environment_locator": "results/received/F13.txt",
+      "backend": "source-reported CPU union; exact per-cell backend origin unavailable",
+      "input_identity": "Tracked fixtures at source SHA; original VM source-inputs and raw bytes absent",
+      "use": "navigation only; no new-candidate PASS or inherited-red attribution"
+    },
+    {
+      "id": "F13-P091",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+      "state": "PASS",
+      "collected": "12",
+      "calls": "12",
+      "call_pass": "12",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.65",
+      "rss_kib": "282324",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "218",
+      "extra_json": "{}",
+      "findings": [
+        "LA-051"
+      ],
+      "source_ref": "integration_head",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "environment": {
+        "job": "F13",
+        "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "source_role": "integration_head",
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.22.0",
+          "pnpm": "10.33.2",
+          "installed_distributions": 241,
+          "installed_version_changes": 0,
+          "numeric_threads": 1,
+          "JAX_PLATFORMS": "cpu"
+        },
+        "selected_profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "lock_hashes": {
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+        }
+      },
+      "environment_locator": "results/received/F13.txt",
+      "backend": "source-reported CPU union; exact per-cell backend origin unavailable",
+      "input_identity": "Tracked fixtures at source SHA; original VM source-inputs and raw bytes absent",
+      "use": "navigation only; no new-candidate PASS or inherited-red attribution"
+    },
+    {
+      "id": "F14-P097",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "state": "PASS",
+      "collected": "12",
+      "calls": "12",
+      "call_pass": "12",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "32.5863679590002",
+      "rss_kib": "1356536",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "447",
+      "extra_json": "{}",
+      "findings": [
+        "LA-051"
+      ],
+      "source_ref": "integration_head",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "environment": {
+        "job": "F14",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "source_role": "integration_head",
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "corepack_pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpu_quota": 4,
+          "cpuset_effective": "0-4",
+          "memory_max_bytes": 17179869184,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "profile_segment": "frozen-union-1",
+          "selected_extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "vector-search",
+            "solvers",
+            "search_bo",
+            "agent-sim",
+            "causal-discovery-scale"
+          ],
+          "native_property_controls": "all three removal controls absent in actual children",
+          "distribution_origins_ref": "environment.json",
+          "raw_transfer_missing": true
+        },
+        "lock_hashes": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "environment_locator": "results/received/F14.txt",
+      "backend": "source-reported CPU union; exact per-cell backend origin unavailable",
+      "input_identity": "Tracked fixtures at source SHA; original VM source-inputs and raw bytes absent",
+      "use": "navigation only; no new-candidate PASS or inherited-red attribution"
+    },
+    {
+      "id": "F15-P098",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+      "state": "PASS",
+      "collected": "12",
+      "calls": "12",
+      "call_pass": "12",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "30.37",
+      "rss_kib": "1593696",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "253",
+      "extra_json": "{\"reason\":\"null\"}",
+      "findings": [
+        "LA-051"
+      ],
+      "source_ref": "integration_head",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "environment": {
+        "job": "F15",
+        "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "pnpm": "10.33.2",
+          "platform": "Linux Debian 13 x86_64",
+          "cpu_quota_cores": 4.0,
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "numerical_threads": 1,
+          "jax_platforms": "cpu",
+          "precision": "repository default unchanged",
+          "gnu_time_package": "time 1.9-0.2 amd64; --version reports GNU Time UNKNOWN",
+          "native_property_controls": "all three absent in every observed primary child",
+          "python_profile": "single frozen selected-extras union installed before native series",
+          "node_install": "one CI=true corepack pnpm install --frozen-lockfile before native series",
+          "setup_interruption": "initial uv sync lost VM connection; exit=null, cause not_established; same frozen profile resumed before native tests",
+          "toolchain_bootstrap_initial_wall_s": null
+        },
+        "selected_extras": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "agent-sim",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "config_hashes": {
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "environment_locator": "results/received/F15.txt",
+      "backend": "source-reported CPU union; exact per-cell backend origin unavailable",
+      "input_identity": "Tracked fixtures at source SHA; original VM source-inputs and raw bytes absent",
+      "use": "navigation only; no new-candidate PASS or inherited-red attribution"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/frc/frozen/affected-native.junit.xml",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "role": "affected property/consumer check",
+      "output": "frc-source-measurement-r2/checks/affected-native.stdout",
+      "resources": "frc-source-measurement-r2/checks/affected-native.resource.json",
+      "counts": {
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 48.803
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/frc/frozen/a-cas-contract.junit.xml",
+        "/workspace/e02-E-pr38-r2-receipts/frc/test_a_cas_contract.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "role": "affected property/consumer check",
+      "output": "frc-source-measurement-r2/checks/a-cas-contract.stdout",
+      "resources": "frc-source-measurement-r2/checks/a-cas-contract.resource.json",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 73.159
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/frc/frozen/a-status-reason.junit.xml",
+        "/workspace/e02-E-pr38-r2-receipts/frc/test_a_status_reason.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "role": "A-owned unresolved status/reason defect",
+      "output": "frc-source-measurement-r2/checks/a-status-reason.stdout",
+      "resources": "frc-source-measurement-r2/checks/a-status-reason.resource.json",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 69.326
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-property-removal.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "role": "removal control",
+      "output": "frc-source-measurement-r2/checks/property-removal.stdout",
+      "resources": "frc-source-measurement-r2/checks/property-removal.resource.json",
+      "counts": null,
+      "wall_seconds": 43.629
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-probe.py.txt",
+        "--output-root",
+        "/workspace/e02-E-pr38-r2-receipts/frc/candidate-probe-cas"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "role": "affected property/consumer check",
+      "output": "frc-source-measurement-r2/checks/measurement-probe.stdout",
+      "resources": "frc-source-measurement-r2/checks/measurement-probe.resource.json",
+      "counts": null,
+      "wall_seconds": 37.043
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/legacy-replay-probe.py.txt",
+        "--cas",
+        "/workspace/e02-E-pr38-r2-receipts/frc/legacy-replay-cas"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "role": "affected property/consumer check",
+      "output": "frc-source-measurement-r2/checks/legacy-replay.stdout",
+      "resources": "frc-source-measurement-r2/checks/legacy-replay.resource.json",
+      "counts": null,
+      "wall_seconds": 42.52
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/calibration/__init__.py",
+        "src/polisyos/calibration/forecast_bridge.py",
+        "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "role": "affected property/consumer check",
+      "output": "frc-source-measurement-r2/checks/ruff.stdout",
+      "resources": "frc-source-measurement-r2/checks/ruff.resource.json",
+      "counts": null,
+      "wall_seconds": 0.828
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/calibration/__init__.py",
+        "src/polisyos/calibration/forecast_bridge.py",
+        "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "role": "affected property/consumer check",
+      "output": "frc-source-measurement-r2/checks/format.stdout",
+      "resources": "frc-source-measurement-r2/checks/format.resource.json",
+      "counts": null,
+      "wall_seconds": 0.822
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "role": "affected property/consumer check",
+      "output": "frc-source-measurement-r2/checks/results-importer.stdout",
+      "resources": "frc-source-measurement-r2/checks/results-importer.resource.json",
+      "counts": null,
+      "wall_seconds": 2.184
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "/workspace/e02-E-frc-20261006",
+        "apply",
+        "--check",
+        "--verbose",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason.patch.txt"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate tracked files, synthetic CAS fixtures and real NumPy ETS; no production history",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "role": "affected property/consumer check",
+      "output": "frc-source-measurement-r2/checks/a-patch-applicable.stdout",
+      "resources": "frc-source-measurement-r2/checks/a-patch-applicable.resource.json",
+      "counts": null,
+      "wall_seconds": 0.342
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/positive-artifact-probe.py.txt"
+      ],
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "environment": "frc-source-measurement-r2/checks/execution.json#environment",
+      "input_closure": "Exact candidate _configured helper; count/source_native DataSchema, seed17, train1..30/holdout31..34",
+      "outcome": "PASS",
+      "output": "frc-source-measurement-r2/checks/positive-artifact.stdout",
+      "resources": "frc-source-measurement-r2/checks/positive-artifact.resource.json",
+      "execution_note": "Harness was added in evidence commit; runtime source hashes equal frozen candidate. Two initial harness invocation errors are preserved separately.",
+      "environment_overrides": {
+        "PYTHONPATH": "src"
+      },
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine"
+    }
+  ],
+  "environment": {
+    "interpreter": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cpu_count": 5,
+    "numerical_thread_overrides": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "JAX_PLATFORMS": null
+    },
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "SALib": "1.5.2",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10"
+    },
+    "worktree": "/workspace/e02-E-frc-20261006",
+    "source_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "source_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+    "file_sha256": {
+      "src/polisyos/calibration/__init__.py": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "src/polisyos/calibration/forecast_bridge.py": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "src/polisyos/scientist/methods/backtesting/forecast_owner.py": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "tests/unit/calibration/test_evidence_facades.py": "307a693cac46d30dac6d004b0d0d73cde07f1132b2f2f6477e42fba8ed19015e",
+      "tests/unit/remediation/test_frc_02_owner.py": "a8696d011c3d56f6b03117c7eb897a8d867ae5cec99a13c2cb262de5fe2676a1",
+      "tests/unit/scientist/methods/backtesting/test_forecast_owner.py": "0d0127d5784ea5a265fcf20fb7a0551bc773f748f84b1e01de6c27eeb09eaef1"
+    }
+  },
+  "property": {
+    "statement": "Resolve canonical source schema and explicit unit/source-native numeric scale before any ETS callback; preserve this coordinate through training, intervals, empirical artifacts, report lineage, receipt and fresh readback.",
+    "runtime_path": [
+      "DataSnapshot/DataSchema CAS",
+      "ForecastOwnerRequest v2 preflight",
+      "real MethodDispatcher NumPy ETS",
+      "training+forecasting bundle+BacktestReport CAS",
+      "separate empirical evidence and candidate receipt CAS",
+      "fresh candidate loader and neutral to_s10_input_fields",
+      "actual A resolver/gateway/buildrecord bounded packet"
+    ],
+    "independent_oracle": "Train1..30 has Holt continuation31..34 and zero rolling-origin residuals. Reopen source rows and interval bundle separately; compare known31..34 bounds within1e-8 and independently count4/4. Changed holdout1000 gives0/4 for identical training/point forecast.",
+    "proxy_divergence": "Exact58e2 old source executes missing/unresolved/wrong-unit inputs with callback1 each; candidate refuses all before callback0. Removing unit comparison while retaining populated DTO reaches actual callback and fails the preflight test.",
+    "negative_controls": [
+      "Nine preflight variants: missing/wrong-kind/wrong-profile/malformed schema, missing/wrong unit, wrong target, unsupported scale and legacy new execution.",
+      "Integrity-valid forged v2 request/profile/receipt unit or scale rejected fresh.",
+      "Integrity-valid source/request switch and forged counts rejected fresh.",
+      "A resolver refuses missing/wrong-kind ref, wrong rule and six-time mismatch.",
+      "Same forecasts with4/4 versus0/4 observed outcomes.",
+      "Property-removal expected FAIL preserves marker but loses actual property."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_classification": [
+    {
+      "predicate": "content/coordinate/split/horizon/rows/interval/count/seed/time equality",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "zero-residual analytic interval oracle",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "institutional source/profile admission and independent A verifier/default/HTTP provenance",
+      "basis": "not_established"
+    }
+  ],
+  "capability_state_or_finding_state": {
+    "code": "published bounded source; independent root/G review pending",
+    "findings": {
+      "B32": {
+        "ledger_status": "partial",
+        "verdict": "limited",
+        "acceptance": "A default/verifier implementation remains active; no automatic closure."
+      },
+      "LA-051": {
+        "ledger_status": "partial",
+        "verdict": "limited",
+        "acceptance": "Both FRC bundles required; native synthetic producer/reader does not establish production history/admitted verification."
+      }
+    },
+    "authority_scope": "predictive_only",
+    "verifier_provenance": "not_established",
+    "unchanged_B198": "closed preserved outside slice",
+    "skipped_backends": [],
+    "umbrella_wave": "UNRUN here; root owns post-review common wave on integrated frozen candidate."
+  },
+  "versions": {
+    "internal_request": "2.0 new execution;1.0 decode/read/replay retained",
+    "candidate_receipt": "1.0",
+    "empirical_evidence": "1.1",
+    "ir_uncertainty_wire": "unchanged v1.1",
+    "unit_scale": "source_native identity only; no conversion/registry authority"
+  },
+  "evidence_integrity": {
+    "copy_index": "frc-source-measurement-r2/checks/copy-index.json",
+    "validator": "frc-source-measurement-r2/validate-copy-index.py.txt",
+    "negative": "Corrupt recorded byte size in memory; recomputation rejects it.",
+    "output": "frc-source-measurement-r2/checks/copy-index-validation.stdout"
+  },
+  "historical_evidence": {
+    "old_exact_source_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "old_exact_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+    "base_probe": "frc-source-measurement-r2/checks/historical-base-measurement-configured.stdout",
+    "first_old_archive_probe": "ERROR before FRC: missing architecture TOMLs. Historical stdout preserved; exact58e2 config blobs supplied to existing archive, no new checkout/env.",
+    "old_config_companion_git_blobs": {
+      "method_catalog_dependency_authority.toml": "ac453ab0ea23f9a97ff98e01b0009465fdf66ee3",
+      "method_catalog_dependency_digest_domains.toml": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f",
+      "method_catalog_dependency_profiles.toml": "3918078a573ff8e292e3c908d3faa2206032685c"
+    },
+    "legacy_producer": "Real old native producer created v1 receipt sha256:98206aef93684ecdcc7f23cb18f4e158f6bf9ed7a2276d2da7db71300d0d2f82. Unchanged artifact fresh candidate read PASS, not_established/predictive_only retained.",
+    "iteration_family": "Historical55PASS/1FAIL before canonical test companion; final affected19PASS resolves it. Not relabeled a full frozen family wave."
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "A generation-cycle/HTTP writer",
+      "input": "E v2 request/profile in configured CAS; positive exact refs; a-cas-contract tests and a-status-reason patch/tests.",
+      "next_result": "Review/apply packet; missing ref and resolved limited evidence retain distinct typed/recomputed reasons through tier/S6. Default route invokes strict E producer and separately verifies profile/source/metric/unit/split/horizon/pairs/counts/threshold/purpose/six roles/provenance; fresh served/HTTP read matches refs. Terminal causal/treatment/policy refusal stays."
+    },
+    {
+      "owner": "G local read-only history checker",
+      "input": "Minimal immutable issued forecast/outcome history, compatible predictive estimand, numeric DataSchema/unit, source/model/rule versions, exact split/horizon and six actual times on8486baad6. Full history remains local.",
+      "next_result": "Use same producer/fresh reader on exact local candidate; independently join history rows to intervals and mutate later outcomes as negative. Report actual source/profile authority limits. Generic native fixture is already positive."
+    },
+    {
+      "owner": "Root E/G and public Calibration owner",
+      "input": "Approved narrow exports, explicit caller test, internal v2 migration; root14d companion and PCLffd23 chain before interpreting README.",
+      "next_result": "Independent source/delta review, public inventory/architecture checks, dependency integration and single common wave. Accountable owner decides B32/LA-051 separately from code admission."
+    }
+  ],
+  "cleanup": {
+    "native_trash": "unavailable; permanent deletion prohibited",
+    "candidates_after_no_active_users": [
+      "/workspace/e02-E-pr38-r2-receipts/frc/base-probe-cas",
+      "/workspace/e02-E-pr38-r2-receipts/frc/candidate-probe-cas",
+      "/workspace/e02-E-pr38-r2-receipts/frc/legacy-replay-cas",
+      "/workspace/e02-E-pr38-r2-receipts/frc/positive-cas",
+      "/workspace/e02-E-pr38-r2-receipts/frc/test_a_cas_contract.py",
+      "/workspace/e02-E-pr38-r2-receipts/frc/test_a_status_reason.py",
+      "/workspace/e02-E-pr38-r2-receipts/frc/measure-process.py",
+      "/workspace/e02-E-pr38-r2-receipts/frc/run-frozen.py",
+      "/workspace/e02-E-pr38-r2-receipts/frc/exact-58e2-test-owner.py.txt"
+    ],
+    "preserve": "Code, useful docs, deciding outputs, unique data and history. Shared exact58e2 archive remains active for MC/root and is not this leaf cleanup candidate."
+  },
+  "p41": "Historical FRC01 red attribution remains not_established. Current A packet is bounded exact-input evidence, not inherited-red classification."
+}

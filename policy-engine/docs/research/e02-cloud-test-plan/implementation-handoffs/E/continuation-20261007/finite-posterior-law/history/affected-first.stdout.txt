@@ -1,0 +1,206 @@
+...............FF..............FF.F...................F...........       [100%]
+=================================== FAILURES ===================================
+______ test_invalid_corpus_is_refused_by_real_producer[draws13-kwargs13] _______
+
+draws = {'x': [0, 1, 2]}, kwargs = {'weights': [0.5, 1e-20, 0.5]}
+
+    @pytest.mark.parametrize(
+        ("draws", "kwargs"),
+        [
+            ({"x": [True, False]}, {}),
+            ({"x": [1, True]}, {}),
+            ({"x": [np.bool_(True)]}, {}),
+            ({"x": [np.nan]}, {}),
+            ({"x": [np.inf]}, {}),
+            ({"x": ["1"]}, {}),
+            ({"x": []}, {}),
+            ({"x": [[1, 2]]}, {}),
+            ({"x": [1, 2], "y": [3]}, {}),
+            ({"x": [0, 1]}, {"weights": [0, 0]}),
+            ({"x": [0, 1]}, {"weights": [1, -1]}),
+            ({"x": [0, 1]}, {"weights": [True, True]}),
+            ({"x": [0, 1]}, {"weights": [1, np.inf]}),
+            ({"x": [0, 1, 2]}, {"weights": [0.5, 1e-20, 0.5]}),
+            ({"x": [0, -1, 1]}, {"weights": [1e-20, 0.5, 0.5]}),
+            ({"x": [0, 1]}, {"draw_ids": ["same", "same"]}),
+        ],
+    )
+    def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):
+>       with pytest.raises((ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+
+tests/unit/ir/test_posterior_summary.py:97: Failed
+______ test_invalid_corpus_is_refused_by_real_producer[draws14-kwargs14] _______
+
+draws = {'x': [0, -1, 1]}, kwargs = {'weights': [1e-20, 0.5, 0.5]}
+
+    @pytest.mark.parametrize(
+        ("draws", "kwargs"),
+        [
+            ({"x": [True, False]}, {}),
+            ({"x": [1, True]}, {}),
+            ({"x": [np.bool_(True)]}, {}),
+            ({"x": [np.nan]}, {}),
+            ({"x": [np.inf]}, {}),
+            ({"x": ["1"]}, {}),
+            ({"x": []}, {}),
+            ({"x": [[1, 2]]}, {}),
+            ({"x": [1, 2], "y": [3]}, {}),
+            ({"x": [0, 1]}, {"weights": [0, 0]}),
+            ({"x": [0, 1]}, {"weights": [1, -1]}),
+            ({"x": [0, 1]}, {"weights": [True, True]}),
+            ({"x": [0, 1]}, {"weights": [1, np.inf]}),
+            ({"x": [0, 1, 2]}, {"weights": [0.5, 1e-20, 0.5]}),
+            ({"x": [0, -1, 1]}, {"weights": [1e-20, 0.5, 0.5]}),
+            ({"x": [0, 1]}, {"draw_ids": ["same", "same"]}),
+        ],
+    )
+    def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):
+>       with pytest.raises((ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+
+tests/unit/ir/test_posterior_summary.py:97: Failed
+____________ test_scoped_facade_resolves_actual_profile_and_reader _____________
+
+    def test_scoped_facade_resolves_actual_profile_and_reader():
+        import polisyos.ir as root
+        from polisyos.ir.analytics import PosteriorSummaryProfile
+        from polisyos.ir.analytics.posterior_summary import PosteriorSummaryProfile as Defined
+    
+        assert PosteriorSummaryProfile is Defined
+>       assert root.PosteriorSummaryProfile is Defined
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_posterior_summary.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'PosteriorSummaryProfile'
+
+    def __getattr__(name: str) -> Any:
+        """Resolve a public IR export on first access.
+    
+        Args:
+            name: Facade attribute requested by user code.
+    
+        Returns:
+            The lazily imported class, enum, or function bound to ``name``.
+    
+        Raises:
+            AttributeError: If ``name`` is not part of the stable facade surface.
+        """
+        if name in _LAZY_IMPORTS:
+>           module_name, attr = _LAZY_IMPORTS[name]
+            ^^^^^^^^^^^^^^^^^
+E           ValueError: too many values to unpack (expected 2, got 3)
+
+src/polisyos/ir/__init__.py:1031: ValueError
+_____ test_identical_summaries_do_not_merge_different_persisted_atom_laws ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-245/test_identical_summaries_do_no0')
+
+    def test_identical_summaries_do_not_merge_different_persisted_atom_laws(tmp_path):
+        # Independent counts: both population second moments=.6 and equal-tail[-1,1].
+        laws = [
+            [-1.0] * 30 + [0.0] * 40 + [1.0] * 30,
+            [-4.0] + [-1.0] * 14 + [0.0] * 70 + [1.0] * 14 + [4.0],
+        ]
+        refs, readbacks = [], []
+        for values in laws:
+            env = summarize_bayesian_calibration_posterior({"x": values}).parameter_envelopes["x"]
+            ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+            refs.append(ref)
+            readbacks.append(load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref))
+        assert refs[0].artifact_id != refs[1].artifact_id
+        for env in readbacks:
+            assert env.point_estimate == 0
+            assert env.confidence_interval == (-1, 1)
+            assert posterior_nominal_mean(env) == 0
+>       assert [
+            sum(
+                p
+                for x, p in zip(
+                    env.distribution_payload.samples, env.distribution_payload.weights, strict=True
+                )
+                if x == 0
+            )
+            for env in readbacks
+        ] == pytest.approx([0.4, 0.7])
+E       assert [20.0, 35.0] == approx([0.4 ±....7 ± 7.0e-07])
+E         
+E         comparison failed. Mismatched elements: 2 / 2:
+E         Max absolute difference: 34.3
+E         Max relative difference: 0.9800000000000001
+E         Index | Obtained | Expected     
+E         0     | 20.0     | 0.4 ± 4.0e-07
+E         1     | 35.0     | 0.7 ± 7.0e-07
+
+tests/unit/ir/test_posterior_summary.py:234: AssertionError
+_____ test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law ______
+
+    def test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law():
+        from polisyos.foundry.uncertainty import sampling_admission
+    
+        probabilities = sampling_admission.admit_empirical_weights([1e-20, 0.5, 0.5], 3)
+        cumulative = sampling_admission.empirical_cdf(probabilities)
+>       assert cumulative.tolist() == [1e-20, 0.5, 1]
+E       assert [1e-20, 0.500...00000001, 1.0] == [1e-20, 0.5, 1]
+E         
+E         At index 1 diff: 0.5000000000000001 != 0.5
+E         Use -v to get more diff
+
+tests/unit/ir/test_posterior_summary.py:275: AssertionError
+_ test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics __
+
+    def test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics() -> None:
+>       summary = summarize_bayesian_calibration_posterior(
+            {
+                "node.tax_rate": [0.21, 0.24, 0.25, 0.23, 0.22],
+                "node.transfer": [1.1, 1.0, 1.2, 1.05, 0.98],
+            },
+            credible_mass=0.9,
+            emulator_diagnostics={
+                "emulator_name": "gp_surrogate",
+                "emulator_noise_std": {"node.tax_rate": 0.01},
+            },
+            posterior_diagnostics={"r_hat_max": 1.01},
+        )
+
+tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py:229: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+posterior_draws = {'node.tax_rate': [0.21, 0.24, 0.25, 0.23, 0.22], 'node.transfer': [1.1, 1.0, 1.2, 1.05, 0.98]}
+
+    def summarize_bayesian_calibration_posterior(
+        posterior_draws: Mapping[str, Sequence[float] | np.ndarray],
+        *,
+        credible_mass: float = 0.9,
+        emulator_diagnostics: Mapping[str, Any] | None = None,
+        posterior_diagnostics: Mapping[str, Any] | None = None,
+        weights: Sequence[float] | np.ndarray | None = None,
+        draw_ids: Sequence[str] | None = None,
+        sample_axis: str = "draw",
+        context: PosteriorSummaryContext | None = None,
+    ) -> BayesianCalibrationPosteriorSummary:
+        """Summarize posterior draws from Bayesian calibration or emulator-assisted inference."""
+    
+        if not (0.0 < credible_mass < 1.0):
+            raise ValueError("credible_mass must be in (0, 1)")
+        if not posterior_draws or not isinstance(sample_axis, str) or not sample_axis.strip():
+            raise ValueError("posterior draws and sample axis must be non-empty")
+        names = sorted(posterior_draws)
+        if any(not isinstance(name, str) or not name.strip() for name in names):
+            raise ValueError("posterior parameter names must be non-empty strings")
+        if len(names) > 1 and draw_ids is None:
+>           raise ValueError("posterior joint law requires explicit producer-supplied aligned draw IDs")
+E           ValueError: posterior joint law requires explicit producer-supplied aligned draw IDs
+
+src/polisyos/foundry/calibration/uncertainty_adapter.py:244: ValueError
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws13-kwargs13]
+FAILED tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws14-kwargs14]
+FAILED tests/unit/ir/test_posterior_summary.py::test_scoped_facade_resolves_actual_profile_and_reader
+FAILED tests/unit/ir/test_posterior_summary.py::test_identical_summaries_do_not_merge_different_persisted_atom_laws
+FAILED tests/unit/ir/test_posterior_summary.py::test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law
+FAILED tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics

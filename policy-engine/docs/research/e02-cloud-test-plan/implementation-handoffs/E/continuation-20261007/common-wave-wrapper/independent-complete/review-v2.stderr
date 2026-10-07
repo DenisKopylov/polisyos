@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review_wrapper.py", line 75, in <module>
+    check('effective_source_guard_removal_detected',marker.exists(),actual_top_level_callback_count=1 if marker.exists() else 0,required_callback_zero_property=False,subsequent_error=removal_error)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/review_wrapper.py", line 11, in check
+    if not predicate:raise AssertionError(row)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'name': 'effective_source_guard_removal_detected', 'passed': False, 'actual_top_level_callback_count': 0, 'required_callback_zero_property': False, 'subsequent_error': 'RuntimeError'}

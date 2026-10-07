@@ -1,0 +1,29 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ TestRankingStabilityChecker.test_native_sobol_stability_declares_unsupported_full_denominator _
+
+self = <doe.test_stability.TestRankingStabilityChecker object at 0x7fc8d0c1cb90>
+
+    def test_native_sobol_stability_declares_unsupported_full_denominator(self):
+        from polisyos.scientist.methods.doe.sampling import generate_sensitivity_samples
+    
+        plan = SensitivityPlan(
+            method=SensitivityMethod.SOBOL,
+            parameter_specs=_make_plan().parameter_specs,
+            n_trajectories=16,
+            seed=43,
+            input_law="independent",
+        )
+        samples = generate_sensitivity_samples(plan)
+        outputs = 2 * samples[:, 0] + 3 * samples[:, 1]
+        report = RankingStabilityChecker(n_bootstrap=20).check(plan, samples, outputs)
+>       assert report.status == "unsupported"
+E       AssertionError: assert 'not_evaluated' == 'unsupported'
+E         
+E         - unsupported
+E         + not_evaluated
+
+tests/unit/scientist/methods/doe/test_stability.py:88: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/doe/test_stability.py::TestRankingStabilityChecker::test_native_sobol_stability_declares_unsupported_full_denominator
+1 failed, 5 deselected in 0.83s

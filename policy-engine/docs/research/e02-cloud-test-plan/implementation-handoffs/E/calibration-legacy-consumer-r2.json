@@ -1,0 +1,668 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "calibration-legacy-consumer-r2",
+  "closure_ids": [
+    "B197"
+  ],
+  "bundle_ids": [
+    "CAL-06"
+  ],
+  "slice_base_sha": "902d9f6b224f0fbeec709bc3683910fa08eba4b7",
+  "slice_base_tree_sha": "95dc868014a912a27ac6ff2787a02fa302d5a0d4",
+  "candidate_sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+  "candidate_tree_sha": "5ca96536971c4e96bea84d83690d28a14a44c36e",
+  "implementation_commits": [
+    "1e942ff624ae7cb6c71227d48eef760687e17d2b"
+  ],
+  "branch": "codex/e02-E-frc-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/67",
+  "pull_request_base": "codex/e02-E-continuation-20261006",
+  "implementation_paths": [
+    "policy-engine/src/polisyos/scientist/nodes/README.md",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-legacy-consumer.toml"
+  ],
+  "path_sha256": {
+    "policy-engine/src/polisyos/scientist/nodes/README.md": "97af4f97c3217bfb04a23ce07dab8c58dd7585312f0d46e5c9855c3b7d95464e",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "4bb1198495bfa96234f00d7a857f5d02ef7e258919a68d5e60a46724482e3ab6",
+    "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-legacy-consumer.toml": "5692fc8edfd82295cfcf59b4b6cc1f21a9a2164152734ea874df6c039b510576"
+  },
+  "footprint_companions": [
+    "owned real consumer tests",
+    "nearest node README",
+    "internal release fragment"
+  ],
+  "runtime_property": {
+    "caller": "PropagateUncertaintyNode.execute -> _collect_input_envelopes -> load_calibration_report -> PropagationDispatcher -> persisted SimulationResult/UncertaintyEnvelope/PropagationReport",
+    "producer": "configured Calibrator.run native JAX tied parameter fixture -> CalibrationReport 2.0 -> configured FileSystemCAS -> fresh store -> actual legacy Node",
+    "admission": "Exact selected CAS profile kind/schema/version/payload/config/objective-profile admission precedes any legacy propagation callback. Explicit invalid calibration ref cannot be dropped while valid DataSnapshot sibling is propagated.",
+    "import_delta": "Existing foundry.calibration.report edge only: CalibrationReport DTO import replaced by existing canonical load_calibration_report; no new import edge/facade/schema/codec.",
+    "output_authority": "gate_eligible=false retained; no production/source-fit/noise-law/default-served authority"
+  },
+  "oracle": {
+    "derivation": "Two income tax derivatives100+100, known Gaussian observation sigma10: H=(200/10)^2=400, group variance1/400=.0025; projection J=[1,1]^T gives all four covariance entries.0025, Var(A-B)=0; independent marginals proxy gives.005.",
+    "actual_readback": "Author native fresh CAS Node emitted100 A-B samples allabs<1e-12 with both mapped axes and gatefalse; independent reviewer separately verified100 draws and1000 draws allzero.",
+    "input_identity": "Tracked fixture _run_b197_tied_calibrator in tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py at frozen source. Generic targets[40], income100, sigma10, tiedalias; graph ir_ref raw fixture, not production source-fit witness.",
+    "native_backend": "JAX0.8.2 CPU, NumPy2.3.5; full actual environment execution.json"
+  },
+  "negative_controls": {
+    "present_but_fake": "Same artifact bytes, unrelated Funnel report kind/schema or schema version1.0, actual legacyNode counted response callback0 and dispatcher0, typedValueError.",
+    "mixed_inputs": "Invalid explicit report plus valid DataSnapshot uncertainty must fail before dispatcher rather than publishing incomplete law.",
+    "property_removal": "Only load_calibration_report binding replaced with old generic payload decode; populated report/config/payload retained; all3 invalid profile controlsFAIL with101 native callbacks and propagationentry1 each.",
+    "independent_controls": [
+      "wrong report kind; wrong report schema; payload/schema version mismatch; unsupported schema version",
+      "absent/duplicate configuration edge; wrong config kind; malformed config payload",
+      "objective-profile absent, wrong kind, or changed content",
+      "malformed report payload and raw report byte corruption",
+      "invalid explicit report plus valid data source still before propagation callback",
+      "populated report/config/profile/envelope/projection kept while only strict reader edge removed -> numerical dispatcher callback1 and refusal oracle red"
+    ],
+    "old_proxy_divergence": "Independent exact902d native Delta accepted Funnel report-shaped bytes sha256:a47dcb6... and called propagation1; identical artifact/readback discriminator on1e942 refused with0. Author exact902d nativeMC controls101callbacks; baseline and candidate not claimed as full original production replay."
+  },
+  "predicate_basis_frozen_P37": [
+    "exact CAS artifact kind/schema/content payload version and v2 configuration/profile lineage before propagation",
+    "invalid explicit calibration source cannot be hidden by a valid DataSnapshot sibling",
+    "real producer to report v2 to configured CAS to fresh Node retains projected field axes, one coordinate, cross covariance and non-gating law",
+    "typed fit carriers remain on existing MC path; no forced method or source-law/regularity ratification"
+  ],
+  "patterns": {
+    "P01/P02": "Real configured native producer and actual persisted consumer, not presence fields",
+    "P05/P08/P09/P10/P14": "Kinds/schemas/payload/profile/config before callback, real negative denominator",
+    "P27/P29/P31/P32/P33": "full axis/joint covariance and exact CAS lineage remain intact; do not infer law from scalar summaries",
+    "P35/P36": "failed explicit source cannot masquerade as complete mixed-source computation",
+    "P37/P38": "frozen predicate basis above; present-but-fake and property-removal witness",
+    "P40": "One reader boundary fix applies all profile/config/payload failures and mixed-input sibling; no per-kind exception patch",
+    "P41": "Exact902d native report admission defect freshly replayed; historical production criteria not_established"
+  },
+  "checks": [
+    {
+      "name": "affected-native",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b197-frozen/affected-native.junit.xml",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "exit_code": 0,
+      "wall_seconds": 26.231,
+      "stdout": "affected-native.stdout",
+      "stdout_sha256": "60a5af2b4710d7d064109dea4549280859540e1f6d5fcdea55d6011f79d7841c",
+      "stdout_bytes": 2791,
+      "resource": "affected-native.resource.json"
+    },
+    {
+      "name": "property-removal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b197-property-removal.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "exit_code": 1,
+      "wall_seconds": 18.022,
+      "stdout": "property-removal.stdout",
+      "stdout_sha256": "932886d5cd33594437854f3ebba4e31bd4b0b9cb307758e48422873468abaf92",
+      "stdout_bytes": 11402,
+      "resource": "property-removal.resource.json"
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "exit_code": 0,
+      "wall_seconds": 0.808,
+      "stdout": "ruff.stdout",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stdout_bytes": 19,
+      "resource": "ruff.resource.json"
+    },
+    {
+      "name": "format",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "exit_code": 0,
+      "wall_seconds": 0.694,
+      "stdout": "format.stdout",
+      "stdout_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "stdout_bytes": 26,
+      "resource": "format.resource.json"
+    },
+    {
+      "name": "results-importer",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "exit_code": 0,
+      "wall_seconds": 1.048,
+      "stdout": "results-importer.stdout",
+      "stdout_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "stdout_bytes": 112,
+      "resource": "results-importer.resource.json"
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-E-frc-20261006",
+        "diff",
+        "--check",
+        "902d9f6b224f0fbeec709bc3683910fa08eba4b7",
+        "1e942ff624ae7cb6c71227d48eef760687e17d2b"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "exit_code": 0,
+      "wall_seconds": 0.563,
+      "stdout": "diff-check.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 0,
+      "resource": "diff-check.resource.json"
+    }
+  ],
+  "check_denominator": {
+    "author_frozen_native": {
+      "PASS": 7,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "author_property_removal": {
+      "expected_FAIL": 3
+    },
+    "independent_native": "17 PASS in one frozen run, isolated corrected positive1PASS on samesource; not one18PASS run",
+    "independent_repository_native": 7,
+    "unchanged_broad_hessian_wave": "not repeated, dependency unchanged",
+    "architecture_guard": "root common wave owner; exact import edge unchanged; no child full global static wave"
+  },
+  "independent_review": {
+    "reviewer": "cal_uq_r3, not author of legacy reader fix",
+    "disposition": "GO for bounded code",
+    "path": "calibration-legacy-consumer-r2/independent-review/legacy-consumer-independent-review-1e942.json"
+  },
+  "ledger_status": {
+    "B197": "held",
+    "B198": "closed"
+  },
+  "proposed_finding_verdict": {
+    "B197": "held"
+  },
+  "closure_changed": false,
+  "acceptance": "Code GO and G acceptance separate from finding closure; this receipt does not promote held.",
+  "capability_state": {
+    "native_legacy_bridge": "established on generic configured fixture",
+    "strict_report_consumer": "fixed and independently established",
+    "served_configured_calibrator_source_fit": "consumer_missing / source_profile_not_established",
+    "calibrator_noise_law_authority": "not_established",
+    "production_history": "not transferred to cloud"
+  },
+  "limitations_next_owner": [
+    {
+      "owner": "E configured Calibrator/service/source producer owner with Scientist/Foundry input-binding owner",
+      "minimum_immutable_inputs": [
+        "ProgramGraph/Trinity/model binding and source DataSnapshot/DataSchema refs",
+        "exact target IDs/row/time/split joins, units and aliases",
+        "CalibrationConfig/objective identity + Gaussian observation sigma/noise-law source and assumptions",
+        "parameter loader source identity + intended served caller and report CAS profile"
+      ],
+      "next_result": "Existing CalibratorInputs native generic wiring is established; owner activates real source-fit/report producer then fresh legacy/welfare consumer using exact source/profile joins, refusal for permuted target/row/noise/objective/CAS profile. No automatic institutional authority."
+    },
+    {
+      "owner": "G",
+      "minimum_immutable_inputs": [
+        "published1e942 implementation SHA",
+        "complete moderate receipt/review outputs",
+        "minimal local readonly production input refs only if original criterion requires actual history"
+      ],
+      "next_result": "fetch E branch, bounded code acceptance, exact aggregate common wave and original-criterion finding decision separately"
+    }
+  ],
+  "non_deciding_history": [
+    "Initial candidate6PASS1FAIL was test harness dict passed to typed load_uncertainty_envelope; corrected with SimulationResult.model_validate, source consumer unchanged. Saved candidate.stdout/JUnit and positive-final stdout distinct from frozen7PASS.",
+    "First resume attempted leaf default uvprojectenv and created empty ignored leaf .venv, failed missing polisyos-tools. Corrected samepair UV_PROJECT_ENVIRONMENT shared root .venv admitted; full successful JSON retained. No deleted data.",
+    "Independent initial harness/error and17PASS1FAIL dispatch expectation correction retained explicitly in review; not candidate code failures.",
+    "Initial receipt06ef7 indexed locally copied ignored reviewer .log files;7 byte-identical .stdout copies are published by append-only corrective receipt, with exact mapping. Original copies are preserved ignored; new copy-index contains only tracked publication filenames."
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "deleted": false,
+    "candidates_after_no_active_users": [
+      "/workspace/e02-E-frc-20261006/policy-engine/.venv",
+      "/workspace/e02-E-pr38-r2-receipts/technical-held-trace/__pycache__",
+      "/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b194-native-cas",
+      "/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b194-atom-cas"
+    ],
+    "preserve": "All deciding receipts/scripts/source/docs/unique evidence. No permanent deletion; do not clean Trash."
+  },
+  "copy_index": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/README.md",
+      "sha256": "d44bc8139ce65e87c957db7268980e5a3f290d8106f040c4bf38ed9cf2910909",
+      "bytes": 1409
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/affected-native.junit.xml",
+      "sha256": "5aed1e541a8ef3989903436b0429e6d6bb7cde1f7035f73f15920e7b267cfebe",
+      "bytes": 1637
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/affected-native.resource.json",
+      "sha256": "56ef86853af569086abea0060d0b65577d5ae048a6cfd109fe966cf4b5c0034e",
+      "bytes": 150
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/affected-native.stdout",
+      "sha256": "60a5af2b4710d7d064109dea4549280859540e1f6d5fcdea55d6011f79d7841c",
+      "bytes": 2791
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-candidate.junit.xml",
+      "sha256": "403827413f678855812a3f8270179ccf4aab6bb6e753e4d595779ee77513923a",
+      "bytes": 3745
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-candidate.stdout",
+      "sha256": "ed3c06fea56968a0fc1dbb7e5012d7259372612f5953236b5847f59edb1dcbbc",
+      "bytes": 4639
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-native-callback-base.junit.xml",
+      "sha256": "10167114a925ff65cfa071bd8309e575f33aa3005ebd07852ada82e254e700fe",
+      "bytes": 8317
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-native-callback-base.stdout",
+      "sha256": "4647ab1cfff178c5d32cb62860831e00991374d31159bcb54143f55b02a15626",
+      "bytes": 9296
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-positive-final.junit.xml",
+      "sha256": "8269d315cd75be607399d95c7a28b511f4c0721fbca4006cef56bf14c726dd2a",
+      "bytes": 410
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-positive-final.stdout",
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+      "bytes": 80
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-property-removal.py.txt",
+      "sha256": "759a1041d770d36c6ff455f076bdc6c3d77531036df13fc9642429a706819470",
+      "bytes": 641
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/diff-check.resource.json",
+      "sha256": "b50bfb6569e14b3a00ea0862f823337eecd7f9eaa2c5de0fdcc844fccd166bd4",
+      "bytes": 157
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/diff-check.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/execution.json",
+      "sha256": "22d28326208519f7cf6c9c9b2422353a3a6005a8bc2f45ab587a7d51de3fa5c2",
+      "bytes": 5344
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/format.resource.json",
+      "sha256": "9a07dfbe11dca16778eccd3c0c5892c330d09832a0e87137571ad357ab55d237",
+      "bytes": 149
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/format.stdout",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "bytes": 26
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/historical-navigation.json",
+      "sha256": "2a0a04ac602454b244fe664d52757889987d336b8f04738ebca13ac339cbbde7",
+      "bytes": 25461
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline-falsifier-receipt.json",
+      "sha256": "2216d8312bd038f3671b61af8b26465f5a475f279f87c2cbdb55aa4d8353f575",
+      "bytes": 1177
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline-falsifier-result.json",
+      "sha256": "8ca5b0fd8bb012d47f418230878cd77caa8c5ed6b02d50b6dd3f382efd96df86",
+      "bytes": 1866
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline-falsifier.stdout",
+      "sha256": "4185b999a687a47611e6f16371d18423dbe475992e09851cce7c6d93335b086b",
+      "bytes": 2001
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline_falsifier.py.txt",
+      "sha256": "a2299d0270256c782eff0dbd9250d0d6d9ff0fb2ae2bf766cc0e0097f20fc469",
+      "bytes": 4076
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/format-receipt.json",
+      "sha256": "acd6e6cb7e786c9da2a5ac68c83d3b5a3e8119abc0ed0472f231bc805eec9f0a",
+      "bytes": 2459
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/format.stdout",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "bytes": 26
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native-corrected-receipt.json",
+      "sha256": "2d99e152f977896b95ae8ed078efadec5885299cb27006c78a1a101b44263d31",
+      "bytes": 2508
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native-corrected.stdout",
+      "sha256": "5e36b57c2e8300a929203acf28562b1cb00c2decb1d8cb10a9cf31aaa05d28e9",
+      "bytes": 4437
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native-receipt.json",
+      "sha256": "dca4084ff79b3bd4c8ebbcc300b3202a21bd54f065fda069d20219582c2ec1ef",
+      "bytes": 2489
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native.stdout",
+      "sha256": "74219e7b895e70c59c2454588efef755ee26394f0e9c4faaf2802b397f0dd590",
+      "bytes": 32233
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent_legacy_tests.bounded17.py.txt",
+      "sha256": "089c9bd624cabf80d96c65ab08762b640d367111c2f4cebf76f94967feab6162",
+      "bytes": 17000
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent_legacy_tests.py.txt",
+      "sha256": "52a29db303a8a91f68bd60ef2c4bffd678eab642967661126ecd1e7957ddd5b9",
+      "bytes": 17310
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/legacy-consumer-independent-review-1e942.json",
+      "sha256": "b38e81902342c3f88edfff0c319bf1938f45ce1b8354e7a7888da10378fed401",
+      "bytes": 13984
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/native-consumer-compact.json",
+      "sha256": "0aadd4708d9c42788afb9248997945549458010fc2ee776469b0cec5dabde2f6",
+      "bytes": 10649
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/positive-corrected-receipt.json",
+      "sha256": "fcf7e0d59d7b0e2ef3d6dfd0b8c1c9a7086d89439181e7088102b1847154b0b8",
+      "bytes": 2536
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/positive-corrected.stdout",
+      "sha256": "018a6097dc06721133897810c94678d9301e08fd4041487fb3e9a312256511e6",
+      "bytes": 114
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/repository-targeted-receipt.json",
+      "sha256": "1fa996af2c63221e21458c8280e81d7ff50738fae9cd3a93e8b3dcf130ac1902",
+      "bytes": 2517
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/repository-targeted.stdout",
+      "sha256": "bdf1cfc7cf43f32c32ec709bcf5213f8a15484e8464fd45608ffd043207c17ec",
+      "bytes": 1019
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/run_baseline.py.txt",
+      "sha256": "1beb78173fd9cdfe4f6a2e2e2fa6def06e11d6200ff79a886f50359b592afb2c",
+      "bytes": 1789
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/run_review.py.txt",
+      "sha256": "9aac9549ab1669d2d0538c675533a0fb0672079d4fa2c1b9b3594892269fb776",
+      "bytes": 2469
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/style-receipt.json",
+      "sha256": "0e3026d14792de0906b219e4bf071084b1c2896be88e78593e7544c67dbb35f6",
+      "bytes": 2442
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/style.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/leaf-resume-corrected.json",
+      "sha256": "3a111a228eadc93853240edd387e96ea9b3a2a730c84ce96e55cd928ade6ce4c",
+      "bytes": 123184
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/measure-process.py.txt",
+      "sha256": "d649acdf6c54125480b314a6d91c35fc9231c3d14d9c13ac2657a42beae249af",
+      "bytes": 465
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/property-removal.junit.xml",
+      "sha256": "dab258e62242ebcd39f38422af3423c8981bfbe4e47005b91e711381a65c5a0d",
+      "bytes": 10255
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/property-removal.resource.json",
+      "sha256": "52efcfa3440832246364671040b57f5f2173474d8fbd2b5f1a3a28296e67bcd8",
+      "bytes": 150
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/property-removal.stdout",
+      "sha256": "932886d5cd33594437854f3ebba4e31bd4b0b9cb307758e48422873468abaf92",
+      "bytes": 11402
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/results-importer.resource.json",
+      "sha256": "08b7c1906b291bb009668853cdc84060698fe16d03503d10fcf4b5e246ba233f",
+      "bytes": 160
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/results-importer.stdout",
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "bytes": 112
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/ruff.resource.json",
+      "sha256": "60cc887e18449e93d1a41c6211b1b828874a6e5a34fca6e4db739e42b709aa57",
+      "bytes": 160
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/ruff.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/run-b197-frozen.py.txt",
+      "sha256": "14b80e0a35438ab08e92c1657717f8c50293701a564986471349cb4a2bd1e06f",
+      "bytes": 2710
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/test_b197_legacy_node.py.txt",
+      "sha256": "2019f77a860ee12b02f393116369754a2109be5d417040ffb3fadd3131c5dca2",
+      "bytes": 6884
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/validate-receipt.py.txt",
+      "sha256": "50f1bb7b99fe4e66d0c39a50fe2ab87464220090fe735913fdb73f20ef1b5eba",
+      "bytes": 1859
+    }
+  ],
+  "receipt_validation": {
+    "validator": "calibration-legacy-consumer-r2/validate-receipt.py.txt",
+    "recomputed_properties": [
+      "Gitcandidate/base/tree",
+      "exactsourcefootprint/hashes",
+      "fullcopiedoutputbyteindex",
+      "JUnit7PASS/3propertyremovalFAIL",
+      "heldB197/closedB198unchanged"
+    ],
+    "valid_exit": 0,
+    "corrupt_tree_exit": 1,
+    "outputs": [
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/validator.stdout",
+        "sha256": "890f3d5b7ac2e0ad2f09be179acf1fde5d9e72738f3f2a68b8169d0dd33e7f12",
+        "bytes": 227
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/validator-corrupt-tree.stdout",
+        "sha256": "57be8c469475376ae82f52e9d38c8711eeb33fa81abff3679a5ed88f2a573557",
+        "bytes": 557
+      }
+    ]
+  },
+  "handoff_footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/affected-native.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/affected-native.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/affected-native.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-candidate.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-candidate.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-native-callback-base.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-native-callback-base.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-positive-final.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-positive-final.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/b197-property-removal.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/diff-check.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/diff-check.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/format.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/format.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/historical-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline-falsifier-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline-falsifier-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline-falsifier.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline_falsifier.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/format-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/format.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native-corrected-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native-corrected.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent_legacy_tests.bounded17.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent_legacy_tests.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/legacy-consumer-independent-review-1e942.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/native-consumer-compact.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/positive-corrected-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/positive-corrected.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/repository-targeted-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/repository-targeted.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/run_baseline.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/run_review.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/style-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/style.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/leaf-resume-corrected.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/measure-process.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/property-removal.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/property-removal.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/property-removal.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/results-importer.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/results-importer.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/ruff.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/ruff.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/run-b197-frozen.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/test_b197_legacy_node.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/validate-receipt.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/validator-corrupt-tree.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/validator.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2.json"
+  ],
+  "publication_copy_mapping": [
+    {
+      "historical_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline-falsifier.log",
+      "published_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/baseline-falsifier.stdout",
+      "sha256": "4185b999a687a47611e6f16371d18423dbe475992e09851cce7c6d93335b086b",
+      "bytes": 2001
+    },
+    {
+      "historical_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/format.log",
+      "published_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/format.stdout",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "bytes": 26
+    },
+    {
+      "historical_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native-corrected.log",
+      "published_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native-corrected.stdout",
+      "sha256": "5e36b57c2e8300a929203acf28562b1cb00c2decb1d8cb10a9cf31aaa05d28e9",
+      "bytes": 4437
+    },
+    {
+      "historical_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native.log",
+      "published_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/independent-native.stdout",
+      "sha256": "74219e7b895e70c59c2454588efef755ee26394f0e9c4faaf2802b397f0dd590",
+      "bytes": 32233
+    },
+    {
+      "historical_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/positive-corrected.log",
+      "published_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/positive-corrected.stdout",
+      "sha256": "018a6097dc06721133897810c94678d9301e08fd4041487fb3e9a312256511e6",
+      "bytes": 114
+    },
+    {
+      "historical_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/repository-targeted.log",
+      "published_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/repository-targeted.stdout",
+      "sha256": "bdf1cfc7cf43f32c32ec709bcf5213f8a15484e8464fd45608ffd043207c17ec",
+      "bytes": 1019
+    },
+    {
+      "historical_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/style.log",
+      "published_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/style.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    }
+  ],
+  "publication_history": [
+    {
+      "prior_pr": "https://github.com/DenisKopylov/polisyos/pull/40",
+      "prior_pr_state": "merged",
+      "prior_pr_head": "f73e554bfe567aec29aff957a2c026f1537e4834",
+      "merged_at": "2026-10-06T14:13:54Z",
+      "meaning": "Earlier FRC slice; newly published B197 commits required replacementPR."
+    },
+    {
+      "published_source_and_receipt_head": "06ef7b759efa54814c19ccb6cc7a6bc2ec76c8b1",
+      "readback": "FETCH_HEAD and ls-remote identical",
+      "correction": "Seven .log files were repository-ignored. Original outputs/history kept; byte-identical tracked .stdout copies now replace copied-publication paths in index. Source/numerical results unchanged."
+    },
+    {
+      "new_pr": "https://github.com/DenisKopylov/polisyos/pull/67",
+      "base": "codex/e02-E-continuation-20261006",
+      "state": "draft",
+      "initial_head": "06ef7b759efa54814c19ccb6cc7a6bc2ec76c8b1"
+    }
+  ]
+}

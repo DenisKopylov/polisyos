@@ -1,0 +1,14 @@
+{
+  "validated_files": 19,
+  "negative_controls": [
+    {
+      "corrupt_field": "size_bytes",
+      "outcome": "REJECTED"
+    },
+    {
+      "corrupt_field": "sha256",
+      "outcome": "REJECTED"
+    }
+  ],
+  "outcome": "PASS"
+}

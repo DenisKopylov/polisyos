@@ -1,0 +1,2251 @@
+{
+  "schema": "policyos.e02.moderate_evidence_alias_index.v1",
+  "candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "candidate_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "records": [
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/independent-review-74d045.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/independent-review-74d045.json",
+      "bytes": 67140,
+      "sha256": "90f569d72f81639967dd4fbbebd9f6de497852a13f8a2b79a85015f27bc40f88",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/independent-review-f3ec.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/independent-review-f3ec.json",
+      "bytes": 149255,
+      "sha256": "c1a1a28513dc9f6ae07b3d7dbb33f593f42a4c1fc977b3cc28ef0fb261181d9b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/74d045-delta-review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/74d045-delta-review.json",
+      "bytes": 43412,
+      "sha256": "7ba752503b196bb0bef551d51627aea0d4d327a2e99087aed629081862dc2ce5",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/candidate-f3ec-source-census.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/candidate-f3ec-source-census.json",
+      "bytes": 641959,
+      "sha256": "004c5ea598dfe58c80ccdd5d30de63a32a7b404c43580087134df2bb8ae2e20e",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/current-229-index-74d045.json",
+      "bytes": 106412,
+      "sha256": "d35b76c74ce39482871ff37c7dd722b084e3ee8497038c4582c198da19a34a68",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/immutable-f3ec-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/immutable-f3ec-controls.json",
+      "bytes": 5192,
+      "sha256": "a111ab890247f5c6ae30867b201e49d7ae59bd732f951dda3b50576d927dbd6d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/current-index-74d045-receipt.json",
+      "bytes": 1616,
+      "sha256": "65873248aea9e437a2174874f15219f1f37cfb187bb34c430b102f40f341faef",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-format-pinned-f3ec-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/ruff-format-pinned-f3ec-receipt.json",
+      "bytes": 91913,
+      "sha256": "27a5c9e18f44d7f02536fbc4c3cea7ae52fc5694d1db7edb41b9ddf7a2a23e4a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/f3ec-74d045-complete.diff",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/f3ec-74d045-complete.diff",
+      "bytes": 15062,
+      "sha256": "529dd0474b7433081ac3f3084ee634cf70cf9de285cc92326dd668ba13e94b6a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/run_semantic_controls.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/run_semantic_controls.py.txt",
+      "bytes": 13078,
+      "sha256": "c079b526324a049d8115aed82fb1dfa4f01a0c4048cf2b43ec5d37202e98d639",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current_index_control.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/current_index_control.py.txt",
+      "bytes": 2303,
+      "sha256": "c76fe12a51035521aeb32ba0b3d88f7f1bdff712ebee016b1d52142b40a0360b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-entry.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/criteria-entry.py.txt",
+      "bytes": 290,
+      "sha256": "40735eaaa4c00068877c28bb2c2a206ae2dd9b495495278df99410dd23d2bf5d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/metrics_port_control.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/metrics_port_control.py.txt",
+      "bytes": 2218,
+      "sha256": "3f35a768d76b364497bcca3fa46d83f951360c828148adfea53c49555c9be83a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-normal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/semantic-f3ec-normal.stdout",
+      "bytes": 4356,
+      "sha256": "c7ed37a327301e03e5847b93f8cb30d8739c808d1474d9b5bc2ed5d72d84bbf6",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-normal.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-optimized.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/semantic-f3ec-optimized.stdout",
+      "bytes": 4356,
+      "sha256": "ee00e1ded90c11816425e046c120a625ce54351386ac5a43a102f751fdbacb8f",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-optimized.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-normal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/harness-f3ec-normal.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-normal.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-optimized.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/harness-f3ec-normal.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-optimized.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-normal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-criteria-optimized.stdout",
+      "bytes": 3647,
+      "sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-normal.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-optimized.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-criteria-optimized.stdout",
+      "bytes": 3647,
+      "sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-optimized.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-normal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/current-index-74d045-normal.stdout",
+      "bytes": 819,
+      "sha256": "854bd656731a6f5b48260d54659d2b5460745fcbc88f153fda7074fcc666f66b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-normal.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-optimized.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/current-index-74d045-optimized.stdout",
+      "bytes": 819,
+      "sha256": "9fd39cc45989e0417f465c4b35bcb090b15297644f4e83613e330679cdff9740",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-optimized.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-pinned-f3ec.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/ruff-pinned-f3ec.stdout",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-pinned-f3ec.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-pinned-f3ec.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/format-pinned-f3ec.stdout",
+      "bytes": 28,
+      "sha256": "c1b38a9478b031b6d4bd55b5f933dd2ac57ed867adb55152d400e81451810b51",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-pinned-f3ec.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-74delta.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/ruff-pinned-f3ec.stdout",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-74delta.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-74delta.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/format-74delta.stdout",
+      "bytes": 27,
+      "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-74delta.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/metrics-port-current.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/metrics-port-current.stdout",
+      "bytes": 563,
+      "sha256": "bc447ba29d14f409815cda0782cb023492836340f433592f301ed64a167f0c07",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/metrics-port-current.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-normal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/harness-f3ec-normal.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-normal.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-optimized.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-optimized.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/harness-old-e9-optimized.stderr",
+      "bytes": 537,
+      "sha256": "56791deb03ec568c275fbdeb4dee4dad92ea8e00048d8d81aac9a22b2d820f0c",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/peer-publication-correction-74d045.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/peer-publication-correction-74d045.json",
+      "bytes": 1360,
+      "sha256": "658b0b08bea88b6a1caa868d3c12a1bbc53f9150abdb502253a345c6abf8c620",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "criteria",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/publication-selection-74d045.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/publication-selection-74d045.json",
+      "bytes": 9506,
+      "sha256": "7167377ed8e89e6441bdc96fc99484305ffbb3b3a49ea58a9fb0fc02dd71174c",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-74d04528-v2.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/harness-independent-review-74d04528-v2.json",
+      "bytes": 74344,
+      "sha256": "535df26c28dcfc1c22c36e1f71f32351e037676054ab653b506608d8b3277d53",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/source-index.json",
+      "bytes": 10054,
+      "sha256": "2704a15dd79aa2b6501bc660a8765db624e1ec2dbee39961316e67296fe37a34",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/harness-results-part1.json",
+      "bytes": 6241,
+      "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/harness-results-part2.json",
+      "bytes": 4851,
+      "sha256": "6fa5c12efdff4f7bb76cdecb3148a241fdb41555e6717434a7849a7af1aad382",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/probe-harness.stdout.txt",
+      "bytes": 127,
+      "sha256": "2d7f3b8d68c59c6d625f3f3da129946645b6d93e4872f24841c079886c6420ac",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/probe-harness-part2.stdout.txt",
+      "bytes": 127,
+      "sha256": "e7c717c24d12c7aba5d5678361bc63a9c8a487b7dd4de2ec89b056052855a9d0",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-run-results.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-run-results.json",
+      "bytes": 6927,
+      "sha256": "a794a49b7fd0494193a4a8f0c89346113b66c504f22847419be0dffab2b9e7de",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-native-subprocess-results.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-native-subprocess-results.json",
+      "bytes": 7525,
+      "sha256": "dc27bcc812a64e501102ead7472831e8f34a087e271b6361712826fc4e2c7403",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-f3ec.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/harness-independent-review-f3ec.json",
+      "bytes": 107993,
+      "sha256": "1f36006094615c38b34178af72cd5b25cfbdfd9e30ecf323b545091f52f0976d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-admitted-property-result.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/skip-nonzero-admitted-property-result.json",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/skip-nonzero-admitted-property-result.json",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-observer-correction-complete.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/skip-nonzero-observer-correction-complete.json",
+      "bytes": 1098,
+      "sha256": "e1538f75e7a1156fb9c6c1573eda7e756373fa78c118707f2d5cb8b5d25e4bec",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/probe_harness.py.txt",
+      "bytes": 15151,
+      "sha256": "19c6bd9a174849bfb8f2206b6a7d76ad7165a0d9dcee852e0dc87b434d7120de",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness_part2.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/probe_harness_part2.py.txt",
+      "bytes": 8996,
+      "sha256": "8ba505c3d05b7e8056b063f1cb1fd5cb11c7234ae22a0403a6447543484eadb4",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella_tiny_driver.py.txt",
+      "bytes": 4172,
+      "sha256": "d8f846511c963e9e4db61e4a38629aa06e140f36d4dedb0ef71b9b24f646bede",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_uncapped_environment.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny_uncapped_environment.py.txt",
+      "bytes": 477,
+      "sha256": "1b25743ee608109fbf7a237270dfe85c9ecc91e19e5083cae079227065e94103",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny_cases.py.txt",
+      "bytes": 347,
+      "sha256": "cf304a8469b7983465ce573b38e587df160f19f264d6293562a021550e566a2a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_skip.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny_skip.py.txt",
+      "bytes": 170,
+      "sha256": "3444e7c7e6745260de7b2731c3d9ffc5d2c024f10c106922379f5d12d76b15ca",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/load_cli.py.txt",
+      "bytes": 205,
+      "sha256": "b1b0e256deed9bfe9c416f86e5a24cb99b7aca3e9687de92464824061610032f",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend/missing-backend.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend/missing-backend.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/numeric-mixed.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 8636,
+      "sha256": "23dff58af495a1eef6e2ea21dc1917ce1cefc23644cdbf7e24f1fc7257492e2b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/numeric-skip.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/numeric-skip.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer/results-importer.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer/results-importer.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/tiny-native-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8589,
+      "sha256": "63d49ee2148c67ea09f5936a546f12d53c489d2b7b120e3115bb8ee5a502febf",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "a15f94975fe14865cc97796f11d8d844e4807097f19574e5e271409e35b76daa",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "53be52cfa823b1beed7bbe02053a9f4efb4b2b243b14be816abe25c3081d3194",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.json",
+      "bytes": 8162,
+      "sha256": "000d51b6b234dd4ef44fc44514c28e6fc14e14394a22d4bc96d5a1a48fde07cd",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 28,
+      "sha256": "f5ea3f3a34a508a7ad41b6007eae92b2ef50749ba4d6bbf14a96d3e2f5bb2f9b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "2edc582a540eac342622d2778b124cd6b940d185d486d985b94a0d81d25c516b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-nested-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "647541696005d7578d0bd7241adc27fa9235de1156ae759c0624950e7e56774e",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-cap-property.stdout.txt",
+      "bytes": 1358,
+      "sha256": "70acf0adce950268b796984831707ad3cf925b7b1239863640b1e36598f7f595",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-failfast-property.stdout.txt",
+      "bytes": 202,
+      "sha256": "cef9c69c0c4bca8ec9199e2f9920076a23fee14c031ae5625263cc4a072ab895",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-success.stdout.txt",
+      "bytes": 202,
+      "sha256": "1ab518a8633ca735881dd8580c94a5eec6bb65020f31d41433ff9109a050faf9",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/stages.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/stages.json",
+      "bytes": 2925,
+      "sha256": "13b994cafb2ca5584f9544f4fe26e26cf0c786e91a8238dd09bebcad0a47cc03",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/driver-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/driver-receipt.json",
+      "bytes": 400,
+      "sha256": "b503c5d1376df706c28880e0d5acdb6276127136c2e3db4b5e2f8707a727df50",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/executed-umbrella-source.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/observed-child-environment.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/stages.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-nested-failfast/stages.json",
+      "bytes": 4488,
+      "sha256": "3faab4a0917b153edb3a55e2f6d805e9555426f39ca1aef2b73475afce2d9ea3",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/driver-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-nested-failfast/driver-receipt.json",
+      "bytes": 407,
+      "sha256": "939fee5991d04e51099bc1b84ec2fc847cb42aa62db1d02176869da1cbf8a950",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/executed-umbrella-source.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/observed-child-environment.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/stages.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-cap-property/stages.json",
+      "bytes": 3755,
+      "sha256": "295e4b44f495a5bf69bc0d4beffaddf80e55aa6ed1be10ec36dd2ec4c3eddade",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/driver-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-cap-property/driver-receipt.json",
+      "bytes": 411,
+      "sha256": "5f3c65dc082875d7e335aa89966b3fcdd45f2d655cb7de3eb072b8286b523e27",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/executed-umbrella-source.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-cap-property/executed-umbrella-source.py.txt",
+      "bytes": 7261,
+      "sha256": "068026f94e01176ebeb8c01c4b0c24582445f428003fbf47387235528626e7b3",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/observed-child-environment.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-cap-property/observed-child-environment.json",
+      "bytes": 176,
+      "sha256": "eadbfa60d71e0fc92f76210a5f30d27816950dd207e94dfaf0b94a0a4b75757a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/stages.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-failfast-property/stages.json",
+      "bytes": 3073,
+      "sha256": "f401ad9256e17c1cb6b9175266b872b4fe1d43dca910ea168a420908a580a631",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/driver-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-failfast-property/driver-receipt.json",
+      "bytes": 416,
+      "sha256": "3fa561ac02b16caee50fd42aa7b4cc7bca3579cbbc36e0a4d0f2d7d5d52e9805",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/executed-umbrella-source.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-remove-failfast-property/executed-umbrella-source.py.txt",
+      "bytes": 7325,
+      "sha256": "8ebb3496a293d6206764ac6a99548e6815f7fce25fd02547fa9aac61edac8ec3",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/observed-child-environment.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/stages.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-success/stages.json",
+      "bytes": 2773,
+      "sha256": "e87bc0c196307c097639988ad976ead02bf41dfa84d48a63e1886e947431d214",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/driver-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-success/driver-receipt.json",
+      "bytes": 399,
+      "sha256": "d75e4d0b7f6fa641833017d3d853291cba280d80d11cc3d474706d3429f12137",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/executed-umbrella-source.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/observed-child-environment.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/actual-prepare-plan.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/actual-prepare-plan.json",
+      "bytes": 194173,
+      "sha256": "18bc2153351d11abb4ec3ea79385796c06dca9b5b04d052516701fa707cc0291",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/all-sibling-status-predicates.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/all-sibling-status-predicates.json",
+      "bytes": 14729,
+      "sha256": "b2ce2ace76a9c79ddff594507fb029558ebf3251c96917f9d873fe1195762024",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/build-final-review.stdout.txt",
+      "bytes": 212,
+      "sha256": "87c3deee020c6cc5f41c41e214fc754e3f248589a180d2bc67c16a82c6282665",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build_final_review.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/build_final_review.py.txt",
+      "bytes": 13955,
+      "sha256": "7b6e0bce038f90f0a615ebfd5d451fb654626e1f3805c0f40607c15a6d4b054f",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave-status-property-removed.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collect_wave-status-property-removed.py.txt",
+      "bytes": 41295,
+      "sha256": "32480e2382f397d1422df35854ffbabb3eef73300bfc2aeaa9714e60e74efdbc",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collect_wave.py.txt",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 7084,
+      "sha256": "840f2e3d5fa7bec602b4ff3cd00dc71ae0b17df66c0b3eb54a9084aa8aefb185",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/cleanup-candidates.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/copy-index.json",
+      "bytes": 4335,
+      "sha256": "4e26bc331813535560b6f156894b165eeca3f8da77bf902fdc1c40f8435f4768",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/execution-complete.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/plan.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/publication-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/publication-receipt.json",
+      "bytes": 26899,
+      "sha256": "4cac3234baba2fc21a6f119a9941a42ce13e0ea52d275690ba8e92a35803d540",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/raw-custody.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-forged-SKIP/wave-started.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/numeric-skip.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/numeric-skip.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8557,
+      "sha256": "723e523170a47bd1e587d9633292a41f75ea7e8af1a90a7de63124fef62ee075",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/results-importer/results-importer.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/checks/results-importer/results-importer.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/cleanup-candidates.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-positive/copy-index.json",
+      "bytes": 4336,
+      "sha256": "bae49daf130e16476ba54b0c5b0cd34e6469b0879931672369f10b0de63b033e",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/execution-complete.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/plan.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/publication-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-positive/publication-receipt.json",
+      "bytes": 26787,
+      "sha256": "aa4f25745acd2a9bc483acfb836ecd8a4195bf0f6392f7fdf79ce7927f04af77",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/raw-custody.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-current-positive/wave-started.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/numeric-skip.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/numeric-skip.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 7084,
+      "sha256": "840f2e3d5fa7bec602b4ff3cd00dc71ae0b17df66c0b3eb54a9084aa8aefb185",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/numeric-skip-exit7/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/results-importer/results-importer.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/checks/results-importer/results-importer.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/cleanup-candidates.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-removed-status-property/copy-index.json",
+      "bytes": 4335,
+      "sha256": "6afb9d98406661b52bd8474bdbc1b5a447966905fd02e5e38ced8f6334f00057",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/execution-complete.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/plan.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/publication-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-removed-status-property/publication-receipt.json",
+      "bytes": 26779,
+      "sha256": "dd95ded4bfea103f6a7c14f9129fe61f91b69561bb0d8d3310f315c4b0da56f4",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/raw-custody.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collection-removed-status-property/wave-started.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/corrective-review-results.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/corrective-review-results.json",
+      "bytes": 3711,
+      "sha256": "e50a761bbb896c0aa646b3f05f48ec354dab387c9babcaa6c93733104c78ea0b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/current-forged-SKIP-collector.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/publication-receipt.json",
+      "bytes": 26899,
+      "sha256": "4cac3234baba2fc21a6f119a9941a42ce13e0ea52d275690ba8e92a35803d540",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/current-positive-collector.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-positive/publication-receipt.json",
+      "bytes": 26787,
+      "sha256": "aa4f25745acd2a9bc483acfb836ecd8a4195bf0f6392f7fdf79ce7927f04af77",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/full-source-delta.patch",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/f3ec-74d045-complete.diff",
+      "bytes": 15062,
+      "sha256": "529dd0474b7433081ac3f3084ee634cf70cf9de285cc92326dd668ba13e94b6a",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/numeric-skip.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/numeric-skip.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-positive/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8557,
+      "sha256": "723e523170a47bd1e587d9633292a41f75ea7e8af1a90a7de63124fef62ee075",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.json",
+      "bytes": 8647,
+      "sha256": "f7bf8bc18f2f5b4594949a274af438b9186d72aa11c3861d04bf8a8c1cfc223d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/numeric-status-property-removed.stdout.txt",
+      "bytes": 99,
+      "sha256": "2c96ffb446fdcf1b5d378a807a77b7c7149bc71a7d6deb716e9e3e05ad37e71b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/pytest.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/pytest.xml",
+      "bytes": 834,
+      "sha256": "d005db15a33e15748b73bfce60d1ad956ebe8da00ce15f0c1834ee4cf87b2039",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/results-importer/results-importer.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/results-importer/results-importer.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/execution-complete.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/plan.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/wave-started.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-current-forged-SKIP/wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-subprocess-results.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/native-subprocess-results.json",
+      "bytes": 7399,
+      "sha256": "8d505f553d3b2fa806d960b9402631ed1214d7af1ab39c2ff7f10e77ae0bbe12",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-actual-driver.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/numeric-skip-actual-driver.py.txt",
+      "bytes": 633,
+      "sha256": "76df988f38dc6d14fac141c3e48b93cdc125359acf3c9f18375eab47a98ae909",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7-actual-driver.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/numeric-skip-exit7-actual-driver.py.txt",
+      "bytes": 645,
+      "sha256": "6c5983b31a9a93844c0a49d3c955eb342a1d4075c4d7684bdf8f41b002546180",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7.capture.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7.capture.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/numeric-skip-exit7.capture.stdout.txt",
+      "bytes": 513,
+      "sha256": "052f721fb70337f0054f7a345e610f360c8c2758e4895375299d49328db1911d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip.capture.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip.capture.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/numeric-skip.capture.stdout.txt",
+      "bytes": 500,
+      "sha256": "bb34905b38cbda88b12f35e4c1261978c77f0a39e08f3f16ad105eeb3ae66693",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed-actual-driver.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/numeric-status-property-removed-actual-driver.py.txt",
+      "bytes": 671,
+      "sha256": "2139271f3aa25ea01d8486686d340eeee9c2ae4d7d54f0b51e5a710486a3d142",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed.capture.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed.capture.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/numeric-status-property-removed.capture.stdout.txt",
+      "bytes": 538,
+      "sha256": "e13e4ea50e607c42156ef9cffd62a89af20ef5d32df0ff7ea67815f72cf6c761",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/plan_wave.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/plan_wave.py.txt",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-current-outcomes.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-current-outcomes.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/probe-current-outcomes.stdout.txt",
+      "bytes": 146,
+      "sha256": "cfff54de60593afa64896e6721c1497742a79e1a93666ee91d290373f89d4acc",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-selector-correction.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe-selector-correction.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/probe-selector-correction.stdout.txt",
+      "bytes": 2394,
+      "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_current_outcomes.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/probe_current_outcomes.py.txt",
+      "bytes": 13960,
+      "sha256": "5397d9a16f676f04cfcddc1a1d6f973e76a898eddb83c04fb53f31fde59f6084",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_selector_correction.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/probe_selector_correction.py.txt",
+      "bytes": 3301,
+      "sha256": "b10e901217ae97a93bcd52a0612211ba27e8f6f438b7d428fe6475d5a722fcb0",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/removed-status-property-collector.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/collection-removed-status-property/publication-receipt.json",
+      "bytes": 26779,
+      "sha256": "dd95ded4bfea103f6a7c14f9129fe61f91b69561bb0d8d3310f315c4b0da56f4",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/results-importer.capture.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/results-importer.capture.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/results-importer.capture.stdout.txt",
+      "bytes": 254,
+      "sha256": "6a6693ba4fcb88e0aa71b416a35678e2b5104ba5c37ea33aa9f0c50f51931f6a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check-status-property-removed.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/run_check-status-property-removed.py.txt",
+      "bytes": 12582,
+      "sha256": "03d6494617ec52f9cf9d1582634f1ab44494e4f36a57bcc052e156923cd77b9b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/run_check.py.txt",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/selector-correction-results.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/probe-selector-correction.stdout.txt",
+      "bytes": 2394,
+      "sha256": "9357d8bfc4feb4b9d110a11541980a0d759a563ef946d1fadca42a758ff33f19",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/source-bindings.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/delta-74d04528/source-bindings.json",
+      "bytes": 6832,
+      "sha256": "b6263d406d76c5b54794e4bf6139b924452885d2d1a975470ef1d951d1845cbc",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/uncapped_umbrella.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/umbrella-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/missing-backend.capture.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/missing-backend.capture.stdout.txt",
+      "bytes": 220,
+      "sha256": "dd6cd9f332eecbe5d3e19a72cfede70cedffbb719658155d6131269c003835f7",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-mixed.capture.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/numeric-mixed.capture.stdout.txt",
+      "bytes": 670,
+      "sha256": "bd111988619f8f1ff0997356e19d089a09eea12382a079756472dbd1c1e931a0",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-skip.capture.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/numeric-skip.capture.stdout.txt",
+      "bytes": 667,
+      "sha256": "d108d5df2aae4e7b20d521d195370e374eede4e68eaa4c3dc7272fe36380a665",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/results-importer.capture.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/results-importer.capture.stdout.txt",
+      "bytes": 241,
+      "sha256": "9f7f6756a303cbb58315a7601fceb81f31a0d3c348352058cff786adbf9f0434",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/missing-backend.capture.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-mixed.capture.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-skip.capture.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/results-importer.capture.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/edge-numeric-skip-exit7.stdout.txt",
+      "bytes": 500,
+      "sha256": "aaba3fc6d49c309ca4ea4bc012845713c3777a1fc30c440b2842e8502094df1b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/edge-results-importer.stdout.txt",
+      "bytes": 248,
+      "sha256": "cb099e91946b908f69f5ea195306f317d73e9e204a95a10d69a37ae72400d2b3",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/probe-skip-nonzero.stderr.txt",
+      "bytes": 553,
+      "sha256": "2be039b3a686187d7e16af24443a9f3e239c6897e3ed659bbbe2cc56ce3ffe70",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/probe_skip_nonzero.py.txt",
+      "bytes": 4184,
+      "sha256": "eefcfa593564500baf7954c91c28d29e09fa6f5a337f94f62b3d037f263783c7",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero_admitted.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/probe_skip_nonzero_admitted.py.txt",
+      "bytes": 4274,
+      "sha256": "d296e000bd05f9f4d92d8436010c48163ad7f8229f1d6ef94e9db7bb03e32936",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/skip_then_exit7.py.txt",
+      "bytes": 674,
+      "sha256": "47ced9d38e4f1cf8dad134f2549681982474efe2c62c296c7fbb7aeb3cd53315",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7_admitted.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/skip_then_exit7_admitted.py.txt",
+      "bytes": 692,
+      "sha256": "2b2483069b43b9fe18d6ffb13f335aa36b5dabc8fa84b4a12e27c8610b88bd9a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-review-publication-packet.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/harness-review-publication-packet.json",
+      "bytes": 47496,
+      "sha256": "097ef3b95afe567aa624a902900f4c3fb0fdd3ffa326ff478b3657ec9acd1cce",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-74d04528.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/harness-independent-review-74d04528.json",
+      "bytes": 72341,
+      "sha256": "edbeecb795d9592a88c95834a7f935363d23cbc5666a34315f2914a6396cbe15",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/publication-correction-integrity-verification.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/publication-correction-integrity-verification.json",
+      "bytes": 1469,
+      "sha256": "60245da2f9bb1a2c9bf5364bcbccd7c33b9ca08023cebf60976b886aed130a8e",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "harness",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-review-publication-packet-v2.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/harness/harness-review-publication-packet-v2.json",
+      "bytes": 48658,
+      "sha256": "2de181a5dcf5832554326f659341fb0eeffec48c4566733df12fde3bbfc99746",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lint-mechanism-review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/lint-mechanism-review.json",
+      "bytes": 23620,
+      "sha256": "260a9a26297d45b2273f2896ebf93dcffdfb739956cadce1e0428b8d9b484f0b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/guarded-complement-summary.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/guarded-complement-summary.json",
+      "bytes": 633,
+      "sha256": "af1c3afdcc05493a91eb51f498fc945fbd74204c666bad3aada7fc9a10513c7a",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-mapping-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/predicate-mapping-index.json",
+      "bytes": 123139,
+      "sha256": "1b632a2e12bd905c6feffa90eb842f4727d559e083cc59440115563dc3b1a7f5",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/guarded-predicate-final.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/guarded-predicate-final.stdout",
+      "bytes": 614,
+      "sha256": "9b8628a3639ef293970ae54e2fc0bfce7b4f216e595cd6fc36ea9018848cc605",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/guarded-predicate-final.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/predicate-controls.json",
+      "bytes": 3331,
+      "sha256": "840b1357c377ade2dc709f18a937155c88c4e912607737803e1cb56c376d77f4",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/predicate-controls.json",
+      "bytes": 3331,
+      "sha256": "840b1357c377ade2dc709f18a937155c88c4e912607737803e1cb56c376d77f4",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure-census.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/closure-census.json",
+      "bytes": 6359,
+      "sha256": "e691d9608fcd9481294cc211e68d0723ddabbd1073f764eb1a38b1e7f3306ab3",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/closure-controls.json",
+      "bytes": 17402,
+      "sha256": "44d6b827baf3ee90800ac04c4f8db3db0bae0d4c40c4f7ee5fea2ef76fac327f",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure-controls.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/closure-controls.stdout",
+      "bytes": 795,
+      "sha256": "12dad27287060a777660814d9b504011ec56f0082d841483ba2d664a1e4441ce",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure-controls.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-census.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/lambda-census.json",
+      "bytes": 6042,
+      "sha256": "8aad9c438b0411f14edff154f58386b25e53b96c96a4aa51255cbb2e778ff311",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/lambda-controls.json",
+      "bytes": 21612,
+      "sha256": "e2594089a4e3e4c733ae6bf86ea2dc1da34af73c31a195e73f6231fb971f0cbb",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/lambda-controls.stdout",
+      "bytes": 730,
+      "sha256": "a7b61ef15cb5560c5ad072d0f6b9e29e393e59d4a605af0cb0fb9d1bbb271cf5",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-wrapper-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/git-wrapper-controls.json",
+      "bytes": 120085,
+      "sha256": "1a4235385c0d807022157765fbd5f50933b9d3f83e0e8c0bfbe1b92648a5d5b5",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/git-controls.stdout",
+      "bytes": 1926,
+      "sha256": "5b3b5a43d31c354598eb912f8eb8607c4410a41a781adaf9394795b0d718149d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final74-binding.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/final74-binding.json",
+      "bytes": 183796,
+      "sha256": "8d868b238820f1ea41612f85d2d84c36bd6bc3204b902890f8adba2d5b7fffe2",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final74-binding.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/final74-binding.stdout",
+      "bytes": 2752,
+      "sha256": "b55356fd22e3abc0f8490a05ab2887cd4b7ef77e8962a9684f3baae1d951a31d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final74-binding.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final74-delta.diff",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/f3ec-74d045-complete.diff",
+      "bytes": 15062,
+      "sha256": "529dd0474b7433081ac3f3084ee634cf70cf9de285cc92326dd668ba13e94b6a",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/full-final-footprint.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/full-final-footprint.txt",
+      "bytes": 33711,
+      "sha256": "b994a545dffbec4d73b356fb8d45c35a9ed49766c0d866ebb2ee545f5ded4b1b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/review-input-denominator.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/review-input-denominator.json",
+      "bytes": 37581,
+      "sha256": "f42360132c709ce9cfcd5f5a019e53d6093c21c27c52c4bd0d1edd1fa1c4902b",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/census.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/census.py.txt",
+      "bytes": 4735,
+      "sha256": "b75d207f196d5f6d276abfb71bd9437934b3e314d03a18373550b62630d8c3c5",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/formula_census.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/formula_census.py.txt",
+      "bytes": 6950,
+      "sha256": "eba17d3516f389a082bca4f6c734e940e66f556f3f8e9faeaec90707545cafc7",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate_controls.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/predicate_controls.py.txt",
+      "bytes": 6010,
+      "sha256": "16c66961450f9c0f01517f2e72d2216b154cad8eef511483c191bea2eb1a0970",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure_controls.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/closure_controls.py.txt",
+      "bytes": 5420,
+      "sha256": "8a6c5ab83c2f566edbda27c730e5173fd8aabd8ebfd7fbbfeeb21b805a78b3b3",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda_controls.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/lambda_controls.py.txt",
+      "bytes": 3864,
+      "sha256": "bc7448ab425cf002932fdbc99eaf0d7f1180e5757b25bb6540b809338dbaf949",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git_controls.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/git_controls.py.txt",
+      "bytes": 6196,
+      "sha256": "b958b91f063276349435ecb01606f5c2c19f4c3d54a4c2283ca4b77afa777b38",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final_binding.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/final_binding.py.txt",
+      "bytes": 6853,
+      "sha256": "968df3982da6ab6db92f6cf58ca53f72e440e12037f0210b648713766e441d49",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/assemble_review.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/assemble_review.py.txt",
+      "bytes": 11105,
+      "sha256": "41ecd834cd1986479c27545b8b6b070af24abd877aa6114373210e1daa9b1249",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.harness-attempt1.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.harness-attempt1.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/predicate-controls.harness-attempt1.stderr",
+      "bytes": 590,
+      "sha256": "05f3b0792248a7b929911edb45ca95761cc3a1c17534cfefda51a62075ff576d",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt1.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt1.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/git-controls.harness-attempt1.stderr",
+      "bytes": 656,
+      "sha256": "ae8086c177c20ebbdb926b9886ee9131b084a51f38ec06427ca8c66955dcc0e1",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt2.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/git-controls.harness-attempt2.stderr",
+      "bytes": 719,
+      "sha256": "cf5e5b1ad89974fa400930fc9249ec365a6f2e9913c6c6e6b014fbbf194c0efd",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt3.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt3.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/git-controls.harness-attempt3.stderr",
+      "bytes": 633,
+      "sha256": "2650b2d75d603da1ed9d5d1f8de538b0b7d5b58650d7c4afe8a9f940798a35c1",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt4.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt4.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/git-controls.harness-attempt4.stderr",
+      "bytes": 771,
+      "sha256": "300be94404798637d26cbe98ccfdb43de9e589bb5d53da607d303960acf31529",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.harness-attempt1.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.harness-attempt1.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/lambda-controls.harness-attempt1.stderr",
+      "bytes": 641,
+      "sha256": "ca1a21d8999cbc4d72a374cdceeb051745f9410c15daff7c4155c85546f56e52",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.harness-attempt2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.harness-attempt2.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/lambda-controls.harness-attempt2.stderr",
+      "bytes": 1402,
+      "sha256": "fc70a1264d63f61480a3b9e3f8b4f0c445abc495cab06b2eb00d0300be037285",
+      "deduplicated_to_existing_bytes": false
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-r4/source-inputs.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/source-inputs.json",
+      "bytes": 82982,
+      "sha256": "fb83fffc9fcdbcb809136dd0a3a081953fcdf65964ec256084b572c0e4da6d06",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-r4/generic-git-inlets.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/generic-git-inlets.json",
+      "bytes": 15621,
+      "sha256": "456f02d5828dd1c2beb70a07d862b999570eee2aba9462261ff1fabcfddd397a",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/independent-review-74d045.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/independent-review-74d045.json",
+      "bytes": 67140,
+      "sha256": "90f569d72f81639967dd4fbbebd9f6de497852a13f8a2b79a85015f27bc40f88",
+      "deduplicated_to_existing_bytes": true
+    },
+    {
+      "review_group": "imports",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/publicationselection-74d045.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/imports/publicationselection-74d045.json",
+      "bytes": 12462,
+      "sha256": "1122c30c992c10b1277d2fbb07a7a5bdf6c83274f3604492a8a5ff1d2cfa1135",
+      "deduplicated_to_existing_bytes": false
+    }
+  ],
+  "unique_physical_assets": 176,
+  "alias_count": 280,
+  "unique_bytes": 3033734,
+  "scope": "Exact selected complete deciding bytes; identical bytes stored once and all original source aliases retained. Executed Python control programs copied as .py.txt evidence, without adding executable source to the reviewed candidate."
+}

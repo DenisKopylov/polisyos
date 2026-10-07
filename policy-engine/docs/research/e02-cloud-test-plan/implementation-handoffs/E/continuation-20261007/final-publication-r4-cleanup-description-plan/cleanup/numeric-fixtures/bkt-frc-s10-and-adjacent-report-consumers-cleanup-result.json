@@ -1,0 +1,44 @@
+{
+  "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+  "started_unix": 1791376303.512433,
+  "ended_unix": 1791376304.2778258,
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "native_outcome": "FAIL",
+  "native_exit_code": 1,
+  "native_counts": {
+    "cases": 321,
+    "passed": 313,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers.tar.gz",
+    "bytes": 6256608,
+    "sha256": "f541855404fd242b05c3b54c174bc535e0fa41c87c116604f5b62f74951c0cbe"
+  },
+  "inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-full-inventory.json",
+    "bytes": 6127647,
+    "sha256": "22054246fe5a43064954e9bab6a74d247cbc0793ed505757566fdf07030d8c5a"
+  },
+  "archive_members": 15399,
+  "archived_file_bytes": 46429850,
+  "allocated_regular_fixture_bytes": 66588672,
+  "actual_filesystem_before": {
+    "observed_unix": 1791376303.5124295,
+    "free_bytes": 3386433536,
+    "available_bytes": 1651671040
+  },
+  "actual_filesystem_after": {
+    "observed_unix": 1791376304.277353,
+    "free_bytes": 3486105600,
+    "available_bytes": 1751343104
+  },
+  "immediate_available_delta_bytes": 99672064,
+  "absent_after": true,
+  "preserved_ALL_unique_unmatched_data": true,
+  "deciding_outputs_originals_saved_and_unchanged": true,
+  "source_env_unchanged": true
+}

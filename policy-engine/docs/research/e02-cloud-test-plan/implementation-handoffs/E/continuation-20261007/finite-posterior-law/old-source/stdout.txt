@@ -1,0 +1,14 @@
+{
+  "outcome": "CHANGE_REQUIRED two bounded current conditions",
+  "receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/actual-conditions-counterexamples.json",
+    "bytes": 18878,
+    "sha256": "cf96bf9961e034ab2835d31e8624ba77367575d570d8a3e50d35e980cdc39856"
+  },
+  "joint_generated_inlet_admits": true,
+  "actual_callback_count_per_case": 129,
+  "finite_profile_mean": 10000000000000.0,
+  "finite_CDF_mean": 9999999999999.342,
+  "mean_difference": 0.658203125,
+  "source_unchanged": true
+}

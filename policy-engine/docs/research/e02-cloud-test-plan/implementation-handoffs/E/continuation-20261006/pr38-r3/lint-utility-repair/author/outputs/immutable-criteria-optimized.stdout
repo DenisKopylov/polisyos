@@ -1,0 +1,138 @@
+{
+  "status": "PASS_metadata_source_and_actual_output_recomputation",
+  "source_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "bundles": 22,
+  "findings": 54,
+  "links": 55,
+  "ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "partial_owner_proposals": 32,
+  "historical_active_partials": 17,
+  "Git_inputs": 562,
+  "portable_records": 220,
+  "actual_numeric": {
+    "cases": 1445,
+    "passed": 1441,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "global_gates": "7FAIL",
+  "metadata_validation_is_product_or_finding_acceptance": false,
+  "corrupt_field_controls": [
+    {
+      "name": "ledger_autoaccept",
+      "outcome": "REFUSED",
+      "reason": "historical ledger mutation:B32"
+    },
+    {
+      "name": "owner_substitution",
+      "outcome": "REFUSED",
+      "reason": "original owner drift:B32"
+    },
+    {
+      "name": "bundle_omission",
+      "outcome": "REFUSED",
+      "reason": "bundle omissions"
+    },
+    {
+      "name": "source_hash_forgery",
+      "outcome": "REFUSED",
+      "reason": "source whole-file hash/size mismatch"
+    },
+    {
+      "name": "job_command_substitution",
+      "outcome": "REFUSED",
+      "reason": "actual full job command substitution"
+    },
+    {
+      "name": "lint_class_substitution",
+      "outcome": "REFUSED",
+      "reason": "Ruff diagnostic class substitution"
+    },
+    {
+      "name": "criterion_fragment_as_full_file",
+      "outcome": "REFUSED",
+      "reason": "fragment hash mislabeled as full-file hash"
+    },
+    {
+      "name": "source_tree_forgery",
+      "outcome": "REFUSED",
+      "reason": "wrong final source tree"
+    },
+    {
+      "name": "fake_wave_counts",
+      "outcome": "REFUSED",
+      "reason": "actual numerical denominator mismatch"
+    },
+    {
+      "name": "missing_scoped_cases",
+      "outcome": "REFUSED",
+      "reason": "current selected case evidence drift:B32"
+    },
+    {
+      "name": "false_stochastic_callback_zero",
+      "outcome": "REFUSED",
+      "reason": "unknown-law diagnostic vs stochastic callback conflation"
+    },
+    {
+      "name": "fake_publication_checkpoint",
+      "outcome": "REFUSED",
+      "reason": "fake publication checkpoint"
+    },
+    {
+      "name": "portable_path_escape",
+      "outcome": "REFUSED",
+      "reason": "source path must be repository relative"
+    },
+    {
+      "name": "wrong_input_checkpoint",
+      "outcome": "REFUSED",
+      "reason": "wrong evidence input checkpoint"
+    },
+    {
+      "name": "portable_hash_forgery",
+      "outcome": "REFUSED",
+      "reason": "portable byte/hash custody"
+    },
+    {
+      "name": "lint_denominator_narrowing",
+      "outcome": "REFUSED",
+      "reason": "full plan lint denominator substitution"
+    },
+    {
+      "name": "lint_path_omission",
+      "outcome": "REFUSED",
+      "reason": "actual Ruff path substitution"
+    },
+    {
+      "name": "format_denominator_narrowing",
+      "outcome": "REFUSED",
+      "reason": "current format full denominator"
+    },
+    {
+      "name": "unsupported_DDM_keyword",
+      "outcome": "REFUSED",
+      "reason": "unsupported DDM builder keyword"
+    },
+    {
+      "name": "newly_closed_B201",
+      "outcome": "REFUSED",
+      "reason": "four exact held decisions"
+    },
+    {
+      "name": "invented_B186_production_prerequisite",
+      "outcome": "REFUSED",
+      "reason": "invented production prerequisite for generic kwargs criterion"
+    },
+    {
+      "name": "B198_generic_acceptance_plan",
+      "outcome": "REFUSED",
+      "reason": "B198 incorrectly treated as new closure proposal"
+    }
+  ]
+}

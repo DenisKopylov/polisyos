@@ -1,0 +1,31 @@
+{
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "commands": [
+    {
+      "command": "UV_NO_SYNC=1 REVIEW_SOURCE_SHA=bf3b54c3a894d2d9d9bfb0cd13edb13177405f33 .venv/bin/python /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/edge_identity_review.py",
+      "exit_code": 0,
+      "stdout": "edge-identity-review.stdout",
+      "result": "edge-identity-review.json"
+    },
+    {
+      "command": "UV_NO_SYNC=1 .venv/bin/python /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/routing_removal_control.py",
+      "exit_code": 1,
+      "expected_failure": true,
+      "stdout": "routing-removal.stdout"
+    },
+    {
+      "command": "python3 /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/publication_review20.py",
+      "exit_code": 0,
+      "stdout": "publication-review20.stdout",
+      "corrupt_controls": 5
+    },
+    {
+      "command": "python3 /workspace/e02-E-pr38-r2-receipts/public-surface-packet-r5/review_flag_companion.py",
+      "exit_code": 0,
+      "stdout": "reviewflag-companion.stdout"
+    }
+  ],
+  "environment": "r3/environment.json unchanged Python3.14.7/NumPy2.3.5/SciPy1.16.3/JAX.8.2CPU; packagebackends andpriorr4numericproperties reusedexactly",
+  "UV_NO_SYNC": "1",
+  "CPU_process_caps": "No artificialcaps; no environment synchronization"
+}

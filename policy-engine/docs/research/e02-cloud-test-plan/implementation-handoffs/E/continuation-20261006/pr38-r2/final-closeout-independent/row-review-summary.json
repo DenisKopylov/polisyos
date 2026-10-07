@@ -1,0 +1,1353 @@
+[
+  {
+    "id": "B32",
+    "bundle_ids": [
+      "FRC-01"
+    ],
+    "source_closure_owner_literal": "FRC-01",
+    "criterion": "Distinct prediction/observation/valid/policy/calibration-window roles; no credible/pass defaults from estimator shape.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "E8486strictsource/unit/profile/predictiveCASproducerindependentlyGO; currentA-CASpacket5PASS, actualAstatus2FAIL plus2nativeFRCFAIL. A defaultindependentverifier/status/freshHTTPconsumer remainsownerimplementation",
+    "implementation_residual_or_external_boundary": "A must resolve and independently recompute profile/source/metric/unit/split/horizon/pairs/counts/threshold/purpose/six roles, normalize resolved-limited versus missing-ref status, and preserve verifier provenance in fresh default/HTTP read. E actual producer/adapter is complete; no fake mapping/ref PASS.",
+    "next_owner": "A generation-cycle/S10/default HTTP writer; @runtime-owners and @scientist-owners",
+    "minimal_inputs": "E8486 configured CAS positive refs, correct request/profile/unit/source/split/horizon/rule/six actual times and A test/status patch packet",
+    "next_verifiable_result": "A applies typed fields/default producer and separately recomputes evidence/provenance; fresh grade/S6/HTTP read agrees; missing_ref differs from resolved limited; causal refusal stays",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Distinct prediction/observation/valid/policy/calibration-window roles; no credible/pass defaults from estimator shape.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "E8486 configured CAS positive refs, correct request/profile/unit/source/split/horizon/rule/six actual times and A test/status patch packet",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B97",
+    "bundle_ids": [
+      "DOE-01"
+    ],
+    "source_closure_owner_literal": "DOE-01",
+    "criterion": "GRID_EXTREME cap applies before full Cartesian materialization, and returned prefix owns only admitted rows.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "Original scoped evidence preserved; new70c4 common runtime plan admission independentlyGO/source-present; no collective B97-B105 closure",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; original generic cap criterion requires no production corpus. Same-class mutable/copy/nested/callback plan escape repaired70c4 across9materialization boundaries with66 independent cases; root assembly includes source. Per-designcap is not cumulative/server authority.",
+    "next_owner": "E DOE finding owner; G exact-candidate acceptance",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "GRID_EXTREME cap applies before full Cartesian materialization, and returned prefix owns only admitted rows.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B98",
+    "bundle_ids": [
+      "DOE-01"
+    ],
+    "source_closure_owner_literal": "DOE-01",
+    "criterion": "AdaptiveSampler returns the last completed round with no hidden final evaluator round.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "Original scoped evidence preserved; new70c4 common runtime plan admission independentlyGO/source-present; no collective B97-B105 closure",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; no extra production-data requirement for call-count/state preservation. Same-class mutable/copy/nested/callback plan escape repaired70c4 across9materialization boundaries with66 independent cases; root assembly includes source. Per-designcap is not cumulative/server authority.",
+    "next_owner": "E DOE finding owner; G exact-candidate acceptance",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "AdaptiveSampler returns the last completed round with no hidden final evaluator round.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B99",
+    "bundle_ids": [
+      "DOE-01"
+    ],
+    "source_closure_owner_literal": "DOE-01",
+    "criterion": "Child plans preserve allow_large_run and reject an oversized block before evaluator admission.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "Original scoped evidence preserved; new70c4 common runtime plan admission independentlyGO/source-present; no collective B97-B105 closure",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; caller budget authority is a distinct claim. Same-class mutable/copy/nested/callback plan escape repaired70c4 across9materialization boundaries with66 independent cases; root assembly includes source. Per-designcap is not cumulative/server authority.",
+    "next_owner": "E DOE finding owner; declared budget owner for institutional override",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Child plans preserve allow_large_run and reject an oversized block before evaluator admission.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B100",
+    "bundle_ids": [
+      "DOE-02"
+    ],
+    "source_closure_owner_literal": "DOE-02",
+    "criterion": "Sampler and analyzer share one actual distribution parameterization, transform and design fingerprint.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "Original scoped evidence preserved; new70c4 common runtime plan admission independentlyGO/source-present; no collective B97-B105 closure",
+    "implementation_residual_or_external_boundary": "D default Search bridge remains code; no second E search runtime Current exact DSTR overlay confirms native E cap/DoE/CAS-generator composition, but no D integration acceptance; D missing-threshold score and persisted statistic/unit/profile/input-ref gaps plus default MutationArtifact carrier rejection remain D-owned code. Same-class mutable/copy/nested/callback plan escape repaired70c4 across9materialization boundaries with66 independent cases; root assembly includes source. Per-designcap is not cumulative/server authority.",
+    "next_owner": "D default Search/autotune writer; @scientist-owners; E-W06 owns canonical numeric producer",
+    "minimal_inputs": "Tracked D-consumer-packet.md, configured CAS analysis ref, admitted plan/X/Y and declared experimental input law/evaluator purpose",
+    "next_verifiable_result": "Current9inletcap/identity producerand200casefamilyPASS/66independentreview arecomplete boundedtechnicalevidence. D admitsanalysis_ref throughactualSearchtypedcodec andpersistedreopenedranking, fixesmissingthreshold/statistic/unit/profile/source-ref, thenactualnativepositive/removalchangesproposaleranking.",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Sampler and analyzer share one actual distribution parameterization, transform and design fingerprint.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Tracked D-consumer-packet.md, configured CAS analysis ref, admitted plan/X/Y and declared experimental input law/evaluator purpose",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B101",
+    "bundle_ids": [
+      "DOE-02"
+    ],
+    "source_closure_owner_literal": "DOE-02",
+    "criterion": "Explicit seed reaches supported local RNG and independent stages do not reset global NumPy state.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; no production history is intrinsic to RNG isolation.",
+    "next_owner": "E DOE finding owner; G exact-candidate acceptance",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Explicit seed reaches supported local RNG and independent stages do not reset global NumPy state.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B102",
+    "bundle_ids": [
+      "DOE-03"
+    ],
+    "source_closure_owner_literal": "DOE-03",
+    "criterion": "Failed Morris rows preserve the original denominator and exclude only whole validated trajectories.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Originalgenericdeclarednativecriterion evidence ismeasured/independentlyscoped; accountableowneradjudication remains. Actualsource/evaluator law/inferentialselectionbias andDdefaultSearch bridge are supplementaryDoEfamily/application boundaries, not wholetrajectorygeometry/accountingcondition.",
+    "next_owner": "DOE-03 originalaccountablefindingowner; E-W06 mechanismowner; G codeintegrationseparate",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Originalaccountableowner individuallyaccepts/rejects exactgenericcriterion positive/adversarial/removal sourceandcurrentselector evidence onfrozena9; supplementaryfamilyauthority ordefaultconsumer scope isnot imposedonthiscriterion.",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Failed Morris rows preserve the original denominator and exclude only whole validated trajectories.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Actualsource/evaluator law/inferentialselectionbias andDdefaultSearch bridge are supplementaryDoEfamily/application boundaries, not wholetrajectorygeometry/accountingcondition."
+    }
+  },
+  {
+    "id": "B103",
+    "bundle_ids": [
+      "DOE-03"
+    ],
+    "source_closure_owner_literal": "DOE-03",
+    "criterion": "Multi-output preprocessing/PCA honors scalar failure policy and retains original attempted/success/failed/block counts.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Originalgenericdeclarednativecriterion evidence ismeasured/independentlyscoped; accountableowneradjudication remains. DdefaultSearch andactualfailed-response population law are supplementaryfamily/applicationboundaries, not this genericPCA/failurepolicy/denominatorcriterion.",
+    "next_owner": "DOE-03 originalaccountablefindingowner; E-W06 mechanismowner; G codeintegrationseparate",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Originalaccountableowner individuallyaccepts/rejects exactgenericcriterion positive/adversarial/removal sourceandcurrentselector evidence onfrozena9; supplementaryfamilyauthority ordefaultconsumer scope isnot imposedonthiscriterion.",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Multi-output preprocessing/PCA honors scalar failure policy and retains original attempted/success/failed/block counts.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "DdefaultSearch andactualfailed-response population law are supplementaryfamily/applicationboundaries, not this genericPCA/failurepolicy/denominatorcriterion."
+    }
+  },
+  {
+    "id": "B104",
+    "bundle_ids": [
+      "DOE-03"
+    ],
+    "source_closure_owner_literal": "DOE-03",
+    "criterion": "PCA rank/number of components is admissible for centered wide, narrow, degenerate and zero matrices on supported backends.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; three observations are a linear-algebra fixture, not population evidence.",
+    "next_owner": "E DOE finding owner; G exact-candidate acceptance",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "PCA rank/number of components is admissible for centered wide, narrow, degenerate and zero matrices on supported backends.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B105",
+    "bundle_ids": [
+      "DOE-03"
+    ],
+    "source_closure_owner_literal": "DOE-03",
+    "criterion": "Morris point and uncertainty elementary effects use identical declared coordinates, units and scale.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Originalgenericdeclarednativecriterion evidence ismeasured/independentlyscoped; accountableowneradjudication remains. NonuniformMorris/seededFAST admission andDSearch are separatelylimited/unavailable; declaredsupportedcoordinate/unit-rescaling oracle satisfies this nativegenericcriterion, notarbitrarymethod authority.",
+    "next_owner": "DOE-03 originalaccountablefindingowner; E-W06 mechanismowner; G codeintegrationseparate",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Originalaccountableowner individuallyaccepts/rejects exactgenericcriterion positive/adversarial/removal sourceandcurrentselector evidence onfrozena9; supplementaryfamilyauthority ordefaultconsumer scope isnot imposedonthiscriterion.",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Morris point and uncertainty elementary effects use identical declared coordinates, units and scale.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "NonuniformMorris/seededFAST admission andDSearch are separatelylimited/unavailable; declaredsupportedcoordinate/unit-rescaling oracle satisfies this nativegenericcriterion, notarbitrarymethod authority."
+    }
+  },
+  {
+    "id": "B166",
+    "bundle_ids": [
+      "BKT-01"
+    ],
+    "source_closure_owner_literal": "BKT-01",
+    "criterion": "The exact immutable pre-cutoff historical view actually reaches Scientist rather than an independent unmasked state.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "new0983 native class repair independentlyGO/source-present; original finding owner acceptance pending",
+    "implementation_residual_or_external_boundary": "Native source chronology/initialanchor/actualTrinity-plan class defects repaired5ad+0983 and independentlyGO; owner finding acceptance remains",
+    "next_owner": "E-W01 BKT writer; @scientist-owners workflow/materializer with @foundry-owners execution input boundary",
+    "minimal_inputs": "Native immutable source/mask/Trinity/ModelSpec/plan refs and chronological source rows/valid initial anchor; exact candidate identity",
+    "next_verifiable_result": "Accountable owner adjudicates native0983 exactmasked row/anchor/clock/model-plan joins using independent genuineK3+five hash-validforgeries; factual production history only if claimed",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "The exact immutable pre-cutoff historical view actually reaches Scientist rather than an independent unmasked state.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B167",
+    "bundle_ids": [
+      "BKT-02"
+    ],
+    "source_closure_owner_literal": "BKT-02",
+    "criterion": "Missing predictions remain in requested denominator; zero/wrong-key comparisons cannot earn positive trust grade.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Originalgenericdeclarednativecriterion evidence ismeasured/independentlyscoped; accountableowneradjudication remains. Versionedpositive trust-gradepurpose/profile is supplementaryinstitutionalauthority; this genericmissing/wrong-key/empty denominator gateproperty isindependentlymeasured.",
+    "next_owner": "BKT-02 originalaccountablefindingowner; E-W01 mechanismowner; G codeintegrationseparate",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Originalaccountableowner individuallyaccepts/rejects exactgenericcriterion positive/adversarial/removal sourceandcurrentselector evidence onfrozena9; supplementaryfamilyauthority ordefaultconsumer scope isnot imposedonthiscriterion.",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Missing predictions remain in requested denominator; zero/wrong-key comparisons cannot earn positive trust grade.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Versionedpositive trust-gradepurpose/profile is supplementaryinstitutionalauthority; this genericmissing/wrong-key/empty denominator gateproperty isindependentlymeasured."
+    }
+  },
+  {
+    "id": "B168",
+    "bundle_ids": [
+      "BKT-02"
+    ],
+    "source_closure_owner_literal": "BKT-02",
+    "criterion": "Missing interval is unknown, actual miss is false, availability is separate, and nominal level survives serialization.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen interval availability/coverage/nominal-level serialization controls completed; accountable owner adjudication remains. Actual production forecast/profile authority is separate and not established by the fixture.",
+    "next_owner": "Scientist configured-workflow/input-materializer owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Missing interval is unknown, actual miss is false, availability is separate, and nominal level survives serialization.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B169",
+    "bundle_ids": [
+      "BKT-01"
+    ],
+    "source_closure_owner_literal": "BKT-01",
+    "criterion": "Scalar/effect CI cannot silently become a forecast trajectory; explicit constant forecast, units and time coordinates are required.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "new0983 native class repair independentlyGO/source-present; original finding owner acceptance pending",
+    "implementation_residual_or_external_boundary": "Actual native replay bridge independentlyGO0983 and source-present; no counter/scalar/ETS substitution for this native boundary",
+    "next_owner": "E-W01 BKT writer; @scientist-owners typed forecast profile/materializer with @foundry-owners native producer",
+    "minimal_inputs": "Native typed target/unit/time/horizon trajectory refs with consistent model/Trinity execution binding",
+    "next_verifiable_result": "Accountable owner adjudicates actual typed native trajectory on independentK3 and priorK7 witness; counters/scalar/wrongtarget/horizon and forgedTrinity refuse fresh",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Scalar/effect CI cannot silently become a forecast trajectory; explicit constant forecast, units and time coordinates are required.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B170",
+    "bundle_ids": [
+      "BKT-01"
+    ],
+    "source_closure_owner_literal": "BKT-01",
+    "criterion": "K requested simulation runs produce K actual calls with distinct replica identity/seed plan and failures retained.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "new0983 native class repair independentlyGO/source-present; original finding owner acceptance pending",
+    "implementation_residual_or_external_boundary": "Actual effective ExecConfig seeds/nativeK bridge independentlyGO0983; original owner acceptance pending, distinct seeds not stochastic-law evidence",
+    "next_owner": "E-W01 BKT writer; @scientist-owners workflow and @foundry-owners execution-config owner",
+    "minimal_inputs": "Actual per-run ExecuteRequest ExecConfig seeds/run IDs, fullK attempted/failed/success output refs and admitted matching plan",
+    "next_verifiable_result": "Accountable owner uses independent genuineK3 and preserved authorK7 count/seed/runID refs; fresh0983 reader rejects altered modelplan/chronology/anchor with no fallback",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "K requested simulation runs produce K actual calls with distinct replica identity/seed plan and failures retained.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B171",
+    "bundle_ids": [
+      "BKT-02"
+    ],
+    "source_closure_owner_literal": "BKT-02",
+    "criterion": "Technical partitioning preserves pooled micro RMSE/MAE; declared macro weights remain a separate estimand.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains. Trust-purpose/equivalence margin is not this finding's defining condition.",
+    "next_owner": "Scientist backtest aggregation/estimand owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Technical partitioning preserves pooled micro RMSE/MAE; declared macro weights remain a separate estimand.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B172",
+    "bundle_ids": [
+      "BKT-03"
+    ],
+    "source_closure_owner_literal": "BKT-03",
+    "criterion": "Constant nonzero residual retains descriptive magnitude; unknown/degenerate inference cannot mean neutrality.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "No new math fix identified; institutional/profile decision required, p>alpha not neutrality",
+    "next_owner": "@scientist-owners backtest trust-purpose/profile accountable owner; E-W01 implementation",
+    "minimal_inputs": "Versioned trust-grade purpose, admissible sampling assumptions and where equivalence required meaningful-bias margin+equivalence interval rule",
+    "next_verifiable_result": "Profile-bound independent tests distinguish constant nonzero,zero,unavailable/degenerate inference and equivalence; GradeA remains denied until admission",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Constant nonzero residual retains descriptive magnitude; unknown/degenerate inference cannot mean neutrality.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Versioned trust-grade purpose, admissible sampling assumptions and where equivalence required meaningful-bias margin+equivalence interval rule",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B173",
+    "bundle_ids": [
+      "BKT-03"
+    ],
+    "source_closure_owner_literal": "BKT-03",
+    "criterion": "Unavailable SciPy does not silently change a labeled Student t test into a normal approximation.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "SciPy degraded guard exists; no normal fallback; external profile unresolved",
+    "next_owner": "@scientist-owners backtest trust-purpose/profile accountable owner; E-W01 implementation",
+    "minimal_inputs": "Same versioned purpose/sampling/equivalence profile plus declared allowed degraded inference behavior",
+    "next_verifiable_result": "Actual SciPy t/df/p and unavailable-SciPy controls retain descriptive magnitude; owner-approved profile independently decides eligibility",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Unavailable SciPy does not silently change a labeled Student t test into a normal approximation.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Same versioned purpose/sampling/equivalence profile plus declared allowed degraded inference behavior",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B174",
+    "bundle_ids": [
+      "BKT-04"
+    ],
+    "source_closure_owner_literal": "BKT-04",
+    "criterion": "CV selected fold boundaries are chosen before index arrays; invalid step/train/cap rejects before looping.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "Historical exact standalone CV boundary/preallocation selectors preserved; no new witness from nativeBKT replay or DoE runtime admission",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains. Standalone CV preparation/progress does not require production history or trust profile.",
+    "next_owner": "Scientist forward-chaining CV helper owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "CV selected fold boundaries are chosen before index arrays; invalid step/train/cap rejects before looping.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B175",
+    "bundle_ids": [
+      "BKT-04"
+    ],
+    "source_closure_owner_literal": "BKT-04",
+    "criterion": "Resolve defined bootstrap statistic and finite one-dimensional data before any draw/callback; performed statistic survives readback.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Arbitrary callable label/__name__ remains consumer_asserted provenance; source sampling/resampling law needs owner input only for inferential use.",
+    "next_owner": "Scientist configured-workflow/input-materializer owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Resolve defined bootstrap statistic and finite one-dimensional data before any draw/callback; performed statistic survives readback.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B176",
+    "bundle_ids": [
+      "CAL-01"
+    ],
+    "source_closure_owner_literal": "CAL-01",
+    "criterion": "Every source/time observation survives or has explicit admissibility/refusal; technical ID rename cannot choose its value or unit.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; real source law is needed only for an actual empirical fit claim.",
+    "next_owner": "Foundry measurement/compiler finding owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Every source/time observation survives or has explicit admissibility/refusal; technical ID rename cannot choose its value or unit.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B177",
+    "bundle_ids": [
+      "CAL-01"
+    ],
+    "source_closure_owner_literal": "CAL-01",
+    "criterion": "Calendar time is explicit and synchronized with values/masks/metadata; missing requested time column cannot become positional data.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; actual Fabric source calendar is separate factual input.",
+    "next_owner": "Foundry preflight/time-axis owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Calendar time is explicit and synchronized with values/masks/metadata; missing requested time column cannot become positional data.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B178",
+    "bundle_ids": [
+      "CAL-01"
+    ],
+    "source_closure_owner_literal": "CAL-01",
+    "criterion": "Fractional fill is dtype-stable; explicit empty observed support is not a measured zero row.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; declared filling hypothesis cannot gain empirical authority.",
+    "next_owner": "Foundry preflight/support owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Fractional fill is dtype-stable; explicit empty observed support is not a measured zero row.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B179",
+    "bundle_ids": [
+      "CAL-02"
+    ],
+    "source_closure_owner_literal": "CAL-02",
+    "criterion": "Declared observation/weight axes are checked before broadcasting so N comparisons do not become N squared.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; source validity is not intrinsic to the arithmetic-axis property.",
+    "next_owner": "Foundry calibration loss owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Declared observation/weight axes are checked before broadcasting so N comparisons do not become N squared.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B180",
+    "bundle_ids": [
+      "CAL-02"
+    ],
+    "source_closure_owner_literal": "CAL-02",
+    "criterion": "Sample quality normalizes inside a target; target priority is applied outside that normalization and affects the exact objective.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; normative source/target priorities remain external declared inputs.",
+    "next_owner": "Foundry calibration objective/loss owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Sample quality normalizes inside a target; target priority is applied outside that normalization and affects the exact objective.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B181",
+    "bundle_ids": [
+      "CAL-02"
+    ],
+    "source_closure_owner_literal": "CAL-02",
+    "criterion": "Zero-support inactive arithmetic has finite primal and reverse gradient without hiding active invalid model output.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; numerical zero remains missing support, not successful empirical calibration.",
+    "next_owner": "Foundry calibration loss/autodiff owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Zero-support inactive arithmetic has finite primal and reverse gradient without hiding active invalid model output.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B182",
+    "bundle_ids": [
+      "CAL-02"
+    ],
+    "source_closure_owner_literal": "CAL-02",
+    "criterion": "Scale uses the target's observed training support; other targets' dates/placeholders do not change it.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen numerical replay completed; accountable finding-owner adjudication remains; actual training-split provenance is separate for a real fit.",
+    "next_owner": "Foundry calibration scale/support owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Scale uses the target's observed training support; other targets' dates/placeholders do not change it.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B183",
+    "bundle_ids": [
+      "CAL-03"
+    ],
+    "source_closure_owner_literal": "CAL-03",
+    "criterion": "Each multi-start uses a fresh telemetry span context; enabling observability does not break the second optimizer start.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen native fresh-OTel and fresh-noop multi-start selectors both PASS. Accountable finding-owner adjudication remains; no production data is needed for context-manager lifetime.",
+    "next_owner": "Foundry Calibrator/multi-start owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Each multi-start uses a fresh telemetry span context; enabling observability does not break the second optimizer start.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B184",
+    "bundle_ids": [
+      "CAL-04"
+    ],
+    "source_closure_owner_literal": "CAL-04",
+    "criterion": "One identical final forward yields total/component loss and report traces without detached derivative input.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen final-forward/report projection and actual CAL05 caller controls completed; accountable owner adjudication remains. No global speedup or production fit-quality claim.",
+    "next_owner": "Foundry Calibrator finalization owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "One identical final forward yields total/component loss and report traces without detached derivative input.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B185",
+    "bundle_ids": [
+      "CAL-05"
+    ],
+    "source_closure_owner_literal": "CAL-05",
+    "criterion": "Inactive per-row mechanisms have zero numerical callbacks and identity derivatives while active rows preserve real failures and independent key identity.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen real Calibrator batch/row-context and eager/JIT/gradient/Hessian controls completed; accountable finding-owner adjudication remains. Cross-sectional execution is not population-law or observation-independence evidence; unsupported batch modes remain explicit.",
+    "next_owner": "Foundry Calibrator/pure-executor finding owner; G exact-candidate acceptance",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Inactive per-row mechanisms have zero numerical callbacks and identity derivatives while active rows preserve real failures and independent key identity.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B186",
+    "bundle_ids": [
+      "UQP-01"
+    ],
+    "source_closure_owner_literal": "UQP-01",
+    "criterion": "Nominal, delta and MC use the same complete fixed-plus-varying effective kwargs.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "Actualdelta/MC/dispatcher fixedscale x10*scale2=20 carrysame completefixed+varyingkwargs, current3namedgenericcontrolsPASS; no arbitraryservedmodel prerequisite",
+    "implementation_residual_or_external_boundary": "Originalgenericdeclarednativecriterion evidence ismeasured/independentlyscoped; accountableowneradjudication remains. Generalservedmodel/evaluator/source-law intake is supplementaryUQP/B194family authority, not this generic effectivekwargscriterion. No productioncorpusrequired.",
+    "next_owner": "UQP-01 originalaccountablefindingowner; E-W03 mechanismowner; G codeintegrationseparate",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Originalaccountableowner individuallyaccepts/rejects exactgenericcriterion positive/adversarial/removal sourceandcurrentselector evidence onfrozena9; supplementaryfamilyauthority ordefaultconsumer scope isnot imposedonthiscriterion.",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Nominal, delta and MC use the same complete fixed-plus-varying effective kwargs.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Generalservedmodel/evaluator/source-law intake is supplementaryUQP/B194family authority, not this generic effectivekwargscriterion. No productioncorpusrequired."
+    }
+  },
+  {
+    "id": "B187",
+    "bundle_ids": [
+      "UQP-02"
+    ],
+    "source_closure_owner_literal": "UQP-02",
+    "criterion": "Named covariance row/column axes align before spectral checks; numerical repair cannot conceal an axis permutation.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen covariance/axes/direct-array/algorithm-flag sibling controls and consumer coupling completed; covariance/producer finding-owner adjudication remains. Conditional mathematical law is separate from source custody.",
+    "next_owner": "E covariance/producer axes owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Named covariance row/column axes align before spectral checks; numerical repair cannot conceal an axis permutation.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B188",
+    "bundle_ids": [
+      "UQP-02"
+    ],
+    "source_closure_owner_literal": "UQP-02",
+    "criterion": "Every backend preserves the admitted joint vector law; absent dependence cannot become an independent product.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "CommonMCd69 + sharedreal5cd + actualWelfare884 native empirical/support classfix independentlyGO and source-present; historical finding ledger unchanged",
+    "implementation_residual_or_external_boundary": "Former welfare empirical->Normal and hidden-failure code defects repaired884; shared pre-cast real/nonzero loss repaired5cd. Native GE support positive is independently128draws92success36failed with fresh configuredCAS strict readback. Actual production source/model/fit law custody remains not_established; supported generic finite law/native consumer property requires no universal production corpus. Unknown dependence remains unknown/non-gating.",
+    "next_owner": "UQP-02 original accountable finding owner; E-W03 joint-law mechanism owner; @foundry-owners source/fit issuer only for a factual application claim",
+    "minimal_inputs": "Supported canonical joint/product law with parameter axis/order, ordered shared draws/weights/units, exact content+source/model/fit provenance; actual CAL posterior carrier only if emitted",
+    "next_verifiable_result": "Accountable owner individually accepts or rejects exact supported-law native positive/adversarial/removal controls on a9: complete dyadic 256-net 64/64/128, mean5.25/variance15.1875; Gaussian nullspace, Welfare atoms and128=92success36failure freshCAS; exact weights/order/digest and unsupported-law refusal. No additional production corpus or arbitrary served evaluator is needed for this declared generic criterion. Factual fit/source authority and future v2 wire are separate owner decisions when claimed.",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Every backend preserves the admitted joint vector law; absent dependence cannot become an independent product.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B189",
+    "bundle_ids": [
+      "UQP-01"
+    ],
+    "source_closure_owner_literal": "UQP-01",
+    "criterion": "JAX-compatible varying values are not cast to Python float before differentiation; actual supported affine node chooses delta.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen actual node/JAX delta selector completed; accountable owner adjudication remains. Source-bound general response provenance is a distinct B190/evaluator boundary.",
+    "next_owner": "Scientist uncertainty node/JAX adapter owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "JAX-compatible varying values are not cast to Python float before differentiation; actual supported affine node chooses delta.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B190",
+    "bundle_ids": [
+      "UQP-01"
+    ],
+    "source_closure_owner_literal": "UQP-01",
+    "criterion": "Missing sensitivity remains unknown; explicit additive response preserves nonzero uncertainty at zero baseline without inventing links.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Real producer bridge absent; cannot invent served evaluator/authoritative sensitivity map from current affine proxy",
+    "next_owner": "@scientist-owners served simulation/Jacobian/execution producer; E-W03 propagation adapter",
+    "minimal_inputs": "Declared real configured model execution seam, evaluator/response or source-bound Jacobian, input/output parameter/unit mapping and exact source/fit/law refs",
+    "next_verifiable_result": "Real native producer→persisted sensitivity→configured propagation consumer reproduces zero-baseline and actual JAX derivatives; present-but-fake map refuses",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Missing sensitivity remains unknown; explicit additive response preserves nonzero uncertainty at zero baseline without inventing links.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Declared real configured model execution seam, evaluator/response or source-bound Jacobian, input/output parameter/unit mapping and exact source/fit/law refs",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B191",
+    "bundle_ids": [
+      "UQP-01"
+    ],
+    "source_closure_owner_literal": "UQP-01",
+    "criterion": "Missing output is an addressed structural gap, not an inferred zero interval; true constant zero remains allowed.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen missing-output versus true-zero and configured consumer replay completed; accountable owner adjudication remains. No real-output certificate is inferred from fallback behavior.",
+    "next_owner": "E propagation expected-output owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Missing output is an addressed structural gap, not an inferred zero interval; true constant zero remains allowed.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B192",
+    "bundle_ids": [
+      "UQP-02"
+    ],
+    "source_closure_owner_literal": "UQP-02",
+    "criterion": "Propagation consumes the available exact empirical support/weights/ordered joint rows rather than reconstructing Normal from bounds.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "CommonMCd69 + sharedreal5cd + actualWelfare884 native empirical/support classfix independentlyGO and source-present; historical finding ledger unchanged",
+    "implementation_residual_or_external_boundary": "Former welfare empirical->Normal and hidden-failure code defects repaired884; shared pre-cast real/nonzero loss repaired5cd. Native GE support positive is independently128draws92success36failed with fresh configuredCAS strict readback. Actual production source/model/fit law custody remains not_established; supported generic finite law/native consumer property requires no universal production corpus. Future distinct v2 carrier wire requires B202 ratification.",
+    "next_owner": "UQP-02 original accountable finding owner; E-W03 joint-law mechanism owner; @foundry-owners source/fit issuer only for a factual application claim",
+    "minimal_inputs": "If multivariate posterior emitted: joint_law_sha256,joint_parameter_order,ordered joint_draw_ids,canonical weights/units and content-bound CAS lineage",
+    "next_verifiable_result": "Accountable owner individually accepts or rejects exact supported-law native positive/adversarial/removal controls on a9: complete dyadic 256-net 64/64/128, mean5.25/variance15.1875; Gaussian nullspace, Welfare atoms and128=92success36failure freshCAS; exact weights/order/digest and unsupported-law refusal. No additional production corpus or arbitrary served evaluator is needed for this declared generic criterion. Factual fit/source authority and future v2 wire are separate owner decisions when claimed.",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Propagation consumes the available exact empirical support/weights/ordered joint rows rather than reconstructing Normal from bounds.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B193",
+    "bundle_ids": [
+      "UQP-03"
+    ],
+    "source_closure_owner_literal": "UQP-03",
+    "criterion": "Mean error uses independent pilot and frozen N with pilot excluded; RQMC error uses independent complete-net replicate means.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Current canonical indicator certificate exists; opaque served laws/quantile/CDF/interval/anytime stopping not established",
+    "next_owner": "E-W03 estimator-method owner; @scientist-owners configured evaluator/source-law producer",
+    "minimal_inputs": "Actual evaluator functional/recipe, one admitted IID[0,1]pilot+main law and bounded response; alternate statistic requires named theorem/stopping/scramble profile",
+    "next_verifiable_result": "Configured actual mean certificate fresh readback recomputes independent pilot/frozenN/pilot exclusion; RQMC uses full independent scrambles and replicate statistic error",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Mean error uses independent pilot and frozen N with pilot excluded; RQMC error uses independent complete-net replicate means.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Actual evaluator functional/recipe, one admitted IID[0,1]pilot+main law and bounded response; alternate statistic requires named theorem/stopping/scramble profile",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B194",
+    "bundle_ids": [
+      "UQP-03"
+    ],
+    "source_closure_owner_literal": "UQP-03",
+    "criterion": "Every requested draw has terminal support outcome; successful-only mean remains conditional and downstream refuses unconditional authority.",
+    "ledger_status_preserved": "held",
+    "historical_bucket": "held",
+    "proposed_verdict": "held",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "CommonMCd69 + sharedreal5cd + actualWelfare884 native empirical/support classfix independentlyGO and source-present; historical finding ledger unchanged",
+    "implementation_residual_or_external_boundary": "Former welfare empirical->Normal and hidden-failure code defects repaired884; shared pre-cast real/nonzero loss repaired5cd. Native GE support positive is independently128draws92success36failed with fresh configuredCAS strict readback. General served evaluator/model/domain/source-law intake remains owner-admitted external boundary; no invented retry/completion law, B194 stays held.",
+    "next_owner": "@scientist-owners served simulation/evaluator/domain owner and @foundry-owners actual source-law/fit producer; E-W03 law/propagation adapter; G exact local read-only checker where factual source claim is required",
+    "minimal_inputs": "Named actual evaluator/serving seam, per-input admissible domain and content-bound source law. Only if an owner profile requires retry/completion, supply same-input transient/structural classifier and completion contract; no invented retry/resampling law.",
+    "next_verifiable_result": "Owner-admitted real evaluator/model/law refs on exact final candidate -> existing configured producer/CAS -> fresh consumer; reconcile every addressed outcome and preserve conditional labeling/refusal. Generic native GE128=92+36 and unknown joint6deterministic/0stochastic witnesses already established. Retain held until exact served/source binding is supplied; no success-only unconditional authority.",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Every requested draw has terminal support outcome; successful-only mean remains conditional and downstream refuses unconditional authority.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Named actual evaluator/serving seam, per-input admissible domain and same-input transient-vs-structural classifier/retry/completion contract with source law",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B195",
+    "bundle_ids": [
+      "CAL-03"
+    ],
+    "source_closure_owner_literal": "CAL-03",
+    "criterion": "Finite loss and satisfactory/unknown/known-bad raw Hessian are distinct selection states; NaN/inf cannot win through unknown diagnostics.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen raw-curvature/multi-start selectors completed; accountable owner adjudication remains. Generic curvature is not inferential covariance.",
+    "next_owner": "Foundry multi-start/Hessian selection owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Finite loss and satisfactory/unknown/known-bad raw Hessian are distinct selection states; NaN/inf cannot win through unknown diagnostics.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B196",
+    "bundle_ids": [
+      "CAL-04"
+    ],
+    "source_closure_owner_literal": "CAL-04",
+    "criterion": "The final produced optimizer iterate is scored under the comparable objective before best-result selection, or remains explicitly unscored.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen final-iterate accounting and new batch caller checks completed; accountable owner adjudication remains. No production fit-quality assumption is inferred.",
+    "next_owner": "Foundry Calibrator optimizer/finalization owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "The final produced optimizer iterate is scored under the comparable objective before best-result selection, or remains explicitly unscored.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B197",
+    "bundle_ids": [
+      "CAL-06"
+    ],
+    "source_closure_owner_literal": "CAL-06",
+    "criterion": "Typed tie-group-to-field J projection preserves addresses/cross covariance through configured producer, CalibrationReportv2 CAS and welfare consumer.",
+    "ledger_status_preserved": "held",
+    "historical_bucket": "held",
+    "proposed_verdict": "held",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "Strictlegacy1e942 + cfdadmittedFoundryrootreader route areindependentlyGO/source-present/currentnativePASS; sourcejoin/fit/noiselaw/servedauthorityheld separately",
+    "implementation_residual_or_external_boundary": "Legacygenericreaderbypass repaired1e942 andactualCal/Welfareroutes repairedcfd; correctsamecanonicalFoundryreader throughpublicroot,28/25/17metadata, directnativeproducer/CAS/legacy/WelfarecontrolsPASS. Heldoriginalsourcefit/noiselaw/addressedtargetjoin andintendedservedauthority remainowner-issuedinputs; E/G do notinventCalibratorauthority orsemanticratification.",
+    "next_owner": "@foundry-owners configured Calibrator/model/source-fit/noise issuer; @scientist-owners welfare/served workflow; @ir-owners intended enforcement contract; E-W03 technical projection/readers; G exact local check",
+    "minimal_inputs": "For codefix: actual native Calibratorv2→configuredCAS→PropagateUncertaintyNode with wrongkind/schema/hash-valid forged payload refusals. For authority: real source/noise/model/fit/objective/row joins and named served consumer profile",
+    "next_verifiable_result": "Ownerissuer supplies minimalimmutable source/model/objective/noise-fit/targetjoinrefs viaactualCalibratorInputs; realfit->reportv2->sameconfiguredCAS->freshstrictlegacy/WelfareconsumerreconcilesJ/tie/axes/nullspaceandforgeries onfrozena9. Existingnativeknownsigma10/H400/.0025/100A-B0 technicalcriterionwitnesscomplete; heldauthority requiresaccountableissuerdecision.",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Typed tie-group-to-field J projection preserves addresses/cross covariance through configured producer, CalibrationReportv2 CAS and welfare consumer.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "For codefix: actual native Calibratorv2→configuredCAS→PropagateUncertaintyNode with wrongkind/schema/hash-valid forged payload refusals. For authority: real source/noise/model/fit/objective/row joins and named served consumer profile",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B198",
+    "bundle_ids": [
+      "CAL-06"
+    ],
+    "source_closure_owner_literal": "CAL-06",
+    "criterion": "Changing display confidence level does not change the existing typed law sigma or its heuristic/gating limitations.",
+    "ledger_status_preserved": "closed",
+    "historical_bucket": "closed_regression",
+    "proposed_verdict": "closed",
+    "finding_owner_acceptance": "existing closed regression retained",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "No new defining-property falsifier established; closed regression retained, never treated as a pending closure proposal",
+    "next_owner": "Foundry calibration uncertainty adapter owner",
+    "minimal_inputs": "Existing closed regression source/report/native replay and exact display levels.8/.95; no new closure decision or production input required",
+    "next_verifiable_result": "Retain closed and rerun exact typed sigma/display-level regression in final common wave; only a new defining-property falsifier may reopen it",
+    "criterion_evidence": {
+      "state": "closed_regression_PASS_no_new_falsifier",
+      "declared_scope": "Changing display confidence level does not change the existing typed law sigma or its heuristic/gating limitations.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "alreadyclosedretainregression",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B199",
+    "bundle_ids": [
+      "UQS-01"
+    ],
+    "source_closure_owner_literal": "UQS-01",
+    "criterion": "Duplicate envelope references do not increase stated level or silently change credible to confidence interval.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen singleton/duplicate/type/level and CAS consumer controls completed; accountable owner adjudication remains. Mixed interval semantics cannot invent guarantees.",
+    "next_owner": "E uncertainty aggregation semantic owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Duplicate envelope references do not increase stated level or silently change credible to confidence interval.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B200",
+    "bundle_ids": [
+      "UQS-01"
+    ],
+    "source_closure_owner_literal": "UQS-01",
+    "criterion": "Duplicate evidence does not become independent precision; origins and effective information count remain separate.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "No information relationship producer/input authority; consumer_asserted arithmetic remains nongating",
+    "next_owner": "@foundry-owners/@scientist-owners evidence/source information relationship producer; E-W03 aggregator; @ir-owners contract review",
+    "minimal_inputs": "Content-bound information-unit refs, likelihood vs prior/posterior roles, shared data/model lineage and independently admitted relationships/units",
+    "next_verifiable_result": "Source producer→relationship artifact→fresh aggregator counts independent information units; four copies stay std1, truly independent measurements differ; forged origin/flags deny authority",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Duplicate evidence does not become independent precision; origins and effective information count remain separate.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Content-bound information-unit refs, likelihood vs prior/posterior roles, shared data/model lineage and independently admitted relationships/units",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B201",
+    "bundle_ids": [
+      "UQS-01"
+    ],
+    "source_closure_owner_literal": "UQS-01",
+    "criterion": "Posterior point functional and equal-tail interval are separate: 99zeros+100 gives mean1 and q05/q95[0,0].",
+    "ledger_status_preserved": "held",
+    "historical_bucket": "held",
+    "proposed_verdict": "held",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Held unratified wire semantics; team-polisyos library ownership is not semantic appointment",
+    "next_owner": "Human-appointed canonical IR uncertainty semantic owner; @ir-owners/@architecture-owners appoint, current enforced reviewer@DenisKopylov",
+    "minimal_inputs": "Named accountable semantic owner and ratification/amendment of four finite decisions in tracked IR decision packet; functionals/quantile conventions/units/invalid refusals",
+    "next_verifiable_result": "Owner-signed tracked decision selects distinctv2$id+independent point/interval functionals; E later proves99zeros+100 mean1,equal-tail[0,0] without widening and retainsv1.1replay",
+    "criterion_evidence": {
+      "state": "not_established_unratified_v2_semantics",
+      "declared_scope": "Posterior point functional and equal-tail interval are separate: 99zeros+100 gives mean1 and q05/q95[0,0].",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Named accountable semantic owner and ratification/amendment of four finite decisions in tracked IR decision packet; functionals/quantile conventions/units/invalid refusals",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B202",
+    "bundle_ids": [
+      "UQS-01"
+    ],
+    "source_closure_owner_literal": "UQS-01",
+    "criterion": "Exact joint posterior law remains resolvable with content/order/weights/units/lineage so identical marginals cannot merge different pairings.",
+    "ledger_status_preserved": "held",
+    "historical_bucket": "held",
+    "proposed_verdict": "held",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Held semantic carrier/functionals decision; E/G code cannot ratify new wire contract",
+    "next_owner": "Human-appointed canonical IR semantic owner; then E producer and C/F appointed consumers",
+    "minimal_inputs": "Same four ratifications; CAS-onlyv2(recommended)or inline+persistedref, exact axes/order/shareddrawIDs/weights/units/source/model/fit/rule/time/purpose and real consumer appointments",
+    "next_verifiable_result": "Ratified producer→configuredCAS→fresh sampler distinguishes same summaries/different laws and paired+1/-1 after reopen; unresolved law computations refuse",
+    "criterion_evidence": {
+      "state": "not_established_unratified_v2_semantics",
+      "declared_scope": "Exact joint posterior law remains resolvable with content/order/weights/units/lineage so identical marginals cannot merge different pairings.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Same four ratifications; CAS-onlyv2(recommended)or inline+persistedref, exact axes/order/shareddrawIDs/weights/units/source/model/fit/rule/time/purpose and real consumer appointments",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "B203",
+    "bundle_ids": [
+      "CAL-04"
+    ],
+    "source_closure_owner_literal": "CAL-04",
+    "criterion": "Hessian winner reuse requires exact parameter/objective/weight/seed/dtype/numerical-policy/model identity, otherwise recompute.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Frozen real batch/cache/objective-identity controls completed; accountable owner adjudication remains. Unknown custom callback identity stays not_established and disables Hessian reuse.",
+    "next_owner": "Foundry Calibrator Hessian/cache owner",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "Accountable original finding owner individually accepts or rejects the preserved bounded proposal using defining-property oracle/negative and exact candidate evidence; G admits code separately",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Hessian winner reuse requires exact parameter/objective/weight/seed/dtype/numerical-policy/model identity, otherwise recompute.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "LA-051",
+    "bundle_ids": [
+      "FRC-01",
+      "FRC-02"
+    ],
+    "source_closure_owner_literal": "FRC-02",
+    "criterion": "N8 transfers actual calibrated predictive evidence from one compatible producer and does not manufacture empirical pass from estimator shape.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "E8486strictsource/unit/profile/predictiveCASproducerindependentlyGO; currentA-CASpacket5PASS, actualAstatus2FAIL plus2nativeFRCFAIL. A defaultindependentverifier/status/freshHTTPconsumer remainsownerimplementation",
+    "implementation_residual_or_external_boundary": "A must resolve and independently recompute profile/source/metric/unit/split/horizon/pairs/counts/threshold/purpose/six roles, normalize resolved-limited versus missing-ref status, and preserve verifier provenance in fresh default/HTTP read. E actual producer/adapter is complete; no fake mapping/ref PASS.",
+    "next_owner": "A generation-cycle/S10/default HTTP writer; E ForecastOwner/calibration writer (@scientist-owners)",
+    "minimal_inputs": "Exact separate E candidate/empirical refs, configured source/metric/unit/profile/split/horizon/pairs/counts/threshold/purpose/six roles and native packet",
+    "next_verifiable_result": "A own verifier resolves/recomputes then fresh default+HTTP read; accepts predictive calibration only and retains terminal causal/treatment/policy refusal",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "N8 transfers actual calibrated predictive evidence from one compatible producer and does not manufacture empirical pass from estimator shape.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Exact separate E candidate/empirical refs, configured source/metric/unit/profile/split/horizon/pairs/counts/threshold/purpose/six roles and native packet",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "LA-052",
+    "bundle_ids": [
+      "PCL-01"
+    ],
+    "source_closure_owner_literal": "PCL-01",
+    "criterion": "Continuous report/receipt agrees with persisted requested/eligible/observed pairs; no comparisons cannot become approximate_calibrated.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "new bounded defining-property evidence ready for individual owner",
+    "implementation_residual_or_external_boundary": "Former E default-store defect repaired and independently reviewed; no extra production corpus intrinsic to generic report/pairs criterion; full productionauthority remains limited",
+    "next_owner": "PCL-01 E-W08 and @scientist-owners calibration API; @foundry-owners actual default diagnostics caller",
+    "minimal_inputs": "Reviewedffd native graph→runner configured CAS source/pairs/report/receipt refs; exact target/unit/entity/time/source rows for application claim",
+    "next_verifiable_result": "Accountable owner individually adjudicates generic criterion from native graph+freshstore independent100pairreadback and95/100,0/100,empty/missing/reordered/forged negatives",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "Continuous report/receipt agrees with persisted requested/eligible/observed pairs; no comparisons cannot become approximate_calibrated.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "LA-053",
+    "bundle_ids": [
+      "PCL-01"
+    ],
+    "source_closure_owner_literal": "polisyos.calibration owner and Scientist backtesting alias migration/test owner",
+    "criterion": "Canonical calibration objects and numerical tests migrate while supported old alias keeps identity until its authorized compatibility window ends.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Mechanism/class/test migration implemented; external API window/input decision missing, no unapproved sunset",
+    "next_owner": "polisyos.calibration owner and Scientist backtesting alias migration/test owner; @scientist-owners with @architecture-owners",
+    "minimal_inputs": "Explicit jointly approved compatibility/deprecation window, supported old/new APIs and actual external caller inventory",
+    "next_verifiable_result": "Tracked joint owner decision/inventory plus actual alias identity/runtime/numerical replay; alias remains until approved window",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Canonical calibration objects and numerical tests migrate while supported old alias keeps identity until its authorized compatibility window ends.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Explicit jointly approved compatibility/deprecation window, supported old/new APIs and actual external caller inventory",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "LA-054",
+    "bundle_ids": [
+      "DDM-02"
+    ],
+    "source_closure_owner_literal": "DDM-02",
+    "criterion": "Same report/model/detector/regime/metric/window/expiry/invalidation evidence reaches public DDM registry consumer without pass-only bypass.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Directional reader defect repaired4c5; actual currentfeed/freshness and served consumer inputs remain absent",
+    "next_owner": "DDM-02 E-W05; @scientist-owners current-feed/applicability/registry deployment owners",
+    "minimal_inputs": "Actual report/model/rule/source/window/invalidation orderedrefs and currentfeed delivery/completeness+delayed-event freshness profile; exact served reader version/routing",
+    "next_verifiable_result": "Read-only actual source→registryv2→fresh rebind/veto→served deployment consumer; delayed/missing event/feed/schema source negative cannot inherit historicalpass",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Same report/model/detector/regime/metric/window/expiry/invalidation evidence reaches public DDM registry consumer without pass-only bypass.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Actual report/model/rule/source/window/invalidation orderedrefs and currentfeed delivery/completeness+delayed-event freshness profile; exact served reader version/routing",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "LA-055",
+    "bundle_ids": [
+      "DDM-02"
+    ],
+    "source_closure_owner_literal": "DDM-02",
+    "criterion": "Baseline eligibility, independent false veto and documented R2 signoff precedence share one consistent gate; R1/R0/failure cannot be overridden.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_active_residual",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "preserved bounded evidence with explicit remaining boundary",
+    "implementation_residual_or_external_boundary": "Library gate consistency implemented; boolean signoff/empty synthetic triggers not institutional authority",
+    "next_owner": "DDM-02 E-W05; @scientist-owners deployment-purpose owner and named institutional R2 signoff authority",
+    "minimal_inputs": "Versioned deployment purpose/R-state policy, identity-bound institutional R2 approval and observed-empty vs unavailable complete feed provenance",
+    "next_verifiable_result": "Actual consumer verifies independent baseline/veto/R2 signoff ordering and fresh valid source; R1/R0/failure/R4R3veto cannot be overridden after reopen",
+    "criterion_evidence": {
+      "state": "native_property_measured_with_original_owner_boundary_remaining",
+      "declared_scope": "Baseline eligibility, independent false veto and documented R2 signoff precedence share one consistent gate; R1/R0/failure cannot be overridden.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "Versioned deployment purpose/R-state policy, identity-bound institutional R2 approval and observed-empty vs unavailable complete feed provenance",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  },
+  {
+    "id": "LA-056",
+    "bundle_ids": [
+      "DDM-01"
+    ],
+    "source_closure_owner_literal": "DDM-01",
+    "criterion": "One neutral event/budget owner imports without orchestration while public/legacy models, aliases, runtime validators, JSON/schema and old FQN pickle remain compatible.",
+    "ledger_status_preserved": "partial",
+    "historical_bucket": "partial_bounded_proposal_pending_owner",
+    "proposed_verdict": "limited",
+    "finding_owner_acceptance": "not decided; historical status unchanged",
+    "current_property_status": "Earlier bounded identity/pickle/schema/neutral-import evidence retained; unchangedDDM17 facade and currentv2 metadata are not new closure witnesses",
+    "implementation_residual_or_external_boundary": "Frozen source identity and native replay completed; accountable finding-owner decision remains. No production corpus/deployment/wheel-wide claim is required for this bounded import/compatibility criterion.",
+    "next_owner": "team-scientist DDM-01/API accountable owner; G final-candidate/code integration checker",
+    "minimal_inputs": "Exact original card, existing bounded/native receipt and fresh combined candidate dependency review; no production corpus required for the generic arithmetic/control-flow/import property",
+    "next_verifiable_result": "team-scientist DDM-01/API owner individually accepts or rejects earlier exact identity/pickle/schema/neutral-import-hook evidence on final root candidate, using final commonwave regression and present-but-fake/removal controls; unchangedfacade or fullDDM suite alone cannot closeLA056.",
+    "criterion_evidence": {
+      "state": "satisfied_declared_native_generic_scope",
+      "declared_scope": "One neutral event/budget owner imports without orchestration while public/legacy models, aliases, runtime validators, JSON/schema and old FQN pickle remain compatible.",
+      "scope_basis": "Currentexactselectors+originalcriterion+independentproperty/oracle/removalreceipt; genericfixture sufficientforgenericarithmetic/kwargs/controlflow/import/shapeproperty",
+      "owner_closure": "pendingseparateaccountabledecision",
+      "original_criterion_input_state": "No additionalproductioncorpusforgenericdeclaredscope",
+      "supplementary_family_authority_boundary": "Factualsource/purpose/fit/institutionalauthority isseparateonlywhenexplicitlyrequiredbythisoriginalcriterion orclaimedapplication; do notinventuniversalservedmodel/productiondatasetrequirement"
+    }
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "source_sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+  "source_tree": "54cad5e41693804135687f07b463b48900a54ec0",
+  "changed_entrypoints": [
+    {
+      "module": "polisyos.foundry.uncertainty",
+      "old_export_count": 16,
+      "new_export_count": 19,
+      "added_exports": [
+        "admit_empirical_weights",
+        "admit_unit_uniform",
+        "empirical_cdf"
+      ],
+      "removed_exports": [],
+      "facade_mode_old": "eager_exports",
+      "facade_mode_new": "eager_exports",
+      "classification": "public_stable"
+    },
+    {
+      "module": "polisyos.calibration",
+      "old_export_count": 28,
+      "new_export_count": 29,
+      "added_exports": [
+        "load_foundry_calibration_report"
+      ],
+      "removed_exports": [],
+      "facade_mode_old": "eager_exports",
+      "facade_mode_new": "eager_exports",
+      "classification": "public_experimental"
+    }
+  ],
+  "outside_owned_entrypoints_inventory_byte_data_equal": true,
+  "generated_artifacts_unchanged": true,
+  "contract_baseline_exceptions_changes": false,
+  "publication_companion": "awaitingrootapplyandindependentexactbytecheck"
+}

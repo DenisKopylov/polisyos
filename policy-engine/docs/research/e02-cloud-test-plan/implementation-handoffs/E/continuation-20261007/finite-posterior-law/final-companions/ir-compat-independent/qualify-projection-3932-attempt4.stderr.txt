@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify_projection_3932.py.txt", line 123, in <module>
+    require(len(patch_parts) == 9, "generated companion denominator drift")
+  File "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify_projection_3932.py.txt", line 20, in require
+    raise ValueError(reason)
+ValueError: generated companion denominator drift

@@ -1,0 +1,40 @@
+--- a/policy-engine/src/polisyos/ir/api.py
++++ b/policy-engine/src/polisyos/ir/api.py
+@@ -185,6 +185,14 @@
+ }
+ 
+ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
++    "ParametricFitCarrier": ("polisyos.ir.analytics.uncertainty", "ParametricFitCarrier"),
++    "PosteriorSamplesCarrier": ("polisyos.ir.analytics.uncertainty", "PosteriorSamplesCarrier"),
++    "load_forecasting_uncertainty_bundle": (
++        "polisyos.ir.analytics.forecasting_uncertainty", "load_forecasting_uncertainty_bundle"
++    ),
++    "persist_forecasting_uncertainty_bundle": (
++        "polisyos.ir.analytics.forecasting_uncertainty", "persist_forecasting_uncertainty_bundle"
++    ),
+     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
+     "AdmittedClaimAdjudicationBatch": (
+         "polisyos.ir.analytics.literature",
+--- a/policy-engine/src/polisyos/foundry/execute/__init__.py
++++ b/policy-engine/src/polisyos/foundry/execute/__init__.py
+@@ -7,9 +7,19 @@
+ import types
+ from typing import Any
+ 
+-__all__ = ["ResolvedExecutionPosture", "execute", "resolve_execution_posture"]
++__all__ = [
++    "ResolvedExecutionPosture",
++    "execute",
++    "get_state_path",
++    "load_state_snapshot",
++    "put_state_snapshot",
++    "resolve_execution_posture",
++]
+ 
+ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
++    "get_state_path": ("polisyos.foundry.execute.executor", "get_state_path"),
++    "load_state_snapshot": ("polisyos.foundry.execute.executor", "load_state_snapshot"),
++    "put_state_snapshot": ("polisyos.foundry.execute.executor", "put_state_snapshot"),
+     "ResolvedExecutionPosture": ("polisyos.foundry.execute.api", "ResolvedExecutionPosture"),
+     "execute": ("polisyos.foundry.execute.api", "execute"),
+     "resolve_execution_posture": ("polisyos.foundry.execute.api", "resolve_execution_posture"),

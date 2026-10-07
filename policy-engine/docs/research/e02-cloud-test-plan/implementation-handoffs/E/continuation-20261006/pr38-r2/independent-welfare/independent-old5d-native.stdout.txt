@@ -1,0 +1,105 @@
+{
+  "status": "EXPECTED_PROPERTY_FAIL",
+  "source_base": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "source_tree": "ba48381b0cf671c316e2cffa4be6568fd945011a",
+  "archive_sha256": "be0f005c739bdc9ca4e443473db5009e2fcc98e44bd4a1de6b97bd5fd35f71a9",
+  "source_file_count": 3049,
+  "source_digest": "63fe046e0dd2d234dd1c1da14d9edd221d531a605388d89db2c114b2a76c481f",
+  "welfare_blob_sha256": "f9421a672185153e7a55e1f0944f25a30e1a7950b3c978ac332fae12091625e8",
+  "source_origin": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/old5d-git-blob-overlay/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+  "source_unchanged": true,
+  "all_polisyos_origins_exact": true,
+  "origin_count": 808,
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "PYTHONPATH": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/old5d-git-blob-overlay/policy-engine/src",
+  "oracle": {
+    "atoms": [
+      0,
+      1
+    ],
+    "weights": [
+      3,
+      1
+    ],
+    "seed": 31415,
+    "N": 128,
+    "native_GE": "2/(1-A)",
+    "correct_success": 92,
+    "correct_failures": 36
+  },
+  "observed": {
+    "out_of_atom_count": 128,
+    "failed": 0,
+    "success": 128,
+    "support_complete": true,
+    "false_credible_interval": [
+      1.633592975478295,
+      6.75557213759838
+    ],
+    "false_robust_interval": [
+      2.6666666666666665,
+      2.6666666666666665
+    ],
+    "first_five_sampled_inputs": [
+      0.03941344949768805,
+      -0.0914232805310935,
+      0.049434914545351316,
+      0.428050553739559,
+      0.46853844643908094
+    ],
+    "sampled_input_list_sha256": "2a239acb821e501ac6e3b3ad4240301b1540e6fb740d2825b2993756a116a052"
+  },
+  "artifacts": [
+    {
+      "cas": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-cas",
+      "source_ref": {
+        "artifact_id": "sha256:26b9377313b3860e0ec5bbe67e1a7333944fbd154f0453c8b7e9fbfbc11e74d0",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "bundle_ref": {
+        "artifact_id": "sha256:d11c0ded37b4ec4b39d3bb28698d5ccbace2b994a709d24c5b7f23007336d4b8",
+        "kind": "ir.welfare_bundle",
+        "media_type": "application/json"
+      },
+      "receipt_ref": {
+        "artifact_id": "sha256:8742baa8881f9b842175a2704160410c696ea8767bdbd7ebcbb23f4d0957dbdd",
+        "kind": "foundry.welfare_draw_outcomes",
+        "media_type": "application/json"
+      },
+      "sample_ref": {
+        "artifact_id": "sha256:90322e4ccdac7ed501d049036d9291c08725baf780f636625534c2afd52d55f3",
+        "kind": "ir.welfare_sample_bundle",
+        "media_type": "application/json"
+      },
+      "propagation_report_ref": "sha256:d2b61850e174976a4a1a1870566c420c099aa3e551e6968196993440ca2b9813",
+      "requested": 128,
+      "attempted": 128,
+      "successful": 128,
+      "failed": 0,
+      "nominal_point": 2.6666666666666665,
+      "credible_interval": [
+        1.633592975478295,
+        6.75557213759838
+      ],
+      "robust_interval": [
+        2.6666666666666665,
+        2.6666666666666665
+      ],
+      "gate_eligible": false,
+      "draw_summary": {
+        "conditional_welfare_ge_mean": null,
+        "conditional_welfare_mean": null,
+        "conditional_welfare_pe_mean": null,
+        "conditional_welfare_std": null,
+        "estimate_scope": "all_requested_draws",
+        "welfare_ge_mean": 1.3796149981870631,
+        "welfare_mean": 3.379614998187063,
+        "welfare_pe_mean": 2.0,
+        "welfare_std": 3.4348743308038245
+      }
+    }
+  ],
+  "elapsed_seconds": 0.8812088160048006
+}

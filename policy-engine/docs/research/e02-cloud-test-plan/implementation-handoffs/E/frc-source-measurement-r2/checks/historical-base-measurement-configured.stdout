@@ -1,0 +1,64 @@
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.advanced.prophet@1.0.0 lazy=True namespace=forecasting.advanced override=False tags=['additive', 'advanced', 'builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'prophet', 'time-series'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.decomposition.stl@1.0.0 lazy=True namespace=forecasting.decomposition override=False tags=['builtin', 'decomposition', 'domain:forecasting', 'family:forecasting', 'forecasting', 'seasonal', 'stl', 'time-series'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.ensemble.simple_average@1.0.0 lazy=True namespace=forecasting.ensemble override=False tags=['builtin', 'domain:forecasting', 'ensemble', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.hybrid.guarded_neural@1.0.0 lazy=True namespace=forecasting.hybrid override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hybrid', 'neural', 'time-series', 'trust-region'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.multivariate.vec_forecast@1.0.0 lazy=True namespace=forecasting.multivariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'multivariate', 'time-series', 'var', 'vec'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.bottom_up@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hierarchical', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.general_linear_projection@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'general-linear', 'grouped', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.regime_shift.hybrid@1.0.0 lazy=True namespace=forecasting.regime_shift override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'regime-switching', 'structural-breaks', 'time-series'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'exponential-smoothing', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-06 13:36:04 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.theta@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'theta', 'time-series'] version=1.0.0
+2026-10-06 13:36:04 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:36:04 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=40.71 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:36:04 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:36:04 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=43.31 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:36:04 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:36:04 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=42.5 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "source_file": "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+  "oracle": "missing/unresolved/wrong-unit schema must refuse before numerical callback",
+  "rows": [
+    {
+      "defect": "missing_schema",
+      "callback_count": 1,
+      "outcome": "EXECUTED",
+      "error": null,
+      "source_ref": "sha256:782fadedf9126bba4366a4d0957feb76ee83f6889bc23875504c0b42d3a4070b",
+      "point_forecast": [
+        30.999999999999993,
+        31.999999999999993,
+        32.99999999999999,
+        33.99999999999999
+      ],
+      "measurement_bound": false
+    },
+    {
+      "defect": "unresolved_schema",
+      "callback_count": 1,
+      "outcome": "EXECUTED",
+      "error": null,
+      "source_ref": "sha256:bb420db0accde331d62baa81cab19f275e7d6c4972623e250ed9361ec6a9efa9",
+      "point_forecast": [
+        30.999999999999993,
+        31.999999999999993,
+        32.99999999999999,
+        33.99999999999999
+      ],
+      "measurement_bound": false
+    },
+    {
+      "defect": "wrong_unit",
+      "callback_count": 1,
+      "outcome": "EXECUTED",
+      "error": null,
+      "source_ref": "sha256:e71b80360dea093b5dbf431492db328bdb0e1dd738c53dcfb8ae4dd2541843fa",
+      "point_forecast": [
+        30.999999999999993,
+        31.999999999999993,
+        32.99999999999999,
+        33.99999999999999
+      ],
+      "measurement_bound": false
+    }
+  ]
+}

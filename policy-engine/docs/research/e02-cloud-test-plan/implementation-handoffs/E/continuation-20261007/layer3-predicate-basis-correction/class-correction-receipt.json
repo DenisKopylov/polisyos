@@ -1,0 +1,18 @@
+{
+  "schema": "policyos.e02.P37_unknown_record_class_correction.v1",
+  "prior_candidate": "6b6280d1e66edf26031568e8773e93726fde9928",
+  "prior_tree": "e8b0672320d13329560306a9c8c6cc506f1567ce",
+  "prior_review": "historical-6b-independent-CHANGE_REQUIRED.json",
+  "actual_escape": "CLI accepted UNRUN-to-PASS native fixture status despite ten correct bases, original refs and positive_claim=false. This was a metadata truthfulness defect, not a native/source or math outcome.",
+  "current_invariant": "Pure full unknown-authority record preflight before IO: exact four scopes, exact three-field sets, canonical unknown basis, actual boolFalse positive claim, exact scoped status. Covers sibling status/claim/context/type promotions.",
+  "original_correction_bytes_and_ten_bases_unchanged": true,
+  "historical_6b_source_and_outputs_preserved": true,
+  "prior111DOC_and106literal_copies_preserved": true,
+  "normal_optimized_outputs_byte_identical": true,
+  "actual_corruptions_refused": 22,
+  "effective_removal": "Removing only admit_unknown_authority_records re-admits false native PASS with bases/refs/positive_false intact; defining status truthfulness FAIL. Existing frozen-basis removal remains separate.",
+  "native_or_global_reexecution": false,
+  "code_or_schema_changes": false,
+  "finding_acceptance": false,
+  "review_state": "Independent corrective candidate review requested; no self-review GO."
+}

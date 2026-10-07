@@ -1,0 +1,69 @@
+"""Publish moderate full-input review packet; synthetic payloads remain outside index."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+
+OUT = Path(__file__).parent
+identity = lambda p: dict(bytes=p.stat().st_size, sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+data = json.loads((OUT/'delta-controls.json').read_text())
+assert data['complete_rest_AST_identical'] is True
+assert data['reusable_collector_verdict'].startswith('GO-')
+assert len(data['collector_freeze_controls']) == 3
+assert data['common_role_count'] == 25
+assert len(data['symlink_controls']) == len(data['effective_property_removal_controls']) == 2
+assert data['root_before'] == data['root_after']
+script = OUT/'delta_controls.py'
+published_script = OUT/'delta_controls.py.txt'
+shutil.copyfile(script,published_script)
+assert identity(script) == identity(published_script)
+review = {
+    'schema':'policyos.e02.independent-collector-review.v4',
+    'reviewer':'doe_r2 independent of FRC collector author',
+    'source':data['source'],
+    'root_metadata_at_review':{'sha':data['root_before'][0],'tree':data['root_before'][1],'unchanged_after':True},
+    'reusable_collector_verdict':data['reusable_collector_verdict'],
+    'scope':'Independent narrow full-path public-role admission delta; zero product/numerical/global-gate commands. No new wave evidence or finding closure.',
+    'exact_source_delta':{'only_changed_function':'public_evidence','all_other_module_AST_identical':True,'runtime_property':'Full source path components retain raw/private external parent role before copying; canonical planned roles and exact owner labels unchanged.'},
+    'independent_controls':{'full_collector_freeze_controls':3,'common_public_role_refusals':25,'external_leaf_and_parent_symlink_refusals':2,'standalone_pure_admission_positives':['synthetic','actual source-freeze-5e metadata only'],'effective_single_predicate_removals':2,'refusal_before_publication_creation':True,'zero_payloads_copied_on_refusal':True},
+    'predicate_basis':'Independent exact a639 raw/private external-freeze falsifiers; common source path admission, not hash/integrity or field presence. Synthetic sentinel markers only; no actual private material touched.',
+    'historical_reuse':{'v3_source':data['unchanged_previous_source'],'index':data['prior_independent_index'],'unchanged_14_controls_and_actual5e_custody':'GO properties reused by exact unchanged AST/byte identities, historical reusable-v3 HOLD preserved. Same1440 cases1086PASS3FAIL351ERROR, native1433/A7. No reclassification.'},
+    'author_index_byte_verified':data['author_index_verified'],
+    'configured_checks':{'Ruff':'PASS-v4 collector source with actual repository ruff.toml','format':'PASS-same source/config','full_global_gate':'NOT_RUN','probe_helper_lint':'Not claimed; full-input artifacts are executable .py.txt evidence.'},
+    'commands':[{'argv':[data['environment']['python'],str(script)],'cwd':'/workspace','exit_code':0,'published_full_input_path':str(published_script),'full_input_identity':identity(script)},{'argv':['ruff','check','--config','/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml',data['source']['path']],'exit_code':0},{'argv':['ruff','format','--check','--config','/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml',data['source']['path']],'exit_code':0}],
+    'environment':data['environment'],
+    'source_and_historical_inputs_unchanged':data['original_source_and_author_fixture_unchanged'],
+    'finding_closure':False,
+    'next_owner':'E root copies exact faec source and moderate packets append-only, verifies Git/publication readback; independent source/custody claims remain separate from next common-wave outcome and finding decisions.',
+    'limitations':['COMPLETE_BOUND concerns custody, not numerical success.','No production law/history input moved; raw/private actual inputs remain hash/size custody only.','Full source-frame mechanism is independently under CAL review; source metadata alone does not establish full framed property.','Post-command backend observer does not establish test-child JAX state; P41 inherited-red remains not_established.','Full absolute raw/private ancestor refusal is intentional admission.','No deletion/Trash performed; preserve code/docs/unique deciding inputs.'],
+    'cleanup_candidates':[str(OUT/'synthetic-controls'),str(OUT/'pure-admission-controls')],
+    'cleanup_policy':'Only repeatable candidates after receipts and inactive-user check; no native Trash established, no permanent deletion.',
+}
+(OUT/'review.json').write_text(json.dumps(review,indent=2)+'\n')
+names=['delta_controls.py.txt','delta-controls.json','delta-controls.stdout','delta-controls.stderr','full-source-role-predicate-removed.py.txt','freeze_packet.py.txt','configured-source-ruff.stdout','configured-source-ruff.stderr','configured-source-format.stdout','configured-source-format.stderr','review.json']
+rows=[{'path':str(OUT/name),**identity(OUT/name)} for name in names]
+index={'scope':'Immutable moderate independent collectorv4 GO, historicalv2/v3HOLD preserved','primary':str(OUT/'review.json'),'files':rows,'file_count':len(rows),'total_bytes':sum(row['bytes'] for row in rows),'index_self_excluded':True,'actual_raw_private_or_synthetic_fixture_payloads_included':False}
+
+def validate(value):
+    assert value['file_count'] == len(value['files'])
+    assert value['total_bytes'] == sum(row['bytes'] for row in value['files'])
+    for row in value['files']:
+        assert identity(Path(row['path'])) == dict(bytes=row['bytes'],sha256=row['sha256'])
+
+validate(index)
+corrupt=[]
+for field,value in [('bytes',-1),('sha256','0'*64)]:
+    forged=json.loads(json.dumps(index))
+    forged['files'][0][field]=value
+    try:
+        validate(forged)
+        raise RuntimeError('validator admitted forged '+field)
+    except AssertionError:
+        corrupt.append(field+' REFUSED')
+review['index_validator_corrupt_controls']=corrupt
+(OUT/'review.json').write_text(json.dumps(review,indent=2)+'\n')
+rows[-1].update(identity(OUT/'review.json'))
+index['total_bytes']=sum(row['bytes'] for row in rows)
+validate(index)
+(OUT/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({'state':'READY','files':len(rows),'bytes':index['total_bytes'],'index_identity':identity(OUT/'copy-index.json'),'review_identity':identity(OUT/'review.json'),'corrupt_controls':corrupt}))

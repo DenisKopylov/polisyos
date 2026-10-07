@@ -1,0 +1,75 @@
+[
+  {
+    "accepted": false,
+    "candidate_ref": "sha256:8db9e089094608415113771d352d4e1983dcb0e7163ba8ce61dd10daae4f0715",
+    "exception": "ValueError",
+    "hash_valid": true,
+    "message": "native forecast initial binding anchor differs from first execution",
+    "name": "paired_whole_blocks_reversed",
+    "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+    "profile_times": [
+      "t2",
+      "t3"
+    ],
+    "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+  },
+  {
+    "accepted": false,
+    "candidate_ref": "sha256:c59cc563639fea0bec20a67b5fa1c552fb060347848d0a106b904102f4a566f6",
+    "exception": "ValueError",
+    "hash_valid": true,
+    "message": "native forecast initial binding anchor differs from first execution",
+    "name": "second_block_duplicated",
+    "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+    "profile_times": [
+      "t2",
+      "t3"
+    ],
+    "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+  },
+  {
+    "accepted": false,
+    "candidate_ref": "sha256:b7e4da5d99fc8451ede299a58f88c5e7ef389bb6e259134fb17fd939923748b4",
+    "exception": "ValueError",
+    "hash_valid": true,
+    "message": "native forecast initial binding anchor differs from first execution",
+    "name": "initial_binding_substituted",
+    "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+    "profile_times": [
+      "t2",
+      "t3"
+    ],
+    "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+  },
+  {
+    "accepted": true,
+    "actually_executed_tax_rate": ".25",
+    "candidate_ref": "sha256:7a30f373a9affe2949bddb12b3908c5dbfea6142c17d6e57cae853bdaf96a44b",
+    "declared_tax_rate": ".5",
+    "hash_valid": true,
+    "name": "unexecuted_trinity_substitution",
+    "new_trinity_ref": "sha256:f709b920cf3f15f1a0e75e6bce2dd63ca6dbf033cca992c0156dd170c888212e",
+    "old_trinity_ref": "sha256:f1aae8d2a68dd475d25f54ad5b89900bbe8b40b662317a938a5e735bba18c88d",
+    "request_ref": "sha256:919d48924bd19d78c1b1ae8c96bd7365a0bb0354e78882caaebc22c23d34009e",
+    "values": {
+      "income": [
+        1.5,
+        1.0
+      ]
+    }
+  },
+  {
+    "accepted": false,
+    "candidate_ref": "sha256:d7957976292bdf302909b8398f5662f815a636566b4598353fdcf34919bec891",
+    "exception": "ValueError",
+    "hash_valid": true,
+    "message": "native forecast chronological clock/order mismatch",
+    "name": "first_block_duplicated",
+    "original_ref": "sha256:f8fa684b825e1646d6966702b2d9a5db67d78234f17a9df387583604b1471f4f",
+    "profile_times": [
+      "t2",
+      "t3"
+    ],
+    "request_ref": "sha256:1c1c81e11077ee2f55b87673d6f383cf48c1fe192282e17d72dd2a5080817691"
+  }
+]

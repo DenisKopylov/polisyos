@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-07T13:37:37.261518+00:00",
+  "policy": "Native Trash only; never empty; preserve Git and deciding receipts.",
+  "actions": [
+    {
+      "path": "/Users/deniskopylov/Library/Caches/puccinialin",
+      "inode": 11696229,
+      "device": 16777231,
+      "mtime_ns": 1765736499974609100,
+      "allocated_bytes": 217456640,
+      "reason": "Fresh targeted metadata walk retained the same device/inode/mtime and 217,456,640 B allocation. No exact-path lsof handle and pgrep -x cargo/rustc/rustup returned no PIDs. This is cached Rust bootstrap/registry material; future native builds may download/bootstrap it again. Recheck exact path immediately before native Trash.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/puccinialin\",\"inode\":11696229,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/puccinialin"
+    },
+    {
+      "path": "/Users/deniskopylov/.cache/firebase/emulators",
+      "inode": 4549214,
+      "device": 16777231,
+      "mtime_ns": 1754215073436619149,
+      "allocated_bytes": 18006016,
+      "reason": "Fresh targeted metadata walk retained the same device/inode/mtime and 18,006,016 B allocation. No exact-path lsof handle and pgrep -x firebase returned no PID; Firebase CLI is installed at /opt/homebrew/bin/firebase. This is versioned emulator UI cache and can be fetched again. Process-name checks do not inspect argv; no broad process census was done. Recheck exact path immediately before native Trash.",
+      "state": "verified_in_native_Trash",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/emulators\",\"inode\":4549214,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/emulators"
+    }
+  ]
+}

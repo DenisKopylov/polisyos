@@ -1,0 +1,14 @@
+{
+  "cmdline": {
+    "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proc-536940-cmdline.txt",
+    "bytes": 676,
+    "sha256": "f06d23e4b523e3c19db19e9ce1a9b09c4aa77d0415068e353933948942e28bd9"
+  },
+  "status": {
+    "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/proc-536940-status.txt",
+    "bytes": 1184,
+    "sha256": "79459d118f90872932d1cd86e05d8d44d474a2598401c9f83cb6fddd6bc9e1bb"
+  },
+  "PYTEST_CURRENT_TEST": [],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine"
+}

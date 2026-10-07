@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt", line 112, in <module>
+    rows = check_manifest(manifest)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt", line 49, in check_manifest
+    require(len(inputs) == len(EXPECTED_SELECTORS) and {row['family'] for row in inputs} == set(EXPECTED_SELECTORS), 'exact original selector set')
+  File "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt", line 20, in require
+    raise ValueError(reason)
+ValueError: exact original selector set

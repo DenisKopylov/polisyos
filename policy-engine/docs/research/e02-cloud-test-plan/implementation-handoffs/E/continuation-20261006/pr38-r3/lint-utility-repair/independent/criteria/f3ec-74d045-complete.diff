@@ -1,0 +1,208 @@
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py
+index 6be1557cd..d505b8892 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py
+@@ -527,8 +527,13 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
+         row["binding_predicates"] = predicates
+         if receipt["outcome"] not in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}:
+             issues.append({"job": job["name"], "reason": "unknown check outcome"})
+-        if receipt["outcome"] == "PASS" and receipt["exit_code"] != 0:
+-            issues.append({"job": job["name"], "reason": "PASS conflicts with command failure"})
++        if receipt["outcome"] in {"PASS", "SKIP"} and receipt["exit_code"] != 0:
++            issues.append(
++                {
++                    "job": job["name"],
++                    "reason": receipt["outcome"] + " conflicts with command failure",
++                }
++            )
+         source_frames.append(receipt["source_identity_before"])
+         config_hashes.append(receipt["git_input_config"]["sha256"])
+         variables = receipt["environment"]["selected_variables"]
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py
+index 904ac4091..008ade1c1 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py
+@@ -527,8 +527,13 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
+         row["binding_predicates"] = predicates
+         if receipt["outcome"] not in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}:
+             issues.append({"job": job["name"], "reason": "unknown check outcome"})
+-        if receipt["outcome"] == "PASS" and receipt["exit_code"] != 0:
+-            issues.append({"job": job["name"], "reason": "PASS conflicts with command failure"})
++        if receipt["outcome"] in {"PASS", "SKIP"} and receipt["exit_code"] != 0:
++            issues.append(
++                {
++                    "job": job["name"],
++                    "reason": receipt["outcome"] + " conflicts with command failure",
++                }
++            )
+         source_frames.append(receipt["source_identity_before"])
+         config_hashes.append(receipt["git_input_config"]["sha256"])
+         variables = receipt["environment"]["selected_variables"]
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py
+index 9a0eb9853..19b7b0a08 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py
+@@ -473,8 +473,13 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
+         row["binding_predicates"] = predicates
+         if receipt["outcome"] not in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}:
+             issues.append({"job": job["name"], "reason": "unknown check outcome"})
+-        if receipt["outcome"] == "PASS" and receipt["exit_code"] != 0:
+-            issues.append({"job": job["name"], "reason": "PASS conflicts with command failure"})
++        if receipt["outcome"] in {"PASS", "SKIP"} and receipt["exit_code"] != 0:
++            issues.append(
++                {
++                    "job": job["name"],
++                    "reason": receipt["outcome"] + " conflicts with command failure",
++                }
++            )
+         source_frames.append(receipt["source_identity_before"])
+         config_hashes.append(receipt["git_input_config"]["sha256"])
+         variables = receipt["environment"]["selected_variables"]
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py
+index ad8287a14..e5492342f 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py
+@@ -473,8 +473,13 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
+         row["binding_predicates"] = predicates
+         if receipt["outcome"] not in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}:
+             issues.append({"job": job["name"], "reason": "unknown check outcome"})
+-        if receipt["outcome"] == "PASS" and receipt["exit_code"] != 0:
+-            issues.append({"job": job["name"], "reason": "PASS conflicts with command failure"})
++        if receipt["outcome"] in {"PASS", "SKIP"} and receipt["exit_code"] != 0:
++            issues.append(
++                {
++                    "job": job["name"],
++                    "reason": receipt["outcome"] + " conflicts with command failure",
++                }
++            )
+         source_frames.append(receipt["source_identity_before"])
+         config_hashes.append(receipt["git_input_config"]["sha256"])
+         variables = receipt["environment"]["selected_variables"]
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py
+index 0b39fbb76..8450e572e 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py
+@@ -188,7 +188,13 @@ def main() -> int:
+     outcome = "PASS" if exit_code == 0 and immutable else "FAIL"
+     if error is not None:
+         outcome = "UNRUN"
+-    elif counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]:
++    elif (
++        exit_code == 0
++        and immutable
++        and counts is not None
++        and counts["cases"]
++        and counts["skipped"] == counts["cases"]
++    ):
+         outcome = "SKIP"
+     packages = {}
+     for name in (
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py
+index 0b39fbb76..8450e572e 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py
+@@ -188,7 +188,13 @@ def main() -> int:
+     outcome = "PASS" if exit_code == 0 and immutable else "FAIL"
+     if error is not None:
+         outcome = "UNRUN"
+-    elif counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]:
++    elif (
++        exit_code == 0
++        and immutable
++        and counts is not None
++        and counts["cases"]
++        and counts["skipped"] == counts["cases"]
++    ):
+         outcome = "SKIP"
+     packages = {}
+     for name in (
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py
+index 0b39fbb76..8450e572e 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py
+@@ -188,7 +188,13 @@ def main() -> int:
+     outcome = "PASS" if exit_code == 0 and immutable else "FAIL"
+     if error is not None:
+         outcome = "UNRUN"
+-    elif counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]:
++    elif (
++        exit_code == 0
++        and immutable
++        and counts is not None
++        and counts["cases"]
++        and counts["skipped"] == counts["cases"]
++    ):
+         outcome = "SKIP"
+     packages = {}
+     for name in (
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py
+index 0b39fbb76..8450e572e 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py
+@@ -188,7 +188,13 @@ def main() -> int:
+     outcome = "PASS" if exit_code == 0 and immutable else "FAIL"
+     if error is not None:
+         outcome = "UNRUN"
+-    elif counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]:
++    elif (
++        exit_code == 0
++        and immutable
++        and counts is not None
++        and counts["cases"]
++        and counts["skipped"] == counts["cases"]
++    ):
+         outcome = "SKIP"
+     packages = {}
+     for name in (
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py
+index 904ac4091..008ade1c1 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py
+@@ -527,8 +527,13 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
+         row["binding_predicates"] = predicates
+         if receipt["outcome"] not in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}:
+             issues.append({"job": job["name"], "reason": "unknown check outcome"})
+-        if receipt["outcome"] == "PASS" and receipt["exit_code"] != 0:
+-            issues.append({"job": job["name"], "reason": "PASS conflicts with command failure"})
++        if receipt["outcome"] in {"PASS", "SKIP"} and receipt["exit_code"] != 0:
++            issues.append(
++                {
++                    "job": job["name"],
++                    "reason": receipt["outcome"] + " conflicts with command failure",
++                }
++            )
+         source_frames.append(receipt["source_identity_before"])
+         config_hashes.append(receipt["git_input_config"]["sha256"])
+         variables = receipt["environment"]["selected_variables"]
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py
+index e5d3e4f47..ad35e3b7c 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py
+@@ -158,6 +158,8 @@ def family_for(path: str) -> str | None:
+         or (relative.startswith("scientist/nodes/builtins/simulate/") and "welfare" in relative)
+     ):
+         return "CAL_and_welfare_consumer"
++    if relative == "ir/test_posterior_summary.py":
++        return "MC_joint_law_support_and_Scientist_consumer"
+     if relative.startswith("foundry/uncertainty/") or (
+         relative.startswith("scientist/nodes/") and "propagate_uncertainty" in relative
+     ):
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py
+index e3a090698..423b1ba61 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py
+@@ -188,7 +188,13 @@ def main() -> int:
+     outcome = "PASS" if exit_code == 0 and immutable else "FAIL"
+     if error is not None:
+         outcome = "UNRUN"
+-    elif counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]:
++    elif (
++        exit_code == 0
++        and immutable
++        and counts is not None
++        and counts["cases"]
++        and counts["skipped"] == counts["cases"]
++    ):
+         outcome = "SKIP"
+     packages = {}
+     for name in (

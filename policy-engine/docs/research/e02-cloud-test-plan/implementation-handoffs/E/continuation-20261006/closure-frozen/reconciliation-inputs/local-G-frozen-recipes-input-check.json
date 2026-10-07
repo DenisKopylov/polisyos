@@ -1,0 +1,134 @@
+{
+  "check": "Only exact frozen source command-input identity; no numerical/production execution claimed",
+  "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "result": "PASS",
+  "paths": [
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+      "git_blob": "ad440fe4effad1853be8c3f898d278d607cba08d",
+      "sha256": "701a73c316eb1d9b842004efbb8856960f9ccbe896816b365a13a415a7c50410"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting",
+      "git_blob": "8f5bd19ad79b80e650705d0f69d02962ae893d1e",
+      "sha256": "b1a5db3d40a11ce75919bc9a4dd9e7aa11f323064d71019f855f59f3a59c0daa"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+      "git_blob": "8d0f6c292c45afeb962f6284bfe0e442c6d3c2fa",
+      "sha256": "34b50c48edca12191004c35d5868924ac66a0562d3e58e50fdcfbe2a03bc6b82"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_02.py",
+      "git_blob": "c7e2b20f5753b3160a32aaa9c88404bc3096647f",
+      "sha256": "67789db0cb1fdd16f8465118c0f5e96f19f8d8c2ce138ffe04f5f7d1f58cf023"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_03.py",
+      "git_blob": "7e0f06b50ec43d0fe0131350b633f66bf91c5064",
+      "sha256": "f6f4ed99e15d23bde47cf0ecc8aafcb3d1994d8f5e89924ba6a5775463b056b3"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+      "git_blob": "688bd085bb0f84f7257f461fc178f62476745bdd",
+      "sha256": "9e70d6892977797bc6150fc2e78b32656875a2410891adce8dafacc37516a999"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+      "git_blob": "b88482eae067a4073463f4e84d1f0f79a6f15ddd",
+      "sha256": "eb6aa27d09398d140785972684d01624079c5fbef7b7b3c725ec608cf8d0d3da"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "git_blob": "df2904102497c64e18efc5dd3fa3f0beab4c9e35",
+      "sha256": "7bb4f295ae81a373d68f3acbd19f02f6a4f1def7c05f29ea1e944c6e41dd9b78"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "git_blob": "96716cceff9fd80925b1c4e4881c53b19b05ee97",
+      "sha256": "08076ce97d747c1b6c29cfcdf31b68f126c68382fb8b7da3a58a2f9a5e830da5"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+      "git_blob": "7d4a04ea905d56a97bf9ad00dffd15d6e9d8aefa",
+      "sha256": "005955b8af1e97149bc9a815d73ea563348550474517b156af8edb2ce401fe38"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+      "git_blob": "287265b1aa2116c5082bb285bcfa8a0238d06389",
+      "sha256": "ba620b2729dd114582bafcf6f5e3a8a66dcec93132fb5842139cee2b624b6fb8"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "git_blob": "117740bb5f5a0a031d5507d79e87211650416b2d",
+      "sha256": "868a42e317bed65571cde0aa9d9846153bf32a8b476e41fbed6648f013cab50b"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "git_blob": "52a85d73fc710a12bff38408cc6a63d84a0bf7d0",
+      "sha256": "da80465b67bdd8c021957ca60abfd509c1bf05d7f19cdd8bd5ca624efc3ea248"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+      "git_blob": "7d4a04ea905d56a97bf9ad00dffd15d6e9d8aefa",
+      "sha256": "005955b8af1e97149bc9a815d73ea563348550474517b156af8edb2ce401fe38"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "git_blob": "96716cceff9fd80925b1c4e4881c53b19b05ee97",
+      "sha256": "08076ce97d747c1b6c29cfcdf31b68f126c68382fb8b7da3a58a2f9a5e830da5"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+      "git_blob": "e0fad865d3d502cdae5ffbcc89472af32a10ac72",
+      "sha256": "7286fbe21abd1133780c1395aea6dc46b020b18bd0bbda3253b262bb274800fe"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "git_blob": "019c005362f29307c8a897e2477092263ca0d6d1",
+      "sha256": "27408ad10cd557167410fb0303578cca3099bf1499e2ae142548668efab59051"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_03.py",
+      "git_blob": "70925764780b5d4425d7bd93c8b16e76f105a79d",
+      "sha256": "841fcc9df8665345695e079f9c6294d7fc7a6daca2306598f014ebefc713bc26"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "git_blob": "c3e966aafcb19c8d693446ee5dd8688229f645b6",
+      "sha256": "8793dc6d146c578cb8074d5ab757fa066dfcf2800a35de0f55e718330ecf3e63"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/ddm",
+      "git_blob": "beba7f856c2e95b0a10e697cccf8dedef9e201e5",
+      "sha256": "60614cbb1a51175b91cf76782c5b47491c637af124abc11f6a6c61e5c5c8a022"
+    },
+    {
+      "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "path": "policy-engine/tests/unit/remediation/test_ddm_02.py",
+      "git_blob": "c6b650eca9d5fef504589021564a0b939ab1c485",
+      "sha256": "5ed6433c423ee9190cdfe2237a6cfc434180dad409721e0c64eb11f2795b799d"
+    }
+  ]
+}

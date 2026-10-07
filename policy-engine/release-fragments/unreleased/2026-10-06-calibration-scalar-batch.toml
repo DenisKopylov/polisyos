@@ -1,0 +1,10 @@
+id = "2026-10-06-calibration-scalar-batch"
+title = "Retain scalar schedule execution in calibration batches"
+type = "added"
+component = "foundry-calibration"
+owner = "team-foundry"
+surface_classification = "internal"
+summary = "Add a cross-sectional pure batch entrypoint that retains each row's state, schedule time and PRNG key while using scalar conditional execution through lax.map. Inactive rows do not execute numerical emitters."
+evidence = ["tests/unit/foundry/calibration/test_pure_executor_batch.py", "tests/unit/foundry/calibration/test_pure_executor_semantics.py"]
+compatibility = "Existing scalar and time-series scan entrypoints are unchanged. Calibrator orchestration is supplied by the canonical calibrator owner in the companion E slice."
+limitations = "The entrypoint requires caller-admitted row identities and times; distinct keys do not establish independent sampling or production calibration validity."

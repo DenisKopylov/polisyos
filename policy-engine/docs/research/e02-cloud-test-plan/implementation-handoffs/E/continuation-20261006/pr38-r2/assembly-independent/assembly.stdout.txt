@@ -1,0 +1,11 @@
+{
+  "candidate": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "tree": "a2c9076c618a241d7a7a02e666f8b3648c94b3cd",
+  "verdict": "GO_source_assembly_and_dependency_joins; ready for freeze after separate pending harness review; no committed product-source blocker found",
+  "family_rows": 22,
+  "reviewed_blobs": 58,
+  "full_paths": 929,
+  "operational_paths": 63,
+  "source_before_after_equal": true,
+  "blocking_product_findings": []
+}

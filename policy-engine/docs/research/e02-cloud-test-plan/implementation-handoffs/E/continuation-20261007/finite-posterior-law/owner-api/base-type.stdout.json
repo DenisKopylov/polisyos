@@ -1,0 +1,30 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791376368650",
+    "generalDiagnostics": [
+        {
+            "file": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base/posterior_summary.py",
+            "severity": "error",
+            "message": "Import \".uncertainty\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 26,
+                    "character": 5
+                },
+                "end": {
+                    "line": 26,
+                    "character": 17
+                }
+            },
+            "rule": "reportMissingImports"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 1,
+        "errorCount": 1,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 2.359
+    }
+}

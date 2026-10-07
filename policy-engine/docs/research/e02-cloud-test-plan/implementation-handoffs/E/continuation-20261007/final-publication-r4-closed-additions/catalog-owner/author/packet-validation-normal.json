@@ -1,0 +1,65 @@
+{
+  "outcome": "PASS",
+  "checks": 12,
+  "controls": [
+    {
+      "name": "healthy_closed_native_packet",
+      "outcome": "PASS"
+    },
+    {
+      "name": "corrupt_capture_hash",
+      "outcome": "PASS",
+      "reason": "capture_integrity_mismatch"
+    },
+    {
+      "name": "corrupt_capture_size",
+      "outcome": "PASS",
+      "reason": "capture_integrity_mismatch"
+    },
+    {
+      "name": "wrong_source",
+      "outcome": "PASS",
+      "reason": "source_binding_mismatch"
+    },
+    {
+      "name": "wrong_tree",
+      "outcome": "PASS",
+      "reason": "source_binding_mismatch"
+    },
+    {
+      "name": "invalid_path_none",
+      "outcome": "PASS",
+      "reason": "invalid_record_path"
+    },
+    {
+      "name": "invalid_path_parent",
+      "outcome": "PASS",
+      "reason": "invalid_record_path"
+    },
+    {
+      "name": "scope_upgrade",
+      "outcome": "PASS",
+      "reason": "scope_or_authority_upgrade"
+    },
+    {
+      "name": "browser_upgrade",
+      "outcome": "PASS",
+      "reason": "scope_or_authority_upgrade"
+    },
+    {
+      "name": "implementation_upgrade",
+      "outcome": "PASS",
+      "reason": "scope_or_authority_upgrade"
+    },
+    {
+      "name": "wrong_HTTP_count",
+      "outcome": "PASS",
+      "reason": "original_HTTP_denominator_changed"
+    },
+    {
+      "name": "wrong_HTTP_outcome",
+      "outcome": "PASS",
+      "reason": "original_HTTP_denominator_changed"
+    }
+  ]
+}

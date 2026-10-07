@@ -1,0 +1,150 @@
+"""Retain all bytes of CLOSED CI02 fixtures, then remove only admitted basetemp."""
+from __future__ import annotations
+import ast
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import tarfile
+import time
+import xml.etree.ElementTree as ET
+
+OUTPUT = Path('/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures')
+STAGE = Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+CANDIDATES = [STAGE / 'pytest-base']
+EXPECTED = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+
+def identity(path):
+    digest = hashlib.sha256()
+    size = 0
+    with path.open('rb') as handle:
+        while data := handle.read(1024 * 1024):
+            digest.update(data)
+            size += len(data)
+    return {'path': str(path), 'bytes': size, 'sha256': digest.hexdigest()}
+
+def write(path, value):
+    with path.open('x') as handle:
+        handle.write(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+def filesystem():
+    stat = os.statvfs('/workspace')
+    return {'observed_unix': time.time(), 'total_bytes': stat.f_blocks * stat.f_frsize, 'free_bytes': stat.f_bfree * stat.f_frsize, 'available_bytes': stat.f_bavail * stat.f_frsize}
+
+function = next(node for node in ast.parse(Path('/tmp/e02-E-capacity-cleanup-20261007-doe/prepare_cleanup.py').read_text()).body if isinstance(node, ast.FunctionDef) and node.name == 'proc_scan')
+exec(compile(ast.Module(body=[function], type_ignores=[]), 'saved-prepare_cleanup.py:proc_scan', 'exec'), globals())
+OUTPUT.mkdir(mode=0o700, exist_ok=False)
+candidate = CANDIDATES[0]
+if candidate.is_symlink() or not candidate.is_dir() or candidate.resolve() != candidate or candidate.parent != STAGE or candidate.name != 'pytest-base':
+    raise ValueError('Exact closed selector basetemp path required')
+native = STAGE / 'checks/standalone-ci-02/standalone-ci-02.json'
+receipt = json.loads(native.read_text())
+if receipt['candidate_sha'] != EXPECTED or receipt['candidate_tree_sha'] != TREE or receipt['source_immutable'] is not True or receipt['exit_code'] != 1 or receipt['outcome'] != 'FAIL':
+    raise ValueError('Closed immutable native FAIL receipt required')
+argv = receipt['command']
+if argv.count('--basetemp') != 1 or argv[argv.index('--basetemp') + 1] != str(candidate) or 'tests/unit/runtime/http' not in argv or receipt['cwd'] != str(ROOT / 'policy-engine'):
+    raise ValueError('Native full HTTP selector exact basetemp producer binding required')
+expected_counts = {'cases': 1585, 'passed': 675, 'failed': 81, 'errors': 827, 'skipped': 2}
+if receipt['counts'] != expected_counts or receipt['source_identity_before'] != receipt['source_identity_after']:
+    raise ValueError('Exact terminal counts/source identity required')
+stdout = Path(receipt['stdout_path'])
+stdout_ref = identity(stdout)
+if stdout_ref['sha256'] != receipt['stdout_sha256'] or stdout_ref['bytes'] != receipt['stdout_bytes']:
+    raise ValueError('Closed stdout bytebinding mismatch')
+junit = Path(receipt['junit'])
+cases = list(ET.parse(junit).getroot().iter('testcase'))
+counts = {'cases': len(cases), 'passed': sum(not any(c.find(tag) is not None for tag in ('failure', 'error', 'skipped')) for c in cases), 'failed': sum(c.find('failure') is not None for c in cases), 'errors': sum(c.find('error') is not None for c in cases), 'skipped': sum(c.find('skipped') is not None for c in cases)}
+if counts != expected_counts:
+    raise ValueError('Independent JUnit case counts mismatch')
+saved = []
+for source in (native, stdout, junit):
+    destination = OUTPUT / source.name
+    with destination.open('xb') as handle:
+        handle.write(source.read_bytes())
+    row = {**identity(source), 'saved_path': str(destination), 'original_outside_basetemp_preserved': True}
+    if identity(destination)['sha256'] != row['sha256']:
+        raise ValueError('Saved deciding output mismatch')
+    saved.append(row)
+source_refs = {'candidate': subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', EXPECTED], text=True).strip(), 'tree': subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', EXPECTED + '^{tree}'], text=True).strip(), 'root_HEAD': subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip(), 'remote_branch_readback': subprocess.check_output(['git', '-C', str(ROOT), 'ls-remote', 'origin', 'refs/heads/codex/e02-E-continuation-20261006'], text=True).strip()}
+if source_refs['candidate'] != EXPECTED or source_refs['tree'] != TREE:
+    raise ValueError('Exact source Git binding mismatch')
+root_before = subprocess.check_output(['git', '-C', str(ROOT), 'status', '--porcelain', '--untracked-files=no'], text=True)
+inventory = []
+directories = list(candidate.iterdir())
+top_classes = {'native_pytest_named_test_fixtures': [], 'non_test_names_preserved_in_archive': []}
+for source in directories:
+    key = 'native_pytest_named_test_fixtures' if source.name.startswith('test_') else 'non_test_names_preserved_in_archive'
+    top_classes[key].append(source.name)
+for source in sorted(candidate.rglob('*')):
+    stat = source.lstat()
+    row = {'relative_path': str(source.relative_to(candidate)), 'device': stat.st_dev, 'inode': stat.st_ino, 'mode': stat.st_mode, 'size': stat.st_size, 'allocated_bytes': stat.st_blocks * 512, 'hardlink_count': stat.st_nlink}
+    if source.is_symlink():
+        row['kind'] = 'symlink_not_followed'
+        row['target'] = os.readlink(source)
+    elif source.is_file():
+        row['kind'] = 'native_tmp_path_generated_fixture_or_source_overlay'
+        row.update({k: value for k, value in identity(source).items() if k != 'path'})
+    elif source.is_dir():
+        row['kind'] = 'directory'
+    else:
+        raise ValueError('Special file requires preservation decision before deletion: ' + str(source))
+    inventory.append(row)
+scan = proc_scan()
+admission = {'schema': 'policyos.e02.closed_test_fixture_cleanup_admission.v1', 'authorization': 'Explicit root cloud cleanup of terminal CI02 exact native --basetemp. Complete fixture bytes are retained on /tmp before only original basetemp is removed; no deciding or unique diagnostic bytes are discarded.', 'candidate': str(candidate), 'source_refs': source_refs, 'native_receipt': saved[0], 'native_full_command_environment_input_refs': receipt, 'independently_recomputed_counts': counts, 'saved_three_closed_deciding_outputs': saved, 'top_level_fixture_classes': top_classes, 'complete_hash_inode_inventory': inventory, 'process_scan': scan, 'filesystem_before': filesystem(), 'preserved': ['CI02 folder, native JSON/JUnit/stdout', 'pytest-cache/benchmarks/environment-tmp', 'ROOT/DoE .venv', 'Git/code/docs/production/userinputs', 'complete retained fixture archive'], 'classification': 'Exact fresh native pytest --basetemp with test_* tmp_path fixtures and generated synthetic CAS/source overlays; all members additionally archived so any unique diagnostics/inputs remain byte-exact.'}
+write(OUTPUT / 'cleanup-admission.json', admission)
+if scan['active_users'] or scan['unreadable_agent_processes']:
+    raise ValueError('Active or unknown agent process blocks cleanup')
+archive = OUTPUT / 'closed-ci02-pytest-base.tar.gz'
+with tarfile.open(archive, 'x:gz', compresslevel=1, dereference=False) as handle:
+    handle.add(candidate, arcname='pytest-base', recursive=True)
+expected_members = {'pytest-base/' + row['relative_path']: row for row in inventory}
+verified = []
+with tarfile.open(archive, 'r:gz') as handle:
+    actual = {member.name: member for member in handle.getmembers() if member.name != 'pytest-base'}
+    if actual.keys() != expected_members.keys():
+        raise ValueError('Complete retained archive member denominator mismatch')
+    for name, row in expected_members.items():
+        member = actual[name]
+        if row['kind'] == 'symlink_not_followed':
+            if not member.issym() or member.linkname != row['target']:
+                raise ValueError('Archived symlink target mismatch')
+        elif row['kind'] == 'directory':
+            if not member.isdir():
+                raise ValueError('Archived directory mismatch')
+        else:
+            data_handle = handle.extractfile(member)
+            if data_handle is None:
+                raise ValueError('Archived fixture data missing')
+            digest = hashlib.sha256()
+            size = 0
+            while data := data_handle.read(1024 * 1024):
+                digest.update(data)
+                size += len(data)
+            if size != row['bytes'] or digest.hexdigest() != row['sha256']:
+                raise ValueError('Archived fixture content mismatch')
+        verified.append(name)
+immediate = proc_scan()
+write(OUTPUT / 'immediate-process-proof.json', immediate)
+if immediate['active_users'] or immediate['unreadable_agent_processes']:
+    raise ValueError('Immediate active or unknown agent process blocks deletion')
+for row in inventory:
+    path = candidate / row['relative_path']
+    stat = path.lstat()
+    if (stat.st_dev, stat.st_ino, stat.st_mode, stat.st_size) != (row['device'], row['inode'], row['mode'], row['size']):
+        raise ValueError('Basetemp changed during preservation: ' + str(path))
+before = filesystem()
+started = time.time()
+shutil.rmtree(candidate)
+after = filesystem()
+for row in saved:
+    if identity(Path(row['path']))['sha256'] != row['sha256'] or identity(Path(row['saved_path']))['sha256'] != row['sha256']:
+        raise ValueError('Closed deciding output changed externally')
+if subprocess.check_output(['git', '-C', str(ROOT), 'status', '--porcelain', '--untracked-files=no'], text=True) != root_before:
+    raise ValueError('Root tracked status changed externally')
+result = {'schema': 'policyos.e02.closed_test_fixture_cleanup_result.v1', 'admission': identity(OUTPUT / 'cleanup-admission.json'), 'exact_original_removed': str(candidate), 'absent_after': not candidate.exists(), 'all_fixture_bytes_preserved_in_archive': identity(archive), 'verified_archive_member_count': len(verified), 'filesystem_before_deletion': before, 'filesystem_after': after, 'observed_free_delta_bytes': after['free_bytes'] - before['free_bytes'], 'observed_available_delta_bytes': after['available_bytes'] - before['available_bytes'], 'started_unix': started, 'ended_unix': time.time(), 'native_deciding_three_outputs_unchanged': True, 'other_CI02_children_preserved': True, 'root_tracked_status_unchanged': True, 'no_authority_or_finding_outcome_changed': True}
+write(OUTPUT / 'cleanup-result.json', result)
+print(json.dumps({'result': str(OUTPUT / 'cleanup-result.json'), 'removed_only': str(candidate), 'archive': result['all_fixture_bytes_preserved_in_archive'], 'verified_archive_member_count': len(verified), 'filesystem_after': after, 'observed_free_delta_bytes': result['observed_free_delta_bytes'], 'observed_available_delta_bytes': result['observed_available_delta_bytes']}, indent=2))

@@ -1,0 +1,12 @@
+{
+  "implementation_sha": "2f7e7e12516dd98678903c5b4a89553a28b08608",
+  "implementation_tree": "5e7aa365c72665bf2a6d5ab07fde86a72a85475f",
+  "merged_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "merged_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+  "git_blob": "20331fa1cd85acd046f2a36cc5c563662ed0b9eb",
+  "bytes": 38197,
+  "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc",
+  "bytes_equal_original_scratch_and_Git": true,
+  "independent_v4_review_reused_without_new_protocol_run": true
+}

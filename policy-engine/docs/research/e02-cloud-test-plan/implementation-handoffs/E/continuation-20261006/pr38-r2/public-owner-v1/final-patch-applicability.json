@@ -1,0 +1,121 @@
+{
+  "root_head": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+  "read_only_check_only": true,
+  "patches": [
+    {
+      "name": "core-option-a-existing-entrypoints.patch",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/core-option-a-existing-entrypoints.patch"
+      ],
+      "check_kind": "unratified-owner-patch-applicability",
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "8dc71c5130e7b19e93110bb0febda56f588b215787c5eee1ceb3c2e5990928a9",
+      "bytes": 395
+    },
+    {
+      "name": "core-option-b-nine-root-exports.patch",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/core-option-b-nine-root-exports.patch"
+      ],
+      "check_kind": "unratified-owner-patch-applicability",
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "64788279b94c0d1d255bdc99abd5b4dfff07601a7a9c64b89b5ce3770fc9facd",
+      "bytes": 2843
+    },
+    {
+      "name": "foundry-execute-three-canonical-snapshot-exports.patch",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/foundry-execute-three-canonical-snapshot-exports.patch"
+      ],
+      "check_kind": "unratified-owner-patch-applicability",
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "4b2cae862fa8cc17dad1aa2e828edc6a78d4f5701595e220a5fa168f6cc1479f",
+      "bytes": 1248
+    },
+    {
+      "name": "ir-option-b-three-root-exports.patch",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/ir-option-b-three-root-exports.patch"
+      ],
+      "check_kind": "unratified-owner-patch-applicability",
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "0a82f911de74801c7232f56f83de9b07e260ca12d8d6dbdbe19666339cd09293",
+      "bytes": 2120
+    },
+    {
+      "name": "ir-three-canonical-analytics-exports.patch",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/ir-three-canonical-analytics-exports.patch"
+      ],
+      "check_kind": "unratified-owner-patch-applicability",
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "4cdf289b7d52037e4add3dfa8fec93a673b99a626186956784b96e40df139544",
+      "bytes": 777
+    },
+    {
+      "name": "owned-generator-inventory.json.patch",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "--reverse",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/owned-generator-inventory.json.patch"
+      ],
+      "check_kind": "already-applied-companion-reverse-check",
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "cdbd536b9608f5a627a78763973603fa218b8f14f6d49f37bced6dad25f20f4d",
+      "bytes": 3759
+    },
+    {
+      "name": "owned-generator-public-surface.md.patch",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "--reverse",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/owned-generator-public-surface.md.patch"
+      ],
+      "check_kind": "already-applied-companion-reverse-check",
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "d1db40b15d2786ef14dbd3fe57be14dfcb912380d9923857fb66414faee3b574",
+      "bytes": 4391
+    },
+    {
+      "name": "owned-uncertainty-readme-count.patch",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "--reverse",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/patches/owned-uncertainty-readme-count.patch"
+      ],
+      "check_kind": "already-applied-companion-reverse-check",
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "5cd76644e33ebff42ac042466d1e232854176b899a51d8e0fcf15166a261bc90",
+      "bytes": 412
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.E.receipt_reference_correction.v1",
+  "scope": "Author metadata only; completed numeric/JUnit/stdout/stderr/input blobs unchanged.",
+  "reason": "First author metadata used a short decision ref; corrected current metadata expands it to exact full SHA. Original JSON names were overwritten before publication. Their exact bytes are recovered and matched to the already recorded original full SHA256, with distinct historical names; no historical execution is inferred by reconstruction.",
+  "historical_footprint": {
+    "path": "historical-source-footprint-short-ref.json",
+    "bytes": 7677,
+    "sha256": "af163be2c162621a0bb108df531e6c191184295277ac0dcf636c16130706187b"
+  },
+  "historical_author": {
+    "path": "historical-author-checks-short-ref.json",
+    "bytes": 10423,
+    "sha256": "145ce0069ba54623cf4be1adb06ddc8deba0f7e94e72a70eab81b861d6b3f439"
+  },
+  "old_stdout_ref": "assemble-author-receipt.stdout.txt",
+  "current_stdout_ref": "assemble-author-receipt-final.stdout.txt",
+  "current_metadata": [
+    "source-footprint.json",
+    "author-checks.json"
+  ],
+  "copy_rule": "Current publication records actual current hashes; original source_path\u2192historical portable_path retains the old bytes and old receipt hash. Subsequent receipts use exclusive filenames."
+}

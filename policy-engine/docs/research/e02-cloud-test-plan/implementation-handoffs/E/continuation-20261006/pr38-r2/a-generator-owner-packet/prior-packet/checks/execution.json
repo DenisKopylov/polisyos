@@ -1,0 +1,244 @@
+{
+  "environment": {
+    "interpreter": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cpu_count": 5,
+    "numerical_thread_overrides": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "JAX_PLATFORMS": null
+    },
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "SALib": "1.5.2",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10"
+    },
+    "worktree": "/workspace/e02-E-frc-20261006",
+    "source_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "source_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+    "file_sha256": {
+      "src/polisyos/calibration/__init__.py": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "src/polisyos/calibration/forecast_bridge.py": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "src/polisyos/scientist/methods/backtesting/forecast_owner.py": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "tests/unit/calibration/test_evidence_facades.py": "307a693cac46d30dac6d004b0d0d73cde07f1132b2f2f6477e42fba8ed19015e",
+      "tests/unit/remediation/test_frc_02_owner.py": "a8696d011c3d56f6b03117c7eb897a8d867ae5cec99a13c2cb262de5fe2676a1",
+      "tests/unit/scientist/methods/backtesting/test_forecast_owner.py": "0d0127d5784ea5a265fcf20fb7a0551bc773f748f84b1e01de6c27eeb09eaef1"
+    }
+  },
+  "checks": [
+    {
+      "name": "affected-native",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/frc/frozen/affected-native.junit.xml",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 0,
+      "wall_seconds": 48.803,
+      "stdout": "affected-native.stdout",
+      "stdout_sha256": "0caf379acbcb845c31b98bf4efeffb865a66d527d27d5bb4f34018bea0099078",
+      "stdout_bytes": 80,
+      "resource": "affected-native.resource.json",
+      "junit_counts": {
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "a-cas-contract",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/frc/frozen/a-cas-contract.junit.xml",
+        "/workspace/e02-E-pr38-r2-receipts/frc/test_a_cas_contract.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 0,
+      "wall_seconds": 73.159,
+      "stdout": "a-cas-contract.stdout",
+      "stdout_sha256": "152b0fdc6507bf0dd923c562f5804d383e58407af14ccd3fce5014442e34cf70",
+      "stdout_bytes": 109,
+      "resource": "a-cas-contract.resource.json",
+      "junit_counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "a-status-reason",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/frc/frozen/a-status-reason.junit.xml",
+        "/workspace/e02-E-pr38-r2-receipts/frc/test_a_status_reason.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 1,
+      "wall_seconds": 69.326,
+      "stdout": "a-status-reason.stdout",
+      "stdout_sha256": "121195630aedfb1770f6c4e61d92881282b91fe624d76624b3d7bf76f6ecb2f7",
+      "stdout_bytes": 6986,
+      "resource": "a-status-reason.resource.json",
+      "junit_counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "property-removal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-property-removal.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 1,
+      "wall_seconds": 43.629,
+      "stdout": "property-removal.stdout",
+      "stdout_sha256": "ff1e4735e35e04e2d1b14ff9c9fd627cfaca583a8714e490c745e6e50ae9efb2",
+      "stdout_bytes": 8765,
+      "resource": "property-removal.resource.json"
+    },
+    {
+      "name": "measurement-probe",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-probe.py.txt",
+        "--output-root",
+        "/workspace/e02-E-pr38-r2-receipts/frc/candidate-probe-cas"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 0,
+      "wall_seconds": 37.043,
+      "stdout": "measurement-probe.stdout",
+      "stdout_sha256": "e29b5d97b215ee4faa0cf779428a95fa0ba34d1eab9c695c70e4666bdb9676fe",
+      "stdout_bytes": 1571,
+      "resource": "measurement-probe.resource.json"
+    },
+    {
+      "name": "legacy-replay",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/legacy-replay-probe.py.txt",
+        "--cas",
+        "/workspace/e02-E-pr38-r2-receipts/frc/legacy-replay-cas"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 0,
+      "wall_seconds": 42.52,
+      "stdout": "legacy-replay.stdout",
+      "stdout_sha256": "943688ebd8dab32bf1e6fe4a95940f3267a09de02959afcd58e18654b4a91ce1",
+      "stdout_bytes": 318,
+      "resource": "legacy-replay.resource.json"
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/calibration/__init__.py",
+        "src/polisyos/calibration/forecast_bridge.py",
+        "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 0,
+      "wall_seconds": 0.828,
+      "stdout": "ruff.stdout",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stdout_bytes": 19,
+      "resource": "ruff.resource.json"
+    },
+    {
+      "name": "format",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/calibration/__init__.py",
+        "src/polisyos/calibration/forecast_bridge.py",
+        "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 0,
+      "wall_seconds": 0.822,
+      "stdout": "format.stdout",
+      "stdout_sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+      "stdout_bytes": 26,
+      "resource": "format.resource.json"
+    },
+    {
+      "name": "results-importer",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 0,
+      "wall_seconds": 2.184,
+      "stdout": "results-importer.stdout",
+      "stdout_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "stdout_bytes": 112,
+      "resource": "results-importer.resource.json"
+    },
+    {
+      "name": "a-patch-applicable",
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-E-frc-20261006",
+        "apply",
+        "--check",
+        "--verbose",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason.patch.txt"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "target_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "exit_code": 0,
+      "wall_seconds": 0.342,
+      "stdout": "a-patch-applicable.stdout",
+      "stdout_sha256": "605a0bda15d7d9a378ba156179f6b28df6132c4545ae3ccc6e2f87416a791d10",
+      "stdout_bytes": 81,
+      "resource": "a-patch-applicable.resource.json"
+    }
+  ]
+}

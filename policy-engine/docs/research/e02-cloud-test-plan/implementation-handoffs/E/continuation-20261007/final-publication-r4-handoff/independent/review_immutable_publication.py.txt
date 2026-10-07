@@ -1,0 +1,48 @@
+"""Independently pin the completed docs-only publication to literal staged bytes."""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+STAGE = Path('/tmp/e02-E-final-publication-r4-staging')
+OUT = Path('/tmp/e02-E-publication-custody-independent-doe-20261007')
+BASE = 'a5021561c7630b8a1e721e34307d30550825b07d'
+CANDIDATE = 'bf0e8fe7ecf62b28893deb24fba4b6f7bbb9c4e7'
+TREE = '0fa674e2f0e03687502d21fb6470e5464cac106a'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4/'
+
+def require(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+def ref(path):
+    raw = path.read_bytes()
+    return {'path': str(path), 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+
+require(git('rev-parse', CANDIDATE + '^{tree}').decode().strip() == TREE, 'immutable candidate tree')
+require(git('rev-parse', CANDIDATE + '^').decode().strip() == BASE, 'ordinary append-only parent')
+manifest = json.loads((STAGE / 'staging-manifest.json').read_text())
+require(ref(STAGE / 'staging-manifest.json')['sha256'] == 'c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4', 'immutable selector/member plan')
+expected = {PREFIX + row['portable_path']: Path(row['staged_path']) for row in manifest['canonical_copies']}
+for name in ('staging-manifest.json', 'README.md', 'copy-proposed-publication.py.txt', 'build-staging.py.txt', 'build.stdout.json', 'build.stderr.txt', 'copy-proposed-publication-v1.py.txt'):
+    expected[PREFIX + name] = STAGE / name
+delta = git('diff', '--name-status', BASE, CANDIDATE, '--').decode().splitlines()
+require(len(delta) == 114 and all(line.startswith('A\t') for line in delta), 'exact 114 additive docs paths')
+require({line.split('\t')[1] for line in delta} == expected.keys(), 'complete native selected publication footprint')
+rows = []
+for name, path in expected.items():
+    require(not name.endswith('.py') and name.startswith(PREFIX), 'passive owned documentation only')
+    physical = path.read_bytes()
+    actual = git('show', CANDIDATE + ':' + name)
+    require(actual == physical, 'immutable Git/current literal staged bytes: ' + name)
+    rows.append({'path': name, 'git_blob': git('rev-parse', CANDIDATE + ':' + name).decode().strip(), 'bytes': len(actual), 'sha256': hashlib.sha256(actual).hexdigest(), 'literal_source': str(path)})
+report = {'schema': 'policyos.e02.independent_immutable_publication_custody.v1', 'verdict': 'GO bounded docs-only custody', 'base_SHA': BASE, 'candidate_SHA': CANDIDATE, 'candidate_tree': TREE, 'complete_changed_paths': rows, 'path_count': len(rows), 'total_bytes': sum(row['bytes'] for row in rows), 'literal_source_manifest': ref(STAGE / 'staging-manifest.json'), 'source_copier_v2': ref(STAGE / 'copy-proposed-publication.py.txt'), 'independent_selector_member_and_actual_cli_property_review': ref(OUT / 'independent-actual-copier-v2-review.json'), 'independent_literal_originals_aliases_normal': ref(OUT / 'independent-staging-custody-normal.json'), 'independent_literal_originals_aliases_optimized': ref(OUT / 'independent-staging-custody-optimized.json'), 'source_changes': [], 'active_python_changes': [], 'scope': 'No new numerical/gate/scientific authority or finding closure. Root did not change; this verifies exact same previously reviewed literal subset after ordinary Git commit. Own prior DoE/cleanup semantics excluded.'}
+path = OUT / 'independent-immutable-publication-bf0e8fe7.json'
+with path.open('x') as handle:
+    handle.write(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'report': ref(path), 'candidate': CANDIDATE, 'tree': TREE, 'paths': len(rows), 'total_bytes': report['total_bytes'], 'verdict': report['verdict']}, indent=2))

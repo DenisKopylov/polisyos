@@ -1,0 +1,53 @@
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/PR-description/independent/one-owner-denominator-correction.patch.txt:6: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/PR-description/independent/one-owner-denominator-correction.patch.txt:9: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/PR-description/independent/one-owner-denominator-correction.patch.txt:11: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/PR-description/independent/one-owner-denominator-correction.patch.txt:11: new blank line at EOF.
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:11: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:26: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:48: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:82: trailing whitespace.
++E         
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt:116: trailing whitespace.
++E         
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml:3: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml:18: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml:40: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml:71: trailing whitespace.
++E         
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml:102: trailing whitespace.
++E         
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/source-copies/saved-deciding/architecture-full-retry.stdout.txt:118: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/source-copies/saved-deciding/architecture-full-retry.stdout.txt:125: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/source-copies/saved-deciding/architecture-full-retry.stdout.txt:129: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/source-copies/saved-deciding/architecture-full-retry.stdout.txt:132: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/source-copies/saved-deciding/architecture-full-retry.stdout.txt:175: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/source-copies/saved-deciding/architecture-full-retry.stdout.txt:177: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/cleanup/source-copies/saved-deciding/architecture-full-retry.stdout.txt:180: trailing whitespace.
++ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/prior-postpublication/author-postpublication/handoff-commit.stderr.txt:8: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/prior-postpublication/author-postpublication/handoff-commit.stderr.txt:10: trailing whitespace.
++summary: (done in 0.37 seconds)       
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/prior-postpublication/author-postpublication/predicate-basis-commit.stderr.txt:8: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/prior-postpublication/author-postpublication/predicate-basis-commit.stderr.txt:10: trailing whitespace.
++summary: (done in 0.37 seconds)       
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/prior-postpublication/author-postpublication/push.stdout.txt:5: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/prior-postpublication/author-postpublication/push.stdout.txt:7: trailing whitespace.
++summary: (done in 2.08 seconds)       

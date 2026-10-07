@@ -1,0 +1,95 @@
+{
+  "schema": "e02.E.complete-portable-review.v1",
+  "source_sha": "94d3e6ee67b70a5ef4f71e529275aa7db0fddcde",
+  "source_tree": "2220bc48d1ccfd62310de0737c3be939c06d2d2f",
+  "primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/independent-assembly-review-94d3.json",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/README.md",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/README.md",
+      "bytes": 4283,
+      "sha256": "7d4ea4bb286488a1523cf5e629d05a5627178f608511fa249c158f195b2c7326"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/full-footprint-5e-to-94d3.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/full-footprint-5e-to-94d3.json",
+      "bytes": 241154,
+      "sha256": "1c179775307725a7371b230f907b87e697a16da496e40c56369aa210ad1f52cb"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/independent-assembly-review-94d3.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/independent-assembly-review-94d3.json",
+      "bytes": 13248,
+      "sha256": "bc87f3d175bee92a534cd700c6f0b4b9578ad9a474e67b8e37073f6b1d494aa0"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/negative-controls-94d3.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/negative-controls-94d3.json",
+      "bytes": 1729,
+      "sha256": "1536729314bb050a74a9b3eb6aa7661d659152febf1625a7023cb50e4adbcab1"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/portable-Git-copies-94d3.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/portable-Git-copies-94d3.json",
+      "bytes": 7825,
+      "sha256": "fd7c4c81d82cdbd4b05fc6febec51c59d094996a44c184d50aa7fc273ca69daf"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/prepared-plan-94d3.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/prepared-plan-94d3.json",
+      "bytes": 180623,
+      "sha256": "41516be068ac5e1be59e12b3757823cdce1a2b9eb24d545bc73aed6816fb6ef0"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review.stderr.txt.initial.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/review.stderr.txt.initial.txt",
+      "bytes": 234,
+      "sha256": "c063cf109209c2ad4a960f1326a935354a760ebd0a6ea98032931aca0ddba380"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/review.stdout.txt",
+      "bytes": 385,
+      "sha256": "2e88aa7c92d60e9fc152fbb8ff196439816271c90cd8b3b0b925118ac4ad459d"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review.stdout.txt.initial.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/review.stdout.txt.initial.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/review_assembly.py",
+      "bytes": 25097,
+      "sha256": "65b73e55b2cd6601b77f0b287a2da3209a8f9f05aacdeed808dccbd764ccd971"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py.initial.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/review_assembly.py.initial.txt",
+      "bytes": 23931,
+      "sha256": "31f018bca20551f5bbaf62fad2797935d955311a4b41dc6bdea1b2d8da648474"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/source-review-joins-94d3.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/source-review-joins-94d3.json",
+      "bytes": 49311,
+      "sha256": "5ec799e7bd1dd14b9ae3e771034fe2801169567c53ed766d0da31a6dec7bfddd"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/copy-index.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/final-assembly-delta-94d3/copy-index.json",
+      "bytes": 2606,
+      "sha256": "7e9c1e7079c62a2cb35f5db147abe994791ee688b6559dec8c5368fcb899ea2d"
+    }
+  ],
+  "complete": true,
+  "copies": 14,
+  "scope": "Independent source/dependency assembly GO only; plan notexecuted and actualnewwavecasecounts unknown"
+}

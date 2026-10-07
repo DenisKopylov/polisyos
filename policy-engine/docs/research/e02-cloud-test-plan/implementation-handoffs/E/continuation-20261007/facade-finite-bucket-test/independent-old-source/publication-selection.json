@@ -1,0 +1,50 @@
+{
+  "schema": "e02-moderate-publication-selection:1",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/review.json",
+      "path": "review.json",
+      "sha256": "c0200a604c643d69c1fac2b043864d7570621e310a4887d9ceec40f324f2d2f0",
+      "bytes": 10724
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/probe.py.txt",
+      "path": "probe.py.txt",
+      "sha256": "b9c6949c549a7401da32457f4b205893cda829f4422d41cb117b7b8ac74ee8e7",
+      "bytes": 11374
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/removed-function.py.txt",
+      "path": "removed-function.py.txt",
+      "sha256": "bc8a118ac76d2d4df0d1e9a2c4516a334122da6a26214665013707733559f52f",
+      "bytes": 734
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/commands.json",
+      "path": "commands.json",
+      "sha256": "ab18ab47aee717eb66c89332a9761150e07a350a095102813de05433661058cc",
+      "bytes": 644
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/stdout.txt",
+      "path": "stdout.txt",
+      "sha256": "abef9ad736bdffc890ad196cc770c4657e4d1b0258c4e724a3b6696b3f7a8d19",
+      "bytes": 3064
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/stderr.txt",
+      "path": "stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "asset_count": 6,
+  "asset_bytes": 26540,
+  "limits": [
+    "Original current317 facade expectation FAIL is preserved.",
+    "Source correction itself pending independent immutable candidate review.",
+    "Control PASS does not decide any original finding."
+  ]
+}

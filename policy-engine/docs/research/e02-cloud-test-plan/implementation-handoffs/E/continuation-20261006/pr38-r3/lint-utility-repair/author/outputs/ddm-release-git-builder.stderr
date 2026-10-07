@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/lint-r4/ddm-release-git-builder/prepare_companion.py", line 304, in <module>
+    main()
+    ~~~~^^
+  File "/workspace/e02-E-pr38-r3-receipts/lint-r4/ddm-release-git-builder/prepare_companion.py", line 148, in main
+    raise AssertionError
+AssertionError

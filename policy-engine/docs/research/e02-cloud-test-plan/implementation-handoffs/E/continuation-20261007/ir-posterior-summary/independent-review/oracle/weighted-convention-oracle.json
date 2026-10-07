@@ -1,0 +1,44 @@
+{
+  "base_sha": "c4b2ccfb1f8716680f0b431ab4c5757dcc75343f",
+  "input_values": [
+    0,
+    999,
+    2
+  ],
+  "input_weights": [
+    1,
+    0,
+    3
+  ],
+  "independent_fraction_oracle": {
+    "mean": "3/2",
+    "variance": "3/4",
+    "median": "2",
+    "q05": "0",
+    "q95": "2",
+    "zero_mass_probability": "0"
+  },
+  "legacy_generic_weighted_quantiles_q05_median_q95": [
+    0.0,
+    0.6666666666666666,
+    1.8666666666666665
+  ],
+  "legacy_helper_is_not_approved_new_profile_convention": true,
+  "actual_fresh_CAS_ref": {
+    "artifact_id": "sha256:531d758db60f3db12780427f48166fa027ce7a457da6580cb7af677c70cdb773",
+    "kind": "ir.uncertainty_envelope",
+    "media_type": "application/json"
+  },
+  "native_callback_count": 257,
+  "native_sample_support_counts": {
+    "0.0": 64,
+    "2.0": 192
+  },
+  "native_output_mean": 1.5,
+  "native_output_variance": 0.75,
+  "gate_eligible": false,
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/weighted-cas-89ioc_4c"
+  ],
+  "scope": "Existing law/sampler adequacy and independent functional convention; this fixture is not an admitted new posterior profile."
+}

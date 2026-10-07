@@ -1,0 +1,57 @@
+{
+  "schema": "policyos.e02.moderate-copy-index.v1",
+  "state": "READY",
+  "scope": "Immutable independent Gcheckpoint11 test/evidence delta review; no new wheel/product/gates or finding closure",
+  "primary": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/review.json",
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/review_delta.py.txt",
+      "bytes": 15759,
+      "sha256": "ea6d0be64d42753b0decbb789b71eb477d212044431312c5d130107ad89696a7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/review.json",
+      "bytes": 7688,
+      "sha256": "e4a2cd9cc5b4ce63d45f7ce346c960734321b38ba4cc27383f9b151f5830ff44"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/review.stdout",
+      "bytes": 1120,
+      "sha256": "c19866720ebd53ab4c4ad2bde6e2bedc12d3523cec7cb5472dbe5bf73bf7e612"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/full-68-footprint.json",
+      "bytes": 20597,
+      "sha256": "9c2d6d3d448f8aded2d5885692442d2292c8d233d541003be2d209c5c211b7fb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/collector-source-Git-binding.json",
+      "bytes": 677,
+      "sha256": "586172e8dc8c418c32c7f8e542c68fff3ec4810f965a034ec83e73420fba8bbc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/initial-short-ref.stdout",
+      "bytes": 5,
+      "sha256": "7c5df05ad16ddca19fe76b11bc9cd686b1d338d688c70e6b788c6b94d83c8670"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/initial-short-ref.stderr",
+      "bytes": 407,
+      "sha256": "4c8d802e5785c1fb046a9c6b0e12af7c844183ff2df7876227d4aec390920f8a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/freeze_index.py.txt",
+      "bytes": 2212,
+      "sha256": "03b656dfe2cc096b0cc2ceb192fb885be4cb0323435871506f9f623481f08ec6"
+    }
+  ],
+  "file_count": 9,
+  "total_bytes": 48465,
+  "index_self_excluded": true,
+  "large_raw_wheel_census_or_production_payload_included": false
+}

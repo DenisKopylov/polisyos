@@ -1,0 +1,10 @@
+{
+  "paths": 207,
+  "bytes": 4091642,
+  "literal_carriers": 196,
+  "core_metadata": 9,
+  "additional_passive_corrections": 2,
+  "all_json_parse": true,
+  "active_python": 0,
+  "source_native_numeric_gate_execution": false
+}

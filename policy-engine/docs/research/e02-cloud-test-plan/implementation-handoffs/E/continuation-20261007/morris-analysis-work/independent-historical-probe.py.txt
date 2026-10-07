@@ -1,0 +1,129 @@
+"""Read immutable historical DOE blobs and exercise actual SALib analysis."""
+from __future__ import annotations
+import hashlib
+import importlib
+import importlib.metadata
+import json
+import math
+import os
+from pathlib import Path
+import platform
+import resource
+import subprocess
+import sys
+import time
+import types
+import warnings
+from fractions import Fraction
+from unittest.mock import patch
+
+REPO = Path('/workspace/e02-E-continuation-20261006')
+DEST = Path('/workspace/e02-E-pr38-r3-receipts/oracle-r4')
+SOURCE_PREFIX = 'policy-engine/src/polisyos/scientist/methods/doe/'
+REFS = ['70c4a14fc872f5ef66437d958ba63884ecdda168', 'a9f78817c873be5b35a08155f2593b229d9fdbb6']
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(['git', '-C', str(REPO), *args])
+
+def finite(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        return {'nonfinite': 'NaN' if math.isnan(value) else str(value)}
+    if isinstance(value, dict):
+        return {key: finite(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [finite(item) for item in value]
+    return value
+
+started = time.monotonic()
+import numpy as np
+from SALib.analyze import morris as salib_morris
+assert importlib.metadata.version('SALib') == '1.5.2'
+rows = [Fraction(0), Fraction(2, 3), Fraction(1, 3), Fraction(1)]
+independent_effects = [
+    (2 * rows[1] - 2 * rows[0]) / (rows[1] - rows[0]),
+    (2 * rows[3] - 2 * rows[2]) / (rows[3] - rows[2]),
+]
+assert independent_effects == [2, 2]
+report = {
+    'schema': 'policyos.e02.independent_oracle.v1',
+    'source_kind': 'immutable_git_blob_package',
+    'property': 'actual Morris analysis work must not exceed the admitted plan rows',
+    'criterion_separation': 'actual analyzer-input admission, distinct from B99 sampler generation',
+    'inputs': {'seed': 23, 'n_trajectories': 1, 'max_estimated_runs': 2,
+               'x': [str(v) for v in rows], 'response': 'y=2*x'},
+    'independent_oracle': {
+        'method': 'exact Fraction slopes from separately declared linear response',
+        'elementary_effects': [str(v) for v in independent_effects],
+        'mu_star': '2', 'two_trajectory_sigma': '0',
+        'one_trajectory_sigma': 'undefined ddof=1; NaN expected',
+        'scope': 'point/admission only; no inference or population authority'},
+    'environment': {
+        'python': sys.version, 'executable': sys.executable,
+        'platform': platform.platform(),
+        'packages': {name: importlib.metadata.version(name) for name in ['NumPy', 'SciPy', 'SALib', 'pydantic']},
+        'thread_environment_observed_only': {key: os.environ.get(key) for key in ['OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'NUMEXPR_NUM_THREADS']},
+        'salib_analyzer_path': str(Path(salib_morris.__file__).resolve()),
+    },
+    'sources': []
+}
+for ref in REFS:
+    package_dir = DEST / ('historical_' + ref[:8]) / 'doe'
+    package_dir.mkdir(parents=True, exist_ok=True)
+    for path in git('ls-tree', '-r', '--name-only', ref, SOURCE_PREFIX).decode().splitlines():
+        if not path.endswith('.py'):
+            continue
+        relative = path.removeprefix(SOURCE_PREFIX)
+        target = package_dir / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(git('show', f'{ref}:{path}'))
+    package_name = 'oracle_doe_' + ref[:8]
+    package = types.ModuleType(package_name)
+    package.__path__ = [str(package_dir)]
+    sys.modules[package_name] = package
+    analysis = importlib.import_module(package_name + '.analysis')
+    designs = importlib.import_module(package_name + '.designs')
+    plan = designs.SensitivityPlan(parameters=['x'], n_trajectories=1, max_estimated_runs=2, seed=23)
+    source_record = {'sha': ref, 'tree': git('rev-parse', f'{ref}^{{tree}}').decode().strip(), 'cases': []}
+    for case_name, length in [('two_row_control', 2), ('four_row_excess', 4)]:
+        samples = np.asarray([[float(v)] for v in rows[:length]], dtype=np.float64)
+        outputs = 2 * samples[:, 0]
+        calls = []
+        actual_analyzer = salib_morris.analyze
+        def recording_analyzer(*args, **kwargs):
+            calls.append({'actual_rows': int(args[1].shape[0]), 'actual_output_rows': int(args[2].shape[0]), 'kwargs': kwargs})
+            return actual_analyzer(*args, **kwargs)
+        with warnings.catch_warnings(record=True) as caught, patch.object(salib_morris, 'analyze', recording_analyzer):
+            warnings.simplefilter('always')
+            result = analysis.analyze_sensitivity(plan, samples, outputs)
+        expected_mu = float(Fraction(2))
+        assert result.mu_star['x'] == expected_mu
+        assert result.total_runs == length
+        assert len(calls) == 1
+        if length == 2:
+            assert math.isnan(result.sigma['x'])
+        else:
+            assert abs(result.sigma['x']) < 1e-14
+        source_record['cases'].append({
+            'case': case_name, 'check_outcome': 'PASS' if length == 2 else 'FAIL',
+            'actual_decision': 'accepted', 'expected_decision': 'accepted' if length == 2 else 'refused_before_SALib',
+            'declared_estimated_rows': plan.estimated_runs,
+            'actual_rows': length, 'actual_trajectories': length // 2,
+            'salib_call_count': len(calls), 'salib_calls': calls,
+            'result': finite(result.model_dump(mode='python')),
+            'warnings': [str(w.message) for w in caught],
+        })
+    source_record['loaded_package_modules'] = []
+    for name, module in sorted(sys.modules.items()):
+        if not name.startswith(package_name + '.') or not getattr(module, '__file__', None):
+            continue
+        module_path = Path(module.__file__)
+        relative = module_path.relative_to(package_dir).as_posix()
+        git_path = SOURCE_PREFIX + relative
+        data = module_path.read_bytes()
+        assert data == git('show', f'{ref}:{git_path}')
+        source_record['loaded_package_modules'].append({'module': name, 'path': git_path, 'git_blob': git('rev-parse', f'{ref}:{git_path}').decode().strip(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+    report['sources'].append(source_record)
+report['elapsed_seconds'] = time.monotonic() - started
+report['peak_rss_bytes'] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+(DEST / 'morris-historical-results.json').write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
+print(json.dumps({'completed': True, 'sources': [{'sha': r['sha'], 'cases': [{'case': c['case'], 'actual_decision': c['actual_decision'], 'check_outcome': c['check_outcome'], 'mu_star': c['result']['mu_star'], 'sigma': c['result']['sigma'], 'salib_calls': c['salib_call_count']} for c in r['cases']]} for r in report['sources']], 'elapsed_seconds': report['elapsed_seconds'], 'peak_rss_bytes': report['peak_rss_bytes']}, indent=2))

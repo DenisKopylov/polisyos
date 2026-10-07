@@ -1,0 +1,6 @@
+{"control": "validshape_false_budget_marker", "refusal": null, "oracle": 0.2}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm_probe.py", line 79, in <module>
+    assert refusal is not None and "budget_used_mismatch" in refusal,refusal
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None

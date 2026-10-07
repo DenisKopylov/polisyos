@@ -1,0 +1,145 @@
+"""Build a read-only source custody staging proposal; no repository writes."""
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+
+STAGE = Path('/tmp/e02-E-final-publication-r4-staging')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4'
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+LEAF = Path('/workspace/e02-E-frc-20261006')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SELECTIONS = [
+    ('postfreeze', Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/publicationselection-postfreeze.json')),
+    ('runtime-retry', Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/retry-publication-selection-v1.json')),
+    ('closed-lint', Path('/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/publication-selection.json')),
+    ('criteria-review', Path('/tmp/e02-E-criteria-decision-independent-64d/publication-selection.json')),
+    ('capacity-cleanup', Path('/tmp/e02-E-capacity-cleanup-20261007-doe/publication-selection.json')),
+]
+
+def require(ok, text):
+    if not ok:
+        raise ValueError(text)
+
+def git(repo, *argv):
+    return subprocess.check_output(['git', '-C', str(repo), *argv], text=True).strip()
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def stream_ref(row):
+    path = Path(row.get('source_path', row.get('path')))
+    value = dict(row)
+    value['source_path'] = str(path)
+    if not path.is_file():
+        value['actual_custody'] = 'MISSING (excluded original reference, not selected payload)'
+        return value
+    hasher = hashlib.sha256()
+    with path.open('rb') as source:
+        for block in iter(lambda: source.read(1024 * 1024), b''):
+            hasher.update(block)
+    value['actual_bytes'] = path.stat().st_size
+    value['actual_sha256'] = hasher.hexdigest()
+    value['actual_custody'] = 'PASS' if value['actual_bytes'] == row['bytes'] and value['actual_sha256'] == row['sha256'] else 'FAIL'
+    return value
+
+require(git(LEAF, 'rev-parse', 'HEAD') == 'a5021561c7630b8a1e721e34307d30550825b07d', 'leaf changed')
+require(git(ROOT, 'rev-parse', 'HEAD') == SOURCE, 'root source changed')
+require(git(ROOT, 'rev-parse', 'HEAD^{tree}') == TREE, 'root tree changed')
+root_tracked_before = subprocess.check_output(['git', '-C', str(ROOT), 'status', '--porcelain=v1', '--untracked-files=no'], text=True)
+require(not root_tracked_before, 'root tracked work changed')
+records = []
+selection_records = []
+exclusions = []
+source_destination = {}
+canonical_by_content = {}
+canonical = []
+
+
+def admit(family, source, relative, row, role):
+    require(source.is_file(), 'missing selected original: ' + str(source))
+    data = source.read_bytes()
+    actual = (len(data), digest(data))
+    require(actual == (row['bytes'], row['sha256']), 'selected original mismatch: ' + str(source))
+    relative = Path(relative)
+    require(not relative.is_absolute() and '..' not in relative.parts, 'invalid portable path')
+    if relative.name.endswith('.py'):
+        relative = relative.with_name(relative.name + '.txt')
+    proposed = Path(family) / relative
+    require(not str(proposed).endswith('.py'), 'active Python proposal')
+    old = source_destination.get(proposed.as_posix())
+    require(old is None or old == actual, 'destination collision: ' + str(proposed))
+    source_destination[proposed.as_posix()] = actual
+    key = (actual[0], actual[1])
+    if key in canonical_by_content:
+        carrier = canonical_by_content[key]
+        require((STAGE / 'payload' / carrier['portable_path']).read_bytes() == data, 'digest collision')
+        alias = True
+    else:
+        target = STAGE / 'payload' / proposed
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+        carrier = {'portable_path': proposed.as_posix(), 'bytes': actual[0], 'sha256': actual[1], 'staged_path': str(target)}
+        canonical_by_content[key] = carrier
+        canonical.append(carrier)
+        alias = False
+    record = {'family': family, 'source_path': str(source), 'source_bytes': actual[0], 'source_sha256': actual[1], 'logical_destination': proposed.as_posix(), 'canonical_destination': carrier['portable_path'], 'proposed_git_path': PREFIX + '/' + carrier['portable_path'], 'literal_alias': alias, 'role': role}
+    records.append(record)
+
+for family, selection in SELECTIONS:
+    selected = json.loads(selection.read_text())
+    if family == 'postfreeze':
+        rows = [selected['deciding_final']] + selected['current_complete_deciding'] + [value['portable_source'] for value in selected['literal_archived_observers']]
+        for value in selected['literal_archived_observers']:
+            require(Path(value['executed_source_path']).read_bytes() == Path(value['portable_source']['path']).read_bytes(), 'observer archive differs from executed source')
+        exclusions.append({'family': family, 'historical_optional_not_copied': selected['historical_optional_do_not_rewrite'], 'large_ignored_refs': [stream_ref(value) for value in selected['large_ignored_refs']], 'root_owned_existing_carrier_do_not_duplicate': selected['root_owned_do_not_duplicate']})
+    elif family == 'runtime-retry':
+        rows = selected['files']
+        exclusions.append({'family': family, 'large_generated_raw': selected['large_generated_raw'], 'large_raw_publication': selected['large_raw_publication'], 'no_stale_json_substitution': not selected['stale_old_json_presented_as_current']})
+    elif family == 'criteria-review':
+        rows = selected['rows']
+    else:
+        rows = selected['assets']
+    for row in rows:
+        source = Path(row.get('source_path', row.get('path')))
+        if row.get('portable_path'):
+            relative = row['portable_path']
+        else:
+            try:
+                relative = source.relative_to(selection.parent).as_posix()
+            except ValueError:
+                relative = 'actual-execution/' + '/'.join(source.parts[-3:])
+        admit(family, source, relative, row, 'exact original selected by owner; literal read-only custody, no semantic review')
+    selection_data = selection.read_bytes()
+    selector_row = {'bytes': len(selection_data), 'sha256': digest(selection_data)}
+    admit('selectors', selection, family + '-publication-selection.json', selector_row, 'literal original selector; copied separately from its selected asset count')
+    selection_records.append({'family': family, 'selection_source_path': str(selection), **selector_row, 'selected_count': len(rows), 'selected_bytes': sum(value['bytes'] for value in rows), 'schema': selected.get('schema'), 'declared_aliases': {key: value for key, value in selected.items() if key in ('aliased_optimized_full_review', 'prior_preview_same_bytes', 'logical_asset_count', 'unique_asset_count', 'dedupe')}})
+
+existing_wave_prefix = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d'
+existing_wave_index = json.loads(subprocess.check_output(['git', '-C', str(LEAF), 'show', 'a5021561c7630b8a1e721e34307d30550825b07d:' + existing_wave_prefix + '/copy-index.json']))
+existing_wave_by_source = {value['source_path']: value for value in existing_wave_index['copies']}
+reused = []
+for group in exclusions:
+    for ref in group.get('root_owned_existing_carrier_do_not_duplicate', []):
+        old = existing_wave_by_source.get(ref['path'])
+        require(old is not None and old['bytes'] == ref['bytes'] and old['sha256'] == ref['sha256'], 'existing published observation ref not found')
+        git_path = existing_wave_prefix + '/' + old['portable_path']
+        literal = subprocess.check_output(['git', '-C', str(LEAF), 'show', 'a5021561c7630b8a1e721e34307d30550825b07d:' + git_path])
+        require(len(literal) == ref['bytes'] and digest(literal) == ref['sha256'], 'existing published bytes differ')
+        reused.append({'source_path': ref['path'], 'immutable_git_sha': 'a5021561c7630b8a1e721e34307d30550825b07d', 'immutable_git_path': git_path, 'bytes': ref['bytes'], 'sha256': ref['sha256'], 'recomputed_custody': 'PASS'})
+runtime_closeout = json.loads(Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/runtime-retry-closeout-v1.json').read_text())
+historical_custody_loss = runtime_closeout['historical_custody_loss']
+require(historical_custody_loss['old_json_available'] is False, 'old preflight loss was hidden')
+require(historical_custody_loss['old_sha256'] == 'ee0b4b84f7518aa87f476865a06a2e36a34c7eb3ceb6785153dd89d57ff734b1', 'old preflight hash changed')
+for key in ('fixed_publication_recovery_search', 'literal_observer', 'old_stdout'):
+    evidence = historical_custody_loss[key]
+    require(any(value['source_path'] == evidence['path'] and value['source_bytes'] == evidence['bytes'] and value['source_sha256'] == evidence['sha256'] for value in records), 'missing historical preflight companion: ' + key)
+doe_sha = git(LEAF, 'rev-parse', '--verify', '7537^{commit}')
+doe_tree = git(LEAF, 'rev-parse', doe_sha + '^{tree}')
+
+root_tracked_after = subprocess.check_output(['git', '-C', str(ROOT), 'status', '--porcelain=v1', '--untracked-files=no'], text=True)
+require(root_tracked_after == root_tracked_before and git(ROOT, 'rev-parse', 'HEAD') == SOURCE, 'root source changed during staging')
+manifest = {'schema': 'policyos.e02.root_final_publication_staging.v1', 'verification_source': SOURCE, 'verification_tree': TREE, 'source_and_tree_verified_read_only': True, 'root_tracked_status_before': root_tracked_before, 'root_tracked_status_after': root_tracked_after, 'leaf_sha': git(LEAF, 'rev-parse', 'HEAD'), 'leaf_tree': git(LEAF, 'rev-parse', 'HEAD^{tree}'), 'proposed_git_prefix': PREFIX + '/', 'root_or_leaf_files_written': False, 'active_python_additions': False, 'source_test_gate_numerical_execution': False, 'selection_inputs': selection_records, 'logical_count_including_selectors': len(records), 'logical_bytes_including_selectors': sum(value['source_bytes'] for value in records), 'unique_payload_files': len(canonical), 'unique_payload_bytes': sum(value['bytes'] for value in canonical), 'deduplicated_logical_aliases': sum(value['literal_alias'] for value in records), 'destination_collision_count': 0, 'content_collision_count': 0, 'logical_sources': records, 'canonical_copies': canonical, 'excluded_and_reused': exclusions, 'pending_not_collected': ['new frontend receipts', 'new backend receipts', 'final all-54 owner closeout'], 'existing_leaf_carriers_to_merge': [{'sha': 'a5021561c7630b8a1e721e34307d30550825b07d', 'tree': git(LEAF, 'rev-parse', 'a5021561c7630b8a1e721e34307d30550825b07d^{tree}'), 'scope': 'common-wave/cal/IR evidence; root merge pending'}, {'sha': doe_sha, 'tree': doe_tree, 'scope': 'DOE evidence; exact Git object resolved from supplied short reference; root merge pending'}], 'already_published_observation_reuse': reused, 'historical_preflight_custody_loss': historical_custody_loss, 'scope_limit': 'Custody and proposed publication only. Ready selectors are a bounded subset; this is not a complete final gate/owner handoff or new numerical/source PASS.', 'metadata_self_hash_excluded': True}
+(STAGE / 'staging-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+print(json.dumps({key: value for key, value in manifest.items() if key not in ('logical_sources', 'canonical_copies', 'selection_inputs', 'excluded_and_reused')}, indent=2))

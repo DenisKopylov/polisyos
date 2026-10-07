@@ -1,0 +1,490 @@
+"""Independent E02 numerical review; source modules are never edited."""
+from __future__ import annotations
+
+import copy
+import hashlib
+import importlib.metadata
+import json
+import math
+import os
+import platform
+import subprocess
+import sys
+import time
+import logging
+from pathlib import Path
+from unittest.mock import patch
+
+import jax
+import numpy as np
+from scipy.stats import beta, qmc
+
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.uncertainty import covariance, monte_carlo
+from polisyos.foundry.uncertainty.aggregator import aggregate_envelopes
+from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
+from polisyos.foundry.uncertainty.covariance import build_covariance_matrix
+from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
+from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
+from polisyos.foundry.uncertainty.sampling_admission import (
+    BoundedIIDMeanPlan, BoundedIndicatorResponse, frozen_bernstein_budget,
+    joint_carrier_digest, reconcile_draw_outcomes, verify_mean_certificate,
+)
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily, IntervalSemantics, PosteriorSamplesCarrier, PropagationMethod,
+    UncertaintyEnvelope, UncertaintySource, load_uncertainty_envelope,
+    persist_uncertainty_envelope,
+)
+
+ROOT = Path(os.environ.get('E02_REVIEW_SOURCE_ROOT', '/workspace/e02-E-mc-20261006'))
+OUT = Path(os.environ.get('E02_REVIEW_OUTPUT_ROOT', '/workspace/e02-E-20261006-receipts/mc-independent'))
+OUT.mkdir(parents=True, exist_ok=True)
+CASES = []
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args], text=True).strip()
+
+def record(name, action):
+    start = time.perf_counter()
+    try:
+        result = action()
+        row = {'case': name, 'outcome': 'PASS', 'result': result}
+    except Exception as exc:
+        row = {'case': name, 'outcome': 'FAIL', 'exception': type(exc).__name__, 'detail': str(exc)}
+    row['wall_seconds'] = time.perf_counter() - start
+    CASES.append(row)
+    print(json.dumps(row, sort_keys=True), flush=True)
+
+def uniform(low=0., high=1.):
+    return UncertaintyEnvelope(point_estimate=(low+high)/2, confidence_interval=(low, high),
+        confidence_level=None, distribution_family=DistributionFamily.UNIFORM,
+        source=UncertaintySource.ENSEMBLE, propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS, gate_eligible=True)
+
+def gaussian(std, row=None, order=None):
+    metadata = {'std':std}
+    if row is not None: metadata.update(covariance_row=row, covariance_params=order)
+    return UncertaintyEnvelope(point_estimate=0., confidence_interval=(-1.96*std,1.96*std),
+        confidence_level=.95, distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.CALIBRATION, propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL, gate_eligible=True,
+        metadata=metadata)
+
+def rejected(call):
+    try: call()
+    except (ValueError, TypeError): return True
+    raise AssertionError('present-but-fake claim accepted')
+
+def range_control(method):
+    calls=[]
+    env=gaussian(1e20,[1e40],['x'])
+    for producer_type in (MonteCarloPropagator, PropagationDispatcher, DeltaMethodPropagator):
+        with (
+            patch.object(MonteCarloPropagator,'_random_input_samples',side_effect=AssertionError('random callback ran')),
+            patch.object(MonteCarloPropagator,'_create_qmc_sampler_state_with_seed',side_effect=AssertionError('QMC callback ran')),
+        ):
+            result=producer_type(PropagationConfig(mc_sampling_method=method,compute_sensitivity=False)).propagate(
+                lambda **p:calls.append(p) or {'y':p['x']},{'x':0.},{'x':env},['y'])[0]
+        assert not result.envelope.gate_eligible
+        assert result.envelope.distribution_family is DistributionFamily.UNKNOWN
+    assert not calls
+    return {'method':method,'producer_count':3,'sampler_and_evaluator_callbacks':0}
+
+def actual_backend_underflow_boundary():
+    from polisyos.foundry.uncertainty.sampling_admission import admit_float32_range
+    rejected(lambda:admit_float32_range([[1e-40]]))
+    rejected(lambda:admit_float32_range([[1e-50]]))
+    tiny=float(np.finfo(np.float32).tiny)
+    admitted=admit_float32_range([[tiny]])
+    import jax.numpy as jnp
+    one=jnp.asarray([1.],dtype=jnp.float32)
+    actual=float(one@jnp.asarray(admitted,dtype=jnp.float32)@one)
+    assert actual==tiny
+    np_cast=float(np.asarray([[1e-40]],dtype=np.float32)[0,0])
+    flushed=float(one@jnp.asarray([[1e-40]],dtype=jnp.float32)@one)
+    assert np_cast>0 and flushed==0
+    zero=MonteCarloPropagator(PropagationConfig(mc_n_samples=128,compute_sensitivity=False)).propagate(
+        lambda **p:{'y':p['x']},{'x':0.},{'x':gaussian(0.,[0.],['x'])},['y'])[0]
+    assert set(zero.envelope.distribution_payload.samples)=={0.}
+    return {'finite_positive_input_boundary':tiny,'subnormal_cast_nonzero':np_cast,
+        'subnormal_JAX_quadratic_form':flushed,'normal_boundary_JAX_quadratic_form':actual,
+        'true_zero_covariance_samples':[0.]}
+
+def numeric_range_property_removal():
+    calls=[]
+    with (
+        patch.object(monte_carlo,'admit_sampling_support',return_value=None),
+        patch.object(covariance,'admit_float32_range',side_effect=lambda v:np.asarray(v)),
+        np.errstate(over='ignore',invalid='ignore'),
+    ):
+        r=MonteCarloPropagator(PropagationConfig(mc_n_samples=128,compute_sensitivity=False)).propagate(
+            lambda **p:calls.append(float(p['x'])) or {'y':0.}, {'x':0.},
+            {'x':gaussian(1e20,[1e40],['x'])},['y'])[0]
+    assert calls and any(not math.isfinite(v) for v in calls)
+    assert not r.envelope.gate_eligible
+    return {'evaluator_callbacks_including_nominal':len(calls),
+        'attempted_sampling_draws':128,
+        'nonfinite_callback_inputs':sum(not math.isfinite(v) for v in calls),
+        'markers_retained':'same typed law, covariance metadata, evaluator and nongating output',
+        'acceptance_discriminator':'pre-callback refusal becomes false after property removal'}
+
+def axis_and_backend_law():
+    order=['c','a','b']; names=['a','b','c']; expected=np.array([[1,.2,.3],[.2,4,.4],[.3,.4,9.]])
+    envs={n:gaussian(math.sqrt(expected[i,i]),expected[i,[2,0,1]].tolist(),order) for i,n in enumerate(names)}
+    matrix=np.asarray(build_covariance_matrix(names,envs,use_full_covariance=True,jitter=1e-9))
+    assert np.allclose(matrix,expected,rtol=1e-6,atol=1e-7)
+    tied={n:gaussian(.05,[.0025,.0025],['a','b']) for n in ['a','b']}
+    observed=[]
+    for full in (True,False):
+        for method in ('delta','analytical','monte_carlo'):
+            r=PropagationDispatcher(PropagationConfig(delta_use_full_covariance=full,preferred_method=method,
+                mc_n_samples=128,compute_sensitivity=False)).propagate(
+                lambda **p:{'y':p['a']-p['b']},{'a':0.,'b':0.},tied,['y'],weights={'a':1.,'b':-1.})[0]
+            assert r.envelope.confidence_interval==(0.,0.), (full,method,r.envelope.confidence_interval)
+            observed.append({'full_flag':full,'backend':method,'interval':r.envelope.confidence_interval})
+    return {'three_axis_matrix':matrix.tolist(),'tied_law':observed}
+
+def singular_and_independent(method):
+    tied={n:gaussian(.05,[.0025,.0025],['a','b']) for n in ['a','b']}
+    independent={'a':gaussian(.05,[.0025,0.],['a','b']), 'b':gaussian(.05,[0.,.0025],['a','b'])}
+    producer=MonteCarloPropagator(PropagationConfig(mc_n_samples=8192,mc_sampling_method=method,
+        compute_sensitivity=False))
+    variances=[]
+    for envs in (tied,independent):
+        r=producer.propagate(lambda **p:{'y':p['a']-p['b']},{'a':0.,'b':0.},envs,['y'])[0]
+        variances.append(float(np.var(r.envelope.distribution_payload.samples)))
+        assert not r.envelope.gate_eligible
+    assert variances[0]<1e-20
+    assert abs(variances[1]-.005)<.0003
+    return {'method':method,'tied_variance':variances[0],'independent_variance':variances[1],
+        'analytic_variance_difference':.005}
+
+def carrier_and_missing_law():
+    for declarations in ({},{'dependency':'independent','independence':True}):
+        env=gaussian(.05).model_copy(update={'metadata':declarations})
+        r=MonteCarloPropagator().propagate(lambda **p:(_ for _ in ()).throw(AssertionError('unknown evaluated')),
+            {'a':0.,'b':0.},{'a':env,'b':env},['y'])[0]
+        assert r.envelope.metadata['failure']=='unknown_dependency'
+    ids=['r0','r1','r2','r3']; names=['a','b']
+    base=uniform(-1,1).model_copy(update={'distribution_family':DistributionFamily.BOOTSTRAP,
+        'distribution_payload':PosteriorSamplesCarrier(samples=(-1.,0.,0.,1.)),
+        'metadata':{'joint_sample_id':'test-law','joint_draw_ids':ids,'joint_parameter_order':names}})
+    envs=dict.fromkeys(names,base); digest=joint_carrier_digest(names,envs,ids)
+    envs={n:e.model_copy(update={'metadata':{**e.metadata,'joint_law_sha256':digest}}) for n,e in envs.items()}
+    producer=MonteCarloPropagator(PropagationConfig(mc_n_samples=1024,compute_sensitivity=False))
+    r=producer.propagate(lambda **p:{'y':p['a']-p['b']},{'a':0.,'b':0.},envs,['y'])[0]
+    assert set(r.envelope.distribution_payload.samples)=={0.}
+    changed=copy.copy(envs); changed['b']=changed['b'].model_copy(update={
+        'distribution_payload':PosteriorSamplesCarrier(samples=(1.,0.,0.,-1.))})
+    fake=producer.propagate(lambda **p:(_ for _ in ()).throw(AssertionError('fake evaluated')),
+        {'a':0.,'b':0.},changed,['y'])[0]
+    assert fake.envelope.distribution_family is DistributionFamily.UNKNOWN
+    return {'paired_rows':ids,'law_digest':digest,'changed_carrier_failure':fake.envelope.metadata['failure']}
+
+def missing_law_property_removal():
+    envs={'a':gaussian(.05),'b':gaussian(.05)}
+    calls=[]
+    producer=MonteCarloPropagator(PropagationConfig(mc_n_samples=2048,compute_sensitivity=False))
+    intact=producer.propagate(lambda **p:calls.append(p) or {'y':p['a']-p['b']},
+        {'a':0.,'b':0.},envs,['y'])[0]
+    assert not calls and intact.envelope.distribution_family is DistributionFamily.UNKNOWN
+    with patch.object(monte_carlo,'has_unknown_dependency',return_value=False):
+        removed=producer.propagate(lambda **p:calls.append(p) or {'y':p['a']-p['b']},
+            {'a':0.,'b':0.},envs,['y'])[0]
+    assert len(calls)==2049
+    assert removed.envelope.distribution_family is not DistributionFamily.UNKNOWN
+    assert removed.envelope.distribution_payload is not None
+    return {'intact_callback_count':0,'removed_evaluator_callbacks_including_nominal':len(calls),
+        'attempted_sampling_draws':2048,
+        'markers_retained':'same envelopes, missing dependency fields and nongating output flag',
+        'acceptance_discriminator':'unknown-law refusal becomes false after property removal',
+        'removed_product_law_variance':float(np.var(removed.envelope.distribution_payload.samples))}
+
+def failed_support(method):
+    def response(x):
+        return {'complete':x,'partial':x} if x>=0 else {'complete':x}
+    r=MonteCarloPropagator(PropagationConfig(mc_n_samples=1024,mc_sampling_method=method,
+        mc_qmc_replicates=4,mc_min_valid_samples=10,compute_sensitivity=False)).propagate(
+            response,{'x':0.},{'x':uniform(-1,1)},['complete','partial'])
+    partial=r[1]; full=r[0]; receipt=partial.diagnostics['draw_outcome_provenance']
+    assert len(receipt['draw_records'])==1024
+    assert len(receipt['failure_records'])>400
+    assert reconcile_draw_outcomes(receipt,['complete','partial'])=={'partial'}
+    assert partial.envelope.confidence_level is None and not partial.envelope.gate_eligible
+    assert abs(partial.envelope.point_estimate-.5)<.03
+    assert partial.envelope.metadata['distribution_sample_semantics']=='successful_draws_only_conditional_on_execution'
+    assert 'mean_estimator_standard_error' not in partial.envelope.metadata
+    if method!='random': assert 'mean_estimator_standard_error' in full.envelope.metadata
+    return {'method':method,'conditional_mean':partial.envelope.point_estimate,
+        'failed':len(receipt['failure_records']),'complete_mean':full.envelope.point_estimate,
+        'partial_certificate_kind':partial.envelope.composition_provenance.certificate_kind.value}
+
+def rqmc_estimator_error():
+    r=MonteCarloPropagator(PropagationConfig(mc_n_samples=1000,mc_sampling_method='sobol',
+        mc_qmc_replicates=4,compute_sensitivity=False)).propagate(lambda **p:{'y':p['x']**2},
+            {'x':.5},{'x':uniform()},['y'])[0]
+    expected_means=[float(np.mean(qmc.Sobol(d=1,scramble=True,seed=42+i).random_base2(8)**2)) for i in range(4)]
+    expected_se=float(np.std(expected_means,ddof=1)/2)
+    metadata=r.envelope.metadata
+    assert metadata['qmc_replicate_sizes']==[256]*4
+    assert metadata['qmc_replicate_means']==expected_means
+    assert metadata['mean_estimator_standard_error']==expected_se
+    assert metadata['mc_std']>.1 and expected_se<.005
+    return {'requested_rows':1000,'actual_rows':1024,'replica_means':expected_means,
+        'estimator_standard_error':expected_se,'predictive_std':metadata['mc_std']}
+
+def certificate_readback_and_negatives():
+    plan=BoundedIIDMeanPlan(metric_id='y')
+    U,N=frozen_bernstein_budget(np.zeros(256),plan)
+    analytic_U=math.sqrt(math.log(160)/512)
+    assert U==analytic_U and N==408
+    r=MonteCarloPropagator(PropagationConfig(bounded_iid_mean=plan,compute_sensitivity=False)).propagate(
+        BoundedIndicatorResponse('x','y',.001),{'x':.5},{'x':uniform()},['y'])[0]
+    cas_path=OUT/'cas-mean-readback'; store=FileSystemCAS(cas_path)
+    ref=persist_uncertainty_envelope(store,r.envelope)
+    loaded=load_uncertainty_envelope(FileSystemCAS(cas_path),ref)
+    cert=verify_mean_certificate(loaded)
+    assert cert.frozen_main_samples==408 and cert.pilot_samples==256
+    assert cert.pilot_stream!=cert.main_stream
+    originals=loaded.metadata['mean_estimator_certificate']
+    controls=[]
+    for field,value in [('main_stream',cert.pilot_stream),('main_samples',407),
+                        ('pilot_mean',.5),('evaluator_sha256','0'*64)]:
+        fake=loaded.model_copy(update={'metadata':{**loaded.metadata,
+            'mean_estimator_certificate':{**originals,field:value}}})
+        rejected(lambda:verify_mean_certificate(fake)); controls.append(field)
+    fake=loaded.model_copy(update={'metadata':{**loaded.metadata,
+        'mean_error_interval':[loaded.point_estimate,loaded.point_estimate]}})
+    rejected(lambda:verify_mean_certificate(fake)); controls.append('mean_error_interval')
+    receipt=r.diagnostics['draw_outcome_provenance']
+    fake={**receipt,'failure_records':[{'draw_index':999999,'sampled_input_sha256':'0'*64,
+        'output_outcomes':[{'output_metric_id':'y','outcome_code':'simulation_exception'}]}]}
+    rejected(lambda:reconcile_draw_outcomes(fake,['y'])); controls.append('extraneous_draw_failure')
+    fake={**receipt,'draw_records':receipt['draw_records'][:-1]}
+    rejected(lambda:reconcile_draw_outcomes(fake,['y'])); controls.append('draw_record_removed_marker_retained')
+    return {'analytic_U':U,'all_zero_pilot_N':N,'CAS_ref':str(ref.artifact_id),
+        'verified_main_mean':cert.main_mean,'negative_controls':controls}
+
+def aggregation_and_legacy_semantics():
+    e=gaussian(1).model_copy(update={'confidence_level':.8,'metadata':{'envelope_id':'same-origin','independence':True}})
+    repeated=aggregate_envelopes([e]*4,method='precision_weighted')
+    assert repeated.confidence_interval==e.confidence_interval
+    assert repeated.confidence_level==.8
+    assert repeated.metadata['duplicate_source_count']==3
+    values=np.r_[np.zeros(99),100.]
+    assert np.mean(values)==1. and tuple(np.quantile(values,[.05,.95]))==(0.,0.)
+    return {'duplicate_interval_level':repeated.confidence_level,'mean':1.,'q05_q95':[0.,0.],
+        'v1_1_semantics':'unchanged; B201/B202 held for IR semantic owner'}
+
+def bounded_coverage():
+    plan=BoundedIIDMeanPlan(metric_id='y'); rows=[]; reps=256
+    for probability in (.001,.01,.5,.99):
+        hits=0; counts=[]; pilots=[]; max_error=0.
+        for seed in range(reps):
+            r=MonteCarloPropagator(PropagationConfig(mc_seed=seed,bounded_iid_mean=plan,
+                compute_sensitivity=False)).propagate(BoundedIndicatorResponse('x','y',probability),
+                    {'x':.5},{'x':uniform()},['y'])[0]
+            c=verify_mean_certificate(r.envelope)
+            error=abs(c.main_mean-probability); hits+=error<=plan.absolute_error
+            max_error=max(max_error,error); counts.append(c.main_samples); pilots.append(c.pilot_mean)
+        lower=float(beta.ppf(.025,hits,reps-hits+1)) if hits else 0.
+        upper=float(beta.ppf(.975,hits+1,reps-hits)) if hits<reps else 1.
+        rows.append({'input':'independent Uniform[0,1] child streams',
+            'response':f'indicator(X < {probability})','population_mean':probability,
+            'seeds':[0,reps-1],'replications':reps,'covered':hits,'empirical_coverage':hits/reps,
+            'coverage_Clopper_Pearson_95':[lower,upper],'N_range':[min(counts),max(counts)],
+            'maximum_error':max_error,'zero_pilot_count':pilots.count(0.)})
+        assert lower>.95, rows[-1]
+    return {'scope':'admitted canonical Bernoulli responses over mathematical Uniform input law only',
+        'not_established':['production law custody','general callback boundedness','Uniform-output mean certificate'],
+        'experiments':rows}
+
+def legacy_adaptive_no_peeking():
+    r=MonteCarloPropagator(PropagationConfig(adaptive_stopping=AdaptiveStoppingConfig(enabled=True,
+        max_samples=500,ci_half_width_target=1),compute_sensitivity=False)).propagate(
+            lambda **p:{'y':.2},{'x':.5},{'x':uniform()},['y'])[0]
+    assert r.diagnostics['n_samples']==500 and not r.diagnostics['stopped_early']
+    return {'constant_response':.2,'fixed_budget':500,'stopped_early':False}
+
+def actual_scientist_consumer():
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.run.context import RunContext
+    from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node_module
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_SIMULATION_RESULT_REF, INPUT_DATA_SNAPSHOT_REF,
+    )
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=OUT/'cas-scientist-consumer'; store=FileSystemCAS(path)
+    registry=build_default_registry_bundle(store).bundle_ref
+    run=RunContext.start(store=store,registry_bundle=registry,run_id='E_independent_mean_consumer')
+    ctx=ExecutionContext(store=store,run=run,logger=logging.getLogger('E.independent'))
+    input_env=uniform().model_copy(update={'metadata':{'param_name':'x'}})
+    input_ref=persist_uncertainty_envelope(store,input_env)
+    state_ref=store.put_json({'state':{}},PutOptions(kind='foundry.state_snapshot',media_type='application/json'))
+    data_ref=store.put_json(DataSnapshot(data_ref=state_ref,uncertainty_envelope_ref=input_ref),
+        PutOptions(kind='fabric.data_snapshot',media_type='application/json',
+            schema=SchemaInfo(name='polisyos.core.DataSnapshot',version='0.1.0')))
+    plan_ref=store.put_json({'program_ref':{'artifact_id':str(state_ref.artifact_id),
+        'kind':'foundry.program_graph','media_type':'application/json'},'order':[]},
+        PutOptions(kind='foundry.exec_plan',media_type='application/json'))
+    metrics_ref=store.put_json({'values':{'y':0}},PutOptions(kind='foundry.metrics',media_type='application/json'))
+    sim_ref=store.put_json(SimulationResult(exec_plan_ref=ExecPlanRef(artifact_id=plan_ref.artifact_id),
+        metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id)),
+        PutOptions(kind='foundry.simulation_result',media_type='application/json'))
+    state=ExperimentState(run_id='E_independent_mean_consumer',inputs={
+        INPUT_DATA_SNAPSHOT_REF:DataSnapshotRef(artifact_id=data_ref.artifact_id)},
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF:sim_ref},params={'propagation_config':{
+            'compute_sensitivity':False,'mc_seed':42,
+            'bounded_iid_mean':{'metric_id':'y','response_threshold':.001}}})
+    outcome=node_module.PropagateUncertaintyNode().execute(ctx,state)
+    assert outcome.status=='ok'
+    fresh=FileSystemCAS(path)
+    updated=SimulationResult.model_validate(from_canonical_bytes(fresh.get_bytes(
+        outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)))
+    env=load_uncertainty_envelope(fresh,updated.uncertainty_envelopes['y'])
+    cert=verify_mean_certificate(env)
+    assert cert.frozen_main_samples==408 and cert.pilot_samples==256
+    report=from_canonical_bytes(fresh.get_bytes(updated.propagation_report_ref.artifact_id))
+    assert reconcile_draw_outcomes(report['draw_outcome_provenance'],['y'])==set()
+    assert len(report['draw_outcome_provenance']['draw_records'])==408 and not env.gate_eligible
+    original_persist=node_module.persist_uncertainty_envelope
+    def fake_persist(target_store,envelope):
+        fake=envelope.model_copy(update={'metadata':{**envelope.metadata,
+            'mean_error_interval':[envelope.point_estimate,envelope.point_estimate]}})
+        return original_persist(target_store,fake)
+    with patch.object(node_module,'persist_uncertainty_envelope',side_effect=fake_persist):
+        rejected(lambda:node_module.PropagateUncertaintyNode().execute(ctx,state))
+    return {'producer':'canonical BoundedIndicatorResponse','consumer':'PropagateUncertaintyNode.execute',
+        'fresh_simulation_ref':str(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id),
+        'main_count':408,'pilot_count':256,'fake_persisted_interval':'consumer refused',
+        'authority':'candidate/non-gating; production input law and general served evaluator not established'}
+
+def default_proxy_divergence_and_fixed_inputs():
+    from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import _build_propagation_fn
+    proxy,mapped=_build_propagation_fn({},base_metric_values={'y':0.},nominal_params={'x':2.,'scale':2.})
+    varying=gaussian(1.).model_copy(update={'point_estimate':2.,'confidence_interval':(.04,3.96)})
+    config=PropagationConfig(preferred_method='delta',compute_sensitivity=False)
+    proxy_result=PropagationDispatcher(config).propagate(proxy,{'x':2.,'scale':2.},{'x':varying},['y'])[0]
+    real_result=PropagationDispatcher(config).propagate(lambda x,scale:{'y':(x-2)*scale},
+        {'x':2.,'scale':2.},{'x':varying},['y'])[0]
+    assert not mapped and proxy._sensitivity_map=={}
+    assert proxy_result.diagnostics['output_variance']==0.
+    assert real_result.envelope.point_estimate==0. and real_result.diagnostics['output_variance']==4.
+    assert not real_result.envelope.gate_eligible and not proxy_result.envelope.gate_eligible
+    return {'default_proxy_baseline':0.,'default_proxy_variance':0.,'declared_response':'(x-2)*scale',
+        'response_at_nominal':0.,'real_affine_variance':4.,'fixed_scale':2.,
+        'default_mapping':'unresolved/empty','capability':'general served evaluator bridge_missing',
+        'next_owner':'Scientist simulation/execution owner supplies exact evaluator/model/ExecPlan/run/domain/seed refs'}
+
+def small_fixed_N_and_variance_bound_removal():
+    plan=BoundedIIDMeanPlan(metric_id='y',absolute_error=.5)
+    r=MonteCarloPropagator(PropagationConfig(bounded_iid_mean=plan,compute_sensitivity=False)).propagate(
+        BoundedIndicatorResponse('x','y',.5),{'x':.5},{'x':uniform()},['y'])[0]
+    c=verify_mean_certificate(r.envelope)
+    assert c.main_samples==15 and len(r.envelope.distribution_payload.samples)==15
+    standard=BoundedIIDMeanPlan(metric_id='y')
+    with patch.object(monte_carlo,'frozen_bernstein_budget',return_value=(0.,59)):
+        broken=MonteCarloPropagator(PropagationConfig(bounded_iid_mean=standard,
+            compute_sensitivity=False)).propagate(BoundedIndicatorResponse('x','y',.5),
+                {'x':.5},{'x':uniform()},['y'])[0]
+    rejected(lambda:verify_mean_certificate(broken.envelope))
+    receipt=r.diagnostics['draw_outcome_provenance']
+    unattempted={**receipt,'requested_draw_count':16,'unattempted_draw_count':1,
+        'outcome_denominator_complete':False}
+    assert reconcile_draw_outcomes(unattempted,['y'])=={'y'}
+    return {'admitted_small_main_N':15,'generic_minimum':50,'removed_variance_bound_N':59,
+        'removed_bound_certificate':'refused at consumer','unattempted_support_metric_set':['y']}
+
+def full_recipe_controls():
+    plan=BoundedIIDMeanPlan(metric_id='y')
+    r=MonteCarloPropagator(PropagationConfig(bounded_iid_mean=plan,compute_sensitivity=False)).propagate(
+        BoundedIndicatorResponse('x','y',.001),{'x':.5},{'x':uniform()},['y'])[0]
+    assert verify_mean_certificate(r.envelope).main_samples==408
+    raw=r.envelope.metadata['mean_estimator_certificate']; recipe=raw['evaluator_recipe']
+    variants=[('response_discriminator',{**recipe,'response':'fake_other_response'}),
+        ('extra_key',{**recipe,'unverified_extra':'same-markers'}),
+        ('boolean_threshold',{**recipe,'threshold':True})]
+    variants.extend((f'missing_{key}',{k:v for k,v in recipe.items() if k!=key}) for key in recipe)
+    for name,fake_recipe in variants:
+        fake=r.envelope.model_copy(update={'metadata':{**r.envelope.metadata,
+            'mean_estimator_certificate':{**raw,'evaluator_recipe':fake_recipe}}})
+        rejected(lambda:verify_mean_certificate(fake))
+    invalid_responses=[BoundedIndicatorResponse('x','y',True),
+        BoundedIndicatorResponse('','y',.5),BoundedIndicatorResponse('x','',.5)]
+    with patch.object(BoundedIndicatorResponse,'__call__',side_effect=AssertionError('invalid recipe evaluated')):
+        for response in invalid_responses:
+            unavailable=MonteCarloPropagator(PropagationConfig(bounded_iid_mean=plan,
+                compute_sensitivity=False)).propagate(response,{'x':.5},{'x':uniform()},['y'])[0]
+            assert unavailable.envelope.distribution_family is DistributionFamily.UNKNOWN
+            assert 'mean_estimator_certificate' not in unavailable.envelope.metadata
+    return {'main_samples':408,'recipe_keys':sorted(recipe),'refused_variants':[n for n,_ in variants]}
+
+def direct_covariance_full_quantity():
+    from polisyos.foundry.uncertainty.analytical import AnalyticalPropagator
+    import jax.numpy as jnp
+    direct=AnalyticalPropagator.propagate_linear_combination
+    e={'x':gaussian(1.)}
+    control_names=[]
+    for name,cov in [('negative',[[-1.]]),('wrong_marginal',[[100.]]),
+                     ('null_override',[[0.]]),('wrong_dimension',np.eye(2))]:
+        rejected(lambda cov=cov:direct(weights={'x':1.},input_envelopes=e,
+            output_metric_id='y',covariance=jnp.asarray(cov)))
+        control_names.append(name)
+    rejected(lambda:direct(weights={'x':1.},input_envelopes={'x':uniform()},
+        output_metric_id='y',covariance=jnp.asarray([[1.]])))
+    rejected(lambda:direct(weights={},input_envelopes={},output_metric_id='y',
+        covariance=jnp.asarray([[]])))
+    for scale in (1.,1e-6,1e-12):
+        envelopes={n:gaussian(math.sqrt(scale)) for n in ['a','b']}
+        tied=direct(weights={'a':1.,'b':-1.},input_envelopes=envelopes,
+            output_metric_id='y',covariance=jnp.asarray([[scale,scale],[scale,scale]]))
+        assert tied.diagnostics['output_variance']==0.
+        for name,values in [('indefinite',[[scale,2*scale],[2*scale,scale]]),
+                            ('asymmetric',[[scale,0.],[.1*scale,scale]])]:
+            rejected(lambda values=values:direct(weights={'a':1.,'b':-1.},
+                input_envelopes=envelopes,output_metric_id='y',covariance=jnp.asarray(values)))
+            control_names.append(f'{name}_scale_{scale}')
+    return {'refused_controls':control_names+['non_Gaussian','empty_inputs'],
+        'true_singular_zero_variance_scales':[1.,1e-6,1e-12],
+        'axis_contract':'direct supplied arrays follow sorted parameter-name row/column order',
+        'authority':'candidate/non-gating declared Gaussian law only'}
+
+if __name__=='__main__':
+    started=time.time(); initial=git('rev-parse','HEAD'); initial_tree=git('rev-parse','HEAD^{tree}')
+    dirty=git('status','--porcelain')
+    print(json.dumps({'HEAD':initial,'tree':initial_tree,'dirty':dirty,'python':sys.version,
+        'platform':platform.platform(),'JAX_backend':jax.default_backend(),'JAX_x64':jax.config.x64_enabled,
+        'versions':{n:importlib.metadata.version(n) for n in ['jax','jaxlib','numpy','scipy','pydantic']},
+        'thread_controls':{n:os.environ.get(n) for n in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS',
+        'MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','XLA_FLAGS','JAX_PLATFORMS']}}),flush=True)
+    for method in ('random','sobol','halton'): record(f'pre_draw_range_{method}',lambda method=method:range_control(method))
+    record('actual_JAX_underflow_boundary_and_true_zero',actual_backend_underflow_boundary)
+    record('range_property_removed_markers_retained',numeric_range_property_removal)
+    record('axis_and_strategy_joint_law',axis_and_backend_law)
+    for method in ('random','sobol','halton'): record(f'tied_and_independent_{method}',lambda method=method:singular_and_independent(method))
+    record('content_bound_carrier_and_unknown_law',carrier_and_missing_law)
+    record('source_law_property_removed_markers_retained',missing_law_property_removal)
+    for method in ('random','sobol','halton'): record(f'failed_support_{method}',lambda method=method:failed_support(method))
+    record('RQMC_independent_replica_estimator_error',rqmc_estimator_error)
+    record('certificate_fresh_CAS_readback_and_removal',certificate_readback_and_negatives)
+    record('duplicate_evidence_and_distinct_functionals',aggregation_and_legacy_semantics)
+    record('legacy_adaptive_fixed_budget',legacy_adaptive_no_peeking)
+    record('actual_Scientist_producer_CAS_consumer_and_fake_content',actual_scientist_consumer)
+    record('default_proxy_divergence_and_fixed_effective_inputs',default_proxy_divergence_and_fixed_inputs)
+    record('small_fixed_N_and_variance_bound_property_removal',small_fixed_N_and_variance_bound_removal)
+    record('full_canonical_recipe_discriminator_extra_and_missing_controls',full_recipe_controls)
+    record('direct_supplied_covariance_full_law_quantity',direct_covariance_full_quantity)
+    record('bounded_IID_mean_empirical_coverage',bounded_coverage)
+    final=git('rev-parse','HEAD'); final_status=git('status','--porcelain')
+    receipt={'schema':'policyos.e02.independent_review_checks.v1','head':initial,'tree':initial_tree,
+        'dirty_at_start':dirty,'head_at_end':final,'dirty_at_end':final_status,'cases':CASES,
+        'wall_seconds':time.time()-started,'source_sha_stable':initial==final and not dirty and not final_status}
+    (OUT/'checks.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    sys.exit(0 if receipt['source_sha_stable'] and all(c['outcome']=='PASS' for c in CASES) else 1)

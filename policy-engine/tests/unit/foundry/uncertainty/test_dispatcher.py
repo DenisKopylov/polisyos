@@ -117,8 +117,11 @@ class TestDispatcherEdgeCases:
 
     def test_dispatcher_analytical_linear_combination_records_exact_provenance(self) -> None:
         dispatcher = PropagationDispatcher(PropagationConfig(preferred_method="analytical"))
-        envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 0.25)}
+        envelopes = _declared_gaussian_product(
+            {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 0.25)}
+        )
 
+        envelopes = _declared_gaussian_product(envelopes)
         results = dispatcher.propagate(
             lambda **params: {"y": params["x"] + params["z"]},
             {"x": 1.0, "z": 2.0},
@@ -196,6 +199,7 @@ class TestDispatcherEdgeCases:
             ),
         }
 
+        envelopes = _declared_gaussian_product(envelopes)
         results = dispatcher.propagate(
             lambda **params: {"y": params["x"] + params["z"]},
             {"x": 1.0, "z": 2.0},
@@ -211,3 +215,23 @@ class TestDispatcherEdgeCases:
             results[0].envelope.composition_provenance.certificate_kind
             == CertificateKind.WASSERSTEIN_1
         )
+
+
+def _declared_gaussian_product(envelopes):
+    from polisyos.foundry.uncertainty.covariance import extract_std
+
+    names = sorted(envelopes)
+    return {
+        name: env.model_copy(
+            update={
+                "metadata": {
+                    **env.metadata,
+                    "covariance_params": names,
+                    "covariance_row": [
+                        extract_std(env) ** 2 if column == name else 0.0 for column in names
+                    ],
+                }
+            }
+        )
+        for name, env in envelopes.items()
+    }

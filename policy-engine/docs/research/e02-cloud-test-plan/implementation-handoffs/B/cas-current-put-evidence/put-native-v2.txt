@@ -1,0 +1,25 @@
+..F...........................                                           [100%]
+=================================== FAILURES ===================================
+_ test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[selected_manifest_size] _
+tests/unit/core/artifacts/test_put_integrity_retry.py:70: in test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry
+    store.put_bytes(PAYLOAD, selected_options)
+src/polisyos/core/artifacts/store.py:2409: in put_bytes
+    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
+src/polisyos/core/artifacts/store.py:2219: in _put_blob_and_manifest_once
+    _validate_read_integrity(aid, data, existing_view)
+src/polisyos/core/artifacts/_integrity_ops.py:69: in validate_read_integrity
+    _validate_read_integrity_with_digest(
+src/polisyos/core/artifacts/_integrity_ops.py:91: in _validate_read_integrity_with_digest
+    raise ArtifactIntegrityError(
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: Manifest byte_size mismatch for sha256:af072d351c091fd003a7cf1f8d1e756d8e3c064af17cdb91bd8711ea19b78b2d: expected 40, got 39
+
+During handling of the above exception, another exception occurred:
+tests/unit/core/artifacts/test_put_integrity_retry.py:69: in test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry
+    with pytest.raises(ArtifactIntegrityError, match=expected_error):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'Manifest byte size mismatch'
+E     Actual message: 'Manifest byte_size mismatch for sha256:af072d351c091fd003a7cf1f8d1e756d8e3c064af17cdb91bd8711ea19b78b2d: expected 40, got 39'
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[selected_manifest_size]
+1 failed, 29 passed in 28.79s

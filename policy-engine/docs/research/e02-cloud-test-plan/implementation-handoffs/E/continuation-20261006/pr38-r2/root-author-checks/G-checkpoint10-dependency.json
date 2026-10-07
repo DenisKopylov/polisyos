@@ -1,0 +1,35 @@
+{
+  "schema": "policyos.e02.E.G_checkpoint_dependency_readback.v1",
+  "previous_G": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "fetched_G": "6f869f39d04deaff7eda9b9047848912605beca5",
+  "G_tree": "6f7d5e42c694fe384a3fa349c5811f432268731a",
+  "own_append_only_merge": "fc895cfca1f9dbbd31a87a73a24b1f263bf6ddbb",
+  "base_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "full_review_read": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-third-wave.md",
+  "full_checkpoint_read": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-10.json",
+  "runtime_delta": [
+    "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py"
+  ],
+  "test_delta": [
+    "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+    "policy-engine/tests/unit/remediation/test_dur_02_process.py"
+  ],
+  "dependency_conclusion": "No E numerical/calibration/uncertainty/Welfare source delta. ControlPlaneStore accepted G59consumer replay will receive composed-source affectedcheck in finalcommonwave. B nativeMac retryHOLD is distinct unmerged candidate; no transplantedFAIL orinheritedwaiver.",
+  "code_acceptance": "G accepted B38 boundSQLitehandlerprofile, nofindingclosure",
+  "review_outcomes_preserved": "40PASS exactBsource+59PASS composed; B-runtime159PASS6FAIL12SKIP separate",
+  "conflicts": [],
+  "main_or_integration_publication": false,
+  "head_when_recorded": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+  "newer_docs_only_readback": {
+    "sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "tree": "9e44e9e534cbf77bc59126e08a16d50b1eb0f12e",
+    "runtime_delta_from6f869": [],
+    "full_reads": [
+      "integration/reviews/2026-10-06-fourth-wave-intake.md",
+      "integration/reviews/D-pr47-continuation-audit-2026-10-06.md",
+      "integration/reviews/F-pr65-continuation-audit-2026-10-06.md"
+    ],
+    "E_adjacent_dependency": "D STR01->E DOE01 consumertrace packetbeingprepared separately; Dcode notacceptedintoG"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "completion": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-completion.json",
+    "sha256": "6e1caf4596a213d169dde9b8925eb196e451e693134a0a2e9fc4d053cd87b109",
+    "bytes": 7025
+  },
+  "retry_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+    "sha256": "2a026082c9ae0f332147d8b121ca6841dcea20d2451ba712753b5160a5b49d35",
+    "bytes": 10726
+  },
+  "counts": {
+    "cases": 324,
+    "passed": 324,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

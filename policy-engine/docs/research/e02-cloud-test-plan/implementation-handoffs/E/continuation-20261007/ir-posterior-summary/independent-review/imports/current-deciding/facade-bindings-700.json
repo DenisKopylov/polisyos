@@ -1,0 +1,449 @@
+{
+  "schema": "policyos.e02.independent_ir_facade_binding.v1",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "predicate_basis": "recomputed",
+  "root_old_mapping_count": 287,
+  "root_new_mapping_count": 290,
+  "old_root_public_names_preserved": true,
+  "analytics_old_mapping_count": 278,
+  "analytics_new_mapping_count": 290,
+  "old_analytics_mappings_preserved": true,
+  "new_root_exports": [
+    "PosteriorParameterBinding",
+    "PosteriorSummaryContext",
+    "PosteriorSummaryProfile"
+  ],
+  "new_analytics_exports": [
+    "PosteriorParameterBinding",
+    "PosteriorSamplesCarrier",
+    "PosteriorSummaryContext",
+    "PosteriorSummaryProfile",
+    "admit_posterior_summary_profiles",
+    "load_posterior_summary_envelope",
+    "posterior_carrier_content_hash",
+    "posterior_joint_carrier_digest",
+    "posterior_nominal_mean",
+    "posterior_summary_functionals",
+    "read_posterior_summary_profile",
+    "validate_raw_posterior_summary_envelope"
+  ],
+  "complete_new_export_bindings": [
+    {
+      "facade": "polisyos.ir",
+      "name": "PosteriorParameterBinding",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "PosteriorParameterBinding",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "class"
+    },
+    {
+      "facade": "polisyos.ir",
+      "name": "PosteriorSummaryContext",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "PosteriorSummaryContext",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "class"
+    },
+    {
+      "facade": "polisyos.ir",
+      "name": "PosteriorSummaryProfile",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "PosteriorSummaryProfile",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "class"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "PosteriorParameterBinding",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "PosteriorParameterBinding",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "class"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "PosteriorSamplesCarrier",
+      "definition_module": "polisyos.ir.analytics.uncertainty",
+      "definition_attribute": "PosteriorSamplesCarrier",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "actual_object_identity_equal": true,
+      "kind": "class"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "PosteriorSummaryContext",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "PosteriorSummaryContext",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "class"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "PosteriorSummaryProfile",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "PosteriorSummaryProfile",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "class"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "admit_posterior_summary_profiles",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "admit_posterior_summary_profiles",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "function"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "load_posterior_summary_envelope",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "load_posterior_summary_envelope",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "function"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "posterior_carrier_content_hash",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "posterior_carrier_content_hash",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "function"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "posterior_joint_carrier_digest",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "posterior_joint_carrier_digest",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "function"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "posterior_nominal_mean",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "posterior_nominal_mean",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "function"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "posterior_summary_functionals",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "posterior_summary_functionals",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "function"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "read_posterior_summary_profile",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "read_posterior_summary_profile",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "function"
+    },
+    {
+      "facade": "polisyos.ir.analytics",
+      "name": "validate_raw_posterior_summary_envelope",
+      "definition_module": "polisyos.ir.analytics.posterior_summary",
+      "definition_attribute": "validate_raw_posterior_summary_envelope",
+      "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "actual_object_identity_equal": true,
+      "kind": "function"
+    }
+  ],
+  "actual_product_caller_binding_count": 15,
+  "actual_product_caller_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "module": "polisyos.foundry.calibration.report",
+      "line": 23,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "validate_raw_posterior_summary_envelope",
+      "bound_name": "validate_raw_posterior_summary_envelope",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "line": 20,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "PosteriorSamplesCarrier",
+      "bound_name": "PosteriorSamplesCarrier",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "line": 20,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "PosteriorSummaryContext",
+      "bound_name": "PosteriorSummaryContext",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "line": 20,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "PosteriorSummaryProfile",
+      "bound_name": "PosteriorSummaryProfile",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "line": 20,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "posterior_carrier_content_hash",
+      "bound_name": "posterior_carrier_content_hash",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "line": 20,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "posterior_summary_functionals",
+      "bound_name": "posterior_summary_functionals",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "module": "polisyos.foundry.uncertainty.sampling_admission",
+      "line": 20,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "PosteriorSamplesCarrier",
+      "bound_name": "PosteriorSamplesCarrier",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "module": "polisyos.foundry.uncertainty.sampling_admission",
+      "line": 20,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "posterior_joint_carrier_digest",
+      "bound_name": "posterior_joint_carrier_digest",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "line": 28,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "admit_posterior_summary_profiles",
+      "bound_name": "admit_posterior_summary_profiles",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "line": 28,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "posterior_nominal_mean",
+      "bound_name": "posterior_nominal_mean",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "line": 29,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "load_posterior_summary_envelope",
+      "bound_name": "load_uncertainty_envelope",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "line": 47,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "admit_posterior_summary_profiles",
+      "bound_name": "admit_posterior_summary_profiles",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "line": 47,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "posterior_nominal_mean",
+      "bound_name": "posterior_nominal_mean",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "line": 47,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "validate_raw_posterior_summary_envelope",
+      "bound_name": "validate_raw_posterior_summary_envelope",
+      "actual_object_identity_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "line": 52,
+      "facade": "polisyos.ir.analytics",
+      "public_name": "load_posterior_summary_envelope",
+      "bound_name": "load_uncertainty_envelope",
+      "actual_object_identity_equal": true
+    }
+  ],
+  "actual_public_calls": {
+    "internal_existing_Bayesian_producer": "polisyos.foundry.calibration.uncertainty_adapter",
+    "new_profile_instance": "PosteriorSummaryProfile",
+    "sample_ids": [
+      "r0",
+      "r1",
+      "r2"
+    ],
+    "named_mean": 2.5,
+    "observed_functionals": [
+      2.5,
+      2.0,
+      [
+        0.0,
+        4.0
+      ]
+    ],
+    "carrier_hash": "sha256:d8a6d8e29b69f9e176ad44853d5488424eec5266e2e1f944d0105a6a927a86d3",
+    "gate_eligible": false,
+    "raw_inlet": "actual admitted raw envelope accepted"
+  },
+  "present_name_identity_removal": {
+    "discriminator": "PASS",
+    "required_identity_gate": "FAIL",
+    "reason": "facade identity property absent while name and numeric observation survive",
+    "same_name": "posterior_nominal_mean",
+    "same_healthy_numeric_observation": true,
+    "same_function_name_qualname_module_doc": true
+  },
+  "complete_changed_source_bindings": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+      "git_blob": "341af4f413559315f17f1d6b4b1d9fd644604069",
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7",
+      "bytes": 1712
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "git_blob": "c3f7eebffcc214235e01804ebafd4aeadf7f83ad",
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3",
+      "bytes": 16300
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "git_blob": "e28d91f65219311ec666f112d70e650f26855f90",
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "bytes": 17116
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "git_blob": "e0d7f2864beb1a9b2a04eb25a14702126b3325dc",
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3",
+      "bytes": 5742
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "git_blob": "357fdf1a28902fe718181a6528034cc4c093c739",
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "bytes": 23932
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "git_blob": "5557f1ec06a594e99ec1d00c2178c50f0fff68b9",
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "git_blob": "fc4e4f27f8ffc5f382a375d5116102df720291bc",
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200",
+      "bytes": 7397
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "git_blob": "2c510c47321dd2e85d8a83f9822e8525eadf90ac",
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "bytes": 19970
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "git_blob": "cac5101dabadb09a07a7c00c7688fa1dc2f3b105",
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "bytes": 49444
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "git_blob": "74ffbcabe1452878ff1c74fa9d0a660922603819",
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "git_blob": "0e09fe4517a02a5e5780ad6c5cd59c53ca7e428d",
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "bytes": 20893
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "git_blob": "3c8d7b1c1c7ae4aeffba622b6fb452388afa8687",
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "bytes": 193138
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "git_blob": "9c71d74379577609f2da636a0b8534d2483defd1",
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e",
+      "bytes": 9674
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "git_blob": "126e986e347a3210df0f453a23e9c2962a78523b",
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a",
+      "bytes": 15782
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "git_blob": "ecbf6e41d8c7ad3888209e7c9928d15fa1789758",
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+      "bytes": 15822
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "git_blob": "1810f0815b332dbe641c2317d1fd039c9c95f105",
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e",
+      "bytes": 16962
+    }
+  ],
+  "abi_definition_identity": {
+    "abi_key": "posterior_summary_profile",
+    "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
+    "module": "ir",
+    "schema_file": "posterior_summary_profile.schema.json",
+    "version_field": "profile_version",
+    "actual_same_class_as_root_and_analytics": true,
+    "scope": "Definition placement/identity only; generated schema, replay and public inventory remain independent criteria lease."
+  },
+  "unresolved_by_construction": [
+    "Configured CAS loader transport and raw-invalid/historical replay are independent oracle/criteria leases; architectural placement does not establish transport behavior.",
+    "These public invocation observations establish callability/binding, not independent correctness of the law, posterior quality or finding closure.",
+    "Full generated ABI/schema/public inventory/reference/release compatibility remains criteria/root gate work."
+  ],
+  "limits": "No author files or tests changed; used existing interpreter and exact admitted lane; all new public routes and new product caller bindings enumerated dynamically; old map identities were compared statically, not every optional old API imported."
+}

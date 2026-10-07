@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.E.corrective_owner3932_summary_admission.v2",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "scope": "Corrective verifier/evidence only; original source/math/native/projection/owner decision files stay unchanged.",
+  "historical_V1": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets.py.txt",
+    "bytes": 13024,
+    "sha256": "4e3e354f50d16e12bf2defab996cf6e97caec963b934cee243e94b435007fcdb"
+  },
+  "historical_original27asset_selection": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-final-append-publication-selection.json",
+    "bytes": 8318,
+    "sha256": "132dfcc8b5c78e61283796a62987fa8dcb081d491902c6a186fefd993eb9946e"
+  },
+  "actual_peer_red": "Four integrity-valid marker/ref-preserving wrong summaries were accepted by V1:573\u21921,companiondigest\u2192zeros,historicalclosed1\u2192True,consumerSHA\u2192zeros. V1 nineteen controls are preserved as bounded history, not fullclaimadmission.",
+  "actual_peer_falsifiers": [
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "bytes": 2498,
+      "sha256": "6c621c90ada61bf7fba51ae183aebde057cfb7ef2fe21d1b75d11f2564b8c4d1"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "bytes": 2501,
+      "sha256": "5dee09f1bffcc06d3e1a4ef25e81c8ddefcb1c5ca7e71d66c554824a614f1b40"
+    }
+  ],
+  "correction": "Class-wide actual raw/Git source+companion+typed whole record admission; no per-case allowance or baseline weakening. Exact frozen owner decision conservation is distinct from new scientific ratification.",
+  "corrective_validator": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets-v2.py.txt",
+    "bytes": 11275,
+    "sha256": "a7aa11f124f3b877f3d58ad9af7a2acfc61e51b6c4a8b421ba1fb46443021f45"
+  },
+  "normal_controls": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-v2-normal.json",
+    "bytes": 5487,
+    "sha256": "be54d209c5b655bff9db3331576a678e50775212894f61f58a5d59e92f99ba5d"
+  },
+  "optimized_controls": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-v2-optimized.json",
+    "bytes": 5486,
+    "sha256": "6898a6442ff32d1c83f56751a8e771407a5a3ce87feadd362c485308fc4e81b5"
+  },
+  "author_control_count_each": 19,
+  "effective_removal": "Only actual new admit_current_claims AST body removed; oldV1 validation remains active. All four originally observed bad summaries are admitted under removal while source/raw/property markers remain exact.",
+  "outcome": "PASS",
+  "outcome_scope": "Author recomputing controls; corrected peer acceptance pending separate immutable receipt.",
+  "independent_literal_custody_scope": "Peer normal/-O independently confirmed literal source/4originalrows/full103/ninepatch custody; does not imply corrected verifier acceptance.",
+  "original_literal_projection_and_owner_inputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/qualified-owner-projection-packet.json",
+      "bytes": 7773,
+      "sha256": "4e072a6c180495a39bce0341625ed7a6253403852e5c8111a08a073cdb2469d3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/sparse-original-row-decisions-3932.json",
+      "bytes": 57381,
+      "sha256": "9acba4ad109ffa6c3033cc89f83580951e245bb0f49b73677216c5d40ca85cde"
+    }
+  ],
+  "numeric_native_generator_rerun": false,
+  "ROOT_source_or_environment_modified": false,
+  "Gformal_intake": "pending",
+  "capability_state": "surface_missing",
+  "global_gate_outcome": null
+}

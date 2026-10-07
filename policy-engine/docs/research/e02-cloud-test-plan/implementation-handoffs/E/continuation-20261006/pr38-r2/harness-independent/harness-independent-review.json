@@ -1,0 +1,93 @@
+{
+  "source_sha": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+  "source_tree": "c10843f74311d6973ccefea609cd7bf34bc828fe",
+  "base_sha": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md"
+  ],
+  "property_paths": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py": "9adde423ab2cbfc841a8a2de41fc1c03906e3429b176fa17412fd22c09c47e87",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md": "e8df2499206433fc9ebd6bd3fc317a02c914f0bc18f348e9d5f15ecd786f29e9"
+  },
+  "before_after_equal": true,
+  "native_wave_state": "UNRUN; no nativeCI/numeric command launched",
+  "native_paths": 120,
+  "owner_packet_inputs": 2,
+  "planned_numeric_jobs": 7,
+  "group_counts": {
+    "PCL_continuous_persistence": 10,
+    "DDM_runtime_and_facade": 16,
+    "BKT_FRC_S10_and_adjacent_report_consumers": 25,
+    "CAL_and_welfare_consumer": 29,
+    "MC_joint_law_support_and_Scientist_consumer": 25,
+    "DOE_SALib_and_consumer_factory": 14,
+    "G_checkpoint10_ControlPlaneStore_companion": 1
+  },
+  "runtime_case_counts": "UNRUN until real JUnit",
+  "planned_Ruff_denominator": 211,
+  "planned_Ruff_docs_artifact_paths": 0,
+  "configured_pytest_addopts": "-ra -q --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+  "required_gate_sequence": [
+    "architecture",
+    "runtime-api-contract",
+    "static-invocation",
+    "ruff",
+    "ruff-format",
+    "workspace-verify",
+    "ci-parity"
+  ],
+  "runtime_environment": {
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+    "UV_CACHE_DIR": null
+  },
+  "controls": [
+    {
+      "property": "raw existing output and dangling symlink refused before prepare/process",
+      "cases": 2,
+      "prepare_counter": 0,
+      "sentinel_preserved": true,
+      "outcome": "PASS"
+    },
+    {
+      "property": "numeric basetemp refused before marker/importer process",
+      "process_counter": 0,
+      "marker_written": false,
+      "sentinel_preserved": true,
+      "outcome": "PASS"
+    },
+    {
+      "property_removed": "scratch admission only; function identity/names retained",
+      "process_spy_counter": 1,
+      "real_children_launched": 0,
+      "marker_written": true,
+      "sentinel_preserved": true,
+      "outcome": "EXPECTED_DISCRIMINATING_ESCAPE"
+    },
+    {
+      "property": "actual JUnit parser recomputes mixed outcomes and refusesDTD",
+      "counts": {
+        "cases": 4,
+        "passed": 1,
+        "failed": 1,
+        "errors": 1,
+        "skipped": 1
+      },
+      "DTD": "REFUSED",
+      "outcome": "PASS"
+    }
+  ],
+  "code_verdict": "GO-bounded-owned-harness-readiness-and-preservation",
+  "browser_capability_receipt": "browser-capability-receipt.json",
+  "authority": "Browser launch and runner readiness do not equal doctor/fullCI/numeric PASS or findingclosure."
+}

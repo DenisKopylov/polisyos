@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "tools/quality/diagnostics/check_state_reads.py"], "exit_code": 1, "outcome": "FAIL", "counts": null, "wall_seconds": 31.173619031906128, "source_immutable": true}

@@ -1,0 +1,289 @@
+{
+  "schema": "policyos.e02.independent_prospective_lint_planner_review.v1",
+  "reviewer": "doe_r4",
+  "mode": "optimized",
+  "disposition": "GO boundedprospectiveplan only",
+  "source_planner": {
+    "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.v3.py",
+    "bytes": 15952,
+    "sha256": "bfe8dd2e1c0c78b1c3b6a9e2b9c5f2b408141c87fee9d7ad2a047702864ab924"
+  },
+  "source_selection": {
+    "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/publication-selection-v3.json",
+    "bytes": 11922,
+    "sha256": "651417bba8c733e9965fc51b5d38df3c3390c1f913793947bae253ff115a4aaa"
+  },
+  "source_qualification": {
+    "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+    "bytes": 8793,
+    "sha256": "e9be8494cbf87f77f6c737fc5f2eebd58c6481b2893d4dfd76891b854409f418"
+  },
+  "complete_refs": {
+    "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "frozen": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "G": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "FRC": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+    "DOE": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+    "MC": "3932cded22a29254a7dfced99723e147d6fea7cb"
+  },
+  "complete_input_trees": {
+    "main": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "frozen": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "G": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5",
+    "FRC": "a32e3762c3d969a4749650be7e34c8c0108a8a53",
+    "DOE": "46a538e5edf82f938547a23ea0b1774ded07697a",
+    "MC": "8d19c30199666cf97dd3934f60d772baa3071f7e"
+  },
+  "fresh_actualprepare_structured_identical": true,
+  "independent_complete_denominator": 366,
+  "membership_sha256": "78560a7f8a5118ccbfe56a1688914cf1fec0a366f2dad36c5ede1c26b959820d",
+  "independently_recomputed_incoming_delta": [
+    {
+      "owner": "G",
+      "head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "merge_base": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+      "full_delta_paths": 61,
+      "active_python": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py"
+      ]
+    },
+    {
+      "owner": "FRC",
+      "head": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+      "merge_base": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "full_delta_paths": 838,
+      "active_python": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ]
+    },
+    {
+      "owner": "DOE",
+      "head": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+      "merge_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "full_delta_paths": 272,
+      "active_python": []
+    },
+    {
+      "owner": "MC",
+      "head": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "merge_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "full_delta_paths": 24,
+      "active_python": [
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "policy-engine/src/polisyos/ir/__init__.py",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/schemas/abi_models.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ]
+    }
+  ],
+  "factual_writer_counts": {
+    "E": 344,
+    "A": 2,
+    "B": 13,
+    "F": 2,
+    "G": 5
+  },
+  "canonical_leases_are_separate_from_writerclasses": true,
+  "config_inputs": [
+    {
+      "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+      "bytes": 26782,
+      "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607",
+      "git_object_id": "b4e4d47dc80dbd45234e806f44073fd575ebf56d",
+      "equals_frozen_tree": true,
+      "extends": null
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+      "git_object_id": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "equals_frozen_tree": true,
+      "extends": "policy-engine/architecture/tooling/ruff/generated.toml"
+    }
+  ],
+  "actual_merged_ROOT_candidate": null,
+  "current_ROOT64d_source_unchanged": true,
+  "Ruff": "UNRUN",
+  "format": "UNRUN",
+  "source_newproduct_admission": {
+    "paths": 24,
+    "python": 12,
+    "product_python": 7,
+    "test_python": 5,
+    "evidence": "Exact qualified3932 source/objectbytes, not currentROOTor globalgate authority"
+  },
+  "author_control_receipts": [
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-normal.stdout.json",
+      "bytes": 187002,
+      "sha256": "ec5909a4daf0f8f3bad36577bcada4d56f2f1bdd04adbf8cbed71c08f266508e"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-optimized.stdout.json",
+      "bytes": 187005,
+      "sha256": "96b3663b7c6db53d1a079b000ab7e3b7e4dbee2f807f26d40aaf757b52091a24"
+    }
+  ],
+  "independent_control_count": 18,
+  "independent_controls": [
+    {
+      "name": "refboolean",
+      "outcome": "PASS",
+      "refusal": "exact admitted ref MC",
+      "callback_count": 0
+    },
+    {
+      "name": "refoption",
+      "outcome": "PASS",
+      "refusal": "exact admitted ref MC",
+      "callback_count": 0
+    },
+    {
+      "name": "latepathboolean",
+      "outcome": "PASS",
+      "refusal": "path type/content",
+      "callback_count": 0
+    },
+    {
+      "name": "latepathtraversal",
+      "outcome": "PASS",
+      "refusal": "canonical relativepath",
+      "callback_count": 0
+    },
+    {
+      "name": "countboolean",
+      "outcome": "PASS",
+      "refusal": "typed complete footprint",
+      "callback_count": 0
+    },
+    {
+      "name": "sizeboolean",
+      "outcome": "PASS",
+      "refusal": "typed source bytecount",
+      "callback_count": 0
+    },
+    {
+      "name": "lastduplicate",
+      "outcome": "PASS",
+      "refusal": "duplicate reviewedpath",
+      "callback_count": 0
+    },
+    {
+      "name": "reviewmarkertruebutwrong",
+      "outcome": "PASS",
+      "refusal": "reviewed source admission",
+      "callback_count": 0
+    },
+    {
+      "name": "executionmarkertrue",
+      "outcome": "PASS",
+      "refusal": "source admission separate from gate execution",
+      "callback_count": 0
+    },
+    {
+      "name": "validtypedretotalwrong",
+      "outcome": "PASS",
+      "refusal": "typed complete footprint",
+      "callback_count": 0
+    },
+    {
+      "name": "wrong_valid_sourcetree",
+      "outcome": "PASS",
+      "actual_refusal": "MC tree qualification mismatch",
+      "readonlyGitcallbacks": 12,
+      "native/gatecallbacks": 0,
+      "limits": "Identitychecking uses actual pinned Git; zeroreadcallbacks is not claimed for canonicalbutincorrect semanticmetadata."
+    },
+    {
+      "name": "unknown_canonical_reviewedpath",
+      "outcome": "PASS",
+      "actual_refusal": "source role/path agreement",
+      "readonlyGitcallbacks": 0,
+      "native/gatecallbacks": 0,
+      "limits": "Identitychecking uses actual pinned Git; zeroreadcallbacks is not claimed for canonicalbutincorrect semanticmetadata."
+    },
+    {
+      "name": "effectivewholemetadata_admission_removal",
+      "outcome": "PASS",
+      "actual_removed_guard_defining_property": "FAIL",
+      "callback_count": 1,
+      "unsafecommandactuallyexecuted": false
+    },
+    {
+      "name": "wrong_plan_bool_count",
+      "outcome": "PASS",
+      "refusal": "typed366 denominator",
+      "native/globalcommands": 0
+    },
+    {
+      "name": "wrong_unmeasured_actualcandidate",
+      "outcome": "PASS",
+      "refusal": "prospective/nonexecuted binding",
+      "native/globalcommands": 0
+    },
+    {
+      "name": "omitted_py_row_retall",
+      "outcome": "PASS",
+      "refusal": "typed366 denominator",
+      "native/globalcommands": 0
+    },
+    {
+      "name": "unknownwriterretotal",
+      "outcome": "PASS",
+      "refusal": "full factual writerclasses",
+      "native/globalcommands": 0
+    },
+    {
+      "name": "wrongconfigbody",
+      "outcome": "PASS",
+      "refusal": "actualfrozenconfigGitbytes",
+      "native/globalcommands": 0
+    }
+  ],
+  "full_prepared_ignored_output": {
+    "path": "/tmp/e02-E-lint-plan-independent-doe-20261007/prepared-optimized.json",
+    "bytes": 722104,
+    "sha256": "106a280d6fd0fb60893392e9f67408e76b712dff8b16cce5bbb2f697f6d52f74"
+  },
+  "limits": [
+    "NativeglobalRuff/format/backend/source/API code not executed or changed. Observeruses only externalstdlib and read-onlyGit.",
+    "Prospective366 union is planonly; laterDOCheads/mergedROOTphysicalfootprint/config mustbe recounted after actual append-onlymerge/freeze.",
+    "Old frozen360 diagnostics36/3foreignpaths remain historicalactualFAIL, no inherited P41 waiver.",
+    "Semantic wrong source tree/path refusals require pinned read-onlyGit callbacks; no falsezero-read claim.",
+    "General Core/IR/facade/schema authority is not granted by E scopedsourcequalification or writer counts."
+  ],
+  "input_dependency_refs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/record_denominator.py",
+      "bytes": 18625,
+      "sha256": "17085daa5b0ec493c15f7f3583423221916539a621330e94d812ed3bb9da2a11"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/writer-attribution-supplement-64d7444a.json",
+      "bytes": 19269,
+      "sha256": "f0ed212053b18814ad53c523e6f41d229c286fb9c3cddb218b01297743b8cb85"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/closed-lint-review.json",
+      "bytes": 474146,
+      "sha256": "7ea12c7be7043c90aac8d8319de3028ee0b94c01fd436f4ca0d3dde59ee5de80"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+      "bytes": 8793,
+      "sha256": "e9be8494cbf87f77f6c737fc5f2eebd58c6481b2893d4dfd76891b854409f418"
+    }
+  ]
+}

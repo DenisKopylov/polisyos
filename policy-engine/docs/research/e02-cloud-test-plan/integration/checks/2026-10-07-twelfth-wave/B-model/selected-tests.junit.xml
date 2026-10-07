@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="4.273" timestamp="2026-10-07T16:37:54.424152+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="" name="_build.e02-g-continuation-20261006.R.incoming-20261007-1311.B-model-local.candidate.policy-engine.tests.unit.scientist.orchestration.engine.test_producer_scope_reconciliation" time="0.000"><error message="collection failure">tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:23: in &lt;module&gt;
+    from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+src/polisyos/scientist/orchestration/engine/async_executor.py:49: in &lt;module&gt;
+    from polisyos.scientist.orchestration.engine.executor import (
+src/polisyos/scientist/orchestration/engine/executor.py:26: in &lt;module&gt;
+    from polisyos.scientist.methods.research_dag.persistence import persist_research_dag
+src/polisyos/scientist/methods/research_dag/__init__.py:16: in &lt;module&gt;
+    from polisyos.scientist.methods.research_dag.invalidation import (
+src/polisyos/scientist/methods/research_dag/invalidation.py:14: in &lt;module&gt;
+    from polisyos.scientist.evidence.claims.lifecycle import (
+src/polisyos/scientist/evidence/claims/__init__.py:3: in &lt;module&gt;
+    from polisyos.scientist.evidence.claims.audit import (
+src/polisyos/scientist/evidence/claims/audit.py:14: in &lt;module&gt;
+    from polisyos.scientist.evidence.claims.ledger import CLAIM_LEDGER_KIND
+src/polisyos/scientist/evidence/claims/ledger.py:11: in &lt;module&gt;
+    from polisyos.scientist.evidence.claims.models import ClaimLedger
+src/polisyos/scientist/evidence/claims/models.py:11: in &lt;module&gt;
+    from polisyos.scientist.methods.search.readiness import DecisionReadiness
+src/polisyos/scientist/methods/search/readiness.py:14: in &lt;module&gt;
+    from polisyos.foundry.validation import (
+src/polisyos/foundry/validation/__init__.py:12: in &lt;module&gt;
+    from polisyos.foundry.validation.phase0_closure import (
+src/polisyos/foundry/validation/phase0_closure.py:16: in &lt;module&gt;
+    from polisyos.foundry.agent_sim.world import (
+src/polisyos/foundry/agent_sim/__init__.py:84: in &lt;module&gt;
+    from .government_policy import (
+src/polisyos/foundry/agent_sim/government_policy.py:18: in &lt;module&gt;
+    from polisyos.foundry.welfare.social_weights import (
+src/polisyos/foundry/welfare/social_weights.py:10: in &lt;module&gt;
+    from polisyos.foundry.methods.catalog.policy.welfare import (
+src/polisyos/foundry/methods/catalog/__init__.py:133: in &lt;module&gt;
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+src/polisyos/foundry/methods/catalog/dependency_authority.py:7157: in &lt;module&gt;
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+src/polisyos/foundry/methods/catalog/dependency_authority.py:6119: in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/dependency_evidence.py:2253: in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ^^^^^^^^^^^^^^^^^
+/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'</error></testcase></testsuite></testsuites>

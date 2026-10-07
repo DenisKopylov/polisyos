@@ -1,0 +1,4 @@
+Would reformat: docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py
+Would reformat: docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py
+Would reformat: docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py
+3 files would be reformatted, 357 files already formatted

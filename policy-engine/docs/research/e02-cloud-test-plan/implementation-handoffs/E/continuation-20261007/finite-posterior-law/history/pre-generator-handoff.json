@@ -1,0 +1,257 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "finite-posterior-law-r5",
+  "branch": "codex/e02-E-mc-20261006",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "base_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "decision_commit": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "implementation_commit": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "numeric_candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "numeric_tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "companion_commit": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "review_source": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "owner": "E scoped B201/B202 appointed at a0ac10 and shared E MC finite-law companion; no general Core/IR/A/C/F facade or runtime lease",
+  "original_ids": [
+    "B188",
+    "B192",
+    "B201",
+    "B202"
+  ],
+  "full_footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/typed-delta/source-footprint-3932.json",
+    "bytes": 8900,
+    "sha256": "7de554334242baa44c5c9399b93530e08e0107aa18e2f53425a97b33110230db"
+  },
+  "diff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/technical-decision.json",
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml",
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/ir/__init__.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "policy-engine/src/polisyos/ir/api.py",
+    "policy-engine/src/polisyos/schemas/abi_models.py",
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json",
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json",
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json",
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json",
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json",
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json",
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json",
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/index.json",
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+    "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+  ],
+  "companions": [
+    "Pre-code tracked technical choice",
+    "Profile2 root/analytics exports and ABI registry entry",
+    "Released persisted-artifact-format classification",
+    "Five affected test files and seven byte-exact old Profile1 fixtures plus index",
+    "IR analytics and Foundry uncertainty READMEs",
+    "Moderate author/independent stdout/stderr/JUnit/source/environment/admission receipts"
+  ],
+  "runtime_property": {
+    "producer": "summarize_bayesian_calibration_posterior requires explicit multi-coordinate shared IDs and emits distinct Profile2",
+    "artifact": "Exact Envelope1.1 inline PosteriorSamplesCarrier with canonical binary ratio weights, row IDs/order/hash and distinct Profile2 id/version",
+    "bridge": "Configured existing CAS persist/load; strict profile dispatch and complete-group admission in common sampling support before builder/nominal/evaluator",
+    "consumer": "Actual MonteCarloPropagator/dispatcher random,Sobol,Halton shared U\u2192exact-ratio cuts; fresh E node and Welfare nominal-mean readers",
+    "surface_state": "surface_out_of_scope",
+    "surface_scope": "No new HTTP/C/F/authority surface claimed; appointed owners receive distinct Profile2 contract and compatibility packet.",
+    "typed_profile": "Profile2 is an independently typed strict BaseModel DTO, preserving exact public schema/fields/defaults/order without incompatible versioned Literal overrides."
+  },
+  "independent_oracle": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent/independent-final-review-ca17.json",
+    "bytes": 51924,
+    "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
+  },
+  "oracle_basis": "Independent Fraction(actual finite values)/exact sum; first cumulative>finiteU, first cumulative>=finiteq. No candidate loop derives expected cuts, mean, variance or dyadic counts.",
+  "old_proxy_divergence": [
+    "Exact old64d admits generated same-length marginal arrays into a paired stochastic group; reversed second marginal changes Var(a-b) while summaries match.",
+    "Old normalized-float cumsum plus terminal1 residual yields hundred-atom CDFmean9999999999999.342 while stored mean1e13; new continuous rational mass law is explicit and shared, finite uniform mesh is a declared discretization approximation.",
+    "Nearest-float CDF cutoff gives wrong finite bucket immediately below exact1/3; ceil/right and floor/left distinguish these boundaries."
+  ],
+  "negative_controls": [
+    "Before-callback typed refusal for unreachable tiny last atom on random/Sobol/Halton",
+    "Fresh integrity-valid generated-row premise forgery refuses; removal of actual common group admission leaves markers/digest intact and257callbacks, falsifying required negative",
+    "Nearest-cut proxy removal fails exact1/3 boundary control",
+    "Tiny first/interior/last supported atoms, zero masses, invalidU=1/domain, almostequal differentpairedweights, CDFcollapse, stale/permuted carrier controls",
+    "Literal old700 Profile1 decode/display/replay7payloads29527B remain byte exact",
+    "Actual canonical architecture supported facade healthy, aliased private-module fake refuses, removed collector fails negative without baseline/config edits"
+  ],
+  "predicate_basis": {
+    "canonical_weight_ratios": "recomputed: exact rational ratio equality before/after common power-of-two scaling plus idempotence",
+    "supported_bucket": "recomputed: exact rational CDF ceil cuts preserve each positive finite-U interval or refuse",
+    "joint_content_order_and_ids": "recomputed: complete coordinate group, exact IDs/order/carriers/weights/context and digest binding",
+    "supplied_alignment_origin": "consumer_asserted: producer-supplied input row identity; never source/provenance or gate authority",
+    "source_history_fit_noise_purpose": "not_established unless externally resolved; no source quality inferred from digest or synthetic fixture",
+    "code_review": "independently_reconciled by oracle_r4 on immutable numeric candidate and unchanged-product companion delta"
+  },
+  "checks": {
+    "author_fresh_source2c0_family": "414PASS/0FAIL/0ERROR/0SKIP; actual exact414-case JUnit/stdout/stderr, not a full E/global wave",
+    "author_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/author/author-checks.json",
+      "bytes": 10454,
+      "sha256": "d2494d20b3462061216919ffcccaf0b756ff40f25076beb4356107bd497e28b4"
+    },
+    "independent_source2c0_observations": "30 retainedPASS plus3corrected/current deltaPASS; two observer errors retained separately, not rebranded as33-case execution onca17",
+    "independent_ca17_delta": "GO two companion paths only, seven product-Python blobs unchanged; actual existing facade helper identities and release classification",
+    "ruff_format": "All12changedPython PASS on2c0; current changed-test canonical policy-engine cwd Ruff/formatPASS onca17",
+    "importer": "Actual ca17 import_results.py --check PASS; baseline navigation is not candidate numeric evidence",
+    "global_gates": "No new full architecture/CI/workspace PASS claimed; required workflow after combined source/independent review freeze remains G/root queue",
+    "check_outcome_vs_finding": "All checks and sourceGO are separate from original criterion owner disposition.",
+    "typed_DTO_delta": "13PASS native old7 literal/CAS/fresh/new/forged profile/adapter controls; not a repeat414 wave. Actual source3932 public typecheck FAIL1 existing optionalMemberAccess; both twoNEW overrides removed; independent bounded GO.",
+    "independent_source_binding": "Qualified finite-law GO on2c0/ca17 plus exact22 function/method source reuse and independent DTO/public typing GO on3932; no rebranding of original33 reconciled controls.",
+    "typed_ruff_format": "Current one changed DTO source canonical policy-engine cwd Ruff/format PASS."
+  },
+  "environment": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/author/runtime-environment-public-bindings.json",
+    "bytes": 19826,
+    "sha256": "23152b9a9c46dc1d6ac1f9430c1261ec22242760ef9c0584628cc9c4f52c1f42"
+  },
+  "input_identity": {
+    "synthetic_scope": "Explicit finite laws and old synthetic literal700 payloads only; no production dataset imported or claimed",
+    "source_refs": [
+      "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+    ],
+    "old_source_falsifier": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/old-source/actual-conditions-counterexamples.json",
+      "bytes": 18878,
+      "sha256": "cf96bf9961e034ab2835d31e8624ba77367575d570d8a3e50d35e980cdc39856"
+    },
+    "full_admission_before": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/author/admission-before-64d-DOE-existing.json",
+      "bytes": 123115,
+      "sha256": "15b57bdfe2f43b66d1a908f7a8c6e93d0a2110e4cfa2749864a9b89d50cee4ee"
+    },
+    "full_admission_after": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/author/admission-after-64d-DOE-existing.json",
+      "bytes": 123115,
+      "sha256": "6bb1dc5806d4e2cd186e9a8ac17fb3cded5cbb658708a346f9154a291fa1d89e"
+    },
+    "backend": "Existing declared DOE184 Python3.14.7/NumPy2.3.5/SciPy1.16.3/SALib1.5.2/JAX0.8.2 environment, explicit MCsource/cwd; no ROOT207 reader/install/mutation",
+    "environment_creation": "Initial UV attempt created an empty MC .venv then polisyos-tools spawn failed2; full doctor succeeded through existing DOE184 explicit environment. No populated new environment/dependency added."
+  },
+  "owner_ready_packets": {
+    "G_IR_schema_public_generator": {
+      "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "actual_ABI_models": 103,
+      "actual_analytics_exports": 295,
+      "next_result": "Canonical generator owner applies complete103 registry/schema/public catalog/inventory projection and recomputes affected runtime source_dependency_hash on exact3932. Source schemas are independently equal ca17\u21923932; source bytes differ, so runtime projection equality remains pending. Preserve every old key and Profile1 snapshot; no hand-edit generated files.",
+      "actual_IR_ABI_models": 101,
+      "count_scope": "103 is complete ABI_MODELS; 101 is IR_ABI_MODELS; prior narrower reviewer inventory not rebranded.",
+      "all103_schema_equality": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/typed-delta/dto-all103-schema-equality.json",
+        "bytes": 35954,
+        "sha256": "3f5e33de1767b0bf0feae08c3b1a508da557b4f835177812ee0613fa30b42616"
+      },
+      "canonical_registry_path": "policy-engine/src/polisyos/schemas/abi_models.py:ABI_MODELS",
+      "canonical_schema_builder": "tools.quality.diagnostics.gen_schema._generate_model_schema(_resolve_class(entry.fqn)); complete actual103 entries compared before/after",
+      "runtime_projection": "PENDING separate canonical generator owner packet: exact current source_dependency_hash may change despite schema equality. Source/public DTO GO does not assert generated/runtime/OpenAPI gate PASS.",
+      "full_projection_message_status": "Criteria author reported ca17 full103/103/103,20packages13families and9generatedpath patch; complete deciding packet pending separate appendDOC publication. This handoff does not use that message as full gate evidence."
+    },
+    "Foundry_Calibration_API_owner": {
+      "internal_test_seams": [
+        "polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior",
+        "polisyos.foundry.uncertainty.monte_carlo.MonteCarloPropagator",
+        "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope (canonical IR API owner, native CAS test seam)"
+      ],
+      "existing_facade_helpers": [
+        "polisyos.foundry.uncertainty.admit_empirical_weights",
+        "polisyos.foundry.uncertainty.empirical_cdf"
+      ],
+      "next_result": "Review native-test internal seam admission separately from prior general facade alias packet; no public aliases added solely for tests."
+    },
+    "C_F_A_consumers": {
+      "next_result": "Resolve Profile2 carrier law and verify bound axis/order/shared IDs/exactweights/unit/context before new law-dependent computations; display legacy Profile1 without silently reinterpreting weights. Existing E sourceGO is not C/F/A wire/authority ratification."
+    },
+    "G_root_closeout": {
+      "next_result": "Accept/reject each original row separately; update current B201/B202 technical-open correction only after exact source acceptance and defining evidence, retaining historical ledger49partial4held1closed and B194/B197 external holds."
+    },
+    "historical_import_denominator": {
+      "historical12_remaining": "calibration/forecast_bridge.py -> polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle at995 on frozen64d",
+      "new_CanonSpec_seam": "Separate existing IR canon edge; not the historical12 remaining loader row, no general facade lease ratified.",
+      "scope": "Current ratio-law source has no new cross-root private product import. Native test seams and external facade/API owner companions remain separately attributed."
+    }
+  },
+  "finding_dispositions": {
+    "B188": {
+      "historical_status": "partial",
+      "current_source": "Shared finite-law defect repaired; sourceGO, owner original criterion disposition pending."
+    },
+    "B192": {
+      "historical_status": "partial",
+      "current_source": "All backend siblings preserve admitted finite-U law or refuse; sourceGO, owner original criterion disposition pending."
+    },
+    "B201": {
+      "historical_status": "held",
+      "current_source": "Appointed semantic choices applied in distinct Profile2, generating/persisting/reading independent functionals and refusing unsupported premise; current code corrected, no automatic ledger rewrite."
+    },
+    "B202": {
+      "historical_status": "held",
+      "current_source": "Exact content-bound joint carrier retained, strict supplied-row premise before callbacks; old replay preserved; no automatic ledger rewrite."
+    }
+  },
+  "limitations": [
+    "Finite uniform-mesh discretization is explicitly distinct from arbitrary-real or exact grid-expectation claims.",
+    "Content-bound supplied row pairing is not production/provenance authority; gate_eligible staysfalse.",
+    "Old generated Profile1 groups decode/display/replay but no longer acquire stochastic-law authority through generated IDs.",
+    "No synthetic source replaces factual local source-law/history/noise/fit/domain inputs for B194/B197/B200 or DDM current/R2 feeds.",
+    "General nine legacy Core/IR facade packet and global gate reds remain separately attributed; P41 inheritance not_established without exact slice-base full command/input proof.",
+    "Actual current scoped public module typecheck remains FAIL1 for pre-existing optionalMemberAccess; bounded DTO review GO is not a full typecheck/global gate PASS."
+  ],
+  "cleanup_candidates": [
+    "Newly created empty /workspace/e02-E-mc-20261006/policy-engine/.venv after failed doctor attempt; remove only after retained receipt and fresh no-active-user proof under explicit cloud cleanup authorization.",
+    "Repeatable scratch CAS directories under /workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers and /tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e; copied deciding bytes/source refs retained first.",
+    "Existing DOE184 environment remains in active reviewer use and must be retained until root closes its users."
+  ],
+  "copy_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/copy-index.json",
+    "bytes": 36194,
+    "sha256": "49ce425c21caf00901fa375fcf7d77f8116d38c09b2cd12c769a799d860d61e9"
+  },
+  "receipt_metadata_correction": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/author/receipt-short-ref-correction.json",
+    "bytes": 1312,
+    "sha256": "a59fcf8cbbc928aeb0fb5f06dc9c78f28620322f1c544f93fbe7c529b88676ba"
+  },
+  "publication": "Separate evidence commit follows source commits; this JSON pins earlier immutable candidate, not its own future evidence SHA.",
+  "typed_DTO_commit": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "prior_companion_tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+  "typed_independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/owner-api/dto-append-independent-review.json",
+    "bytes": 34502,
+    "sha256": "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c"
+  },
+  "typed_independent_math_reuse": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+    "bytes": 3875,
+    "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+  },
+  "exact_function_reuse": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/typed-delta/dto-exact-function-source-reuse.json",
+    "bytes": 3514,
+    "sha256": "36d30e781e5b74582b907877d7b576851a82e960b05e13ae06ca5d11af8f2419"
+  },
+  "all103_schema_equality": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/typed-delta/dto-all103-schema-equality.json",
+    "bytes": 35954,
+    "sha256": "3f5e33de1767b0bf0feae08c3b1a508da557b4f835177812ee0613fa30b42616"
+  },
+  "supplementary_copy_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/supplementary-copy-index.json",
+    "bytes": 38893,
+    "sha256": "3dd0d94ca9cb584f2914c560d68e167e816dd9a5d6875c3673d16f979d77b3d2"
+  },
+  "copy_index_scope": "Original copy-index96 preserves complete2c0/ca17 and old-source observations; supplementary index supplies final3932 DTO/source reviews without changing original history bytes."
+}

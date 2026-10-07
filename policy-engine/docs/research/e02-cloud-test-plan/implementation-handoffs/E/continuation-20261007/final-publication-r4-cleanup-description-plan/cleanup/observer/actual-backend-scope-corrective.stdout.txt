@@ -1,0 +1,10 @@
+{
+  "receipt": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/actual-backend-scope-corrective-readback.json",
+    "bytes": 19794,
+    "sha256": "c4d62bd25599ec9faee118acd8509b84ea77670465d96681fdff0bf26b721084"
+  },
+  "active_backend_users": 5,
+  "unreadable_agent_processes": [],
+  "backend_exists": true
+}

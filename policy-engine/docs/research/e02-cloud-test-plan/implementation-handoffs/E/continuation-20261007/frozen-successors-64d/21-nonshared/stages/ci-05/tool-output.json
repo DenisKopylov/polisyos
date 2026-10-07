@@ -1,0 +1,3445 @@
+{
+  "contract_error_count": 262,
+  "contract_errors": [
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-LEX-FOUNDRY-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-LEX-SCIENTIST-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-30",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-05-DATA-FORGE-LEGAL-BATCH-LEX-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-30",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-05-DATA-FORGE-LEGAL-BATCH-SCIENTIST-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-30",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-FOUNDRY-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-30",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-LEX-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-30",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-SCIENTIST-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-ACADEMIC-SCIENTIST-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-IR-OBS-FOUNDRY-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-IR-OBS-SCIENTIST-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-IR-ANALYTICS-FOUNDRY-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-IR-ANALYTICS-SCIENTIST-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-IR-PANDAS-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-IR-JAX-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-FOUNDRY-SCIENTIST-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-FOUNDRY-LEX-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-FABRIC-WORLD-DEEP-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-30",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-05-FOUNDRY-FABRIC-QUALITY-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-30",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-05-IR-ANALYTICS-CORE-DYNAMICS-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-30",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-05-IR-ANALYTICS-CORE-SIMULATION-PROOF-001"
+    },
+    {
+      "check": "import-exceptions",
+      "detail": "2026-07-01",
+      "message": "import exception is expired",
+      "severity": "error",
+      "subject": "E-2026-04-IR-PASSES-FOUNDRY-KERNEL-LOWERING-001"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py', 33, 'importlib.import_module', '_helpers.runtime_http')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/__init__.py', 331, 'importlib.import_module', \"f'{__name__}.{name}'\")",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/__init__.py', 336, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/artifacts/backends/gcs_store.py', 81, 'importlib.import_module', 'google.cloud.storage')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/artifacts/backends/s3_store.py', 86, 'importlib.import_module', 'boto3')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/components/_cli_replay.py', 163, 'importlib.import_module', 'polisyos.scientist.replay.backend')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/components/_cli_replay.py', 220, 'importlib.import_module', 'polisyos.scientist.orchestration.engine.checkpoint')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/components/discovery.py', 599, 'list_entry_points', 'list_entry_points(group=group)')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/contracts/__init__.py', 1362, 'importlib.import_module', \"f'polisyos.core.contracts.{name}'\")",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/contracts/__init__.py', 1367, 'importlib.import_module', '_LAZY_IMPORTS[name]')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/data_forge/domains/academic/knowledge/__init__.py', 42, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/data_forge/domains/legal/contracts.py', 403, '__import__', 'json')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/data_requirement/compiler.py', 539, 'importlib.import_module', 'polisyos.scientist.policy_design')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/__init__.py', 97, 'importlib.import_module', \"self.__dict__['_target_fqn']\")",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/__init__.py', 293, 'importlib.import_module', 'polisyos.fabric.world')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/__init__.py', 298, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/data_plane/__init__.py', 259, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/data_plane/orchestrator.py', 775, 'importlib.import_module', 'cloudpickle')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/data_plane/orchestrator.py', 784, 'importlib.import_module', 'name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/ingestion/ingestion.py', 146, 'importlib.import_module', 'yaml')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/ingestion/ingestion.py', 453, 'importlib.import_module', 'pandas')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/ingestion/ingestion.py', 655, 'importlib.import_module', 'pandas')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/__init__.py', 192, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/__init__.py', 216, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/extensions/__init__.py', 58, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/extensions/registry.py', 238, 'importlib.import_module', 'polisyos.foundry._registry')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/methods/backends/__init__.py', 186, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/methods/backends/__init__.py', 192, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/methods/components/value_evidence.py', 399, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/methods/components/value_evidence.py', 411, 'importlib.import_module', 'capability.owner_module')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/methods/selection/cache.py', 248, 'importlib.import_module', 'mod')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/plugins/discovery.py', 52, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/plugins/discovery.py', 107, 'importlib.import_module', \"project_name.replace('-', '_')\")",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/ir/__init__.py', 1029, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/ir/analytics/literature.py', 1942, 'importlib.import_module', 'polisyos.scientist.validation.citation_faithfulness')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/ir/analytics/literature.py', 1948, 'importlib.import_module', 'polisyos.scientist.validation.citation_faithfulness')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/ir/governance/__init__.py', 418, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/ir/observation/__init__.py', 676, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/lex/__init__.py', 192, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/__init__.py', 90, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/http/services/control_plane_store.py', 5201, 'importlib.import_module', 'psycopg')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/acquisition_executor.py', 1519, 'importlib.import_module', 'polisyos.runtime.quality.semantic_epoch')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/acquisition_executor.py', 1968, 'importlib.import_module', 'polisyos.lex.knowledge.store')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/adaptation_transition.py', 205, 'importlib.import_module', 'polisyos.runtime.http.services.control')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/candidate_firewall.py', 554, 'importlib.import_module', 'polisyos.scientist.validation.citation_faithfulness')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/confidence_ledger.py', 5060, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/credal_reference.py', 2038, 'importlib.import_module', 'polisyos.lex.knowledge.store')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/credal_reference.py', 2387, 'importlib.import_module', 'ortools.sat.python.cp_model')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/credal_reference.py', 2416, 'importlib.import_module', 'scipy.optimize')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/credal_reference.py', 2453, 'importlib.import_module', 'hnswlib')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/design_generation.py', 4566, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 1370, 'importlib.import_module', 'polisyos.foundry.extensions.registry')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 1443, 'importlib.import_module', 'polisyos.foundry.extensions.registry')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 1541, 'importlib.import_module', 'polisyos.foundry.extensions.registry')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 1550, 'importlib.import_module', 'polisyos.lex.knowledge.store')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 3157, 'importlib.import_module', 'polisyos.foundry.extensions.registry')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 3882, 'importlib.import_module', 'polisyos.lex.intervention_artifacts')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 4106, 'importlib.import_module', 'polisyos.foundry.contracts.state')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 1050, 'importlib.import_module', 'polisyos.ir.schemas.catalog')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 1351, 'importlib.import_module', 'polisyos.core.artifacts.store')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 1620, 'importlib.import_module', 'polisyos.ir.analytics.causal')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 3242, 'importlib.import_module', 'polisyos.scientist.policy_design.baseline_compiler')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4254, 'importlib.import_module', 'polisyos.ir.analytics.causal')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4255, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4266, 'importlib.import_module', 'polisyos.ir.analytics.negative_certificate')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4269, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4283, 'importlib.import_module', 'polisyos.ir.analytics.proof_composability')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4286, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4301, 'importlib.import_module', 'polisyos.ir.analytics.partial_identification')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4304, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4315, 'importlib.import_module', 'polisyos.ir.analytics.dual_certificate')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4316, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4735, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4755, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 5004, 'importlib.import_module', 'polisyos.scientist.evidence.claims.models')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 5005, 'importlib.import_module', 'polisyos.scientist.policy_design.claim_decomposition')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/semantic_epoch.py', 2230, '__import__', 'datetime')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/semantic_epoch.py', 2249, '__import__', 'datetime')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/__init__.py', 191, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/agent/code_verifier.py', 508, '__import__', 'name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/governance/continuous/__init__.py', 453, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/methods/advanced.py', 381, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/methods/search/contracts.py', 265, 'importlib.import_module', 'polisyos.scientist.methods.search.adapters')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/validation/__init__.py', 444, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/validation/citation_faithfulness.py', 782, 'importlib.import_module', 'polisyos.runtime.quality.proving_ground.bounded_request_agent')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 274, 'importlib.import_module', 'polisyos.scientist.methods.search.objective')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 278, 'importlib.import_module', 'polisyos.scientist.methods.search.objective')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 295, 'importlib.import_module', 'polisyos.scientist.methods.doe.designs')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 296, 'importlib.import_module', 'polisyos.scientist.methods.doe.sampling')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 297, 'importlib.import_module', 'polisyos.scientist.methods.doe.analysis')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 363, 'importlib.import_module', 'polisyos.scientist.methods.doe.designs')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 364, 'importlib.import_module', 'polisyos.scientist.methods.search.objective')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 365, 'importlib.import_module', 'polisyos.scientist.methods.search.adversarial')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 511, 'importlib.import_module', 'polisyos.scientist.methods.search.cold_start')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 512, 'importlib.import_module', 'polisyos.scientist.methods.search.lessons')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 513, 'importlib.import_module', 'polisyos.scientist.methods.search.sentinels')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 514, 'importlib.import_module', 'polisyos.scientist.methods.search.stages')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 571, 'importlib.import_module', 'polisyos.scientist.methods.search.calibration_report')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 572, 'importlib.import_module', 'polisyos.scientist.methods.search.cold_start')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 573, 'importlib.import_module', 'polisyos.scientist.methods.search.lessons')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 574, 'importlib.import_module', 'polisyos.scientist.methods.search.sentinels')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 575, 'importlib.import_module', 'polisyos.scientist.methods.search.stages')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 640, 'importlib.import_module', 'polisyos.scientist.methods.backtesting.cli')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 1007, 'importlib.import_module', 'polisyos.scientist.methods.backtesting.cli')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/diagnostics/gen_schema.py', 164, 'importlib.import_module', 'module_path')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/diagnostics/gen_schema.py', 172, 'importlib.import_module', 'cls.__module__')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/diagnostics/gen_schema.py', 302, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/capture_layer3_gy_design_generation_replay.py', 51, 'importlib.import_module', 'polisyos.pdc')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/capture_layer3_gy_design_generation_replay.py', 52, 'importlib.import_module', 'polisyos.runtime.quality.design_generation')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/capture_layer3_gy_design_generation_replay.py', 56, 'importlib.import_module', 'tools.quality.validation.check_layer3_gy_design_generation_contract')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py', 2194, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/gy_acquisition_assurance_oracle.py', 138, '__import__', 'json')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/gy_acquisition_assurance_oracle.py', 142, '__import__', 'json')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/gy_acquisition_assurance_oracle.py', 147, '__import__', 'polisyos.fabric.evidence.acquisition_assurance')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/layer3_gy_n13b_acceptance.py', 424, '__import__', 'math')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/layer3_gy_n13b_acceptance.py', 1023, '__import__', 'math')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/run_grounding_closeout_sweep.py', 213, 'importlib.import_module', 'module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/run_grounding_closeout_sweep.py', 240, 'importlib.import_module', 'stage.module_name')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/shared_grounding_world_cache.py', 85, 'importlib.import_module', 'polisyos.runtime.quality.credal_reference')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/shared_grounding_world_cache.py', 88, 'importlib.import_module', 'polisyos.runtime.quality.intervention_substrate')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/shared_grounding_world_cache.py', 91, 'importlib.import_module', 'polisyos.runtime.quality.grounding_relation')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/shared_grounding_world_cache.py', 94, 'importlib.import_module', 'polisyos.runtime.quality.design_generation')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/validation/shared_grounding_world_cache.py', 242, 'importlib.import_module', 'tools.quality.validation.check_layer3_gy_design_generation_contract')",
+      "message": "dynamic import call is not registered",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py', 29, 'importlib.import_module', '_helpers.runtime_http')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/__init__.py', 79, 'importlib.import_module', \"f'{__name__}.{name}'\")",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/__init__.py', 84, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/artifacts/backends/gcs_store.py', 75, 'importlib.import_module', 'google.cloud.storage')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/artifacts/backends/s3_store.py', 79, 'importlib.import_module', 'boto3')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/components/_cli_replay.py', 161, 'importlib.import_module', 'polisyos.scientist.replay.backend')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/components/_cli_replay.py', 218, 'importlib.import_module', 'polisyos.scientist.orchestration.engine.checkpoint')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/components/discovery.py', 389, 'list_entry_points', 'list_entry_points(group=group)')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/core/contracts/__init__.py', 974, 'importlib.import_module', '_LAZY_IMPORTS[name]')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/data_forge/domains/academic/knowledge/__init__.py', 38, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/data_forge/domains/legal/contracts.py', 223, '__import__', 'json')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/data_forge/domains/ukraine/server.py', 39, '__import__', 'os')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/data_forge/domains/ukraine/server.py', 120, '__import__', 'os')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/data_requirement/compiler.py', 498, 'importlib.import_module', 'polisyos.scientist.policy_design')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/__init__.py', 92, 'importlib.import_module', \"self.__dict__['_target_fqn']\")",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/__init__.py', 283, 'importlib.import_module', 'polisyos.fabric.world')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/__init__.py', 288, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/data_plane/__init__.py', 132, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/data_plane/orchestrator.py', 753, 'importlib.import_module', 'cloudpickle')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/data_plane/orchestrator.py', 762, 'importlib.import_module', 'name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/ingestion/ingestion.py', 138, 'importlib.import_module', 'yaml')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/ingestion/ingestion.py', 445, 'importlib.import_module', 'pandas')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/fabric/ingestion/ingestion.py', 647, 'importlib.import_module', 'pandas')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/__init__.py', 48, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/__init__.py', 72, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/calibration/dp_ci.py', 20, '__import__', 'pathlib')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/extensions/__init__.py', 50, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/extensions/registry.py', 147, 'importlib.import_module', 'polisyos.foundry._registry')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/methods/selection/cache.py', 245, 'importlib.import_module', 'mod')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/plugins/discovery.py', 51, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/plugins/discovery.py', 74, 'pkg_resources.iter_entry_points', 'LEGACY_DOMAIN_PLUGIN_ENTRY_POINT_GROUP')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/foundry/plugins/discovery.py', 86, 'importlib.import_module', \"dist.project_name.replace('-', '_')\")",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/ir/__init__.py', 980, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/ir/governance/__init__.py', 413, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/ir/observation/__init__.py', 678, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/lex/__init__.py', 207, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/__init__.py', 65, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/http/services/control_plane_store.py', 2399, 'importlib.import_module', 'psycopg')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 491, 'importlib.import_module', 'polisyos.foundry.methods.catalog')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 492, 'importlib.import_module', 'polisyos.foundry.methods.selection.registry')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 552, 'importlib.import_module', 'polisyos.lex.knowledge.store')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/intervention_substrate.py', 1756, 'importlib.import_module', 'polisyos.lex.intervention_artifacts')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 1025, 'importlib.import_module', 'polisyos.ir.schemas.catalog')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 1207, 'importlib.import_module', 'polisyos.core.artifacts.store')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 1476, 'importlib.import_module', 'polisyos.ir.analytics.causal')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 3098, 'importlib.import_module', 'polisyos.scientist.policy_design.baseline_compiler')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4063, 'importlib.import_module', 'polisyos.ir.analytics.causal')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4064, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4075, 'importlib.import_module', 'polisyos.ir.analytics.negative_certificate')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4078, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4092, 'importlib.import_module', 'polisyos.ir.analytics.proof_composability')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4095, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4110, 'importlib.import_module', 'polisyos.ir.analytics.partial_identification')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4113, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4124, 'importlib.import_module', 'polisyos.ir.analytics.dual_certificate')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4125, 'importlib.import_module', 'polisyos.ir.registry.refs')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4544, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4564, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4813, 'importlib.import_module', 'polisyos.scientist.evidence.claims.models')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py', 4814, 'importlib.import_module', 'polisyos.scientist.policy_design.claim_decomposition')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/__init__.py', 96, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/agent/code_verifier.py', 509, '__import__', 'name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/governance/continuous/__init__.py', 263, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/methods/advanced.py', 380, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('src/polisyos/scientist/validation/__init__.py', 449, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 221, 'importlib.import_module', 'polisyos.scientist.methods.search.objective')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 225, 'importlib.import_module', 'polisyos.scientist.methods.search.objective')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 242, 'importlib.import_module', 'polisyos.scientist.methods.doe.designs')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 243, 'importlib.import_module', 'polisyos.scientist.methods.doe.sampling')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 244, 'importlib.import_module', 'polisyos.scientist.methods.doe.analysis')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 310, 'importlib.import_module', 'polisyos.scientist.methods.doe.designs')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 311, 'importlib.import_module', 'polisyos.scientist.methods.search.objective')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 312, 'importlib.import_module', 'polisyos.scientist.methods.search.adversarial')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 458, 'importlib.import_module', 'polisyos.scientist.methods.search.cold_start')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 459, 'importlib.import_module', 'polisyos.scientist.methods.search.lessons')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 460, 'importlib.import_module', 'polisyos.scientist.methods.search.sentinels')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 461, 'importlib.import_module', 'polisyos.scientist.methods.search.stages')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 518, 'importlib.import_module', 'polisyos.scientist.methods.search.calibration_report')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 519, 'importlib.import_module', 'polisyos.scientist.methods.search.cold_start')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 520, 'importlib.import_module', 'polisyos.scientist.methods.search.lessons')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 521, 'importlib.import_module', 'polisyos.scientist.methods.search.sentinels')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 522, 'importlib.import_module', 'polisyos.scientist.methods.search.stages')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 587, 'importlib.import_module', 'polisyos.scientist.methods.backtesting.cli')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/ops_runners/runtime_cli.py', 954, 'importlib.import_module', 'polisyos.scientist.methods.backtesting.cli')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/diagnostics/gen_schema.py', 161, 'importlib.import_module', 'module_path')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/diagnostics/gen_schema.py', 169, 'importlib.import_module', 'cls.__module__')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "('tools/quality/diagnostics/gen_schema.py', 297, 'importlib.import_module', 'module_name')",
+      "message": "registered dynamic import call no longer exists",
+      "severity": "error",
+      "subject": "dynamic_imports_gate"
+    },
+    {
+      "check": "import-cycle",
+      "detail": "polisyos.foundry.methods.catalog, polisyos.foundry.methods.catalog.dependency_authority, polisyos.foundry.methods.catalog.snapshot",
+      "message": "new non-lazy import cycle",
+      "severity": "error",
+      "subject": "import_cycles_gate"
+    },
+    {
+      "check": "import-cycle",
+      "detail": "polisyos.scientist.adapters.foundry_bridge, polisyos.scientist.evidence.claims, polisyos.scientist.evidence.claims.audit, polisyos.scientist.evidence.claims.diff, polisyos.scientist.evidence.claims.export, polisyos.scientist.evidence.claims.head_index, polisyos.scientist.evidence.claims.ledger, polisyos.scientist.evidence.claims.lifecycle, polisyos.scientist.evidence.claims.models, polisyos.scientist.evidence.claims.owner_events, polisyos.scientist.evidence.claims.projections, polisyos.scientist.evidence.claims.readiness, polisyos.scientist.evidence.claims.validators, polisyos.scientist.governance.backtest_matrix, polisyos.scientist.governance.calibration_leaderboard, polisyos.scientist.governance.calibration_validation, polisyos.scientist.governance.continuous.lifecycle_bridge, polisyos.scientist.methods.backtesting.native_replay, polisyos.scientist.methods.backtesting.orchestrator, polisyos.scientist.methods.causal.validity, polisyos.scientist.methods.search.judge_stack, polisyos.scientist.methods.search.promotion_evidence, polisyos.scientist.methods.search.readiness, polisyos.scientist.nodes.builtins, polisyos.scientist.nodes.builtins.c6c_runtime_support, polisyos.scientist.nodes.builtins.causal.build_literature_prior, polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate, polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph, polisyos.scientist.nodes.builtins.causal.resolve_parameters, polisyos.scientist.nodes.builtins.causal.resolve_transport, polisyos.scientist.nodes.builtins.causal.run_abm_consistency, polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution, polisyos.scientist.nodes.builtins.causal.run_causal_ensemble, polisyos.scientist.nodes.builtins.causal.run_causal_queries, polisyos.scientist.nodes.builtins.causal.run_causal_readiness, polisyos.scientist.nodes.builtins.compile.compile_foundry, polisyos.scientist.nodes.builtins.compile.formalize_verified_policy, polisyos.scientist.nodes.builtins.compile.link_trinity, polisyos.scientist.nodes.builtins.data.bind_foundry_inputs, polisyos.scientist.nodes.builtins.data.build_data_snapshot, polisyos.scientist.nodes.builtins.data.enrich_knowledge, polisyos.scientist.nodes.builtins.decide._decision_packet_contracts, polisyos.scientist.nodes.builtins.decide.build_decision_packet, polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle, polisyos.scientist.nodes.builtins.decide.build_verified_policy_report, polisyos.scientist.nodes.builtins.decide.decision_packet.api, polisyos.scientist.nodes.builtins.decide.decision_packet.builder, polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment, polisyos.scientist.nodes.builtins.decide.decision_packet.serialization, polisyos.scientist.nodes.builtins.decide.decision_packet.validation, polisyos.scientist.nodes.builtins.decide.policy_runtime_request, polisyos.scientist.nodes.builtins.decide.policy_runtime_state, polisyos.scientist.nodes.builtins.decide.policy_runtime_support, polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime, polisyos.scientist.nodes.builtins.decide.run_policy_promotion, polisyos.scientist.nodes.builtins.decide.run_policy_translation, polisyos.scientist.nodes.builtins.decide.run_translator_compliance, polisyos.scientist.nodes.builtins.governance.data_plane_gate, polisyos.scientist.nodes.builtins.governance.legal_check, polisyos.scientist.nodes.builtins.governance.run_governance, polisyos.scientist.nodes.builtins.governance.run_normative_arbitration, polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack, polisyos.scientist.nodes.builtins.planning.build_execution_plan, polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot, polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence, polisyos.scientist.nodes.builtins.planning.draft_policy_options, polisyos.scientist.nodes.builtins.planning.expand_legal_source_pack, polisyos.scientist.nodes.builtins.planning.plan_policy_request, polisyos.scientist.nodes.builtins.planning.ready_to_run, polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime, polisyos.scientist.nodes.builtins.planning.run_evaluator, polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search, polisyos.scientist.nodes.builtins.planning.run_preflight, polisyos.scientist.nodes.builtins.planning.run_source_gap_review, polisyos.scientist.nodes.builtins.planning.run_source_verification, polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty, polisyos.scientist.nodes.builtins.simulate.propagate_welfare, polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation, polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis, polisyos.scientist.nodes.builtins.simulate.run_metric_validation, polisyos.scientist.nodes.builtins.simulate.run_simulation, polisyos.scientist.nodes.components, polisyos.scientist.orchestration.engine.async_executor, polisyos.scientist.orchestration.engine.builtins, polisyos.scientist.orchestration.engine.builtins.emit_artifact, polisyos.scientist.orchestration.engine.builtins.noop, polisyos.scientist.orchestration.engine.builtins.set_state, polisyos.scientist.orchestration.engine.checkpoint, polisyos.scientist.orchestration.engine.context, polisyos.scientist.orchestration.engine.executor, polisyos.scientist.orchestration.engine.idempotency, polisyos.scientist.orchestration.engine.protocol, polisyos.scientist.orchestration.engine.registry, polisyos.scientist.orchestration.engine.retry, polisyos.scientist.orchestration.engine.runner._activity_worker, polisyos.scientist.orchestration.engine.runner.config, polisyos.scientist.orchestration.engine.runner.distributed_tier, polisyos.scientist.orchestration.engine.runner.fallback_runner, polisyos.scientist.orchestration.engine.runner.local_runner, polisyos.scientist.orchestration.engine.runner.protocol, polisyos.scientist.orchestration.engine.runner.ray_runner, polisyos.scientist.orchestration.engine.runner.serialization, polisyos.scientist.orchestration.engine.runner.state_merge, polisyos.scientist.orchestration.engine.runner.temporal_runner, polisyos.scientist.orchestration.engine.state_merge, polisyos.scientist.orchestration.engine.telemetry, polisyos.scientist.orchestration.engine.topo, polisyos.scientist.orchestration.engine.workflow_spec, polisyos.scientist.orchestration.workflows.builder, polisyos.scientist.orchestration.workflows.causal_full, polisyos.scientist.orchestration.workflows.default, polisyos.scientist.orchestration.workflows.discovery, polisyos.scientist.orchestration.workflows.policy_design, polisyos.scientist.orchestration.workflows.policy_verified, polisyos.scientist.policy_design.output, polisyos.scientist.policy_design.phase3, polisyos.scientist.policy_design.search, polisyos.scientist.policy_design.translator, polisyos.scientist.replay.deterministic, polisyos.scientist.replay.verification, polisyos.scientist.validation.phase5_preflight, polisyos.scientist.validation.policy_verified.service",
+      "message": "new non-lazy import cycle",
+      "severity": "error",
+      "subject": "import_cycles_gate"
+    },
+    {
+      "check": "import-cycle",
+      "detail": "polisyos.scientist.methods.autotune.cheap_stage, polisyos.scientist.methods.autotune.execution_plan, polisyos.scientist.methods.autotune.runtime, polisyos.scientist.methods.search.contracts, polisyos.scientist.methods.search.controller, polisyos.scientist.methods.search.funnel.orchestrator, polisyos.scientist.methods.search.funnel.types, polisyos.scientist.methods.search.pareto_registry, polisyos.scientist.methods.search.run_state, polisyos.scientist.methods.search.service, polisyos.scientist.methods.search.stages",
+      "message": "new non-lazy import cycle",
+      "severity": "error",
+      "subject": "import_cycles_gate"
+    },
+    {
+      "check": "import-cycle",
+      "detail": "polisyos.scientist.methods.doe.designs, polisyos.scientist.methods.doe.morris_geometry, polisyos.scientist.methods.doe.uncertainty",
+      "message": "new non-lazy import cycle",
+      "severity": "error",
+      "subject": "import_cycles_gate"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-08-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "product-install-sh-to-workspace-bootstrap"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-08-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "product-migrate-py-to-tools-migrations"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-08-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "product-jax-bootstrap-to-workspace-vendor"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-07-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "repo-filter-topics-to-tools-research"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-07-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "repo-organize-relevant-topics-to-tools-research"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-09-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "imports-policy-config-relocation"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-09-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "imports-exceptions-config-relocation"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-09-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "imports-exceptions-registry-relocation"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-09-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "imports-gate-baseline-relocation"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-09-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "imports-gate-summary-relocation"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-09-01",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "freeze-policy-relocation"
+    },
+    {
+      "check": "shim-expiry",
+      "detail": "2026-06-30",
+      "message": "shim sunset has expired",
+      "severity": "error",
+      "subject": "data-requirement-family-fallback-from-hardcoded-heuristic"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "package-contract-schema"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "debt-ledger-reconciliation"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "compatibility-release-gates"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "package-aggregate-mirror"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "module-size-budget"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "generated-artifact-contracts"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "extension-points"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "runbook-coverage"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "component-observability"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "runtime-state-layout"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "test-ratchets"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "directory-contracts"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "directory-hygiene-assets"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "static-analysis-overrides"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "dead-static-analysis-overrides"
+    }
+  ],
+  "finding_count": 35,
+  "findings": [
+    {
+      "check": "import-boundary",
+      "detail": "baseline=8 current=13 delta=+5 added=5 registered_added=0 unregistered_added=5",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.calibration -> polisyos.ir"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=29 current=29 delta=+0 added=2 registered_added=0 unregistered_added=2",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.core -> polisyos.common"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=62 current=61 delta=-1 added=0 registered_added=0 unregistered_added=0",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.data_forge -> polisyos.common"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=17 current=20 delta=+3 added=5 registered_added=0 unregistered_added=5",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.data_forge -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=50 current=53 delta=+3 added=5 registered_added=0 unregistered_added=5",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.data_forge -> polisyos.ir"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=61 current=62 delta=+1 added=1 registered_added=0 unregistered_added=1",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.fabric -> polisyos.common"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=199 current=206 delta=+7 added=9 registered_added=0 unregistered_added=9",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.fabric -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=1 current=0 delta=-1 added=0 registered_added=0 unregistered_added=0",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.foundry -> polisyos.calibration"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=163 current=169 delta=+6 added=8 registered_added=0 unregistered_added=8",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.foundry -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=1 current=2 delta=+1 added=1 registered_added=0 unregistered_added=1",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.foundry -> polisyos.data_forge"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=461 current=464 delta=+3 added=3 registered_added=0 unregistered_added=3",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.foundry -> polisyos.ir"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=0 current=3 delta=+3 added=3 registered_added=0 unregistered_added=3",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.ir -> polisyos.common"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=60 current=59 delta=-1 added=7 registered_added=0 unregistered_added=7",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.lex -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=52 current=52 delta=+0 added=3 registered_added=0 unregistered_added=3",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.lex -> polisyos.ir"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=0 current=1 delta=+1 added=1 registered_added=0 unregistered_added=1",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.pdc -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=122 current=131 delta=+9 added=9 registered_added=0 unregistered_added=9",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=20 current=22 delta=+2 added=2 registered_added=0 unregistered_added=2",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime -> polisyos.fabric"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=0 current=157 delta=+157 added=157 registered_added=0 unregistered_added=157",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime -> polisyos.runtime.quality"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=31 current=32 delta=+1 added=1 registered_added=0 unregistered_added=1",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime -> polisyos.scientist"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=71 current=87 delta=+16 added=18 registered_added=0 unregistered_added=18",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime.quality -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=6 current=12 delta=+6 added=6 registered_added=0 unregistered_added=6",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime.quality -> polisyos.data_forge"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=8 current=11 delta=+3 added=3 registered_added=0 unregistered_added=3",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime.quality -> polisyos.fabric"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=22 current=27 delta=+5 added=5 registered_added=0 unregistered_added=5",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime.quality -> polisyos.foundry"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=30 current=32 delta=+2 added=5 registered_added=0 unregistered_added=5",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime.quality -> polisyos.ir"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=0 current=26 delta=+26 added=26 registered_added=0 unregistered_added=26",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime.quality -> polisyos.runtime"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=26 current=27 delta=+1 added=1 registered_added=0 unregistered_added=1",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.runtime.quality -> polisyos.scientist"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=36 current=40 delta=+4 added=4 registered_added=0 unregistered_added=4",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.scholar -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=110 current=111 delta=+1 added=1 registered_added=0 unregistered_added=1",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.scientist -> polisyos.common"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=705 current=713 delta=+8 added=11 registered_added=0 unregistered_added=11",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.scientist -> polisyos.core"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=13 current=27 delta=+14 added=14 registered_added=0 unregistered_added=14",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.scientist -> polisyos.data_forge"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=113 current=120 delta=+7 added=9 registered_added=0 unregistered_added=9",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.scientist -> polisyos.foundry"
+    },
+    {
+      "check": "import-boundary",
+      "detail": "baseline=398 current=407 delta=+9 added=9 registered_added=0 unregistered_added=9",
+      "message": "package-level hidden import delta",
+      "severity": "report_only",
+      "subject": "polisyos.scientist -> polisyos.ir"
+    },
+    {
+      "check": "package-boundary",
+      "detail": "current=1 registered=0 unregistered=1",
+      "message": "package-boundary forbidden edge inventory",
+      "severity": "report_only",
+      "subject": "polisyos.foundry -> polisyos.data_forge"
+    },
+    {
+      "check": "package-boundary",
+      "detail": "current=11 registered=0 unregistered=11",
+      "message": "package-boundary forbidden edge inventory",
+      "severity": "report_only",
+      "subject": "polisyos.scientist -> polisyos.data_forge"
+    },
+    {
+      "check": "dynamic-imports",
+      "detail": "patterns=205 missing_target_slots=0",
+      "message": "dynamic import registry summary",
+      "severity": "report_only",
+      "subject": "architecture/imports/dynamic.toml"
+    }
+  ],
+  "mode": "report_only",
+  "phase": "repository-best-in-class-phase-1.3",
+  "report": "phase6-1",
+  "status": "contract_errors",
+  "summary": {
+    "dead_override_report": {
+      "finding_count": 0,
+      "missing_metadata_count": 0,
+      "mypy_override_count": 749,
+      "override_count": 989,
+      "ruff_override_count": 240,
+      "stale_mypy_override_count": 0,
+      "stale_ruff_override_count": 0
+    },
+    "dynamic_imports": {
+      "missing_target_ids": [],
+      "missing_target_slots": 0,
+      "pattern_count": 205,
+      "registered_target_count": 116,
+      "status": "fail_closed"
+    },
+    "import_boundary": {
+      "added_hidden_edge_count": 334,
+      "baseline": "architecture/baselines/imports/deep_import.json",
+      "baseline_hidden_edge_count": 3330,
+      "current_hidden_edge_count": 3631,
+      "mode": "report_only",
+      "package_level_deltas": [
+        {
+          "added_edge_keys": [
+            "polisyos.calibration.forecast_bridge->polisyos.ir.analytics.backtest",
+            "polisyos.calibration.forecast_bridge->polisyos.ir.analytics.forecasting_uncertainty",
+            "polisyos.calibration.forecast_bridge->polisyos.ir.artifacts",
+            "polisyos.calibration.forecast_bridge->polisyos.ir.model_layer.canon",
+            "polisyos.calibration.forecast_bridge->polisyos.ir.registry.refs"
+          ],
+          "added_hidden_edges": 5,
+          "baseline_hidden_edges": 8,
+          "current_hidden_edges": 13,
+          "delta_hidden_edges": 5,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.calibration",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 5
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.core.canon.canon_json->polisyos.common.canonical",
+            "polisyos.core.canon.hashing->polisyos.common.hashing"
+          ],
+          "added_hidden_edges": 2,
+          "baseline_hidden_edges": 29,
+          "current_hidden_edges": 29,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.core.artifacts.backends.gcs_store->polisyos.common.serialization",
+            "polisyos.core.artifacts.backends.s3_store->polisyos.common.serialization"
+          ],
+          "removed_hidden_edges": 2,
+          "source_package": "polisyos.core",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 2
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 23,
+          "current_hidden_edges": 23,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.core",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 62,
+          "current_hidden_edges": 61,
+          "delta_hidden_edges": -1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.data_forge.domains.catalog.batch.core_sources_ingest->polisyos.common.logger"
+          ],
+          "removed_hidden_edges": 1,
+          "source_package": "polisyos.data_forge",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.data_forge.domains.academic.knowledge.skg_query->polisyos.core.artifacts.manifest",
+            "polisyos.data_forge.domains.ukraine.builders.io->polisyos.core.artifacts.manifest",
+            "polisyos.data_forge.domains.ukraine.builders.io->polisyos.core.artifacts.store",
+            "polisyos.data_forge.domains.ukraine.builders.io->polisyos.core.canon",
+            "polisyos.data_forge.domains.ukraine.builders.sources->polisyos.core.artifacts.store"
+          ],
+          "added_hidden_edges": 5,
+          "baseline_hidden_edges": 17,
+          "current_hidden_edges": 20,
+          "delta_hidden_edges": 3,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.data_forge.domains.ukraine.builders.common->polisyos.core.artifacts.store",
+            "polisyos.data_forge.domains.ukraine.builders.common->polisyos.core.canon"
+          ],
+          "removed_hidden_edges": 2,
+          "source_package": "polisyos.data_forge",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 5
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 70,
+          "current_hidden_edges": 70,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.data_forge",
+          "target_package": "polisyos.fabric",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.data_forge.domains.ukraine.builders.bindings_validation->polisyos.ir.observation.contracts",
+            "polisyos.data_forge.domains.ukraine.builders.common->polisyos.ir.model_layer",
+            "polisyos.data_forge.domains.ukraine.builders.demography->polisyos.ir.model_layer.types",
+            "polisyos.data_forge.domains.ukraine.builders.observation->polisyos.ir.model_layer.types",
+            "polisyos.data_forge.domains.ukraine.builders.sources->polisyos.ir.model_layer.types"
+          ],
+          "added_hidden_edges": 5,
+          "baseline_hidden_edges": 50,
+          "current_hidden_edges": 53,
+          "delta_hidden_edges": 3,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.data_forge.domains.ukraine.builders.common->polisyos.ir.model_layer.types",
+            "polisyos.data_forge.domains.ukraine.builders.common->polisyos.ir.observation.contracts"
+          ],
+          "removed_hidden_edges": 2,
+          "source_package": "polisyos.data_forge",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 5
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.fabric.identity.migrations->polisyos.common.migrations.base"
+          ],
+          "added_hidden_edges": 1,
+          "baseline_hidden_edges": 61,
+          "current_hidden_edges": 62,
+          "delta_hidden_edges": 1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.fabric",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 1
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.fabric.connectors.cache._store_core->polisyos.core.artifacts.protocol",
+            "polisyos.fabric.data_plane.modes->polisyos.core.artifacts",
+            "polisyos.fabric.data_plane.modes->polisyos.core.artifacts.protocol",
+            "polisyos.fabric.ingestion.ingestion_providers->polisyos.core.artifacts.protocol",
+            "polisyos.fabric.retrieval.custody->polisyos.core.artifacts.protocol",
+            "polisyos.fabric.retrieval.executor->polisyos.core.artifacts.backends.config",
+            "polisyos.fabric.retrieval.executor->polisyos.core.artifacts.protocol",
+            "polisyos.fabric.retrieval.service->polisyos.core.artifacts.backends.config",
+            "polisyos.fabric.retrieval.service->polisyos.core.artifacts.protocol"
+          ],
+          "added_hidden_edges": 9,
+          "baseline_hidden_edges": 199,
+          "current_hidden_edges": 206,
+          "delta_hidden_edges": 7,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.fabric.data_plane.modes->polisyos.core.artifacts.backends.config",
+            "polisyos.fabric.data_plane.modes->polisyos.core.artifacts.store"
+          ],
+          "removed_hidden_edges": 2,
+          "source_package": "polisyos.fabric",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 9
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 180,
+          "current_hidden_edges": 180,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.fabric",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 1,
+          "current_hidden_edges": 0,
+          "delta_hidden_edges": -1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.foundry.methods.catalog.econometrics.advanced->polisyos.calibration.continuous"
+          ],
+          "removed_hidden_edges": 1,
+          "source_package": "polisyos.foundry",
+          "target_package": "polisyos.calibration",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 25,
+          "current_hidden_edges": 25,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.foundry",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.foundry.agent_sim.artifact->polisyos.core.artifacts.protocol",
+            "polisyos.foundry.compile.randomization->polisyos.core.canon",
+            "polisyos.foundry.compile.randomization->polisyos.core.contracts.foundry",
+            "polisyos.foundry.plugins.api->polisyos.core.artifacts.backends.config",
+            "polisyos.foundry.plugins.api->polisyos.core.artifacts.manifest",
+            "polisyos.foundry.plugins.api->polisyos.core.artifacts.protocol",
+            "polisyos.foundry.plugins.training_adapter->polisyos.core.artifacts.manifest",
+            "polisyos.foundry.plugins.training_adapter->polisyos.core.artifacts.protocol"
+          ],
+          "added_hidden_edges": 8,
+          "baseline_hidden_edges": 163,
+          "current_hidden_edges": 169,
+          "delta_hidden_edges": 6,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.foundry.mechanisms.treasury->polisyos.core.canon",
+            "polisyos.foundry.mechanisms.treasury->polisyos.core.contracts.foundry"
+          ],
+          "removed_hidden_edges": 2,
+          "source_package": "polisyos.foundry",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 8
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.foundry.methods.catalog.causal.literature_prior->polisyos.data_forge.domains.academic.knowledge.skg_query"
+          ],
+          "added_hidden_edges": 1,
+          "baseline_hidden_edges": 1,
+          "current_hidden_edges": 2,
+          "delta_hidden_edges": 1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.foundry",
+          "target_package": "polisyos.data_forge",
+          "unregistered_added_hidden_edges": 1
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 2,
+          "current_hidden_edges": 2,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.foundry",
+          "target_package": "polisyos.fabric",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.foundry.compile.trinity_compiler->polisyos.ir.kernel.slots",
+            "polisyos.foundry.methods.catalog.mechanism.families->polisyos.ir.analytics.mechanism_design",
+            "polisyos.foundry.methods.layout->polisyos.ir.kernel.slots"
+          ],
+          "added_hidden_edges": 3,
+          "baseline_hidden_edges": 461,
+          "current_hidden_edges": 464,
+          "delta_hidden_edges": 3,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.foundry",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 3
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 2,
+          "current_hidden_edges": 2,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.foundry.agent_sim.world",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.ir.migrations.base->polisyos.common.migrations._engine",
+            "polisyos.ir.model_layer.canon->polisyos.common.canonical",
+            "polisyos.ir.model_layer.canon->polisyos.common.hashing"
+          ],
+          "added_hidden_edges": 3,
+          "baseline_hidden_edges": 0,
+          "current_hidden_edges": 3,
+          "delta_hidden_edges": 3,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.ir",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 3
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 2,
+          "current_hidden_edges": 2,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.ir",
+          "target_package": "polisyos.data_forge",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 1,
+          "current_hidden_edges": 1,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.ir",
+          "target_package": "polisyos.schemas",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 6,
+          "current_hidden_edges": 6,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.lex",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.artifacts.manifest",
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.artifacts.store",
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.contracts.lex",
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.governance.passes.base",
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.governance.passes.legal_pass",
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.governance.passes.safety_pass",
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.governance.profiles"
+          ],
+          "added_hidden_edges": 7,
+          "baseline_hidden_edges": 60,
+          "current_hidden_edges": 59,
+          "delta_hidden_edges": -1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.lex.simulator.engine->polisyos.core.artifacts.manifest",
+            "polisyos.lex.simulator.engine->polisyos.core.artifacts.store",
+            "polisyos.lex.simulator.engine->polisyos.core.contracts.lex",
+            "polisyos.lex.simulator.engine->polisyos.core.governance.passes.base",
+            "polisyos.lex.simulator.engine->polisyos.core.governance.passes.legal_pass",
+            "polisyos.lex.simulator.engine->polisyos.core.governance.passes.safety_pass",
+            "polisyos.lex.simulator.engine->polisyos.core.governance.profiles",
+            "polisyos.lex.simulator.report->polisyos.core.contracts.lex"
+          ],
+          "removed_hidden_edges": 8,
+          "source_package": "polisyos.lex",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 7
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 1,
+          "current_hidden_edges": 1,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.lex",
+          "target_package": "polisyos.data_forge",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 16,
+          "current_hidden_edges": 16,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.lex",
+          "target_package": "polisyos.fabric",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.ir.loading.norm_pack",
+            "polisyos.lex.legal_evaluation.impact_diff->polisyos.ir.world.ids",
+            "polisyos.lex.normpack.diff->polisyos.ir.loading.norm_pack"
+          ],
+          "added_hidden_edges": 3,
+          "baseline_hidden_edges": 52,
+          "current_hidden_edges": 52,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.lex.simulator.diff->polisyos.ir.loading.norm_pack",
+            "polisyos.lex.simulator.engine->polisyos.ir.loading.norm_pack",
+            "polisyos.lex.simulator.engine->polisyos.ir.world.ids"
+          ],
+          "removed_hidden_edges": 3,
+          "source_package": "polisyos.lex",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 3
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.pdc._impl.world_model_record->polisyos.core.artifacts"
+          ],
+          "added_hidden_edges": 1,
+          "baseline_hidden_edges": 0,
+          "current_hidden_edges": 1,
+          "delta_hidden_edges": 1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.pdc",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 1
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 1,
+          "current_hidden_edges": 1,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.pdc",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 22,
+          "current_hidden_edges": 22,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.http.resilience->polisyos.core.artifacts.ids",
+            "polisyos.runtime.http.resilience->polisyos.core.artifacts.protocol",
+            "polisyos.runtime.http.resilience->polisyos.core.artifacts.signing",
+            "polisyos.runtime.http.services.acquisition_surface_execution->polisyos.core.artifacts",
+            "polisyos.runtime.http.services.control.evaluation_safety->polisyos.core.artifacts.manifest",
+            "polisyos.runtime.http.services.control.generation_cycle->polisyos.core.artifacts.manifest",
+            "polisyos.runtime.http.services.control.run_lifecycle->polisyos.core.artifacts",
+            "polisyos.runtime.http.services.debug->polisyos.core.contracts.foundry",
+            "polisyos.runtime.http.services.human_decisions->polisyos.core.artifacts.ownership"
+          ],
+          "added_hidden_edges": 9,
+          "baseline_hidden_edges": 122,
+          "current_hidden_edges": 131,
+          "delta_hidden_edges": 9,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 9
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 3,
+          "current_hidden_edges": 3,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.data_forge",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.http.services.control.run_lifecycle->polisyos.fabric.ingestion.ingestion_providers",
+            "polisyos.runtime.http.services.control.run_lifecycle->polisyos.fabric.storage.tenant_cas"
+          ],
+          "added_hidden_edges": 2,
+          "baseline_hidden_edges": 20,
+          "current_hidden_edges": 22,
+          "delta_hidden_edges": 2,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.fabric",
+          "unregistered_added_hidden_edges": 2
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 12,
+          "current_hidden_edges": 12,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.foundry",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 6,
+          "current_hidden_edges": 6,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 2,
+          "current_hidden_edges": 2,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.lex",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.http.access_audit->polisyos.runtime.quality.authority",
+            "polisyos.runtime.http.app->polisyos.runtime.quality.design_axes.value_choice_provenance",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.acquisition_movement",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.approval",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.chronology_custody",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.cycle_substrate",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.design_axes.value_choice_provenance",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.epoch_certificate_issuance",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.epoch_deployment",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.epoch_transition_verification",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.open_world_risk",
+            "polisyos.runtime.http.container->polisyos.runtime.quality.semantic_epoch",
+            "polisyos.runtime.http.dependencies->polisyos.runtime.quality.epoch_validity_cascade",
+            "polisyos.runtime.http.dependencies->polisyos.runtime.quality.semantic_epoch",
+            "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.acquisition_world_growth",
+            "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.epoch_certificate_issuance",
+            "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.epoch_deployment",
+            "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.epoch_transition_inputs",
+            "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.epoch_validity_cascade",
+            "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.semantic_epoch_qualification",
+            "polisyos.runtime.http.openapi_contract->polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+            "polisyos.runtime.http.routes.artifacts->polisyos.runtime.quality.authority",
+            "polisyos.runtime.http.routes.human_decisions->polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+            "polisyos.runtime.http.routes.runs->polisyos.runtime.quality.approval",
+            "polisyos.runtime.http.services.acquisition_action_service->polisyos.runtime.quality.acquisition_executor"
+          ],
+          "added_hidden_edges": 157,
+          "baseline_hidden_edges": 0,
+          "current_hidden_edges": 157,
+          "delta_hidden_edges": 157,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.runtime.quality",
+          "unregistered_added_hidden_edges": 157
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime->polisyos.scientist.replay.deterministic"
+          ],
+          "added_hidden_edges": 1,
+          "baseline_hidden_edges": 31,
+          "current_hidden_edges": 32,
+          "delta_hidden_edges": 1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime",
+          "target_package": "polisyos.scientist",
+          "unregistered_added_hidden_edges": 1
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 1,
+          "current_hidden_edges": 1,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.quality.acquisition_planner->polisyos.core.artifacts.protocol",
+            "polisyos.runtime.quality.acquisition_route_loop->polisyos.core.artifacts.manifest",
+            "polisyos.runtime.quality.candidate_simulation->polisyos.core.artifacts.manifest",
+            "polisyos.runtime.quality.chronology_proof->polisyos.core.artifacts._manifest_lifecycle",
+            "polisyos.runtime.quality.cycle_substrate->polisyos.core.artifacts.manifest",
+            "polisyos.runtime.quality.data_forge_binding->polisyos.core.contracts.fabric",
+            "polisyos.runtime.quality.data_state_substrate->polisyos.core.contracts.foundry",
+            "polisyos.runtime.quality.epoch_validity_cascade->polisyos.core.contracts.c4_persisted_profiles",
+            "polisyos.runtime.quality.generation_cycle->polisyos.core.artifacts",
+            "polisyos.runtime.quality.generation_cycle->polisyos.core.artifacts.manifest",
+            "polisyos.runtime.quality.generation_cycle->polisyos.core.canon",
+            "polisyos.runtime.quality.generation_cycle->polisyos.core.contracts.foundry",
+            "polisyos.runtime.quality.generation_cycle->polisyos.core.registry",
+            "polisyos.runtime.quality.generation_source->polisyos.core.artifacts._manifest_lifecycle",
+            "polisyos.runtime.quality.generation_source->polisyos.core.artifacts.manifest",
+            "polisyos.runtime.quality.non_data_acquisition->polisyos.core.artifacts.store",
+            "polisyos.runtime.quality.recursive_generation_cycle->polisyos.core.artifacts",
+            "polisyos.runtime.quality.world_model_record->polisyos.core.artifacts.manifest"
+          ],
+          "added_hidden_edges": 18,
+          "baseline_hidden_edges": 71,
+          "current_hidden_edges": 87,
+          "delta_hidden_edges": 16,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.runtime.quality.acquisition_executor->polisyos.core.artifacts.backends.config",
+            "polisyos.runtime.quality.acquisition_planner->polisyos.core.artifacts.backends.config"
+          ],
+          "removed_hidden_edges": 2,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 18
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.quality.data_state_substrate->polisyos.data_forge.domains.catalog.knowledge.overlay",
+            "polisyos.runtime.quality.design_generation->polisyos.data_forge.domains.academic.knowledge.skg_versioning",
+            "polisyos.runtime.quality.generation_cycle->polisyos.data_forge.domains.catalog.knowledge.country_codes",
+            "polisyos.runtime.quality.generation_source->polisyos.data_forge.domains.academic.knowledge.skg_versioning",
+            "polisyos.runtime.quality.proving_ground.causal_forecast_search->polisyos.data_forge.kernel.embeddings",
+            "polisyos.runtime.quality.proving_ground.substrate_grounding_search->polisyos.data_forge.kernel.embeddings"
+          ],
+          "added_hidden_edges": 6,
+          "baseline_hidden_edges": 6,
+          "current_hidden_edges": 12,
+          "delta_hidden_edges": 6,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.data_forge",
+          "unregistered_added_hidden_edges": 6
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 1,
+          "current_hidden_edges": 1,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.data_requirement",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.quality.acquisition_planner->polisyos.fabric.connectors.sources.file_tabular",
+            "polisyos.runtime.quality.acquisition_planner->polisyos.fabric.retrieval.custody",
+            "polisyos.runtime.quality.generation_cycle->polisyos.fabric.data_plane"
+          ],
+          "added_hidden_edges": 3,
+          "baseline_hidden_edges": 8,
+          "current_hidden_edges": 11,
+          "delta_hidden_edges": 3,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.fabric",
+          "unregistered_added_hidden_edges": 3
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.quality.cycle_substrate->polisyos.foundry.data_plane.bindings",
+            "polisyos.runtime.quality.cycle_substrate->polisyos.foundry.execute.executor",
+            "polisyos.runtime.quality.data_state_substrate->polisyos.foundry.data_plane.bindings",
+            "polisyos.runtime.quality.generation_cycle->polisyos.foundry.data_plane",
+            "polisyos.runtime.quality.generation_cycle->polisyos.foundry.execute.executor"
+          ],
+          "added_hidden_edges": 5,
+          "baseline_hidden_edges": 22,
+          "current_hidden_edges": 27,
+          "delta_hidden_edges": 5,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.foundry",
+          "unregistered_added_hidden_edges": 5
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.quality.cycle_substrate->polisyos.ir.analytics.ncm",
+            "polisyos.runtime.quality.design_problem->polisyos.ir.kernel.base",
+            "polisyos.runtime.quality.generation_cycle->polisyos.ir.analytics.ncm",
+            "polisyos.runtime.quality.generation_cycle->polisyos.ir.registry.refs",
+            "polisyos.runtime.quality.generation_source->polisyos.ir.analytics.ncm"
+          ],
+          "added_hidden_edges": 5,
+          "baseline_hidden_edges": 30,
+          "current_hidden_edges": 32,
+          "delta_hidden_edges": 2,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.runtime.quality.design_generation->polisyos.ir.trinity",
+            "polisyos.runtime.quality.generation_cycle->polisyos.ir.analytics.causal_graph",
+            "polisyos.runtime.quality.generation_cycle->polisyos.ir.analytics.context"
+          ],
+          "removed_hidden_edges": 3,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 5
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 2,
+          "current_hidden_edges": 2,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.lex",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.quality.acquisition_executor->polisyos.runtime.http.services.control_registry_providers",
+            "polisyos.runtime.quality.acquisition_movement->polisyos.runtime.http.services.control_plane_store",
+            "polisyos.runtime.quality.acquisition_route_loop->polisyos.runtime.http.services.adapters.core_run",
+            "polisyos.runtime.quality.acquisition_route_loop->polisyos.runtime.http.services.control.generation_cycle",
+            "polisyos.runtime.quality.acquisition_route_loop->polisyos.runtime.http.services.control_plane_store",
+            "polisyos.runtime.quality.adaptation_transition->polisyos.runtime.http.services.control_plane_store",
+            "polisyos.runtime.quality.agent_action_authority->polisyos.runtime.http.authorization",
+            "polisyos.runtime.quality.agent_action_authority->polisyos.runtime.http.mutation_policy",
+            "polisyos.runtime.quality.agent_action_authority->polisyos.runtime.http.permissions",
+            "polisyos.runtime.quality.agent_action_authority->polisyos.runtime.http.resource_binding",
+            "polisyos.runtime.quality.agent_action_authority->polisyos.runtime.http.security",
+            "polisyos.runtime.quality.agent_action_authority->polisyos.runtime.http.services.human_decision_contracts",
+            "polisyos.runtime.quality.agent_action_authority->polisyos.runtime.http.services.human_decisions",
+            "polisyos.runtime.quality.approval->polisyos.runtime.http.deployment_security",
+            "polisyos.runtime.quality.approval->polisyos.runtime.http.deployment_security_attestation",
+            "polisyos.runtime.quality.approval->polisyos.runtime.http.services.human_decision_contracts",
+            "polisyos.runtime.quality.approval->polisyos.runtime.http.services.human_decisions",
+            "polisyos.runtime.quality.capability_resolver->polisyos.runtime.http.execution_policy",
+            "polisyos.runtime.quality.data_forge_binding->polisyos.runtime.http.services.control.artifacts",
+            "polisyos.runtime.quality.design_axes.mandate_bounded_delegation->polisyos.runtime.http.permissions",
+            "polisyos.runtime.quality.design_axes.mandate_bounded_delegation->polisyos.runtime.http.security",
+            "polisyos.runtime.quality.generation_cycle->polisyos.runtime.http.errors",
+            "polisyos.runtime.quality.generation_cycle->polisyos.runtime.http.services.control.artifacts",
+            "polisyos.runtime.quality.promotion_safety->polisyos.runtime.http.errors",
+            "polisyos.runtime.quality.workspace.loop->polisyos.runtime.http.services.control.artifacts"
+          ],
+          "added_hidden_edges": 26,
+          "baseline_hidden_edges": 0,
+          "current_hidden_edges": 26,
+          "delta_hidden_edges": 26,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.runtime",
+          "unregistered_added_hidden_edges": 26
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.runtime.quality.design_generation->polisyos.scientist.agent.protocols"
+          ],
+          "added_hidden_edges": 1,
+          "baseline_hidden_edges": 26,
+          "current_hidden_edges": 27,
+          "delta_hidden_edges": 1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.runtime.quality",
+          "target_package": "polisyos.scientist",
+          "unregistered_added_hidden_edges": 1
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 6,
+          "current_hidden_edges": 6,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scholar",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.scholar.api->polisyos.core.artifacts.ids",
+            "polisyos.scholar.api->polisyos.core.canon",
+            "polisyos.scholar.orchestrator.enrich->polisyos.core.artifacts.ids",
+            "polisyos.scholar.orchestrator.enrich->polisyos.core.canon"
+          ],
+          "added_hidden_edges": 4,
+          "baseline_hidden_edges": 36,
+          "current_hidden_edges": 40,
+          "delta_hidden_edges": 4,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scholar",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 4
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 16,
+          "current_hidden_edges": 16,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scholar",
+          "target_package": "polisyos.fabric",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 5,
+          "current_hidden_edges": 5,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scholar",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 2,
+          "current_hidden_edges": 2,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.berl",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 1,
+          "current_hidden_edges": 1,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.calibration",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.scientist.methods.search.service->polisyos.common.logger"
+          ],
+          "added_hidden_edges": 1,
+          "baseline_hidden_edges": 110,
+          "current_hidden_edges": 111,
+          "delta_hidden_edges": 1,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.common",
+          "unregistered_added_hidden_edges": 1
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.scientist.methods.autotune.bayesian_generator->polisyos.core.artifacts.ids",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.core.artifacts.store",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.core.contracts.fabric",
+            "polisyos.scientist.methods.backtesting.orchestrator->polisyos.core.contracts.fabric",
+            "polisyos.scientist.orchestration.engine.executor->polisyos.core.artifacts.write_contract",
+            "polisyos.scientist.orchestration.engine.runner.fallback_runner->polisyos.core.errors",
+            "polisyos.scientist.orchestration.engine.runner.serialization->polisyos.core.artifacts.ids",
+            "polisyos.scientist.orchestration.engine.runner.serialization->polisyos.core.artifacts.manifest",
+            "polisyos.scientist.orchestration.engine.runner.serialization->polisyos.core.contracts.skip_blockers",
+            "polisyos.scientist.orchestration.engine.state_branching->polisyos.core.artifacts.manifest",
+            "polisyos.scientist.orchestration.engine.state_merge->polisyos.core.artifacts.manifest"
+          ],
+          "added_hidden_edges": 11,
+          "baseline_hidden_edges": 705,
+          "current_hidden_edges": 713,
+          "delta_hidden_edges": 8,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.scientist.methods.backtesting.orchestrator->polisyos.core.canon",
+            "polisyos.scientist.methods.backtesting.trust_scorer->polisyos.core.evaluation",
+            "polisyos.scientist.orchestration.workflows.builder->polisyos.core.artifacts.store"
+          ],
+          "removed_hidden_edges": 3,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.core",
+          "unregistered_added_hidden_edges": 11
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.scientist.cross_graph.compiler->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.methods.discovery.prior_miner->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.causal.build_literature_prior->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.causal.build_literature_prior->polisyos.data_forge.read_api.academic",
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.causal.resolve_transport->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime->polisyos.data_forge.read_api.academic",
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search->polisyos.data_forge.read_api.academic",
+            "polisyos.scientist.orchestration.engine.context->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.orchestration.engine.executor->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.orchestration.engine.protocol->polisyos.data_forge.domains.academic.knowledge.skg_query"
+          ],
+          "added_hidden_edges": 14,
+          "baseline_hidden_edges": 13,
+          "current_hidden_edges": 27,
+          "delta_hidden_edges": 14,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.data_forge",
+          "unregistered_added_hidden_edges": 14
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 8,
+          "current_hidden_edges": 8,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.fabric",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.scientist.agent.feasibility->polisyos.foundry.execute._internal.snapshots",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.foundry.methods.artifacts",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.foundry.methods.backends.dispatch",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.foundry.methods.base",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.foundry.methods.catalog.forecasting",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.foundry.methods.compiler.specialization",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.foundry.methods.selection.registry",
+            "polisyos.scientist.methods.backtesting.native_replay->polisyos.foundry.execute.executor",
+            "polisyos.scientist.validation.verification.ic.service->polisyos.foundry.methods.catalog.mechanism.families"
+          ],
+          "added_hidden_edges": 9,
+          "baseline_hidden_edges": 113,
+          "current_hidden_edges": 120,
+          "delta_hidden_edges": 7,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [
+            "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.calibration.report",
+            "polisyos.scientist.validation.verification.ic.service->polisyos.foundry.mechanisms.design"
+          ],
+          "removed_hidden_edges": 2,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.foundry",
+          "unregistered_added_hidden_edges": 9
+        },
+        {
+          "added_edge_keys": [
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.ir.analytics.backtest",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.ir.analytics.calibration_diagnostics",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.ir.analytics.forecasting_uncertainty",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.ir.artifacts",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.ir.model_layer.canon",
+            "polisyos.scientist.methods.backtesting.forecast_owner->polisyos.ir.registry.refs",
+            "polisyos.scientist.methods.backtesting.orchestrator->polisyos.ir.analytics.uncertainty",
+            "polisyos.scientist.methods.backtesting.orchestrator->polisyos.ir.model_layer.canon",
+            "polisyos.scientist.orchestration.engine.state_branching->polisyos.ir.registry.refs"
+          ],
+          "added_hidden_edges": 9,
+          "baseline_hidden_edges": 398,
+          "current_hidden_edges": 407,
+          "delta_hidden_edges": 9,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.ir",
+          "unregistered_added_hidden_edges": 9
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 18,
+          "current_hidden_edges": 18,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.lex",
+          "unregistered_added_hidden_edges": 0
+        },
+        {
+          "added_edge_keys": [],
+          "added_hidden_edges": 0,
+          "baseline_hidden_edges": 21,
+          "current_hidden_edges": 21,
+          "delta_hidden_edges": 0,
+          "registered_added_hidden_edges": 0,
+          "removed_edge_keys": [],
+          "removed_hidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.scholar",
+          "unregistered_added_hidden_edges": 0
+        }
+      ],
+      "public_surface_import_contract": {
+        "drift_count": 0,
+        "import_contract_drift_count": 0,
+        "inventory_drift_count": 0,
+        "source_contracts": [
+          "architecture/public_surface/contract.toml",
+          "architecture/public_surface/inventory.json",
+          "architecture/packages/boundaries.toml",
+          "architecture/imports/contracts.toml"
+        ]
+      },
+      "registered_added_edge_keys": [],
+      "registered_added_hidden_edge_count": 0,
+      "removed_hidden_edge_count": 33,
+      "rule": "first-party cross-package imports target supported public entrypoints unless registered",
+      "unregistered_added_edge_keys": [
+        "polisyos.calibration.forecast_bridge->polisyos.ir.analytics.backtest",
+        "polisyos.calibration.forecast_bridge->polisyos.ir.analytics.forecasting_uncertainty",
+        "polisyos.calibration.forecast_bridge->polisyos.ir.artifacts",
+        "polisyos.calibration.forecast_bridge->polisyos.ir.model_layer.canon",
+        "polisyos.calibration.forecast_bridge->polisyos.ir.registry.refs",
+        "polisyos.core.canon.canon_json->polisyos.common.canonical",
+        "polisyos.core.canon.hashing->polisyos.common.hashing",
+        "polisyos.data_forge.domains.academic.knowledge.skg_query->polisyos.core.artifacts.manifest",
+        "polisyos.data_forge.domains.ukraine.builders.bindings_validation->polisyos.ir.observation.contracts",
+        "polisyos.data_forge.domains.ukraine.builders.common->polisyos.ir.model_layer",
+        "polisyos.data_forge.domains.ukraine.builders.demography->polisyos.ir.model_layer.types",
+        "polisyos.data_forge.domains.ukraine.builders.io->polisyos.core.artifacts.manifest",
+        "polisyos.data_forge.domains.ukraine.builders.io->polisyos.core.artifacts.store",
+        "polisyos.data_forge.domains.ukraine.builders.io->polisyos.core.canon",
+        "polisyos.data_forge.domains.ukraine.builders.observation->polisyos.ir.model_layer.types",
+        "polisyos.data_forge.domains.ukraine.builders.sources->polisyos.core.artifacts.store",
+        "polisyos.data_forge.domains.ukraine.builders.sources->polisyos.ir.model_layer.types",
+        "polisyos.fabric.connectors.cache._store_core->polisyos.core.artifacts.protocol",
+        "polisyos.fabric.data_plane.modes->polisyos.core.artifacts",
+        "polisyos.fabric.data_plane.modes->polisyos.core.artifacts.protocol",
+        "polisyos.fabric.identity.migrations->polisyos.common.migrations.base",
+        "polisyos.fabric.ingestion.ingestion_providers->polisyos.core.artifacts.protocol",
+        "polisyos.fabric.retrieval.custody->polisyos.core.artifacts.protocol",
+        "polisyos.fabric.retrieval.executor->polisyos.core.artifacts.backends.config",
+        "polisyos.fabric.retrieval.executor->polisyos.core.artifacts.protocol",
+        "polisyos.fabric.retrieval.service->polisyos.core.artifacts.backends.config",
+        "polisyos.fabric.retrieval.service->polisyos.core.artifacts.protocol",
+        "polisyos.foundry.agent_sim.artifact->polisyos.core.artifacts.protocol",
+        "polisyos.foundry.compile.randomization->polisyos.core.canon",
+        "polisyos.foundry.compile.randomization->polisyos.core.contracts.foundry",
+        "polisyos.foundry.compile.trinity_compiler->polisyos.ir.kernel.slots",
+        "polisyos.foundry.methods.catalog.causal.literature_prior->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.foundry.methods.catalog.mechanism.families->polisyos.ir.analytics.mechanism_design",
+        "polisyos.foundry.methods.layout->polisyos.ir.kernel.slots",
+        "polisyos.foundry.plugins.api->polisyos.core.artifacts.backends.config",
+        "polisyos.foundry.plugins.api->polisyos.core.artifacts.manifest",
+        "polisyos.foundry.plugins.api->polisyos.core.artifacts.protocol",
+        "polisyos.foundry.plugins.training_adapter->polisyos.core.artifacts.manifest",
+        "polisyos.foundry.plugins.training_adapter->polisyos.core.artifacts.protocol",
+        "polisyos.ir.migrations.base->polisyos.common.migrations._engine",
+        "polisyos.ir.model_layer.canon->polisyos.common.canonical",
+        "polisyos.ir.model_layer.canon->polisyos.common.hashing",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.artifacts.manifest",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.artifacts.store",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.contracts.lex",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.governance.passes.base",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.governance.passes.legal_pass",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.governance.passes.safety_pass",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.core.governance.profiles",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.ir.loading.norm_pack",
+        "polisyos.lex.legal_evaluation.impact_diff->polisyos.ir.world.ids",
+        "polisyos.lex.normpack.diff->polisyos.ir.loading.norm_pack",
+        "polisyos.pdc._impl.world_model_record->polisyos.core.artifacts",
+        "polisyos.runtime->polisyos.scientist.replay.deterministic",
+        "polisyos.runtime.http.access_audit->polisyos.runtime.quality.authority",
+        "polisyos.runtime.http.app->polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.acquisition_movement",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.approval",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.chronology_custody",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.cycle_substrate",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.design_axes.value_choice_provenance",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.epoch_certificate_issuance",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.epoch_deployment",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.epoch_transition_verification",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.open_world_risk",
+        "polisyos.runtime.http.container->polisyos.runtime.quality.semantic_epoch",
+        "polisyos.runtime.http.dependencies->polisyos.runtime.quality.epoch_validity_cascade",
+        "polisyos.runtime.http.dependencies->polisyos.runtime.quality.semantic_epoch",
+        "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.acquisition_world_growth",
+        "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.epoch_certificate_issuance",
+        "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.epoch_deployment",
+        "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.epoch_transition_inputs",
+        "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.epoch_validity_cascade",
+        "polisyos.runtime.http.deployment_security->polisyos.runtime.quality.semantic_epoch_qualification",
+        "polisyos.runtime.http.openapi_contract->polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "polisyos.runtime.http.resilience->polisyos.core.artifacts.ids",
+        "polisyos.runtime.http.resilience->polisyos.core.artifacts.protocol",
+        "polisyos.runtime.http.resilience->polisyos.core.artifacts.signing",
+        "polisyos.runtime.http.routes.artifacts->polisyos.runtime.quality.authority",
+        "polisyos.runtime.http.routes.human_decisions->polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "polisyos.runtime.http.routes.runs->polisyos.runtime.quality.approval",
+        "polisyos.runtime.http.services.acquisition_action_service->polisyos.runtime.quality.acquisition_executor",
+        "polisyos.runtime.http.services.acquisition_action_service->polisyos.runtime.quality.acquisition_movement",
+        "polisyos.runtime.http.services.acquisition_action_service->polisyos.runtime.quality.acquisition_route_loop",
+        "polisyos.runtime.http.services.acquisition_action_service->polisyos.runtime.quality.acquisition_world_growth",
+        "polisyos.runtime.http.services.acquisition_action_service->polisyos.runtime.quality.agent_action_authority",
+        "polisyos.runtime.http.services.acquisition_action_service->polisyos.runtime.quality.epoch_deployment",
+        "polisyos.runtime.http.services.acquisition_admission_bundle->polisyos.runtime.quality.agent_action_authority",
+        "polisyos.runtime.http.services.acquisition_admission_bundle->polisyos.runtime.quality.authority",
+        "polisyos.runtime.http.services.acquisition_admission_bundle->polisyos.runtime.quality.authority_reconciliation",
+        "polisyos.runtime.http.services.acquisition_admission_bundle->polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "polisyos.runtime.http.services.acquisition_admission_bundle->polisyos.runtime.quality.event_log",
+        "polisyos.runtime.http.services.acquisition_authority_provider->polisyos.runtime.quality.acquisition_route_loop",
+        "polisyos.runtime.http.services.acquisition_authority_provider->polisyos.runtime.quality.agent_action_authority",
+        "polisyos.runtime.http.services.acquisition_authority_provider->polisyos.runtime.quality.design_axes.mandate_bounded_delegation",
+        "polisyos.runtime.http.services.acquisition_authority_provider->polisyos.runtime.quality.event_log",
+        "polisyos.runtime.http.services.acquisition_surface_execution->polisyos.core.artifacts",
+        "polisyos.runtime.http.services.acquisition_surface_execution->polisyos.runtime.quality.acquisition_executor",
+        "polisyos.runtime.http.services.acquisition_surface_execution->polisyos.runtime.quality.acquisition_route_loop",
+        "polisyos.runtime.http.services.acquisition_surface_execution->polisyos.runtime.quality.acquisition_world_growth"
+      ],
+      "unregistered_added_hidden_edge_count": 334
+    },
+    "import_cycles": {
+      "allowed_cycle_count": 14,
+      "new_cycle_count": 4,
+      "new_cycle_examples": [
+        "polisyos.foundry.methods.catalog, polisyos.foundry.methods.catalog.dependency_authority, polisyos.foundry.methods.catalog.snapshot",
+        "polisyos.scientist.adapters.foundry_bridge, polisyos.scientist.evidence.claims, polisyos.scientist.evidence.claims.audit, polisyos.scientist.evidence.claims.diff, polisyos.scientist.evidence.claims.export, polisyos.scientist.evidence.claims.head_index, polisyos.scientist.evidence.claims.ledger, polisyos.scientist.evidence.claims.lifecycle, polisyos.scientist.evidence.claims.models, polisyos.scientist.evidence.claims.owner_events, polisyos.scientist.evidence.claims.projections, polisyos.scientist.evidence.claims.readiness, polisyos.scientist.evidence.claims.validators, polisyos.scientist.governance.backtest_matrix, polisyos.scientist.governance.calibration_leaderboard, polisyos.scientist.governance.calibration_validation, polisyos.scientist.governance.continuous.lifecycle_bridge, polisyos.scientist.methods.backtesting.native_replay, polisyos.scientist.methods.backtesting.orchestrator, polisyos.scientist.methods.causal.validity, polisyos.scientist.methods.search.judge_stack, polisyos.scientist.methods.search.promotion_evidence, polisyos.scientist.methods.search.readiness, polisyos.scientist.nodes.builtins, polisyos.scientist.nodes.builtins.c6c_runtime_support, polisyos.scientist.nodes.builtins.causal.build_literature_prior, polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate, polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph, polisyos.scientist.nodes.builtins.causal.resolve_parameters, polisyos.scientist.nodes.builtins.causal.resolve_transport, polisyos.scientist.nodes.builtins.causal.run_abm_consistency, polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution, polisyos.scientist.nodes.builtins.causal.run_causal_ensemble, polisyos.scientist.nodes.builtins.causal.run_causal_queries, polisyos.scientist.nodes.builtins.causal.run_causal_readiness, polisyos.scientist.nodes.builtins.compile.compile_foundry, polisyos.scientist.nodes.builtins.compile.formalize_verified_policy, polisyos.scientist.nodes.builtins.compile.link_trinity, polisyos.scientist.nodes.builtins.data.bind_foundry_inputs, polisyos.scientist.nodes.builtins.data.build_data_snapshot, polisyos.scientist.nodes.builtins.data.enrich_knowledge, polisyos.scientist.nodes.builtins.decide._decision_packet_contracts, polisyos.scientist.nodes.builtins.decide.build_decision_packet, polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle, polisyos.scientist.nodes.builtins.decide.build_verified_policy_report, polisyos.scientist.nodes.builtins.decide.decision_packet.api, polisyos.scientist.nodes.builtins.decide.decision_packet.builder, polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment, polisyos.scientist.nodes.builtins.decide.decision_packet.serialization, polisyos.scientist.nodes.builtins.decide.decision_packet.validation, polisyos.scientist.nodes.builtins.decide.policy_runtime_request, polisyos.scientist.nodes.builtins.decide.policy_runtime_state, polisyos.scientist.nodes.builtins.decide.policy_runtime_support, polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime, polisyos.scientist.nodes.builtins.decide.run_policy_promotion, polisyos.scientist.nodes.builtins.decide.run_policy_translation, polisyos.scientist.nodes.builtins.decide.run_translator_compliance, polisyos.scientist.nodes.builtins.governance.data_plane_gate, polisyos.scientist.nodes.builtins.governance.legal_check, polisyos.scientist.nodes.builtins.governance.run_governance, polisyos.scientist.nodes.builtins.governance.run_normative_arbitration, polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack, polisyos.scientist.nodes.builtins.planning.build_execution_plan, polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot, polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence, polisyos.scientist.nodes.builtins.planning.draft_policy_options, polisyos.scientist.nodes.builtins.planning.expand_legal_source_pack, polisyos.scientist.nodes.builtins.planning.plan_policy_request, polisyos.scientist.nodes.builtins.planning.ready_to_run, polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime, polisyos.scientist.nodes.builtins.planning.run_evaluator, polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search, polisyos.scientist.nodes.builtins.planning.run_preflight, polisyos.scientist.nodes.builtins.planning.run_source_gap_review, polisyos.scientist.nodes.builtins.planning.run_source_verification, polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty, polisyos.scientist.nodes.builtins.simulate.propagate_welfare, polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation, polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis, polisyos.scientist.nodes.builtins.simulate.run_metric_validation, polisyos.scientist.nodes.builtins.simulate.run_simulation, polisyos.scientist.nodes.components, polisyos.scientist.orchestration.engine.async_executor, polisyos.scientist.orchestration.engine.builtins, polisyos.scientist.orchestration.engine.builtins.emit_artifact, polisyos.scientist.orchestration.engine.builtins.noop, polisyos.scientist.orchestration.engine.builtins.set_state, polisyos.scientist.orchestration.engine.checkpoint, polisyos.scientist.orchestration.engine.context, polisyos.scientist.orchestration.engine.executor, polisyos.scientist.orchestration.engine.idempotency, polisyos.scientist.orchestration.engine.protocol, polisyos.scientist.orchestration.engine.registry, polisyos.scientist.orchestration.engine.retry, polisyos.scientist.orchestration.engine.runner._activity_worker, polisyos.scientist.orchestration.engine.runner.config, polisyos.scientist.orchestration.engine.runner.distributed_tier, polisyos.scientist.orchestration.engine.runner.fallback_runner, polisyos.scientist.orchestration.engine.runner.local_runner, polisyos.scientist.orchestration.engine.runner.protocol, polisyos.scientist.orchestration.engine.runner.ray_runner, polisyos.scientist.orchestration.engine.runner.serialization, polisyos.scientist.orchestration.engine.runner.state_merge, polisyos.scientist.orchestration.engine.runner.temporal_runner, polisyos.scientist.orchestration.engine.state_merge, polisyos.scientist.orchestration.engine.telemetry, polisyos.scientist.orchestration.engine.topo, polisyos.scientist.orchestration.engine.workflow_spec, polisyos.scientist.orchestration.workflows.builder, polisyos.scientist.orchestration.workflows.causal_full, polisyos.scientist.orchestration.workflows.default, polisyos.scientist.orchestration.workflows.discovery, polisyos.scientist.orchestration.workflows.policy_design, polisyos.scientist.orchestration.workflows.policy_verified, polisyos.scientist.policy_design.output, polisyos.scientist.policy_design.phase3, polisyos.scientist.policy_design.search, polisyos.scientist.policy_design.translator, polisyos.scientist.replay.deterministic, polisyos.scientist.replay.verification, polisyos.scientist.validation.phase5_preflight, polisyos.scientist.validation.policy_verified.service",
+        "polisyos.scientist.methods.autotune.cheap_stage, polisyos.scientist.methods.autotune.execution_plan, polisyos.scientist.methods.autotune.runtime, polisyos.scientist.methods.search.contracts, polisyos.scientist.methods.search.controller, polisyos.scientist.methods.search.funnel.orchestrator, polisyos.scientist.methods.search.funnel.types, polisyos.scientist.methods.search.pareto_registry, polisyos.scientist.methods.search.run_state, polisyos.scientist.methods.search.service, polisyos.scientist.methods.search.stages",
+        "polisyos.scientist.methods.doe.designs, polisyos.scientist.methods.doe.morris_geometry, polisyos.scientist.methods.doe.uncertainty"
+      ],
+      "status": "fail_closed"
+    },
+    "module_size_budget_count": 33,
+    "name_collisions": {
+      "finding_count": 0,
+      "findings": [],
+      "mode": "report_only",
+      "parallel_safety": "active package move branches can keep layout/name-collision drift visible without making Phase 6.1 fail-closed"
+    },
+    "package_boundary": {
+      "current_forbidden_edge_count": 12,
+      "mode": "report_only",
+      "package_level_forbidden_edges": [
+        {
+          "current_forbidden_edges": 1,
+          "edge_keys": [
+            "polisyos.foundry.methods.catalog.causal.literature_prior->polisyos.data_forge.domains.academic.knowledge.skg_query"
+          ],
+          "registered_forbidden_edges": 0,
+          "source_package": "polisyos.foundry",
+          "target_package": "polisyos.data_forge",
+          "unregistered_forbidden_edges": 1
+        },
+        {
+          "current_forbidden_edges": 11,
+          "edge_keys": [
+            "polisyos.scientist.cross_graph.compiler->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.methods.discovery.prior_miner->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.causal.build_literature_prior->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.causal.resolve_transport->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.orchestration.engine.context->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.orchestration.engine.executor->polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.scientist.orchestration.engine.protocol->polisyos.data_forge.domains.academic.knowledge.skg_query"
+          ],
+          "registered_forbidden_edges": 0,
+          "source_package": "polisyos.scientist",
+          "target_package": "polisyos.data_forge",
+          "unregistered_forbidden_edges": 11
+        }
+      ],
+      "registered_forbidden_edge_count": 0,
+      "rule": "package_boundaries.forbidden_dependencies cannot grow without exception",
+      "unregistered_forbidden_edge_count": 12,
+      "unregistered_forbidden_edge_keys": [
+        "polisyos.foundry.methods.catalog.causal.literature_prior->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.cross_graph.compiler->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.methods.discovery.prior_miner->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.nodes.builtins.causal.build_literature_prior->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.nodes.builtins.causal.resolve_parameters->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.orchestration.engine.context->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.orchestration.engine.executor->polisyos.data_forge.domains.academic.knowledge.skg_query",
+        "polisyos.scientist.orchestration.engine.protocol->polisyos.data_forge.domains.academic.knowledge.skg_query"
+      ]
+    },
+    "package_contract_count": 19,
+    "package_contracts": [
+      "berl",
+      "calibration",
+      "common",
+      "core",
+      "data_forge",
+      "ddm",
+      "evidence",
+      "fabric",
+      "foundry-agent-sim-world",
+      "foundry",
+      "ir",
+      "lex",
+      "method_requirement",
+      "obligation_graph",
+      "obligation_rules",
+      "participation_requirement",
+      "runtime",
+      "scholar",
+      "scientist"
+    ],
+    "package_layout": {
+      "finding_count": 0,
+      "findings": [],
+      "mode": "report_only",
+      "parallel_safety": "active package move branches can keep layout/name-collision drift visible without making Phase 6.1 fail-closed"
+    },
+    "phase6_1": {
+      "converted_gates": [
+        "root-facade/package-layout",
+        "package-boundary",
+        "public-surface",
+        "deep-import",
+        "dynamic-import",
+        "import-cycle",
+        "name-collision",
+        "shim-expiry"
+      ],
+      "fail_closed_switch": "--enforce-import-boundary-deltas",
+      "parallel_safety": "Fail-closed package import deltas are opt-in until active Fabric, IR, Foundry, and Scientist package move branches finish merging.",
+      "status": "report_only_conversion"
+    },
+    "report_only_gate_count": 15,
+    "shim_debt": {
+      "by_source_package": {
+        "data_requirement": 3
+      },
+      "by_type": {
+        "authority_compatibility_projection": 1,
+        "deprecated_construct_alias": 3,
+        "feature_flagged_semantic_fallback": 1,
+        "file_relocation": 8,
+        "legacy_data_contract_bridge": 1,
+        "sunset_authority_lookup": 1,
+        "wrapper_only": 3
+      },
+      "due_within_30_days_count": 0,
+      "due_within_30_days_ids": [],
+      "expired_count": 12,
+      "expired_ids": [
+        "product-install-sh-to-workspace-bootstrap",
+        "product-migrate-py-to-tools-migrations",
+        "product-jax-bootstrap-to-workspace-vendor",
+        "repo-filter-topics-to-tools-research",
+        "repo-organize-relevant-topics-to-tools-research",
+        "imports-policy-config-relocation",
+        "imports-exceptions-config-relocation",
+        "imports-exceptions-registry-relocation",
+        "imports-gate-baseline-relocation",
+        "imports-gate-summary-relocation",
+        "freeze-policy-relocation",
+        "data-requirement-family-fallback-from-hardcoded-heuristic"
+      ],
+      "python_reexport_count": 0,
+      "shim_count": 18
+    },
+    "static_analysis_counts": {
+      "inline_noqa_count": 822,
+      "inline_type_ignore_count": 1342
+    }
+  }
+}

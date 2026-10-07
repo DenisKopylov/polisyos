@@ -1,0 +1,209 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+____ test_content_valid_fake_result_rejected_after_cas_reopen[false_count] _____
+
+mutation = 'false_count'
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-113/test_content_valid_fake_result0')
+
+    @pytest.mark.parametrize(
+        "mutation", ["false_count", "false_coverage", "false_receipt", "outcome", "reorder"]
+    )
+    def test_content_valid_fake_result_rejected_after_cas_reopen(mutation: str, tmp_path: Path):
+        store = FileSystemCAS(tmp_path / "cas")
+        y, intervals = _inputs()
+        ref = persist_continuous_evaluation(
+            store, evaluate_continuous(y_true=y, intervals={0.95: intervals})
+        )
+        payload = copy.deepcopy(from_canonical_bytes(store.get_bytes(ref)))
+        if mutation == "false_count":
+            payload["report"]["metadata"]["interval_coverage"]["eligible"] = 0
+        elif mutation == "false_coverage":
+            payload["report"]["curves"]["interval_coverage"][0]["mean_observed"] = 1.0
+        elif mutation == "false_receipt":
+            payload["receipt"]["runtime_truthfulness_tier"] = "exact"
+        else:
+            from polisyos.core.artifacts import ArtifactRef
+    
+            pairs = from_canonical_bytes(
+                store.get_bytes(ArtifactRef.model_validate(payload["pairs_ref"]))
+            )
+            if mutation == "outcome":
+                pairs["y_true"][0] = 1e6
+            else:
+                pairs["intervals"][0].reverse()
+            replacement = _put(store, pairs, "continuous_calibration_pairs")
+            payload["pairs_ref"] = replacement.model_dump(mode="json")
+        fake = _put(store, payload, "continuous_calibration_diagnostics")
+        assert store.verify(fake).ok  # Valid hash/schema is deliberately insufficient.
+>       with pytest.raises(ValueError, match="does not reproduce"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_continuous_persistence.py:112: Failed
+___ test_content_valid_fake_result_rejected_after_cas_reopen[false_coverage] ___
+
+mutation = 'false_coverage'
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-113/test_content_valid_fake_result1')
+
+    @pytest.mark.parametrize(
+        "mutation", ["false_count", "false_coverage", "false_receipt", "outcome", "reorder"]
+    )
+    def test_content_valid_fake_result_rejected_after_cas_reopen(mutation: str, tmp_path: Path):
+        store = FileSystemCAS(tmp_path / "cas")
+        y, intervals = _inputs()
+        ref = persist_continuous_evaluation(
+            store, evaluate_continuous(y_true=y, intervals={0.95: intervals})
+        )
+        payload = copy.deepcopy(from_canonical_bytes(store.get_bytes(ref)))
+        if mutation == "false_count":
+            payload["report"]["metadata"]["interval_coverage"]["eligible"] = 0
+        elif mutation == "false_coverage":
+            payload["report"]["curves"]["interval_coverage"][0]["mean_observed"] = 1.0
+        elif mutation == "false_receipt":
+            payload["receipt"]["runtime_truthfulness_tier"] = "exact"
+        else:
+            from polisyos.core.artifacts import ArtifactRef
+    
+            pairs = from_canonical_bytes(
+                store.get_bytes(ArtifactRef.model_validate(payload["pairs_ref"]))
+            )
+            if mutation == "outcome":
+                pairs["y_true"][0] = 1e6
+            else:
+                pairs["intervals"][0].reverse()
+            replacement = _put(store, pairs, "continuous_calibration_pairs")
+            payload["pairs_ref"] = replacement.model_dump(mode="json")
+        fake = _put(store, payload, "continuous_calibration_diagnostics")
+        assert store.verify(fake).ok  # Valid hash/schema is deliberately insufficient.
+>       with pytest.raises(ValueError, match="does not reproduce"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_continuous_persistence.py:112: Failed
+___ test_content_valid_fake_result_rejected_after_cas_reopen[false_receipt] ____
+
+mutation = 'false_receipt'
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-113/test_content_valid_fake_result2')
+
+    @pytest.mark.parametrize(
+        "mutation", ["false_count", "false_coverage", "false_receipt", "outcome", "reorder"]
+    )
+    def test_content_valid_fake_result_rejected_after_cas_reopen(mutation: str, tmp_path: Path):
+        store = FileSystemCAS(tmp_path / "cas")
+        y, intervals = _inputs()
+        ref = persist_continuous_evaluation(
+            store, evaluate_continuous(y_true=y, intervals={0.95: intervals})
+        )
+        payload = copy.deepcopy(from_canonical_bytes(store.get_bytes(ref)))
+        if mutation == "false_count":
+            payload["report"]["metadata"]["interval_coverage"]["eligible"] = 0
+        elif mutation == "false_coverage":
+            payload["report"]["curves"]["interval_coverage"][0]["mean_observed"] = 1.0
+        elif mutation == "false_receipt":
+            payload["receipt"]["runtime_truthfulness_tier"] = "exact"
+        else:
+            from polisyos.core.artifacts import ArtifactRef
+    
+            pairs = from_canonical_bytes(
+                store.get_bytes(ArtifactRef.model_validate(payload["pairs_ref"]))
+            )
+            if mutation == "outcome":
+                pairs["y_true"][0] = 1e6
+            else:
+                pairs["intervals"][0].reverse()
+            replacement = _put(store, pairs, "continuous_calibration_pairs")
+            payload["pairs_ref"] = replacement.model_dump(mode="json")
+        fake = _put(store, payload, "continuous_calibration_diagnostics")
+        assert store.verify(fake).ok  # Valid hash/schema is deliberately insufficient.
+>       with pytest.raises(ValueError, match="does not reproduce"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_continuous_persistence.py:112: Failed
+______ test_content_valid_fake_result_rejected_after_cas_reopen[outcome] _______
+
+mutation = 'outcome'
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-113/test_content_valid_fake_result3')
+
+    @pytest.mark.parametrize(
+        "mutation", ["false_count", "false_coverage", "false_receipt", "outcome", "reorder"]
+    )
+    def test_content_valid_fake_result_rejected_after_cas_reopen(mutation: str, tmp_path: Path):
+        store = FileSystemCAS(tmp_path / "cas")
+        y, intervals = _inputs()
+        ref = persist_continuous_evaluation(
+            store, evaluate_continuous(y_true=y, intervals={0.95: intervals})
+        )
+        payload = copy.deepcopy(from_canonical_bytes(store.get_bytes(ref)))
+        if mutation == "false_count":
+            payload["report"]["metadata"]["interval_coverage"]["eligible"] = 0
+        elif mutation == "false_coverage":
+            payload["report"]["curves"]["interval_coverage"][0]["mean_observed"] = 1.0
+        elif mutation == "false_receipt":
+            payload["receipt"]["runtime_truthfulness_tier"] = "exact"
+        else:
+            from polisyos.core.artifacts import ArtifactRef
+    
+            pairs = from_canonical_bytes(
+                store.get_bytes(ArtifactRef.model_validate(payload["pairs_ref"]))
+            )
+            if mutation == "outcome":
+                pairs["y_true"][0] = 1e6
+            else:
+                pairs["intervals"][0].reverse()
+            replacement = _put(store, pairs, "continuous_calibration_pairs")
+            payload["pairs_ref"] = replacement.model_dump(mode="json")
+        fake = _put(store, payload, "continuous_calibration_diagnostics")
+        assert store.verify(fake).ok  # Valid hash/schema is deliberately insufficient.
+>       with pytest.raises(ValueError, match="does not reproduce"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_continuous_persistence.py:112: Failed
+______ test_content_valid_fake_result_rejected_after_cas_reopen[reorder] _______
+
+mutation = 'reorder'
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-113/test_content_valid_fake_result4')
+
+    @pytest.mark.parametrize(
+        "mutation", ["false_count", "false_coverage", "false_receipt", "outcome", "reorder"]
+    )
+    def test_content_valid_fake_result_rejected_after_cas_reopen(mutation: str, tmp_path: Path):
+        store = FileSystemCAS(tmp_path / "cas")
+        y, intervals = _inputs()
+        ref = persist_continuous_evaluation(
+            store, evaluate_continuous(y_true=y, intervals={0.95: intervals})
+        )
+        payload = copy.deepcopy(from_canonical_bytes(store.get_bytes(ref)))
+        if mutation == "false_count":
+            payload["report"]["metadata"]["interval_coverage"]["eligible"] = 0
+        elif mutation == "false_coverage":
+            payload["report"]["curves"]["interval_coverage"][0]["mean_observed"] = 1.0
+        elif mutation == "false_receipt":
+            payload["receipt"]["runtime_truthfulness_tier"] = "exact"
+        else:
+            from polisyos.core.artifacts import ArtifactRef
+    
+            pairs = from_canonical_bytes(
+                store.get_bytes(ArtifactRef.model_validate(payload["pairs_ref"]))
+            )
+            if mutation == "outcome":
+                pairs["y_true"][0] = 1e6
+            else:
+                pairs["intervals"][0].reverse()
+            replacement = _put(store, pairs, "continuous_calibration_pairs")
+            payload["pairs_ref"] = replacement.model_dump(mode="json")
+        fake = _put(store, payload, "continuous_calibration_diagnostics")
+        assert store.verify(fake).ok  # Valid hash/schema is deliberately insufficient.
+>       with pytest.raises(ValueError, match="does not reproduce"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_continuous_persistence.py:112: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/calibration/test_continuous_persistence.py::test_content_valid_fake_result_rejected_after_cas_reopen[false_count]
+FAILED tests/unit/calibration/test_continuous_persistence.py::test_content_valid_fake_result_rejected_after_cas_reopen[false_coverage]
+FAILED tests/unit/calibration/test_continuous_persistence.py::test_content_valid_fake_result_rejected_after_cas_reopen[false_receipt]
+FAILED tests/unit/calibration/test_continuous_persistence.py::test_content_valid_fake_result_rejected_after_cas_reopen[outcome]
+FAILED tests/unit/calibration/test_continuous_persistence.py::test_content_valid_fake_result_rejected_after_cas_reopen[reorder]
+5 failed in 7.70s

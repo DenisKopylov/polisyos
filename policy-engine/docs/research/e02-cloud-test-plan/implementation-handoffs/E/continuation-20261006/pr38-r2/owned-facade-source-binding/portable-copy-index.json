@@ -1,0 +1,35 @@
+{
+  "schema": "e02.E.complete-portable-evidence.v1",
+  "primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/source-checkpoint-binding.json",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/bind_source_checkpoint.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/bind_source_checkpoint.py",
+      "bytes": 5104,
+      "sha256": "7454d8cafd85120ba8e9f144e51a3377ff77d2653af54ac18db47b793f48edab"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/source-checkpoint-binding.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/source-checkpoint-binding.json",
+      "bytes": 4827,
+      "sha256": "be97c61e4d09eb277cfe029edb05ace9fd7f13197ffcdf3f09fe18b33fcf2bd4"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/source-checkpoint-loaded-joins.tsv",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/source-checkpoint-loaded-joins.tsv",
+      "bytes": 194229,
+      "sha256": "dbb244d9b0a9b162d23ddf4c60873055bda0ffc01e0d44de4d2625131083e87d"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/source-binding-index.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/source-binding-index.json",
+      "bytes": 752,
+      "sha256": "9aa59f59f7b1662f6c0403763148c53390d367582a6a987dcc73fb14da60bb76"
+    }
+  ],
+  "complete": true,
+  "copies": 4,
+  "bytes": 204912,
+  "raw_private_inputs_copied": false,
+  "scope": "Exact full moderate source/author/independent owner packet; historical and current receipt scopes remain unchanged; no finding closure ratification"
+}

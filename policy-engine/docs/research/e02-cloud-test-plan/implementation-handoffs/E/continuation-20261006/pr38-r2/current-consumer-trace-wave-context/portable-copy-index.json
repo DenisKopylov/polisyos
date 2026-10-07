@@ -1,0 +1,34 @@
+{
+  "schema": "e02.E.portable-review-copy-index.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "source_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/source-trace-current/trace-context-copy-index.json",
+    "bytes": 575,
+    "sha256": "884a8e57f6ec5a645fda7eed7d145a1fb93fe40b23b89f0c1c1bd9885aa7f163"
+  },
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/source-trace-current/first-wave-native-context-stage.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace-wave-context/first-wave-native-context-stage.json",
+      "bytes": 10621,
+      "sha256": "3ab10e942a5284d8ec47d228691bd69f51644f03cb97f3fd62747eeda77a435c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/source-trace-current/first-wave-native-context.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace-wave-context/first-wave-native-context.json",
+      "bytes": 5576,
+      "sha256": "200b9d9a42f2dec9617eba8e3e0a2de970868a8bb08cf8a1a1f7e0a411a47070"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/source-trace-current/trace-context-copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace-wave-context/trace-context-copy-index.json",
+      "bytes": 575,
+      "sha256": "884a8e57f6ec5a645fda7eed7d145a1fb93fe40b23b89f0c1c1bd9885aa7f163"
+    }
+  ],
+  "file_count": 3,
+  "total_bytes": 16772,
+  "publication": "Exact moderate original bytes; source/evidence publication commits kept distinct; raw/private/production inputs not copied",
+  "finding_closure": false
+}

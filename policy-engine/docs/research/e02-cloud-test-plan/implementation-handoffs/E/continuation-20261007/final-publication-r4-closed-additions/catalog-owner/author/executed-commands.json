@@ -1,0 +1,126 @@
+[
+  {
+    "literal_argv_at_execution": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_native_catalog_fixture.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--output",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1"
+    ],
+    "literal_observer_source": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_native_catalog_fixture.py",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1.stdout.txt",
+    "stderr_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1.stderr.txt",
+    "native_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "source_env_package_writes": false,
+    "note": "Terminal capture closed"
+  },
+  {
+    "literal_argv_at_execution": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_missing_native_startup.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--output",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/missing-startup"
+    ],
+    "literal_observer_source": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_missing_native_startup.py",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/missing-startup.stdout.txt",
+    "stderr_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/missing-startup.stderr.txt",
+    "native_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "source_env_package_writes": false,
+    "note": "Terminal capture closed"
+  },
+  {
+    "literal_argv_at_execution": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--output",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-healthy",
+      "--overlay",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/runtime_http.owner-overlay.py.txt",
+      "--mode",
+      "healthy"
+    ],
+    "literal_observer_source": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.fake-attempt1-ERROR.py.txt",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-healthy.stdout.txt",
+    "stderr_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-healthy.stderr.txt",
+    "native_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "source_env_package_writes": false,
+    "note": "Terminal capture closed"
+  },
+  {
+    "literal_argv_at_execution": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--output",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-removed-route",
+      "--overlay",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/runtime_http.owner-overlay.py.txt",
+      "--mode",
+      "removed-route"
+    ],
+    "literal_observer_source": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.fake-attempt1-ERROR.py.txt",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-removed-route.stdout.txt",
+    "stderr_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-removed-route.stderr.txt",
+    "native_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "source_env_package_writes": false,
+    "note": "Terminal capture closed"
+  },
+  {
+    "literal_argv_at_execution": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--output",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-fake-producer",
+      "--overlay",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/runtime_http.owner-overlay.py.txt",
+      "--mode",
+      "fake-producer"
+    ],
+    "literal_observer_source": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.fake-attempt1-ERROR.py.txt",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 1,
+    "stdout_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-fake-producer.stdout.txt",
+    "stderr_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-fake-producer.stderr.txt",
+    "native_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "source_env_package_writes": false,
+    "note": "First broad fake-builder observer is historical ERROR, not candidate/control FAIL"
+  },
+  {
+    "literal_argv_at_execution": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--output",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-fake-producer-r2",
+      "--overlay",
+      "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/runtime_http.owner-overlay.py.txt",
+      "--mode",
+      "fake-producer"
+    ],
+    "literal_observer_source": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.py",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-fake-producer-r2.stdout.txt",
+    "stderr_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-fake-producer-r2.stderr.txt",
+    "native_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "source_env_package_writes": false,
+    "note": "Terminal capture closed"
+  }
+]

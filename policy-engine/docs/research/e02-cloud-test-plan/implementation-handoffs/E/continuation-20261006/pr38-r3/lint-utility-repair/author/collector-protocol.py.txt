@@ -1,0 +1,36 @@
+"""Replay actual bounded importer custody; no numerical/backend or closure evidence."""
+import copy
+import importlib.util
+import json
+from argparse import Namespace
+from pathlib import Path
+
+REPO = Path('/workspace/e02-E-cal05-20261006')
+SCRATCH = Path('/workspace/e02-E-pr38-r3-receipts/lint-r4')
+WAVE = SCRATCH/'current-f3-protocol-wave'
+CANDIDATE='f3ec0335e992fa7a5107000224f8ba6deefd02e5'
+SOURCE=REPO/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py'
+spec=importlib.util.spec_from_file_location('author_current_collector',SOURCE)
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+receiptpath=WAVE/'checks/results-import/results-import.json'
+receipt=json.loads(receiptpath.read_text())
+job={'name':'results-import','kind':'importer','argv':receipt['command'],'cwd':receipt['cwd'],'output':str(receiptpath.parent),'junit':None,'environment':{}}
+plan={'candidate_sha':CANDIDATE,'candidate_tree_sha':receipt['candidate_tree_sha'],'output_root':str(WAVE),'jobs':[job],'owner_packet_extra_inputs':[],'groups':{},'tracked_all_path_count':receipt['source_identity_before']['tracked_paths'],'native_test_path_count':0,'test_input_path_count_including_owner_packets':0,'source_runtime_input_path_count':0,'changed_python_lint_paths':[],'collector_control_only':True}
+(WAVE/'plan.json').write_text(json.dumps(plan,indent=2)+'\n')
+(WAVE/'wave-started.json').write_text(json.dumps({'candidate_sha':CANDIDATE,'started_unix':receipt['started_unix']-1})+'\n')
+(WAVE/'execution-complete.json').write_text(json.dumps({'candidate_sha':CANDIDATE,'numerical_codes':[],'gate_codes':[]})+'\n')
+def collect(label):
+ return module.collect(Namespace(repo=REPO,candidate=CANDIDATE,wave_root=WAVE,publication_root=SCRATCH/('protocol-publication-'+label),freeze_receipt=None,max_moderate_bytes=8*1024*1024,capture_incomplete=False))
+positive=collect('healthy-f3')
+if positive['collection_state']!='CONTROL_COMPLETE_BOUND':raise AssertionError(positive['issues'])
+if positive['finding_closure'] or positive['numeric_results_are_new_candidate_only']:raise AssertionError('Synthetic protocol gained numerical/closure authority')
+controls=[]
+for field,value in [('candidate_sha','0'*40),('stdout_sha256','0'*64),('source_immutable',False),('command',['dummy-positive'])]:
+ changed=copy.deepcopy(receipt);changed[field]=value
+ receiptpath.write_text(json.dumps(changed,indent=2)+'\n')
+ try:
+  negative=collect('corrupt-'+field+'-f3')
+  if negative['collection_state']=='CONTROL_COMPLETE_BOUND':raise AssertionError('Present-but-fake accepted '+field)
+  controls.append({'field':field,'outcome':'REFUSED_COMPLETE_BINDING','collection_state':negative['collection_state'],'issues':negative['issues']})
+ finally:receiptpath.write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'candidate':CANDIDATE,'positive':{k:positive[k] for k in ['collection_state','job_receipt_count','numeric_counts','finding_closure','numeric_results_are_new_candidate_only']},'negative_controls':controls,'scope':'Actual importer custody in a synthetic collector protocol plan, no numerical/backend evidence.'},indent=2))

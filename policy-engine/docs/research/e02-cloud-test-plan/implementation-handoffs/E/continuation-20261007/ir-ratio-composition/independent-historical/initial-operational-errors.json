@@ -1,0 +1,6 @@
+{
+  "schema": "e02-peer-initial-operation-correction:1",
+  "selector_error": "Peer wrapper launched system Python3.12 without pytest; no native selector executed; historical stdout/stderr preserved. Corrected actual wrapper uses existing DOE Python3.14 environment unchanged.",
+  "first_gap_observer_error": "Initial valid .32 credible-mass source reached callbacks but legacy fallback result validator raised containment before observer row save; original script/trace preserved. Corrected .9 fixture admits fallback return so actual callback/artifact/fresh-reader facts are explicitly recorded.",
+  "source_changed": false
+}

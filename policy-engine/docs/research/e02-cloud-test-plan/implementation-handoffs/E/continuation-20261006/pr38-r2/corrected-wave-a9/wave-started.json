@@ -1,0 +1,5 @@
+{
+  "candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "started_unix": 1791309146.0144405,
+  "reviews_requirement": "root caller asserts independent reviews complete before --execute"
+}

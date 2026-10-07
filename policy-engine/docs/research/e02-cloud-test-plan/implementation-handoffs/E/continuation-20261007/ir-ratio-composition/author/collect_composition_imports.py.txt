@@ -1,0 +1,25 @@
+"""Read-only canonical architecture collector and complete slice AST footprint."""
+import ast,dataclasses,hashlib,json,subprocess
+from pathlib import Path
+from tools.devx.architecture import guardrails as g
+r=Path('/workspace/e02-E-doe-20261006');p=r/'policy-engine';o=Path('/tmp/e02-E-ir-composition-r4-20261007');base='bfbd53a1f45795ad6901bc4bb7685237b0c3d20b'
+policies=g._parse_public_surface(g.DEFAULT_PUBLIC_MANIFEST);edges=g.collect_deep_import_edges(policies);source_files=list(g._iter_py_files());allowed={}
+for policy in policies:
+ root=g._root_for_module(policy.module)
+ if root is not None:allowed.setdefault(root,set()).update(policy.supported_entrypoints)
+source=p/'src/polisyos/ir/analytics/uncertainty.py';controls=[]
+for target,expect in [('polisyos.core',False),('polisyos.core.artifacts.store',True)]:
+ d={};g._maybe_add_deep_import(edges=d,allowed_entrypoints=allowed,source_module='polisyos.ir.analytics.uncertainty',source_root='ir',source_file=source,target_module=target)
+ if bool(d)!=expect:raise RuntimeError('canonical source-edge control failed')
+ controls.append({'target':target,'detected_unsupported_cross_root':bool(d),'expected':expect,'rows':[dataclasses.asdict(x) for x in d.values()]})
+removed={};controls.append({'target':'polisyos.core.artifacts.store','property_removal':'canonical admission callback removed; unsupported edge suppressed','detected_unsupported_cross_root':bool(removed),'defining_property':'FAIL'})
+paths=['src/polisyos/ir/analytics/uncertainty.py','src/polisyos/ir/analytics/posterior_summary.py','tests/unit/ir/test_uncertainty_posterior_composition.py'];ast_rows=[]
+for path in paths:
+ now=(p/path).read_bytes();previous=subprocess.run(['git','-C',str(r),'show',base+':policy-engine/'+path],capture_output=True).stdout
+ def imports(blob):
+  tree=ast.parse(blob.decode()) if blob else ast.Module(body=[],type_ignores=[])
+  return sorted([{'kind':'from','module':n.module,'level':n.level,'names':[(a.name,a.asname) for a in n.names]} if isinstance(n,ast.ImportFrom) else {'kind':'import','module':None,'level':0,'names':[(a.name,a.asname) for a in n.names]} for n in ast.walk(tree) if isinstance(n,(ast.Import,ast.ImportFrom))],key=lambda x:json.dumps(x,sort_keys=True))
+ ast_rows.append({'path':path,'base_sha256':hashlib.sha256(previous).hexdigest() if previous else None,'current_sha256':hashlib.sha256(now).hexdigest(),'base_imports':imports(previous),'current_imports':imports(now)})
+inputs=[{'path':str(f.relative_to(p)),'bytes':f.stat().st_size,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()} for f in source_files]
+receipt={'schema':'policyos.e02.canonical_composition_import_collector.v1','source_sha':subprocess.check_output(['git','-C',str(r),'rev-parse','HEAD']).decode().strip(),'tree':subprocess.check_output(['git','-C',str(r),'rev-parse','HEAD^{tree}']).decode().strip(),'slice_base':base,'canonical_collector_source':{'path':'tools/devx/architecture/guardrails.py','sha256':hashlib.sha256(Path(g.__file__).read_bytes()).hexdigest()},'public_manifest':{'path':str(g.DEFAULT_PUBLIC_MANIFEST.relative_to(p)),'sha256':hashlib.sha256(g.DEFAULT_PUBLIC_MANIFEST.read_bytes()).hexdigest()},'complete_source_file_count':len(inputs),'complete_source_input_identity':hashlib.sha256(json.dumps(inputs,sort_keys=True,separators=(',',':')).encode()).hexdigest(),'complete_source_inputs':inputs,'all_detected_deep_edges':[dataclasses.asdict(e) for e in edges],'edge_count':len(edges),'changed_product_edges':[dataclasses.asdict(e) for e in edges if e.source_file in paths[:2]],'complete_changed_code_and_test_AST':ast_rows,'controls':controls,'whole_architecture_gate_status':'UNRUN','limitations':['Only the existing canonical source collector was run; generated/inventory/runtime facade successors are not this observation.','No inherited red attribution or exception/baseline edits.','Tests are included in slice AST receipts; the canonical collector itself scans src only.']}
+(o/'composition-import-collector.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'source':receipt['source_sha'],'complete_source_files':len(inputs),'all_deep_edges':len(edges),'changed_product_deep_edges':len(receipt['changed_product_edges']),'canonical_controls':controls}))

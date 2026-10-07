@@ -1,0 +1,20 @@
+{
+  "schema": "e02.E.independent-publication-delta.READY.v1",
+  "status": "READY-GO-bounded-publication-only",
+  "primary": {
+    "path": "review.json",
+    "bytes": 19335,
+    "sha256": "9d4de70d4d14cc4509efac6555ed5aba5c165bd227904baeca52140b2203a3d2"
+  },
+  "wave_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "publication_checkpoint": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+  "counts": {
+    "portable_indices": 14,
+    "copied_records": 231,
+    "copied_bytes": 16939822
+  },
+  "runtime_checks_launched": false,
+  "Git_source_config_ref_writes": false,
+  "expected_stderr": "origin/main does not contain new evidence path; genuine wrong-ref negative rejected",
+  "cleanup": "No native Trash; no deletion. Preserve docs/evidence/source/unique data; exact repeatable fixtures remain deferred."
+}

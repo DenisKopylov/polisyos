@@ -1,0 +1,1 @@
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/deliberately-missing-executable'

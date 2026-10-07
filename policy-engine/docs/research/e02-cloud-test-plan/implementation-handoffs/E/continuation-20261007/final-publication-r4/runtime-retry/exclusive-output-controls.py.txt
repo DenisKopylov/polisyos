@@ -1,0 +1,37 @@
+"""Actual scratch create-exclusive output control; historical files untouched."""
+
+import hashlib
+import json
+from pathlib import Path
+
+OUT = Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation')
+sentinel = OUT / 'exclusive-control-sentinel-v1.txt'
+first = b'unique historical sentinel\n'
+with sentinel.open('xb') as stream:
+    stream.write(first)
+try:
+    with sentinel.open('xb') as stream:
+        stream.write(b'corrupt replacement')
+except FileExistsError:
+    refusal = True
+else:
+    raise AssertionError('existing unique output was overwritten')
+if sentinel.read_bytes() != first:
+    raise AssertionError('historical sentinel bytes changed')
+different = OUT / 'exclusive-control-fresh-v1.txt'
+with different.open('xb') as stream:
+    stream.write(b'new corrective receipt only\n')
+result = {
+    'healthy_new_output': 'PASS',
+    'existing_output_collision': 'PASS',
+    'actual_refusal': 'FileExistsError',
+    'sentinel_unchanged': True,
+    'original_sha256': hashlib.sha256(first).hexdigest(),
+    'current_sha256': hashlib.sha256(sentinel.read_bytes()).hexdigest(),
+    'separate_corrective_path': str(different),
+    'scope': 'scratch receipt output custody; no generator/product source check PASS implied',
+}
+path = OUT / 'exclusive-output-controls-v1.json'
+with path.open('x') as stream:
+    stream.write(json.dumps(result, indent=2, sort_keys=True) + '\n')
+print(json.dumps(result, indent=2))

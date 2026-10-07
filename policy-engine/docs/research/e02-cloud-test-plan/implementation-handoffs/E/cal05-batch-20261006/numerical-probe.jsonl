@@ -1,0 +1,5 @@
+{"case": "scalar_map_eager", "backend": "cpu", "dtype": "float32", "actual": [[-1.0], [2.6931471824645996]], "numerical_emissions": [[2.0]], "outcome": "PASS"}
+{"case": "scalar_map_jit", "backend": "cpu", "dtype": "float32", "actual": [[-1.0], [2.6931471824645996]], "numerical_emissions": [[2.0]], "outcome": "PASS"}
+{"case": "scalar_map_grad", "backend": "cpu", "dtype": "float32", "actual": [[1.0], [1.5]], "numerical_emissions": [[2.0]], "outcome": "PASS"}
+{"case": "scalar_map_hessian", "backend": "cpu", "dtype": "float32", "actual": [[[[0.0], [0.0]]], [[[0.0], [-0.25]]]], "numerical_emissions": [[2.0]], "outcome": "PASS"}
+{"case": "remove_scalar_map_and_mapped_guard_keep_markers", "actual": [[-1.0], [2.6931471824645996]], "numerical_emissions": [[-1.0], [2.0]], "finite_state_proxy": "PASS", "no_inactive_numerical_emission": "FAIL", "control_detected": "PASS"}

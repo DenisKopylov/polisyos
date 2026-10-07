@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "tools/quality/validation/generate_adr_index.py", "--check"], "exit_code": 0, "outcome": "PASS", "counts": null, "wall_seconds": 18.95936107635498, "source_immutable": true}

@@ -9,16 +9,15 @@ import numpy as np
 import pytest
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.foundry.calibration.uncertainty_adapter import (
-    summarize_bayesian_calibration_posterior,
-)
+from polisyos.foundry.uncertainty import summarize_bayesian_calibration_posterior
 from polisyos.ir.analytics import (
     PosteriorParameterBinding,
     PosteriorSamplesCarrier,
     PosteriorSummaryContext,
+    admit_posterior_summary_profiles,
+    posterior_joint_carrier_digest,
     read_posterior_summary_profile,
 )
-from polisyos.ir.analytics.posterior_summary import posterior_joint_carrier_digest
 from polisyos.ir.analytics.uncertainty import (
     ExactnessKind,
     ParametricFitCarrier,
@@ -245,8 +244,6 @@ def test_particles_compression_preserves_exact_axis_and_profile(tmp_path):
 
 
 def test_complete_joint_particles_compression_preserves_fresh_group(tmp_path):
-    from polisyos.ir.analytics.posterior_summary import admit_posterior_summary_profiles
-
     source = summarize_bayesian_calibration_posterior(
         {"a": [0.0, 1.0], "b": [0.0, -1.0]},
         draw_ids=["paired:0", "paired:1"],

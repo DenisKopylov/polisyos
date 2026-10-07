@@ -1,0 +1,14 @@
+id = "2026-10-07-posterior-summary-facade"
+title = "Expose the retained posterior summary through the admitted uncertainty facade"
+type = "added"
+component = "foundry-uncertainty"
+owner = "E-scoped-B201-B202"
+summary = "The existing Foundry uncertainty entrypoint lazily exposes the canonical posterior summary producer and its typed return record; real IR callers use that facade."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.uncertainty"
+compatibility = "Canonical objects, numerical algorithms, envelope v1.1 and Profile1 replay are unchanged. Profile2 keeps separate named mean and equal-tail interval functionals."
+migration = "Import summarize_bayesian_calibration_posterior and BayesianCalibrationPosteriorSummary from polisyos.foundry.uncertainty."
+limitations = "A retained finite corpus does not establish scientific source, fit, noise or institutional authority; generated public-surface companions remain owned by G."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+evidence = ["tests/unit/calibration/test_evidence_facades.py", "tests/unit/ir/test_posterior_summary.py", "tests/unit/ir/test_uncertainty_posterior_composition.py"]

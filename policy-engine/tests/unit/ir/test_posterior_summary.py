@@ -9,9 +9,7 @@ import pytest
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon as core_canon
-from polisyos.foundry.calibration.uncertainty_adapter import (
-    summarize_bayesian_calibration_posterior,
-)
+from polisyos.foundry.uncertainty import summarize_bayesian_calibration_posterior
 from polisyos.ir.analytics import (
     DistributionFamily,
     PosteriorParameterBinding,

@@ -25,6 +25,10 @@ if TYPE_CHECKING:
         PersistedBayesianFit,
         persist_bayesian_fit_envelopes,
     )
+    from ..calibration.uncertainty_adapter import (
+        BayesianCalibrationPosteriorSummary,
+        summarize_bayesian_calibration_posterior,
+    )
     from .covariance import (
         CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
         CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
@@ -35,6 +39,10 @@ if TYPE_CHECKING:
 
 _FIT_EXPORTS = frozenset(
     {"BayesianFitBinding", "PersistedBayesianFit", "persist_bayesian_fit_envelopes"}
+)
+
+_POSTERIOR_SUMMARY_EXPORTS = frozenset(
+    {"BayesianCalibrationPosteriorSummary", "summarize_bayesian_calibration_posterior"}
 )
 
 _COVARIANCE_EXPORTS = frozenset(
@@ -68,9 +76,13 @@ def extract_std(env: UncertaintyEnvelope) -> float:
 
 
 def __getattr__(name: str) -> object:
-    """Resolve canonical covariance objects only when the numeric API is requested."""
+    """Resolve canonical fit, summary and covariance APIs on demand."""
     if name in _FIT_EXPORTS:
         value = getattr(import_module("..calibration.bayesian_fit_bridge", __name__), name)
+        globals()[name] = value
+        return value
+    if name in _POSTERIOR_SUMMARY_EXPORTS:
+        value = getattr(import_module("..calibration.uncertainty_adapter", __name__), name)
         globals()[name] = value
         return value
     if name in _COVARIANCE_EXPORTS:
@@ -84,6 +96,7 @@ __all__ = [
     "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
     "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
     "AdaptiveStoppingConfig",
+    "BayesianCalibrationPosteriorSummary",
     "BayesianFitBinding",
     "PersistedBayesianFit",
     "persist_bayesian_fit_envelopes",
@@ -108,5 +121,6 @@ __all__ = [
     "preserve_singular_covariance",
     "reconcile_draw_outcomes",
     "sampling_content_digest",
+    "summarize_bayesian_calibration_posterior",
     "verify_mean_certificate",
 ]

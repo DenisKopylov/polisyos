@@ -34,7 +34,9 @@ The Scientist node can configure the narrow indicator response with
 reconciles complete draw outcomes before publishing the candidate simulation.
 General served simulation-evaluator and production-law custody remain separate
 owner tasks. Uncertainty v1.1 read/replay and its wire schema are unchanged;
-independent point/interval functionals and v2 law storage require IR ratification.
+the E-ratified posterior-summary Profile2 declares independent named mean and
+equal-tail inverse-CDF interval functionals while the generic envelope point is
+the median. A retained finite law does not establish source or fit authority.
 
 ## Public API
 
@@ -48,6 +50,8 @@ independent point/interval functionals and v2 law storage require IR ratificatio
 | `aggregate_envelopes()`         | Combines multiple envelopes into one.                     |
 | `compute_first_order_indices()` | Sensitivity helper for variance attribution.              |
 | `extract_std()`                 | Extracts scale from a typed parametric fit or legacy interval. |
+| `summarize_bayesian_calibration_posterior()` | Canonical finite-corpus posterior summary producer. |
+| `BayesianCalibrationPosteriorSummary` | Typed result with named means, intervals and exact envelopes. |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 
@@ -55,7 +59,7 @@ independent point/interval functionals and v2 law storage require IR ratificatio
 
 - Last updated: 2026-09-28
 - Files: 13 Python files in this package
-- Exports: 25 names declared in `__all__`
+- Exports: the curated list in [`__init__.py`](__init__.py).
 # Sampling consumer entrypoints
 
 Scientist consumes `BoundedIndicatorResponse`, `reconcile_draw_outcomes`,

@@ -76,13 +76,17 @@ def _same_configuration(saved: Any, current: Any) -> bool:
         return (
             isinstance(saved, dict)
             and saved.keys() == current.keys()
-            and all(_same_configuration(saved[key], value) for key, value in current.items())
+            and all(
+                _same_configuration(saved[key], value) for key, value in current.items()
+            )
         )
     if isinstance(current, list):
         return (
             isinstance(saved, list)
             and len(saved) == len(current)
-            and all(_same_configuration(a, b) for a, b in zip(saved, current, strict=True))
+            and all(
+                _same_configuration(a, b) for a, b in zip(saved, current, strict=True)
+            )
         )
     if type(current) is float and type(saved) is int:
         try:
@@ -94,6 +98,7 @@ def _same_configuration(saved: Any, current: Any) -> bool:
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.scientist.methods.autotune.dedup import TrialDeduplicator
 
 
 class NativeSearchService:
@@ -111,7 +116,14 @@ class NativeSearchService:
         *,
         store: ArtifactStore | None = None,
         basis: dict[str, Any] | None = None,
+        dedup: TrialDeduplicator | None = None,
     ) -> None:
+        if dedup is not None:
+            from polisyos.scientist.methods.autotune.dedup import TrialDeduplicator
+
+            if type(dedup) is not TrialDeduplicator:
+                raise ValueError("search_dedup_requires_canonical_trial_deduplicator")
+        self._dedup = dedup
         self.controller = controller
         self._store = store
         self._basis = deepcopy(basis or {})
@@ -138,11 +150,18 @@ class NativeSearchService:
                 "children": [without_clock(child) for child in value["children"]],
             }
 
-        profile = self._replay_profile(self._checkpoint_context if context is None else context)
+        profile = self._replay_profile(
+            self._checkpoint_context if context is None else context
+        )
         return checkpoint_json(
             {
                 "basis": self._basis,
                 "replay_profile": profile,
+                **(
+                    {"trial_deduplication": self._deduplication_profile()}
+                    if self._dedup is not None
+                    else {}
+                ),
                 "hard_limit": config.max_iterations_hard_limit,
                 "max_empty_generation_attempts": config.max_empty_generation_attempts,
                 "stage_a_enabled": config.enable_stage_a,
@@ -181,7 +200,10 @@ class NativeSearchService:
         Arbitrary objects and closures are not reconstructible from a build
         digest. Such generic profiles remain persistable and refuse resume.
         """
-        from polisyos.scientist.methods.autotune.models import BenchmarkSuite, SearchLoopSpec
+        from polisyos.scientist.methods.autotune.models import (
+            BenchmarkSuite,
+            SearchLoopSpec,
+        )
         from polisyos.scientist.methods.autotune.runtime import (
             PydanticMutationCodec,
             SearchLoopRunner,
@@ -198,14 +220,25 @@ class NativeSearchService:
         if (
             config.resource_arbiter is not None
             or config.pareto_registry is not None
-            or (config.policy_objective_stack is not None and self._policy_configuration() is None)
+            or (
+                config.policy_objective_stack is not None
+                and self._policy_configuration() is None
+            )
         ):
             return None
 
         objectives = self.controller._config.objective.objectives
         stage_b = self.controller._stage_b
-        closure = inspect.getclosurevars(stage_b).nonlocals if inspect.isfunction(stage_b) else {}
-        runner, spec, suite = closure.get("self"), closure.get("spec"), closure.get("suite_ref")
+        closure = (
+            inspect.getclosurevars(stage_b).nonlocals
+            if inspect.isfunction(stage_b)
+            else {}
+        )
+        runner, spec, suite = (
+            closure.get("self"),
+            closure.get("spec"),
+            closure.get("suite_ref"),
+        )
         if (
             type(runner) is SearchLoopRunner
             and isinstance(spec, SearchLoopSpec)
@@ -221,16 +254,23 @@ class NativeSearchService:
             and any(
                 stage_b.__code__ is code
                 for code in SearchLoopRunner.create_service.__code__.co_consts
-                if isinstance(code, CodeType) and code.co_freevars == ("self", "spec", "suite_ref")
+                if isinstance(code, CodeType)
+                and code.co_freevars == ("self", "spec", "suite_ref")
             )
         ):
             try:
                 snapshot = self._read_snapshot(suite)
-                suite_data = BenchmarkSuite.model_validate(from_canonical_bytes(snapshot.data))
-                evaluator_config = self._evaluator_configuration(spec.benchmark_evaluator, runner)
+                suite_data = BenchmarkSuite.model_validate(
+                    from_canonical_bytes(snapshot.data)
+                )
+                evaluator_config = self._evaluator_configuration(
+                    spec.benchmark_evaluator, runner
+                )
                 if evaluator_config is None:
                     return None
-                context_data = {key: self._profile_value(value) for key, value in context.items()}
+                context_data = {
+                    key: self._profile_value(value) for key, value in context.items()
+                }
                 model_path = inspect.getsourcefile(spec.mutation_codec._model_cls)
                 factory_path = inspect.getsourcefile(SearchLoopRunner)
                 if model_path is None or factory_path is None:
@@ -252,11 +292,15 @@ class NativeSearchService:
                 ],
                 "policy": spec.promotion_policy.model_dump(mode="json"),
                 "mutation_schema": spec.mutation_codec._model_cls.model_json_schema(),
-                "mutation_model_build": hashlib.sha256(Path(model_path).read_bytes()).hexdigest(),
+                "mutation_model_build": hashlib.sha256(
+                    Path(model_path).read_bytes()
+                ).hexdigest(),
                 "mutation_model_type": f"{spec.mutation_codec._model_cls.__module__}.{spec.mutation_codec._model_cls.__qualname__}",
                 "evaluator_configuration": evaluator_config,
                 "evaluation_context": context_data,
-                "factory_build": hashlib.sha256(Path(factory_path).read_bytes()).hexdigest(),
+                "factory_build": hashlib.sha256(
+                    Path(factory_path).read_bytes()
+                ).hexdigest(),
             }
         supported = (
             BudgetDeficitObjective,
@@ -268,7 +312,11 @@ class NativeSearchService:
             return None
 
         def callable_profile(function: Any) -> dict[str, Any] | None:
-            if not inspect.isfunction(function) or function.__closure__ or vars(function):
+            if (
+                not inspect.isfunction(function)
+                or function.__closure__
+                or vars(function)
+            ):
                 return None
             variables = inspect.getclosurevars(function)
             try:
@@ -297,7 +345,9 @@ class NativeSearchService:
             return None
         return {
             "version": "builtin-objective-stateless-ports.v1",
-            "objective_build": hashlib.sha256(Path(objective_path).read_bytes()).hexdigest(),
+            "objective_build": hashlib.sha256(
+                Path(objective_path).read_bytes()
+            ).hexdigest(),
             "ports": ports,
         }
 
@@ -308,7 +358,9 @@ class NativeSearchService:
             return {
                 "artifact_ref": value.model_dump(mode="json"),
                 "content_sha256": hashlib.sha256(snapshot.data).hexdigest(),
-                "manifest_profile_sha256": artifact_manifest_profile_sha256(snapshot.manifest),
+                "manifest_profile_sha256": artifact_manifest_profile_sha256(
+                    snapshot.manifest
+                ),
             }
         if inspect.isfunction(value):
             variables = inspect.getclosurevars(value)
@@ -344,10 +396,14 @@ class NativeSearchService:
             return None
         return {
             "parameters": checkpoint_json(vars(stack)),
-            "implementation_sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest(),
+            "implementation_sha256": hashlib.sha256(
+                Path(path).read_bytes()
+            ).hexdigest(),
         }
 
-    def _evaluator_configuration(self, evaluator: Any, runner: Any) -> dict[str, Any] | None:
+    def _evaluator_configuration(
+        self, evaluator: Any, runner: Any
+    ) -> dict[str, Any] | None:
         """Use actual declared configuration or the exact built-in constructor profile."""
         cls = type(evaluator)
         path = inspect.getsourcefile(cls)
@@ -384,7 +440,9 @@ class NativeSearchService:
             return None
         return {
             "type": f"{cls.__module__}.{cls.__qualname__}",
-            "implementation_sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest(),
+            "implementation_sha256": hashlib.sha256(
+                Path(path).read_bytes()
+            ).hexdigest(),
             "configuration": self._profile_value(configuration),
         }
 
@@ -393,12 +451,17 @@ class NativeSearchService:
         self._require_publication_ready()
         if self._store is None:
             raise ValueError("search_checkpoint_store_not_configured")
+        configuration = (
+            self._admit_deduplication_configuration(self._checkpoint_context)
+            if self._dedup is not None
+            else self._configuration()
+        )
         generator = self.controller._generator
         get_state = getattr(generator, "get_state", None)
         set_state = getattr(generator, "set_state", None)
         state = get_state() if callable(get_state) and callable(set_state) else None
         payload = SearchServiceCheckpoint(
-            configuration=self._configuration(),
+            configuration=configuration,
             run_state=self.controller._run_state.checkpoint_state(),
             generator_state=checkpoint_json(state),
             stopping_state=self.controller._config.stopping.checkpoint_state(),
@@ -418,17 +481,23 @@ class NativeSearchService:
                 kind="scientist.search.service_checkpoint",
                 media_type="application/json",
                 schema=SchemaInfo(
-                    name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0"
+                    name="polisyos.scientist.search.SearchServiceCheckpoint",
+                    version="2.0",
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         )
         snapshot = self._verified_snapshot(ref)
-        if SearchServiceCheckpoint.model_validate(_decode_checkpoint(snapshot.data)) != payload:
+        if (
+            SearchServiceCheckpoint.model_validate(_decode_checkpoint(snapshot.data))
+            != payload
+        ):
             raise ValueError("search_checkpoint_readback_mismatch")
         self.checkpoint_ref = ref.model_copy(
             update={
-                "manifest_profile_sha256": artifact_manifest_profile_sha256(snapshot.manifest),
+                "manifest_profile_sha256": artifact_manifest_profile_sha256(
+                    snapshot.manifest
+                ),
             }
         )
         return self.checkpoint_ref
@@ -440,7 +509,9 @@ class NativeSearchService:
             manifest.kind != "scientist.search.service_checkpoint"
             or manifest.media_type != "application/json"
             or manifest.artifact_schema
-            != SchemaInfo(name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0")
+            != SchemaInfo(
+                name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0"
+            )
         ):
             raise ValueError("search_resume_checkpoint_manifest_mismatch")
         return snapshot
@@ -455,7 +526,9 @@ class NativeSearchService:
         if self._store is not None:
             self.checkpoint()
 
-    def restore(self, ref: ArtifactRef, *, context: dict[str, Any] | None = None) -> None:
+    def restore(
+        self, ref: ArtifactRef, *, context: dict[str, Any] | None = None
+    ) -> None:
         """Restore into a fresh service, validating the whole view before effect."""
         if self._store is None or not isinstance(ref, ArtifactRef):
             raise ValueError("search_resume_requires_store_and_exact_reference")
@@ -468,7 +541,9 @@ class NativeSearchService:
         if ref.manifest_profile_sha256 is None:
             raise ValueError("search_resume_exact_manifest_profile_required")
         snapshot = self._verified_snapshot(ref)
-        saved = SearchServiceCheckpoint.model_validate(_decode_checkpoint(snapshot.data))
+        saved = SearchServiceCheckpoint.model_validate(
+            _decode_checkpoint(snapshot.data)
+        )
         if saved.configuration.get("replay_profile") is None:
             raise ValueError("search_resume_unsupported_objective_or_evaluator_profile")
         current_configuration = self._configuration(context or {})
@@ -497,7 +572,9 @@ class NativeSearchService:
             raise ValueError("search_resume_stage_a_counter_mismatch")
         stopping = deepcopy(self.controller._config.stopping)
         stopping.restore_state(saved.stopping_state)
-        started_at = datetime.fromisoformat(saved.started_at) if saved.started_at else None
+        started_at = (
+            datetime.fromisoformat(saved.started_at) if saved.started_at else None
+        )
         if started_at is not None and started_at.tzinfo is None:
             raise ValueError("search_resume_invalid_run_clock")
         pending = checkpoint_value(saved.pending_candidates)
@@ -506,6 +583,13 @@ class NativeSearchService:
         self._validate_native_candidate_identity(
             state, pending, set(saved.completed_candidate_ids), generator_state
         )
+        if self._dedup is not None:
+            self._deduplication_members(
+                context or {},
+                state=state,
+                pending=pending,
+                acknowledged_configuration=saved.configuration,
+            )
         validate_history = getattr(generator, "validate_checkpoint_history", None)
         if callable(validate_history):
             validate_history(state.history, generator_state)
@@ -514,7 +598,9 @@ class NativeSearchService:
         restore_generator(generator_state)
         self.controller._config.stopping = stopping
         self.controller._run_state = state
-        self._pending_candidates = {key: pending[key] for key in saved.pending_candidate_ids}
+        self._pending_candidates = {
+            key: pending[key] for key in saved.pending_candidate_ids
+        }
         self._initial_candidate_ids = set(saved.initial_candidate_ids)
         self._completed_candidate_ids = set(saved.completed_candidate_ids)
         self._ask_iteration = saved.ask_iteration
@@ -529,14 +615,23 @@ class NativeSearchService:
         """Continue restored pending work; terminal stops remain terminal."""
         if not self.controller._run_state.search_id:
             raise ValueError("search_resume_requires_restored_run")
-        if not _same_configuration(self._configuration(context or {}), self._configuration()):
+        if self._dedup is not None:
+            self._admit_deduplication_configuration(context or {})
+        if not _same_configuration(
+            self._configuration(context or {}), self._configuration()
+        ):
             raise ValueError("search_resume_context_configuration_mismatch")
         lock = self.controller._run_lock
         if not lock.acquire(blocking=False):
             raise RuntimeError("SearchController.run is not reentrant")
         try:
-            if self.controller._status in (SearchStatus.STOPPED, SearchStatus.CONVERGED):
-                return self._finish(self._started_at or datetime.now(UTC), self._stopped_reason)
+            if self.controller._status in (
+                SearchStatus.STOPPED,
+                SearchStatus.CONVERGED,
+            ):
+                return self._finish(
+                    self._started_at or datetime.now(UTC), self._stopped_reason
+                )
             self.controller._status = SearchStatus.RUNNING
             self._failure = None
             return self._run_locked(
@@ -576,7 +671,16 @@ class NativeSearchService:
         iteration_before = self._ask_iteration
         context_before = dict(self._checkpoint_context)
         ref_before = self.checkpoint_ref
+        initial_acknowledged = False
         try:
+            if self._dedup is not None and self.checkpoint_ref is None:
+                self._checkpoint_context = dict(context)
+                self.controller._prepare_service_run()
+                self.checkpoint()
+                # Acknowledged custody survives a later proposal rollback. The
+                # fresh reader resumes this prepared state, never a changed basis.
+                ref_before = self.checkpoint_ref
+                initial_acknowledged = True
             return self._ask_proposals(goal, search_space, context)
         except (Exception, asyncio.CancelledError):
             self.controller._run_state = ledger_before
@@ -587,6 +691,8 @@ class NativeSearchService:
             self._ask_iteration = iteration_before
             self._checkpoint_context = context_before
             self.checkpoint_ref = ref_before
+            if initial_acknowledged:
+                self._publication_blocked = True
             if generator_before is not None:
                 try:
                     restore(generator_before)
@@ -605,7 +711,9 @@ class NativeSearchService:
 
     def _require_publication_ready(self) -> None:
         if self._publication_blocked:
-            raise ValueError("search_publication_rollback_unavailable_reopen_last_acknowledged_ref")
+            raise ValueError(
+                "search_publication_rollback_unavailable_reopen_last_acknowledged_ref"
+            )
 
     def _canonical_native_generator(self) -> Any | None:
         generator = self.controller._generator
@@ -622,11 +730,15 @@ class NativeSearchService:
         )
 
         base = (
-            generator._base if type(generator) is SensitivityAwareCandidateGenerator else generator
+            generator._base
+            if type(generator) is SensitivityAwareCandidateGenerator
+            else generator
         )
         return base if type(base) is BayesianCandidateGenerator else None
 
-    def _bind_native_candidate_identity(self, candidate: dict[str, Any], candidate_id: str) -> None:
+    def _bind_native_candidate_identity(
+        self, candidate: dict[str, Any], candidate_id: str
+    ) -> None:
         """Assign the admitted subject before its native history consumer sees it."""
         if self._canonical_native_generator() is None:
             return
@@ -637,7 +749,9 @@ class NativeSearchService:
             raise ValueError("native_service_invalid_candidate_identity_carrier")
         if "candidate_id" in candidate:
             raise ValueError("native_service_conflicting_candidate_identity")
-        metadata["candidate_id"] = f"{self.controller._run_state.search_id}:{candidate_id}"
+        metadata["candidate_id"] = (
+            f"{self.controller._run_state.search_id}:{candidate_id}"
+        )
 
     def _validate_native_candidate_identity(
         self,
@@ -653,7 +767,9 @@ class NativeSearchService:
 
         def subject(candidate: dict[str, Any]) -> str:
             metadata = candidate.get("_strategy_metadata")
-            native_id = metadata.get("candidate_id") if isinstance(metadata, dict) else None
+            native_id = (
+                metadata.get("candidate_id") if isinstance(metadata, dict) else None
+            )
             if (
                 "candidate_id" in candidate
                 or not isinstance(native_id, str)
@@ -665,7 +781,9 @@ class NativeSearchService:
 
         for public_id, candidate in pending.items():
             if subject(candidate) != public_id:
-                raise ValueError("search_resume_native_candidate_identity_pending_mismatch")
+                raise ValueError(
+                    "search_resume_native_candidate_identity_pending_mismatch"
+                )
         seen: set[str] = set()
         for row in state.history:
             if row.iteration == -1:
@@ -684,7 +802,9 @@ class NativeSearchService:
                 or identity is None
                 or identity.get("candidate_id") != f"{prefix}{public_id}"
             ):
-                raise ValueError("search_resume_native_candidate_identity_history_mismatch")
+                raise ValueError(
+                    "search_resume_native_candidate_identity_history_mismatch"
+                )
             seen.add(public_id)
         candidates = [row.candidate for row in state.history]
         derived = [point.candidate for point in state.pareto_points]
@@ -694,14 +814,192 @@ class NativeSearchService:
             not any(_same_configuration(candidate, original) for original in candidates)
             for candidate in derived
         ):
-            raise ValueError("search_resume_native_candidate_identity_projection_mismatch")
+            raise ValueError(
+                "search_resume_native_candidate_identity_projection_mismatch"
+            )
         digests = generator_state.get("history_digests")
         current = [
             base._history_row_digest(evaluation)
             for evaluation in base._history_to_evaluations(state.history)
         ]
         if not isinstance(digests, list) or digests != current[: len(digests)]:
-            raise ValueError("search_resume_native_candidate_identity_generator_mismatch")
+            raise ValueError(
+                "search_resume_native_candidate_identity_generator_mismatch"
+            )
+
+    def _deduplication_profile(self) -> dict[str, str]:
+        from polisyos.scientist.methods.search.frontier import policy_candidate_hash
+
+        profile = {"version": "native_completed_pending.v1"}
+        for name, source in (
+            ("deduplication_sha256", inspect.getsourcefile(type(self._dedup))),
+            ("candidate_identity_sha256", inspect.getsourcefile(policy_candidate_hash)),
+            ("admission_sha256", inspect.getsourcefile(NativeSearchService)),
+        ):
+            if source is None:
+                raise ValueError("search_dedup_source_profile_unavailable")
+            try:
+                profile[name] = hashlib.sha256(Path(source).read_bytes()).hexdigest()
+            except OSError as exc:
+                raise ValueError("search_dedup_source_profile_unavailable") from exc
+        return profile
+
+    def _admit_deduplication_configuration(
+        self,
+        context: dict[str, Any],
+        *,
+        acknowledged_configuration: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Bind active effects to the sole last-qualified CAS acknowledgement."""
+
+        def data_context(value: object) -> None:
+            if callable(value):
+                raise ValueError("search_dedup_opaque_callback_context_unsupported")
+            if isinstance(value, dict):
+                for item in value.values():
+                    data_context(item)
+            elif isinstance(value, (list, tuple)):
+                for item in value:
+                    data_context(item)
+
+        data_context(context)
+        configuration = self._configuration(context)
+        profile = configuration.get("replay_profile")
+        if (
+            not isinstance(profile, dict)
+            or profile.get("version") != "native-autotune-replay.v2"
+        ):
+            raise ValueError(
+                "search_dedup_requires_native_content_bound_factory_profile"
+            )
+        if acknowledged_configuration is None and self.checkpoint_ref is not None:
+            saved = SearchServiceCheckpoint.model_validate(
+                _decode_checkpoint(self._verified_snapshot(self.checkpoint_ref).data)
+            )
+            if saved.run_state.get("search_id") != self.controller._run_state.search_id:
+                raise ValueError("search_dedup_acknowledged_run_mismatch")
+            acknowledged_configuration = saved.configuration
+        if acknowledged_configuration is not None:
+            if not _same_configuration(configuration, acknowledged_configuration):
+                raise ValueError("search_dedup_acknowledged_configuration_mismatch")
+        elif (
+            not self.controller._run_state.search_id
+            or self._ask_iteration
+            or self._pending_candidates
+            or self._completed_candidate_ids
+            or any(row.iteration >= 0 for row in self.controller._history)
+        ):
+            raise ValueError("search_dedup_requires_initial_acknowledged_checkpoint")
+        return configuration
+
+    def _deduplication_members(
+        self,
+        context: dict[str, Any],
+        *,
+        state: SearchRunState | None = None,
+        pending: dict[str, dict[str, Any]] | None = None,
+        acknowledged_configuration: dict[str, Any] | None = None,
+    ) -> tuple[str, list[dict[str, Any]], Any]:
+        """Derive membership from real completed custody, never a cached evaluation."""
+        from polisyos.common.serialization import finite_real_scalar
+        from polisyos.scientist.methods.autotune.models import (
+            BenchmarkEvaluation,
+            benchmark_comparison_basis,
+            benchmark_evaluator_profile,
+            load_model_artifact,
+        )
+
+        configuration = self._admit_deduplication_configuration(
+            context, acknowledged_configuration=acknowledged_configuration
+        )
+        closure = inspect.getclosurevars(self.controller._stage_b).nonlocals
+        runner, spec, suite = closure["self"], closure["spec"], closure["suite_ref"]
+        basis = benchmark_comparison_basis(
+            self._store,
+            suite,
+            spec.promotion_policy,
+            benchmark_evaluator_profile(spec.benchmark_evaluator),
+        )
+
+        def encode(candidate: dict[str, Any]) -> dict[str, Any]:
+            admitted = spec.mutation_codec.decode(
+                runner._codec_payload(spec, candidate)
+            ).model_dump(mode="json")
+            if "_strategy_metadata" in candidate:
+                admitted["_strategy_metadata"] = candidate["_strategy_metadata"]
+            return admitted
+
+        members = []
+        ledger = state if state is not None else self.controller._run_state
+        for row in ledger.history:
+            if (
+                row.iteration < 0
+                or not row.stage_a_passed
+                or row.policy_evaluation_status == "invalid"
+            ):
+                continue
+            results = (row.stage_b_result or {}).get("simulation_results", {})
+            candidate_ref = ArtifactRef.model_validate(
+                results.get("candidate_artifact_ref")
+            )
+            evaluation_ref = ArtifactRef.model_validate(
+                results.get("evaluation_artifact_ref")
+            )
+            supplied_suite = ArtifactRef.model_validate(
+                results.get("suite_artifact_ref")
+            )
+            if any(
+                ref.manifest_profile_sha256 is None
+                for ref in (candidate_ref, evaluation_ref, supplied_suite)
+            ):
+                raise ValueError(
+                    "search_dedup_requires_exact_completed_artifact_profiles"
+                )
+            self._read_snapshot(candidate_ref)
+            self._read_snapshot(evaluation_ref)
+            self._read_snapshot(supplied_suite)
+            actual_candidate = load_model_artifact(
+                self._store, candidate_ref, spec.mutation_codec._model_cls
+            )
+            actual_evaluation = load_model_artifact(
+                self._store, evaluation_ref, BenchmarkEvaluation
+            )
+            admitted = encode(row.candidate)
+            typed_admitted = {
+                key: value
+                for key, value in admitted.items()
+                if key != "_strategy_metadata"
+            }
+            if (
+                supplied_suite != suite
+                or actual_evaluation.candidate_ref != candidate_ref
+                or actual_evaluation.comparison_basis != basis
+                or not _same_configuration(
+                    actual_candidate.model_dump(mode="json"), typed_admitted
+                )
+            ):
+                raise ValueError("search_dedup_completed_content_or_basis_mismatch")
+            measured = finite_real_scalar(
+                actual_evaluation.metrics_for_split(
+                    spec.promotion_policy.compare_split
+                ).get(spec.promotion_policy.primary_metric)
+            )
+            if actual_evaluation.status != "ok" or measured is None:
+                continue
+            members.append(admitted)
+        for candidate in (
+            pending if pending is not None else self._pending_candidates
+        ).values():
+            if extract_sentinel_metadata(candidate) is None:
+                members.append(encode(candidate))
+        scope = hashlib.sha256(
+            json.dumps(
+                {"search_id": ledger.search_id, "configuration": configuration},
+                sort_keys=True,
+                allow_nan=False,
+            ).encode()
+        ).hexdigest()
+        return scope, members, encode
 
     def _ask_proposals(
         self,
@@ -710,6 +1008,11 @@ class NativeSearchService:
         context: dict[str, Any],
     ) -> list[CandidateProposal]:
         del goal, search_space
+        if self._dedup is not None:
+            scope, members, encode = self._deduplication_members(context)
+            self._dedup.reset(scope)
+            for member in members:
+                self._dedup.register(member, scope)
         self._checkpoint_context = dict(context)
         self.controller._prepare_service_run()
         payloads = self.controller._generate_candidates(
@@ -723,12 +1026,19 @@ class NativeSearchService:
         for index, payload in enumerate(payloads):
             if not isinstance(payload, dict):
                 raise TypeError("search candidate generators must return mappings")
+            if self._dedup is not None and extract_sentinel_metadata(payload) is None:
+                admitted = encode(payload)
+                if self._dedup.is_duplicate(admitted, scope):
+                    continue
+                self._dedup.register(admitted, scope)
             if "candidate_id" not in payload:
                 candidate_id = f"candidate_{self._ask_iteration}_{index}"
             else:
                 raw_candidate_id = payload["candidate_id"]
                 if not isinstance(raw_candidate_id, str) or not raw_candidate_id:
-                    raise ValueError("search candidate_id must be an explicit non-empty string")
+                    raise ValueError(
+                        "search candidate_id must be an explicit non-empty string"
+                    )
                 candidate_id = raw_candidate_id
             if (
                 candidate_id in pending
@@ -768,6 +1078,8 @@ class NativeSearchService:
             raise ValueError(f"duplicate search evaluation: {candidate_id}")
         if candidate_id not in self._pending_candidates:
             raise KeyError(candidate_id)
+        if self._dedup is not None:
+            self._admit_deduplication_configuration(self._checkpoint_context)
 
         candidate = deepcopy(self._pending_candidates[candidate_id])
         stage_b_result = self._stage_b_result(evaluation)
@@ -807,7 +1119,9 @@ class NativeSearchService:
                 "objective_value": float(evaluation.objective_value),
             }
         elif not isinstance(simulation_results, dict):
-            raise TypeError("EvaluationBundle.stage_b_result.simulation_results must be a mapping")
+            raise TypeError(
+                "EvaluationBundle.stage_b_result.simulation_results must be a mapping"
+            )
 
         feedback = stage_b_result.get("feedback")
         if feedback is None:
@@ -815,7 +1129,9 @@ class NativeSearchService:
                 "verdict": "APPROVE" if evaluation.is_promising else "REJECT",
             }
         elif not isinstance(feedback, dict):
-            raise TypeError("EvaluationBundle.stage_b_result.feedback must be a mapping")
+            raise TypeError(
+                "EvaluationBundle.stage_b_result.feedback must be a mapping"
+            )
         else:
             feedback.setdefault(
                 "verdict",
@@ -837,6 +1153,11 @@ class NativeSearchService:
         if not run_lock.acquire(blocking=False):
             raise RuntimeError("SearchController.run is not reentrant")
         try:
+            if self._dedup is not None:
+                self._require_publication_ready()
+                # Only this explicit new-run lifecycle retires its prior basis;
+                # active empty/pending checkpoints never implicitly rebind it.
+                self.checkpoint_ref = None
             self._checkpoint_context = dict(initial_context)
             self._pending_candidates.clear()
             self._completed_candidate_ids.clear()
@@ -949,7 +1270,9 @@ class NativeSearchService:
 
         return self._finish(start_time, stopping_reason)
 
-    def _finish(self, start_time: datetime, stopping_reason: str | None) -> SearchResult:
+    def _finish(
+        self, start_time: datetime, stopping_reason: str | None
+    ) -> SearchResult:
         result = self.controller._finish_native_run(
             start_time=start_time,
             stopping_reason=stopping_reason,
@@ -957,13 +1280,18 @@ class NativeSearchService:
         self._stopped_reason = result.stopping_reason
         self._persist()
         if self.checkpoint_ref is not None:
-            result.telemetry["checkpoint_ref"] = self.checkpoint_ref.model_dump(mode="json")
+            result.telemetry["checkpoint_ref"] = self.checkpoint_ref.model_dump(
+                mode="json"
+            )
         return result
 
     def _stopping_reason(self, context: dict[str, Any]) -> str | None:
         admission_error = self.controller._refresh_budget_snapshot(context)
         stop_check = self.controller._config.stopping.check(
-            [self.controller._to_history_dict(item) for item in self.controller._history],
+            [
+                self.controller._to_history_dict(item)
+                for item in self.controller._history
+            ],
             self.controller._stopping_state(),
         )
         if stop_check.should_stop:
@@ -994,13 +1322,17 @@ class NativeSearchService:
             < self.controller._config.max_empty_generation_attempts
         ):
             return None
-        self.controller._run_state.generation_transition = GenerationTransition.EXHAUSTED
+        self.controller._run_state.generation_transition = (
+            GenerationTransition.EXHAUSTED
+        )
         self._stop("generation_exhausted")
         return "generation_exhausted"
 
     def _mark_nonempty_generation(self) -> None:
         if self.controller._run_state.empty_generation_attempts:
-            self.controller._run_state.generation_transition = GenerationTransition.TRANSIENT_EMPTY
+            self.controller._run_state.generation_transition = (
+                GenerationTransition.TRANSIENT_EMPTY
+            )
             self.controller._run_state.empty_generation_attempts = 0
 
     def _evaluate_batch(
@@ -1011,6 +1343,8 @@ class NativeSearchService:
         initial_context: dict[str, Any],
     ) -> str | None:
         for proposal in batch:
+            if self._dedup is not None:
+                self._admit_deduplication_configuration(initial_context)
             if (
                 self.controller._run_state.evaluation_iterations
                 >= self.controller._config.max_iterations_hard_limit

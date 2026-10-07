@@ -38,10 +38,34 @@ class TrialDeduplicator:
         # Remove non-deterministic fields
         payload.pop("notes", None)
 
-        canonical = json.dumps(payload, sort_keys=True, default=str)
-        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+        from polisyos.scientist.methods.search.frontier import policy_candidate_hash
 
-    def is_duplicate(self, candidate: MutationArtifact | dict[str, Any], loop_id: str = "") -> bool:
+        # Native proposal IDs/acquisition diagnostics are technical envelopes;
+        # explicitly declared independent replicas still own physical calls.
+        replicas = {
+            name: {
+                key: values[key]
+                for key in ("replicate_id", "replica_id", "seed")
+                if key in values
+            }
+            for name, values in (
+                ("candidate", payload),
+                ("metadata", payload.get("metadata", {})),
+                ("strategy", payload.get("_strategy_metadata", {})),
+            )
+            if isinstance(values, dict)
+        }
+        canonical = json.dumps(
+            {"candidate": policy_candidate_hash(payload), "replicas": replicas},
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+    def is_duplicate(
+        self, candidate: MutationArtifact | dict[str, Any], loop_id: str = ""
+    ) -> bool:
         """Check if this candidate has been seen before."""
         digest = self.fingerprint(candidate)
         seen = self._seen.get(loop_id, set())

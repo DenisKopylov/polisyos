@@ -9,7 +9,10 @@ from typing import Any
 
 from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.scientist.methods.autotune.pareto import finite_real_scalar
-from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveValue,
+    OptimizationDirection,
+)
 
 _VOLATILE_CANDIDATE_KEYS = frozenset(
     {
@@ -69,12 +72,9 @@ def policy_candidate_hash(
     metadata_hash: str | None = None,
     explicit_hash: str | None = None,
 ) -> str:
-    """Return a deterministic cache/frontier key for a candidate payload."""
+    """Hash actual content; producer markers remain provenance, not equality authority."""
 
-    if isinstance(metadata_hash, str) and metadata_hash.strip():
-        return metadata_hash.strip()
-    if isinstance(explicit_hash, str) and explicit_hash.strip():
-        return explicit_hash.strip()
+    del metadata_hash, explicit_hash
 
     payload = stable_json_dumps(
         _strip_volatile_candidate_fields(to_python_data(candidate, sort_keys=True)),
@@ -137,7 +137,8 @@ def update_legacy_pareto_front(
             surviving.append(existing)
 
     is_dominated = any(
-        dominates(existing.normalized_values, new_point.normalized_values) for existing in surviving
+        dominates(existing.normalized_values, new_point.normalized_values)
+        for existing in surviving
     )
     if is_dominated:
         return surviving[:cap]
@@ -186,7 +187,11 @@ def _objective_basis_and_values(
     names: set[str] = set()
     for objective in objectives:
         if isinstance(objective, ObjectiveValue):
-            name, raw, direction = objective.name, objective.raw_value, objective.direction
+            name, raw, direction = (
+                objective.name,
+                objective.raw_value,
+                objective.direction,
+            )
             if not isinstance(direction, OptimizationDirection):
                 return None
         elif isinstance(objective, Mapping):
@@ -228,7 +233,8 @@ def _strip_volatile_candidate_fields(
                 continue
             sanitized[key] = _strip_volatile_candidate_fields(
                 raw_item,
-                technical=technical or (root and lowered in _TECHNICAL_CANDIDATE_ENVELOPES),
+                technical=technical
+                or (root and lowered in _TECHNICAL_CANDIDATE_ENVELOPES),
                 root=False,
             )
         return sanitized

@@ -306,3 +306,80 @@ reader for exact continuation or start a new run after resolving outstanding
 work with the canonical owner. The owner retains ledger schema/migration and
 completion-resolution authority; this port neither replaces that owner nor
 appoints a served production caller.
+
+## Canonical trial deduplication and missing primary measurements
+
+The existing `SearchLoopRunner.run(..., dedup=...)` keyword now activates the
+canonical `TrialDeduplicator`; `create_service` and public `resume` accept that
+same optional keyword. The default `None` performs every proposed evaluation as
+before. The supported port uses the native typed-mutation factory and its exact
+suite, evaluator, policy, codec and data-only context profile. Opaque callbacks
+are unsupported, and a changed live context refuses before generator/evaluator
+effects. This port does not appoint a scientific evaluator or served caller.
+
+Membership is derived from the sole native completed history and current pending
+proposals. A completed member must resolve its exact candidate/evaluation/suite
+CAS views, agree with the typed candidate and current comparison basis, and have
+the existing comparable `status="ok"` with a finite declared primary metric. A
+measured nonpromotable candidate can still count; missing, failed, unknown or
+unavailable measurements do not make another evaluation free. Duplicate
+proposals are filtered before the evaluator, without a cached result, fabricated
+history row, new evaluation count or resource settlement. Duplicate-only
+generation uses the existing bounded empty-generation/exhaustion behavior.
+
+The fingerprint excludes known audit/load dates, trace envelopes, notes and JSON
+ordering while retaining semantic action dates. Explicit `replicate_id`,
+`replica_id` or `seed` in the candidate, its metadata or native strategy metadata
+retain distinct physical evaluations. A generated candidate ID alone does not
+claim an independent replica. The existing `TrialFingerprint.digest` is now the
+full 64-character SHA256 value instead of the transient 16-character prefix; no
+authoritative persisted trial ledger or automatic migration is added. Previously
+held helper membership must be reset and reconstructed from admitted native
+history, as the configured service does for each ask.
+
+D frontier equality derives from actual canonical payload content. Supplied
+`metadata_hash`/`explicit_hash` markers remain in original evaluation provenance
+and no longer override this equality. Existing snapshots remain immutable and
+readable by their recorded reader; old producer-marker grouping is not silently
+reinterpreted or rewritten. For new content-bound append/continuation, use a
+matching new native run/snapshot and its recorded helper-source profile. Changed
+factory/helper or dedup configuration refuses checkpoint restore. Continue an
+older run only with its recorded supported reader, or resolve pending work and
+start an explicitly new run. This is no generic migration of external policy
+identity, registry snapshots or scientific replica semantics.
+
+The native benchmark adapter also preserves absent primary measurements as
+`None` with `primary_metric_assessment.status="unavailable"` and an explicit
+reason. Noncomparable owner status is unavailable. The existing objective
+contract represents this as an unsatisfied nonfinite measurement, so it cannot
+become a best/frontier winner or a promising result; fresh CAS history retains
+the assessment and original evaluation artifact. A genuine measured zero stays
+available. Malformed/nonfinite numeric inputs use the existing strict primitive
+and finite-scalar admission. These distinctions do not invent an objective
+unit, producer law, cheaper history or permission to publish a policy.
+
+The configured dedup profile uses the service's sole last qualified checkpoint
+reference as its immutable admission basis. The first ask publishes an empty
+prepared-run checkpoint before proposal effects. Later ask, tell, checkpoint and
+pending evaluation compare the current evaluator/configuration/data context to
+that stored configuration; changing a declared evaluator field or an aliased
+nested context refuses before the next effect. An active empty or pending state
+does not authorize rebinding. Calling checkpoint after a change cannot publish a
+new profile over previously measured rows. If the first empty checkpoint is
+acknowledged but a later proposal fails, rollback retains that qualified reference
+and fences further publication. Reopen it through a fresh supported reader;
+changing context cannot turn the failed proposal into an implicit new run.
+
+Only explicit `run_search` starts a new lifecycle and retires the prior
+acknowledgement after the publication-ready check. Its new run state receives a
+new qualified basis; original checkpoint artifacts remain immutable. A blocked
+publication still requires reopening the last acknowledged reference. This is a
+local source-bound admission rule at the existing effect/publication boundaries,
+not an atomicity guarantee against arbitrary concurrent external mutation. The
+dedup profile also binds the service admission source; changed source builds
+refuse historical profiles rather than silently accepting their markers.
+
+Disposable membership is scoped by the recorded search ID and configuration, so
+sharing a canonical helper between different native runs cannot replace either
+run's own completed/pending evidence. It does not establish concurrency authority
+for two writers of the same run.

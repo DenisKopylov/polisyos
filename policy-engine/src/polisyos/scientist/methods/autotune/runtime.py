@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
@@ -24,6 +25,7 @@ from polisyos.scientist.methods.search.stopping import (
     StoppingCriterion,
 )
 
+from .dedup import TrialDeduplicator
 from .models import (
     BenchmarkComparisonBasis,
     BenchmarkEvaluation,
@@ -137,7 +139,9 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         champion = self._registry.get(self._loop_id)
         if champion is None:
             champion = self.ensure_baseline(context)
-        payload = load_model_artifact(self._store, champion.candidate_ref, self._model_cls)
+        payload = load_model_artifact(
+            self._store, champion.candidate_ref, self._model_cls
+        )
         return payload
 
 
@@ -155,7 +159,9 @@ class _AutotuneObjective(BaseObjective):
         return OptimizationDirection.MINIMIZE
 
     def _extract_value(self, results: dict[str, Any]) -> float:
-        metric = float(results.get(self._policy.primary_metric, 0.0))
+        metric = finite_real_scalar(results.get(self._policy.primary_metric))
+        if metric is None:
+            return float("nan")
         if self._policy.direction == MetricDirection.MAXIMIZE:
             return -metric
         return metric
@@ -212,7 +218,9 @@ class SequenceCandidateGenerator:
         if self._index >= len(self._candidates):
             last = self._candidates[-1]
             return (
-                last.model_dump(mode="json") if isinstance(last, MutationArtifact) else dict(last)
+                last.model_dump(mode="json")
+                if isinstance(last, MutationArtifact)
+                else dict(last)
             )
         candidate = self._candidates[self._index]
         self._index += 1
@@ -247,7 +255,9 @@ class SearchLoopRunner:
         # Delegate the existing strict positive USD law once, without treating
         # a literal recorded zero as an absent measurement or inventing a limit.
         self._cost_budget_usd = (
-            CostBudgetStopping(cost_budget_usd)._max_cost if cost_budget_usd is not None else None
+            CostBudgetStopping(cost_budget_usd)._max_cost
+            if cost_budget_usd is not None
+            else None
         )
         self._budget_middleware = budget_middleware
         self._budget_key = budget_key
@@ -263,10 +273,12 @@ class SearchLoopRunner:
         context: dict[str, Any] | None = None,
         max_iterations: int = 10,
         scheduler: Any | None = None,
-        dedup: Any | None = None,
+        dedup: TrialDeduplicator | None = None,
     ) -> SearchResult:
         del scheduler  # reserved for future Hyperband integration
-        service = self.create_service(spec, suite_ref=suite_ref, max_iterations=max_iterations)
+        service = self.create_service(
+            spec, suite_ref=suite_ref, max_iterations=max_iterations, dedup=dedup
+        )
         initial_payload = (
             initial_candidate.model_dump(mode="json")
             if isinstance(initial_candidate, MutationArtifact)
@@ -282,13 +294,16 @@ class SearchLoopRunner:
         *,
         suite_ref: ArtifactRef,
         max_iterations: int = 10,
+        dedup: TrialDeduplicator | None = None,
     ) -> NativeSearchService:
         """Build the native persisted service with this runner's actual evaluator."""
         from polisyos.scientist.methods.search.service import NativeSearchService
 
         generator = spec.candidate_generator
         if generator is None:
-            raise ValueError(f"Search loop '{spec.loop_id}' is missing a candidate generator")
+            raise ValueError(
+                f"Search loop '{spec.loop_id}' is missing a candidate generator"
+            )
         generator, analysis = self._configured_generator(spec)
         spec = replace(spec, candidate_generator=generator)
         objective = CompositeObjective([_AutotuneObjective(spec.promotion_policy)])
@@ -317,16 +332,21 @@ class SearchLoopRunner:
         return NativeSearchService(
             controller,
             store=self._store,
+            dedup=dedup,
             basis={
                 "loop_id": spec.loop_id,
                 "suite_ref": suite_ref.model_dump(mode="json"),
                 "promotion_policy": spec.promotion_policy.model_dump(mode="json"),
-                "evaluator_profile": benchmark_evaluator_profile(spec.benchmark_evaluator),
+                "evaluator_profile": benchmark_evaluator_profile(
+                    spec.benchmark_evaluator
+                ),
                 "analysis_configuration": analysis,
             },
         )
 
-    def _configured_generator(self, spec: SearchLoopSpec) -> tuple[Any, dict[str, Any] | None]:
+    def _configured_generator(
+        self, spec: SearchLoopSpec
+    ) -> tuple[Any, dict[str, Any] | None]:
         """Activate a declared exploratory analysis before controller creation."""
         if not isinstance(spec.metadata, dict):
             raise ValueError("search_loop_metadata_requires_mapping")
@@ -337,10 +357,13 @@ class SearchLoopRunner:
             return generator, None
         if (
             present != names
-            or spec.metadata["analysis_order_profile"] != "exploratory_coordinate_order.v1"
+            or spec.metadata["analysis_order_profile"]
+            != "exploratory_coordinate_order.v1"
             or spec.metadata["analysis_purpose"] != "exploratory"
         ):
-            raise ValueError("search_analysis_configuration_requires_known_exploratory_profile")
+            raise ValueError(
+                "search_analysis_configuration_requires_known_exploratory_profile"
+            )
         ref = ArtifactRef.model_validate(spec.metadata["analysis_ref"])
         if ref.manifest_profile_sha256 is None:
             raise ValueError("search_analysis_requires_selected_manifest_profile")
@@ -352,11 +375,15 @@ class SearchLoopRunner:
         )
 
         base = (
-            generator._base if type(generator) is SensitivityAwareCandidateGenerator else generator
+            generator._base
+            if type(generator) is SensitivityAwareCandidateGenerator
+            else generator
         )
         if type(base) is not BayesianCandidateGenerator:
             raise ValueError("search_analysis_requires_canonical_native_generator")
-        configured = SensitivityAwareCandidateGenerator.from_artifact(generator, self._store, ref)
+        configured = SensitivityAwareCandidateGenerator.from_artifact(
+            generator, self._store, ref
+        )
         if configured.order_profile != spec.metadata["analysis_order_profile"]:
             raise ValueError("search_analysis_order_profile_unsupported_by_generator")
         configured_ref = configured.analysis_ref
@@ -388,7 +415,9 @@ class SearchLoopRunner:
         from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 
         generator = spec.candidate_generator
-        adapter = generator if type(generator) is SensitivityAwareCandidateGenerator else None
+        adapter = (
+            generator if type(generator) is SensitivityAwareCandidateGenerator else None
+        )
         base = adapter._base if adapter is not None else generator
         if type(base) not in (BayesianCandidateGenerator, StrategyAdapter):
             return payload
@@ -408,9 +437,10 @@ class SearchLoopRunner:
                 raise ValueError("search_candidate_native_metadata_requires_mapping")
             candidate.pop("_strategy_metadata")
             candidate.setdefault("loop_id", spec.loop_id)
-        if "semantic" not in spec.mutation_codec._model_cls.model_fields and candidate.get(
-            "semantic"
-        ) == {"interventions": []}:
+        if (
+            "semantic" not in spec.mutation_codec._model_cls.model_fields
+            and candidate.get("semantic") == {"interventions": []}
+        ):
             candidate.pop("semantic")
         return candidate
 
@@ -422,9 +452,12 @@ class SearchLoopRunner:
         checkpoint_ref: ArtifactRef,
         context: dict[str, Any] | None = None,
         max_iterations: int = 10,
+        dedup: TrialDeduplicator | None = None,
     ) -> SearchResult:
         """Reopen an exact checkpoint using a freshly configured native service."""
-        service = self.create_service(spec, suite_ref=suite_ref, max_iterations=max_iterations)
+        service = self.create_service(
+            spec, suite_ref=suite_ref, max_iterations=max_iterations, dedup=dedup
+        )
         service.restore(checkpoint_ref, context=context)
         return service.resume_search(context=context)
 
@@ -438,19 +471,29 @@ class SearchLoopRunner:
     ) -> dict[str, Any]:
         codec = spec.mutation_codec
         if codec is None:
-            raise ValueError(f"Search loop '{spec.loop_id}' is missing a mutation codec")
+            raise ValueError(
+                f"Search loop '{spec.loop_id}' is missing a mutation codec"
+            )
         candidate = codec.decode(self._codec_payload(spec, candidate_payload))
         inputs = [input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")]
         generator = spec.candidate_generator
-        if type(generator).__module__ == "polisyos.scientist.methods.search.sensitivity_adapter":
+        if (
+            type(generator).__module__
+            == "polisyos.scientist.methods.search.sensitivity_adapter"
+        ):
             from polisyos.scientist.methods.search.sensitivity_adapter import (
                 SensitivityAwareCandidateGenerator,
             )
 
-            if type(generator) is SensitivityAwareCandidateGenerator and generator.analysis_ref:
+            if (
+                type(generator) is SensitivityAwareCandidateGenerator
+                and generator.analysis_ref
+            ):
                 verified_artifact_snapshot(self._store, generator.analysis_ref)
                 inputs.append(
-                    input_ref_from_artifact_ref(generator.analysis_ref, role="sensitivity_analysis")
+                    input_ref_from_artifact_ref(
+                        generator.analysis_ref, role="sensitivity_analysis"
+                    )
                 )
         candidate_ref = persist_mutation_artifact(
             self._store,
@@ -490,7 +533,9 @@ class SearchLoopRunner:
             )
             incumbent = self._bind_comparison(incumbent, basis)
             incumbent_ref = persist_benchmark_evaluation(self._store, incumbent)
-            evaluation = evaluation.model_copy(update={"incumbent_evaluation_ref": incumbent_ref})
+            evaluation = evaluation.model_copy(
+                update={"incumbent_evaluation_ref": incumbent_ref}
+            )
         evaluation_ref = persist_benchmark_evaluation(
             self._store,
             evaluation,
@@ -504,10 +549,30 @@ class SearchLoopRunner:
             suite_ref=suite_ref,
         )
         metrics = evaluation.metrics_for_split(spec.promotion_policy.compare_split)
-        primary_value = metrics.get(spec.promotion_policy.primary_metric, 0.0)
+        measured = finite_real_scalar(metrics.get(spec.promotion_policy.primary_metric))
+        unavailable_reason = (
+            "evaluation_status_not_comparable"
+            if evaluation.status != "ok"
+            else "primary_metric_missing"
+            if spec.promotion_policy.primary_metric not in metrics
+            else "primary_metric_invalid"
+            if measured is None
+            else None
+        )
+        primary_value = measured if unavailable_reason is None else None
         return {
             "simulation_results": {
                 spec.promotion_policy.primary_metric: primary_value,
+                "primary_metric_assessment": {
+                    "status": "available"
+                    if unavailable_reason is None
+                    else "unavailable",
+                    "metric": spec.promotion_policy.primary_metric,
+                    "split": spec.promotion_policy.compare_split.value,
+                    "direction": spec.promotion_policy.direction.value,
+                    "unit": spec.promotion_policy.unit,
+                    "reason": unavailable_reason,
+                },
                 "evaluation_ref": str(evaluation_ref.artifact_id),
                 "candidate_ref": str(candidate_ref.artifact_id),
                 "evaluation_artifact_ref": evaluation_ref.model_dump(mode="json"),
@@ -515,7 +580,9 @@ class SearchLoopRunner:
                 "suite_artifact_ref": suite_ref.model_dump(mode="json"),
             },
             "feedback": {
-                "verdict": "APPROVE" if evaluation.promotable else "REJECT",
+                "verdict": "APPROVE"
+                if evaluation.promotable and unavailable_reason is None
+                else "REJECT",
                 "promotion_decision": decision.model_dump(mode="json"),
                 "guardrails": dict(evaluation.guardrails),
                 "status": evaluation.status,

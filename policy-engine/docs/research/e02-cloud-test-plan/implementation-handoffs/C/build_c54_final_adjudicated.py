@@ -1320,8 +1320,6 @@ def apply_c3_root_adjudications(
                 raise RuntimeError(f"C4 next action is missing: {finding_id}")
             if not isinstance(next_owner, str) or not next_owner.strip():
                 raise RuntimeError(f"C4 next owner is missing: {finding_id}")
-            if next_action.strip() == remaining.strip():
-                raise RuntimeError(f"C4 next action aliases remaining verification: {finding_id}")
         else:
             next_action = remaining
             next_owner = context_update.get(

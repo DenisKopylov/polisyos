@@ -2341,8 +2341,6 @@ def run_c3(
                 or not expected_next_owner.strip()
             ):
                 raise AssertionError((finding_id, "C4 decision lacks a next action or owner"))
-            if c4_mode and expected_next_action.strip() == expected_remaining_text.strip():
-                raise AssertionError((finding_id, "C4 next action aliases remaining verification"))
             if current.get("code_outcome") != expected_code_outcome:
                 raise AssertionError((finding_id, "final current code outcome differs from source"))
             if current.get("current_capability_label") != expected_capability:

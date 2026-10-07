@@ -14,8 +14,9 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo, input_ref_from_artifact_ref
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
+from polisyos.core import registry as core_registry
 from polisyos.core.contracts import (
     DataSnapshot,
     DerivedArtifact,
@@ -31,7 +32,6 @@ from polisyos.core.contracts import (
     SimulationResult,
     StateSnapshotRef,
 )
-from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.execute.executor import (
     get_state_path,
     load_state_snapshot,
@@ -40,7 +40,6 @@ from polisyos.foundry.execute.executor import (
 from polisyos.ir import TrinityBundle
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import ArtifactStore
     from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
@@ -87,9 +86,9 @@ class NativeForecastRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     schema_version: Literal["1.0"] = "1.0"
     profile: NativeForecastProfile
-    data_snapshot_ref: ArtifactRef
-    trinity_bundle_ref: ArtifactRef
-    registry_bundle_ref: ArtifactRef
+    data_snapshot_ref: core_artifacts.ArtifactRef
+    trinity_bundle_ref: core_artifacts.ArtifactRef
+    registry_bundle_ref: core_artifacts.ArtifactRef
     row_ids: list[str]
     history_time_index: list[str]
     run_id: str = Field(min_length=1)
@@ -101,12 +100,12 @@ class NativeForecastTrajectory(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
     schema_version: Literal["1.0"] = "1.0"
-    request_ref: ArtifactRef
-    exec_config_ref: ArtifactRef
-    input_bindings_ref: ArtifactRef
-    execution_bindings_refs: list[ArtifactRef]
-    simulation_refs: list[ArtifactRef]
-    state_snapshot_refs: list[ArtifactRef]
+    request_ref: core_artifacts.ArtifactRef
+    exec_config_ref: core_artifacts.ArtifactRef
+    input_bindings_ref: core_artifacts.ArtifactRef
+    execution_bindings_refs: list[core_artifacts.ArtifactRef]
+    simulation_refs: list[core_artifacts.ArtifactRef]
+    state_snapshot_refs: list[core_artifacts.ArtifactRef]
     values: dict[str, list[float]]
 
 
@@ -117,7 +116,12 @@ def _schema_version(value: str) -> tuple[int, ...]:
     return tuple(parts)
 
 
-def _read(store: ArtifactStore, ref: ArtifactRef, kind: str, schema: str | None = None) -> Any:
+def _read(
+    store: core_artifacts.ArtifactStore,
+    ref: core_artifacts.ArtifactRef,
+    kind: str,
+    schema: str | None = None,
+) -> Any:
     manifest = store.get_manifest(ref)
     if ref.kind != kind or manifest.kind != kind or manifest.media_type != "application/json":
         raise ValueError(f"native replay artifact kind/media mismatch: {kind}")
@@ -125,7 +129,7 @@ def _read(store: ArtifactStore, ref: ArtifactRef, kind: str, schema: str | None 
         manifest.artifact_schema is None or manifest.artifact_schema.name != schema
     ):
         raise ValueError(f"native replay artifact schema mismatch: {schema}")
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = core_canon.from_canonical_bytes(store.get_bytes(ref))
     if (
         manifest.artifact_schema is not None
         and isinstance(payload, dict)
@@ -140,31 +144,35 @@ def _read(store: ArtifactStore, ref: ArtifactRef, kind: str, schema: str | None 
 
 
 def _put(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     payload: BaseModel | dict[str, Any],
     kind: str,
     schema: str,
     *,
-    inputs: list[ArtifactRef],
+    inputs: list[core_artifacts.ArtifactRef],
     version: str = "1.0",
-) -> ArtifactRef:
+) -> core_artifacts.ArtifactRef:
     return store.put_json(
         payload,
-        PutOptions(
+        core_artifacts.PutOptions(
             kind=kind,
             media_type="application/json",
-            schema=SchemaInfo(name=schema, version=version),
+            schema=core_artifacts.SchemaInfo(name=schema, version=version),
             inputs=[
-                input_ref_from_artifact_ref(ref, role=f"input.{index}")
+                core_artifacts.input_ref_from_artifact_ref(ref, role=f"input.{index}")
                 for index, ref in enumerate(inputs)
             ],
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
 
 
-def _targets(store: ArtifactStore, profile: NativeForecastProfile, registry_ref: ArtifactRef):
-    registry = load_registry_bundle_content(store, registry_ref)
+def _targets(
+    store: core_artifacts.ArtifactStore,
+    profile: NativeForecastProfile,
+    registry_ref: core_artifacts.ArtifactRef,
+):
+    registry = core_registry.load_registry_bundle_content(store, registry_ref)
     for target in profile.targets:
         slot = registry.slot_registry.slots.get(target.slot_id)
         if slot is None or not slot.state_path or slot.unit.unit_id != target.unit_id:
@@ -173,7 +181,9 @@ def _targets(store: ArtifactStore, profile: NativeForecastProfile, registry_ref:
 
 
 def prepare_native_replay(
-    store: ArtifactStore, plan: HistoricalValidationPlan, historical_data: dict[str, Any]
+    store: core_artifacts.ArtifactStore,
+    plan: HistoricalValidationPlan,
+    historical_data: dict[str, Any],
 ) -> dict[str, Any]:
     """Reconcile original identities, project the full declared history and derive Trinity.
 
@@ -210,7 +220,7 @@ def prepare_native_replay(
         raise ValueError("native forecast horizon differs from backtest outcomes")
     if inputs.get("input_bindings_ref") or state.get("artifacts_index", {}).get(FORECAST_KEY):
         raise ValueError("native replay refuses prebound inputs or preexisting forecasts")
-    source_ref = ArtifactRef.model_validate(inputs["data_snapshot_ref"])
+    source_ref = core_artifacts.ArtifactRef.model_validate(inputs["data_snapshot_ref"])
     source = DataSnapshot.model_validate(
         _read(store, source_ref, "fabric.data_snapshot", "polisyos.core.DataSnapshot")
     )
@@ -220,11 +230,11 @@ def prepare_native_replay(
         and str(source.data_ref.artifact_id) != plan.historical_data_ref
     ):
         raise ValueError("native replay source snapshot differs from historical source")
-    original_trinity_ref = ArtifactRef.model_validate(inputs["trinity_bundle_ref"])
+    original_trinity_ref = core_artifacts.ArtifactRef.model_validate(inputs["trinity_bundle_ref"])
     trinity = TrinityBundle.model_validate(
         _read(store, original_trinity_ref, "ir.trinity_bundle", "polisyos.ir.TrinityBundle")
     )
-    registry_ref = ArtifactRef.model_validate(inputs["registry_bundle_ref"])
+    registry_ref = core_artifacts.ArtifactRef.model_validate(inputs["registry_bundle_ref"])
     if trinity.model_spec.data_snapshot_ref != str(source_ref.artifact_id):
         raise ValueError("native replay original Trinity data snapshot mismatch")
     if trinity.model_spec.registry_bundle_ref != str(registry_ref.artifact_id):
@@ -338,7 +348,9 @@ def prepare_native_replay(
 
 
 def _observations(
-    store: ArtifactStore, request: NativeForecastRequest, snapshots: list[ArtifactRef]
+    store: core_artifacts.ArtifactStore,
+    request: NativeForecastRequest,
+    snapshots: list[core_artifacts.ArtifactRef],
 ) -> dict[str, list[float]]:
     registry = _targets(store, request.profile, request.registry_bundle_ref)
     values = {target.metric: [] for target in request.profile.targets}
@@ -356,20 +368,25 @@ def _observations(
     return values
 
 
-def _same_ref(left: ArtifactRef, right: ArtifactRef) -> bool:
+def _same_ref(left: core_artifacts.ArtifactRef, right: core_artifacts.ArtifactRef) -> bool:
     return left.model_dump(mode="json") == right.model_dump(mode="json")
 
 
 def _require_lineage(
-    store: ArtifactStore, ref: ArtifactRef, parent: ArtifactRef, role: str
+    store: core_artifacts.ArtifactStore,
+    ref: core_artifacts.ArtifactRef,
+    parent: core_artifacts.ArtifactRef,
+    role: str,
 ) -> None:
-    expected = input_ref_from_artifact_ref(parent, role=role).model_dump(mode="json")
+    expected = core_artifacts.input_ref_from_artifact_ref(parent, role=role).model_dump(mode="json")
     if not any(edge.model_dump(mode="json") == expected for edge in store.get_manifest(ref).inputs):
         raise ValueError(f"native forecast missing exact {role} lineage")
 
 
 def _validate_compiled_model(
-    store: ArtifactStore, request: NativeForecastRequest, exec_plan_ref: ArtifactRef
+    store: core_artifacts.ArtifactStore,
+    request: NativeForecastRequest,
+    exec_plan_ref: core_artifacts.ArtifactRef,
 ) -> None:
     """Resolve the actual execution program back to its compiled Trinity/model."""
     plan = ExecPlan.model_validate(_read(store, exec_plan_ref, "foundry.exec_plan"))
@@ -391,7 +408,7 @@ def _validate_compiled_model(
 def execute_native_forecast(
     ctx: ExecutionContext,
     execution: ExecuteRequest,
-    request_ref: ArtifactRef,
+    request_ref: core_artifacts.ArtifactRef,
 ) -> ExecuteResult:
     """Execute each declared future step through the configured native Foundry port."""
     request = NativeForecastRequest.model_validate(_read(ctx.store, request_ref, _REQUEST_KIND))
@@ -420,9 +437,9 @@ def execute_native_forecast(
     )
     initial_ref = bindings.bound_state_snapshot_ref
     initial_bindings_ref = execution.input_bindings_ref
-    execution_bindings_refs: list[ArtifactRef] = []
-    simulation_refs: list[ArtifactRef] = []
-    snapshots: list[ArtifactRef] = []
+    execution_bindings_refs: list[core_artifacts.ArtifactRef] = []
+    simulation_refs: list[core_artifacts.ArtifactRef] = []
+    snapshots: list[core_artifacts.ArtifactRef] = []
     result: ExecuteResult | None = None
     base = load_state_snapshot(ctx.store, snapshot_ref=initial_ref)
     initial_step = int(np.asarray(base.step))
@@ -437,7 +454,11 @@ def execute_native_forecast(
                 ctx.store,
                 state=advanced,
                 step=initial_step + index,
-                inputs=[input_ref_from_artifact_ref(snapshots[-1], role="previous_forecast_state")],
+                inputs=[
+                    core_artifacts.input_ref_from_artifact_ref(
+                        snapshots[-1], role="previous_forecast_state"
+                    )
+                ],
             )
             next_bindings = bindings.model_copy(
                 update={
@@ -504,9 +525,9 @@ def execute_native_forecast(
 
 
 def load_native_forecast(
-    store: ArtifactStore,
-    forecast_ref: ArtifactRef,
-    request_ref: ArtifactRef,
+    store: core_artifacts.ArtifactStore,
+    forecast_ref: core_artifacts.ArtifactRef,
+    request_ref: core_artifacts.ArtifactRef,
 ) -> tuple[NativeForecastTrajectory, NativeForecastRequest]:
     """Read the persisted trajectory and independently recompute its state observations."""
     forecast = NativeForecastTrajectory.model_validate(
@@ -565,8 +586,8 @@ def load_native_forecast(
             load_state_snapshot(store, snapshot_ref=initial_binding.bound_state_snapshot_ref).step
         )
     )
-    previous_snapshot: ArtifactRef | None = None
-    exec_plan_ref: ArtifactRef | None = None
+    previous_snapshot: core_artifacts.ArtifactRef | None = None
+    exec_plan_ref: core_artifacts.ArtifactRef | None = None
     for index, (simulation_ref, snapshot, binding_ref) in enumerate(
         zip(
             forecast.simulation_refs,

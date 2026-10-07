@@ -11,7 +11,7 @@ from .analysis import _analysis_identity, analyze_sensitivity
 from .designs import SensitivityPlan, SensitivityResult, _admit_sensitivity_plan
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+    from polisyos.core import artifacts as core_artifacts
 
 _KIND = "doe_sensitivity_analysis"
 _VERSION = "1.0"
@@ -35,16 +35,16 @@ class _AnalysisReceipt(BaseModel):
 
 
 def _persist_analysis(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     plan: SensitivityPlan,
     samples: np.ndarray,
     outputs: np.ndarray,
     result: SensitivityResult,
-) -> ArtifactRef:
+) -> core_artifacts.ArtifactRef:
     """Persist complete rows, preserving each nonfinite outcome without dropping it."""
     plan = _admit_sensitivity_plan(plan)
-    from polisyos.core.artifacts import ArtifactWriteOptions, SchemaInfo
-    from polisyos.core.canon import CanonSpec
+    from polisyos.core import artifacts as core_artifacts
+    from polisyos.core import canon as core_canon
 
     if plan.seed is None:
         raise ValueError("Persisted DOE analysis requires an explicit replay seed")
@@ -61,18 +61,20 @@ def _persist_analysis(
     )
     return store.put_json(
         receipt.model_dump(mode="json"),
-        ArtifactWriteOptions(
+        core_artifacts.ArtifactWriteOptions(
             kind=_KIND,
             media_type="application/json",
-            schema=SchemaInfo(name=_KIND, version=_VERSION),
+            schema=core_artifacts.SchemaInfo(name=_KIND, version=_VERSION),
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
 
 
-def _load_analysis(store: ArtifactStore, ref: ArtifactRef) -> SensitivityResult:
+def _load_analysis(
+    store: core_artifacts.ArtifactStore, ref: core_artifacts.ArtifactRef
+) -> SensitivityResult:
     """Resolve exact kind/schema/bytes and reproduce the analysis before consumption."""
-    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core import canon as core_canon
 
     manifest = store.get_manifest(ref)
     if (
@@ -85,7 +87,7 @@ def _load_analysis(store: ArtifactStore, ref: ArtifactRef) -> SensitivityResult:
         raise ValueError("Expected a DOE sensitivity analysis artifact kind/schema")
     if not store.verify(ref).ok:
         raise ValueError("DOE sensitivity analysis artifact integrity failed")
-    receipt = _AnalysisReceipt.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    receipt = _AnalysisReceipt.model_validate(core_canon.from_canonical_bytes(store.get_bytes(ref)))
     if receipt.plan.seed is None:
         raise ValueError("Persisted DOE analysis requires an explicit replay seed")
     samples = np.asarray(receipt.samples, dtype=float)

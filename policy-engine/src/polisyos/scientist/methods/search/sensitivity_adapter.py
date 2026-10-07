@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+    from polisyos.core import artifacts as core_artifacts
 
 from polisyos.scientist.methods.doe.designs import SensitivityResult
 from polisyos.scientist.methods.search.controller import SearchIteration
@@ -36,14 +36,14 @@ class SensitivityAwareCandidateGenerator:
         self._focus_top_n = focus_top_n
         self._exploration_factor = float(exploration_factor)
         self._focus_parameters = set(sensitivity_result.ranking[:focus_top_n])
-        self._analysis_ref: ArtifactRef | None = None
+        self._analysis_ref: core_artifacts.ArtifactRef | None = None
 
     @classmethod
     def from_artifact(
         cls,
         base_generator: object,
-        store: ArtifactStore,
-        ref: ArtifactRef,
+        store: core_artifacts.ArtifactStore,
+        ref: core_artifacts.ArtifactRef,
         *,
         focus_top_n: int = 3,
         exploration_factor: float = 1.5,

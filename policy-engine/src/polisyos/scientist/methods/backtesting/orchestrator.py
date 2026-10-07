@@ -15,13 +15,13 @@ from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
+from polisyos.core import canon as core_canon
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.ir_adapter import (
     CoreToIRArtifactStoreAdapter,
     build_ir_artifact_store,
     ensure_ir_artifact_store,
 )
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
@@ -415,7 +415,7 @@ class BacktestOrchestrator:
     def _load_historical_data(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
         if plan.historical_data_ref:
             artifact_id = ArtifactID.model_validate(plan.historical_data_ref)
-            payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+            payload = core_canon.from_canonical_bytes(self._store.get_bytes(artifact_id))
             if not isinstance(payload, dict):
                 raise ValueError(
                     f"historical_data_ref must point to a JSON object: {plan.historical_data_ref}"
@@ -534,7 +534,9 @@ class BacktestOrchestrator:
         if isinstance(metrics_ref_payload, dict) and metrics_ref_payload.get("artifact_id"):
             try:
                 artifact_id = ArtifactID.model_validate(metrics_ref_payload["artifact_id"])
-                metrics_payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+                metrics_payload = core_canon.from_canonical_bytes(
+                    self._store.get_bytes(artifact_id)
+                )
                 values = metrics_payload.get("values", metrics_payload)
                 if isinstance(values, dict):
                     for metric in plan.target_metrics:
@@ -602,7 +604,7 @@ class BacktestOrchestrator:
 
     def _predict_native_forecast(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
         """Consume a native trajectory or preserve an explicit unavailable outcome."""
-        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.core import artifacts as core_artifacts
         from polisyos.scientist.methods.backtesting.native_replay import (
             FORECAST_KEY,
             REQUEST_KEY,
@@ -618,8 +620,10 @@ class BacktestOrchestrator:
             )
             attempted = True
             result = run_experiment(state, store=self._scientist_store)
-            forecast_ref = ArtifactRef.model_validate(result["artifacts_index"][FORECAST_KEY])
-            request_ref = ArtifactRef.model_validate(state["params"][REQUEST_KEY])
+            forecast_ref = core_artifacts.ArtifactRef.model_validate(
+                result["artifacts_index"][FORECAST_KEY]
+            )
+            request_ref = core_artifacts.ArtifactRef.model_validate(state["params"][REQUEST_KEY])
             forecast, request = load_native_forecast(
                 self._scientist_store, forecast_ref, request_ref
             )
@@ -668,7 +672,7 @@ class BacktestOrchestrator:
 
         try:
             sim_id = ArtifactID.model_validate(sim_ref_payload["artifact_id"])
-            sim_payload = from_canonical_bytes(self._store.get_bytes(sim_id))
+            sim_payload = core_canon.from_canonical_bytes(self._store.get_bytes(sim_id))
         except Exception:
             return {}, {}, ()
         if not isinstance(sim_payload, Mapping):
@@ -688,7 +692,7 @@ class BacktestOrchestrator:
                 continue
             try:
                 env_id = ArtifactID.model_validate(ref_payload["artifact_id"])
-                env_payload = from_canonical_bytes(self._store.get_bytes(env_id))
+                env_payload = core_canon.from_canonical_bytes(self._store.get_bytes(env_id))
                 if not isinstance(env_payload, Mapping):
                     raise TypeError("uncertainty envelope payload must be an object")
                 metadata_declared, confidence_level, interval_type, envelope_contract = (

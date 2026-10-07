@@ -20,7 +20,7 @@ from polisyos.ir.analytics.calibration_diagnostics import (
 from polisyos.ir.analytics.query_validation_report import ValidationSeverity
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+    from polisyos.core import artifacts as core_artifacts
 
 _EPSILON = 1e-12
 _DEFAULT_LEVELS = (0.5, 0.8, 0.9)
@@ -252,18 +252,18 @@ def _bootstrap_replay_seed(uncertainty: Mapping[str, Any] | None, *, required: b
 
 
 def persist_continuous_evaluation(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     report: CalibrationDiagnosticsReport,
     *,
     source_binding: Mapping[str, Any] | None = None,
-) -> ArtifactRef:
+) -> core_artifacts.ArtifactRef:
     """Persist exact ordered pairs and a reproducible report on the configured CAS.
 
     Source/split/horizon/time declarations are retained as caller assertions and
     never authorize a production claim. Bootstrap replay requires an explicit seed.
     """
-    from polisyos.core.artifacts import ArtifactWriteOptions, SchemaInfo
-    from polisyos.core.canon import CanonSpec
+    from polisyos.core import artifacts as core_artifacts
+    from polisyos.core import canon as core_canon
 
     if report.task != "continuous" or report._continuous_inputs is None:
         raise ValueError("Continuous calibration inputs must be rebound before persistence")
@@ -274,12 +274,12 @@ def persist_continuous_evaluation(
         raise ValueError("Continuous calibration report does not reproduce from its pairs")
     pairs = store.put_json(
         inputs.model_dump(mode="json"),
-        ArtifactWriteOptions(
+        core_artifacts.ArtifactWriteOptions(
             kind="continuous_calibration_pairs",
             media_type="application/json",
-            schema=SchemaInfo(name="continuous_calibration_pairs", version="1.0"),
+            schema=core_artifacts.SchemaInfo(name="continuous_calibration_pairs", version="1.0"),
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     artifact = _ContinuousCalibrationArtifact(
         pairs_ref=pairs.model_dump(mode="json"),
@@ -290,25 +290,27 @@ def persist_continuous_evaluation(
     )
     return store.put_json(
         artifact.model_dump(mode="json"),
-        ArtifactWriteOptions(
+        core_artifacts.ArtifactWriteOptions(
             kind="continuous_calibration_diagnostics",
             media_type="application/json",
-            schema=SchemaInfo(name="continuous_calibration_diagnostics", version="1.0"),
+            schema=core_artifacts.SchemaInfo(
+                name="continuous_calibration_diagnostics", version="1.0"
+            ),
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
 
 
 def load_continuous_evaluation(
-    store: ArtifactStore, ref: ArtifactRef
+    store: core_artifacts.ArtifactStore, ref: core_artifacts.ArtifactRef
 ) -> CalibrationDiagnosticsReport:
     """Reopen both artifacts and recompute the full report/receipt before consumption."""
-    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core import artifacts as core_artifacts
 
     artifact = _ContinuousCalibrationArtifact.model_validate(
         _load_continuous_artifact(store, ref, "continuous_calibration_diagnostics")
     )
-    pairs_ref = ArtifactRef.model_validate(artifact.pairs_ref)
+    pairs_ref = core_artifacts.ArtifactRef.model_validate(artifact.pairs_ref)
     inputs = _ContinuousCalibrationInputs.model_validate(
         _load_continuous_artifact(store, pairs_ref, "continuous_calibration_pairs")
     )
@@ -333,8 +335,10 @@ def _reproduce_continuous(inputs: _ContinuousCalibrationInputs) -> CalibrationDi
     )
 
 
-def _load_continuous_artifact(store: ArtifactStore, ref: ArtifactRef, kind: str) -> Any:
-    from polisyos.core.canon import from_canonical_bytes
+def _load_continuous_artifact(
+    store: core_artifacts.ArtifactStore, ref: core_artifacts.ArtifactRef, kind: str
+) -> Any:
+    from polisyos.core import canon as core_canon
 
     manifest = store.get_manifest(ref)
     if (
@@ -347,7 +351,7 @@ def _load_continuous_artifact(store: ArtifactStore, ref: ArtifactRef, kind: str)
         raise ValueError("Continuous calibration artifact kind/schema mismatch")
     if not store.verify(ref).ok:
         raise ValueError("Continuous calibration artifact integrity failed")
-    return from_canonical_bytes(store.get_bytes(ref))
+    return core_canon.from_canonical_bytes(store.get_bytes(ref))
 
 
 def _prepare_predictive_samples(

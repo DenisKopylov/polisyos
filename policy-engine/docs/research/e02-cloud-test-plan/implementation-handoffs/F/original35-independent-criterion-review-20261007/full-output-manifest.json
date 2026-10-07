@@ -1,0 +1,531 @@
+{
+  "schema": "F-original35-independent-review-full-material/v1",
+  "record_count": 52,
+  "records": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.json.gz",
+      "bytes": 119985,
+      "sha256": "9bdbbf870a823b798e5bdc278099dd825b4341793c63e3b4de9ab16b67c13626",
+      "decoded_bytes": 998227,
+      "decoded_sha256": "67607c87d420030944247874fdc6ac6962f6201fc982f534257529b89fa820b6",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-independent-review-publication.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/reconcile_original35.py",
+      "bytes": 32447,
+      "sha256": "70d9cd0b3c14a514facfdf96b724e432789001e72481296913808cfd4e5ee85b",
+      "decoded_bytes": 32447,
+      "decoded_sha256": "70d9cd0b3c14a514facfdf96b724e432789001e72481296913808cfd4e5ee85b",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/reconcile_original35.py",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/verify_original35_packet.py",
+      "bytes": 10459,
+      "sha256": "11bdd30b4c73b0fc3d015febdc2e0b5520d152a291db5029fc9b067ce96f004f",
+      "decoded_bytes": 10459,
+      "decoded_sha256": "11bdd30b4c73b0fc3d015febdc2e0b5520d152a291db5029fc9b067ce96f004f",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/verify_original35_packet.py",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/bind_published_reviews.py",
+      "bytes": 4098,
+      "sha256": "6b3ffa13ecbf788ca3c492d259d0f4807cc57591f29805f478b754096a612f52",
+      "decoded_bytes": 4098,
+      "decoded_sha256": "6b3ffa13ecbf788ca3c492d259d0f4807cc57591f29805f478b754096a612f52",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/bind_published_reviews.py",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.stdout.gz",
+      "bytes": 252,
+      "sha256": "2e43f86074eaf759c5d4459eab27e8bf1e60711267e49f472a6e903639fd8ef6",
+      "decoded_bytes": 308,
+      "decoded_sha256": "977a8558337ad4fcc907c498fedffb439ff2e2648d9be674239df399f71f2b9d",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/publication-binding.stdout",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/publication-binding.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-binding.execution.json",
+      "bytes": 1237,
+      "sha256": "61b161199757ba908be53987fcd5f4ed968b46151dce563562bc23f4b89e1b72",
+      "decoded_bytes": 1237,
+      "decoded_sha256": "61b161199757ba908be53987fcd5f4ed968b46151dce563562bc23f4b89e1b72",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/publication-binding.execution.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.stdout.gz",
+      "bytes": 709,
+      "sha256": "8b1849cc234601c19ccd4566a4c4e68e6bdb09c8db4b99f70cfc0623e37ea6c1",
+      "decoded_bytes": 1715,
+      "decoded_sha256": "1c68b9f4ba9b6fbd4f8f99eee4cd7d94d285314cd6012dbcef86a26a933b7acd",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/publication-verifier.stdout",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/publication-verifier.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/publication-verifier.execution.json",
+      "bytes": 1394,
+      "sha256": "da471766baaa32f7423be7b2a5212af565527683d68c7324fed7e8df1260d5d5",
+      "decoded_bytes": 1394,
+      "decoded_sha256": "da471766baaa32f7423be7b2a5212af565527683d68c7324fed7e8df1260d5d5",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/publication-verifier.execution.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F-failures30.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-F-failures30.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F-failures30.stdout.json",
+      "bytes": 19253,
+      "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "decoded_bytes": 19253,
+      "decoded_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-F-failures30.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F01-P025-fullcontext.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-F01-P025-fullcontext.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F01-P025-fullcontext.stdout.json",
+      "bytes": 8535,
+      "sha256": "99f5bcef69dfab190026301a6cb6005aae4ef41ee5da3f31321a8170a7cd5fd9",
+      "decoded_bytes": 8535,
+      "decoded_sha256": "99f5bcef69dfab190026301a6cb6005aae4ef41ee5da3f31321a8170a7cd5fd9",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-F01-P025-fullcontext.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F08-P048-fullcontext.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-F08-P048-fullcontext.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F08-P048-fullcontext.stdout.json",
+      "bytes": 36355,
+      "sha256": "dcb08523ea7435c9b62d623fee4086bc2e2b46a0087e3f3a17ae2657be3dda7a",
+      "decoded_bytes": 36355,
+      "decoded_sha256": "dcb08523ea7435c9b62d623fee4086bc2e2b46a0087e3f3a17ae2657be3dda7a",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-F08-P048-fullcontext.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F13-P030-fullcontext.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-F13-P030-fullcontext.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-F13-P030-fullcontext.stdout.json",
+      "bytes": 6410,
+      "sha256": "d60d6247cc4356e3129921afaecc406ca2992eb432d7e98e133d09ff65b9f3b8",
+      "decoded_bytes": 6410,
+      "decoded_sha256": "d60d6247cc4356e3129921afaecc406ca2992eb432d7e98e133d09ff65b9f3b8",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-F13-P030-fullcontext.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-current-context.execution.json",
+      "bytes": 3516,
+      "sha256": "6c15e6caa231deae530455568c2ef2710ce761e69d3158df30913ecefd8e3e5f",
+      "decoded_bytes": 3516,
+      "decoded_sha256": "6c15e6caa231deae530455568c2ef2710ce761e69d3158df30913ecefd8e3e5f",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-current-context.execution.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.execution.json",
+      "bytes": 832,
+      "sha256": "0435cce7279afbadaba1062e75dd31cc9ba139bc82d96397a78cf8a445920910",
+      "decoded_bytes": 832,
+      "decoded_sha256": "0435cce7279afbadaba1062e75dd31cc9ba139bc82d96397a78cf8a445920910",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-import-check.execution.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-import-check.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-import-check.stdout.gz",
+      "bytes": 103,
+      "sha256": "b9e570b16d813f25b3e9a99875f8c87d55d56129a326942c10cffeb5a74922bb",
+      "decoded_bytes": 112,
+      "decoded_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-import-check.stdout",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/baseline-query-execution.json",
+      "bytes": 47789,
+      "sha256": "dc22c54421e4ff37d2af04dac35832f08db4da2a6738da8b4d3bcc0a2024fac8",
+      "decoded_bytes": 47789,
+      "decoded_sha256": "dc22c54421e4ff37d2af04dac35832f08db4da2a6738da8b4d3bcc0a2024fac8",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/baseline-query-execution.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B214.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-B214.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B214.stdout.json",
+      "bytes": 18607,
+      "sha256": "86cecf76538ac661bb57a0bad693ee84d871849b83075718eb35c10e211827e4",
+      "decoded_bytes": 18607,
+      "decoded_sha256": "86cecf76538ac661bb57a0bad693ee84d871849b83075718eb35c10e211827e4",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-B214.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B215.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-B215.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-B215.stdout.json",
+      "bytes": 13728,
+      "sha256": "7c6264b975f9f87aacc270b7b262cff77d1ee5e3128564f734f59ec720b92a45",
+      "decoded_bytes": 13728,
+      "decoded_sha256": "7c6264b975f9f87aacc270b7b262cff77d1ee5e3128564f734f59ec720b92a45",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-B215.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F-full.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-F-full.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F-full.stdout.json",
+      "bytes": 241450,
+      "sha256": "e4fa6ea20486f2a3810e61245e3c88108acce5d2b44c1482a3960c8fac45363e",
+      "decoded_bytes": 241450,
+      "decoded_sha256": "e4fa6ea20486f2a3810e61245e3c88108acce5d2b44c1482a3960c8fac45363e",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-F-full.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F01-P025.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-F01-P025.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F01-P025.stdout.json",
+      "bytes": 6226,
+      "sha256": "a7f3c98d748c34558e632f68bd03a4663f98b43773faf8cbada7bac2ed845978",
+      "decoded_bytes": 6226,
+      "decoded_sha256": "a7f3c98d748c34558e632f68bd03a4663f98b43773faf8cbada7bac2ed845978",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-F01-P025.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F08-P048.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-F08-P048.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F08-P048.stdout.json",
+      "bytes": 15620,
+      "sha256": "0aee8ea1b925bec8ec0670e41a0edde8ff11000b04d4c2b08b3b229f43cffc62",
+      "decoded_bytes": 15620,
+      "decoded_sha256": "0aee8ea1b925bec8ec0670e41a0edde8ff11000b04d4c2b08b3b229f43cffc62",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-F08-P048.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F13-P030.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-F13-P030.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-F13-P030.stdout.json",
+      "bytes": 6157,
+      "sha256": "f3887d12e5a148f10ed5cd31da8f3bf36be7f6480789897e072dd69923ddc839",
+      "decoded_bytes": 6157,
+      "decoded_sha256": "f3887d12e5a148f10ed5cd31da8f3bf36be7f6480789897e072dd69923ddc839",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-F13-P030.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-LA035.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-LA035.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/query-LA035.stdout.json",
+      "bytes": 7855,
+      "sha256": "13695d227995583379ff42701f1873f3f1de8ecc743c108c4cd30b3147efc09a",
+      "decoded_bytes": 7855,
+      "decoded_sha256": "13695d227995583379ff42701f1873f3f1de8ecc743c108c4cd30b3147efc09a",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/query-LA035.stdout.json",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-compact.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review-compact.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-compact.stdout.gz",
+      "bytes": 524,
+      "sha256": "31334ef1ac2c5c433797e0b7cf922bca4956eb46fcfc899d4fa22b9d165ca263",
+      "decoded_bytes": 1328,
+      "decoded_sha256": "c720a1dc1ee5bff0ffbc15c2ade86019a9b9081d785a0f787b2922a14dd12915",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review-compact.stdout",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review-final-v2.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v2.stdout.gz",
+      "bytes": 520,
+      "sha256": "8fed5bdb6441fd8f19d4d8aa0fb047e6643fdfaa5e6cb3f8ac85189d2952ac4a",
+      "decoded_bytes": 1325,
+      "decoded_sha256": "56334b89e54fdccaf11da4dc81618b2395b75eb1bd2bccda03767f4d6995c387",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review-final-v2.stdout",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review-final-v3.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final-v3.stdout.gz",
+      "bytes": 524,
+      "sha256": "f0f247b9d924d4dc517f3151847a35befe58dacfdf4677418b41a0024446b6e5",
+      "decoded_bytes": 1326,
+      "decoded_sha256": "f32b6fdbf10ec1f2e57d7ae6491426475f82f822de585b600ac7f17d84337c94",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review-final-v3.stdout",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review-final.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review-final.stdout.gz",
+      "bytes": 526,
+      "sha256": "e092e53982a40405f999ef6e21d8914843f81137c0b11dfc16d032dbfff27fb2",
+      "decoded_bytes": 1326,
+      "decoded_sha256": "b5959d954c1888f9f3972b0a0b34b0e60329ad8f07d51f6fa04dff151a953298",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review-final.stdout",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review.stderr",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.stdout.gz",
+      "bytes": 521,
+      "sha256": "e3e641770315c18bfd6e6967de02a8d5a6e01bf68d09eb216cbf676ecf83b073",
+      "decoded_bytes": 1320,
+      "decoded_sha256": "01d23155e80e490075ac7801d1449b10b7ec4876246f56da68f39d5105ddaf89",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/original35-review.stdout",
+      "role": "complete unique measured stdout/stderr/execution or source-bound analysis; historical outputs remain their actual outcomes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/api-published-material-review.json",
+      "bytes": 387,
+      "sha256": "d9f07cfc0c6ac91790a33849b3c773a88bc42e687448d4d17dddc3cbe9e04f15",
+      "decoded_bytes": 387,
+      "decoded_sha256": "d9f07cfc0c6ac91790a33849b3c773a88bc42e687448d4d17dddc3cbe9e04f15",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/api-review/published-material-review.json",
+      "role": "independent full120 stored/decoded publication audit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/full-implementation-diff.patch.gz",
+      "bytes": 175840,
+      "sha256": "fb0422215deef89edd04ef9787fbdb9534dada8993de43c1306d4347eec897c5",
+      "decoded_bytes": 714574,
+      "decoded_sha256": "95ed4576bed2ba52264ac3eb67b7ad02a9f97f8f6a9204423277b4e4513adff7",
+      "encoding": "gzip-lossless",
+      "role": "Complete binary Git diff slice-base f88 to implementation f3d; excludes the separate future handoff commit by protocol",
+      "source_begin": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "source_end": "f3d4dad8dfa0980763d87050418c902908af25d2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stdout.gz",
+      "bytes": 708,
+      "sha256": "e506a532677587aa425b7b3b0df575d7909c3fc5849fa892a22be53828e1154e",
+      "decoded_bytes": 1714,
+      "decoded_sha256": "89a33a8a8bf1a295804cefa04153309695a85c804ccd3c0bb8ee04cd1c53e172",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/frozen-candidate-verifier.stdout",
+      "role": "Complete metadata verification on immutable implementationf3 script and packet bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/frozen-candidate-verifier.stderr",
+      "role": "Complete metadata verification on immutable implementationf3 script and packet bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.execution.json",
+      "bytes": 1460,
+      "sha256": "5ec1e1c5ee19f521688b4df6d5ca3d2255472937ace5eece03a850d1d425100a",
+      "decoded_bytes": 1460,
+      "decoded_sha256": "5ec1e1c5ee19f521688b4df6d5ca3d2255472937ace5eece03a850d1d425100a",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/frozen-candidate-verifier.execution.json",
+      "role": "Complete metadata verification on immutable implementationf3 script and packet bytes"
+    }
+  ],
+  "stored_bytes": 784027,
+  "decoded_bytes": 2207090,
+  "all_complete": true,
+  "external_full_outputs": "Exact API605120 and ECOfa53108 manifests are bound inside the packet; not copied again."
+}

@@ -1,0 +1,185 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "legal-query-profile-20261007",
+  "closure_ids": [],
+  "bundle_ids": [
+    "EMB-03"
+  ],
+  "slice_base_sha": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+  "implementation_commits": [
+    "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2"
+  ],
+  "candidate_tree_sha": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+  "branch": "codex/e02-C-legal-query-20261007",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/reference/lex/batch-pipeline.md",
+    "policy-engine/docs/reference/lex/knowledge.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-legal-query-profile-binding.toml",
+    "policy-engine/src/polisyos/data_forge/domains/legal/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+    "policy-engine/src/polisyos/lex/knowledge/README.md",
+    "policy-engine/src/polisyos/lex/knowledge/search.py",
+    "policy-engine/src/polisyos/lex/knowledge/store.py",
+    "policy-engine/tests/unit/remediation/test_emb_03.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/remediation/test_emb_03.py -q",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "macOS; Python 3.14.0 from the read-only shared policy-engine .venv; candidate source imported through PYTHONPATH. Native hnswlib 0.8.0; test DB, encoder state, and tokenizer are small deterministic fixtures.",
+      "input_closure": "All tests in tests/unit/remediation/test_emb_03.py; no production data/model assets.",
+      "outcome": "PASS",
+      "output": "20 passed. Complete stdout: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/test_emb_03.stdout.txt@c66ef7936b32d2201bf6eb901cf69cbc8e71996669c38afe1f70ad40098e04a3.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py policy-engine/src/polisyos/lex/knowledge/store.py policy-engine/src/polisyos/lex/knowledge/search.py policy-engine/tests/unit/remediation/test_emb_03.py",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Python 3.14.0 shared read-only policy-engine .venv; Ruff configuration from the candidate checkout.",
+      "input_closure": "All five changed Python modules/tests; this is not a full-repository Ruff result.",
+      "outcome": "PASS",
+      "output": "All checks passed! Full stdout: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/ruff-changed-python.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py policy-engine/src/polisyos/lex/knowledge/store.py policy-engine/src/polisyos/lex/knowledge/search.py policy-engine/tests/unit/remediation/test_emb_03.py",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Python 3.14.0 shared read-only policy-engine .venv.",
+      "input_closure": "Four changed Python files. legal batch/embedder.py is omitted from formatting check to preserve unrelated existing formatting; its only delta imports the shared v2 rule constant.",
+      "outcome": "PASS",
+      "output": "4 files already formatted. Full stdout: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/ruff-format-check.stdout.txt@177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -c \"import pathlib, tomllib; p=pathlib.Path('policy-engine/release-fragments/unreleased/2026-10-07-legal-query-profile-binding.toml'); d=tomllib.loads(p.read_text()); print({'id': d['id'], 'type': d['type'], 'compatibility_changes': len(d['compatibility_change'])})\"",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Python 3.14.0 shared read-only policy-engine .venv.",
+      "input_closure": "The new Legal query profile release fragment only.",
+      "outcome": "PASS",
+      "output": "Parsed id=2026-10-07-legal-query-profile-binding, type=changed, compatibility_changes=1. Full stdout: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/release-fragment-parse.stdout.txt@6f8e15ee981ffaf46d4c79c7f14205a0a0b0fe1fbbe022088c164ed236e98c71.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python .tmp/e02-C5/raw/dfi-emb-prep/provenance.py",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Python 3.14.0; candidate source is first PolisyOS source root; NumPy and native backend come from the read-only shared .venv.",
+      "input_closure": "Exact origins and SHA-256 for NumPy, hnswlib, and six loaded candidate PolisyOS modules, including the two Legal readers, embedder, kernel embeddings, and generation-basis owner.",
+      "outcome": "PASS",
+      "output": "Candidate module origins resolve under this worktree policy-engine/src. NumPy 2.3.5 SHA-256 93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38. Native hnswlib 0.8.0 origin /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so SHA-256 1995d684a31ecce3f0b2f817e283c7ba0d3bd77c961c0f47f2adb552f8cddf4a. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/import-origins.stdout.txt@5339749338b3e4c3c7639dcd7cfb08cc3b1143cdf76df0d444c72f6ebe87bb22.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python .tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.py",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Python 3.14.0, DuckDB 1.4.3, native hnswlib 0.8.0; isolated tiny fixture DB created by the tracked EMB-03 fixture helpers. Source SHA-256 values were captured before and after.",
+      "input_closure": "Warm read-only LegalKnowledgeGraph; real second DuckDB writer attempt; supported local embedding builder while the reader stayed open; next reader query and selector readback.",
+      "outcome": "PASS",
+      "output": "Exit 0. The second writer was refused by DuckDB due to the existing read-only connection configuration. The supported builder completed, changed selector generation, and the next query returned the expected target; DB SHA and all three inspected source hashes were unchanged. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/db_readonly_probe.stdout.txt@b84d95fdc6a9dc7f3edcf07a1bae2b1c85823953ded0d3c045bc3f0bb420ad0c. Exact command: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/db-readonly-probe-command.txt@7cb2554dfbc7581f94fe1681a047fddf3da67919603137a79c3bf4ea0dcd87c9.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python .tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.py (first harness attempt)",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Same Python/DuckDB environment and fixture-only scope as the final read-only DB probe.",
+      "input_closure": "Initial probe run terminated while formatting the observed LegalSearchResult; it made no mutation attempt and is not product evidence.",
+      "outcome": "ERROR",
+      "output": "Harness used nonexistent entity_name instead of name_en. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/db_readonly_probe_harness-error.stdout.txt@0a45258194f5ea3f7c5b16683da6e8b9e27ba8e154bcacb7144c1b9297b4ac6c.",
+      "predicate_basis": "not_established"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python .tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.py (second harness attempt)",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Same Python/DuckDB environment and fixture-only scope as the final read-only DB probe.",
+      "input_closure": "A rerun reused the initial partially created scratch fixture database; it failed during fixture table creation, before a reader or writer test.",
+      "outcome": "ERROR",
+      "output": "Harness encountered an existing lex_entities table; corrected by using a new fixture-run2 directory. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/db_readonly_probe_fixture-setup-error.stdout.txt@20e25ec6a2a96ee12ca39b10ffff78b8e9c7e638f9b7b0f2f15ac23b0d989389.",
+      "predicate_basis": "not_established"
+    },
+    {
+      "command": "Read independent review commit 77c5cd319c92e52932b1bf15c342b24a41e7b051 using git show; do not merge or rewrite the review branch.",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Independent review branch codex/e02-C-legal-review-20261007; review commit parent is the candidate c60 source commit.",
+      "input_closure": "The committed independent review JSON, focused-test stdout/stderr, source/environment origins, and review.md.",
+      "outcome": "PASS",
+      "output": "Independent review decision GO for bounded query-binding implementation; ten focused tests passed. Review JSON: policy-engine/docs/system-design-decisions/reviews/2026-10-07-legal-query-profile-binding/review.json@51556950e90935042dddfe6830b593862c89eefb54ab54fc2665bbe1427b1aa2; review commit 77c5cd319c92e52932b1bf15c342b24a41e7b051, tree 751a1a854e2c4332ae68c545c739b4d8046c7149. Captured independent stdout/stderr: focused-tests.stdout-stderr.txt@7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103.",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "command": "Read root C5 intake handoff from commit 2535e30fbe91f119fde4579f45ba4caef7e75260 using git show.",
+      "target_sha": "2535e30fbe91f119fde4579f45ba4caef7e75260",
+      "environment": "Root C5 continuation branch; committed intake receipt is separate from this Legal source candidate.",
+      "input_closure": "The exact committed root intake handoff only.",
+      "outcome": "PASS",
+      "output": "Root intake receipt records evidence_intake_only and closure_ids=[]. Path: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c5-intake-20261007-handoff.json@282574e49861331449ead2bc82860d5af20705aa800d339093c243b1a05ecbc4.",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "command": "Read Hatchling availability with importlib.util.find_spec and importlib.metadata.version; no build command was run.",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Read-only shared policy-engine Python 3.14 environment.",
+      "input_closure": "Only the installed module/distribution availability query; no package installation or dependency change.",
+      "outcome": "PASS",
+      "output": "Hatchling module origin and distribution are both absent. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/hatchling-presence.stdout.txt@6aac1c0b9759c08eb3b91811f5f6d039360c7a9d7d5041911725307c594831ba; exact command: hatchling-presence.command.txt@b2d77c853176b3594f2a5b6f290436196ef17c17fb548cf8f564d973ae8e016e.",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "command": "Non-editable wheel build and isolated installed-package test",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "No isolated installation environment was provisioned; Hatchling is absent from the inspected shared environment.",
+      "input_closure": "No wheel build or installation attempted.",
+      "outcome": "UNRUN",
+      "output": "No distribution-level result is claimed. Root intake commit 2535e30fbe91f119fde4579f45ba4caef7e75260 also records a bounded Hatchling-availability intake, not a wheel result.",
+      "predicate_basis": "not_established"
+    },
+    {
+      "command": "git diff --check f428b114f4afb5c9cdde93a8e9bf036abe5ac329..c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "target_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "environment": "Git worktree codex/e02-C-legal-query-20261007.",
+      "input_closure": "Complete ten-path source delta from slice base to candidate.",
+      "outcome": "PASS",
+      "output": "Exit 0; no whitespace errors.",
+      "predicate_basis": "recomputed"
+    }
+  ],
+  "property": {
+    "statement": "A Legal vector request is admissible only when the currently selected complete generation's rule/device/dimension and persisted encoder identity match a live inspectable encoder; the reader itself encodes request text, derives and compares identity before and after the normalized call, then queries the corresponding immutable HNSW/index/ID snapshot. A caller-supplied vector or model label is not an authority for vector provenance.",
+    "runtime_path": [
+      "Legal entity/fact/provision rows are projected and embedded by the canonical Legal producer.",
+      "The producer persists generation basis, inventory, matrix, HNSW index, and selector under the existing generation-basis owner and Legal v2 projection rule.",
+      "LegalKnowledgeStore resolves the selector for each operation and on load reconciles the complete projected table membership and selected HNSW vectors with the matrix.",
+      "LegalQueryInput carries query text and the configured local encoder; the shared query gate recomputes actual encoder identity, encodes the text, checks identity drift, and fails before knn_query on mismatch.",
+      "LegalKnowledgeGraph exposes entity/fact/provision search and a typed query_profile_error; hybrid search falls back to text when a query profile is unsupported."
+    ],
+    "proxy_divergence": "A same-dimension vector from the wrong encoder can rank the decoy when the intake gate is removed, while the admitted text query ranks the target. A model-name match or caller-supplied vector alone would therefore be a proxy for the actual producer identity and encoded request.",
+    "negative_controls": [
+      "Same-dimension wrong live encoder is rejected before HNSW; zero knn calls.",
+      "Bypass the gate but keep selected metadata and actual HNSW: the wrong vector retrieves the decoy; restore the gate and the query retrieves the target.",
+      "Mutate encoder weights during encode: post-call identity check rejects before HNSW.",
+      "Replace the selector during a blocked request: the request stays on its prior snapshot; the next request observes the new generation and rejects the prior encoder.",
+      "Previous v1 rule generation is refused; model label/OpenAI key does not authorize remote vectors and hybrid text fallback remains usable.",
+      "Independent reviewer reproduced the focused source behavior and reported no additional same-class escape."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded query-profile mechanism GO; LA-040 remains held / bridge_missing; no finding closure is claimed",
+  "limitations_and_next_owner": [
+    "Independent review is a bounded source/fixture GO only; LA-040 remains held. No current serving caller injects a matching local query encoder. The independent review identified policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py:290, policy-engine/src/polisyos/scientist/validation/policy_verified/service.py:630, and policy-engine/src/polisyos/lex/knowledge/benchmark.py:930. Next owner is the A/C-W04 serving-profile bridge; do not invent a default encoder.",
+    "The production Legal database is present, but a matching selected generation and inspectable production weights/tokenizer/profile were not established. No production corpus or model assets were read; fixture tests do not claim production membership or search closure.",
+    "Native hnswlib and all three actual Legal readers were exercised, but encoder assets and database content were deterministic tiny fixtures.",
+    "Rule version is policyos.legal.embedding.v2. Prior v1 generations are refused by vector search and need a supported rebuild. Existing OpenAI constructor parameters remain compatibility inputs but do not authorize remote query vectors; unsupported hybrid search returns text results with a typed reason.",
+    "No non-editable wheel or isolated installation was tested because Hatchling is absent from the inspected shared environment. No network/install action was attempted.",
+    "The Ruff check covered all five changed Python files only; no full-repository Ruff result is claimed. Formatting check covered four files; the Legal embedder's unrelated baseline formatting was not rewritten.",
+    "Root C5 intake handoff is separate evidence only: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c5-intake-20261007-handoff.json@282574e49861331449ead2bc82860d5af20705aa800d339093c243b1a05ecbc4 records evidence_intake_only and no closure."
+  ],
+  "receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007-evidence/README.md",
+    "sha256": "eb2187f81d1df4a0a2033fdf9657bebb63c426cb63fccad97e0cb74bcd0452fe",
+    "commit": "9e779ec32d42dec9a3859d26334eefb2147f60cc",
+    "tree": "fcf3f4735cf3c008a48553280c91360ae74b3127",
+    "tracked_output_count": 14
+  }
+}

@@ -1,0 +1,104 @@
+"""Read-only custody review of the separate CAL interrupted-executor retry."""
+
+import importlib.util
+import json
+from pathlib import Path
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+WAVE = Path("/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007")
+RETRY_ROOT = Path(
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946"
+)
+OUT = Path(__file__).parent / "cal-retry-independent"
+OUT.mkdir(exist_ok=True)
+SPEC = importlib.util.spec_from_file_location(
+    "collector", Path(__file__).with_name("recompute_wave.py")
+)
+COLLECTOR = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(COLLECTOR)
+TREE = COLLECTOR.git(ROOT, "rev-parse", SOURCE + "^{tree}").decode().strip()
+PLAN = json.loads((WAVE / "plan.json").read_text())
+JOB = next(j for j in PLAN["jobs"] if j["name"] == "cal-and-welfare-consumer")
+ORIGINAL = Path(JOB["output"]) / (JOB["name"] + ".json")
+RETRY = (
+    RETRY_ROOT
+    / "checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json"
+)
+FRAME, FILES = COLLECTOR.source_snapshot(ROOT, SOURCE)
+RECONCILED = COLLECTOR.reconcile_retry(ROOT, SOURCE, TREE, FRAME, FILES, JOB, RETRY)
+ORIGINAL_DATA = COLLECTOR.read(ORIGINAL)
+ISSUES = list(RECONCILED["issues"])
+if (
+    ORIGINAL_DATA["exit_code"] != -9
+    or ORIGINAL_DATA["counts"] is not None
+    or ORIGINAL_DATA["outcome"] != "FAIL"
+):
+    ISSUES.append("Original interrupted FAIL was rewritten")
+if Path(ORIGINAL_DATA["junit"]).exists():
+    ISSUES.append("Unexpected original JUnit appeared after interruption")
+if RECONCILED["counts"] != {
+    "cases": 324,
+    "passed": 324,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+}:
+    ISSUES.append("Retry actual denominator differs")
+if RECONCILED["exit_code"] != 0 or RECONCILED["outcome"] != "PASS":
+    ISSUES.append("Retry outcome differs")
+INPUT_ASSETS = {}
+for name in PLAN["groups"]["CAL_and_welfare_consumer"]:
+    actual = FILES[name]
+    expected = PLAN["source_test_assets"][name]
+    if any(actual[k] != expected[k] for k in ["sha256", "bytes"]):
+        ISSUES.append({"selected_asset_diff": name})
+    INPUT_ASSETS[name] = actual
+DATA = {
+    "schema": "policyos.e02.independent_CAL_executor_retry_receipt_review.v1",
+    "source": SOURCE,
+    "tree": TREE,
+    "disposition": "GO for bounded retry receipt integrity and actual observations"
+    if not ISSUES
+    else "NO-GO receipt discrepancies",
+    "original_receipt": COLLECTOR.identity(ORIGINAL),
+    "original_observation": {
+        "outcome": ORIGINAL_DATA["outcome"],
+        "exit_code": ORIGINAL_DATA["exit_code"],
+        "counts": ORIGINAL_DATA["counts"],
+        "original_JUnit_present": False,
+        "signal": "SIGKILL",
+        "cause": "not_established",
+    },
+    "retry_observation": RECONCILED,
+    "independent_immutable_source_frame": FRAME,
+    "selected_test_asset_denominator": len(INPUT_ASSETS),
+    "selected_test_assets": INPUT_ASSETS,
+    "admission": COLLECTOR.identity(RETRY_ROOT / "retry-admission.json"),
+    "actual_launch": COLLECTOR.identity(RETRY_ROOT / "retry-started.json"),
+    "plan": COLLECTOR.identity(WAVE / "plan.json"),
+    "collector": COLLECTOR.identity(Path(__file__).with_name("recompute_wave.py")),
+    "issues": ISSUES,
+    "limits": [
+        "No pytest, numerical/backend, gate or source-mutation commands executed by this reviewer.",
+        "Retry is a distinct bounded execution observation; original FAIL/noJUnit is retained and no interrupted case PASS is inferred.",
+        "Source acceptance and each original finding owner decision remain separate.",
+        "Full common wave remains pending until actual completion; this receipt does not announce it complete.",
+        "Observed environment is the canonical runner observer scope, not proof of unmeasured test child state.",
+    ],
+}
+(OUT / "review.json").write_text(json.dumps(DATA, indent=2) + "\n")
+(OUT / "case-index.json").write_text(
+    json.dumps({"source": SOURCE, "tree": TREE, "cases": RECONCILED["cases"]}, indent=2)
+    + "\n"
+)
+print(
+    json.dumps(
+        {
+            "disposition": DATA["disposition"],
+            "frame": FRAME,
+            "counts": RECONCILED["counts"],
+            "issues": ISSUES,
+        }
+    )
+)

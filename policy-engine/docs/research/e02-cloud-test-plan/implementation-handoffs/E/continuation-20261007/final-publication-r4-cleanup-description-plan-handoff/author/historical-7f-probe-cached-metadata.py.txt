@@ -1,0 +1,19 @@
+import hashlib,json,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage');O=S/'metadata-admission-raw-stream-final';O.mkdir();rows=[]
+for optimized in (False,True):
+ for name in ('missing-build-stdout','forged-build-count','bool-build-count','malformed-doctor-json'):
+  root=O/(('optimized-' if optimized else 'normal-')+name);root.mkdir()
+  for n in ('payload','copy-cleanup-description-plan.py.txt','build-stage.py.txt','README.md','qualification.json','build.stdout.json','build.stderr.txt','resume-admission.json','resume-admission.stderr.txt','manifest.json'):
+   if n=='build.stdout.json' and name!='malformed-doctor-json':continue
+   if n=='resume-admission.json' and name=='malformed-doctor-json':continue
+   (root/n).symlink_to(S/n,target_is_directory=n=='payload')
+  if name in ('forged-build-count','bool-build-count'):
+   x=json.loads((S/'build.stdout.json').read_text());x['expected_git_paths']=0 if name=='forged-build-count' else True;(root/'build.stdout.json').write_text(json.dumps(x))
+  if name=='malformed-doctor-json':(root/'resume-admission.json').write_text('{invalid-json')
+  target=root/'destination';argv=[sys.executable]+(['-O'] if optimized else [])+[str(S/'copy-cleanup-description-plan.py.txt'),'--manifest',str(root/'manifest.json'),'--destination-root',str(target)]
+  p=subprocess.run(argv,capture_output=True);(root/'stdout.txt').write_bytes(p.stdout);(root/'stderr.txt').write_bytes(p.stderr)
+  row={'name':name,'optimized':optimized,'argv':argv,'exit_code':p.returncode,'destination_created':target.exists(),'stdout':str(root/'stdout.txt'),'stderr':str(root/'stderr.txt')};rows.append(row)
+  if p.returncode!=1 or target.exists():raise ValueError('prewrite metadata escape')
+x={'schema':'policyos.e02.prewrite_metadata_corrected_controls.v1','copier_sha256':hashlib.sha256((S/'copy-cleanup-description-plan.py.txt').read_bytes()).hexdigest(),'normal_optimized_controls':rows,'negative_per_mode':4,'all_refused_before_destination':True,'historical_counterexamples':'historical-late-metadata.json','source_native_numeric_gate_execution':False}
+(S/'metadata-admission-controls.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps({'negative_per_mode':4,'all_refused_before_destination':True,'native_source_execution':False},indent=2))

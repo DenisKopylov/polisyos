@@ -1,0 +1,849 @@
+{
+  "schema": "policyos.e02.independent_corrected_closed_additions_thin_handoff.v1",
+  "verdict": "GO bounded corrected handoff metadata/copy custody; immutable handoff Git delta pending",
+  "candidate": "737ea6b8ec43f5dff64bd5ccbb3a357b4fb6c3d5",
+  "tree": "bc06dc4ef6ec474a68b9cff5b8d61ff2b13f2acc",
+  "index": {
+    "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/copy-index.json",
+    "bytes": 52062,
+    "sha256": "42716389c3d85420bb4120b9eec5ea7e46ef652f6b0b1627612930906636ec22"
+  },
+  "handoff": {
+    "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/implementation-handoff.json",
+    "bytes": 130598,
+    "sha256": "9872c8b28523cc0bc94377369f5b0215ba5eede07a0e979e59e8e10930657ca4"
+  },
+  "healthy": {
+    "copied_files": 118,
+    "copied_bytes": 852066,
+    "independent_selected_assets": 57,
+    "handoff_paths": 123,
+    "full_union_paths": 283,
+    "corrected_IR_logical": 41,
+    "corrected_IR_unique": 26,
+    "corrected_IR_unique_bytes": 167802,
+    "original_IR_logical": 10,
+    "original_IR_unique": 8,
+    "original_IR_unique_bytes": 51496
+  },
+  "negative_controls": [
+    {
+      "name": "corrupt_author_digest",
+      "outcome": "PASS refusal",
+      "reason": "common companion digest predicate"
+    },
+    {
+      "name": "corrupt_size",
+      "outcome": "PASS refusal",
+      "reason": "complete118 byte denominator"
+    },
+    {
+      "name": "omit_required_copy",
+      "outcome": "PASS refusal",
+      "reason": "complete118 copied companions"
+    },
+    {
+      "name": "wrong_candidate",
+      "outcome": "PASS refusal",
+      "reason": "already-reviewed implementation identity"
+    },
+    {
+      "name": "wrong_source",
+      "outcome": "PASS refusal",
+      "reason": "runtime source distinct from docs candidate"
+    }
+  ],
+  "effective_common_digest_removal": "Samefake author digest admitted only with shared digest predicate removed; all literal bytes/counts/selected members otherwise unchanged, defining integritypropertyFAIL.",
+  "full_current_handoff_footprint": [
+    {
+      "portable_path": "README.md",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/README.md",
+      "bytes": 2326,
+      "sha256": "6e179dd393f5172ebec1f17a13ca8d22e3c1c022d48ef78cb25c92a85075feea"
+    },
+    {
+      "portable_path": "author/G855-E-IR-decision.md",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/G855-E-IR-decision.md",
+      "bytes": 7381,
+      "sha256": "2f0b221653e13dbd27a44bd329af9fd56f894fba95f766ff508bffb8ed51d8ac"
+    },
+    {
+      "portable_path": "author/attempt1-build-handoff.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/attempt1-build-handoff.py.txt",
+      "bytes": 16254,
+      "sha256": "a14c624b125a6b01e0bb70432e3f22a84bec8ebe173f400350171d6148ccc6d5"
+    },
+    {
+      "portable_path": "author/attempt1-build-handoff.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/attempt1-build-handoff.stderr.txt",
+      "bytes": 349,
+      "sha256": "41d4e61582e3454f0e95b7c8f1514b712fdc437eca30f9f0f765d39a7f3d5169"
+    },
+    {
+      "portable_path": "author/attempt1-build-handoff.stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/attempt1-build-handoff.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "author/attempt2-build-handoff.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/attempt2-build-handoff.py.txt",
+      "bytes": 17606,
+      "sha256": "b0c2b2f25f5253898385948eb22f7c0f0fddc02ff0af2036c8e01db4ba550050"
+    },
+    {
+      "portable_path": "author/attempt2-build-handoff.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/attempt2-build-handoff.stderr.txt",
+      "bytes": 862,
+      "sha256": "363beb9de2f7cfa5b696a77e33659d6b74b0cc9db1e744ede8cf561db4df11c3"
+    },
+    {
+      "portable_path": "author/attempt2-build-handoff.stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/attempt2-build-handoff.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "author/author-custody-controls.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/author-custody-controls.json",
+      "bytes": 973,
+      "sha256": "457c9891b31afd064e65e847da88ee107b4e185da8affb1f811c485c547fca74"
+    },
+    {
+      "portable_path": "author/build-handoff.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/build-handoff.py.txt",
+      "bytes": 17715,
+      "sha256": "9f80e7e985c4fc18b552b1b03eb7ed70f8a4f5968061162dbbc592e102f2597f"
+    },
+    {
+      "portable_path": "author/correct-handoff-companions.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/correct-handoff-companions.py.txt",
+      "bytes": 8073,
+      "sha256": "c84a4ab54262e0614a3f65097a932a5a00d4e0643df487af83bcd357859fa232"
+    },
+    {
+      "portable_path": "author/csv-companion-commit.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/csv-companion-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "428db727da68f977e462571edcd2d93f93009d90d49ab7467d496fd166527171"
+    },
+    {
+      "portable_path": "author/csv-companion-commit.stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/csv-companion-commit.stdout.txt",
+      "bytes": 333,
+      "sha256": "f76e9336f4ce5a11e1830af651f5521ee6ab3b2a7ef11b66076344530fad2aa7"
+    },
+    {
+      "portable_path": "author/dry-run.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/dry-run.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "author/dry-run.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/dry-run.stdout.json",
+      "bytes": 553,
+      "sha256": "34987f51c4638cc983d71c9ce0fb5f00035cac150ef75cbbad50a49e422df6db"
+    },
+    {
+      "portable_path": "author/implementation-Git-readback.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/implementation-Git-readback.json",
+      "bytes": 33313,
+      "sha256": "810bcea66f8d631291db26113f7fed8b00340b85e81ee9bff30ca1ff44dfb319"
+    },
+    {
+      "portable_path": "author/implementation-commit.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "69fa3f18b52884f4160b9e086db2a2ab4f2d6bc09200e00c71635d23e6ae6474"
+    },
+    {
+      "portable_path": "author/implementation-commit.stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/implementation-commit.stdout.txt",
+      "bytes": 34476,
+      "sha256": "ecb0df8bf1ec17c84cfecd506e7df644481286d1aa1f95868dec46721b681067"
+    },
+    {
+      "portable_path": "author/leaf-copy.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/leaf-copy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "author/leaf-copy.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/leaf-copy.stdout.json",
+      "bytes": 521,
+      "sha256": "d13799b85469452e6054aeb8a0faf0dd53ccb9628b073b03116ad21e47134aa0"
+    },
+    {
+      "portable_path": "author/leaf-footprint.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/leaf-footprint.json",
+      "bytes": 32878,
+      "sha256": "9ea84adb9b03cedd29e9db408439a867283efa6d4116df6e6b30fb38d61eed83"
+    },
+    {
+      "portable_path": "author/resume-admission.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/resume-admission.json",
+      "bytes": 123184,
+      "sha256": "7e3da9f77de343a5b0dce6a693ae48bd2ae8b7f4305ffe70d358fb7bbf16157b"
+    },
+    {
+      "portable_path": "author/resume-admission.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/author/resume-admission.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "copy-index.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/copy-index.json",
+      "bytes": 52062,
+      "sha256": "42716389c3d85420bb4120b9eec5ea7e46ef652f6b0b1627612930906636ec22"
+    },
+    {
+      "portable_path": "current-IR/G855-E-IR-decision.md",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/G855-E-IR-decision.md",
+      "bytes": 7381,
+      "sha256": "2f0b221653e13dbd27a44bd329af9fd56f894fba95f766ff508bffb8ed51d8ac"
+    },
+    {
+      "portable_path": "current-IR/G855-E.md",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/G855-E.md",
+      "bytes": 3435,
+      "sha256": "3f60bdd90cc39bf335eea45163dc05ce26ecf8319f1fef294ce3e7b31203fdf7"
+    },
+    {
+      "portable_path": "current-IR/actual-conditions-counterexamples.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/actual-conditions-counterexamples.json",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+    },
+    {
+      "portable_path": "current-IR/independent-owner-response.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/independent-owner-response.json",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca"
+    },
+    {
+      "portable_path": "current-IR/probe-removed-helper-environment-ERROR.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/probe-removed-helper-environment-ERROR.py.txt",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0"
+    },
+    {
+      "portable_path": "current-IR/probe-removed-helper-environment-ERROR.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/probe-removed-helper-environment-ERROR.stderr.txt",
+      "bytes": 207,
+      "sha256": "07b85bb3b63d4901da80bea57425a71dbf99409877c4fa757fd65be98c2ec3ec"
+    },
+    {
+      "portable_path": "current-IR/probe-removed-helper-environment-ERROR.stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/probe-removed-helper-environment-ERROR.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "current-IR/probe.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "current-IR/probe.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/probe.stdout.json",
+      "bytes": 513,
+      "sha256": "d5eda9db1a0ac8df602726b75b1ebd1f9225d504ba8848240878ba0982ddc772"
+    },
+    {
+      "portable_path": "current-IR/probe_actual_conditions.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/probe_actual_conditions.py.txt",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0"
+    },
+    {
+      "portable_path": "current-IR/publication-selection.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/publication-selection.json",
+      "bytes": 3201,
+      "sha256": "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/CAS-ref-index/literal-legacy-profile700-fixture-index.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/CAS-ref-index/literal-legacy-profile700-fixture-index.json",
+      "bytes": 8473,
+      "sha256": "2ca74a333bf836d2fbbbbfc0712bc38625a2241008c633b39104ab82351fb3fc"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/build_closed_selection.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/build_closed_selection.py.txt",
+      "bytes": 5614,
+      "sha256": "96fbd82548b22a00d34d704f6fd3abc14085dd6b01503fcc9063b5b76926f031"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/normal-v2-review.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/normal-v2-review.json",
+      "bytes": 9693,
+      "sha256": "10f709d011e1c0009c7f8da36218c03da67c1990be8bf4e8f590293005522a05"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/normal-v2.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/normal-v2.stdout.json",
+      "bytes": 446,
+      "sha256": "1f254d570a0807ed3e8af2eb6cf58e04b3b4f2e9abd90439304ca24ef64d624c"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/normal-v3.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/normal-v3.stderr.txt",
+      "bytes": 860,
+      "sha256": "1279eadad1e2ac8cf498759d09ad5f71a4451744451741f55d9310442025634d"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/normal-v4-review.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/normal-v4-review.json",
+      "bytes": 10227,
+      "sha256": "72ff2b147aa07077ddf210283109a765b4c336a4a57251223e423b87b9d20b0f"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/normal-v4.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/normal-v4.stdout.json",
+      "bytes": 447,
+      "sha256": "0b611ba97f257f53b81f5faf26aaf4d9c002b85de4dfc237832a75465b88536c"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/normal.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/normal.stderr.txt",
+      "bytes": 1128,
+      "sha256": "945a27533e9752ff28b21c6ff18e89699308a56903b65ca6f17d330f9f8ae237"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/optimized-v2.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/optimized-v2.stdout.json",
+      "bytes": 449,
+      "sha256": "3872883b38ad09ffa7b14d27e9d40d934ba4c32e51b81fefd4ee80fba05ad10c"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/optimized-v4.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/optimized-v4.stdout.json",
+      "bytes": 450,
+      "sha256": "1ff5015544e39a9c3c3db6abb27f792978e3731e1cf6e1d42cabec0adc64e493"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/review_literal_custody.attempt1.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/review_literal_custody.attempt1.py.txt",
+      "bytes": 15424,
+      "sha256": "3673ae05e15ade3755bb875a5a09a5ac0768cd9924cd6cd1c9ebea9c07511083"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/review_literal_custody.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/review_literal_custody.py.txt",
+      "bytes": 16352,
+      "sha256": "3ad98134323f72239d0de784e03e8cfc201092b5ee46343e50d61a74e8fa9533"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/review_literal_custody.v2-used.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/review_literal_custody.v2-used.py.txt",
+      "bytes": 15427,
+      "sha256": "ebe497d988400cb4e183efbc608e7d4d8e8f40328462c161208c675f0feeda4f"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/custody/review_literal_custody.v3-ERROR.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/custody/review_literal_custody.v3-ERROR.py.txt",
+      "bytes": 16339,
+      "sha256": "61d0485032e1213720668c32d83932e4ea2c26c4fabcfc33e002f480588ef76d"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/gold/exact-finite-oracle.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/gold/exact-finite-oracle.json",
+      "bytes": 6369,
+      "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/gold/exact-oracle.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/gold/exact-oracle.stdout.json",
+      "bytes": 1481,
+      "sha256": "3bf24a8573964b22b78f68e2fe8549075e53e77116260167501f3792bed25b75"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/gold/exact_finite_oracle.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/gold/exact_finite_oracle.py.txt",
+      "bytes": 3926,
+      "sha256": "52f814918934cb2f55faa883a3a74086d997400368968d20aec74cee7e0ab851"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/history/publication-selection.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/history/publication-selection.json",
+      "bytes": 3201,
+      "sha256": "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/member-index.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/member-index.json",
+      "bytes": 18777,
+      "sha256": "a8d04f39b6b29b89d52c2bbadcafb6398571e279e6bab769753200b08215567a"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/original/G855-E-IR-decision.md",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/original/G855-E-IR-decision.md",
+      "bytes": 7381,
+      "sha256": "2f0b221653e13dbd27a44bd329af9fd56f894fba95f766ff508bffb8ed51d8ac"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/original/G855-E.md",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/original/G855-E.md",
+      "bytes": 3435,
+      "sha256": "3f60bdd90cc39bf335eea45163dc05ce26ecf8319f1fef294ce3e7b31203fdf7"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/original/actual-conditions-counterexamples.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/original/actual-conditions-counterexamples.json",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/original/independent-owner-response.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/original/independent-owner-response.json",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/original/probe-removed-helper-environment-ERROR.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/original/probe-removed-helper-environment-ERROR.stderr.txt",
+      "bytes": 207,
+      "sha256": "07b85bb3b63d4901da80bea57425a71dbf99409877c4fa757fd65be98c2ec3ec"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/original/probe.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/original/probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/original/probe.stdout.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/original/probe.stdout.json",
+      "bytes": 513,
+      "sha256": "d5eda9db1a0ac8df602726b75b1ebd1f9225d504ba8848240878ba0982ddc772"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/original/probe_actual_conditions.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/original/probe_actual_conditions.py.txt",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0"
+    },
+    {
+      "portable_path": "current-IR/qualified-v2/publication-selection.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/current-IR/qualified-v2/publication-selection.json",
+      "bytes": 19554,
+      "sha256": "cda5627a0dfc5d28bfd97a7ef3374c04feaba64b897ec56117fb2a5076b502e1"
+    },
+    {
+      "portable_path": "environment.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/environment.json",
+      "bytes": 923,
+      "sha256": "3575e1acb00990c67271a8a3ba94996525680055d021dc67b6a86cfba1ff0e61"
+    },
+    {
+      "portable_path": "implementation-handoff.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/implementation-handoff.json",
+      "bytes": 130598,
+      "sha256": "9872c8b28523cc0bc94377369f5b0215ba5eede07a0e979e59e8e10930657ca4"
+    },
+    {
+      "portable_path": "independent/normal/alias-state-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/alias-state-corruption/stderr.txt",
+      "bytes": 658,
+      "sha256": "937d449f70966b9c013d33605e4771d8adeff4b68d91929a6a385741a6419139"
+    },
+    {
+      "portable_path": "independent/normal/alias-state-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/alias-state-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/catalog-alias-name-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/catalog-alias-name-corruption/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb"
+    },
+    {
+      "portable_path": "independent/normal/catalog-alias-name-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/catalog-alias-name-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/effective-membership-removal-admits-omission/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/effective-membership-removal-admits-omission/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/effective-membership-removal-admits-omission/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/effective-membership-removal-admits-omission/stdout.txt",
+      "bytes": 607,
+      "sha256": "b518d6f3d05edd96bbb3bc1ac4107d3054540d1d72fae333568dff555b38c70d"
+    },
+    {
+      "portable_path": "independent/normal/frontend-alias-name-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/frontend-alias-name-corruption/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb"
+    },
+    {
+      "portable_path": "independent/normal/frontend-alias-name-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/frontend-alias-name-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/healthy/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/healthy/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/healthy/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/healthy/stdout.txt",
+      "bytes": 570,
+      "sha256": "9ae541d5c1f329f76ec68fb836422a4697cec1214ef17e914c8e6e1ff963267b"
+    },
+    {
+      "portable_path": "independent/normal/independent-review.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/independent-review.json",
+      "bytes": 113191,
+      "sha256": "4183810db93f70b896a644602a37c13821df611b02083b1f8a20cec0d680e9e2"
+    },
+    {
+      "portable_path": "independent/normal/membership-removal.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/membership-removal.py.txt",
+      "bytes": 9264,
+      "sha256": "1491ca079bd402273c0207817afb4950ac9108fe7cd12b2aa53b64d2a955deed"
+    },
+    {
+      "portable_path": "independent/normal/omitted-mandatory-original-retotalled/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/omitted-mandatory-original-retotalled/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb"
+    },
+    {
+      "portable_path": "independent/normal/omitted-mandatory-original-retotalled/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/omitted-mandatory-original-retotalled/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/omitted-shared-alias-retotalled/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/omitted-shared-alias-retotalled/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb"
+    },
+    {
+      "portable_path": "independent/normal/omitted-shared-alias-retotalled/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/omitted-shared-alias-retotalled/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/payload-hash-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/payload-hash-corruption/stderr.txt",
+      "bytes": 695,
+      "sha256": "d4d1f3c3463df245ffa853fa8f7416cf7eab438f6b02f58c62afe2a4a7a5be34"
+    },
+    {
+      "portable_path": "independent/normal/payload-hash-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/payload-hash-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/payload-size-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/payload-size-corruption/stderr.txt",
+      "bytes": 695,
+      "sha256": "d4d1f3c3463df245ffa853fa8f7416cf7eab438f6b02f58c62afe2a4a7a5be34"
+    },
+    {
+      "portable_path": "independent/normal/payload-size-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/payload-size-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/role-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/role-corruption/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb"
+    },
+    {
+      "portable_path": "independent/normal/role-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/role-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/selector-hash-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/selector-hash-corruption/stderr.txt",
+      "bytes": 736,
+      "sha256": "abd248ad6411906e19c3c9c6b24bac00cbe84ebdde7ff99ce33f6a77aa723b79"
+    },
+    {
+      "portable_path": "independent/normal/selector-hash-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/selector-hash-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal/source-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/source-corruption/stderr.txt",
+      "bytes": 678,
+      "sha256": "3b26a25d97d70ca89133864e351a2086595aaab1afb2190cd8a887a293d0e737"
+    },
+    {
+      "portable_path": "independent/normal/source-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal/source-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/normal.stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/normal.stdout.txt",
+      "bytes": 416,
+      "sha256": "bb55df10cc9805ce851625f8415aa0288592d32eaec22a8cef43a004087eb3c4"
+    },
+    {
+      "portable_path": "independent/optimized/alias-state-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/alias-state-corruption/stderr.txt",
+      "bytes": 667,
+      "sha256": "6d8cdbc2966db5dbd2a69036386950b51942fbf5e6d1e9e6fb7a3bacd1445548"
+    },
+    {
+      "portable_path": "independent/optimized/alias-state-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/alias-state-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/catalog-alias-name-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/catalog-alias-name-corruption/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926"
+    },
+    {
+      "portable_path": "independent/optimized/catalog-alias-name-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/catalog-alias-name-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/effective-membership-removal-admits-omission/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/effective-membership-removal-admits-omission/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/effective-membership-removal-admits-omission/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/effective-membership-removal-admits-omission/stdout.txt",
+      "bytes": 610,
+      "sha256": "c92a6e88f9496b474871d500e7b8f1b9ccf35699db9e562e3243091eba1f8676"
+    },
+    {
+      "portable_path": "independent/optimized/frontend-alias-name-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/frontend-alias-name-corruption/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926"
+    },
+    {
+      "portable_path": "independent/optimized/frontend-alias-name-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/frontend-alias-name-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/healthy/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/healthy/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/healthy/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/healthy/stdout.txt",
+      "bytes": 573,
+      "sha256": "8db321065d895e1abe9e15797d48a55547e174d2a419254d6249c3350a624ad1"
+    },
+    {
+      "portable_path": "independent/optimized/independent-review.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/independent-review.json",
+      "bytes": 113614,
+      "sha256": "b2e91f62877286c0649d435a798a311b9d5b9453d2db5e0b01943933c4993b22"
+    },
+    {
+      "portable_path": "independent/optimized/membership-removal.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/membership-removal.py.txt",
+      "bytes": 9264,
+      "sha256": "1491ca079bd402273c0207817afb4950ac9108fe7cd12b2aa53b64d2a955deed"
+    },
+    {
+      "portable_path": "independent/optimized/omitted-mandatory-original-retotalled/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/omitted-mandatory-original-retotalled/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926"
+    },
+    {
+      "portable_path": "independent/optimized/omitted-mandatory-original-retotalled/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/omitted-mandatory-original-retotalled/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/omitted-shared-alias-retotalled/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/omitted-shared-alias-retotalled/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926"
+    },
+    {
+      "portable_path": "independent/optimized/omitted-shared-alias-retotalled/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/omitted-shared-alias-retotalled/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/payload-hash-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/payload-hash-corruption/stderr.txt",
+      "bytes": 704,
+      "sha256": "d429fff26aab45272c0b19536bc880b6caa207f7d5ca8a29773b4c7a40590bd8"
+    },
+    {
+      "portable_path": "independent/optimized/payload-hash-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/payload-hash-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/payload-size-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/payload-size-corruption/stderr.txt",
+      "bytes": 704,
+      "sha256": "d429fff26aab45272c0b19536bc880b6caa207f7d5ca8a29773b4c7a40590bd8"
+    },
+    {
+      "portable_path": "independent/optimized/payload-size-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/payload-size-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/role-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/role-corruption/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926"
+    },
+    {
+      "portable_path": "independent/optimized/role-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/role-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/selector-hash-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/selector-hash-corruption/stderr.txt",
+      "bytes": 745,
+      "sha256": "5013de63b32e9e57e9d126fc112b2892a7d4572073f81263b46e8346d8e03b51"
+    },
+    {
+      "portable_path": "independent/optimized/selector-hash-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/selector-hash-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized/source-corruption/stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/source-corruption/stderr.txt",
+      "bytes": 687,
+      "sha256": "68a0f0dd97a53db986df51523547f295d29528480ea4129dac22ba1393227b9a"
+    },
+    {
+      "portable_path": "independent/optimized/source-corruption/stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized/source-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized.stderr.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "independent/optimized.stdout.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/optimized.stdout.txt",
+      "bytes": 419,
+      "sha256": "f0e0e917d113bf4a1c751d6501a779b55872c01ff39f22c5bba1eb81dcf1a93c"
+    },
+    {
+      "portable_path": "independent/publication-selection.json",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/publication-selection.json",
+      "bytes": 22527,
+      "sha256": "60284bd3a8808a9588de3b71849d60cdfd813f733d85884ce0b8d1b7e652f466"
+    },
+    {
+      "portable_path": "independent/review_closed_additions.py.txt",
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff/independent/review_closed_additions.py.txt",
+      "bytes": 19291,
+      "sha256": "3fefb846fde67ce96580f3c51ca7781bf6452fac5dc6b93264a09664bca40cd9"
+    }
+  ],
+  "initial94metadata_observation": "Historical-only preserved at handoff-initial94-observation; no GO issued on it. Final counts123/118, allcurrentJSON parse, old zero streams archivedasTXT andoriginalsourcefields preserved.",
+  "current_IR_qualification": {
+    "G_review_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "G_review_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E-IR-decision.md",
+    "literal_review": "author/G855-E-IR-decision.md",
+    "G_cited_source_scope": "Audit pins older E050. Separate copied independent actual64d receipts establish two current700/64d reachable seams; this carrier performs no new falsifier execution.",
+    "current_actual_falsifiers": "current-IR/actual-conditions-counterexamples.json",
+    "current_independent_owner_response": "current-IR/independent-owner-response.json",
+    "current_falsifier_selector": "current-IR/publication-selection.json",
+    "current_technical_work": {
+      "B201": "open",
+      "B202": "open"
+    },
+    "remaining_code": "Content-bound explicit aligned joint row/source premise and same probability convention for stored functionals vs inverse-CDF final residual; imports_r4 owns correction, oracle owns independent acceptance.",
+    "semantic_ratification": "Canonical E appointment and four tracked choices cdaea067935c8062a6a13fab8d7ffb53ae5fd401 remain valid.",
+    "historical_ledger": "held statuses unchanged; frozen b821/9ce/ba5 E43/9/2 proposals remain frozen observations, not current closure.",
+    "code_fix_in_this_carrier": false,
+    "original_b001_denominator": {
+      "source_metadata_retained": true,
+      "logical_assets": 10,
+      "logical_bytes": 61292,
+      "actual_content_unique_assets": 8,
+      "actual_content_unique_bytes": 51496,
+      "correction": "Two repeated-byte source recipes/zero streams; old b001 numerical evidence and historical metadata unchanged."
+    },
+    "corrected_companion": {
+      "selector": "current-IR/qualified-v2/publication-selection.json",
+      "member_index": "current-IR/qualified-v2/member-index.json",
+      "logical_assets": 41,
+      "unique_assets": 26,
+      "unique_bytes": 167802,
+      "gold": "current-IR/qualified-v2/gold/exact-finite-oracle.json",
+      "native_execution_by_this_carrier": false,
+      "finding_closure": false,
+      "scope": "Separate exact current64d/G855/gold/CAS-content index and independent custody companion; not a seventh selector of implementation737."
+    },
+    "root_next_technical_choice": "Root approved exact binary-ratio power-of-two representation with estimator-specific MC ceil cuts/quantile floor semantics and explicit multi-coordinate row IDs for a separate profile revision. No such source correction is delivered here."
+  },
+  "ROOT_before": {
+    "HEAD": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "tracked": ""
+  },
+  "ROOT_after": {
+    "HEAD": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "tracked": ""
+  },
+  "own_cleanup_mechanisms_semantically_reviewed": false,
+  "numeric_or_underlying_copied_native_checks_repeated": false,
+  "source_environment_mutation": false,
+  "scope": "Only exact already-closed companions/index/footprint and source refs. Prior six-selector implementation737 custody GO reused. No currentIR sourcefix/findingclosure or underlying institutional/scientific authority ratified by this review."
+}

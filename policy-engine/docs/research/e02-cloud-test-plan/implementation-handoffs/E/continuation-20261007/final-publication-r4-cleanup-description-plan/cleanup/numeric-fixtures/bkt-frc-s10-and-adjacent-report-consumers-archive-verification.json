@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers.tar.gz",
+    "bytes": 6256608,
+    "sha256": "f541855404fd242b05c3b54c174bc535e0fa41c87c116604f5b62f74951c0cbe"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-full-inventory.json",
+    "bytes": 6127647,
+    "sha256": "22054246fe5a43064954e9bab6a74d247cbc0793ed505757566fdf07030d8c5a"
+  },
+  "members": 15399,
+  "verified_file_bytes": 46429850,
+  "all_modes_links_byte_identities": true,
+  "no_unmatched_unique_input_or_diagnostic_dropped": true
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "name": "compat-c87f532e-v2",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat_controls.py",
+      "--repo",
+      "/workspace/e02-E-frc-20261006",
+      "--candidate",
+      "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "--base",
+      "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-c87f532e-v2"
+    ],
+    "script_sha256": "45f3fff2c897704c9b650251236867346398ee2dcce8cd290c53b487bfe6af8e",
+    "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+    "numeric_metrics_port_override": "0",
+    "outcome": "PASS",
+    "exit_code": 0,
+    "wall_seconds": 17.53644871711731,
+    "stdout_bytes": 13590,
+    "stdout_sha256": "648379ec11cbb4b0de996eace676189600d1d1ce963ebf2d477d65f8d9e8ef76",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ""
+  },
+  {
+    "name": "public-c87f532e-v2",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public_companions.py",
+      "--repo",
+      "/workspace/e02-E-frc-20261006",
+      "--candidate",
+      "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "--base",
+      "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public-c87f532e-v2"
+    ],
+    "script_sha256": "f19d1a632596100e4d46cf81d0addd126418789d8b102f71a3b64c17dcaafabb",
+    "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+    "numeric_metrics_port_override": null,
+    "outcome": "FAIL",
+    "exit_code": 1,
+    "wall_seconds": 0.8858792781829834,
+    "stdout_bytes": 2346,
+    "stdout_sha256": "1672da28d8f1acb188ca9213b8b4dd5eef2ae3bc6fe86abc4d0da59987fcea9a",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ""
+  }
+]

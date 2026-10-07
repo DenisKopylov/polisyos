@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry.tar.gz",
+    "bytes": 1718810,
+    "sha256": "8f8e3dd380c7661773134600b90c635f03d2c30b72c2f731168d69b3d500ec8a"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-full-inventory.json",
+    "bytes": 3292357,
+    "sha256": "998cbb77fe9616b092493ef54aa955a99c7909541463c15e09ef4455b50ca822"
+  },
+  "members": 8450,
+  "verified_file_bytes": 6957852,
+  "all_modes_links_byte_identities": true,
+  "no_unmatched_unique_input_or_diagnostic_dropped": true
+}

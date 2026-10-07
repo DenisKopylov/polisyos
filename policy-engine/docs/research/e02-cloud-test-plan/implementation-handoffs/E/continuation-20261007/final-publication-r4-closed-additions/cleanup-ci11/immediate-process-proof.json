@@ -1,0 +1,96 @@
+{
+  "observed_unix": 1791371581.4876666,
+  "agent_uid": 1000,
+  "candidate_prefixes": [
+    "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site"
+  ],
+  "live_agent_process_count": 10,
+  "active_users": [],
+  "unreadable_agent_processes": [],
+  "privileged_infrastructure_exclusions": [
+    {
+      "pid": 199,
+      "uid": 0,
+      "argv0": "/usr/local/bin/dockerd",
+      "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+    },
+    {
+      "pid": 250,
+      "uid": 0,
+      "argv0": "containerd",
+      "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+    }
+  ],
+  "observations": [
+    {
+      "pid": 1,
+      "uid": 1000,
+      "argv0": "tail",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 2,
+      "uid": 1000,
+      "argv0": "/usr/local/bin/caas-prefix-transfer-server",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 515,
+      "uid": 1000,
+      "argv0": "/opt/codex/bin/codex",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 536899,
+      "uid": 1000,
+      "argv0": "/bin/bash",
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "target_evidence": []
+    },
+    {
+      "pid": 536902,
+      "uid": 1000,
+      "argv0": "python3",
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "target_evidence": []
+    },
+    {
+      "pid": 536903,
+      "uid": 1000,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "target_evidence": []
+    },
+    {
+      "pid": 536937,
+      "uid": 1000,
+      "argv0": "/workspace/.polisyos-environment/uv/bin/uv",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "target_evidence": []
+    },
+    {
+      "pid": 536940,
+      "uid": 1000,
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "target_evidence": []
+    },
+    {
+      "pid": 541442,
+      "uid": 1000,
+      "argv0": "/bin/bash",
+      "cwd": "/workspace",
+      "target_evidence": []
+    },
+    {
+      "pid": 541443,
+      "uid": 1000,
+      "argv0": "python3",
+      "cwd": "/workspace",
+      "target_evidence": []
+    }
+  ]
+}

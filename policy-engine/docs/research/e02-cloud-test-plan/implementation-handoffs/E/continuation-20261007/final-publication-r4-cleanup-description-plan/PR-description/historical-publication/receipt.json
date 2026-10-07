@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.pr_description_update.v1",
+  "pr": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "started_at": "2026-10-07T12:38:04.711044+00:00",
+  "completed_at": "2026-10-07T12:38:08.942907+00:00",
+  "earlier_attempts": [
+    "CLI edit GraphQL classic ProjectCards deprecation",
+    "REST pre-read HTTP503; no REST mutation attempted"
+  ],
+  "GraphQL_edit_exit": 0,
+  "body_readback_exact": true,
+  "PR_source_readback_exact": true,
+  "future_MC_source_not_in_current_PR": true,
+  "assets": [
+    {
+      "name": "before.json",
+      "bytes": 5679,
+      "sha256": "cdf61ca36304ad68d29a365ed61bd6b58fcf7f95e5266d65351dd795d66aa891"
+    },
+    {
+      "name": "before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "body.md",
+      "bytes": 5728,
+      "sha256": "34a342614eeab72227133b11fb57b1c722313214ea443b31e0eb589ce82590f9"
+    },
+    {
+      "name": "edit.stderr.txt",
+      "bytes": 206,
+      "sha256": "9c4f5d81ed2acfc14cd655978ab0fe9f7fe985bba53d8d843aafdf989f122e2c"
+    },
+    {
+      "name": "edit.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graphql-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graphql-after.stdout.json",
+      "bytes": 5932,
+      "sha256": "e26c941f63fc18c8d6b4b85654ac6c13733ce680122bc5dd81bfb2e6016b3a3c"
+    },
+    {
+      "name": "graphql-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graphql-before.stdout.json",
+      "bytes": 5545,
+      "sha256": "82cd37a15c39d90848f01783cbf06110b58263a01a1d6a1285ac89357b5e7c49"
+    },
+    {
+      "name": "graphql-edit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graphql-edit.stdout.json",
+      "bytes": 5978,
+      "sha256": "5e75461b01c93ce062d0dc8722e668b2dbfd60281be11a741c3ce7a50489ffd5"
+    },
+    {
+      "name": "graphql-request.json",
+      "bytes": 5975,
+      "sha256": "a8fef5f2aa447b4aee194dd60fea310136b6c723c98378994a1ed7077f3a3d91"
+    },
+    {
+      "name": "rest-before.stderr.txt",
+      "bytes": 13,
+      "sha256": "3d3d864664790f14d23d3e0e6692c4c41a8722868cb68029d8bd2c5061a056c7"
+    },
+    {
+      "name": "rest-before.stdout.json",
+      "bytes": 100,
+      "sha256": "4dc259c6b598cc194255ee5bd4566fa85fcce887296d64b64a7e549522cbc108"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+[codex/e02-E-frc-20261006 737ea6b8e] docs(e02): include exact admitted catalog CSV companion
+ 1 file changed, 4 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions/catalog-owner/author/native-attempt1/source-rows.csv

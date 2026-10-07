@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.closed_additions_handoff_environment.v1",
+  "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "root_source_guard": {
+    "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "tracked_status": ""
+  },
+  "leaf_branch": "codex/e02-E-frc-20261006",
+  "leaf_head": "737ea6b8ec43f5dff64bd5ccbb3a357b4fb6c3d5",
+  "leaf_tree": "bc06dc4ef6ec474a68b9cff5b8d61ff2b13f2acc",
+  "selected_environment": {
+    "TMPDIR": null,
+    "UV_CACHE_DIR": null,
+    "UV_PYTHON": null,
+    "PYTHONDONTWRITEBYTECODE": null
+  },
+  "captured_by": "stdlib only; no ROOT interpreter/env/lock mutation; ROOT Git reads with GIT_OPTIONAL_LOCKS=0",
+  "source_numeric_gate_repeated": false
+}

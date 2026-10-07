@@ -1,0 +1,407 @@
+"""Reconcile immutable umbrella observations and separate actual successor receipts."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import runpy
+import sys
+import time
+from collections import Counter
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+ROOT = Path("/workspace/e02-E-pr38-r3-receipts")
+PLAN = (
+    ROOT
+    / "doe-r4/dispatch-preparation-20261007/dispatch-plan-64d7444a18c5-frozen-final.json"
+)
+GUARD = ROOT / "criteria-r4/build-final-all-54-update.py.txt"
+GUARD_ADMISSION = ROOT / "criteria-r4/final-builder-preparation-receipt.json"
+WAVE = ROOT / "frozen-wave-64d7444a-20261007/checks"
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def record(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    return {
+        "path": str(path),
+        "bytes": len(raw),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+    }
+
+
+def read(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_bytes())
+    require(isinstance(value, dict), "object input required")
+    return value
+
+
+def option(argv: list[str], name: str) -> str:
+    argv = argv[: argv.index("--")] if "--" in argv else argv
+    require(argv.count(name) == 1, "unique option required")
+    offset = argv.index(name)
+    require(offset + 1 < len(argv), "option value required")
+    return argv[offset + 1]
+
+
+def active_capturers() -> dict[str, list[dict[str, Any]]]:
+    result: dict[str, list[dict[str, Any]]] = {}
+    for proc in Path("/proc").glob("[0-9]*"):
+        try:
+            raw = (proc / "cmdline").read_bytes()
+            argv = [v.decode() for v in raw.split(b"\0") if v]
+            if len(argv) < 2 or not argv[1].endswith("/wave-controls/run_check.py"):
+                continue
+            if "--name" not in argv:
+                continue
+            name = option(argv, "--name")
+            stat = (proc / "stat").read_text().split(") ", 1)[1].split()
+            if stat[0] == "Z":
+                continue
+            result.setdefault(name, []).append(
+                {
+                    "pid": int(proc.name),
+                    "start_ticks": stat[19],
+                    "argv_sha256": hashlib.sha256(raw).hexdigest(),
+                    "program": Path(argv[0]).name,
+                    "candidate": option(argv, "--candidate"),
+                }
+            )
+        except (OSError, UnicodeDecodeError, ValueError, IndexError):
+            continue
+    return result
+
+
+def umbrella(name: str, check: Callable[[Path], dict[str, Any]]) -> dict[str, Any]:
+    path = WAVE / name / (name + ".json")
+    actual = check(path)
+    stages_path = path.with_name("internal-stages.json")
+    stages = read(stages_path)
+    require(
+        stages["schema"] == "policyos.e02.umbrella_stages.v1",
+        "umbrella schema mismatch",
+    )
+    return {
+        "actual": actual,
+        "internal_stages_ref": record(stages_path),
+        "internal": stages,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only index output")
+    admitted_guard = read(GUARD_ADMISSION)["builder"]
+    require(record(GUARD) == admitted_guard, "receipt guard source admission drift")
+    check = runpy.run_path(str(GUARD))["frozen_receipt"]
+    plan = read(PLAN)
+    require(
+        plan["prepared_against_sha"] == SOURCE
+        and plan["prepared_against_tree"] == TREE,
+        "exact frozen plan identity required",
+    )
+    require(len(plan["rows"]) == 37, "37 planned selectors required")
+    workspace = umbrella("workspace-verify", check)
+    ci = umbrella("ci-parity", check)
+    workspace_steps = workspace["internal"]["scopes"][0]["steps"]
+    ci_steps = ci["internal"]["scopes"][0]["steps"]
+    require(
+        len(workspace_steps) == 15 and len(ci_steps) == 24,
+        "complete umbrella steps required",
+    )
+    active = active_capturers()
+    rows = []
+    for item in plan["rows"]:
+        code = item["code"]
+        canonical_steps = workspace_steps if code.startswith("workspace-") else ci_steps
+        canonical = next(v for v in canonical_steps if v["label"] == item["label"])
+        row: dict[str, Any] = {
+            "selector": code,
+            "label": item["label"],
+            "owner": item["planned_owner"],
+            "canonical_umbrella_observation": canonical,
+            "canonical_umbrella_ref": workspace["internal_stages_ref"]
+            if code.startswith("workspace-")
+            else ci["internal_stages_ref"],
+            "canonical_umbrella_UNRUN_rewritten": False,
+            "steps": [],
+        }
+        for ordinal, capture in enumerate(item["capture_via_existing_run_check"]):
+            argv = capture["argv"]
+            require(option(argv, "--candidate") == SOURCE, "capture source mismatch")
+            name = option(argv, "--name")
+            path = Path(option(argv, "--output")) / (name + ".json")
+            step: dict[str, Any] = {
+                "ordinal": ordinal,
+                "expected_receipt_path": str(path),
+            }
+            if path.is_file():
+                step.update(check(path))
+                step.update({"execution_running": False, "receipt_not_final": False})
+            elif name in active:
+                require(
+                    all(v["candidate"] == SOURCE for v in active[name]),
+                    "active source mismatch",
+                )
+                step.update(
+                    {
+                        "outcome": None,
+                        "execution_running": True,
+                        "receipt_not_final": True,
+                        "actual_capturers": active[name],
+                        "reason": "Actual invocation running; final outcome is not yet observed",
+                    }
+                )
+            elif path.with_suffix(".stdout.txt").is_file():
+                step.update(
+                    {
+                        "outcome": None,
+                        "execution_running": False,
+                        "receipt_not_final": True,
+                        "observed_attempt_stdout": record(
+                            path.with_suffix(".stdout.txt")
+                        ),
+                        "reason": (
+                            "Attempt output exists without a final receipt or live capturer; "
+                            "outcome and termination cause are not established"
+                        ),
+                    }
+                )
+            else:
+                step.update(
+                    {
+                        "outcome": "UNRUN",
+                        "execution_running": False,
+                        "receipt_not_final": False,
+                        "reason": "No separate deciding receipt, attempt output or active capturer observed",
+                    }
+                )
+            row["steps"].append(step)
+        if code == "workspace-08":
+            actual = check(WAVE / "runtime-api-contract/runtime-api-contract.json")
+            catalog = read(WAVE / "runtime-api-contract/retained-runtime-catalog.json")
+            checker = Path(catalog["checker"])
+            require(
+                record(checker)["sha256"] == catalog["checker_source_sha256"],
+                "checker drift",
+            )
+            require(
+                catalog["original_cli_arguments"] == [],
+                "runtime checker selector changed",
+            )
+            row["reused_canonical_checker_observation"] = {
+                "actual": actual,
+                "catalog_ref": record(
+                    WAVE / "runtime-api-contract/retained-runtime-catalog.json"
+                ),
+                "checker_source": record(checker),
+                "same_canonical_main": True,
+                "scope": (
+                    "Actual canonical checker main with empty CLI args; retention wrap"
+                    "per preserves returned canonical bytes and comparisons"
+                ),
+                "invocation_limits": (
+                    "Common invocation has external cwd and retained temporary outputs"
+                    "; no separate standalone workspace08 invocation is claimed"
+                ),
+            }
+            row["steps"][0]["reason"] = (
+                "Standalone invocation not repeated; actual canonical checker obse"
+                "rvation reused separately"
+            )
+        if code == "ci-01":
+            row["reused_backend_member_context"] = {
+                "common_verify": workspace["actual"],
+                "actual_steps": workspace_steps,
+                "scope": (
+                    "Common --backend-only verify executed doctor then lint-imports; d"
+                    "irect --skip-doctor CI01 invocation was not separately attempted"
+                ),
+                "separate_CI01_check_outcome": "UNRUN",
+            }
+            row["steps"][0]["reason"] = (
+                "Avoid a third umbrella repetition; preserve common actual backend"
+                " member observations and separately executed constituents as cont"
+                "ext, not a fabricated CI01 invocation"
+            )
+        if code == "ci-08" and row["steps"][0]["outcome"] == "UNRUN":
+            row["steps"][0]["reason"] = (
+                "Extension checker editable installs mutate root environment; defe"
+                "rred until active root readers/capturers close and root admits ex"
+                "clusive writer lease"
+            )
+            row["steps"][0]["dependency_recipe_ref"] = record(
+                ROOT
+                / "backend-prereq-r4/minimum-declared-dependency-admission-and-retry.json"
+            )
+        if code == "ci-08":
+            alt_root = ROOT / "doe-r4/ci08-extension-doe-env-64d-20261007"
+            alt_plan_path = alt_root / "execution-plan.json"
+            if alt_plan_path.is_file():
+                alt_plan = read(alt_plan_path)
+                require(
+                    alt_plan["candidate_sha"] == SOURCE
+                    and alt_plan["candidate_tree_sha"] == TREE,
+                    "alternate CI08 source mismatch",
+                )
+                alt_name = "native-ci08-existing-doe-environment"
+                alt_receipt = alt_root / "checks" / alt_name / (alt_name + ".json")
+                alternate = {
+                    "admitted_plan": record(alt_plan_path),
+                    "original_root_environment_invocation_replaced": False,
+                    "scope": (
+                        "Same canonical root source checker/all7examples; existing DoE env"
+                        "ironment is explicit"
+                    ),
+                    "environment_difference": alt_plan["operational_differences"],
+                }
+                if alt_receipt.is_file():
+                    alternate.update(check(alt_receipt))
+                    alternate.update(
+                        {"execution_running": False, "receipt_not_final": False}
+                    )
+                elif alt_name in active:
+                    alternate.update(
+                        {
+                            "outcome": None,
+                            "execution_running": True,
+                            "receipt_not_final": True,
+                            "actual_capturers": active[alt_name],
+                        }
+                    )
+                else:
+                    alternate.update(
+                        {
+                            "outcome": None,
+                            "execution_running": None,
+                            "receipt_not_final": True,
+                            "reason": (
+                                "Admitted alternate invocation started; final receipt absent, live"
+                                " capturer not observed in this snapshot"
+                            ),
+                        }
+                    )
+                row["equivalent_environment_selector_observation"] = alternate
+        if code == "ci-18":
+            require(len(row["steps"]) == 2, "two coverage script constituents required")
+            if (
+                row["steps"][0]["outcome"] == "FAIL"
+                and row["steps"][1]["outcome"] == "UNRUN"
+            ):
+                row["steps"][1]["reason"] = (
+                    "Declared && coverage-ratchet successor not attempted after actual"
+                    " coverage test failure; no inferred ratchet PASS"
+                )
+        if code == "ci-23":
+            row["declared_inner_page_successor"] = {
+                "outcome": "UNRUN",
+                "execution_running": False,
+                "reason": (
+                    "Original npm accessibility script failed in component Vitest stag"
+                    "e before && test:a11y:pages"
+                ),
+                "exact_scope_packet": record(
+                    ROOT / "backend-prereq-r4/a11y-shared-state-and-retry-packet.json"
+                ),
+            }
+        if code == "workspace-14":
+            row["available_prerequisite_retry"] = {
+                "outcome": "UNRUN",
+                "scope": (
+                    "Original full backend selector after minimum repo-declared missin"
+                    "g dependencies are admitted"
+                ),
+                "recipe": record(
+                    ROOT
+                    / "backend-prereq-r4/minimum-declared-dependency-admission-and-retry.json"
+                ),
+                "original_FAIL_replaced": False,
+            }
+        outcomes = [v["outcome"] for v in row["steps"]]
+        row["standalone_invocation_check_outcome"] = (
+            "FAIL"
+            if "FAIL" in outcomes
+            else "ERROR"
+            if "ERROR" in outcomes
+            else None
+            if None in outcomes
+            else "UNRUN"
+            if "UNRUN" in outcomes
+            else "SKIP"
+            if "SKIP" in outcomes
+            else "PASS"
+        )
+        row["observed_selector_check_outcome"] = (
+            row["reused_canonical_checker_observation"]["actual"]["outcome"]
+            if code == "workspace-08"
+            else row["standalone_invocation_check_outcome"]
+        )
+        row["execution_running"] = any(v["execution_running"] for v in row["steps"])
+        row["receipt_not_final"] = any(v["receipt_not_final"] for v in row["steps"])
+        if "equivalent_environment_selector_observation" in row:
+            alternate = row["equivalent_environment_selector_observation"]
+            row["observed_selector_check_outcome"] = alternate["outcome"]
+            row["execution_running"] = alternate["execution_running"]
+            row["receipt_not_final"] = alternate["receipt_not_final"]
+        row["finding_outcome_inferred"] = False
+        rows.append(row)
+    require(
+        len({row["selector"] for row in rows}) == 37, "37 unique selectors required"
+    )
+    value = {
+        "schema": "policyos.e02.E.current_37_selector_dispositions.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "snapshot_unix": time.time(),
+        "complete_selector_denominator": 37,
+        "rows": rows,
+        "observed_selector_outcome_counts": dict(
+            Counter(
+                row["observed_selector_check_outcome"] or "receipt_not_final"
+                for row in rows
+            )
+        ),
+        "standalone_invocation_outcome_counts": dict(
+            Counter(
+                row["standalone_invocation_check_outcome"] or "receipt_not_final"
+                for row in rows
+            )
+        ),
+        "all_invocations_closed": not any(row["receipt_not_final"] for row in rows),
+        "canonical_umbrella_refs": {
+            "workspace": workspace["actual"],
+            "CI": ci["actual"],
+        },
+        "input_plan": record(PLAN),
+        "builder_source": record(Path(__file__)),
+        "receipt_guard": record(GUARD),
+        "check_vs_finding_rule": (
+            "Check states are independent of original finding dispositions. Ca"
+            "nonical fail-fast UNRUN stays UNRUN; running invocation has null "
+            "outcome and explicit running/final-receipt flags."
+        ),
+        "P41": (
+            "not_established unless exact slice-base command/full input replay proves attribution"
+        ),
+        "source_or_environment_mutated": False,
+    }
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(value, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(args.output), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

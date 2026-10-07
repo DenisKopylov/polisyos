@@ -1,0 +1,1 @@
+{"sys_prefix": "/workspace/e02-E-continuation-20261006/policy-engine/.venv", "resolved_package": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/__init__.py", "required_backend_status": "available", "hatchling": ["hatchling.builders.sdist", "hatchling.builders.wheel"], "ortools_native_optimal_value": 1}

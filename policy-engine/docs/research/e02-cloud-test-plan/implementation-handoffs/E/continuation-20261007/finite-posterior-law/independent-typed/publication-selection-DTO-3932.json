@@ -1,0 +1,31 @@
+{
+  "schema": "policyos.e02.independent_DTO_delta_publication_selection.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "files": [
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-DTO-delta-3932.json",
+      "bytes": 3875,
+      "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/review_dto_delta_3932.py.txt",
+      "bytes": 6274,
+      "sha256": "3dbb75d2586d6786e3dc90c41167c9491a7119affe17b3e6718dd6206b001944"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/dto3932.stdout.json",
+      "bytes": 253,
+      "sha256": "e1e2153ab02ec9baa76c43d5cb85804e463443548918ee6221b3afd31bfa0f25"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/dto3932.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "file_count": 4,
+  "total_bytes": 10402,
+  "unchanged_finite_law_review": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+  "no_raw_CAS_dirs": true
+}

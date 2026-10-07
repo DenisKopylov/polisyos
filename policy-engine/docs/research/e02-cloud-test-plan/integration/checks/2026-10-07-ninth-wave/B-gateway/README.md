@@ -1,0 +1,9 @@
+# G isolated B gateway check
+
+Exact source `e7c5182bf9d37f62a87e1effd003ee9732c20c32`, tree `bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f`. An independent G tester ran the existing real-loopback HTTP selector: **30 PASS** in 1.540s. Removing only the Decimal decode hook in a separate source copy produced **20 FAIL / 10 PASS** in 1.361s. Ruff checked the two affected Python paths successfully after extracting the exact candidate generated config.
+
+[Receipt](receipt.json) binds commands, runtime, selected actual module origins, complete outputs and the single negative mutation. The observer that was executed is retained byte-for-byte as `g_origin_plugin.executed.py.txt`, an evidence text snapshot rather than a maintained module. It observes loaded files without replacing the property. Its separate Ruff result has four style diagnostics (two dynamic annotations and two long lines), retained in `executed-observer-ruff.txt`; the affected product/test Ruff PASS does not cover this snapshot. Source manifests and unrelated resource dumps stay ignored; Git already supplies tracked source. One pytest cache-provider warning occurred per run; no case was skipped. No installation or production-data access was needed.
+
+This supports the narrow decoder property and its cost/status consumer. It does not close B120, accept the broader B source ancestry, or override the known branch/write-scope HOLD.
+
+The two stdout and two JUnit artifacts are lossless UTF-8 JSON containers. Read `json.loads(path.read_text())["utf8"]` to recover the complete original output; the decoded byte lengths and SHA-256 values are recorded in each container and receipt. Native pytest trailing whitespace is preserved inside the string rather than altered or exempted from repository whitespace checks. Original raw files remain in ignored local test storage.

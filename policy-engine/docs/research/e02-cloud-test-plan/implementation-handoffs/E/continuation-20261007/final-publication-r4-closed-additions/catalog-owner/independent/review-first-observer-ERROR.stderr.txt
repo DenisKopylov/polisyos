@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-native-catalog-packet-independent-64d/review_native_catalog_packet.py", line 75, in <module>
+    require(ast.dump(RemoveFakeFunction().visit(old_driver))==ast.dump(RemoveFakeFunction().visit(new_driver)),'Healthy/removal driver changed with corrected fake control')
+  File "/tmp/e02-E-native-catalog-packet-independent-64d/review_native_catalog_packet.py", line 27, in require
+    if not value:raise ValueError(message)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Healthy/removal driver changed with corrected fake control

@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion.tar.gz",
+    "bytes": 385217,
+    "sha256": "0df62a91226b20a38e51743ee0eebf9a9e022a517c85bb7a68e7f2dbb6006172"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-full-inventory.json",
+    "bytes": 62779,
+    "sha256": "1a3e5d7a778e35d2f223309de5c2d65eeea09a97f1659e7173805c6d791c1a42"
+  },
+  "members": 176,
+  "verified_file_bytes": 9282888,
+  "all_modes_links_byte_identities": true,
+  "no_unmatched_unique_input_or_diagnostic_dropped": true
+}

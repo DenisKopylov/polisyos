@@ -1,0 +1,247 @@
+{
+  "schema": "policyos.e02.independent_exact_finite_oracle.v1",
+  "basis": "Fraction of the actual finite input real values, normalized by exact sum. Bucket is first exact cumulative strictly greater than exact finite U. Quantile is first positive-mass value with exact cumulative >= exact finite q. No candidate sampler/summary loops imported.",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "one_third_neighbors": [
+    {
+      "weights": [
+        1,
+        2
+      ],
+      "u": 0.0,
+      "u_hex": "0x0.0p+0",
+      "exact_u": "0",
+      "exact_CDF_first": "1/3",
+      "bucket": 0,
+      "quantile_sample_at_same_q": null
+    },
+    {
+      "weights": [
+        1,
+        2
+      ],
+      "u": 0.3333333333333333,
+      "u_hex": "0x1.5555555555555p-2",
+      "exact_u": "6004799503160661/18014398509481984",
+      "exact_CDF_first": "1/3",
+      "bucket": 0,
+      "quantile_sample_at_same_q": 0.0
+    },
+    {
+      "weights": [
+        1,
+        2
+      ],
+      "u": 0.33333333333333337,
+      "u_hex": "0x1.5555555555556p-2",
+      "exact_u": "3002399751580331/9007199254740992",
+      "exact_CDF_first": "1/3",
+      "bucket": 1,
+      "quantile_sample_at_same_q": 1.0
+    },
+    {
+      "weights": [
+        1,
+        2
+      ],
+      "u": 0.9999999999999999,
+      "u_hex": "0x1.fffffffffffffp-1",
+      "exact_u": "9007199254740991/9007199254740992",
+      "exact_CDF_first": "1/3",
+      "bucket": 1,
+      "quantile_sample_at_same_q": 1.0
+    }
+  ],
+  "category_boundaries": [
+    {
+      "weights": [
+        1,
+        0,
+        3
+      ],
+      "exact_probabilities": [
+        "1/4",
+        "0",
+        "3/4"
+      ],
+      "exact_CDF": [
+        "1/4",
+        "1/4",
+        "1"
+      ],
+      "uniform_probes": [
+        {
+          "u": 0.0,
+          "u_hex": "0x0.0p+0",
+          "bucket": 0
+        },
+        {
+          "u": 0.24999999999999997,
+          "u_hex": "0x1.fffffffffffffp-3",
+          "bucket": 0
+        },
+        {
+          "u": 0.25,
+          "u_hex": "0x1.0000000000000p-2",
+          "bucket": 2
+        },
+        {
+          "u": 0.25000000000000006,
+          "u_hex": "0x1.0000000000001p-2",
+          "bucket": 2
+        },
+        {
+          "u": 0.9999999999999999,
+          "u_hex": "0x1.fffffffffffffp-1",
+          "bucket": 2
+        }
+      ]
+    },
+    {
+      "weights": [
+        1e-20,
+        0.5,
+        0.5
+      ],
+      "exact_probabilities": [
+        "6646139978924579/664613997892457936458549670119096867",
+        "332306998946228968225951765070086144/664613997892457936458549670119096867",
+        "332306998946228968225951765070086144/664613997892457936458549670119096867"
+      ],
+      "exact_CDF": [
+        "6646139978924579/664613997892457936458549670119096867",
+        "332306998946228968232597905049010723/664613997892457936458549670119096867",
+        "1"
+      ],
+      "uniform_probes": [
+        {
+          "u": 0.0,
+          "u_hex": "0x0.0p+0",
+          "bucket": 0
+        },
+        {
+          "u": 9.999999999999998e-21,
+          "u_hex": "0x1.79ca10c924222p-67",
+          "bucket": 0
+        },
+        {
+          "u": 1e-20,
+          "u_hex": "0x1.79ca10c924223p-67",
+          "bucket": 1
+        },
+        {
+          "u": 1.0000000000000001e-20,
+          "u_hex": "0x1.79ca10c924224p-67",
+          "bucket": 1
+        },
+        {
+          "u": 0.49999999999999994,
+          "u_hex": "0x1.fffffffffffffp-2",
+          "bucket": 1
+        },
+        {
+          "u": 0.5,
+          "u_hex": "0x1.0000000000000p-1",
+          "bucket": 1
+        },
+        {
+          "u": 0.5000000000000001,
+          "u_hex": "0x1.0000000000001p-1",
+          "bucket": 2
+        },
+        {
+          "u": 0.9999999999999999,
+          "u_hex": "0x1.fffffffffffffp-1",
+          "bucket": 2
+        }
+      ]
+    },
+    {
+      "weights": [
+        0.5,
+        1e-20,
+        0.5
+      ],
+      "exact_probabilities": [
+        "332306998946228968225951765070086144/664613997892457936458549670119096867",
+        "6646139978924579/664613997892457936458549670119096867",
+        "332306998946228968225951765070086144/664613997892457936458549670119096867"
+      ],
+      "exact_CDF": [
+        "332306998946228968225951765070086144/664613997892457936458549670119096867",
+        "332306998946228968232597905049010723/664613997892457936458549670119096867",
+        "1"
+      ],
+      "uniform_probes": [
+        {
+          "u": 0.0,
+          "u_hex": "0x0.0p+0",
+          "bucket": 0
+        },
+        {
+          "u": 0.49999999999999994,
+          "u_hex": "0x1.fffffffffffffp-2",
+          "bucket": 0
+        },
+        {
+          "u": 0.5,
+          "u_hex": "0x1.0000000000000p-1",
+          "bucket": 1
+        },
+        {
+          "u": 0.5000000000000001,
+          "u_hex": "0x1.0000000000001p-1",
+          "bucket": 2
+        },
+        {
+          "u": 0.9999999999999999,
+          "u_hex": "0x1.fffffffffffffp-1",
+          "bucket": 2
+        }
+      ]
+    },
+    {
+      "weights": [
+        1,
+        1e-20
+      ],
+      "exact_probabilities": [
+        "664613997892457936451903530140172288/664613997892457936458549670119096867",
+        "6646139978924579/664613997892457936458549670119096867"
+      ],
+      "exact_CDF": [
+        "664613997892457936451903530140172288/664613997892457936458549670119096867",
+        "1"
+      ],
+      "uniform_probes": [
+        {
+          "u": 0.0,
+          "u_hex": "0x0.0p+0",
+          "bucket": 0
+        },
+        {
+          "u": 0.9999999999999999,
+          "u_hex": "0x1.fffffffffffffp-1",
+          "bucket": 0
+        }
+      ]
+    }
+  ],
+  "dyadic_joint_y": {
+    "mean": "21/4",
+    "variance": "243/16",
+    "callback_grid_rows": [
+      64,
+      64,
+      128
+    ]
+  },
+  "hundred_equal_weights_99zero_last1e15_mean": "10000000000000",
+  "almost_equal_vectors_equal_as_exact_laws": false,
+  "last_tiny_finite_U_domain": "Exact law is valid but no finite float64 U in [0,1) reaches the last1e-20 category. A finite-grid sampler must type-refuse rather than claim every positive category survives.",
+  "role": "Gold expectations only, not candidate PASS or source authority."
+}

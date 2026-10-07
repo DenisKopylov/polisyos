@@ -1,0 +1,146 @@
+info Using tsconfig paths for react-docgen
+
+ RUN  v4.1.5 /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard
+
+info Using tsconfig paths for react-docgen
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+1  |  @import "tailwindcss";
+2  |  @source "../../../packages/atlas-ui/src";
+3  |  @import "./styles/theme-light.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4  |  @import "./styles/theme-dark.css";
+5  |  @import "./styles/theme-high-contrast.css";
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+2  |  @source "../../../packages/atlas-ui/src";
+3  |  @import "./styles/theme-light.css";
+4  |  @import "./styles/theme-dark.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5  |  @import "./styles/theme-high-contrast.css";
+6  |  @import "./styles/motion.css";
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+3  |  @import "./styles/theme-light.css";
+4  |  @import "./styles/theme-dark.css";
+5  |  @import "./styles/theme-high-contrast.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+6  |  @import "./styles/motion.css";
+7  |  @import "./styles/density-comfortable.css";
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+4  |  @import "./styles/theme-dark.css";
+5  |  @import "./styles/theme-high-contrast.css";
+6  |  @import "./styles/motion.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7  |  @import "./styles/density-comfortable.css";
+8  |  @import "./styles/density-compact.css";
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+5  |  @import "./styles/theme-high-contrast.css";
+6  |  @import "./styles/motion.css";
+7  |  @import "./styles/density-comfortable.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8  |  @import "./styles/density-compact.css";
+9  |  @import "./styles/density-condensed.css";
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+6  |  @import "./styles/motion.css";
+7  |  @import "./styles/density-comfortable.css";
+8  |  @import "./styles/density-compact.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+9  |  @import "./styles/density-condensed.css";
+10 |  @import "./styles/media.css";
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+7  |  @import "./styles/density-comfortable.css";
+8  |  @import "./styles/density-compact.css";
+9  |  @import "./styles/density-condensed.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+10 |  @import "./styles/media.css";
+11 |  @import "./styles/print.css";
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+8  |  @import "./styles/density-compact.css";
+9  |  @import "./styles/density-condensed.css";
+10 |  @import "./styles/media.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |  @import "./styles/print.css";
+12 |  @import "./shared/ui/trust-view/trust-view.css";
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+9  |  @import "./styles/density-condensed.css";
+10 |  @import "./styles/media.css";
+11 |  @import "./styles/print.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 |  @import "./shared/ui/trust-view/trust-view.css";
+13 |  
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+10 |  @import "./styles/media.css";
+11 |  @import "./styles/print.css";
+12 |  @import "./shared/ui/trust-view/trust-view.css";
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 |  
+14 |  @theme inline {
+ ✓ |storybook (chromium)| src/shared/ui/patterns/Patterns.stories.tsx > Workspace Scaffold 715ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/AtlasV4Reference.stories.tsx > Color 984ms
+ ✓ |storybook (chromium)| src/shared/ui/patterns/Patterns.stories.tsx > Selection Vocabulary 226ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/AtlasV4Reference.stories.tsx > Color Dark 269ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/AtlasV4Reference.stories.tsx > Type 289ms
+ ✓ |storybook (chromium)| src/test/a11y/OpaqueBackgroundContrast.stories.tsx > Seven Declared Sources 1493ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/AtlasV4Reference.stories.tsx > Shadows 214ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/AtlasV4Reference.stories.tsx > Glyphs 268ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/AtlasV4Reference.stories.tsx > Buttons 199ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/AtlasV4Reference.stories.tsx > Badges 210ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/AtlasV4Reference.stories.tsx > Cards 298ms
+ ✓ |storybook (chromium)| src/shared/ui/evidence/EvidencePrimitives.stories.tsx > Candidate Clothing 392ms
+ ✓ |storybook (chromium)| src/shared/ui/evidence/EvidencePrimitives.stories.tsx > Fixture Only 191ms
+ ✓ |storybook (chromium)| src/shared/ui/evidence/EvidencePrimitives.stories.tsx > All Primitives 348ms
+ ✓ |storybook (chromium)| src/shared/ui/authored-text/AuthoredText.stories.tsx > Citation Register 329ms
+ ✓ |storybook (chromium)| src/shared/ui/compounds/Compounds.stories.tsx > Operational Overview 553ms
+ ✓ |storybook (chromium)| src/shared/ui/authored-text/AuthoredText.stories.tsx > Human Register 141ms
+ ✓ |storybook (chromium)| src/shared/ui/authored-text/AuthoredText.stories.tsx > Drafter Register 151ms
+ ✓ |storybook (chromium)| src/shared/ui/authored-text/AuthoredText.stories.tsx > Formalizer Register 133ms
+ ✓ |storybook (chromium)| src/shared/ui/authored-text/AuthoredText.stories.tsx > Critic Register 106ms
+ ✓ |storybook (chromium)| src/shared/ui/authored-text/AuthoredText.stories.tsx > Prominent Audit Rail 183ms
+ ✓ |storybook (chromium)| src/shared/ui/Checkbox.stories.tsx > Default 211ms
+ ✓ |storybook (chromium)| src/shared/ui/Checkbox.stories.tsx > Filter Cluster 91ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/DesignTokens.stories.tsx > Foundations 738ms
+ ✓ |storybook (chromium)| src/features/artifacts/reading-view/MonographLayout.stories.tsx > Default 1490ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/DesignTokens.stories.tsx > Semantic 309ms
+ ✓ |storybook (chromium)| src/shared/ui/tokens/DesignTokens.stories.tsx > Semantic Dark 308ms
+ ✓ |storybook (chromium)| src/shared/charts/UncertaintyCharts.stories.tsx > Atlas Preview 399ms
+ ✓ |storybook (chromium)| src/shared/charts/UncertaintyCharts.stories.tsx > Dark Theme 314ms
+ ✓ |storybook (chromium)| src/shared/ui/Radio.stories.tsx > Default 196ms
+ ✓ |storybook (chromium)| src/shared/ui/Radio.stories.tsx > Choice Cards 186ms
+ ✓ |storybook (chromium)| src/shared/ui/SegmentedControl.stories.tsx > Workspace Modes 305ms
+ ✓ |storybook (chromium)| src/shared/ui/SegmentedControl.stories.tsx > Rail Compact 148ms
+ ✓ |storybook (chromium)| src/features/platform/routes/PlatformHealthPage.stories.tsx > Healthy 499ms
+ ✓ |storybook (chromium)| src/shared/ui/temporal/TemporalScrubber.stories.tsx > Default 370ms
+ ✓ |storybook (chromium)| src/shared/ui/ToggleButton.stories.tsx > Default 320ms
+ ✓ |storybook (chromium)| src/shared/ui/ToggleButton.stories.tsx > Rail Compact 126ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |storybook (chromium)| src/shared/ui/quantity/Quantity.stories.tsx [ src/shared/ui/quantity/Quantity.stories.tsx ]
+Error: Failed to import test file /workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@storybook+addon-vitest@9.1.20_@vitest+browser-playwright@4.1.5_@vitest+browser@4.1.5_@_6e95651060b6cf6ca1a2459c077a90c4/node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.mjs
+Caused by: TypeError: Failed to fetch dynamically imported module: http://localhost:63315/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@storybook+addon-vitest@9.1.20_@vitest+browser-playwright@4.1.5_@vitest+browser@4.1.5_@_6e95651060b6cf6ca1a2459c077a90c4/node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.mjs?import&browserv=1791369989637
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Failed to run the test /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.stories.tsx.
+ ❯ ../../node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js:2626:17
+ ❯ processTicksAndRejections node:internal/process/task_queues:103:5
+
+Caused by: Error: Cannot connect to the iframe. Did you change the location or submitted a form? If so, don't forget to call `event.preventDefault()` to avoid reloading the page.
+
+Received URL: unknown due to CORS
+Expected: http://localhost:63315/?sessionId=8e62ace4-2c3d-45a3-ac3b-858a58231cf2&iframeId=/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.stories.tsx
+ ❯ iframe.onload ../../../../../__vitest_browser__/orchestrator-DM4mHHP0.js:169:43
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed | 15 passed (45)
+      Tests  37 passed (37)
+     Errors  1 error
+   Start at  10:46:11
+   Duration  18.40s (transform 0ms, setup 18.53s, import 5.10s, tests 13.91s, environment 0ms)
+
+JUNIT report written to /workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml

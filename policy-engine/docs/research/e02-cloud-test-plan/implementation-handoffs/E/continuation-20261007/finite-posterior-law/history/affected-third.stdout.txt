@@ -1,0 +1,259 @@
+...................FFF.................................................. [ 52%]
+...........................FF............F.......................        [100%]
+=================================== FAILURES ===================================
+___ test_unreachable_last_atom_refuses_before_all_backend_callbacks[random] ____
+
+backend = 'random'
+
+    @pytest.mark.parametrize("backend", ["random", "sobol", "halton"])
+    def test_unreachable_last_atom_refuses_before_all_backend_callbacks(backend):
+        # Unprofiled v1.1 carrier still traverses the same law admission mechanism.
+        from polisyos.ir.analytics import DistributionFamily, PosteriorSamplesCarrier, UncertaintySource
+    
+        env = UncertaintyEnvelope(
+            point_estimate=0,
+            confidence_interval=(0, 1),
+            distribution_family=DistributionFamily.BAYESIAN,
+            source=UncertaintySource.CALIBRATION,
+            distribution_payload=PosteriorSamplesCarrier(samples=(0, 1), weights=(1.0, 1e-20)),
+        )
+        calls = []
+    
+        def callback(**row):
+            calls.append(row)
+            return {"y": row["x"]}
+    
+        result = MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=256, mc_sampling_method=backend)
+        ).propagate(callback, {"x": 0}, {"x": env}, ["y"])
+>       assert calls == []
+E       AssertionError: assert [{'x': 0}, {'...64(0.0)}, ...] == []
+E         
+E         Left contains 257 more items, first extra item: {'x': 0}
+E         Use -v to get more diff
+
+tests/unit/ir/test_posterior_ratio_law.py:217: AssertionError
+____ test_unreachable_last_atom_refuses_before_all_backend_callbacks[sobol] ____
+
+backend = 'sobol'
+
+    @pytest.mark.parametrize("backend", ["random", "sobol", "halton"])
+    def test_unreachable_last_atom_refuses_before_all_backend_callbacks(backend):
+        # Unprofiled v1.1 carrier still traverses the same law admission mechanism.
+        from polisyos.ir.analytics import DistributionFamily, PosteriorSamplesCarrier, UncertaintySource
+    
+        env = UncertaintyEnvelope(
+            point_estimate=0,
+            confidence_interval=(0, 1),
+            distribution_family=DistributionFamily.BAYESIAN,
+            source=UncertaintySource.CALIBRATION,
+            distribution_payload=PosteriorSamplesCarrier(samples=(0, 1), weights=(1.0, 1e-20)),
+        )
+        calls = []
+    
+        def callback(**row):
+            calls.append(row)
+            return {"y": row["x"]}
+    
+        result = MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=256, mc_sampling_method=backend)
+        ).propagate(callback, {"x": 0}, {"x": env}, ["y"])
+>       assert calls == []
+E       AssertionError: assert [{'x': 0}, {'...x': 0.0}, ...] == []
+E         
+E         Left contains 257 more items, first extra item: {'x': 0}
+E         Use -v to get more diff
+
+tests/unit/ir/test_posterior_ratio_law.py:217: AssertionError
+___ test_unreachable_last_atom_refuses_before_all_backend_callbacks[halton] ____
+
+backend = 'halton'
+
+    @pytest.mark.parametrize("backend", ["random", "sobol", "halton"])
+    def test_unreachable_last_atom_refuses_before_all_backend_callbacks(backend):
+        # Unprofiled v1.1 carrier still traverses the same law admission mechanism.
+        from polisyos.ir.analytics import DistributionFamily, PosteriorSamplesCarrier, UncertaintySource
+    
+        env = UncertaintyEnvelope(
+            point_estimate=0,
+            confidence_interval=(0, 1),
+            distribution_family=DistributionFamily.BAYESIAN,
+            source=UncertaintySource.CALIBRATION,
+            distribution_payload=PosteriorSamplesCarrier(samples=(0, 1), weights=(1.0, 1e-20)),
+        )
+        calls = []
+    
+        def callback(**row):
+            calls.append(row)
+            return {"y": row["x"]}
+    
+        result = MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=256, mc_sampling_method=backend)
+        ).propagate(callback, {"x": 0}, {"x": env}, ["y"])
+>       assert calls == []
+E       AssertionError: assert [{'x': 0}, {'...x': 0.0}, ...] == []
+E         
+E         Left contains 257 more items, first extra item: {'x': 0}
+E         Use -v to get more diff
+
+tests/unit/ir/test_posterior_ratio_law.py:217: AssertionError
+_____ test_real_posterior_producer_fresh_node_preserves_joint_rows[1-0.0] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-247/test_real_posterior_producer_f0')
+sign = 1, expected_variance = 0.0
+
+    @pytest.mark.parametrize("sign,expected_variance", [(1, 0.0), (-1, 4.0)])
+    def test_real_posterior_producer_fresh_node_preserves_joint_rows(tmp_path, sign, expected_variance):
+        from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+    
+>       ctx, state, refs = _posterior_node_fixture(tmp_path, {"a": [-1, 1], "b": [-sign, sign]})
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_propagate_uncertainty_node.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/nodes/test_propagate_uncertainty_node.py:158: in _posterior_node_fixture
+    summary = uncertainty_adapter.summarize_bayesian_calibration_posterior(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+posterior_draws = {'a': [-1, 1], 'b': [-1, 1]}
+
+    def summarize_bayesian_calibration_posterior(
+        posterior_draws: Mapping[str, Sequence[float] | np.ndarray],
+        *,
+        credible_mass: float = 0.9,
+        emulator_diagnostics: Mapping[str, Any] | None = None,
+        posterior_diagnostics: Mapping[str, Any] | None = None,
+        weights: Sequence[float] | np.ndarray | None = None,
+        draw_ids: Sequence[str] | None = None,
+        sample_axis: str = "draw",
+        context: PosteriorSummaryContext | None = None,
+    ) -> BayesianCalibrationPosteriorSummary:
+        """Summarize posterior draws from Bayesian calibration or emulator-assisted inference."""
+    
+        if not (0.0 < credible_mass < 1.0):
+            raise ValueError("credible_mass must be in (0, 1)")
+        if not posterior_draws or not isinstance(sample_axis, str) or not sample_axis.strip():
+            raise ValueError("posterior draws and sample axis must be non-empty")
+        names = sorted(posterior_draws)
+        if any(not isinstance(name, str) or not name.strip() for name in names):
+            raise ValueError("posterior parameter names must be non-empty strings")
+        if len(names) > 1 and draw_ids is None:
+>           raise ValueError("posterior joint law requires explicit producer-supplied aligned draw IDs")
+E           ValueError: posterior joint law requires explicit producer-supplied aligned draw IDs
+
+src/polisyos/foundry/calibration/uncertainty_adapter.py:244: ValueError
+_____ test_real_posterior_producer_fresh_node_preserves_joint_rows[-1-4.0] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-247/test_real_posterior_producer_f1')
+sign = -1, expected_variance = 4.0
+
+    @pytest.mark.parametrize("sign,expected_variance", [(1, 0.0), (-1, 4.0)])
+    def test_real_posterior_producer_fresh_node_preserves_joint_rows(tmp_path, sign, expected_variance):
+        from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+    
+>       ctx, state, refs = _posterior_node_fixture(tmp_path, {"a": [-1, 1], "b": [-sign, sign]})
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_propagate_uncertainty_node.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/nodes/test_propagate_uncertainty_node.py:158: in _posterior_node_fixture
+    summary = uncertainty_adapter.summarize_bayesian_calibration_posterior(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+posterior_draws = {'a': [-1, 1], 'b': [1, -1]}
+
+    def summarize_bayesian_calibration_posterior(
+        posterior_draws: Mapping[str, Sequence[float] | np.ndarray],
+        *,
+        credible_mass: float = 0.9,
+        emulator_diagnostics: Mapping[str, Any] | None = None,
+        posterior_diagnostics: Mapping[str, Any] | None = None,
+        weights: Sequence[float] | np.ndarray | None = None,
+        draw_ids: Sequence[str] | None = None,
+        sample_axis: str = "draw",
+        context: PosteriorSummaryContext | None = None,
+    ) -> BayesianCalibrationPosteriorSummary:
+        """Summarize posterior draws from Bayesian calibration or emulator-assisted inference."""
+    
+        if not (0.0 < credible_mass < 1.0):
+            raise ValueError("credible_mass must be in (0, 1)")
+        if not posterior_draws or not isinstance(sample_axis, str) or not sample_axis.strip():
+            raise ValueError("posterior draws and sample axis must be non-empty")
+        names = sorted(posterior_draws)
+        if any(not isinstance(name, str) or not name.strip() for name in names):
+            raise ValueError("posterior parameter names must be non-empty strings")
+        if len(names) > 1 and draw_ids is None:
+>           raise ValueError("posterior joint law requires explicit producer-supplied aligned draw IDs")
+E           ValueError: posterior joint law requires explicit producer-supplied aligned draw IDs
+
+src/polisyos/foundry/calibration/uncertainty_adapter.py:244: ValueError
+_ test_multicoordinate_profile_digest_and_missing_projection_refuse_before_builder _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-247/test_multicoordinate_profile_d0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fdb313c0d60>
+
+    def test_multicoordinate_profile_digest_and_missing_projection_refuse_before_builder(
+        tmp_path, monkeypatch
+    ):
+        from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+    
+        calls = []
+        monkeypatch.setattr(
+            node,
+            "_build_propagation_fn",
+            lambda *args, **kwargs: calls.append(kwargs) or pytest.fail("joint admission removed"),
+        )
+        for case in ("consistent_joint", "incomplete_joint"):
+>           ctx, state, _ = _posterior_node_fixture(
+                tmp_path / case,
+                {"a": [-1, 1], "b": [-1, 1]},
+                mutation=case,
+            )
+
+tests/unit/scientist/nodes/test_propagate_uncertainty_node.py:376: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/nodes/test_propagate_uncertainty_node.py:158: in _posterior_node_fixture
+    summary = uncertainty_adapter.summarize_bayesian_calibration_posterior(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+posterior_draws = {'a': [-1, 1], 'b': [-1, 1]}
+
+    def summarize_bayesian_calibration_posterior(
+        posterior_draws: Mapping[str, Sequence[float] | np.ndarray],
+        *,
+        credible_mass: float = 0.9,
+        emulator_diagnostics: Mapping[str, Any] | None = None,
+        posterior_diagnostics: Mapping[str, Any] | None = None,
+        weights: Sequence[float] | np.ndarray | None = None,
+        draw_ids: Sequence[str] | None = None,
+        sample_axis: str = "draw",
+        context: PosteriorSummaryContext | None = None,
+    ) -> BayesianCalibrationPosteriorSummary:
+        """Summarize posterior draws from Bayesian calibration or emulator-assisted inference."""
+    
+        if not (0.0 < credible_mass < 1.0):
+            raise ValueError("credible_mass must be in (0, 1)")
+        if not posterior_draws or not isinstance(sample_axis, str) or not sample_axis.strip():
+            raise ValueError("posterior draws and sample axis must be non-empty")
+        names = sorted(posterior_draws)
+        if any(not isinstance(name, str) or not name.strip() for name in names):
+            raise ValueError("posterior parameter names must be non-empty strings")
+        if len(names) > 1 and draw_ids is None:
+>           raise ValueError("posterior joint law requires explicit producer-supplied aligned draw IDs")
+E           ValueError: posterior joint law requires explicit producer-supplied aligned draw IDs
+
+src/polisyos/foundry/calibration/uncertainty_adapter.py:244: ValueError
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+tests/unit/scientist/nodes/test_propagate_uncertainty_node.py::test_propagate_uncertainty_node_updates_simulation_result
+  /workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_posterior_ratio_law.py::test_unreachable_last_atom_refuses_before_all_backend_callbacks[random]
+FAILED tests/unit/ir/test_posterior_ratio_law.py::test_unreachable_last_atom_refuses_before_all_backend_callbacks[sobol]
+FAILED tests/unit/ir/test_posterior_ratio_law.py::test_unreachable_last_atom_refuses_before_all_backend_callbacks[halton]
+FAILED tests/unit/scientist/nodes/test_propagate_uncertainty_node.py::test_real_posterior_producer_fresh_node_preserves_joint_rows[1-0.0]
+FAILED tests/unit/scientist/nodes/test_propagate_uncertainty_node.py::test_real_posterior_producer_fresh_node_preserves_joint_rows[-1-4.0]
+FAILED tests/unit/scientist/nodes/test_propagate_uncertainty_node.py::test_multicoordinate_profile_digest_and_missing_projection_refuse_before_builder

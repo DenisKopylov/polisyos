@@ -1,0 +1,1 @@
+{"controls": 31, "all_passed": true, "Ruff_diagnostics": 36, "Ruff_paths": 3, "format": [3, 357], "writer_counts": {"A": 2, "B": 13, "E": 342, "F": 2, "G": 1}, "E_current_defects": 0, "global_tools_rerun": false}

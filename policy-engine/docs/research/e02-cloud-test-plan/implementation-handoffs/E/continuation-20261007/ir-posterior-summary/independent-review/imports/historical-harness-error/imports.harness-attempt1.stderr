@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/census_imports.py", line 145, in <module>
+    preserved.append({'path': path, 'prior_review_source': HISTORICAL, 'exact_bytes_unchanged': before == after, 'old_sha256': hashlib.sha256(before).hexdigest(), 'candidate_sha256': hashlib.sha256(after).hexdigest(), 'review_scope': 'Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation.'})
+                                                                                                                               ~~~~~~~~~~~~~~^^^^^^^^
+TypeError: object supporting the buffer API required

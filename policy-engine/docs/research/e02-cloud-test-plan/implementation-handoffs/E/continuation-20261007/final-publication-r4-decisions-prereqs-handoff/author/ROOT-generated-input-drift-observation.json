@@ -1,0 +1,521 @@
+{
+  "schema": "policyos.e02.native_backend_tracked_input_drift_observation.v1",
+  "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "started_at": "2026-10-07T12:56:49.365051+00:00",
+  "completed_at": "2026-10-07T12:56:49.832768+00:00",
+  "tracked_input_count": 29,
+  "observed_changed_product_or_test_Python": false,
+  "ROOT_HEAD_changed": false,
+  "active_native_scope": [
+    "uv",
+    "run",
+    "--no-sync",
+    "pytest",
+    "-m",
+    "not integration",
+    "--ignore=tests/unit/runtime/http"
+  ],
+  "backend_session": 61243,
+  "backend_live_pid": 536940,
+  "snapshot_is_atomic_whole_run": false,
+  "native_caller_attribution": "not_established; independent read-only tracing requested",
+  "native_source_input_immutable_claim": false,
+  "root_manual_writes_or_merges_performed": false,
+  "restoration_or_cleanup_performed": false,
+  "rows": [
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "current": {
+        "portable_name": "09853a9044d30ca782211fc67cd1227fd4a72361c8a0defd7cc9215b11396d49.current.json",
+        "bytes": 139777,
+        "sha256": "f0672ef489b8cb10b7b7d604e2a8855a276f43e2d19a19bc38b323062c1b3bff"
+      },
+      "head": {
+        "portable_name": "09853a9044d30ca782211fc67cd1227fd4a72361c8a0defd7cc9215b11396d49.head.json",
+        "bytes": 139777,
+        "sha256": "fb4ba97a337093cb22e91e0e3fbed496a28adce73daeab48738cea2a442a8889"
+      },
+      "mtime_ns_before": 1791377694681458913,
+      "mtime_ns_after": 1791377694681458913,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+      "current": {
+        "portable_name": "d9cd9f9ebca24f826881d38b1779b5ec91ec3626cadb5e89acb117eab7b1360d.current.json",
+        "bytes": 3548,
+        "sha256": "b91141c44a6e52f31d943e7ccf1c2676d066cef9c35bb738fc769a5f66e97046"
+      },
+      "head": {
+        "portable_name": "d9cd9f9ebca24f826881d38b1779b5ec91ec3626cadb5e89acb117eab7b1360d.head.json",
+        "bytes": 3548,
+        "sha256": "bb4571f1ec81efbbffe906705d309ac7ada972a2b79aa61d36411753349fef03"
+      },
+      "mtime_ns_before": 1791377694672072136,
+      "mtime_ns_after": 1791377694672072136,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+      "current": {
+        "portable_name": "902a5e9bcab71d2495872b84e33e33658abc12d402c0e98aabe5f4dd43dfea1c.current.json",
+        "bytes": 4172,
+        "sha256": "e5a208b88c4aa31e5073453a8d63572ff59ff68763a89031f46d8b161436e9d5"
+      },
+      "head": {
+        "portable_name": "902a5e9bcab71d2495872b84e33e33658abc12d402c0e98aabe5f4dd43dfea1c.head.json",
+        "bytes": 4172,
+        "sha256": "7c3469f44d11394b592f120f9dc413a9cb39204f8e47ae1614414efcb872dece"
+      },
+      "mtime_ns_before": 1791377694666904193,
+      "mtime_ns_after": 1791377694666904193,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+      "current": {
+        "portable_name": "c8e6cbaf1b4ceac9be6940e4a5fd3d17fea595f0122e357eb18e3afee036a6db.current.json",
+        "bytes": 8225,
+        "sha256": "691cf35b77e787c3b8fa3aea5d659f9a2d30b221985b183e857029550ae55eab"
+      },
+      "head": {
+        "portable_name": "c8e6cbaf1b4ceac9be6940e4a5fd3d17fea595f0122e357eb18e3afee036a6db.head.json",
+        "bytes": 8225,
+        "sha256": "6a9bc65031fd7ab4c38760243af9c166841fe8bb2fc8d33225c4d138af66dd75"
+      },
+      "mtime_ns_before": 1791377694676739638,
+      "mtime_ns_after": 1791377694676739638,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "current": {
+        "portable_name": "ab77d8b8f26f7b7181392c0957c521aac066f2806b99afdd993b4fcf8fb0da81.current.json",
+        "bytes": 89288,
+        "sha256": "283be5f0d5d33271126002e7ea0219f2e0b693e8ecec452a88999b93876902ac"
+      },
+      "head": {
+        "portable_name": "ab77d8b8f26f7b7181392c0957c521aac066f2806b99afdd993b4fcf8fb0da81.head.json",
+        "bytes": 89288,
+        "sha256": "467850d0b35a58e5c2e87382b56f4286dd01852f6f4d645c07a4596202671570"
+      },
+      "mtime_ns_before": 1791377694665142910,
+      "mtime_ns_after": 1791377694665142910,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+      "current": {
+        "portable_name": "d59a1f09181e5be969449ddf7296b3e4909af2f2298137cf2c152a7512715ab6.current.json",
+        "bytes": 51341,
+        "sha256": "d9ca47c7b6a97d475a602b07da459045835df8a9f23c02addb576c03a5383cf6"
+      },
+      "head": {
+        "portable_name": "d59a1f09181e5be969449ddf7296b3e4909af2f2298137cf2c152a7512715ab6.head.json",
+        "bytes": 51341,
+        "sha256": "67f716a067f482821309ae947bb6c229cee3d70b141fd1f2aa0a0fe0ea1786ca"
+      },
+      "mtime_ns_before": 1791377694689389371,
+      "mtime_ns_after": 1791377694689389371,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+      "current": {
+        "portable_name": "a6cf9a2d763107cc99d52637ce4f1a3ec13bf889b114edc746a84c34cfbfaeb8.current.json",
+        "bytes": 3730,
+        "sha256": "bbabd431bc0887dec6c5b4a550a7e46253240959ab717e021d4fd612cd64b289"
+      },
+      "head": {
+        "portable_name": "a6cf9a2d763107cc99d52637ce4f1a3ec13bf889b114edc746a84c34cfbfaeb8.head.json",
+        "bytes": 3730,
+        "sha256": "1fc77900795a092593716072a2c0a1a50f3e4b7c24b134fc58c3f4308913ba6e"
+      },
+      "mtime_ns_before": 1791377694696023229,
+      "mtime_ns_after": 1791377694696023229,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "current": {
+        "portable_name": "1646795ad693ed6d028f5ce18ab06616418dd7a1d060b27c9ef510d704927160.current.json",
+        "bytes": 13719,
+        "sha256": "27e4f9424d9e4f83edae5c1803c0a64cd22c6b7777d9e538e821d0bf7d244f52"
+      },
+      "head": {
+        "portable_name": "1646795ad693ed6d028f5ce18ab06616418dd7a1d060b27c9ef510d704927160.head.json",
+        "bytes": 13719,
+        "sha256": "b00fbc1c2810fc66e0e326f33fb8870980f9a402b7eb6415f53c9b6309c06c37"
+      },
+      "mtime_ns_before": 1791377694678097419,
+      "mtime_ns_after": 1791377694678097419,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_request_envelope.json",
+      "current": {
+        "portable_name": "83f90a6176152a34fe51d4f07efcfbf9a057a428784cfe443a3f8ecfd0766e24.current.json",
+        "bytes": 2150,
+        "sha256": "4ab1b19e9eb178ab3c1ef3f3fbe8b3df5959fc7b4e99db350c68f9af91231cf0"
+      },
+      "head": {
+        "portable_name": "83f90a6176152a34fe51d4f07efcfbf9a057a428784cfe443a3f8ecfd0766e24.head.json",
+        "bytes": 2150,
+        "sha256": "d51bb662e6b971a44318773289d8e6859a22c1028de1253cf176ccbcb35bf3bd"
+      },
+      "mtime_ns_before": 1791377694656683188,
+      "mtime_ns_after": 1791377694656683188,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+      "current": {
+        "portable_name": "af05a3f929903727fa3cda0506956e0e475f3376b641b7f6f19c0fd2a76e3cb8.current.json",
+        "bytes": 4384,
+        "sha256": "7b60ab0c489b238a4256dac917a82e0a9af8551ae5f00b2ea0899f26bb948ca7"
+      },
+      "head": {
+        "portable_name": "af05a3f929903727fa3cda0506956e0e475f3376b641b7f6f19c0fd2a76e3cb8.head.json",
+        "bytes": 5002,
+        "sha256": "dc3b65b13656337a0d34da74daa0489b7cbd923efbb7b01d665b425e3c817907"
+      },
+      "mtime_ns_before": 1791377696569903191,
+      "mtime_ns_after": 1791377696569903191,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+      "current": {
+        "portable_name": "c1178ad2e54efc1120ae446978cc6b5d2323c510ada1f0e65afffaf09acbcdf5.current.json",
+        "bytes": 756,
+        "sha256": "7f08f6facd976ea02361ef7cdaacf793711e9eaedd1fc41e7c41da4718e0b297"
+      },
+      "head": {
+        "portable_name": "c1178ad2e54efc1120ae446978cc6b5d2323c510ada1f0e65afffaf09acbcdf5.head.json",
+        "bytes": 1290,
+        "sha256": "5c3deb8a780fbf9543f7530335d2953f16693d880f718846a124e85b7f1e12b4"
+      },
+      "mtime_ns_before": 1791377696587680984,
+      "mtime_ns_after": 1791377696587680984,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_governed_promotion_join.json",
+      "current": {
+        "portable_name": "f1ac438a4b911d389e1990df4cf998a6262a458943073617c52e5edfafb63de9.current.json",
+        "bytes": 1148,
+        "sha256": "b87fa9405be5c3db54d7a3b08d0809496db548bad69cad1de04089c5e3a1021b"
+      },
+      "head": {
+        "portable_name": "f1ac438a4b911d389e1990df4cf998a6262a458943073617c52e5edfafb63de9.head.json",
+        "bytes": 715,
+        "sha256": "cce56d5a9b07758fbb6798c7324cf36fae80bf7bce39fe0388b23ef53750c05f"
+      },
+      "mtime_ns_before": 1791377696578487474,
+      "mtime_ns_after": 1791377696578487474,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+      "current": {
+        "portable_name": "c2190acd141ca8e33b3abd073c054e9318bdb1d5c5391e5e6cd1468d5c428298.current.json",
+        "bytes": 10036,
+        "sha256": "375d894e970b2bcac3d8996e4400a0e01404c858142b681f2b4d4c72796c979f"
+      },
+      "head": {
+        "portable_name": "c2190acd141ca8e33b3abd073c054e9318bdb1d5c5391e5e6cd1468d5c428298.head.json",
+        "bytes": 10036,
+        "sha256": "42909cc6bfdde96635256705840f1e009a827431d79bdfdf552a2076c92209b5"
+      },
+      "mtime_ns_before": 1791377696597629540,
+      "mtime_ns_after": 1791377696597629540,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+      "current": {
+        "portable_name": "c3d16e657ef6199c15a4e168f7b4710c246fea635648df5ab4fcafd3785f0b01.current.json",
+        "bytes": 6446,
+        "sha256": "7be348d6796719d800df8be8386e16160bb44cf935f32d8680b36e5452b446a7"
+      },
+      "head": {
+        "portable_name": "c3d16e657ef6199c15a4e168f7b4710c246fea635648df5ab4fcafd3785f0b01.head.json",
+        "bytes": 6446,
+        "sha256": "c838f79801c94be5346938648fa08da2471b138e951d21589029a6a9ffab8ce2"
+      },
+      "mtime_ns_before": 1791377696608033272,
+      "mtime_ns_after": 1791377696608033272,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json",
+      "current": {
+        "portable_name": "52c5df2a96a09b6b66affc71830035ac322851384394b0148ea576e6c5454398.current.json",
+        "bytes": 1290,
+        "sha256": "91ba19c232804d35bee17e4c6071ee835b2a93048ccd8f3943f82417e5ec3fb9"
+      },
+      "head": {
+        "portable_name": "52c5df2a96a09b6b66affc71830035ac322851384394b0148ea576e6c5454398.head.json",
+        "bytes": 1236,
+        "sha256": "a91ecc2dbed896e096b4f6ba083916ca4f18d04b916c4eef8c08b14d352c0ff0"
+      },
+      "mtime_ns_before": 1791377696574916799,
+      "mtime_ns_after": 1791377696574916799,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+      "current": {
+        "portable_name": "1b151ab49f66094e0fa59bb8ad07c9e98da69b5b2b4c86e10b7e3285edd6f27f.current.json",
+        "bytes": 3852,
+        "sha256": "1718ee4f238cbdf5dd205c74cd21b18cd25f266c8d2b1eee19b81c8e4a126409"
+      },
+      "head": {
+        "portable_name": "1b151ab49f66094e0fa59bb8ad07c9e98da69b5b2b4c86e10b7e3285edd6f27f.head.json",
+        "bytes": 3374,
+        "sha256": "c012b4f26fc199ce9b5d1e937dcb2f026d495b3e9e4ed0114c9a46b51407ab4d"
+      },
+      "mtime_ns_before": 1791377696576096771,
+      "mtime_ns_after": 1791377696576096771,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+      "current": {
+        "portable_name": "260e6dde1610ddf1cd531076b7287b08e8d382357ac080d4d05714e18cdac29b.current.json",
+        "bytes": 5052,
+        "sha256": "775e839b2b7452ab73621ec2eb29469367c9fb7d4539e5f486d5c32e1f5b8612"
+      },
+      "head": {
+        "portable_name": "260e6dde1610ddf1cd531076b7287b08e8d382357ac080d4d05714e18cdac29b.head.json",
+        "bytes": 4574,
+        "sha256": "4c6cde26ae15e62c88fdf142c33b22fb71c8318c86693791e828b1edf70df604"
+      },
+      "mtime_ns_before": 1791377696577311184,
+      "mtime_ns_after": 1791377696577311184,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+      "current": {
+        "portable_name": "4ae440442ff879cfbe78b0a4c4ad13fb09b4f1f8c94787a505dd0278e7197616.current.json",
+        "bytes": 15841,
+        "sha256": "2ea7326347d68148b371891f95ff8a3082ad14aa676fe5f242071b4e7d54de19"
+      },
+      "head": {
+        "portable_name": "4ae440442ff879cfbe78b0a4c4ad13fb09b4f1f8c94787a505dd0278e7197616.head.json",
+        "bytes": 15916,
+        "sha256": "de3da70e1892bb67f30d2ce93871561220e2e314726bd1926ce31bdc28b7f738"
+      },
+      "mtime_ns_before": 1791377696573512855,
+      "mtime_ns_after": 1791377696573512855,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_scorecard.json",
+      "current": {
+        "portable_name": "d61d707bb204a952bb50451f774fd2838f00d65f8bf7c39f0ee9e7ec370cf699.current.json",
+        "bytes": 4747,
+        "sha256": "a4003d67481963624389e7b202a134ded4c2c77423270a30bdee0c62ce91ad9e"
+      },
+      "head": {
+        "portable_name": "d61d707bb204a952bb50451f774fd2838f00d65f8bf7c39f0ee9e7ec370cf699.head.json",
+        "bytes": 4747,
+        "sha256": "d1d3757e5ed87dc53c90a0f57bedf3672b95dc79b456458c145bbb310877b047"
+      },
+      "mtime_ns_before": 1791377696593557891,
+      "mtime_ns_after": 1791377696593557891,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "current": {
+        "portable_name": "c805d80588ce284ae871d52605e5000f48c2718bc4cb41e1da51eb1372dd89ff.current.json",
+        "bytes": 51494,
+        "sha256": "de149a913493971d285d2160c4c90e483e25bb1ef221b537be5b2db3431cf7e6"
+      },
+      "head": {
+        "portable_name": "c805d80588ce284ae871d52605e5000f48c2718bc4cb41e1da51eb1372dd89ff.head.json",
+        "bytes": 51494,
+        "sha256": "29b520f1fdfd89e42e38f11470415763e872e4ae2868957802f437e7536c2dae"
+      },
+      "mtime_ns_before": 1791377696595095348,
+      "mtime_ns_after": 1791377696595095348,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_replay_manifest.json",
+      "current": {
+        "portable_name": "1a7206b32b9e867b14ab6b9c6ea83b62c53e752ad868c374300bee492ae84998.current.json",
+        "bytes": 24026,
+        "sha256": "92351c88eeb78dfd971e3ae1a53cab5abce7d1b3eff49b55a7f463a6bab10700"
+      },
+      "head": {
+        "portable_name": "1a7206b32b9e867b14ab6b9c6ea83b62c53e752ad868c374300bee492ae84998.head.json",
+        "bytes": 24026,
+        "sha256": "0cce8c70210d12d515e7980fe6548da47f78adfee29735ccc11e569525db3b2d"
+      },
+      "mtime_ns_before": 1791377696599020138,
+      "mtime_ns_after": 1791377696599020138,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+      "current": {
+        "portable_name": "7d1c97414529a9b723b9d18439344f8ced2256f50425be16e02a041ead2fc692.current.json",
+        "bytes": 6514,
+        "sha256": "c60fc484762a146f169214de2e8518a2179dc19e1ab868ecaa7d6e37db122b12"
+      },
+      "head": {
+        "portable_name": "7d1c97414529a9b723b9d18439344f8ced2256f50425be16e02a041ead2fc692.head.json",
+        "bytes": 6021,
+        "sha256": "2b59355414f7a8570681725d58b04b8a8e1e6b48a78e8561a8b595e394f98123"
+      },
+      "mtime_ns_before": 1791377696580689189,
+      "mtime_ns_after": 1791377696580689189,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+      "current": {
+        "portable_name": "be5483c73b44c170f3db771f6b985fa25ea0cfd9b64dfea41d90c602594072da.current.json",
+        "bytes": 5016,
+        "sha256": "2b266c1caa354a009553d9de81e8f962a42d30cf9ad992bf8a249d0a79392cc1"
+      },
+      "head": {
+        "portable_name": "be5483c73b44c170f3db771f6b985fa25ea0cfd9b64dfea41d90c602594072da.head.json",
+        "bytes": 4018,
+        "sha256": "06f6777c88666723b1b50862ad88e816739267d702ab6a80f8cd6e808c012a35"
+      },
+      "mtime_ns_before": 1791377696589994737,
+      "mtime_ns_after": 1791377696589994737,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+      "current": {
+        "portable_name": "e50c3eed9a1970cc357a8786566ce23119f0518559d193eef27b3428668e0aa1.current.json",
+        "bytes": 4240,
+        "sha256": "5ea8e86752b58ad3ec7f3132838b36ba6d51e46f4258c8f43ba270402f840658"
+      },
+      "head": {
+        "portable_name": "e50c3eed9a1970cc357a8786566ce23119f0518559d193eef27b3428668e0aa1.head.json",
+        "bytes": 4328,
+        "sha256": "a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033"
+      },
+      "mtime_ns_before": 1791377696669212935,
+      "mtime_ns_after": 1791377696669212935,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+      "current": {
+        "portable_name": "45a05043dd35577e09eaedffc099dcc15d55178fdeeeb5f5c6e7aad9c186323a.current.json",
+        "bytes": 3949,
+        "sha256": "533a8a23e0cbbc0f068eb67027626a2c42a4c80fb20442c894395a4c0c93ccd1"
+      },
+      "head": {
+        "portable_name": "45a05043dd35577e09eaedffc099dcc15d55178fdeeeb5f5c6e7aad9c186323a.head.json",
+        "bytes": 4008,
+        "sha256": "c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f"
+      },
+      "mtime_ns_before": 1791377696670861732,
+      "mtime_ns_after": 1791377696670861732,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+      "current": {
+        "portable_name": "d266c824112631b51a1160d558dccecc11e050a96ea619f57d555ee5ab60f8be.current.json",
+        "bytes": 39666,
+        "sha256": "4f402a896eddfc6c5454ca34e6171d9931b638b4f4e06c1fa4e0d40451681b89"
+      },
+      "head": {
+        "portable_name": "d266c824112631b51a1160d558dccecc11e050a96ea619f57d555ee5ab60f8be.head.json",
+        "bytes": 39666,
+        "sha256": "4ec015b52e282137d5ecb79b73d36aab4929debeccb9a6978bc7b6bf2069097e"
+      },
+      "mtime_ns_before": 1791377696662869359,
+      "mtime_ns_after": 1791377696662869359,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+      "current": {
+        "portable_name": "8418ef725bc33876fe8e4db5283ca4b98950ddc4e4f2fbd994275d4c3c19a095.current.json",
+        "bytes": 12452,
+        "sha256": "8c0d6f46072aa94b5ceb7cbb66cdd1550bfdd940d2a9af0ce4faee959b30a2d6"
+      },
+      "head": {
+        "portable_name": "8418ef725bc33876fe8e4db5283ca4b98950ddc4e4f2fbd994275d4c3c19a095.head.json",
+        "bytes": 12452,
+        "sha256": "021578dde505d2b04ad80a0c31135fa05e51b502af12e1dbce6e19902f9e47c4"
+      },
+      "mtime_ns_before": 1791377696667888557,
+      "mtime_ns_after": 1791377696667888557,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "current": {
+        "portable_name": "cb86884299b4b957a011fa352bf289bad08bf242de03b8aaa72fa8404ffb57aa.current.json",
+        "bytes": 168010,
+        "sha256": "d4324311f626d87ef88dbbd848c464b0dff537db89e873ee992ade2d62694b28"
+      },
+      "head": {
+        "portable_name": "cb86884299b4b957a011fa352bf289bad08bf242de03b8aaa72fa8404ffb57aa.head.json",
+        "bytes": 168010,
+        "sha256": "bb39238b94b43b69753eea8afe77ddbd782e4dc9eb95f73b0d5301acb32bbcfa"
+      },
+      "mtime_ns_before": 1791377696666016281,
+      "mtime_ns_after": 1791377696666016281,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+      "current": {
+        "portable_name": "7fe405d8427e3a09a4c744b815184df645214d78a488e2b717cf52d17a7fcae4.current.json",
+        "bytes": 8861,
+        "sha256": "daec96524cea710a80662b9809467602cfb92829cb1048c98812cc1c359e7427"
+      },
+      "head": {
+        "portable_name": "7fe405d8427e3a09a4c744b815184df645214d78a488e2b717cf52d17a7fcae4.head.json",
+        "bytes": 8861,
+        "sha256": "e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8"
+      },
+      "mtime_ns_before": 1791377696682448186,
+      "mtime_ns_after": 1791377696682448186,
+      "same_file_stat_during_read": true,
+      "classification": "observed tracked generated JSON mutation; exact caller not_established"
+    }
+  ]
+}

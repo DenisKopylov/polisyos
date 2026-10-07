@@ -1,0 +1,57 @@
+"""Fixed moderate selection; no raw fixture/CAS/DB copies."""
+from pathlib import Path
+import hashlib
+import json
+
+BASE=Path('/tmp/e02-E-native-catalog-packet-independent-64d')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+old=json.loads((BASE/'publication-selection-pre-v2.json').read_bytes())
+
+def record(path):
+ raw=path.read_bytes()
+ return {'path':str(path),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+
+for name in ['review_v2_summary_class.py','review_v2_publication_custody.py','build_final_independent_selection.py']:
+ target=BASE/(name+'.txt')
+ target.write_bytes((BASE/name).read_bytes())
+rows=[]
+seen={}
+for oldrow in old['assets']:
+ row=dict(oldrow)
+ source=Path(row['source_path'])
+ measured=record(source)
+ if measured['bytes']!=row['bytes'] or measured['sha256']!=row['sha256']:
+  raise ValueError('historical_asset_changed:'+str(source))
+ row['stage']='historical native review and original v1 summary-admission gap'
+ rows.append(row)
+# New names are separate; original review/stdout/scripts stay literal unchanged.
+names=[
+ 'review_v2_summary_class.py.txt','review_v2_publication_custody.py.txt',
+ 'v2-summary-class-independent-review.json','v2-publication-custody-independent-review.json',
+ 'v2-independent-normal.stdout.json','v2-independent-normal.stderr.txt',
+ 'v2-independent-optimized.stdout.json','v2-independent-optimized.stderr.txt',
+ 'v2-removal-normal.stdout.json','v2-removal-normal.stderr.txt',
+ 'v2-removal-optimized.stdout.json','v2-removal-optimized.stderr.txt',
+ 'v2-summary-inlet-removed.py.txt','v2-review.stdout.json','v2-review.stderr.txt',
+ 'v2-custody.stdout.json','v2-custody.stderr.txt',
+ 'v2-custody-first-observer-ERROR.py.txt','v2-custody-first-observer-ERROR.stdout.json','v2-custody-first-observer-ERROR.stderr.txt',
+ 'build_final_independent_selection.py.txt',
+]
+for name in names:
+ measured=record(BASE/name)
+ rows.append({'source_path':str(BASE/name),'destination':name,'stored_at':name,'copy_to':name,'bytes':measured['bytes'],'sha256':measured['sha256'],'role':'historical_independent_observer_ERROR' if 'first-observer-ERROR' in name else 'independent_v2_class_removal_or_custody','stage':'current v2 evidence-class review; unchanged native GO reused'})
+# Deduplicate literal identical byte copies but preserve each logical command/role.
+for row in rows:
+ signature=(row['bytes'],row['sha256'])
+ if signature in seen:
+  row['stored_at']=seen[signature]
+  row['copy_to']=None
+ else:
+  seen[signature]=row['destination']
+  row['stored_at']=row['destination']
+  row['copy_to']=row['destination']
+selection={'schema':'policyos.e02.independent_catalog_packet_review_selection.v2','source':SOURCE,'tree':TREE,'historical_selection':record(BASE/'publication-selection-pre-v2.json'),'native_GO':record(BASE/'native-owner-packet-review.json'),'current_v2_class_GO':record(BASE/'v2-summary-class-independent-review.json'),'current_custody_GO':record(BASE/'v2-publication-custody-independent-review.json'),'logical_assets':len(rows),'unique_assets':len(seen),'unique_bytes':sum(key[0] for key in seen),'assets':rows,'native_application_checks_repeated':False,'ROOT_interpreter_packages_or_source_mutated':False,'source_acceptance':'bounded owner-ready packet and evidence-class GO; unapplied A helper patch','finding_closure':False,'native_full_HTTP':'Historical 1585 cases=675 PASS/81 FAIL/827 ERROR/2 SKIP, retained FAIL; no full HTTP repeat.','reviewer_observer_history':'Prior native observer errors and one v2-custody KeyError due optional publication_role are retained. Last correction uses role fallback; no candidate/app test defect inferred.','next_owner':'A/runtime fixture canonical writer chooses typed injection or same-process serialized factory seam, applies owned helper after review, then A/G rerun actual native browser/HTTP successors; no production source/profile authority introduced.'}
+output=BASE/'publication-selection-final-v2.json'
+output.write_text(json.dumps(selection,indent=2)+'\n')
+print(json.dumps({'outcome':'GO','selection':record(output),'logical_assets':len(rows),'unique_assets':len(seen),'unique_bytes':selection['unique_bytes'],'all_inputs_preserved':True,'no_raw_DB_CAS_or_archive_copy':True},indent=2))

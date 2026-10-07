@@ -1,0 +1,82 @@
+"""Bounded public CanonSpec reuse through actual configured CAS and FRC readers."""
+from __future__ import annotations
+from dataclasses import asdict
+import hashlib,importlib.metadata,json,math,platform,shutil,subprocess,sys
+from pathlib import Path
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path('/tmp/e02-E-forecast-canon-public-route-64d-20261007')
+ORIGINAL=Path('/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp/test_resolved_limited_evidence0/cas')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+PATHS=['policy-engine/src/polisyos/calibration/forecast_bridge.py','policy-engine/src/polisyos/core/__init__.py','policy-engine/src/polisyos/core/canon/__init__.py','policy-engine/src/polisyos/core/canon/canon_json.py','policy-engine/src/polisyos/common/canonical.py','policy-engine/src/polisyos/core/artifacts/__init__.py','policy-engine/src/polisyos/core/artifacts/store.py','policy-engine/src/polisyos/ir/artifacts/__init__.py','policy-engine/src/polisyos/ir/artifacts/io.py','policy-engine/src/polisyos/ir/artifacts/contracts.py','policy-engine/src/polisyos/ir/model_layer/canon.py','policy-engine/architecture/public_surface/contract.toml']
+
+def require(v,reason):
+ if not v:raise ValueError(reason)
+def digest(raw):return hashlib.sha256(raw).hexdigest()
+def inventory(path):return [{'path':str(p.relative_to(path)),'bytes':p.stat().st_size,'sha256':digest(p.read_bytes())} for p in sorted(path.rglob('*')) if p.is_file()]
+def guard():
+ rows=[]
+ for p in PATHS:
+  raw=(ROOT/p).read_bytes();frozen=subprocess.check_output(['git','show',SOURCE+':'+p],cwd=ROOT);require(raw==frozen,'source physical identity');rows.append({'path':p,'bytes':len(raw),'sha256':digest(raw)})
+ require(subprocess.check_output(['git','rev-parse',SOURCE+'^{tree}'],cwd=ROOT,text=True).strip()==TREE,'source tree');return rows
+before=guard();fixture_before=inventory(ORIGINAL)
+# The public root curated module object is resolved before loading Forecast bridge.
+from polisyos.core import canon as public_canon, artifacts as ca
+public_declared=__import__('polisyos.core',fromlist=['__all__'])
+require('canon' in public_declared.__all__,'curated root canon module export')
+from polisyos.calibration import forecast_bridge as fb
+from polisyos.ir.artifacts import put_json_artifact
+old_spec=fb.CanonSpec
+require(asdict(old_spec(forbid_floats=False))==asdict(public_canon.CanonSpec(forbid_floats=False)),'shared spec fields')
+require(old_spec is not public_canon.CanonSpec,'sibling class boundary not hidden')
+EID='sha256:a7c27f4516c921c11f49b6cb6b53d55202648035c2a2442ea453c4772016c942'
+CID='sha256:cd8bc614f9c93c00a92f5d190fbde057612b40e3883a67f0c824edd0bfcf54eb'
+controls=[];routes=[];baseline_payloads={};last_store=None
+class CountedCAS(ca.FileSystemCAS):
+ def __init__(self,*a,**k):super().__init__(*a,**k);self.writes=[]
+ def put_json(self,obj,*a,**k):
+  spec=k.get('canon_spec');self.writes.append({'spec_module':type(spec).__module__,'spec_fields':asdict(spec) if spec is not None else None});return super().put_json(obj,*a,**k)
+for label,factory in [('old_private_spec',old_spec),('existing_public_core_spec',public_canon.CanonSpec)]:
+ root=OUT/(label+'-cas');shutil.copytree(ORIGINAL,root)
+ store=CountedCAS(root);fresh=ca.FileSystemCAS(root)
+ evidence=fb.load_empirical_calibration_evidence(fresh,fb.EmpiricalCalibrationEvidenceRef(artifact_id=EID))
+ receipt=fb.load_forecast_candidate_receipt(fresh,fb.ForecastCandidateReceiptRef(artifact_id=CID))
+ fb.CanonSpec=factory
+ new_e=fb.persist_empirical_calibration_evidence(store,evidence);new_c=fb.persist_forecast_candidate_receipt(store,receipt)
+ reopened=ca.FileSystemCAS(root);read_e=fb.load_empirical_calibration_evidence(reopened,new_e);read_c=fb.load_forecast_candidate_receipt(reopened,new_c)
+ require(read_e.model_dump(mode='json')==evidence.model_dump(mode='json') and read_c.model_dump(mode='json')==receipt.model_dump(mode='json'),'fresh replay typed object')
+ raw_e=store.get_bytes(new_e.artifact_id);raw_c=store.get_bytes(new_c.artifact_id)
+ # Explicit bounded codec read comparison only; no codec implementation copied.
+ decoded={'evidence':public_canon.from_canonical_bytes(raw_e),'receipt':public_canon.from_canonical_bytes(raw_c)}
+ require(decoded['evidence']==read_e.model_dump(mode='json') and decoded['receipt']==read_c.model_dump(mode='json'),'public reader bounded payload')
+ require([x['spec_module'] for x in store.writes]==[factory.__module__,factory.__module__],'two actual writer boundaries')
+ binding={'label':label,'writer_calls':len(store.writes),'writer_specs':store.writes,'empirical_ref':new_e.model_dump(mode='json'),'candidate_ref':new_c.model_dump(mode='json'),'empirical_bytes':len(raw_e),'empirical_sha256':digest(raw_e),'candidate_bytes':len(raw_c),'candidate_sha256':digest(raw_c),'empirical_manifest':store.get_manifest(new_e.artifact_id).model_dump(mode='json'),'candidate_manifest':store.get_manifest(new_c.artifact_id).model_dump(mode='json'),'gate_eligible':read_e.gate_eligible if hasattr(read_e,'gate_eligible') else False,'verifier_provenance':read_c.verifier_provenance,'authority_scope':read_c.authority_scope,'store_root':str(root)}
+ if baseline_payloads:require(baseline_payloads=={'evidence':raw_e,'candidate':raw_c},'old/public persisted bytes differ')
+ else:baseline_payloads={'evidence':raw_e,'candidate':raw_c}
+ routes.append(binding);last_store=store
+fb.CanonSpec=public_canon.CanonSpec
+# Negative writer: genuine generic helper and actual configured CAS refuse NaN.
+before_calls=len(last_store.writes)
+try:put_json_artifact(last_store,{'role':'invalid_nan','rate':float('nan')},kind=fb.EVIDENCE_KIND,schema_name=fb.EVIDENCE_SCHEMA_NAME,schema_version=fb.EVIDENCE_SCHEMA_VERSION,canon_spec=public_canon.CanonSpec(forbid_floats=False))
+except ValueError as e:controls.append({'control':'actual_nan_writer','outcome':'PASS','refusal':str(e),'CAS_object_added':False})
+else:raise ValueError('NaN writer accepted')
+# Integrity-valid malformed and profile/kind copies are actual fresh native reads.
+base=json.loads(baseline_payloads['evidence'])
+for label,kind,schema_name,schema_version,edit in [('wrong_kind','fake.empirical',fb.EVIDENCE_SCHEMA_NAME,fb.EVIDENCE_SCHEMA_VERSION,lambda d:d.update(report_id='wrong-kind-marker')),('wrong_schema',fb.EVIDENCE_KIND,'fake.empirical',fb.EVIDENCE_SCHEMA_VERSION,lambda d:d.update(report_id='wrong-schema-marker')),('raw_shape',fb.EVIDENCE_KIND,fb.EVIDENCE_SCHEMA_NAME,fb.EVIDENCE_SCHEMA_VERSION,lambda d:d.update(schema_version='1.1',comparisons='not-pairs',report_id='raw-shape-marker')),('nan_reader',fb.EVIDENCE_KIND,fb.EVIDENCE_SCHEMA_NAME,fb.EVIDENCE_SCHEMA_VERSION,lambda d:d.update(recomputed_pass_rate={'_type':'float','repr':'nan'},report_id='nan-marker'))]:
+ payload=json.loads(json.dumps(base));edit(payload);raw=json.dumps(payload,sort_keys=True,separators=(',',':')).encode()
+ bad=last_store.put_bytes(raw,ca.ArtifactWriteOptions(kind=kind,media_type='application/json',schema=ca.SchemaInfo(name=schema_name,version=schema_version)))
+ try:fb.load_empirical_calibration_evidence(ca.FileSystemCAS(last_store.root),fb.EmpiricalCalibrationEvidenceRef(artifact_id=bad.artifact_id))
+ except (ValueError,TypeError) as e:controls.append({'control':label,'outcome':'PASS','refusal':str(e),'content_bound_ref':bad.model_dump(mode='json'),'raw_sha256':digest(raw)})
+ else:raise ValueError('bad evidence accepted:'+label)
+# The codecs are not generally interchangeable: Core's extra tag is rejected by IR's historical reader.
+from polisyos.ir.artifacts import get_json_artifact
+extended=put_json_artifact(last_store,{'extended':{'_type':'float_hex','value':'0x1.0p+0'}},kind='test.codec_boundary',schema_name='test.codec_boundary',schema_version='1.0',canon_spec=public_canon.CanonSpec(forbid_floats=False))
+raw=last_store.get_bytes(extended['artifact_id']);require(public_canon.from_canonical_bytes(raw)=={'extended':1.0},'Core extended tag positive')
+try:get_json_artifact(ca.FileSystemCAS(last_store.root),extended['artifact_id'])
+except ValueError as e:controls.append({'control':'extended_tag_not_general_equivalence','outcome':'PASS','IR_refusal':str(e),'Core_reads_extended':True})
+else:raise ValueError('IR extended tag unexpectedly accepted')
+fb.CanonSpec=old_spec
+require(inventory(ORIGINAL)==fixture_before,'original fixture bytes changed');require(guard()==before,'source changed')
+result={'schema':'policyos.e02.bounded_existing_public_canon_route.v1','source':SOURCE,'tree':TREE,'environment':{'executable':sys.executable,'python':sys.version,'prefix':sys.prefix,'numpy':importlib.metadata.version('numpy'),'scipy':importlib.metadata.version('scipy'),'platform':platform.platform()},'source_bindings':before,'original_native_fixture':{'path':str(ORIGINAL),'files':len(fixture_before),'bytes':sum(x['bytes'] for x in fixture_before),'full_inventory':fixture_before,'unchanged':True,'role':'Existing synthetic actual ETS producer receipt and evidence; original numerical producer not rerun'},'routes':routes,'controls':controls,'positive_property':'Existing exported Core canon.CanonSpec fields produce identical bytes/manifest canonical metadata at both actual E persistence calls; fresh actual IR FRC readers replay their strict objects. Public Core reader agrees for these bounded finite payloads.','separate_codec_scope':'IR historical canonical types remain strict; Core extendedtags are broader. Class substitution is a config factory reuse, not replacement of get_json_artifact or a universal codec-equivalence promise.','source_modified':False,'ROOT_interpreter_or_environment_used':False,'foreign_facade_or_generator_modified':False,'numerical_producer_or_test_wave_repeated':False,'caller_overlay':'Only fb.CanonSpec module binding in this isolated process; original restored. No code file patch applied.','next_owner':'E forecast bridge writer may apply tiny existing public-root Corecanon route, run affected positive/negative/type/import checks and independent review. General IR forecasting-loader alias packet is separate and still needs canonical owner lease.','static_nominal_type_boundary':'Core/IR CanonSpec are distinct sibling dataclasses; shared fields work at the actual current attr-based helper/store inlet. No global typecheck claim or protocol export lease is made.','finding_closure':False,'global_architecture_or_static_invocation_repeated':False}
+p=OUT/'native-public-route.json';p.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'outcome':'bounded_public_route_available','receipt':{'path':str(p),'bytes':p.stat().st_size,'sha256':digest(p.read_bytes())},'actual_writer_routes':len(routes),'negative_controls':len(controls),'source_unchanged':True},indent=2))

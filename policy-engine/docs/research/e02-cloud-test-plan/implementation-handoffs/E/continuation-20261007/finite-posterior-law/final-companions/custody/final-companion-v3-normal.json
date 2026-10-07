@@ -1,0 +1,68 @@
+{
+  "healthy": {
+    "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+    "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+    "files": 39,
+    "bytes": 254265,
+    "actual_all_models": 103,
+    "patch_paths": [
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/ir/schema-catalog.md",
+      "policy-engine/docs/reference/public-surface.md",
+      "policy-engine/docs/reference/schemas.md",
+      "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json",
+      "policy-engine/schemas/snapshots/ir/posterior_summary_profile_v2.schema.json"
+    ],
+    "owner_rows": 4,
+    "historic49_4_1_and_ROOT41_9_2_2_unchanged": true,
+    "topic_proposals43_9_2_separate": true,
+    "global_gate_PASS": false
+  },
+  "controls": [
+    {
+      "case": "source_changed",
+      "outcome": "PASS refused",
+      "reason": "source_identity"
+    },
+    {
+      "case": "tree_changed",
+      "outcome": "PASS refused",
+      "reason": "source_identity"
+    },
+    {
+      "case": "source_handoff_ref_changed",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/handoff.json"
+    },
+    {
+      "case": "copy_index_ref_changed",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/copy-index.json"
+    },
+    {
+      "case": "final_patch_ref_changed",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/generator-3932cded/canonical-generated-full-final3932.patch"
+    },
+    {
+      "case": "original_rows_ref_changed",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/final-companions/criteria-r4/sparse-original-row-decisions-3932.json"
+    },
+    {
+      "case": "gate_PASS_forged",
+      "outcome": "PASS refused",
+      "reason": "capability_or_intake_forged"
+    },
+    {
+      "case": "formal_intake_forged",
+      "outcome": "PASS refused",
+      "reason": "capability_or_intake_forged"
+    }
+  ],
+  "handoff_sha256": "5b1b1a62ca399568cfbf268c7f175bc15138d6ae547214cd2b7789b82a898089",
+  "scope": "Final sparse owner/generator custody only; no source edits, numeric rerun, public admission or global gate claim."
+}

@@ -1,0 +1,288 @@
+"""Read-only cleanup custody reconciliation; never execute cleanup or tests."""
+from __future__ import annotations
+from collections import Counter
+from copy import deepcopy
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+BASE = Path('/tmp/e02-E-capacity-cleanup-20261007-doe')
+PACKET = BASE / 'closed-append-20261007'
+OUT = Path('/tmp/e02-E-cleanup-append-custody-independent')
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PUBLICATION = 'a5021561c7630b8a1e721e34307d30550825b07d'
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def digest(path):
+    h = hashlib.sha256()
+    with Path(path).open('rb') as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def ref(path):
+    return {'path': str(path), 'bytes': Path(path).stat().st_size, 'sha256': digest(path)}
+
+
+def load(path):
+    return json.loads(Path(path).read_bytes())
+
+
+def bind(row):
+    path = Path(row.get('path', row.get('source_path')))
+    require(type(row['bytes']) is int and path.stat().st_size == row['bytes'], 'bound byte size:' + str(path))
+    require(digest(path) == row['sha256'], 'bound digest:' + str(path))
+    return path
+
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+
+def typed_equal(left, right):
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(typed_equal(left[k], right[k]) for k in left)
+    if isinstance(left, list):
+        return len(left) == len(right) and all(typed_equal(a, b) for a, b in zip(left, right))
+    return left == right
+
+
+def registration_paths(raw):
+    return set(line.split(' ', 1)[1] for line in raw.splitlines() if line.startswith('worktree '))
+
+
+selection_path = PACKET / 'publication-selection-v2.json'
+summary_path = PACKET / 'cleanup-append-summary-v2.json'
+require(digest(selection_path) == 'f522e7f42a508643e167d66bcbaf7600f6c4c75dace6988039d32d3983f82e6f', 'immutable selection')
+require(digest(summary_path) == '8e4b7eedc47c427c09241454f3b6026af60236d6d5ddda8d4c92f42d13cf738b', 'immutable summary')
+selection = load(selection_path)
+summary = load(summary_path)
+rows = selection['assets']
+gold_members = Counter((r['source_path'], r['portable_path'], r['bytes'], r['sha256']) for r in rows)
+
+
+def admit_members(value):
+    actual = value['assets']
+    require(Counter((r['source_path'], r['portable_path'], r['bytes'], r['sha256']) for r in actual) == gold_members, 'complete frozen selected-member Counter')
+    require(type(value['asset_count']) is int and value['asset_count'] == len(actual), 'typed asset count')
+    require(type(value['bytes']) is int and value['bytes'] == sum(r['bytes'] for r in actual), 'typed selected bytes')
+    require(len(set(r['portable_path'] for r in actual)) == len(actual), 'complete unique portable names')
+    require(value['source'] == SOURCE and value['tree'] == TREE, 'source scope')
+    for r in actual:
+        require(not Path(r['portable_path']).is_absolute() and '..' not in Path(r['portable_path']).parts, 'safe relative portable member')
+        bind(r)
+    return {'members': len(actual), 'bytes': sum(r['bytes'] for r in actual)}
+
+
+members = admit_members(selection)
+require(members == {'members': 101, 'bytes': 1057547}, 'current closed denominator')
+before = {'head': git('rev-parse', 'HEAD').decode().strip(), 'tree': git('rev-parse', 'HEAD^{tree}').decode().strip()}
+require(before == {'head': SOURCE, 'tree': TREE}, 'actual ROOT source freeze')
+phase_dirs = [BASE / 'closed-architecture-source-copies', BASE / 'closed-numeric-fixtures']
+phases = [load(p / 'cleanup-summary.json') for p in phase_dirs]
+require([len(p['actions']) for p in phases] == [2, 8], 'exact two/eight actions')
+observations = []
+all_archives = []
+all_inventories = []
+native = []
+for phase_dir, phase in zip(phase_dirs, phases):
+    require(phase['source'] == SOURCE and phase['tree'] == TREE, 'phase source')
+    initial = load(phase_dir / 'initial-process-scan.json')
+    require(initial['active_users'] == [] and initial['unreadable_agent_processes'] == [], 'fresh initial readable-agent no-users')
+    for action in phase['actions']:
+        candidate = Path(action['candidate'])
+        label = candidate.parent.name if candidate.name == 'source' else candidate.name
+        proof = load(phase_dir / (label + '-archive-verification.json'))
+        action_path = phase_dir / (label + '-cleanup-result.json')
+        require(typed_equal(action, load(action_path)), 'summary versus literal action bytes')
+        require(proof['archive'] == action['archive'] and proof['full_inventory'] == action['inventory'], 'archive/inventory action bindings')
+        # Rehash compressed archives only. Do not decompress/read member bytes again.
+        archive = bind(proof['archive'])
+        inventory_path = bind(proof['full_inventory'])
+        inventory = load(inventory_path)
+        entries = inventory['entries']
+        require(len(entries) == len(set(r['relative_path'] for r in entries)) == proof['members'], 'full inventory unique member denominator')
+        file_bytes = sum(r['size'] for r in entries if r['type'] == 'file')
+        require(file_bytes == proof.get('file_bytes_verified', proof.get('verified_file_bytes')), 'independent per-member file-byte sum')
+        require(all(r['type'] in ('file', 'directory', 'symlink') for r in entries), 'actual supported member types')
+        require(all(len(r['sha256']) == 64 for r in entries if r['type'] == 'file'), 'all file hashes retained')
+        require(all('target' in r for r in entries if r['type'] == 'symlink'), 'literal link targets retained')
+        require(proof.get('all_links_modes_preserved', proof.get('all_modes_links_byte_identities')) is True, 'actual archived mode/link proof')
+        require(not candidate.exists() and action['absent_after'] is True, 'exact child absent only after proof')
+        scans = []
+        for suffix in ['before-archive-processes', 'immediate-processes']:
+            scan_path = phase_dir / (label + '-' + suffix + '.json')
+            scan = load(scan_path)
+            require(str(candidate) in scan['candidate_prefixes'], 'no-users proof scoped to actual candidate')
+            require(scan['active_users'] == [] and scan['unreadable_agent_processes'] == [], 'actual pre-removal zero-readable-agent-users')
+            require(scan['observed_unix'] <= action['started_unix'], 'no-users observation precedes unlink')
+            scans.append(ref(scan_path))
+        require(action['started_unix'] <= action['ended_unix'], 'actual completed time ordering')
+        observations.append({'candidate': str(candidate), 'archive': ref(archive), 'full_inventory': ref(inventory_path), 'members': len(entries), 'file_bytes': file_bytes, 'no_users_refs': scans, 'immediate_before_unlink_seconds': action['started_unix'] - load(phase_dir / (label + '-immediate-processes.json'))['observed_unix'], 'literal_action': ref(action_path)})
+        all_archives.append(action['archive'])
+        all_inventories.append(action['inventory'])
+        if candidate.name != 'source':
+            binding = load(phase_dir / (label + '-deciding-binding.json'))
+            native_path = bind(binding['native_receipt'])
+            receipt = load(native_path)
+            require(receipt['candidate_sha'] == SOURCE and receipt['candidate_tree_sha'] == TREE and receipt['source_immutable'] is True, 'original closed receipt source')
+            require(binding['command'] == receipt['command'] and binding['environment'] == receipt['environment'] and binding['input_files'] == receipt['input_files'], 'full native command/environment/input binding')
+            argv = receipt['command']
+            require(argv.count('--basetemp') == 1 and argv[argv.index('--basetemp') + 1] == str(candidate), 'actual native basetemp owner')
+            require(binding['actual_outcome'] == action['native_outcome'] == receipt['outcome'] and binding['exit_code'] == action['native_exit_code'] == receipt['exit_code'] and typed_equal(binding['counts'], receipt['counts']) and typed_equal(action['native_counts'], receipt['counts']), 'original terminal outcome and counts preserved')
+            for original in binding['original_and_saved_outputs']:
+                original_path = bind(original)
+                require(not original_path.is_relative_to(candidate), 'deciding originals preserved outside child')
+                saved = Path(original['saved_path'])
+                require(saved.read_bytes() == original_path.read_bytes(), 'literal saved-original deciding bytes')
+                blob = git('cat-file', 'blob', original['git_blob'])
+                require(blob == original_path.read_bytes(), 'literal published Git blob equals original')
+                require(original['publication_SHA'] == PUBLICATION, 'exact existing publication')
+            if receipt['counts'] is None:
+                require(receipt['outcome'] == 'FAIL' and receipt['exit_code'] == -9, 'original interrupted CAL kept separate')
+            else:
+                cases = list(ET.parse(receipt['junit']).iter('testcase'))
+                counts = {'cases': len(cases), 'passed': 0, 'failed': 0, 'errors': 0, 'skipped': 0}
+                for c in cases:
+                    kind = 'errors' if c.find('error') is not None else 'failed' if c.find('failure') is not None else 'skipped' if c.find('skipped') is not None else 'passed'
+                    counts[kind] += 1
+                require(typed_equal(counts, receipt['counts']), 'actual original JUnit custody counts')
+            native.append({'candidate': str(candidate), 'outcome': receipt['outcome'], 'exit_code': receipt['exit_code'], 'counts': receipt['counts']})
+
+require(sum(r['members'] for r in observations[:2]) == 41073 and sum(r['members'] for r in observations[2:]) == 32685, 'two/eight inventory sums')
+require(selection['archives_and_full_inventories_ignored_refs']['archives'] == all_archives and selection['archives_and_full_inventories_ignored_refs']['full_inventories'] == all_inventories, 'complete ignored archive/inventory list')
+corrective = load(phase_dirs[0] / 'git-registration-corrective-readback.json')
+terminal = load(phase_dirs[1] / 'git-registration-terminal-readback.json')
+require(registration_paths(corrective['before_literal']['raw']) == registration_paths(corrective['after_literal']), 'source-phase actual same registration paths')
+require(registration_paths(terminal['before']) == registration_paths(terminal['after']), 'numeric-phase actual same registration paths')
+require(phases[0]['git_registration_bytes_unchanged'] is False, 'original whole-HEAD false observation preserved')
+require(len(corrective['changes']) == 1 and corrective['changes'][0]['path'] == '/workspace/e02-E-mc-20261006', 'disclosed exact concurrent author HEAD delta')
+require(all(r['candidate'] not in registration_paths(terminal['before']) for r in observations), 'none of the ten cleanup candidates is registered')
+
+backend_correction_path = bind(summary['actual_backend_scope_correction']['receipt'])
+backend_correction = load(backend_correction_path)
+backend_prefix = Path(backend_correction['actual_protected_backend_prefix'])
+require(backend_prefix == Path('/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry') and backend_prefix.exists(), 'correct actual active backend prefix')
+require(backend_correction['exact_cleanup_actions'] == [r['candidate'] for r in observations[2:]], 'corrective scope exact eight actions')
+require(all(not Path(r['candidate']).is_relative_to(backend_prefix) and not backend_prefix.is_relative_to(Path(r['candidate'])) for r in observations), 'all ten actual actions disjoint from actual backend')
+backend_users = backend_correction['actual_backend_process_observation']
+require(backend_users['candidate_prefixes'] == [str(backend_prefix)] and len(backend_users['active_users']) == 5 and not backend_users['unreadable_agent_processes'], 'actual scoped live backend users positive witness')
+require(backend_correction['historical_observer_fourth_PROTECTED_literal'] == '/workspace/e02-E-pr38-r3-receipts/full-backend-after-prereq-64d-20261007', 'stale executed prefix provenance retained')
+require(backend_correction['cleanup_action_or_backend_test_repeat'] is False, 'corrective read only; no action replay')
+bind(summary['historical_original_summary'])
+
+metadata_path = phase_dirs[1] / 'protected-metadata-before.json'
+metadata = load(metadata_path)
+require([r['count'] for r in metadata] == [207, 184], 'full protected391 denominator')
+for group in metadata:
+    actual_paths = sorted(str(p) for p in Path(group['prefix']).glob('lib/python*/site-packages/*.dist-info/METADATA'))
+    require(actual_paths == [r['path'] for r in group['rows']] and len(actual_paths) == group['count'], 'current protected full METADATA path set')
+    for r in group['rows']:
+        bind(r)
+after = {'head': git('rev-parse', 'HEAD').decode().strip(), 'tree': git('rev-parse', 'HEAD^{tree}').decode().strip()}
+require(before == after, 'ROOT source bracket')
+
+# The sole claim inlet below binds selected publication summaries to independently
+# recomputed literal action/inventory/native/registration/metadata observations.
+expected = deepcopy(summary)
+for key, phase, observations_slice in [('source_copy_phase', phases[0], observations[:2]), ('numeric_fixture_phase', phases[1], observations[2:])]:
+    expected[key]['action_count'] = len(phase['actions'])
+    expected[key]['members'] = sum(r['members'] for r in observations_slice)
+    expected[key]['archives'] = [r['archive'] for r in phase['actions']]
+expected['historical_native_outcomes_preserved'] = native
+expected['Git_path_registration_correction']['registration_path_set_unchanged'] = registration_paths(terminal['before']) == registration_paths(terminal['after'])
+expected['Git_path_registration_correction']['source_phase_earlier_summary_raw_registration_equality_false_preserved'] = phases[0]['git_registration_bytes_unchanged'] is False
+expected['protected_source_and_metadata_unchanged']['ROOT_source_SHA'] = after['head']
+expected['protected_source_and_metadata_unchanged']['ROOT_tree'] = after['tree']
+expected['protected_source_and_metadata_unchanged']['ROOT_distributions'] = len(metadata[0]['rows'])
+expected['protected_source_and_metadata_unchanged']['DoE_distributions'] = len(metadata[1]['rows'])
+expected['native_tests_or_backend_repeated'] = False
+expected['finding_closure'] = False
+expected['actual_backend_scope_correction']['actual_backend_prefix'] = str(backend_prefix)
+expected['actual_backend_scope_correction']['all8_actual_terminal_receipt_owned_actions_disjoint'] = all(not Path(r['candidate']).is_relative_to(backend_prefix) and not backend_prefix.is_relative_to(Path(r['candidate'])) for r in observations[2:])
+expected['actual_backend_scope_correction']['backend_directory_still_exists'] = backend_prefix.exists()
+
+
+def admit_claims(value):
+    require(typed_equal(value, expected), 'summary claims must match independently recomputed original receipts/inventories')
+    return True
+
+
+require(admit_claims(summary), 'healthy actual summary')
+controls = []
+for name, change in [
+    ('source_members_41073_to_1', lambda d: d['source_copy_phase'].__setitem__('members', 1)),
+    ('numeric_action_count_8_to_True', lambda d: d['numeric_fixture_phase'].__setitem__('action_count', True)),
+    ('numeric_members_32685_to_32684', lambda d: d['numeric_fixture_phase'].__setitem__('members', 32684)),
+    ('interrupted_CAL_to_PASS_markers_retained', lambda d: d['historical_native_outcomes_preserved'][2].__setitem__('outcome', 'PASS')),
+    ('eight_A_failures_to_zero', lambda d: d['historical_native_outcomes_preserved'][0]['counts'].__setitem__('failed', 0)),
+    ('protected_ROOT_count_207_to_208', lambda d: d['protected_source_and_metadata_unchanged'].__setitem__('ROOT_distributions', 208)),
+    ('registration_false_history_hidden', lambda d: d['Git_path_registration_correction'].__setitem__('source_phase_earlier_summary_raw_registration_equality_false_preserved', False)),
+    ('cleanup_becomes_finding_closure', lambda d: d.__setitem__('finding_closure', True)),
+    ('corrected_actual_backend_reverts_to_stale_prefix', lambda d: d['actual_backend_scope_correction'].__setitem__('actual_backend_prefix', '/workspace/e02-E-pr38-r3-receipts/full-backend-after-prereq-64d-20261007')),
+]:
+    mutant = deepcopy(summary)
+    change(mutant)
+    try:
+        admit_claims(mutant)
+    except ValueError as error:
+        controls.append({'id': name, 'outcome': 'PASS refused', 'actual_refusal': str(error), 'all_original_referenced_bytes_unchanged': True})
+    else:
+        raise ValueError('integrity-valid present-summary escape:' + name)
+    # Effective claim removal: only the claim inlet is omitted; every original
+    # selected hash/marker and recomputed input remains present and valid.
+    admitted_with_inlet_removed = bool(members and observations)
+    require(admitted_with_inlet_removed, 'claim removal not actually exercised')
+    controls[-1]['required_claim_control_after_removal'] = 'FAIL would re-admit corrupted summary'
+for name, mutation in [('consistent_omitted_member', 'omit'), ('same_count_alias_relocation', 'relocate')]:
+    mutant = deepcopy(selection)
+    if mutation == 'omit':
+        row = mutant['assets'].pop()
+        mutant['asset_count'] -= 1
+        mutant['bytes'] -= row['bytes']
+    else:
+        mutant['assets'][-1]['portable_path'] += '.alias'
+    try:
+        admit_members(mutant)
+    except ValueError as error:
+        controls.append({'id': name, 'outcome': 'PASS refused', 'actual_refusal': str(error)})
+    else:
+        raise ValueError('complete selected Counter escape:' + name)
+
+result = {
+    'schema': 'policyos.e02.independent_cleanup_append_custody_review.v1',
+    'outcome': 'GO bounded custody',
+    'reviewer': 'oracle_r4; independent read-only observer, not cleanup author',
+    'source': SOURCE, 'tree': TREE,
+    'selection': ref(selection_path), 'summary': ref(summary_path),
+    'selected_files': members['members'], 'selected_bytes': members['bytes'],
+    'archive_actions': 10, 'source_copy_members': 41073, 'numeric_fixture_members': 32685,
+    'observations': observations,
+    'protected_metadata': {'bound_source': ref(metadata_path), 'actual_current_groups': [207, 184], 'all391_path_size_hash_identity_checks': 'PASS'},
+    'source_guard_before': before, 'source_guard_after': after,
+    'actual_registration_pathset': 'unchanged; concurrent MC2c→ca17 HEAD change disclosed, original raw equality false preserved',
+    'actual_backend_scope_correction': {'receipt': ref(backend_correction_path), 'actual_prefix': str(backend_prefix), 'scoped_observed_active_users': 5, 'all_ten_actions_actual_lexically_disjoint': True, 'original_stale_executed_literal_preserved': True},
+    'original_native_outcomes': native,
+    'negative_controls': controls,
+    'normal_or_optimized': 'optimized' if not __debug__ else 'normal',
+    'archive_replay_scope': 'Compressed archive hashes and inventory sums recomputed; no archive decompression/member-byte replay, no cleanup/native/numeric execution.',
+    'predicate_basis': {'selected_Counter_hashes_inventory_sums_metadata_and_JUnit_custody': 'recomputed', 'original_per_member_byte_link_mode_readback': 'recomputed', 'scoped_live_agent_no_users': 'recomputed', 'hostwide_quiescence_and_numeric_failure_cause': 'not_established'},
+    'scope_limits': ['Ten exact unregistered CLOSED source/pytest children only; all raw unknown/unique bytes remain in complete archives.', 'Agent-UID cwd/argv/environment/maps/FD visibility only; privileged daemon exclusion is explicit.', 'Observed filesystem capacity deltas are not physical RAM recovery or an additive resource promise.', 'Original CAL -9/countsnull and later324PASS remain distinct; cleanup does not change closure or explain interrupted-process cause.', 'No source/env/package/checkouts/Git mutations by reviewer.'],
+}
+output_path = OUT / ('review-' + result['normal_or_optimized'] + '.json')
+output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'outcome': result['outcome'], 'receipt': ref(output_path), 'selected_files': members['members'], 'selected_bytes': members['bytes'], 'actual_corrupt_controls': len(controls), 'source_guard': before, 'archives_decompressed': 0}, indent=2))

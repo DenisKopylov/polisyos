@@ -1,0 +1,23 @@
+import ast,copy,hashlib,json,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage');REPO=Path('/workspace/e02-E-frc-20261006');OUT=S/'author-temporal-delta';OUT.mkdir(exist_ok=True);M=json.loads((S/'manifest.json').read_text());SCRIPT=S/'copy-decisions-prereqs.py.txt'
+old=subprocess.check_output(['git','show','100aa796447a5f8afbcf627a93cd13a7497553a6:'+M['proposed_git_prefix']+'/copy-decisions-prereqs.py.txt'],cwd=REPO).decode();new=SCRIPT.read_text()
+def bodies(s):
+ t=ast.parse(s);return {n.name:ast.get_source_segment(s,n) for n in t.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
+a=bodies(old);b=bodies(new)
+if a!=b:raise ValueError('validation bodies changed beyond temporal constants')
+metadata=['copy-decisions-prereqs.py.txt','build-stage.py.txt','README.md','qualification.json','build.stdout.json','build.stderr.txt','resume-admission.json','resume-admission.stderr.txt'];results=[]
+for opt in (False,True):
+ for name,edit in [('healthy',None),('bool_new_temporal_integer',lambda d:d['qualification']['separate_source_slice']['typed_DTO_review'].update(scoped_resolved_base_errors=True)),('false_new_source_accepted_claim',lambda d:d['qualification']['separate_source_slice']['typed_DTO_review'].update(later3932_source_slice_copied_or_accepted_here=True))]:
+  p=OUT/(('optimized-' if opt else 'normal-')+name);p.mkdir();(p/'payload').symlink_to(S/'payload',target_is_directory=True)
+  for n in metadata:(p/n).write_bytes((S/n).read_bytes())
+  data=copy.deepcopy(M)
+  if edit:edit(data)
+  (p/'manifest.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+  argv=[sys.executable]+(['-O'] if opt else [])+[str(SCRIPT),'--manifest',str(p/'manifest.json'),'--destination-root',str(p/'destination')]
+  with (p/'stdout.txt').open('wb') as out,(p/'stderr.txt').open('wb') as err:r=subprocess.run(argv,stdout=out,stderr=err)
+  record={'case':name,'optimized':opt,'argv':argv,'exit_code':r.returncode,'destination_created':(p/'destination').exists(),'stdout':str(p/'stdout.txt'),'stderr':str(p/'stderr.txt')};results.append(record)
+  if name=='healthy' and r.returncode!=0:raise ValueError('healthy')
+  if name!='healthy' and (r.returncode!=1 or record['destination_created']):raise ValueError('temporal control')
+receipt={'schema':'policyos.e02.decisions_prereqs_temporal_qualification_delta.v1','class_candidate_reused':'100aa796447a5f8afbcf627a93cd13a7497553a6','exact_validation_function_body_reuse':{k:hashlib.sha256(v.encode()).hexdigest() for k,v in a.items()},'new_copier_sha256':hashlib.sha256(new.encode()).hexdigest(),'controls':results,'old_normal_optimized19_controls_reused_with_explicit_source':True,'ROOT_source_env_locks_changed':False,'source_numeric_gate_reexecuted':False}
+(S/'author-temporal-delta.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'function_bodies_reused':len(a),'new_healthy_modes':2,'typed_temporal_refusals':4,'ROOT_written':False}))

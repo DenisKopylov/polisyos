@@ -1,0 +1,138 @@
+{
+  "schema": "policyos.e02.E.final_companion_validation_copy_index.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "handoff_sha256": "5b1b1a62ca399568cfbf268c7f175bc15138d6ae547214cd2b7789b82a898089",
+  "files": [
+    {
+      "portable_path": "history/published-2b614637/README.md",
+      "bytes": 2752,
+      "sha256": "934ca28e8ad1b4c0164bdf735a8d9ac61441571f7e4538962400e8b74068de17",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/published-2b614637/handoff.json",
+      "bytes": 22387,
+      "sha256": "2eb43bc77067d899c1f38c0b05dfd5205d9dc6ebbb9f2dc2fcc020d268483239",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/573-component-correction/final-companion-validation-normal.stderr.txt",
+      "bytes": 1316,
+      "sha256": "fad73d81981f01fd034fa4343a3038ee918d80b6e5e4eee928116efd503f56a4",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/573-component-correction/final-companion-validation-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/573-component-correction/final-companion-validation-optimized.stderr.txt",
+      "bytes": 1316,
+      "sha256": "fad73d81981f01fd034fa4343a3038ee918d80b6e5e4eee928116efd503f56a4",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/573-component-correction/final-companion-validation-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/573-component-correction/validate-final-companions.py.txt",
+      "bytes": 5136,
+      "sha256": "b147a304e2965a9598bb4aa8a35fe43b3a4460c5b553be50fd39f81a795383e5",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/unified-patch-observer-correction/final-companion-corrected-normal.stderr.txt",
+      "bytes": 1074,
+      "sha256": "579200cf9f0f67488aeb0b83e672d60bc2e68c874a3587942322b24e4a7a4bf6",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/unified-patch-observer-correction/final-companion-corrected-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/unified-patch-observer-correction/final-companion-corrected-optimized.stderr.txt",
+      "bytes": 1074,
+      "sha256": "579200cf9f0f67488aeb0b83e672d60bc2e68c874a3587942322b24e4a7a4bf6",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/unified-patch-observer-correction/final-companion-corrected-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "history/unified-patch-observer-correction/validate-final-companions-corrected.py.txt",
+      "bytes": 5421,
+      "sha256": "4d96dfdabd0d60186baa6834f9f1b827c8d0150e3c2b2dc6bb20df9ddd12a5a3",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "portable_path": "final-companions/corrective-runtime-count-receipt.json",
+      "bytes": 5178,
+      "sha256": "467fd857369a66bde5cfb87d51cec27eb24e50e42278546209c1d8074f58f8c8",
+      "role": "Preserved actual historical publication/observer failure or current explicit corrective receipt."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-companions-v3.py.txt",
+      "portable_path": "final-companions/custody/validate-final-companions-v3.py.txt",
+      "bytes": 5583,
+      "sha256": "95af59e02bd81c0cd4e6daeb9f93180359dad5fb66d2f146b65372a24d643674",
+      "role": "Current source/ref/index/count/patch-format custody only; positive+eight corrupt refusal controls in normal and optimized Python. No full owner summary-admission GO."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-v3-normal.json",
+      "portable_path": "final-companions/custody/final-companion-v3-normal.json",
+      "bytes": 2821,
+      "sha256": "b3a584ba067adbddf66c672e9de19201f2669d97958b9efbe047e3056a12a672",
+      "role": "Current source/ref/index/count/patch-format custody only; positive+eight corrupt refusal controls in normal and optimized Python. No full owner summary-admission GO."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-v3-normal.stdout.txt",
+      "portable_path": "final-companions/custody/final-companion-v3-normal.stdout.txt",
+      "bytes": 2821,
+      "sha256": "b3a584ba067adbddf66c672e9de19201f2669d97958b9efbe047e3056a12a672",
+      "role": "Current source/ref/index/count/patch-format custody only; positive+eight corrupt refusal controls in normal and optimized Python. No full owner summary-admission GO."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-v3-normal.stderr.txt",
+      "portable_path": "final-companions/custody/final-companion-v3-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Current source/ref/index/count/patch-format custody only; positive+eight corrupt refusal controls in normal and optimized Python. No full owner summary-admission GO."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-v3-optimized.json",
+      "portable_path": "final-companions/custody/final-companion-v3-optimized.json",
+      "bytes": 2821,
+      "sha256": "b3a584ba067adbddf66c672e9de19201f2669d97958b9efbe047e3056a12a672",
+      "role": "Current source/ref/index/count/patch-format custody only; positive+eight corrupt refusal controls in normal and optimized Python. No full owner summary-admission GO."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-v3-optimized.stdout.txt",
+      "portable_path": "final-companions/custody/final-companion-v3-optimized.stdout.txt",
+      "bytes": 2821,
+      "sha256": "b3a584ba067adbddf66c672e9de19201f2669d97958b9efbe047e3056a12a672",
+      "role": "Current source/ref/index/count/patch-format custody only; positive+eight corrupt refusal controls in normal and optimized Python. No full owner summary-admission GO."
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-companion-v3-optimized.stderr.txt",
+      "portable_path": "final-companions/custody/final-companion-v3-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Current source/ref/index/count/patch-format custody only; positive+eight corrupt refusal controls in normal and optimized Python. No full owner summary-admission GO."
+    }
+  ],
+  "file_count": 20,
+  "bytes": 62521,
+  "scope": "Preserve published2b summary and actual observer failures; current count573schema/1494confidence correction and bounded custody. Owner19-control summary-admission scope limited after peer counterexamples, pending separate corrective owner validator."
+}

@@ -1,0 +1,162 @@
+{
+  "schema": "policyos.e02.frontend_shared_state_read_only_observation.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "time_unix": 1791367644.7117429,
+  "original_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-23/checks/standalone-ci-23/standalone-ci-23.json",
+    "bytes": 8220,
+    "sha256": "066cd990aabdf30a5571974bb5cb5eb6bd78d32d2db3a8305d03e3b660a1b917"
+  },
+  "original_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-23/checks/standalone-ci-23/standalone-ci-23.stdout.txt",
+    "bytes": 21697,
+    "sha256": "2a4cc02b09087d1c2c2c486bf197e98a902476b7034b4e3aed0d80bada810dda"
+  },
+  "original_outcome": "FAIL",
+  "original_exit_code": 1,
+  "original_wall_seconds": 1778.731563091278,
+  "source_immutable": true,
+  "observed_original_stages": [
+    {
+      "script": "a11y:contrast",
+      "observation": "completed before next script"
+    },
+    {
+      "script": "a11y:motion",
+      "observation": "completed before next script"
+    },
+    {
+      "script": "a11y:color-blind",
+      "observation": "completed before next script"
+    },
+    {
+      "script": "test:a11y:components",
+      "observation": "actual Vitest FAIL; two15000ms timeout failures, later Axe already-running failure in same OuterSetValue file;15 unhandled worker/browser errors"
+    },
+    {
+      "script": "test:a11y:pages",
+      "outcome": "UNRUN",
+      "reason": "&& fail-fast after components; no page test invocation in original stdout"
+    }
+  ],
+  "verbatim_summary": "Test Files 2 failed | 69 passed (73); Tests 3 failed | 70 passed (147); Errors15; Duration1743.42s",
+  "source_configs": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/package.json",
+      "bytes": 11599,
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/vitest.config.ts",
+      "bytes": 1341,
+      "sha256": "b2b27384a53b0947f961f47c6e7a24f619ff9c169bafed7ca4c7d69731da3411"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/vitest.a11y.config.ts",
+      "bytes": 243,
+      "sha256": "32522b0b53bcd76633c8429f3e6b35163aa6910e7d6939c3df05742375f9e392"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/vitest.confidence-ledger-browser.config.ts",
+      "bytes": 1019,
+      "sha256": "59ac1ad7a157ed0d4e545bc3b3fdd52b3cf5240f595bcd1e74ea4c7f78b92e45"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/vitest.storybook.config.ts",
+      "bytes": 1325,
+      "sha256": "61e57d5c2097bcc9a1fb4dcd0df3ff067ef61ee4ad86d5a7a16d42ff3441a294"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/playwright.config.ts",
+      "bytes": 2819,
+      "sha256": "04e27f939d43268b2c678bc205c941c0cf1ef719e430bdb65ecf6d197d844927"
+    }
+  ],
+  "installed_vitest_sources": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/dist/chunks/cac.DJJmV0dT.js",
+      "bytes": 96006,
+      "sha256": "23d05ff50f3e0617575a8af46a9dd5ed106bbcd90109da702e3addc620b07ecd"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/dist/chunks/constants.CPYnjOGj.js",
+      "bytes": 800,
+      "sha256": "3565003408971a6af9e78d211dea047fe5b5bd82bdb0aad373f75b45c434449f"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/dist/chunks/coverage.DM_a_rWm.js",
+      "bytes": 54974,
+      "sha256": "e509f3cc1bd81ae6426265253fa926cbde02be5cebfe35b1df422017bffdca31"
+    }
+  ],
+  "current_listeners": [
+    {
+      "protocol": "tcp6",
+      "local_endpoint_hex": "00000000000000000000000001000000:F755",
+      "port": 63317,
+      "inode": 3659547,
+      "owners": [
+        {
+          "pid": 498495,
+          "program": "node",
+          "argv_sha256": "248e7e44e8e145008810f7a064b50f70bb47a340ae02af3ccc85178153bfa2c9",
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "selected_config_arguments": [
+            "vitest.storybook.config.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "current_chromium_profiles": [
+    {
+      "pid": 498938,
+      "user_data_dir": [
+        "--user-data-dir=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/environment-tmp/playwright_chromiumdev_profile-CLZybs"
+      ],
+      "remote_debugging_flags": [
+        "--remote-debugging-pipe"
+      ]
+    }
+  ],
+  "shared_mutable_seams": [
+    {
+      "seam": "Vitest browser API default63315",
+      "basis": "installed constants defaultBrowserPort63315; configs do not declare browser API port. Originalstdout explicitly says63315in use, trying another. Currentcoverage/stories processes separately listen63315/63317.",
+      "attribution": "Observed collision/fallback, not proof of cause of original worker or browser failure"
+    },
+    {
+      "seam": "a11y components and normal components/coverage share base vitest cache and confidence-ledger-browser cache/attachments",
+      "paths": [
+        "_cache/apps/runtime-dashboard/vitest",
+        "_cache/apps/runtime-dashboard/vitest-confidence-ledger-browser",
+        "_build/apps/runtime-dashboard/vitest-attachments"
+      ],
+      "serialization": "Only duplicate shared writer/cached browser fixture domains need serialization; independent numeric jobs stay uncapped"
+    },
+    {
+      "seam": "Storybook uses separatevitest-storybook cache but same unconfigured browser API default",
+      "paths": [
+        "_cache/apps/runtime-dashboard/vitest-storybook"
+      ],
+      "serialization": "Wait actual browser controller closure or owner-admitted isolated API endpoint; no global CPU/process cap"
+    },
+    {
+      "seam": "page fixture ports8000/5173 and fixedfixture metadata/results",
+      "basis": "playwright.config.ts webServer and sourceworkers1 fixture policy; page stage wasnotexecuted",
+      "serialization": "Futurepage tests serialize actualshared backend/Vite/controller andpersistedfixture metadata, retaining declared fullscript"
+    }
+  ],
+  "next_owner": "Canonical frontend test/browser fixture owner with root scheduler",
+  "next_verifiable_result": [
+    "Retain originalFAIL/source/env/output; noOOM/P41 causal attribution from aggregate memory or reportedpaths",
+    "After sharedbrowser/cache/attachment controllers andnode_modules writers close, retry exact npm run test:a11y without worker caps, timeout extension, file exclusions or skip weakening; keep separate receipt",
+    "If owner chooses browser API port isolation, --browser.api.port is an existing installedCLI option; admit actual effective endpoint under fullselector. Ephemeralport0 behavior wasnotexecuted here and isnot claimed established",
+    "Any second same-instance Axe escape requires frontend classfix/control, not merely relabelingtimeout. Both existing tests actually awaitaxe; runner timeout may leave library work live, but no cross-process Axe instance is inferred",
+    "Execute fullpage successor afterhealthycomponents only throughdeclared script or independent exactselector receipt, preserving originalumbrellaUNRUN"
+  ],
+  "no_source_or_environment_mutation": true,
+  "retry_executed": false,
+  "P41": "not_established: no exactbasefullselector replay or per-PIDOOMkill witness"
+}

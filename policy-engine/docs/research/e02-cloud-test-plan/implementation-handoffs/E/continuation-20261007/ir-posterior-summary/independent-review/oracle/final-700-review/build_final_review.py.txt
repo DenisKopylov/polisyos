@@ -1,0 +1,145 @@
+from __future__ import annotations
+import ast
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+ROOT=Path('/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent')
+LANE=Path('/workspace/e02-E-frc-20261006')
+OUT=ROOT/'final-700-review'
+C='700f9d5a5e2167787d7042ca11e1ef3bf80ced74'
+P='c8616e2babe1f0674799c12f07faffa5d6bd266d'
+B='cdaea067935c8062a6a13fab8d7ffb53ae5fd401'
+H='c4b2ccfb1f8716680f0b431ab4c5757dcc75343f'
+def git(*args): return subprocess.check_output(['git','-C',str(LANE),*args])
+def blob(sha,path):return git('show',f'{sha}:{path}')
+def ref(path):
+ p=Path(path);data=p.read_bytes();return {'path':str(p),'sha256':hashlib.sha256(data).hexdigest(),'size_bytes':len(data)}
+def read(rel):return json.loads((ROOT/rel).read_text())
+final=read('final-700-review/independent-final-delta-results.json')
+prev=read('c861-review/c861-independent-review.json')
+first=read('c87-review/c87-independent-review.json')
+decision=read('semantic-decision-independent-review.json')
+assert final['counts']=={'PASS':7} and final['source_unchanged']
+assert prev['counts']=={'PASS':9} and prev['source_unchanged']
+assert first['counts']['PASS']==28 and first['source_unchanged_during_deciding_probe']
+assert git('rev-parse','HEAD').decode().strip()==C
+assert not git('status','--porcelain').strip()
+for p,identity in final['footprint'].items():
+ data=blob(C,p); assert hashlib.sha256(data).hexdigest()==identity['sha256'];assert (LANE/p).read_bytes()==data
+legacy_paths=['policy-engine/src/polisyos/ir/analytics/uncertainty.py','policy-engine/src/polisyos/core/artifacts/ir_adapter.py','policy-engine/src/polisyos/common/serialization.py','policy-engine/src/polisyos/ir/model_layer/canon.py','policy-engine/src/polisyos/core/canon/canon_json.py','policy-engine/src/polisyos/core/canon/hashing.py','policy-engine/src/polisyos/ir/artifacts/__init__.py','policy-engine/src/polisyos/ir/artifacts/io.py','policy-engine/src/polisyos/ir/artifacts/transport.py','policy-engine/src/polisyos/ir/artifacts/contracts.py']
+legacy=[]
+for path in legacy_paths:
+ data=blob(C,path);assert data==blob(B,path)==blob(H,path)
+ legacy.append({'path':path,'unchanged_from_ratification_and_source_base':True,'sha256':hashlib.sha256(data).hexdigest(),'size_bytes':len(data)})
+path='policy-engine/src/polisyos/ir/analytics/posterior_summary.py'
+oldtree=ast.parse(blob(P,path));newtree=ast.parse(blob(C,path))
+def ast_items(tree):return {n.name:ast.dump(n,include_attributes=False) for n in tree.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}
+olditems,newitems=ast_items(oldtree),ast_items(newtree)
+changed_symbols=sorted(n for n in set(olditems)|set(newitems) if olditems.get(n)!=newitems.get(n))
+assert changed_symbols==['_profile_declared','read_posterior_summary_profile']
+functionals_unchanged=olditems['posterior_summary_functionals']==newitems['posterior_summary_functionals']
+assert functionals_unchanged
+changed_paths=git('diff','--name-only',P,C).decode().splitlines()
+raw_refs=[
+ 'semantic-decision-independent-review.json','source-consumer-census.json','source_census.py',
+ 'baseline-semantic-oracles.json','baseline_oracles.py','baseline-oracles-corrected.stdout','baseline-oracles-corrected.stderr',
+ 'weighted-convention-oracle.json','weighted_convention_oracle.py','weighted-oracle.stdout','weighted-oracle.stderr',
+ 'quantile-cdf-collapse-oracle.json',
+ 'c87-review/c87-independent-review.json','c87-review/independent-oracle-results.json',
+ 'c87-review/independent-oracle-delta-results.json','c87-review/independent-oracles.stdout','c87-review/independent-oracles.stderr',
+ 'c87-review/independent-oracle-delta.stdout','c87-review/independent-oracle-delta.stderr',
+ 'c87-review/independent_oracles-first.py','c87-review/independent_oracles.py',
+ 'canonical-adapter-probe.json','single-consistent-fake-joint-probe.json',
+ 'c861-review/c861-independent-review.json','c861-review/independent_delta.py',
+ 'c861-review/independent-delta-results.json','c861-review/independent-delta.stdout','c861-review/independent-delta.stderr',
+ 'signed-zero-c861-probe.json',
+ 'final-700-review/independent_final_delta.py','final-700-review/independent-final-delta-results.json',
+ 'final-700-review/independent-final-delta.stdout','final-700-review/independent-final-delta.stderr',
+ 'final-700-review/build_final_review.py',
+]
+evidence=[]
+for rel in raw_refs:
+ p=ROOT/rel
+ if not p.exists() and rel in ['canonical-adapter-probe.json','single-consistent-fake-joint-probe.json']:
+  p=ROOT/'c87-review'/rel
+ assert p.exists(),str(p)
+ evidence.append(ref(p))
+cleanup=[]
+for d in (decision,first,prev,final):
+ for p in d.get('cleanup_candidates',[]):
+  if p not in cleanup:cleanup.append(p)
+review={
+ 'schema':'policyos.e02.independent_ir_final_source_disposition.v1',
+ 'reviewer':'oracle_r4; independent read-only source review, scratch-only probes; no source authorship',
+ 'candidate':C,'tree':final['tree'],'parent_candidate':P,'base':B,
+ 'ratification_decision_commit':B,'source_base':H,'source_base_tree':decision['source_base_tree'],
+ 'source_disposition':'GO for bounded B201/B202 producer/profile/CAS/native E law mechanism on this immutable candidate',
+ 'scope':['Separate named mean/median/equal-tail functionals under the ratified v1.1 compatible option.','Exact finite float64 carrier, axis/order/shared draw identity/weights and content-bound profile context through existing CAS.','Strict fresh E native intake before model builder/evaluator; no fabricated scientific posterior quality, fit/noise/likelihood or production authority.'],
+ 'source_clean':True,'source_unchanged_during_final_deciding_run':True,
+ 'footprint':final['footprint'],'environment':final['environment'],
+ 'exact_final_command':'PYTHONPATH=/workspace/e02-E-frc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/independent_final_delta.py',
+ 'command_exit_code':0,'final_delta_counts':final['counts'],'final_delta_cases':final['cases'],
+ 'source_dependency_bracket':{
+  'parent_to_candidate_changed_paths':changed_paths,
+  'profile_module_changed_symbols':changed_symbols,
+  'profile_functional_math_AST_unchanged_from_c861':functionals_unchanged,
+  'reviewed_delta':'Producer selects existing canonical real zero before carrier/joint/profile hashes and adds genuine NEW profile ID/version declarations. Reader declaration predicate reserves only new profile markers and reconciles them with actual typed profile; old generic labels retain legacy point semantics. SamplingAdmission carrier import routes through existing curated IR analytics facade. No remaining changes to nominal node/group admission, existing common draw transform, weighted functional mathematics or existing digest representation on this final delta.',
+  'legacy_ABI_codec_transport_exact_byte_bracket':legacy,
+  'full_footprint_count':len(final['footprint']),
+  'Python_footprint_count':sum(p.endswith('.py') for p in final['footprint']),
+ },
+ 'reused_frozen_observations':[
+  {'candidate':first['candidate'],'tree':first['tree'],'receipt':str(ROOT/'c87-review/c87-independent-review.json'),'resolved_bounded_cases':28,'meaning':'26 unchanged cases plus two corrected reporter-only cases. These observations were not all re-executed on final700. First reporter stdout with two incorrect FAIL classifications retained; the subsequent two-case reporter delta PASS corrects Pydantic subclass/earlier-refusal assumptions without product changes.','case_ids':[c['id'] for c in first['runtime_cases']]},
+  {'candidate':prev['candidate'],'tree':prev['tree'],'receipt':str(ROOT/'c861-review/c861-independent-review.json'),'bounded_delta_cases':9,'meaning':'Actual adapter, shared digest, single/fullmapping admission, publicreal guard, scaledhypot and removal observations. Not re-executed on final700; final AST/dependency bracket isolates zero canonicalization/profile discrimination/import route delta.','case_ids':[c['id'] for c in prev['runtime_cases']]},
+ ],
+ 'historical_source_red_provenance':[
+  {'candidate':first['candidate'],'defect':'CoreToIR adapter has no verify method, new loader AttributeError','receipt':str(ROOT/'c87-review/canonical-adapter-probe.json'),'resolved_at':P,'deciding_delta_case':'canonical_IRadapter_single_read_and_exact_bytes'},
+  {'candidate':first['candidate'],'defect':'Consistently forged single joint SHA declaration accepted, actual257callbacks','receipt':str(ROOT/'c87-review/single-consistent-fake-joint-probe.json'),'resolved_at':P,'deciding_delta_case':'native_group_refusal_1_consistent_joint'},
+  {'candidate':P,'defect':'Signed-negative-zero producer hashes differ from existing canonical CAS positive-zero read; fresh strictnominal refuses','receipt':str(ROOT/'signed-zero-c861-probe.json'),'resolved_at':C,'deciding_delta_cases':['signedzero_freshCAS_native_None','signedzero_freshCAS_native_[-0.0, 1.0]']},
+  {'candidate':P,'defect':'Generic old labels incorrectly declare new profile; genuine legacy v1.1 median+separate mean fixture refused','source_reported_receipt':'/workspace/e02-E-pr38-r3-receipts/ir-profile/legacy-generic-labels-c861-probe.json','provenance':'Author/root exact-c861 red retained separately; independent final healthy oldfixture and NEWmarker-removal proof delivered here.','resolved_at':C,'deciding_delta_case':'old_generic_labels_v1_1_replay'},
+ ],
+ 'runtime_defining_oracles':{
+  'atoms':'99 zero values plus100: arithmetic mean1, median0, q05/q95[0,0]. Native CAS profile nominal selects1 while generic point remains0; no interval widening.',
+  'same_summaries_different_laws':'Two100-row laws bothmean0/populationvar3/5/samplevar60/99/interval[-1,1] retain distinct freshCAS refs and P(0)=.4 versus.7.',
+  'paired_dependence':'Positive versus reversed negative pairing g=+-1 preserves actual native jointrows; Var(a-b)=0 versus4, actual256Sobolnet128/128 plus1nominal callback.',
+  'weighted_convention':'Values0,999,2 masses1,0,3 ->mean1.5, inverseCDFmedian2 andq05/q95[0,2], zero-mass999 excluded; original interpolation helper remains unchanged.',
+  'sorted_CDF':'Finite representation accepted draw-orderCDF can collapse after value sorting; producer and strictfreshreader both reject positive category collapse before callback rather than erase atom.',
+  'finite_range':'Finite(0,1e200) weighteddiagnosticstd5e199 persists and freshreads using scaledhypot. An unrepresentable Gaussian diagnostic interval refuses. No float32 backend or inferentialcovariance claim.',
+ },
+ 'effective_property_removal_controls':[
+  {'candidate':first['candidate'],**first['required_assertion_controls'][0]},
+  {'candidate':first['candidate'],**first['required_assertion_controls'][1]},
+  {'candidate':prev['candidate'],**prev['new_property_removal']},
+  {'candidate':C,'property':'Genuine NEW profile discriminator','removal':'Disable only actual _profile_declared; retain NEWID/version and actual freshCAS artifact with missing profile/required. Actual node executes257callbacks using genericmedian0, so required beforecallback0 assertion FAIL.','effective':True},
+ ],
+ 'predicate_basis':[
+  {'predicate':'Functionals/atom/paired-law expectations','basis':'independently_reconciled'},
+  {'predicate':'CAS bytes/hash/ref/type/profile/axis/order/rows/probabilities/joint digest/context agreement','basis':'recomputed'},
+  {'predicate':'Profile supplied unit/estimand/source/model/fit/rule/time/purpose provenance assertions','basis':'consumer_asserted','authority':'Content-bound representation only; does not validate truth of underlying scientific source/fit/law.'},
+  {'predicate':'Scientific posterior quality, likelihood/noise, mixing/ESS, configured source-fit join and production policy authority','basis':'not_established'},
+ ],
+ 'finding_adjudication':{
+  'B201':'Independent functional/compatibility source proof delivered. Accountable owner records originalcard disposition separately; no automatic closure from sourceGO or number of PASS.',
+  'B202':'Independent exact finite carrier/joint/readback/precallback source proof delivered. Accountable owner records originalcard disposition separately; no asserted scientific confidence or new C/F consumer authority.',
+  'B197':'Configured Bayesian source/fit/noise/target join remains separate; no bound direct summarizer source caller established by original c4 completeAST census.',
+ },
+ 'remaining_owners_and_limits':[
+  {'owner':'E appointed B201/B202 semantic/implementation owner','next_result':'Record each original criterion disposition using this bounded functional/law evidence and separately reviewed public/consumer packet.'},
+  {'owner':'G integration publisher/code acceptance','next_result':'Fetch exact immutable source and independently reviewed handoff; accept implementation separately from finding closure; final frozen defining/global wave belongs to root queue.'},
+  {'owner':'Canonical schema/runtime API/OpenAPI generator publisher','next_result':'Apply/generate/admit the exact profile ABI/export companion packet; generated public surface not admitted by this source receipt.'},
+  {'owner':'C/F adjacent ABI/consumer owners','next_result':'Review unchanged v1.1 transport/projection compatibility packet at their actual source edges; E does not appoint them new law computations.'},
+  {'owner':'Scientific source/fit/noise/chain owner and served evaluator owner','next_result':'Provide exact factual admitted lineage/law/quality inputs when original criterion requires them; no production data was copied or synthetic authority asserted.'},
+ ],
+ 'limits':[
+  '7 finaldeltaPASS are current independent narrow checks; 28c87 and9c861 resolved observations retained under explicit source/dependency review, not summed into a current44-case wave.',
+  'All observed profile/decomposition gate_eligible flags remainfalse; samples do not establish valid inferential covariance, coverage/mixing/ESS or causal/treatment/policy authority.',
+  'Uses existing real-zero CAS canon; no IEEE signed-zero bit-identity or arbitrary-real probability exactness guarantee.',
+  'Original staticc4 census2701trackedsourceASTs/121selectedpaths/0parseerrors is fully bounded; dynamic/getattr/registry dispatch and testsource were not that census denominator.',
+  'Sourceacceptance separate from owner finding disposition, code acceptance, public contract publication and all-units CI/global gates. No broad wave repeated.',
+ ],
+ 'evidence':evidence,
+ 'cleanup':{'native_trash_available':False,'action':'List only; preserve all unique source/scripts/deciding outputs. Repeatable fixtures may move only to nativeTrash after receipts and active-user check; no permanent deletion.','candidates':cleanup},
+}
+(OUT/'final-independent-review.json').write_text(json.dumps(review,indent=2)+'\n')
+print(json.dumps({'disposition':review['source_disposition'],'candidate':C,'counts':final['counts'],'source_unchanged':True,'legacy_byte_bracket':len(legacy),'footprint':len(final['footprint']),'receipt':ref(OUT/'final-independent-review.json')}))

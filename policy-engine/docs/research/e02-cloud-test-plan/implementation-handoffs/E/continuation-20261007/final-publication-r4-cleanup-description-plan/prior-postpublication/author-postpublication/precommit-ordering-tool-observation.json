@@ -1,0 +1,18 @@
+{
+  "schema": "policyos.e02.textual_author_tool_observation.v1",
+  "scope": "Textual account of ad-hoc precommit custody check; no separate literal full stdout/stderr file captured for this first invocation.",
+  "candidate": "e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62",
+  "error": "ValueError: footprint mismatch",
+  "reason": "The helper compared Path-component iteration order with the handoff's explicitly string-sorted path vector. The exact 338-path set and its unique members were already equal; no payload or handoff correction was needed.",
+  "subsequent_actual_check": {
+    "count": 338,
+    "exact_set": true,
+    "duplicate_paths": false,
+    "sorted_string_match": true
+  },
+  "corrected_recomputing_helper": "verify-handoff-precommit.py.txt",
+  "corrected_full_stdout": "handoff-precommit.stdout.json",
+  "corrected_full_stderr": "handoff-precommit.stderr.txt",
+  "native_source_backend_failure_attribution": false,
+  "source_or_handoff_bytes_changed_for_this_observation": false
+}

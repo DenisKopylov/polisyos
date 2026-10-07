@@ -1,0 +1,26 @@
+[
+  {
+    "name": "fetch",
+    "argv": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/heads/codex/e02-E-frc-20261006:refs/remotes/origin/codex/e02-E-frc-20261006"
+    ],
+    "cwd": "/workspace/e02-E-frc-20261006",
+    "exit_code": 0
+  },
+  {
+    "name": "ls-remote",
+    "argv": [
+      "git",
+      "ls-remote",
+      "--heads",
+      "origin",
+      "codex/e02-E-frc-20261006",
+      "codex/e02-E-continuation-20261006"
+    ],
+    "cwd": "/workspace/e02-E-frc-20261006",
+    "exit_code": 0
+  }
+]

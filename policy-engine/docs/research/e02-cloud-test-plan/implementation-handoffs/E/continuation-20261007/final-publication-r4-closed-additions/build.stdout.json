@@ -1,0 +1,26 @@
+{
+  "schema": "policyos.e02.closed_additions_selector_custody.v1",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "publication_base": "2e28bed33d179d1d0f9db4b6cbb3837d809c42c0",
+  "publication_base_tree": "6f3ff36401d8507abc9e099d1cf74ec37f54aad3",
+  "proposed_git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions/",
+  "logical_count_including_selectors": 254,
+  "logical_bytes_including_selectors": 2866394,
+  "unique_payload_files": 154,
+  "unique_payload_bytes": 2340542,
+  "deduplicated_logical_aliases": 100,
+  "destination_collision_count": 0,
+  "content_collision_count": 0,
+  "root_tracked_status_before": "",
+  "root_tracked_status_after": "",
+  "ROOT_source_env_locks_written": false,
+  "source_tests_gate_numeric_execution": false,
+  "pending_excluded": [
+    "RUNNING ROOT backend source64d job61243",
+    "final root supplement/current361",
+    "final current all54/B821/join inputs"
+  ],
+  "historical_bytes_policy": "Original failures, missing archive refs, old evidence escapes and author/independent observer corrections remain literal inside selected chains; no outcome reinterpretation.",
+  "scope": "Six closed selector chains only. Nativecatalog packet is owner-ready patch/test evidence, not source-owner acceptance or fullHTTP PASS. Cleanup semantic content remains its original owners; custody does not confer findings/scientific authority."
+}

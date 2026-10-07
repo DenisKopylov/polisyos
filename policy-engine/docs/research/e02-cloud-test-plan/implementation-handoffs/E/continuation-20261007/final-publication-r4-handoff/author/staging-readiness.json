@@ -1,0 +1,98 @@
+{
+  "schema": "policyos.e02.staging_only_custody_readiness.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "manifest_bytes": 148233,
+  "manifest_sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4",
+  "logical_assets_including_five_selectors": 123,
+  "unique_payload_files": 107,
+  "unique_payload_bytes": 3112171,
+  "literal_dedup_aliases": 16,
+  "proposed_copy_metadata_files": 6,
+  "dry_run_written_paths": 113,
+  "dry_run_readback": "PASS",
+  "pure_guard_mutations": [
+    {
+      "mutation": "unique_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "unique_bytes",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "logical_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "logical_bytes",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "alias_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "payload_hash",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "path_escape",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "active_python",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "alias_hash",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "alias_git_path",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "source_sha",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "tree_sha",
+      "outcome": "REFUSED"
+    }
+  ],
+  "root_leaf_source_environment_writes": false,
+  "actual_source_gate_test_numeric_execution": false,
+  "ready_subset_only": true,
+  "pending_not_collected": [
+    "new frontend receipts",
+    "new backend receipts",
+    "final all-54 owner closeout"
+  ],
+  "metadata_hashes": {
+    "staging-manifest.json": {
+      "bytes": 148233,
+      "sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4"
+    },
+    "README.md": {
+      "bytes": 2121,
+      "sha256": "9bb1c75ad89284f2a8da6179ac7004d1e9fa15824f7d5d4d7579330519c8721a"
+    },
+    "copy-proposed-publication.py.txt": {
+      "bytes": 3750,
+      "sha256": "630868fdd62cb3bb79994ae98ff68f8a247ab6cda45bd873d2a7fa31d7046f45"
+    },
+    "build-staging.py.txt": {
+      "bytes": 11542,
+      "sha256": "748135acd89963861a2ba2951efa6bf437a5a31fe8a14acd643b342e02b180ff"
+    },
+    "build.stdout.json": {
+      "bytes": 5675,
+      "sha256": "b0c7513856f92e1ce1b116a7a0fbd3e782dd60902e847e3347565b80dfbf1f14"
+    },
+    "build.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

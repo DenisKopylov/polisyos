@@ -1,0 +1,26 @@
+[
+  {
+    "property_removed": "named posterior mean replaced by generic median point",
+    "actual_native_test_detected_removal": true,
+    "exception_type": "AssertionError",
+    "message": ""
+  },
+  {
+    "property_removed": "sorted positive-CDF representability admission removed",
+    "actual_native_test_detected_removal": true,
+    "exception_type": "Failed",
+    "message": "DID NOT RAISE <class 'ValueError'>"
+  },
+  {
+    "property_removed": "raw real/non-bool carrier admission removed before legacy decoder",
+    "actual_native_test_detected_removal": true,
+    "exception_type": "Failed",
+    "message": "invalid profile reached evaluator builder"
+  },
+  {
+    "property_removed": "new named-functional declaration recognition removed",
+    "actual_native_test_detected_removal": true,
+    "exception_type": "Failed",
+    "message": "DID NOT RAISE <class 'ValueError'>"
+  }
+]

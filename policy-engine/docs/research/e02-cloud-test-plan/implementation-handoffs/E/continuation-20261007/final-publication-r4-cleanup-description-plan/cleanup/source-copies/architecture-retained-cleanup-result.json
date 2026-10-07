@@ -1,0 +1,34 @@
+{
+  "candidate": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/source",
+  "started_unix": 1791375498.4812596,
+  "ended_unix": 1791375499.3669565,
+  "filesystem_before": {
+    "observed_unix": 1791375498.4812555,
+    "free_bytes": 2237239296,
+    "available_bytes": 502476800
+  },
+  "filesystem_after": {
+    "observed_unix": 1791375499.354202,
+    "free_bytes": 2815377408,
+    "available_bytes": 1080614912
+  },
+  "actual_available_delta_bytes": 578138112,
+  "allocated_fixture_file_bytes": 569700352,
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-source.tar.gz",
+    "bytes": 135133695,
+    "sha256": "be25692ac486a06dffca2c0be1c025e4d319ca88fda95225c24ccb6d9c8f22ab"
+  },
+  "inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-full-inventory.json",
+    "bytes": 12852251,
+    "sha256": "b226200b9407260b2624b0e0974c1a7812385ab4d3ceda9880275ea4c12e46b4"
+  },
+  "members": 20526,
+  "matched_tracked_files": 16988,
+  "matched_tracked_bytes": 523926942,
+  "all_unmatched_files_preserved": 1555,
+  "unmatched_bytes_preserved": 1552844,
+  "absent_after": true,
+  "protected_source_metadata_unchanged": true
+}

@@ -1,0 +1,2 @@
+To https://github.com/DenisKopylov/polisyos.git
+   3eafb8561..ac2682a66  HEAD -> codex/e02-E-frc-20261006

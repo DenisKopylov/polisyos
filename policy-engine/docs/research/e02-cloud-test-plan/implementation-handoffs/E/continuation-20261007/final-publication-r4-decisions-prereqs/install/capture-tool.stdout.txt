@@ -1,0 +1,1 @@
+{"input_rows": 32, "total_bytes": 369304, "source_paths": 6, "physical_metadata_count": 207, "wheel_count": 4, "wheel_bytes": 29938701}

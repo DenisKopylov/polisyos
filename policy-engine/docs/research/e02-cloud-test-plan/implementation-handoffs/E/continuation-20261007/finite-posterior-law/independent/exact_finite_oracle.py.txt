@@ -1,0 +1,60 @@
+"""Independent exact rational finite-law boundary oracle, no candidate imports."""
+from fractions import Fraction
+from pathlib import Path
+import hashlib
+import json
+import math
+import platform
+import sys
+
+OUT=Path('/tmp/e02-E-ir-G855-conditions-independent-64d')
+def ratio(value):
+ if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value):
+  raise ValueError('oracle requires finite real non-bool input')
+ return Fraction(value)
+def law(weights):
+ converted=[ratio(x) for x in weights]
+ if any(x<0 for x in converted) or not any(x>0 for x in converted):
+  raise ValueError('oracle law has invalid masses')
+ total=sum(converted,Fraction(0))
+ return [x/total for x in converted]
+def cumulative(weights):
+ current=Fraction(0);out=[]
+ for p in law(weights):
+  current+=p;out.append(current)
+ return out
+def bucket(weights,u):
+ represented=ratio(u)
+ if not 0<=represented<1:raise ValueError('uniform outside half-open unit interval')
+ return next(i for i,c in enumerate(cumulative(weights)) if represented<c)
+def quantile(samples,weights,q):
+ represented=ratio(q)
+ if not 0<represented<=1:raise ValueError('quantile outside unit interval')
+ current=Fraction(0)
+ for _,sample,p in sorted([(i,ratio(x),p) for i,(x,p) in enumerate(zip(samples,law(weights),strict=True))],key=lambda row:row[1]):
+  current+=p
+  if p>0 and current>=represented:return float(sample)
+ raise ValueError('oracle quantile not found')
+def dyadic():
+ samples=[0,3,9];ps=law([1,1,2]);mean=sum(Fraction(x)*p for x,p in zip(samples,ps,strict=True));variance=sum(p*(Fraction(x)-mean)**2 for x,p in zip(samples,ps,strict=True))
+ counts=[sum(bucket([1,1,2],i/256)==j for i in range(256)) for j in range(3)]
+ return {'mean':str(mean),'variance':str(variance),'callback_grid_rows':counts}
+rows=[]
+weights=[1,2]
+bound=Fraction(1,3)
+rounded=float(bound)
+neighbor=math.nextafter(rounded,math.inf)
+for u in [0.0,rounded,neighbor,math.nextafter(1.0,0.0)]:
+ rows.append({'weights':weights,'u':u,'u_hex':u.hex(),'exact_u':str(Fraction(u)),'exact_CDF_first':'1/3','bucket':bucket(weights,u),'quantile_sample_at_same_q':None if u==0 else quantile([0,1],weights,u)})
+additional=[]
+for w in [[1,0,3],[1e-20,.5,.5],[.5,1e-20,.5],[1,1e-20]]:
+ cs=cumulative(w)
+ candidates={0.0,math.nextafter(1.0,0.0)}
+ for c in cs[:-1]:
+  f=float(c)
+  for u in [math.nextafter(f,0.0),f,math.nextafter(f,1.0)]:
+   if 0<=u<1:candidates.add(u)
+ additional.append({'weights':w,'exact_probabilities':[str(p) for p in law(w)],'exact_CDF':[str(c) for c in cs],'uniform_probes':[{'u':u,'u_hex':u.hex(),'bucket':bucket(w,u)} for u in sorted(candidates)]})
+result={'schema':'policyos.e02.independent_exact_finite_oracle.v1','basis':'Fraction of the actual finite input real values, normalized by exact sum. Bucket is first exact cumulative strictly greater than exact finite U. Quantile is first positive-mass value with exact cumulative >= exact finite q. No candidate sampler/summary loops imported.','environment':{'python':sys.version,'executable':sys.executable,'platform':platform.platform()},'one_third_neighbors':rows,'category_boundaries':additional,'dyadic_joint_y':dyadic(),'hundred_equal_weights_99zero_last1e15_mean':str(Fraction(10**15,100)),'almost_equal_vectors_equal_as_exact_laws':law([.5,.5])==law([.5000000000005,.4999999999995]),'last_tiny_finite_U_domain':'Exact law is valid but no finite float64 U in [0,1) reaches the last1e-20 category. A finite-grid sampler must type-refuse rather than claim every positive category survives.','role':'Gold expectations only, not candidate PASS or source authority.'}
+p=OUT/'exact-finite-oracle.json';p.write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'outcome':'independent oracle derived','path':str(p),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'dyadic':result['dyadic_joint_y'],'third_boundary_actual_gold':rows,'candidate_imports_or_tests':False},indent=2))

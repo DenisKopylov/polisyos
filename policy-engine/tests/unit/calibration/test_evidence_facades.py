@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
@@ -124,7 +125,23 @@ def test_public_finite_law_admission_preserves_atoms_and_domain() -> None:
     np.testing.assert_array_equal(cumulative, [0.25, 0.5, 1.0])
     uniforms = uncertainty.admit_unit_uniform([0, 0.25, 0.5, np.nextafter(1.0, 0.0)])
     np.testing.assert_array_equal(np.searchsorted(cumulative, uniforms, side="right"), [0, 1, 2, 2])
-    with pytest.raises(ValueError, match="collapses"):
-        uncertainty.admit_empirical_weights([0.5, 1e-20, 0.5], 3)
+    # Exact ratios place this positive atom between two distinct finite-U cuts.
+    half, tiny = Fraction(1, 2), Fraction.from_float(1e-20)
+    total = 2 * half + tiny
+    before_half = float(np.nextafter(0.5, 0.0))
+    after_half = float(np.nextafter(0.5, np.inf))
+    assert Fraction.from_float(before_half) < half / total < half
+    assert half < (half + tiny) / total < Fraction.from_float(after_half)
+    tiny_weights = uncertainty.admit_empirical_weights([0.5, 1e-20, 0.5], 3)
+    tiny_cumulative = uncertainty.empirical_cdf(tiny_weights)
+    np.testing.assert_array_equal(tiny_cumulative, [0.5, after_half, 1.0])
+    tiny_uniforms = uncertainty.admit_unit_uniform([before_half, 0.5, after_half])
+    np.testing.assert_array_equal(
+        np.searchsorted(tiny_cumulative, tiny_uniforms, side="right"), [0, 1, 2]
+    )
+    # With two tiny atoms, the first two upward-rounded cuts coincide at 0.5.
+    assert (half + tiny) / (2 * half + 2 * tiny) == half
+    with pytest.raises(ValueError, match="no finite-U bucket"):
+        uncertainty.admit_empirical_weights([0.5, 1e-20, 1e-20, 0.5], 4)
     with pytest.raises(ValueError, match=r"\[0, 1\)"):
         uncertainty.admit_unit_uniform([1.0])

@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.read_only_attribution_observers.v1",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "environment_observed_now": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "commands": [
+    {
+      "executed_command": [
+        "python3",
+        "-S",
+        "inspect_architecture_output.py"
+      ],
+      "cwd": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution",
+      "archived_literal_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_architecture_output.py.txt",
+        "bytes": 11927,
+        "sha256": "d56afd54c8b0ac5482633e32f42e474d5e8de0040f9f547ddd5381d13165463e"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review.stdout",
+        "bytes": 4760,
+        "sha256": "13993cd38f0572386ea3243800c98ef7d6379b3acdb3510372f79b7f77eec8b0"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/architecture-output-review.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "exit_code": 0
+    },
+    {
+      "executed_command": [
+        "python3",
+        "-S",
+        "reconcile_captured_outputs.py"
+      ],
+      "cwd": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution",
+      "archived_literal_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/reconcile_captured_outputs.py.txt",
+        "bytes": 6143,
+        "sha256": "016c9b2f06a6c539ee3410466b599b0803f3a0c2c73490db6c8ec00d1c820488"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/reconcile-captured-outputs.stdout",
+        "bytes": 10898,
+        "sha256": "81def1eb0eb0dd9bbcce0c1865abef1ab829d99aab5f24c0a3db07e438f4a58f"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/reconcile-captured-outputs.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "exit_code": 0
+    },
+    {
+      "executed_command": [
+        "python3",
+        "-S",
+        "inspect_trust_posture_keys.py"
+      ],
+      "cwd": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution",
+      "archived_literal_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/inspect_trust_posture_keys.py.txt",
+        "bytes": 2982,
+        "sha256": "ecb597c3a52d6f07485e4bfd41fe2a6afd3ad8b07a14683839f11316b734facf"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-keyed.stdout",
+        "bytes": 20792,
+        "sha256": "95382975dc5da41adede3cf5609f2ac56e09ab5808ce3f16a9652650c911269b"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/trust-posture-keyed.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "exit_code": 0
+    },
+    {
+      "executed_command": [
+        "python3",
+        "-S",
+        "prepare_postfreeze_architecture_publication.py"
+      ],
+      "cwd": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution",
+      "archived_literal_source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/prepare_postfreeze_architecture_publication.py.txt",
+        "bytes": 9229,
+        "sha256": "ca0f7fd0301a35489e716a38b33bcf26713e46ce4b8bb5ecb0a68a89026be9fb"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/postfreeze-architecture-publication.stdout",
+        "bytes": 563,
+        "sha256": "24030fa0c12453241fe945c4de3155437bb10300df60f3fbc7f2a85de4c4b170"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/postfreeze-architecture-publication.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "exit_code": 0
+    }
+  ],
+  "prior_unmodified_bindings": "git diff --name-status539\u219264d over seven Core-route source paths empty; git diff --name-status700\u219264d over guardrails+public contract+full deep baseline empty; prior reviewer/source hashes continue to apply, no new product self-review",
+  "no_source_or_git_mutation": true,
+  "no_generator_or_global_gate_execution": true,
+  "source_observer_note": "Executed observer bytes are archived as.py.txt, not current production utilities or current lint denominator. Complete stdout/stderr preserved; prospective owner test packet remains UNRUN."
+}

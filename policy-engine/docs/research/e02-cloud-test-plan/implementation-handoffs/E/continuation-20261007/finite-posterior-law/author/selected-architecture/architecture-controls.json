@@ -1,0 +1,242 @@
+{
+  "schema": "policyos.e02.E.author_finite_law_architecture_controls.v1",
+  "candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "actual_runtime_path": [
+    "guardrails.collect_deep_import_edges",
+    "guardrails._check_deep_import_creep"
+  ],
+  "predicate_basis": "recomputed",
+  "selected_complete_product_source_denominator": 7,
+  "source_receipts": [
+    {
+      "role": "base",
+      "sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "source_path_count": 7,
+      "source_files": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "bytes": 17116,
+          "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "bytes": 70840,
+          "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "bytes": 23932,
+          "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/__init__.py",
+          "bytes": 39304,
+          "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "bytes": 19970,
+          "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/api.py",
+          "bytes": 49444,
+          "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+          "bytes": 27404,
+          "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+        }
+      ],
+      "contract_bindings": [
+        {
+          "path": "policy-engine/pyproject.toml",
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        {
+          "path": "policy-engine/tools/devx/architecture/guardrails.py",
+          "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+          "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+          "bytes": 103077
+        },
+        {
+          "path": "policy-engine/architecture/public_surface/contract.toml",
+          "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+          "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+          "bytes": 19715
+        },
+        {
+          "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+          "git_blob": "4ba9adfe8327ee020efd91ad1621d447ef271a95",
+          "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7",
+          "bytes": 947189
+        }
+      ],
+      "complete_edges": [
+        {
+          "source_module": "polisyos.foundry.calibration.uncertainty_adapter",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.foundry.uncertainty.monte_carlo",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "target_module": "polisyos.common.logger",
+          "target_root": "common"
+        },
+        {
+          "source_module": "polisyos.foundry.uncertainty.monte_carlo",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        }
+      ],
+      "complete_violations": []
+    },
+    {
+      "role": "candidate",
+      "sha": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+      "source_path_count": 7,
+      "source_files": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "bytes": 17155,
+          "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "bytes": 71486,
+          "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "bytes": 22618,
+          "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/__init__.py",
+          "bytes": 39467,
+          "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "bytes": 29806,
+          "sha256": "d5bc3c3351a53ce5da3f8c561bc44362108b8667f115bab5d1531eab6ebc3373"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/api.py",
+          "bytes": 50093,
+          "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+        },
+        {
+          "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+          "bytes": 27715,
+          "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+        }
+      ],
+      "contract_bindings": [
+        {
+          "path": "policy-engine/pyproject.toml",
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        {
+          "path": "policy-engine/tools/devx/architecture/guardrails.py",
+          "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+          "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+          "bytes": 103077
+        },
+        {
+          "path": "policy-engine/architecture/public_surface/contract.toml",
+          "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+          "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+          "bytes": 19715
+        },
+        {
+          "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+          "git_blob": "4ba9adfe8327ee020efd91ad1621d447ef271a95",
+          "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7",
+          "bytes": 947189
+        }
+      ],
+      "complete_edges": [
+        {
+          "source_module": "polisyos.foundry.calibration.uncertainty_adapter",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        },
+        {
+          "source_module": "polisyos.foundry.uncertainty.monte_carlo",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "target_module": "polisyos.common.logger",
+          "target_root": "common"
+        },
+        {
+          "source_module": "polisyos.foundry.uncertainty.monte_carlo",
+          "source_root": "foundry",
+          "source_file": "src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "target_root": "ir"
+        }
+      ],
+      "complete_violations": []
+    }
+  ],
+  "new_actual_deep_edges": [],
+  "removed_actual_deep_edges": [],
+  "controls": [
+    {
+      "case": "healthy_declared_analytics_facade",
+      "outcome": "PASS",
+      "source_sha256": "57f4bc4ef289a38add94a2646b0d9bc66b5bcd92bc3ed806a88494c3facaa278",
+      "probe_violation_count": 0,
+      "probe_violations": [],
+      "total_selected_source_violation_count": 0
+    },
+    {
+      "case": "present_but_fake_deep_facade",
+      "outcome": "PASS",
+      "source_sha256": "c144f83d06773da85893c580320797abd00a043d6376ca4a2c88954cdd11d8a9",
+      "probe_violation_count": 1,
+      "probe_violations": [
+        {
+          "check": "deep_import",
+          "subject": "polisyos.scientist.nodes.builtins.simulate.profile_facade_probe",
+          "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.simulate.profile_facade_probe -> polisyos.ir.analytics.posterior_summary (src/polisyos/scientist/nodes/builtins/simulate/profile_facade_probe.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+          "detail": "polisyos.ir.analytics.posterior_summary",
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.profile_facade_probe",
+          "target_module": "polisyos.ir.analytics.posterior_summary"
+        }
+      ],
+      "total_selected_source_violation_count": 1
+    }
+  ],
+  "property_removal": {
+    "discriminator": "PASS",
+    "required_negative_gate": "FAIL",
+    "reason": "actual collector property removed while public markers survive",
+    "actual_edge_count": 0,
+    "actual_violation_count": 0
+  },
+  "baseline_unchanged": true,
+  "contract_unchanged": true,
+  "proxy_divergence": "PublicPosteriorMean alias/comment remains identical while actual AST module changes from supported analytics entrypoint to a private deep module.",
+  "unresolved_by_construction": [
+    "Tests/docs/ABI companions are outside the canonical product-source collector; full changed-Python import census records them separately.",
+    "These complete selected-source checks do not run full global architecture workflow or establish export identity or lawful runtime content."
+  ],
+  "limits": "Selected immutable product-source blobs copied only into scratch fixtures; no author/source/checkouts changed, no baseline/exception expansion. Existing selected deep violations are retained; no P41 inherited attribution or full architecture PASS is claimed."
+}

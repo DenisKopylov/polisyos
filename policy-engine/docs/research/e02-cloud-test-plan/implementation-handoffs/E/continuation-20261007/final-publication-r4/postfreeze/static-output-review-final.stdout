@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.static_invocation_frozen_output_review.v1",
+  "created_at": "2026-10-07T10:11:56.338933+00:00",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "comparison_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "canonical_check_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.json",
+    "sha256": "58c3b82812c3c123343552c2ed53a4d746b49f1c96385f20e430e739f4eac5f3",
+    "bytes": 8422
+  },
+  "canonical_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/static-invocation/static-invocation.stdout.txt",
+    "sha256": "651ac270c247d0e52b2d1c365a94bd563e035786078bffb7dce7a2912f6576cb",
+    "bytes": 10099
+  },
+  "complete_raw_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+    "sha256": "2db8bd7e6e2517bc18b8f0e53d4f79617802b15fdf24e8e0ba1a9b64b895a3b9",
+    "bytes": 171816130
+  },
+  "raw_publication": "Complete raw graph remains ignored; commit moderate complete exceptional records and exact raw/input/source refs, not a repeated large dump",
+  "input_census": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-input-census-64d.json",
+    "sha256": "80d5c703b559e77f2901b295f683315c1721ad953434f3550ab65202732e5492",
+    "bytes": 2497315
+  },
+  "denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5938,
+    "base_files": 5904,
+    "source_files": 2702,
+    "current_sha256": "4cdcc5a5af93541109f234f31a25d4eb21cdc7688a33e4578021c23e0e902ca2",
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+  },
+  "input_reconciliation": "PASS exact complete current/base source mappings match independent pre-check census, including tests and script roots",
+  "canonical_outcome": "FAIL",
+  "complete_verdict": true,
+  "runtime_invocation_established": false,
+  "exit_code": 1,
+  "counts": {
+    "mechanisms": 13136,
+    "static_regressions": 20,
+    "new_unresolved": 91,
+    "all_unresolved": 9239,
+    "unresolved_receiver_calls": 140187,
+    "roots": 401,
+    "E_related_exceptional_rows": 78
+  },
+  "by_canonical_owner": {
+    "@scientist-owners": 46,
+    "@foundry-owners": 35,
+    "@ir-owners": 11,
+    "@core-owners": 9,
+    "@runtime-owners": 10
+  },
+  "status_census": {
+    "unresolved_by_construction": 9239,
+    "uninvoked": 2166,
+    "static_path": 1731
+  },
+  "canonical_scope": {
+    "coverage": "partial",
+    "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+    "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+    "predicate_provenance": "recomputed",
+    "limitations": [
+      "Static paths do not prove execution, persisted receipts, or gate substance.",
+      "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+      "Concrete public source callables are candidates; helpers are traversed.",
+      "No HTTP route is assumed runnable merely because it has a decorator."
+    ]
+  },
+  "additional_actual_facade_limit": "Canonical lazy API string maps are runtime bindings and not resolved as direct callable routes by this static instrument; identity/native CAS consumer witnesses remain separate. A static FAIL is not proof of no runtime execution; a static PASS does not establish persisted property or gate authority.",
+  "P41": "not_established: current instrument computes base AST graph, not exact slice-base CLI/environment/generator/complete-check replay. No inherited global gate waiver.",
+  "finding_outcome": "No finding closure from proxy rows; preserve owner accepted decisions and historical ledger separately."
+}
+{"complete_moderate_review": {"path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/static-output-review-64d.json", "sha256": "a18b81c397cc7bb4cb5764f4081b59463c1709ff894b72104fb405a6f48c192d", "bytes": 473959}}

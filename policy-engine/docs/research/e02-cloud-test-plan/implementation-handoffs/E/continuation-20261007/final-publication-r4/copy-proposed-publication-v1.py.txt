@@ -1,0 +1,62 @@
+"""Materialize the fixed staged subset into a new dedicated evidence prefix."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4'
+parser = argparse.ArgumentParser()
+parser.add_argument('--manifest', type=Path, required=True)
+parser.add_argument('--destination-root', type=Path, required=True)
+args = parser.parse_args()
+manifest = json.loads(args.manifest.read_text())
+
+
+def require(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+
+def check_manifest(value):
+    require(value['proposed_git_prefix'] == PREFIX + '/', 'fixed destination prefix')
+    require(value['verification_source'] == '64d7444a18c55df7b88b71b7699a2f1b25ca24bd', 'frozen source identity')
+    require(value['verification_tree'] == 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d', 'frozen source tree identity')
+    rows = value['canonical_copies']
+    require(value['unique_payload_files'] == len(rows), 'unique file denominator')
+    require(value['unique_payload_bytes'] == sum(row['bytes'] for row in rows), 'unique byte denominator')
+    require(value['logical_count_including_selectors'] == len(value['logical_sources']), 'logical file denominator')
+    require(value['logical_bytes_including_selectors'] == sum(row['source_bytes'] for row in value['logical_sources']), 'logical byte denominator')
+    require(value['deduplicated_logical_aliases'] == sum(row['literal_alias'] for row in value['logical_sources']), 'alias denominator')
+    paths = set()
+    by_path = {}
+    for row in rows:
+        path = Path(row['portable_path'])
+        require(not path.is_absolute() and '..' not in path.parts and path.as_posix() == row['portable_path'], 'portable destination path')
+        require(not path.name.endswith('.py'), 'no active Python files')
+        require(path.as_posix() not in paths, 'unique destination path')
+        paths.add(path.as_posix())
+        by_path[path.as_posix()] = row
+        data = Path(row['staged_path']).read_bytes()
+        require(len(data) == row['bytes'] and hashlib.sha256(data).hexdigest() == row['sha256'], 'literal staged hash and size')
+    for row in value['logical_sources']:
+        target = by_path[row['canonical_destination']]
+        require((target['bytes'], target['sha256']) == (row['source_bytes'], row['source_sha256']), 'alias content binding')
+        require(row['proposed_git_path'] == PREFIX + '/' + row['canonical_destination'], 'alias Git path binding')
+    return rows
+
+
+rows = check_manifest(manifest)
+require(args.destination_root.is_absolute(), 'destination root must be absolute')
+target = args.destination_root / PREFIX
+require(not target.exists(), 'refuse overwriting any existing evidence prefix')
+for row in rows:
+    destination = target / row['portable_path']
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    data = Path(row['staged_path']).read_bytes()
+    destination.write_bytes(data)
+    require(destination.read_bytes() == data, 'written literal content readback')
+for name in ('staging-manifest.json', 'README.md', 'copy-proposed-publication.py.txt', 'build-staging.py.txt', 'build.stdout.json', 'build.stderr.txt'):
+    source = args.manifest.parent / name
+    data = source.read_bytes()
+    (target / name).write_bytes(data)
+print(json.dumps({'schema': 'policyos.e02.proposed_subset_materialization.v1', 'destination': str(target), 'unique_literal_payload_files': len(rows), 'unique_literal_payload_bytes': sum(row['bytes'] for row in rows), 'metadata_files': 6, 'active_python': 0, 'source_tests_gate_numeric_execution': False, 'scope': 'Ready fixed subset only; pending frontend/backend/final54 are excluded'}, indent=2))

@@ -1,0 +1,17 @@
+{
+  "schema": "policyos.e02.E.complete_owner_validator_peer_disposition.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "prior_doc_publication": "dfe874313b3172b74fe66663516db68eb6b5b2b8",
+  "copy_index_sha256": "b16d6033226ee264ac165a1bfbfeb6b51eea1248c342d73c51eab25171ddc03d",
+  "complete_peer_review_sha256": "4da3d11f62afcb388f6bb5b89d420970a6bb988d7336a64275afeca8b1916f3b",
+  "scope": "Complete independent peer logical member closure, original27/corrective16 raw identities, typed summary guard and effective removal; source/math/native generator checks not repeated.",
+  "actual_controls": "Original V1 four false summaries remain historical; current peer eleven controls each under normal/-O plus reproduced author nineteen controls each; source GO, E proposals and G/global intake remain separate.",
+  "schema_components": 573,
+  "confidence_dependency_entries": 1494,
+  "full_abi_models": 103,
+  "ir_abi_models": 101,
+  "no_product_or_generated_change": true,
+  "historical_readme_ref_note": "corrective-runtime-count-receipt.json corrected_current_readme binds its actual da079c6b correction phase. Later README append phases are separate publications; that prior pinned byte reference is not presented as the latest README hash.",
+  "current_publication_readme_refs": "Read current README bytes from this committed DOC publication; no future commit self reference."
+}

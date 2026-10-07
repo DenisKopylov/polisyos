@@ -1,0 +1,18 @@
+"""Read-only corrective path guard; never executes cleanup or changes old observers."""
+from pathlib import Path
+import ast,hashlib,json,os,stat,subprocess,time
+BASE=Path('/tmp/e02-E-capacity-cleanup-20261007-doe');ROOT=Path('/workspace/e02-E-continuation-20261006');ACTUAL=Path('/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry')
+CANDIDATES=[ACTUAL]
+def ref(p):return {'path':str(p),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+node=next(n for n in ast.parse((BASE/'prepare_cleanup.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='proc_scan');exec(compile(ast.Module(body=[node],type_ignores=[]),'saved-observer:proc_scan','exec'),globals())
+old=json.loads((BASE/'closed-numeric-fixtures/cleanup-summary.json').read_text());removed=[Path(r['candidate']) for r in old['actions']]
+assert len(removed)==8 and all(not p.is_relative_to(ACTUAL) and not ACTUAL.is_relative_to(p) for p in removed)
+assert ACTUAL.is_dir() and not ACTUAL.is_symlink();s=ACTUAL.stat();scan=proc_scan()
+metadata=json.loads((BASE/'closed-numeric-fixtures/protected-metadata-before.json').read_text());assert [r['count'] for r in metadata]==[207,184]
+for prefix in metadata:
+ for r in prefix['rows']:assert ref(Path(r['path']))==r
+head=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD']).decode().strip();tree=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD^{tree}']).decode().strip();assert head==old['source'] and tree==old['tree']
+receipt={'schema':'policyos.e02.actual_active_backend_path_scope_corrective_readback.v1','observed_unix':time.time(),'source':head,'tree':tree,'actual_protected_backend_prefix':str(ACTUAL),'actual_backend_stat':{'mode':s.st_mode,'device':s.st_dev,'inode':s.st_ino,'exists':True},'exact_cleanup_actions':removed and [str(p) for p in removed],'all8_actual_actions_lexically_disjoint_from_actual_backend':True,'actual_backend_process_observation':scan,'old_executed_observer':ref(BASE/'closed_numeric_fixture_archive_cleanup.py'),'historical_observer_fourth_PROTECTED_literal':'/workspace/e02-E-pr38-r3-receipts/full-backend-after-prereq-64d-20261007','correction':'Historical fourth prefix was an outdated auxiliary name, and is not evidence of directly checking the actual native backend prefix. The exact eight terminal receipt-owned --basetemp actions are independently rebound here as disjoint from the real active backend directory; no additional unlink/action occurred. Original source, observer and receipts retained byte-identical.','complete_ROOT207_DoE184_metadata_still_identical':True,'cleanup_action_or_backend_test_repeat':False}
+p=BASE/'closed-append-20261007/actual-backend-scope-corrective-readback.json'
+with p.open('x') as f:json.dump(receipt,f,indent=2);f.write('\n')
+print(json.dumps({'receipt':ref(p),'active_backend_users':len(scan['active_users']),'unreadable_agent_processes':scan['unreadable_agent_processes'],'backend_exists':True},indent=2))

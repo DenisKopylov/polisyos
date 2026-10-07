@@ -1,0 +1,9 @@
+{
+  "disposition": "GO",
+  "control_count": 11,
+  "report": {
+    "path": "/tmp/e02-E-pr38-description-independent-doe-20261007/independent-current-append-optimized.json",
+    "bytes": 8375,
+    "sha256": "921183b49d689be593bd6a94afedc8518791e1240fcc5fbe99f8d25fdd110a0d"
+  }
+}

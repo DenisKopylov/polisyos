@@ -1,0 +1,186 @@
+"""Independent immutable DOC custody and pure archived-validator review."""
+import ast
+from collections import Counter
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+REPO = Path('/workspace/e02-E-frc-20261006')
+SHA = 'ac2682a66afd8fd5beef39d15fd82ec58e10dd6d'
+OLD = 'e8807764d7e527b6cb998cd7296c7f8fd55f9890'
+BASE = '3eafb85617738c9b398fe67c70d58b3d0d05a5a9'
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/'
+PACKET = REPO / PREFIX
+OUT = Path(__file__).parent / 'common-wave-publication-independent'
+OUT.mkdir(exist_ok=True)
+
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(REPO), *args])
+
+
+def blob(path, sha=SHA):
+    return git('show', f'{sha}:{path}')
+
+
+def digest(data):
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+issues = []
+handoff = json.loads(blob(PREFIX + 'implementation-handoff.json'))
+index = json.loads(blob(PREFIX + 'copy-index.json'))
+paths = sorted(p.decode() for p in git('diff', '--name-only', '-z', BASE, SHA).split(b'\0') if p)
+if paths != sorted(handoff['changed_paths']) or len(paths) != handoff['path_count'] or len(paths) != 93:
+    issues.append('Full changed DOC path set differs')
+if any(not p.startswith(PREFIX) or p.endswith('.py') for p in paths):
+    issues.append('Non-DOC source/test or active Python path')
+if handoff['active_python_path_count'] != 0 or handoff['source_test_delta_paths'] != []:
+    issues.append('Handoff source/Python footprint differs')
+copies = []
+for row in index['copies']:
+    rel = Path(row['portable_path'])
+    if rel.is_absolute() or '..' in rel.parts:
+        issues.append({'unsafe_copy_path': str(rel)})
+        continue
+    data = blob(PREFIX + row['portable_path'])
+    original = Path(row['source_path']).read_bytes()
+    actual = digest(data)
+    if data != original or actual['bytes'] != row['bytes'] or actual['sha256'] != row['sha256']:
+        issues.append({'literal_copy_diff': row['portable_path']})
+    if (PACKET / row['portable_path']).read_bytes() != data:
+        issues.append({'worktree_vs_immutable_Git_diff': row['portable_path']})
+    copies.append({'portable_path': row['portable_path'], 'source_path': row['source_path'], **actual, 'literal_equal': data == original})
+if len({r['portable_path'] for r in copies}) != len(copies):
+    issues.append('Duplicate copy path')
+if (len(copies), sum(r['bytes'] for r in copies)) != (90, 5740884):
+    issues.append('Literal copy count/byte denominator differs')
+if (index['copied_files'], index['copied_bytes']) != (handoff['copied_files'], handoff['copied_bytes']):
+    issues.append('Index and handoff copy summary differs')
+for path in paths:
+    if (REPO / path).read_bytes() != blob(path):
+        issues.append({'disk_vs_Git_diff': path})
+
+# The correction must preserve every historical original output/archive byte.
+old_paths = [p.decode() for p in git('diff', '--name-only', '-z', BASE, OLD).split(b'\0') if p]
+historical_preserved = []
+for p in old_paths:
+    if p not in [PREFIX + x for x in ('README.md', 'implementation-handoff.json', 'copy-index.json')]:
+        same = blob(p, OLD) == blob(p)
+        historical_preserved.append({'path': p, 'same_bytes': same, **digest(blob(p))})
+        if not same:
+            issues.append({'rewritten_historical_copy': p})
+
+selection = json.loads(blob(PREFIX + 'moderate-publication-selection.json'))
+selected_rows = selection['current_files']
+selected_ids = {(r['path'], r['bytes'], r['sha256']) for r in selected_rows}
+copy_ids = {(r['source_path'], r['bytes'], r['sha256']) for r in index['copies']}
+if len(selected_rows) != 76 or sum(r['bytes'] for r in selected_rows) != 5549441 or not selected_ids <= copy_ids:
+    issues.append('Fixed 76 deciding asset selection is not completely copied')
+if digest(blob(PREFIX + 'moderate-publication-selection.json')) != {'bytes': 31657, 'sha256': '865f0422c6c9f78751a958a0f6aaf825711e014ec425d71cc41a540e1e2f3823'}:
+    issues.append('Reviewer fixed deciding selection changed')
+
+collector = json.loads(blob(PREFIX + 'independent/recomputed-wave.json'))
+case_index = json.loads(blob(PREFIX + 'independent/case-index.json'))
+if (collector['source'], collector['tree'], case_index['source'], case_index['tree']) != (SOURCE, TREE, SOURCE, TREE):
+    issues.append('Independent collector/case index source binding differs')
+case_counts = dict(Counter(r['outcome'] for r in case_index['cases']))
+if len(case_index['cases']) != 1549 or case_counts != {'PASS': 1541, 'FAIL': 8}:
+    issues.append('Full literal actual case index differs')
+links = collector['finding_links']
+if len(links) != 54 or len({r['finding_id'] for r in links}) != 54 or len({b for r in links for b in r['bundle_ids']}) != 22 or sum(len(r['bundle_ids']) for r in links) != 55:
+    issues.append('Full finding/bundle/link denominator differs')
+if handoff['finding_closure'] is not False or handoff['original_CAL']['exit_code'] != -9 or handoff['original_CAL']['counts'] is not None:
+    issues.append('Finding closure or historical CAL interruption conflated')
+
+# Only execute the immutable archived data validator, never checks/tests/gates.
+validator_raw = blob(PREFIX + 'publication-control/validate-common-wave-v2.py.txt')
+validator_path = OUT / 'executed-validator-v2.py.txt'
+validator_path.write_bytes(validator_raw)
+validator_runs = []
+for label, extra in [('normal', []), ('optimized', ['-O'])]:
+    command = [sys.executable, *extra, str(validator_path), '--packet', str(PACKET), '--repo', str(REPO), '--controls']
+    completed = subprocess.run(command, capture_output=True, check=False)
+    (OUT / f'validator-{label}.stdout.json').write_bytes(completed.stdout)
+    (OUT / f'validator-{label}.stderr').write_bytes(completed.stderr)
+    record = {'mode': label, 'argv': command, 'exit_code': completed.returncode, 'stdout': digest(completed.stdout), 'stderr': digest(completed.stderr)}
+    try:
+        observed = json.loads(completed.stdout)
+        record['observation'] = observed
+        if completed.returncode != 0 or len(observed['negative_controls']) != 19 or any(r['outcome'] != 'REFUSED' for r in observed['negative_controls']):
+            issues.append({'validator_corrupt_controls': label})
+        if (observed['copied_files_at_execution'], observed['copied_bytes_at_execution'], observed['path_count_at_execution']) != (90, 5740884, 93):
+            issues.append({'validator_final_denominator': label})
+    except (ValueError, KeyError) as error:
+        issues.append({'validator_output': label, 'error': str(error)})
+    validator_runs.append(record)
+
+# Independently exercise the intake's property, not only its advertised marker.
+module = ast.parse(validator_raw)
+loader = next(n for n in module.body if isinstance(n, ast.FunctionDef) and n.name == 'load_receipts')
+namespace = {'json': json}
+exec(compile(ast.Module(body=[loader], type_ignores=[]), str(validator_path), 'exec'), namespace)
+directories = sorted((PACKET / 'wave/checks').iterdir())
+forward = namespace['load_receipts'](directories)
+reverse = namespace['load_receipts'](reversed(directories))
+metadata_file = PACKET / 'wave/checks/runtime-api-contract/retained-runtime-catalog.json'
+all_json = list((PACKET / 'wave/checks').glob('*/*.json'))
+legacy_metadata_last = {p.parent.name: json.loads(p.read_text()) for p in sorted(all_json, key=lambda p: p == metadata_file)}
+legacy_metadata_first = {p.parent.name: json.loads(p.read_text()) for p in sorted(all_json, key=lambda p: p != metadata_file)}
+intake_control = {
+    'canonical_receipt_count': len(forward),
+    'new_forward_equals_reverse': forward == reverse,
+    'actual_runtime_receipt_is_exact_named': forward['runtime-api-contract'] == json.loads((metadata_file.parent / 'runtime-api-contract.json').read_text()),
+    'old_glob_order_diverges': legacy_metadata_first != legacy_metadata_last,
+    'old_metadata_last_selects_catalog': legacy_metadata_last['runtime-api-contract'] == json.loads(metadata_file.read_text()),
+    'property_removal_same_files_same_markers': 'Removing exact-name intake restores catalog/receipt ambiguity without altering any actual files or markers.',
+}
+if not all(v for k, v in intake_control.items() if k != 'property_removal_same_files_same_markers'):
+    issues.append('Exact-named receipt property/control did not discriminate old proxy')
+
+result = {
+    'schema': 'policyos.e02.independent_frozen_wave_DOC_custody_review.v1',
+    'publication_sha': SHA,
+    'publication_tree_sha': git('rev-parse', SHA + '^{tree}').decode().strip(),
+    'publication_base_sha': BASE,
+    'historical_publication_sha': OLD,
+    'verification_source_sha': SOURCE,
+    'verification_tree_sha': TREE,
+    'disposition': 'GO for immutable DOC custody and data-validator correction' if not issues else 'NO-GO',
+    'changed_path_denominator': len(paths),
+    'active_python_path_denominator': sum(p.endswith('.py') for p in paths),
+    'literal_copy_count': len(copies),
+    'literal_copy_bytes': sum(r['bytes'] for r in copies),
+    'selected_deciding_count': len(selected_rows),
+    'selected_deciding_bytes': sum(r['bytes'] for r in selected_rows),
+    'case_count': len(case_index['cases']),
+    'case_outcomes': case_counts,
+    'finding_count': len(links),
+    'bundle_count': len({b for r in links for b in r['bundle_ids']}),
+    'id_to_bundle_link_count': sum(len(r['bundle_ids']) for r in links),
+    'changed_paths': paths,
+    'literal_copies': copies,
+    'historical_copies_preserved': historical_preserved,
+    'reviewed_handoff': digest(blob(PREFIX + 'implementation-handoff.json')),
+    'reviewed_copy_index': digest(blob(PREFIX + 'copy-index.json')),
+    'reviewed_validator': digest(validator_raw),
+    'validator_runs': validator_runs,
+    'independent_intake_control': intake_control,
+    'issues': issues,
+    'limits': [
+        'Receipt integrity/parsed counts only; the full source/numerical review is reused by exact immutable source and literal independent receipt hashes.',
+        'No source/test/gate/numerical execution, no repeated 500MB input scan, no cleanup or owner disposition change.',
+        'Original CAL SIGKILL/cause not_established and distinct324PASS retry remain separate.',
+        'All8A current boundary failures and all7original global wrapperFAIL are retained; no P41 cause or CI PASS inferred.',
+        'Successor selectors are outside this original15-job carrier and need their separate actual receipts.',
+        'Does not certify later remote delivery or G acceptance/closure.'
+    ]
+}
+(OUT / 'immutable-publication-review.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({k: result[k] for k in ['publication_sha', 'publication_tree_sha', 'disposition', 'changed_path_denominator', 'literal_copy_count', 'literal_copy_bytes', 'case_count', 'case_outcomes', 'issues']}))
+if issues:
+    raise SystemExit(1)

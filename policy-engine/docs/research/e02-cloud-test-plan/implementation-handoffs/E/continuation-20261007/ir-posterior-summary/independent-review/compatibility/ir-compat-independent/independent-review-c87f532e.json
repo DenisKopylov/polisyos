@@ -1,0 +1,279 @@
+{
+  "reviewer": "criteria_r4; independent read-only; author frc_r4",
+  "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+  "tree": "26a191ee37da336faf5f6f84f14bc54a883bb90b",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "decision": "NO_GO",
+  "scope": "public compatibility, canonical artifact transport and actual native E consumer companions. Mathematical law/functionals/collapse separately reviewed; architecture separately reviewed. No broad wave.",
+  "complete_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+    "policy-engine/src/polisyos/foundry/calibration/report.py",
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "policy-engine/src/polisyos/ir/__init__.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "policy-engine/src/polisyos/ir/api.py",
+    "policy-engine/src/polisyos/schemas/abi_models.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+  ],
+  "complete_footprint_bindings": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+      "bytes": 1712,
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "bytes": 16254,
+      "sha256": "96f1faeebd490ca28ee562e4b33e09fd5160832b76cb2d49b04276ceaf79df6c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 16684,
+      "sha256": "931e36225e64b5fd07cbddcc2697e36262170f8da56dbd9c17a0f3f2d3c117f0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "bytes": 7346,
+      "sha256": "7121736076b4f2cb4bc47d908ba617867bb2cd4582af467b5f45ffb69960f01f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 16412,
+      "sha256": "fd7242dce6aa8d78e9b7736999284ee01a078a002f2938e61a2903d7d187b65b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 49160,
+      "sha256": "43ea26727ee86c218fe3e101d0ede453ed2e9545b6f9f39a78ed1c934f4b5ca9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "bytes": 27404,
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20801,
+      "sha256": "bddb15f403e47e8caef8b4d1e698ae4d6cf65d1269619486e165a925f9037559"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193039,
+      "sha256": "0c699925060ce1fc102cd9e3c3062a33d785bf0920732b1b0a780e3527c8d270"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "bytes": 9658,
+      "sha256": "9bf97d4271cffd657408bfa0cd257442bf439ff939da5ce6f2530f34867b053f"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "bytes": 11344,
+      "sha256": "34a032bdca44f56af35d6d1f3d2c24a9fdb4957aae8cdc594f80ce5ec67061e9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "bytes": 15574,
+      "sha256": "6e773e5e08c998d5348d08867d1a5bb4118fd7c228735562b908fcf5e092ff8e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "bytes": 14059,
+      "sha256": "f48552736cbbbaac37afb42206437a506d3d39db50d7a8bb304243ed80beaf52"
+    }
+  ],
+  "reviewed_compatibility": {
+    "check_outcome": "PASS",
+    "actual_controls": 30,
+    "source_wire_1_1_unchanged": {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "candidate_bytes_equal": true,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+    },
+    "receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-c87f532e-v2/controls.json",
+      "bytes": 13590,
+      "sha256": "648379ec11cbb4b0de996eace676189600d1d1ce963ebf2d477d65f8d9e8ef76"
+    },
+    "claim": "Bounded finite empirical profile native consumer compatibility only; no likelihood/production/causal authority."
+  },
+  "blockers": [
+    {
+      "mechanism": "IR ArtifactStore public transport",
+      "candidate_property": "load_posterior_summary_envelope calls store.verify, which is absent from IR ArtifactStore protocol and CoreToIRArtifactStoreAdapter. Canonical adapter public caller raises AttributeError; oracle exact red receipt pending cross-reference.",
+      "source_citations": [
+        "policy-engine/src/polisyos/ir/artifacts/contracts.py:130",
+        "policy-engine/src/polisyos/core/artifacts/ir_adapter.py:83",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py:load_posterior_summary_envelope"
+      ],
+      "canonical_writer": "E scoped posterior_summary loader only; Core/IR adapters unchanged",
+      "next_check": "Owned loader uses required get_bytes/get_manifest and existing canonical content/hash verification, actual CoreToIRArtifactStoreAdapter positive plus modified bytes/hash refusal; unchanged legacy decode/replay retained."
+    },
+    {
+      "mechanism": "public ABI schema and inventory generated companions",
+      "check_outcome": "FAIL",
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public-c87f532e-v2/public-companions-receipt.json",
+        "bytes": 2346,
+        "sha256": "1672da28d8f1acb188ca9213b8b4dd5eef2ae3bc6fe86abc4d0da59987fcea9a"
+      },
+      "canonical_writer": "team-ir ABI generator/review; team-architecture public surface generator/inventory/review",
+      "next_result": "Full existing manifest generation/check adds posterior_summary_profile while retaining all old99 IR keys and all20packages/13families. New schema/version/hash, complete manifests and reference inventories agree with runtime; corrupt schema checker refuses."
+    }
+  ],
+  "owner_ready_generator_packet": {
+    "actual_facade_delta": "3 root DTOs; analytics278\u2192288 with10 additions, no removals",
+    "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+    "profile_version": "1.0",
+    "wire": "UncertaintyEnvelope1.1 unchanged",
+    "full_input_manifest": {
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "packages": 20,
+      "package_inventories": 20,
+      "generated_artifact_families": 13
+    },
+    "IR_full_manifest_old_retained": {
+      "old_count": 99,
+      "current_count": 99,
+      "missing": [],
+      "added": [],
+      "new_profile_schema_present": false,
+      "new_schema_runtime_drift_errors": [
+        "missing snapshot: /workspace/e02-E-frc-20261006/policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json"
+      ],
+      "new_profile_manifest_hashes_match_runtime": false,
+      "complete_manifest_content_hash_ok": true,
+      "canonical_corrupt_schema_errors": [
+        "snapshot out of date: /workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public-c87f532e-v2/corrupt-profile-schema.json"
+      ],
+      "outcome": "FAIL"
+    },
+    "public_comparisons": [
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "candidate_bytes": 222856,
+        "candidate_sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+        "recomputed_bytes": 223082,
+        "recomputed_sha256": "20e6fd9e5b427ad2ed91fc5bc3bd228d17a962bcea471ff3642229e5ce2a68b6",
+        "outcome": "FAIL",
+        "owner": "team-architecture; exact canonical renderer, complete manifest preserved"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "candidate_bytes": 154167,
+        "candidate_sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+        "recomputed_bytes": 154315,
+        "recomputed_sha256": "daf79ae716a36244d8228515308c5a646b4b9c9fd081c000d50910b5b416090f",
+        "outcome": "FAIL",
+        "owner": "team-architecture; exact canonical renderer, complete manifest preserved"
+      }
+    ],
+    "commands_from_policy_engine": [
+      "uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline",
+      "uv run python tools/devx/architecture/guardrails.py check",
+      "uv run python tools/quality/diagnostics/gen_schema.py",
+      "uv run python tools/quality/diagnostics/gen_schema.py --check"
+    ],
+    "warning": "Do not use selected-only --models posterior_summary_profile against committed outputs: full _manifest requires all old keys. Do not hand-edit generated output or widen exception baselines. Canonical owner confirms exact current CLI command/inputs before mutation.",
+    "release_fragment": "Existing python-public-api, public_stable classification truthful; public_surface_inventory_reviewed=false pending canonical owner review. New persisted metadata profile classification/ABI owner acceptance remains a concrete companion."
+  },
+  "moderate_deciding_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat_controls.py",
+      "bytes": 20234,
+      "sha256": "45f3fff2c897704c9b650251236867346398ee2dcce8cd290c53b487bfe6af8e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public_companions.py",
+      "bytes": 7216,
+      "sha256": "f19d1a632596100e4d46cf81d0addd126418789d8b102f71a3b64c17dcaafabb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-c87f532e-v2/controls.json",
+      "bytes": 13590,
+      "sha256": "648379ec11cbb4b0de996eace676189600d1d1ce963ebf2d477d65f8d9e8ef76"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-c87f532e-v2.stdout",
+      "bytes": 13590,
+      "sha256": "648379ec11cbb4b0de996eace676189600d1d1ce963ebf2d477d65f8d9e8ef76"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-c87f532e-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public-c87f532e-v2/public-companions-receipt.json",
+      "bytes": 2346,
+      "sha256": "1672da28d8f1acb188ca9213b8b4dd5eef2ae3bc6fe86abc4d0da59987fcea9a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public-c87f532e-v2.stdout",
+      "bytes": 2346,
+      "sha256": "1672da28d8f1acb188ca9213b8b4dd5eef2ae3bc6fe86abc4d0da59987fcea9a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public-c87f532e-v2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/c87-current-run-receipts.json",
+      "bytes": 2084,
+      "sha256": "8452efde299365bd1e97ef8f10b32b84a4da80592cb561ead3eddf36ab879747"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/observer-correction-c87.json",
+      "bytes": 1101,
+      "sha256": "cd87bd289aa0a5ee94ae2d3d7e81200b5309a2886b7ebb8312749383e611b878"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/c87-first-run-receipts.json",
+      "bytes": 2686,
+      "sha256": "e237ad894b2a479a9f772d01f734c5d6161acc9c832def9ca2a0ee934c5e43c4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat_controls-c87-first.py",
+      "bytes": 18783,
+      "sha256": "9957a162ff2900a723c52a2216525c8d3c7ee46f7fa4572e2e0c8c5914d0e0ab"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public_companions-c87-first.py",
+      "bytes": 7102,
+      "sha256": "0090c1517ebbaf312ea1c7c09cd934efa6d71253d2a3a0933641bd058491154e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-c87f532e.stderr",
+      "bytes": 776,
+      "sha256": "a64758b538de0b1f5075d140c94be08ff883d5bc71bb01f409d681cc02f00f54"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/public-c87f532e.stdout",
+      "bytes": 2343,
+      "sha256": "c8c455c25e07c1dca8ed99aacdd8ff825825117dd57c94163ca37af47e6336a7"
+    }
+  ],
+  "check_status_vs_finding": "30 scoped checks PASS does not close B201/B202. Historical held remains held pending current implementation and independent acceptance; public/transport blockers concrete and executable.",
+  "observer_errors": "First report fixture omitted required configured input ref; first public observer exited0 although rowsFAIL. Corrected observers with source unchanged; historical stdout/stderr retained and explicitly ERROR/limited.",
+  "repository_source_writes": false,
+  "new_environment": false,
+  "broad_wave": false,
+  "cleanup_candidates": [
+    "compat-c87f532e-v2/cas and repeatable native artifact fixtures",
+    "public-c87f532e-v2/corrupt-profile-schema.json and expected generator scratch outputs"
+  ],
+  "cleanup_policy": "No native Trash available; exact candidates listed only. No data deleted."
+}

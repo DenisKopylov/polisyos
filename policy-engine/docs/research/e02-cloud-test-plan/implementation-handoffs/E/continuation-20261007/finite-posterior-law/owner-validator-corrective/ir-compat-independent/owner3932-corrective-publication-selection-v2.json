@@ -1,0 +1,96 @@
+{
+  "schema": "policyos.e02.E.corrective_owner3932_publication_selection.v2",
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets-v2.py.txt",
+      "bytes": 11275,
+      "sha256": "a7aa11f124f3b877f3d58ad9af7a2acfc61e51b6c4a8b421ba1fb46443021f45"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-v2-normal.json",
+      "bytes": 5487,
+      "sha256": "be54d209c5b655bff9db3331576a678e50775212894f61f58a5d59e92f99ba5d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-v2-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-v2-optimized.json",
+      "bytes": 5486,
+      "sha256": "6898a6442ff32d1c83f56751a8e771407a5a3ce87feadd362c485308fc4e81b5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-packet-controls-v2-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-corrective-utility-style.json",
+      "bytes": 1205,
+      "sha256": "2b6417d24fe185f4bcae33ad4f791692cad645cc9cd10a4d908ede1c86a0075d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/corrective-owner3932-check.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/corrective-owner3932-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/corrective-owner3932-format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/corrective-owner3932-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-normal.stdout.json",
+      "bytes": 2498,
+      "sha256": "6c621c90ada61bf7fba51ae183aebde057cfb7ef2fe21d1b75d11f2564b8c4d1"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/summary-escape-optimized.stdout.json",
+      "bytes": 2501,
+      "sha256": "5dee09f1bffcc06d3e1a4ef25e81c8ddefcb1c5ca7e71d66c554824a614f1b40"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/probe_summary_admission.py",
+      "bytes": 2168,
+      "sha256": "6214055b7f5146f0a6636528419a11729efdbbd82f480cfceb47eaf784db1f42"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-normal.stdout.json",
+      "bytes": 14122,
+      "sha256": "876415babde8b7fd5ff826db0dba723df6de0068076a0043d6023db987b1d48f"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/literal-review-optimized.stdout.json",
+      "bytes": 14125,
+      "sha256": "6f7e93e561b6c714eb667e60c8e0bbb8f7b5bc93b1ebc472ad61354c8cc43094"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/corrective-owner3932-summary-admission-v2.json",
+      "bytes": 3823,
+      "sha256": "85ddc80d9856827274049a106bed08ccbe17bd294d8534ac9766a37cc094bbee"
+    }
+  ],
+  "asset_count": 16,
+  "asset_bytes": 62734,
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "historical_original27_selection_preserved": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-final-append-publication-selection.json",
+    "bytes": 8318,
+    "sha256": "132dfcc8b5c78e61283796a62987fa8dcb081d491902c6a186fefd993eb9946e"
+  },
+  "outcome_scope": "Author recomputing controls; corrected peer acceptance pending separate immutable receipt.",
+  "source_native_math_generator_changed": false
+}

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt", line 100, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt", line 90, in main
+    p=Path(args.manifest);d=json.loads(p.read_text());validate(p,d)
+                                                      ^^^^^^^^^^^^^
+  File "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt", line 65, in validate
+    if manifest['qualification']!=QUALIFICATION:raise ValueError('frozen/current/source/gate claims')
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: frozen/current/source/gate claims

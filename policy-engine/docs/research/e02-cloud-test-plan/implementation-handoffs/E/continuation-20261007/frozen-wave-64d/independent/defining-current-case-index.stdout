@@ -1,0 +1,1 @@
+{"source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd", "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d", "family_denominator": 8, "source_path_denominator": 30, "test_function_denominator": 276, "functions_with_actual_cases": 276, "functions_without_actual_cases": 0, "actual_case_binding_count": 591, "actual_case_outcome_counts": {"PASS": 590, "FAIL": 1}}

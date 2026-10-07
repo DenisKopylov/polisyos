@@ -1,0 +1,6 @@
+[codex/e02-E-frc-20261006 e233efcd0] docs(e02-E): distinguish historical finite-law and typed source verdicts
+ 9 files changed, 504 insertions(+), 8 deletions(-)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/correction/ca17-typed-red/candidate-type.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/correction/ca17-typed-red/resolved-base.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/correction/ca17-typed-red/scoped-type-correction.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/correction/ca17-typed-red/source-qualification-ca17.json

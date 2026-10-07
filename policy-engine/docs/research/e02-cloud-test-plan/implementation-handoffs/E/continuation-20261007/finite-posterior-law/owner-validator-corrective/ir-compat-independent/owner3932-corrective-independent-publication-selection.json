@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.E.corrective_owner3932_independent_publication_selection.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/corrective-owner3932-independent-acceptance.json",
+      "bytes": 2562,
+      "sha256": "ad43bcee24b28c2306bbc2a0eeeaee2b274532080dc19ed62285ac2dd63cf8cf"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stdout.json",
+      "bytes": 5400,
+      "sha256": "e6ff9e0e81e3042e4ccf9339a81a589327e9c2c2cf0b67e31a7b99f1b6775e69"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stdout.json",
+      "bytes": 5403,
+      "sha256": "2fafe4a9099949cbdc707da54fea737ef1eff937237462e396855aac94a52eab"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/corrected-review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-owner3932-packet-independent-lint-20261007/review_corrected_validator.py",
+      "bytes": 4656,
+      "sha256": "779ae1412575cecd4ffe16b21cba7753f27fb4efd047b3e3abd9d51ec16dc994"
+    }
+  ],
+  "asset_count": 6,
+  "asset_bytes": 18021,
+  "previous_corrective_author_selection": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-corrective-publication-selection-v2.json",
+    "bytes": 4338,
+    "sha256": "403b7f4f82a44ff006eea5db64239829077e8a38f8a524f8520893e822ca65dd"
+  },
+  "outcome": "GO",
+  "scope": "Independent evidence verifier delta only, source/originalcriteria/full103 literal custody separately GO. No global gate, C/F acceptance or Gformal finding intake.",
+  "python_source_publication_suffix": ".py.txt (literal bytes; source path alias preserved)"
+}

@@ -1,0 +1,26 @@
+{
+  "completion": {
+    "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/retry-completion.json",
+    "bytes": 4548,
+    "sha256": "bf90b5e8077247a94aa138ce442679619d1e96a8d2acda8789395f0256f745a7"
+  },
+  "counts": {
+    "cases": 1,
+    "passed": 1,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_outcome": "PASS",
+  "source_immutable": true,
+  "root_environment_metadata_unchanged": true,
+  "root_distributions": 207,
+  "actual_existing_corruption_assertions": 2,
+  "selection": {
+    "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/publication-selection.json",
+    "bytes": 3043,
+    "sha256": "8eed5f5e1d2dd07c28d8b0ddb6d1d7c184b09a19db43e1eccfc959511fbd16ad"
+  },
+  "assets": 12,
+  "total_bytes": 164511
+}

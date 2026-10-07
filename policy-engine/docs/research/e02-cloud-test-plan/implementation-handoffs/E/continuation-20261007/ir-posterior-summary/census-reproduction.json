@@ -1,0 +1,55 @@
+{
+  "purpose": "Optional repeatable complete census reconstruction; not a new executed check or ignored scratch input dependency. Published current census is already complete.",
+  "pinned_git_inputs": [
+    "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+    "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+  ],
+  "steps": [
+    {
+      "operation": "Recreate omitted historical complete c861 census from immutable Git and literal archived observer",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/independent-review/imports/literal-observers/census_imports.py.txt",
+        "--candidate",
+        "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+        "--base",
+        "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/recreated-c861.json"
+      ],
+      "expected_output_sha256": "867f5b5b4dd398c0d91c88444c73338eff9b7aa5a044abe370650329e6dfd172",
+      "expected_output_bytes": 935312
+    },
+    {
+      "operation": "Verify reconstructed historical bytes against the exact original digest before passing the prior file to the delta observer",
+      "expected_output_sha256": "867f5b5b4dd398c0d91c88444c73338eff9b7aa5a044abe370650329e6dfd172",
+      "expected_output_bytes": 935312
+    },
+    {
+      "operation": "Compute final delta using only reconstructed validated prior census and exact unchanged Git blobs",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/independent-review/imports/literal-observers/census_imports_delta.py.txt",
+        "--candidate",
+        "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+        "--base",
+        "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/recreated-700.json",
+        "--prior-output",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/recreated-c861.json",
+        "--prior-candidate",
+        "c8616e2babe1f0674799c12f07faffa5d6bd266d"
+      ],
+      "comparison_note": "Final metadata prior_observation.path reflects selected output path; its content SHA and complete rows are the deciding identity, so changing a local output location changes only that locator."
+    }
+  ],
+  "portable_replay": "On G choose its actual fetched checkout and scratch paths, retaining exact source refs and archived script bytes; no old author ignored directory is an input."
+}

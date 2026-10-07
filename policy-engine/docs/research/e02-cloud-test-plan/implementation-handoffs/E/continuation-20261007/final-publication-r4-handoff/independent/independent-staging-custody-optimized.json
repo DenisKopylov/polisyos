@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.independent_staging_custody_observation.v1",
+  "observer_source": {
+    "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review_staging.py",
+    "bytes": 15087,
+    "sha256": "507f6035ed5bcfc5fe5103ebe5d7390eaf33be3262f1464c708bcb7c662a24ea"
+  },
+  "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "optimization_mode": "python -O",
+  "manifest": {
+    "path": "/tmp/e02-E-final-publication-r4-staging/staging-manifest.json",
+    "bytes": 148233,
+    "sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4"
+  },
+  "healthy_literal_custody": {
+    "logical_sources": 123,
+    "actual_selected_originals": 118,
+    "original_selectors": 5,
+    "literal_canonical_files": 107,
+    "literal_canonical_bytes": 3112171,
+    "literal_aliases": 16,
+    "explicit_additional_owner_alias_bindings": [
+      {
+        "kind": "aliased_optimized_full_review",
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/closed-lint-review.json",
+        "bytes": 474146,
+        "sha256": "7ea12c7be7043c90aac8d8319de3028ee0b94c01fd436f4ca0d3dde59ee5de80",
+        "primary": "review/closed-lint-review.json"
+      },
+      {
+        "kind": "prior_preview_same_bytes",
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/preview-64d7444a.json",
+        "bytes": 414172,
+        "sha256": "adb62b866db34851294bb048d6e4468dfbb35551b09e1ce9020b9491f90e6c63",
+        "primary": "inputs/closed-64d7444a-denominator.json"
+      }
+    ],
+    "reused_published_observations": 4,
+    "historical_preflight_missing_honestly_disclosed": true,
+    "healthy": true
+  },
+  "adversarial_admission_controls": [
+    {
+      "name": "corrupt_payload_digest",
+      "status": "REFUSED",
+      "reason": "actual file bytebinding: /tmp/e02-E-final-publication-r4-staging/payload/postfreeze/postfreeze-review-final.json"
+    },
+    {
+      "name": "corrupt_payload_size",
+      "status": "REFUSED",
+      "reason": "actual file bytebinding: /tmp/e02-E-final-publication-r4-staging/payload/postfreeze/postfreeze-review-final.json"
+    },
+    {
+      "name": "omit_mandatory_selected_member",
+      "status": "REFUSED",
+      "reason": "complete immutable selector member multiset"
+    },
+    {
+      "name": "drop_original_selector",
+      "status": "REFUSED",
+      "reason": "all five mandatory selectors"
+    },
+    {
+      "name": "conceal_original_preflight_loss",
+      "status": "REFUSED",
+      "reason": "honest missing original preflight"
+    }
+  ],
+  "physical_corruption_native_guard": {
+    "status": "REFUSED",
+    "reason": "actual file bytebinding: /tmp/e02-E-publication-custody-independent-doe-20261007/shadow-staging-optimized/postfreeze/postfreeze-review-final.json"
+  },
+  "effective_stage_byteguard_removal": {
+    "status": "ADMITTED corrupt physical bytes as expected divergence",
+    "same_size": true,
+    "expected_sha256": "2cfe6c5cb09c4791ad98857b0b94c677ddb654ddc779063f8ce2d6047eb0904f",
+    "actual_sha256": "0688d67bab402e6301e898b0f7583389ee7f10b915906f7306d9d77011e8cff9",
+    "markers_metadata_original_selectors_aliases_preserved": true
+  },
+  "original_actual_cli_omitted_member_defect": {
+    "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-omitted-mandatory-probe.json",
+    "bytes": 2033,
+    "sha256": "32d9f2165adbd848b47e80c4eba703b0f6a59cc3ad8d0b483d1fe58bed66adc8"
+  },
+  "current_verdict": "Literal custody GO; original optional copier CHANGE_REQUIRED until its exact-member admission fix independently passes.",
+  "scope": "Independent literal publication custody only; no numeric/gate/source test rerun or original finding acceptance. Own prior DoE/cleanup mechanism/semantic judgments explicitly excluded; separate oracle handles cleanup content."
+}

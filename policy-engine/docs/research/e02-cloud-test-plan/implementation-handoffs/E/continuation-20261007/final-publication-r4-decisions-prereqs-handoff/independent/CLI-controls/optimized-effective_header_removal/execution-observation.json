@@ -1,0 +1,26 @@
+{
+  "mode": "optimized",
+  "case": "effective_header_removal",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-O",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/removed-header.py.txt",
+    "--manifest",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-effective_header_removal/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-effective_header_removal/destination"
+  ],
+  "exit_code": 0,
+  "destination_created": true,
+  "stdout": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-effective_header_removal/stdout.txt",
+    "bytes": 468,
+    "sha256": "1ad9baf6e4159cc94ee2f4fd520737352fe78c7262e9e2920638149d5310c75b"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-effective_header_removal/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "copied_exact_file_count": 177
+}

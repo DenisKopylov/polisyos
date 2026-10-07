@@ -1,0 +1,37 @@
+{
+  "original_validator_path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet.py",
+  "original_validator_sha256": "558ea2ebbc183da3d2e1bd6981f9671585931c6ebae7f290c5ba9511e3d44052",
+  "original_packet_sha256": "5feed21c81a8e01a68c074571d46182fe3eda1f5fea7f6007db8f06fafa12b80",
+  "optimized": 1,
+  "healthy_closed_packet_admitted": true,
+  "controls": [
+    {
+      "control": "full_original_HTTP_counts_1585_to_one_PASS",
+      "validator_admitted": true,
+      "required_refusal_observed": false,
+      "check_outcome": "FAIL",
+      "markers_preserved": true,
+      "closed_receipt_refs_unchanged": true,
+      "reason": "Original validator accepts contradictory summary while closed receipts/markers remain intact."
+    },
+    {
+      "control": "main_catalog_observations_zero_to_hundred",
+      "validator_admitted": true,
+      "required_refusal_observed": false,
+      "check_outcome": "FAIL",
+      "markers_preserved": true,
+      "closed_receipt_refs_unchanged": true,
+      "reason": "Original validator accepts contradictory summary while closed receipts/markers remain intact."
+    },
+    {
+      "control": "extra_product_patch_path",
+      "validator_admitted": true,
+      "required_refusal_observed": false,
+      "check_outcome": "FAIL",
+      "markers_preserved": true,
+      "closed_receipt_refs_unchanged": true,
+      "reason": "Original validator accepts contradictory summary while closed receipts/markers remain intact."
+    }
+  ],
+  "no_root_interpreter_or_native_test_run": true
+}

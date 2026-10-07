@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory.tar.gz",
+    "bytes": 407349,
+    "sha256": "80dc60b5a292d1f990a409f6400dee378d2df301f94392f37e3753ca9a30f5ef"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-full-inventory.json",
+    "bytes": 93549,
+    "sha256": "22750c181aa4374ef85565c99fae9c2c598b424b7fc3ca1236a75171b0138641"
+  },
+  "members": 254,
+  "verified_file_bytes": 2745318,
+  "all_modes_links_byte_identities": true,
+  "no_unmatched_unique_input_or_diagnostic_dropped": true
+}

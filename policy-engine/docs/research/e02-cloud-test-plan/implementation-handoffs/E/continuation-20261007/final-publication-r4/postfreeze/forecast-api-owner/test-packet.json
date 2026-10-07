@@ -1,0 +1,29 @@
+{
+  "schema": "policyos.e02.owner_applicable_test_packet.v1",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "prepared_at": "2026-10-07T09:46:27.946690+00:00",
+  "parent_packet": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json",
+    "sha256": "1fdc4277f810fc826a052d46ed35fdf06fc8abc71109b4bfdd7157fa5763b57f"
+  },
+  "literal_test": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/test_forecast_serializer_exports.py.txt",
+    "sha256": "61005cb6c5fe5e96b699b350e0bea810cf645ce8cdd3f8bcac0dde22eec86f21",
+    "bytes": 2367,
+    "parse_check": "PASS",
+    "test_execution": "UNRUN",
+    "publication_state": "prepared owner-applicable test text, not an executed observer or current candidate fixture"
+  },
+  "required_owner_application": [
+    "Canonical IR owner first admits exact native helper aliases and caller routes using one of the unapplied patches",
+    "Place this test in existing IR facade test family and run its positive identity selector in a fresh interpreter before any private forecasting submodule import",
+    "Run named actual ETS/CAS/fresh consumer/forgery selectors in packet.json after applying the upstream contract and retain exact output/env/input identity"
+  ],
+  "bounded_expected_controls": {
+    "healthy": 2,
+    "present_without_declared_admission": 2,
+    "same_name_proxy": 2
+  },
+  "no_dummy_production_calls": true,
+  "limits": "Six expected cases are a reviewable test packet, not PASS claims. Public inventory/release and native producer/bridge persistence checks are mandatory companions; identity alone proves neither wire authority nor numerical calibration."
+}

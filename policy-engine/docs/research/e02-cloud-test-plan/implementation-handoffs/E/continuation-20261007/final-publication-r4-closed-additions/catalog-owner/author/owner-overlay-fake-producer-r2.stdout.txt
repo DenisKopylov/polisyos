@@ -1,0 +1,5 @@
+{
+  "outcome": "PASS",
+  "mode": "fake-producer",
+  "receipt": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/owner-overlay-fake-producer-r2/receipt.json"
+}

@@ -1,0 +1,101 @@
+2026-10-07 11:18:07.871 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-07 11:18:07.871 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-07 11:18:07.873 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:18:07.873 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:18:07.873 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:18:07.873 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:18:07.873 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:18:07.911 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.916 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.921 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.933 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.943 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.950 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.956 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.960 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.964 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.971 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.977 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:07.980 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'worldbank.wdi@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:07.983 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'wvs.wave7@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.008 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'eurostat.data@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.018 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.021 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.024 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.027 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.031 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.034 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.036 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ukons.datasets@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.040 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sdmx.source@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.044 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.catalog@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.046 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.resource@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.048 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'socrata.soda@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.050 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'opendatasoft.ods@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.052 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sparql.endpoint@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.057 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'rest.json@1.0.0' already registered. Use override=True to replace.
+2026-10-07 11:18:08.060 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.063 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.067 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:18:08.067 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry bootstrapped
+2026-10-07 11:18:08.069 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-07 11:18:08.070 | INFO     | polisyos.common.logger:_call:120 - Default configs bootstrapped from profiles
+Traceback (most recent call last):
+  File "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.py", line 112, in <module>
+    main()
+    ~~~~^^
+  File "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/probe_owner_patch_overlay.py", line 74, in main
+    env = server._build_dashboard_fixture_env(
+        output / "native-api", include_run_paper_fixtures=True,
+        include_bound_run_paper_fixture=True, include_test_client=False,
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py", line 174, in _build_dashboard_fixture_env
+    env = build_runtime_api_env(
+        tmp_root,
+    ...<6 lines>...
+        include_test_client=include_test_client,
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/tests/_helpers/runtime_http.py", line 331, in build_runtime_api_env
+                authority_envelope_ref=str(binary_authority_ref.artifact_id),
+    ...<5 lines>...
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/tests/_helpers/runtime_http.py", line 1419, in _build_runtime_api_env_with_current_inputs
+    promotion_id="promotion_fixture_001",
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    confidence=0.87,
+    
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/app.py", line 220, in create_runtime_api_app
+    runtime_container = RuntimeServiceContainer.build(
+        config=RuntimeContainerConfig(
+    ...<26 lines>...
+        ),
+    )
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/container.py", line 205, in build
+    overrides.control_registry_providers or _resolve_default_control_registry_providers()
+                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/container.py", line 795, in _resolve_default_control_registry_providers
+    return resolve_control_registry_providers()
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py", line 120, in resolve_control_registry_providers
+    gy_catalog_graph = _default_gy_catalog_graph()
+  File "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py", line 195, in _default_gy_catalog_graph
+    return build_slice0_fixture_catalog_graph()
+TypeError: main.<locals>.fake_builder() missing 1 required positional argument: 'root'

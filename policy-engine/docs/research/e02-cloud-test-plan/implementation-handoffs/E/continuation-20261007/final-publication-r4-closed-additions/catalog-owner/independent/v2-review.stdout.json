@@ -1,0 +1,15 @@
+{
+  "outcome": "GO",
+  "receipt": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-summary-class-independent-review.json",
+    "bytes": 9380,
+    "sha256": "7617b8afc76e67d0963725c329a574392772f9bf7bf7e633f26be957d060e570"
+  },
+  "commands": 4,
+  "canonical_utility_checks_per_mode": 21,
+  "class_claims": 65,
+  "current_three_refusals_per_mode": 3,
+  "effective_removed_three_readmissions_per_mode": 3,
+  "author_bytes_unchanged": true,
+  "no_native_reexecution": true
+}

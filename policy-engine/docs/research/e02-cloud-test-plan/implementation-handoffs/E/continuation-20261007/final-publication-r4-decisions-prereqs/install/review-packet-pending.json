@@ -1,0 +1,54 @@
+{
+  "schema": "policyos.e02.closed_dependency_custody_review_packet.v1",
+  "status": "independent_review_pending",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "packet": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/closed-install-custody.json",
+    "bytes": 12804,
+    "sha256": "8b1e16abe34bdd5971e350823571194083ee156f6969a893a88d7600a96cc110"
+  },
+  "validator": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+    "bytes": 24184,
+    "sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e"
+  },
+  "controls": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/check_closed_install_controls.py",
+    "bytes": 7033,
+    "sha256": "f8f6add995187aab0014f545c8c294494d0f62b35c7f75db017ce25ddd89bb45"
+  },
+  "normal": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-normal.stdout.json",
+    "bytes": 7898,
+    "sha256": "f1146efe4568782e87dedaa9af252a68cbd4a8676c9aa948e4e8639a24901f20"
+  },
+  "optimized": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-optimized.stdout.json",
+    "bytes": 7898,
+    "sha256": "f1146efe4568782e87dedaa9af252a68cbd4a8676c9aa948e4e8639a24901f20"
+  },
+  "input_index": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/input-index.json",
+    "bytes": 10648,
+    "sha256": "38ff6845c0b8cc7a61bd359a2d0de8af7529090c7db9150336f2c5fe9e35877c"
+  },
+  "complete_input_rows": 32,
+  "complete_input_bytes": 369304,
+  "claims": 194,
+  "controls_count": 36,
+  "repeated_native_checks": false,
+  "P37_basis": "Source64d and literal closed install/preflight/metadata/source-publication receipts, including the complete203\u2192207 metadata law and fixed four artifacts. No finding or gate authority comes from metadata alone.",
+  "P40_class": "Typed duplicated summary admission across counts, versions/hashes, source/tree/refs, native status, historical UNRUN/pending, owner-user vs unreadable process boundary, wheel publication and global/closure authority flags.",
+  "effective_removal": "Only summary_receipt RHS removed; raw closed inputs, native PASS and installation PASS markers stay present. Four corrupted summary classes re-admitted; property expected refusal FAIL.",
+  "limits": [
+    "Installed dependency capability and actual CP-SAT/hatchling preflight are bounded PASS receipts; active workspace14 retry result is outside this packet.",
+    "The root scheduler lease is recorded owner evidence. Before and after process observer quiescent=false due unreadable UID0 infrastructure199/250; no unconditional all-process zero-user assertion.",
+    "Native preflight printed no sys.version. Python3.14.7 is cited from frozen workspace14 environment plus pyvenv.cfg and actual cp314 artifact ABI; root interpreter was not rerun.",
+    "Historical old8-row selector remains UNRUN and metadata/runtime pending text remains unchanged; current closed events append evidence.",
+    "Hatchling and trove-classifiers are explicit hash-admitted declared/transitive artifacts absent from uv.lock; OR-Tools and immutabledict wheel hashes are exact lock entries.",
+    "Full wheels29,938,701B remain ignored reproducible payloads; only actual hash/ABI/METADATA readback selected.",
+    "Metadata observer source says no unreadable users; actual scheduler explicitly retained infrastructure exception instead of declaring quiescence. This packet records the real decision boundary rather than retroactively changing that observer rule."
+  ],
+  "next_owner": "Independent DoE reviewer checks this evidence-only utility; FRC existing DOC carrier may publish the selected literal packet after GO. E root owns native workspace14; G accepts code and finding dispositions separately."
+}

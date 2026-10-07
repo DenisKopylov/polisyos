@@ -1,0 +1,81 @@
+from __future__ import annotations
+import copy
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+import xml.etree.ElementTree as ET
+ROOT=Path('/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary')
+LANE=Path('/workspace/e02-E-frc-20261006')
+OUT=Path('/workspace/e02-E-pr38-r3-receipts/ir-evidence-independent')
+def identity(path):
+ path=Path(path);data=path.read_bytes();return {'path':str(path),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def load(path):return json.loads(Path(path).read_text())
+receipt=load(ROOT/'implementation-handoff.json');index=load(ROOT/'publication-copy-index.json')
+spec=importlib.util.spec_from_file_location('ir_evidence_validator',ROOT/'validate.py');validator=importlib.util.module_from_spec(spec);spec.loader.exec_module(validator)
+validator.validate(ROOT,LANE,receipt)
+actual={str(p.relative_to(ROOT)):identity(p) for group in ['checks','independent-review','owner-packet'] for p in (ROOT/group).rglob('*') if p.is_file()}
+assert len(actual)==len(receipt['deciding_outputs'])==receipt['deciding_output_count']==200
+assert sum(v['bytes'] for v in actual.values())==receipt['deciding_output_bytes']==2910652
+copies=[]
+for row in index['copies']:
+ source=Path(row['source_path']);portable=ROOT/row['portable_path'];dest=identity(portable);src=identity(source)
+ assert source.read_bytes()==portable.read_bytes()
+ assert (src['sha256'],src['bytes'])==(row['sha256'],row['bytes'])==(dest['sha256'],dest['bytes'])
+ copies.append({'original':src,'portable':dest})
+assert len(copies)==index['copied_files']==195
+assert sum(v['portable']['bytes'] for v in copies)==index['copied_bytes']==2698276
+source_paths=subprocess.check_output(['git','diff','--name-only',receipt['base_sha'],receipt['candidate_sha']],cwd=LANE,text=True).splitlines()
+assert set(source_paths)==set(receipt['changed_paths'])=={r['path'] for r in receipt['source_footprint']}
+assert len(source_paths)==receipt['path_count']==16
+assert sum(v.endswith('.py') for v in source_paths)==receipt['python_path_count']==14
+junit=[]
+for row in receipt['checks']:
+ if 'junit' not in row:continue
+ states={'PASS':0,'FAIL':0,'ERROR':0,'SKIP':0}
+ for case in ET.parse(ROOT/row['junit']).getroot().iter('testcase'):
+  key='ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+  states[key]+=1
+ assert states==row['states'] and sum(states.values())==row['cases']
+ junit.append({'name':row['name'],'cases':sum(states.values()),'states':states,'source_observation':row['source_observation'],'command_provenance':row['command_provenance']})
+independent=[]
+for row in receipt['independent_reviews']:
+ p=ROOT/row['receipt'];item=identity(p); original=next(c['original'] for c in copies if c['portable']['path']==str(p))
+ assert (item['sha256'],item['bytes'])==(original['sha256'],original['bytes'])
+ independent.append({'reviewer':row['reviewer'],'receipt':item,'declared':row['disposition']})
+controls=[]
+for name in ['output_hash','output_size','missing_output','forged_JUnit','wrong_tree','source_removed','summary_output_count','summary_output_bytes','summary_path_count','summary_python_count','summary_changed_paths','copy_index_hash']:
+ bad=copy.deepcopy(receipt)
+ if name=='output_hash':bad['deciding_outputs'][0]['sha256']='0'*64
+ elif name=='output_size':bad['deciding_outputs'][0]['bytes']+=1
+ elif name=='missing_output':bad['deciding_outputs'].pop()
+ elif name=='forged_JUnit':next(r for r in bad['checks'] if 'junit' in r)['states']['PASS']+=1
+ elif name=='wrong_tree':bad['candidate_tree_sha']='0'*40
+ elif name=='source_removed':bad['source_footprint'].pop()
+ elif name=='summary_output_count':bad['deciding_output_count']+=1
+ elif name=='summary_output_bytes':bad['deciding_output_bytes']+=1
+ elif name=='summary_path_count':bad['path_count']+=1
+ elif name=='summary_python_count':bad['python_path_count']+=1
+ elif name=='summary_changed_paths':bad['changed_paths'].pop()
+ else:bad['publication_copy_index']['sha256']='0'*64
+ try:validator.validate(ROOT,LANE,bad)
+ except ValueError as error:controls.append({'mutation':name,'refused':True,'reason':str(error)})
+ else:controls.append({'mutation':name,'refused':False})
+for name in ['copied_files','copied_bytes']:
+ bad=copy.deepcopy(index);bad[name]+=1
+ try:validator.validate_copy_index(ROOT,bad)
+ except ValueError as error:controls.append({'mutation':'copy_index_'+name,'refused':True,'reason':str(error)})
+ else:controls.append({'mutation':'copy_index_'+name,'refused':False})
+assert len(controls)==14 and all(r['refused'] for r in controls)
+result={
+ 'schema':'policyos.e02.independent_ir_evidence_delta_probe.v2','disposition':'GO for fixed evidence utility/custody; unchanged source700 already independentlyGO','historical_red_receipt':identity(OUT/'ir-evidence-delta-probe.json'),'source':receipt['candidate_sha'],'tree':receipt['candidate_tree_sha'],
+ 'source_writes':False,'numerical_tests_executed':False,
+ 'positive':'200 decidingoutputs/2910652bytes;195 literaloriginalcopies/2698276bytes;16sourcepaths14Python;7JUnitdenominators independentlyreconciled',
+ 'current_original_reviews':independent,'junit':junit,'controls':controls,
+ 'fixed_inputs':[identity(ROOT/v) for v in ['implementation-handoff.json','publication-copy-index.json','README.md','validate.py']],
+ 'finding_or_authority_acceptance':'No adjudication. Historicalheld ledger separate; closed proposals reviewed elsewhere; defaultfit/noise/scientificauthority/global/generatedsurface still unavailable.',
+ 'copy_index':copies,
+}
+(OUT/'ir-evidence-delta-probe-corrected.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'positive':result['positive'],'controls':controls,'reviews':independent,'receipt':identity(OUT/'ir-evidence-delta-probe-corrected.json')}))

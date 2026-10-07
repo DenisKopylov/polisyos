@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py", line 242, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py", line 239, in main
+    output=args.base/'closed-install-custody.json';require(not output.exists(),'append-only packet');output.write_text(json.dumps({'schema':'policyos.e02.closed_declared_prerequisite_custody.v1','claims':derive_claims(args.base,args.repo)},indent=2)+'\n')
+                                                                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py", line 135, in derive_claims
+    sources = source_inputs(index, i, repo)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py", line 128, in source_inputs
+    require(subprocess.check_output(['git','hash-object','--stdin'], input=raw, cwd=repo, text=True).strip() == row['git_blob'], 'Git blob identity')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 2092, in _communicate
+    self._save_input(input)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 2172, in _save_input
+    self._input = self._input.encode(self.stdin.encoding,
+                  ^^^^^^^^^^^^^^^^^^
+AttributeError: 'bytes' object has no attribute 'encode'. Did you mean: 'decode'?

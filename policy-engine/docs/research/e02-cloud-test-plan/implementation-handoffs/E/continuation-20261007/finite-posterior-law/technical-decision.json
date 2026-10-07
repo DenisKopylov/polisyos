@@ -1,0 +1,50 @@
+{
+  "schema": "policyos.e02.E.finite-posterior-law.technical-decision.v1",
+  "source_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "decision_scope": [
+    "B188",
+    "B192",
+    "B201",
+    "B202"
+  ],
+  "appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+  "four_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "review_source": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "actual_falsifiers": [
+    "sha256:d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042",
+    "sha256:f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca"
+  ],
+  "independent_oracle": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+    "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc"
+  },
+  "pattern_bucket": "P40: same probability-law and joint-premise class one level deeper; widen shared admission to exact rational mass and supplied paired row identity.",
+  "representation": "Admitted binary64 weights are scaled by an exact common power of two to maximum in [0.5,1). Fraction ratios before/after must agree exactly; lost positive support or ratio changes refuse. Canonicalization is idempotent. Weights are ratio weights, not normalized floating probabilities.",
+  "probability_law": "Fraction(binary64 weight)/exact sum supplies mean, original-order draw CDF, and value-sorted quantiles. Draw cuts round upward and searchsorted right classifies admitted finite U exactly; quantile cuts round downward and searchsorted left classifies finite q exactly. Any positive category without a finite-U bucket refuses before callbacks, including sorted admission.",
+  "approximation": "Uniform finite-mesh sampling discretizes the continuous rational mass law. Exact finite-U bucket classification is not arbitrary-real randomness or an exact expectation guarantee for the finite uniform grid. Predictive population spread is diagnostic and computed from normalized exact ratios.",
+  "profile": {
+    "id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+    "version": "2.0",
+    "probability_convention": "exact_binary_weight_ratios",
+    "legacy": "Keep Profile1 DTO, literal old payload decode/display/replay and Envelope1.1 unchanged. Old generated multi-coordinate groups do not gain stochastic-law admission. Distinct Profile2 dispatch, no reinterpretation of Profile1 weights."
+  },
+  "paired_premise": "Producer requires explicit shared draw IDs for multiple coordinates. Strict fresh group admission refuses producer_input_order even with matching lengths and integrity-valid carrier digest. Supplied alignment is consumer_asserted input, not source provenance or gate authority; gate_eligible remains false.",
+  "companions": [
+    "existing IR analytics facade and root narrow DTO export",
+    "actual ABI registry V2 entry and generator-owner packet",
+    "all random/Sobol/Halton shared transform callers",
+    "real CAS fresh-reader tests",
+    "literal Profile700 compatibility fixtures",
+    "release fragment"
+  ],
+  "authority_limits": [
+    "No causal/treatment/policy authority",
+    "No inferred independence from moments or covariance",
+    "No production source-law evidence synthesized",
+    "B194/B197 external holds unchanged",
+    "No general Core/IR legacy facade lease",
+    "No generated files hand edits"
+  ],
+  "review": "Independent oracle reviews immutable implementation SHA/tree before separate handoff publication."
+}

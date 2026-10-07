@@ -1,0 +1,186 @@
+"""Independent literal selector/member/staged custody; no runtime/source authority."""
+from __future__ import annotations
+from collections import Counter
+import copy
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+CATALOG = Path('/tmp/e02-E-publication-custody-independent-doe-20261007')
+STAGE = Path('/tmp/e02-E-final-publication-r4-staging')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+MANIFEST_SHA = 'c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4/'
+SELECTORS = {
+    'postfreeze': ('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/publicationselection-postfreeze.json', 10711, '8120b19ca1c75044593cc89d89ccbf8884c5639117298721ddc30beb092e4018'),
+    'runtime-retry': ('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/retry-publication-selection-v1.json', 14573, 'b875207e7848933ebf89ead53e06c79593669279c3c3ef83e0bb2a601f43790e'),
+    'closed-lint': ('/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/publication-selection.json', 12532, '42c38223e581a5374c4e5de1399a17dbb01874ed58a2bf551797c3db4197778f'),
+    'criteria-review': ('/tmp/e02-E-criteria-decision-independent-64d/publication-selection.json', 2658, '96fbde7b717991a73d02834456e7af845bb24ac39c532af652c151b1a7226bb9'),
+    'capacity-cleanup': ('/tmp/e02-E-capacity-cleanup-20261007-doe/publication-selection.json', 5755, '2f702525f55ebcf5723e186d0e469974fb1115eb6241b8d7649e7c4aa631c574'),
+}
+
+def require(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+def ref(path):
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+def check_bytes(path, size, digest, *, skip_stage_binding=False):
+    data = path.read_bytes()
+    if not skip_stage_binding:
+        require(type(size) is int and len(data) == size and hashlib.sha256(data).hexdigest() == digest, 'actual file bytebinding: ' + str(path))
+    return data
+
+def selected_rows(family, value):
+    if family == 'postfreeze':
+        return [value['deciding_final']] + value['current_complete_deciding'] + [r['portable_source'] for r in value['literal_archived_observers']]
+    if family == 'runtime-retry':
+        return value['files']
+    if family == 'criteria-review':
+        return value['rows']
+    return value['assets']
+
+def validate(value, *, skip_stage_binding=False, staged_override=None):
+    require(value['verification_source'] == '64d7444a18c55df7b88b71b7699a2f1b25ca24bd' and value['verification_tree'] == 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d', 'source/tree')
+    require(value['proposed_git_prefix'] == PREFIX, 'fixed prefix')
+    require({r['family'] for r in value['selection_inputs']} == SELECTORS.keys() and len(value['selection_inputs']) == 5, 'all five mandatory selectors')
+    expected = Counter()
+    parsed = {}
+    aliases = []
+    for selection in value['selection_inputs']:
+        family = selection['family']
+        source, size, digest = SELECTORS[family]
+        require((selection['selection_source_path'], selection['bytes'], selection['sha256']) == (source, size, digest), 'frozen original selector identity')
+        literal = check_bytes(Path(source), size, digest)
+        selected = json.loads(literal)
+        parsed[family] = selected
+        rows = selected_rows(family, selected)
+        require(selection['selected_count'] == len(rows) and selection['selected_bytes'] == sum(row['bytes'] for row in rows), 'original selector full denominator')
+        for row in rows:
+            path = row.get('source_path', row.get('path'))
+            check_bytes(Path(path), row['bytes'], row['sha256'])
+            expected[(family, path, row['bytes'], row['sha256'])] += 1
+        expected[('selectors', source, size, digest)] += 1
+        if family == 'postfreeze':
+            for row in selected['literal_archived_observers']:
+                require(Path(row['executed_source_path']).read_bytes() == Path(row['portable_source']['path']).read_bytes(), 'executed observer archive byte identity')
+        if family == 'closed-lint':
+            for field in ('aliased_optimized_full_review', 'prior_preview_same_bytes'):
+                alternate = selected[field]['original_input']
+                data = check_bytes(Path(alternate['source_path']), alternate['bytes'], alternate['sha256'])
+                primary = next(row for row in rows if row['portable_path'] == selected[field]['primary'])
+                require(data == Path(primary.get('source_path', primary.get('path'))).read_bytes(), 'declared owner alias exact primary binding')
+                aliases.append({'kind': field, **alternate, 'primary': selected[field]['primary']})
+    actual = Counter((row['family'], row['source_path'], row['source_bytes'], row['source_sha256']) for row in value['logical_sources'])
+    require(actual == expected, 'complete immutable selector member multiset')
+    require(value['logical_count_including_selectors'] == sum(actual.values()) == 123, 'full logical cardinality')
+    require(value['logical_bytes_including_selectors'] == sum(row['source_bytes'] for row in value['logical_sources']), 'full logical bytes')
+    canonical = {}
+    staged_refs = []
+    for row in value['canonical_copies']:
+        relative = Path(row['portable_path'])
+        require(not relative.is_absolute() and '..' not in relative.parts and relative.as_posix() == row['portable_path'] and not relative.name.endswith('.py'), 'narrow passive portable path')
+        require(row['portable_path'] not in canonical, 'canonical path unique')
+        require(row['staged_path'] == str(STAGE / 'payload' / relative), 'literal staged physical path')
+        physical = (staged_override / relative) if staged_override else Path(row['staged_path'])
+        check_bytes(physical, row['bytes'], row['sha256'], skip_stage_binding=skip_stage_binding)
+        staged_refs.append({'portable_path': row['portable_path'], 'bytes': row['bytes'], 'sha256': row['sha256']})
+        canonical[row['portable_path']] = row
+    require(value['unique_payload_files'] == len(canonical) == 107 and value['unique_payload_bytes'] == sum(row['bytes'] for row in canonical.values()) == 3112171, 'complete unique payload denominator')
+    require(len({(row['bytes'], row['sha256']) for row in canonical.values()}) == len(canonical), 'content deduplication exact')
+    logical_destinations = {}
+    seen_content = set()
+    for row in value['logical_sources']:
+        target = canonical[row['canonical_destination']]
+        require((target['bytes'], target['sha256']) == (row['source_bytes'], row['source_sha256']), 'logical source to canonical alias binding')
+        require(row['proposed_git_path'] == PREFIX + row['canonical_destination'], 'exact alias Git target')
+        require(row['literal_alias'] is ((row['source_bytes'], row['source_sha256']) in seen_content), 'literal alias basis actual previous identical content')
+        seen_content.add((row['source_bytes'], row['source_sha256']))
+        old = logical_destinations.get(row['logical_destination'])
+        require(old is None or old == (row['source_bytes'], row['source_sha256']), 'logical destination collision')
+        logical_destinations[row['logical_destination']] = (row['source_bytes'], row['source_sha256'])
+    require(value['deduplicated_logical_aliases'] == sum(row['literal_alias'] for row in value['logical_sources']) == 16, 'all deduplicated aliases')
+    loss = value['historical_preflight_custody_loss']
+    require(loss['old_json_available'] is False and loss['old_bytes'] == 44035 and loss['old_sha256'] == 'ee0b4b84f7518aa87f476865a06a2e36a34c7eb3ceb6785153dd89d57ff734b1', 'honest missing original preflight')
+    for field in ('fixed_publication_recovery_search', 'literal_observer', 'old_stdout'):
+        row = loss[field]
+        require(any(source['source_path'] == row['path'] and (source['source_bytes'], source['source_sha256']) == (row['bytes'], row['sha256']) for source in value['logical_sources']), 'mandatory original preflight disclosure companion')
+    require(loss['old_sha256'] not in {row['source_sha256'] for row in value['logical_sources']}, 'missing old JSON never silently substituted as healthy')
+    newer = next(row for row in value['logical_sources'] if row['source_path'].endswith('/fresh-shared-preflight-after-ci22.json'))
+    require(newer['source_sha256'] != loss['old_sha256'], 'distinct current preflight source identity')
+    recovery = json.loads(Path(loss['fixed_publication_recovery_search']['path']).read_text())
+    require(recovery['recovered'] is False and recovery['matched_files'] == [] and recovery['no_regenerated_historical_json'] is True, 'retained scoped unsuccessful historical recovery')
+    reused = []
+    for row in value['already_published_observation_reuse']:
+        require(row['immutable_git_sha'] == 'a5021561c7630b8a1e721e34307d30550825b07d', 'published observation exact revision')
+        data = subprocess.check_output(['git', '-C', str(ROOT), 'show', row['immutable_git_sha'] + ':' + row['immutable_git_path']])
+        require(len(data) == row['bytes'] and hashlib.sha256(data).hexdigest() == row['sha256'], 'published Git bytebinding')
+        require(data == Path(row['source_path']).read_bytes(), 'published and original observation same bytes')
+        reused.append(row)
+    require(len(reused) == 4, 'complete existing observation refs')
+    require(value['root_or_leaf_files_written'] is False and value['source_test_gate_numerical_execution'] is False and value['active_python_additions'] is False, 'staging only scope')
+    require(value['pending_not_collected'] == ['new frontend receipts', 'new backend receipts', 'final all-54 owner closeout'], 'honest pending external/current final packets')
+    require('not a complete final gate/owner handoff' in value['scope_limit'], 'custody scope not full acceptance')
+    return {'logical_sources': 123, 'actual_selected_originals': 118, 'original_selectors': 5, 'literal_canonical_files': 107, 'literal_canonical_bytes': 3112171, 'literal_aliases': 16, 'explicit_additional_owner_alias_bindings': aliases, 'reused_published_observations': 4, 'historical_preflight_missing_honestly_disclosed': True, 'healthy': True}
+
+def refusal(name, mutated):
+    try:
+        validate(mutated)
+    except (ValueError, KeyError) as error:
+        return {'name': name, 'status': 'REFUSED', 'reason': str(error)}
+    raise ValueError('Independent admission accepted adversarial packet: ' + name)
+
+def main():
+    raw = (STAGE / 'staging-manifest.json').read_bytes()
+    require(hashlib.sha256(raw).hexdigest() == MANIFEST_SHA, 'immutable reviewed manifest')
+    value = json.loads(raw)
+    healthy = validate(value)
+    controls = []
+    for name in ('corrupt_payload_digest', 'corrupt_payload_size', 'omit_mandatory_selected_member', 'drop_original_selector', 'conceal_original_preflight_loss'):
+        altered = copy.deepcopy(value)
+        if name == 'corrupt_payload_digest':
+            altered['canonical_copies'][0]['sha256'] = '0' * 64
+        elif name == 'corrupt_payload_size':
+            altered['canonical_copies'][0]['bytes'] += 1
+        elif name == 'omit_mandatory_selected_member':
+            target = next(row for row in altered['logical_sources'] if row['source_path'].endswith('/historical-preflight-recovery-search-v1.json'))
+            altered['logical_sources'] = [row for row in altered['logical_sources'] if row != target]
+            altered['canonical_copies'] = [row for row in altered['canonical_copies'] if row['portable_path'] != target['canonical_destination']]
+            for field, rows, value_key in (('logical_count_including_selectors', 'logical_sources', None), ('unique_payload_files', 'canonical_copies', None), ('logical_bytes_including_selectors', 'logical_sources', 'source_bytes'), ('unique_payload_bytes', 'canonical_copies', 'bytes')):
+                altered[field] = sum(row[value_key] for row in altered[rows]) if value_key else len(altered[rows])
+        elif name == 'drop_original_selector':
+            altered['selection_inputs'].pop()
+        else:
+            altered['historical_preflight_custody_loss']['old_json_available'] = True
+        controls.append(refusal(name, altered))
+    # Effective physical staged-byte guard removal, preserving all metadata markers.
+    shadow = CATALOG / ('shadow-staging-optimized' if not __debug__ else 'shadow-staging-normal')
+    shadow.mkdir(exist_ok=False)
+    for row in value['canonical_copies']:
+        path = shadow / row['portable_path']
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(Path(row['staged_path']).read_bytes())
+    marker = value['canonical_copies'][0]
+    changed = shadow / marker['portable_path']
+    data = changed.read_bytes()
+    changed.write_bytes(bytes([data[0] ^ 1]) + data[1:])
+    try:
+        validate(value, staged_override=shadow)
+    except ValueError as error:
+        healthy_guard = {'status': 'REFUSED', 'reason': str(error)}
+    else:
+        raise ValueError('Actual corrupted staged file admitted')
+    removed = validate(value, staged_override=shadow, skip_stage_binding=True)
+    require(removed['healthy'] is True and ref(changed)['sha256'] != marker['sha256'], 'effective removal must admit corrupted physical bytes')
+    report = {'schema': 'policyos.e02.independent_staging_custody_observation.v1', 'observer_source': ref(Path(__file__)), 'interpreter': sys.executable, 'python': sys.version, 'optimization_mode': 'python -O' if not __debug__ else 'normal', 'manifest': ref(STAGE / 'staging-manifest.json'), 'healthy_literal_custody': healthy, 'adversarial_admission_controls': controls, 'physical_corruption_native_guard': healthy_guard, 'effective_stage_byteguard_removal': {'status': 'ADMITTED corrupt physical bytes as expected divergence', 'same_size': len(data) == changed.stat().st_size, 'expected_sha256': marker['sha256'], 'actual_sha256': ref(changed)['sha256'], 'markers_metadata_original_selectors_aliases_preserved': True}, 'original_actual_cli_omitted_member_defect': ref(CATALOG / 'actual-copier-omitted-mandatory-probe.json'), 'current_verdict': 'Literal custody GO; original optional copier CHANGE_REQUIRED until its exact-member admission fix independently passes.', 'scope': 'Independent literal publication custody only; no numeric/gate/source test rerun or original finding acceptance. Own prior DoE/cleanup mechanism/semantic judgments explicitly excluded; separate oracle handles cleanup content.'}
+    output = CATALOG / ('independent-staging-custody-optimized.json' if not __debug__ else 'independent-staging-custody-normal.json')
+    with output.open('x') as handle:
+        handle.write(json.dumps(report, indent=2) + '\n')
+    print(json.dumps({'report': ref(output), 'healthy': healthy, 'negative_controls': len(controls) + 2, 'copier': 'CHANGE_REQUIRED'}, indent=2))
+
+if __name__ == '__main__':
+    main()

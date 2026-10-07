@@ -1,0 +1,737 @@
+{
+  "schema": "policyos.e02.additional_cloud_capacity_candidates.v1",
+  "observed_unix": 1791370992.1721342,
+  "source_SHA": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "state": "READ-ONLY no active candidate users; no deletion executed; root owns later exact action",
+  "candidates": [
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site",
+      "kind": "closed repeatable native mkdocs rendered site; original tracked docs/code preserved in Git, do not delete source docs",
+      "allocated_du_bytes": 643407872,
+      "regular_files_hardlink1_allocated_bytes_lower_bound": 635006976,
+      "inventory_count": {
+        "regular_files": 6779,
+        "symlinks_not_followed": 0,
+        "directories": 2030
+      },
+      "closed_native_outcome": "FAIL",
+      "exit_code": 1,
+      "counts": null,
+      "full_argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "docs",
+        "python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict",
+        "--site-dir",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "actual_environment_complete_receipt": {
+        "publication_SHA": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.json",
+        "git_blob": "abdc8bf831d010b2b8aebf277927f07870e4376e",
+        "bytes": 8460,
+        "sha256": "46b50df6b7652d463242e4e3eedb4f730a52beb66c60560fab52affa01f94957"
+      },
+      "deciding_outputs_outside_candidate_exact_published_refs": [
+        {
+          "publication_SHA": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.json",
+          "git_blob": "abdc8bf831d010b2b8aebf277927f07870e4376e",
+          "bytes": 8460,
+          "sha256": "46b50df6b7652d463242e4e3eedb4f730a52beb66c60560fab52affa01f94957"
+        },
+        {
+          "publication_SHA": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.stdout.txt",
+          "git_blob": "9abce3c14cd0d54399d50b59cf067f0f14d81d45",
+          "bytes": 230183,
+          "sha256": "a5e53cb944840209256ac0afc2fd0306e0d01f2f824bbb5c06224038dc77ccc5"
+        }
+      ],
+      "source_immutable": true,
+      "deletion": "NOT EXECUTED; root must classify internal unique diagnostics and preserve them before any later cleanup",
+      "unavailable_optional_JUnit": []
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+      "kind": "closed native pytest --basetemp generated fixtures/overlays; classify/preserve unique internal diagnostics before any later removal",
+      "allocated_du_bytes": 96690176,
+      "regular_files_hardlink1_allocated_bytes_lower_bound": 66588672,
+      "inventory_count": {
+        "regular_files": 8055,
+        "symlinks_not_followed": 101,
+        "directories": 7243
+      },
+      "closed_native_outcome": "FAIL",
+      "exit_code": 1,
+      "counts": {
+        "cases": 321,
+        "passed": 313,
+        "failed": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "full_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/pytest",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/benchmarks",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+        "tests/unit/foundry/analysis/test_merge_determinism.py",
+        "tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/remediation/test_frc_02.py",
+        "tests/unit/remediation/test_frc_02_bridge.py",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/remediation/test_frc_02_s10.py",
+        "tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py",
+        "tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "tests/unit/scientist/methods/backtesting/test_cv.py",
+        "tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "tests/unit/scientist/methods/backtesting/test_masking.py",
+        "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "tests/unit/scientist/methods/backtesting/test_native_replay.py",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/owner-packets/test_a_frc_native_cas_status_reason.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "actual_environment_complete_receipt": {
+        "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+        "git_blob": "1685ce8e93f9ba1d78e8131a8b59933d3d6188f2",
+        "bytes": 10645,
+        "sha256": "2b76b7f27babe3eee1a1b4fe1bf8fa82c839f351c70460ec1ebb0665df527434"
+      },
+      "deciding_outputs_outside_candidate_exact_published_refs": [
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+          "git_blob": "1685ce8e93f9ba1d78e8131a8b59933d3d6188f2",
+          "bytes": 10645,
+          "sha256": "2b76b7f27babe3eee1a1b4fe1bf8fa82c839f351c70460ec1ebb0665df527434"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+          "git_blob": "1d07ae5292bc87b56a591943dd0efb4a2b10e5e4",
+          "bytes": 27554,
+          "sha256": "1a1b6fde267fa9a2283b4bbadbff0ea3fe0221e691bf1525f2d63db65c1844fc"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+          "git_blob": "5c8ed22e78e79a181695875dd87ace7b1ffbeb32",
+          "bytes": 83154,
+          "sha256": "eff4ee7af671cae2f9d49bf4bd994533bc52245433d61f1fe0a56ff668e3ebbb"
+        }
+      ],
+      "source_immutable": true,
+      "deletion": "NOT EXECUTED; root must classify internal unique diagnostics and preserve them before any later cleanup",
+      "unavailable_optional_JUnit": []
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+      "kind": "closed native pytest --basetemp generated fixtures/overlays; classify/preserve unique internal diagnostics before any later removal",
+      "allocated_du_bytes": 20529152,
+      "regular_files_hardlink1_allocated_bytes_lower_bound": 11124736,
+      "inventory_count": {
+        "regular_files": 2271,
+        "symlinks_not_followed": 39,
+        "directories": 2254
+      },
+      "closed_native_outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 443,
+        "passed": 443,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "full_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/cache/pytest",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/cache/benchmarks",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+        "tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "tests/unit/foundry/uncertainty/test_covariance.py",
+        "tests/unit/foundry/uncertainty/test_delta.py",
+        "tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+        "tests/unit/foundry/uncertainty/test_tail_risk.py",
+        "tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+        "tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+        "tests/unit/ir/test_uncertainty.py",
+        "tests/unit/remediation/test_uqp_01.py",
+        "tests/unit/remediation/test_uqp_02.py",
+        "tests/unit/remediation/test_uqp_03.py",
+        "tests/unit/remediation/test_uqs_01.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+        "tests/unit/foundry/uncertainty/test_covariance_facade.py",
+        "tests/unit/ir/test_posterior_summary.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "actual_environment_complete_receipt": {
+        "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+        "git_blob": "46b79d2a5d50f3cfb424595d7f667dcbfe512d32",
+        "bytes": 10594,
+        "sha256": "7227ca411296804de6d5f6cca769b9be0d210009040ef9c9bf3390c36ba1586e"
+      },
+      "deciding_outputs_outside_candidate_exact_published_refs": [
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+          "git_blob": "46b79d2a5d50f3cfb424595d7f667dcbfe512d32",
+          "bytes": 10594,
+          "sha256": "7227ca411296804de6d5f6cca769b9be0d210009040ef9c9bf3390c36ba1586e"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+          "git_blob": "42860edd6a7ffda16921df387d94b0642f91243d",
+          "bytes": 1211,
+          "sha256": "2b8d025fdbc1364f5afbb4edf9717bda621429495f142c349cb8548908c7e235"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+          "git_blob": "6d2a6a98c9be839878ac2a6d97048ab88c686f54",
+          "bytes": 73798,
+          "sha256": "16387db180e797b9663e288360f4bd50d4b638b50d357e70453e2e6baf57bdfa"
+        }
+      ],
+      "source_immutable": true,
+      "deletion": "NOT EXECUTED; root must classify internal unique diagnostics and preserve them before any later cleanup",
+      "unavailable_optional_JUnit": []
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+      "kind": "closed native pytest --basetemp generated fixtures/overlays; classify/preserve unique internal diagnostics before any later removal",
+      "allocated_du_bytes": 14508032,
+      "regular_files_hardlink1_allocated_bytes_lower_bound": 8155136,
+      "inventory_count": {
+        "regular_files": 1710,
+        "symlinks_not_followed": 19,
+        "directories": 1531
+      },
+      "closed_native_outcome": "FAIL",
+      "exit_code": -9,
+      "counts": null,
+      "full_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cache/pytest",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cache/benchmarks",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/pytest.xml",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+        "tests/unit/foundry/calibration/test_auxiliary.py",
+        "tests/unit/foundry/calibration/test_bijectors.py",
+        "tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "tests/unit/foundry/calibration/test_calibrator.py",
+        "tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "tests/unit/foundry/calibration/test_dp_ci.py",
+        "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "tests/unit/foundry/calibration/test_hessian.py",
+        "tests/unit/foundry/calibration/test_identifiability.py",
+        "tests/unit/foundry/calibration/test_loss.py",
+        "tests/unit/foundry/calibration/test_measurement.py",
+        "tests/unit/foundry/calibration/test_multi_start.py",
+        "tests/unit/foundry/calibration/test_preflight.py",
+        "tests/unit/foundry/calibration/test_pure_executor.py",
+        "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "tests/unit/foundry/calibration/test_report.py",
+        "tests/unit/remediation/test_cal_01.py",
+        "tests/unit/remediation/test_cal_02.py",
+        "tests/unit/remediation/test_cal_03.py",
+        "tests/unit/remediation/test_cal_04.py",
+        "tests/unit/remediation/test_cal_06.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "actual_environment_complete_receipt": {
+        "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+        "git_blob": "48c0118ab2269a0ddce2ab13c6a7952645286391",
+        "bytes": 10457,
+        "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd"
+      },
+      "deciding_outputs_outside_candidate_exact_published_refs": [
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+          "git_blob": "48c0118ab2269a0ddce2ab13c6a7952645286391",
+          "bytes": 10457,
+          "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+          "git_blob": "1d736642716de13d753c5bbb3d8d3dbaeec91556",
+          "bytes": 281,
+          "sha256": "840e92795a70320c72cbedd9f1ef462e30cbd062b488ab646e23b5c93c0ea505"
+        }
+      ],
+      "source_immutable": true,
+      "deletion": "NOT EXECUTED; root must classify internal unique diagnostics and preserve them before any later cleanup",
+      "unavailable_optional_JUnit": [
+        {
+          "declared_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/pytest.xml",
+          "physical_available": false,
+          "published_exact_ref": "a5021561c7630b8a1e721e34307d30550825b07d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/cal-and-welfare-consumer/pytest.xml",
+          "published_available": false,
+          "diagnostic": "fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/checks/cal-and-welfare-consumer/pytest.xml' does not exist in 'a5021561c7630b8a1e721e34307d30550825b07d'\n",
+          "status": "NOT_ESTABLISHED for this optional JUnit; original closed receipt/stdout preserved, do not substitute retry JUnit"
+        }
+      ]
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+      "kind": "closed native pytest --basetemp generated fixtures/overlays; classify/preserve unique internal diagnostics before any later removal",
+      "allocated_du_bytes": 9752576,
+      "regular_files_hardlink1_allocated_bytes_lower_bound": 9293824,
+      "inventory_count": {
+        "regular_files": 65,
+        "symlinks_not_followed": 27,
+        "directories": 84
+      },
+      "closed_native_outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 59,
+        "passed": 59,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "full_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/cache/pytest",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/cache/benchmarks",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+        "tests/unit/runtime/http/test_control_plane_store.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "actual_environment_complete_receipt": {
+        "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+        "git_blob": "fdfbff21033ff96329baa131d327ab877979ca54",
+        "bytes": 9017,
+        "sha256": "c063fcf1288e0a5c17562e71cdf899e5251c93a8c4c3fc4b5ae5f21eca64f66a"
+      },
+      "deciding_outputs_outside_candidate_exact_published_refs": [
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+          "git_blob": "fdfbff21033ff96329baa131d327ab877979ca54",
+          "bytes": 9017,
+          "sha256": "c063fcf1288e0a5c17562e71cdf899e5251c93a8c4c3fc4b5ae5f21eca64f66a"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+          "git_blob": "ef27c9f823a5f7fe632c157c292d5371b6676f81",
+          "bytes": 80,
+          "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+          "git_blob": "03429593e021da82f882b78b049ccf393099a708",
+          "bytes": 10247,
+          "sha256": "0a0ebe21740efba221edccd2312a788eb6fb453aafad5b50b48e84cc69bafbb9"
+        }
+      ],
+      "source_immutable": true,
+      "deletion": "NOT EXECUTED; root must classify internal unique diagnostics and preserve them before any later cleanup",
+      "unavailable_optional_JUnit": []
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+      "kind": "closed native pytest --basetemp generated fixtures/overlays; classify/preserve unique internal diagnostics before any later removal",
+      "allocated_du_bytes": 3608576,
+      "regular_files_hardlink1_allocated_bytes_lower_bound": 2916352,
+      "inventory_count": {
+        "regular_files": 86,
+        "symlinks_not_followed": 6,
+        "directories": 162
+      },
+      "closed_native_outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 221,
+        "passed": 221,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "full_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/cache/pytest",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/cache/benchmarks",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/pytest.xml",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+        "tests/unit/remediation/test_doe_01.py",
+        "tests/unit/remediation/test_doe_02.py",
+        "tests/unit/remediation/test_doe_03.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/scientist/methods/doe/test_adaptive.py",
+        "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "tests/unit/scientist/methods/doe/test_multi_output.py",
+        "tests/unit/scientist/methods/doe/test_sampling.py",
+        "tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+        "tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+        "tests/unit/scientist/methods/doe/test_stability.py",
+        "tests/unit/scientist/methods/doe/test_uncertainty.py",
+        "tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+        "tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "actual_environment_complete_receipt": {
+        "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+        "git_blob": "74e50040c32db56fba93d465d2e1b5277e2a9f35",
+        "bytes": 9830,
+        "sha256": "74d964a4a6c8e7d6a52592b0c3d3d71ae161279272fc3179577dae62cbfcee93"
+      },
+      "deciding_outputs_outside_candidate_exact_published_refs": [
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+          "git_blob": "74e50040c32db56fba93d465d2e1b5277e2a9f35",
+          "bytes": 9830,
+          "sha256": "74d964a4a6c8e7d6a52592b0c3d3d71ae161279272fc3179577dae62cbfcee93"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+          "git_blob": "61df4967e2e705e90798a91ddd077ef50101624d",
+          "bytes": 2280,
+          "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/doe-salib-and-consumer-factory/pytest.xml",
+          "git_blob": "afc3124a279b61e8b570c0edd715033e604202c2",
+          "bytes": 36923,
+          "sha256": "c2856e7892537f67c965ce385585a206fd5d4a937cd3a0d4eaafd358688ec09b"
+        }
+      ],
+      "source_immutable": true,
+      "deletion": "NOT EXECUTED; root must classify internal unique diagnostics and preserve them before any later cleanup",
+      "unavailable_optional_JUnit": []
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+      "kind": "closed native pytest --basetemp generated fixtures/overlays; classify/preserve unique internal diagnostics before any later removal",
+      "allocated_du_bytes": 2408448,
+      "regular_files_hardlink1_allocated_bytes_lower_bound": 1019904,
+      "inventory_count": {
+        "regular_files": 238,
+        "symlinks_not_followed": 14,
+        "directories": 324
+      },
+      "closed_native_outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 99,
+        "passed": 99,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "full_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/cache/pytest",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/cache/benchmarks",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pytest.xml",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+        "tests/unit/calibration/test_adapters.py",
+        "tests/unit/calibration/test_continuous.py",
+        "tests/unit/calibration/test_continuous_persistence.py",
+        "tests/unit/calibration/test_curve.py",
+        "tests/unit/calibration/test_diagnostics.py",
+        "tests/unit/calibration/test_multiclass.py",
+        "tests/unit/calibration/test_recalibration.py",
+        "tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+        "tests/unit/calibration/test_core_artifact_routes.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "actual_environment_complete_receipt": {
+        "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+        "git_blob": "3e765e4cdb046aa35f2bfa7fd4443f1dc4dae3fc",
+        "bytes": 9433,
+        "sha256": "e7d34b6fb91f3301783d6fc14b0bb4870847d2d4a1710b8469be362c1bdcf42b"
+      },
+      "deciding_outputs_outside_candidate_exact_published_refs": [
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+          "git_blob": "3e765e4cdb046aa35f2bfa7fd4443f1dc4dae3fc",
+          "bytes": 9433,
+          "sha256": "e7d34b6fb91f3301783d6fc14b0bb4870847d2d4a1710b8469be362c1bdcf42b"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+          "git_blob": "17619419efb6802c13c02237379a0a011e783175",
+          "bytes": 160,
+          "sha256": "d8b8de5aa45f370d8fca3d3554fc6f6eb91df8892674da930f787edcc91f0d95"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/pcl-continuous-persistence/pytest.xml",
+          "git_blob": "72604f2cb8673ae611d1f0b01c9d0bdda340b8a7",
+          "bytes": 15059,
+          "sha256": "590659d7422b8103617787f7d42345502a5f6ea718321fff783563cd45017f51"
+        }
+      ],
+      "source_immutable": true,
+      "deletion": "NOT EXECUTED; root must classify internal unique diagnostics and preserve them before any later cleanup",
+      "unavailable_optional_JUnit": []
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+      "kind": "closed native pytest --basetemp generated fixtures/overlays; classify/preserve unique internal diagnostics before any later removal",
+      "allocated_du_bytes": 28672,
+      "regular_files_hardlink1_allocated_bytes_lower_bound": 8192,
+      "inventory_count": {
+        "regular_files": 2,
+        "symlinks_not_followed": 2,
+        "directories": 2
+      },
+      "closed_native_outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 82,
+        "passed": 82,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "full_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/cache/pytest",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/cache/benchmarks",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+        "tests/unit/ddm/mirror_contracts/test_audit.py",
+        "tests/unit/ddm/mirror_contracts/test_calibrate.py",
+        "tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py",
+        "tests/unit/ddm/mirror_contracts/test_events.py",
+        "tests/unit/ddm/mirror_contracts/test_multiple_testing.py",
+        "tests/unit/ddm/mirror_contracts/test_performance_estimator.py",
+        "tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py",
+        "tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py",
+        "tests/unit/ddm/test_delayed_label_replay.py",
+        "tests/unit/ddm/test_facade.py",
+        "tests/unit/ddm/test_full_acceptance.py",
+        "tests/unit/ddm/test_readiness_mapping.py",
+        "tests/unit/ddm/test_stationary_replay.py",
+        "tests/unit/ddm/test_synthetic_drift_delay.py",
+        "tests/unit/remediation/test_ddm_02.py",
+        "tests/unit/ddm/test_registry_schema_compatibility.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "actual_environment_complete_receipt": {
+        "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+        "git_blob": "34c3ab6219d2f27e6c21ef4028d74583437f8226",
+        "bytes": 9677,
+        "sha256": "3f5055ffa1d657d7fb6bb48aba2f58586a9dff7c477926a46cce4cac4ed38fed"
+      },
+      "deciding_outputs_outside_candidate_exact_published_refs": [
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+          "git_blob": "34c3ab6219d2f27e6c21ef4028d74583437f8226",
+          "bytes": 9677,
+          "sha256": "3f5055ffa1d657d7fb6bb48aba2f58586a9dff7c477926a46cce4cac4ed38fed"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+          "git_blob": "c288ea4adfe566fc35bcd338ade14477f739293b",
+          "bytes": 160,
+          "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+        },
+        {
+          "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+          "git_blob": "a4d57f2e1f6fddf0d908eac77a637beca6fb3b3c",
+          "bytes": 12578,
+          "sha256": "8ec75f41d5be88b055f813772e9c89fdb9ed1ba978df9966b153074d899cfbcd"
+        }
+      ],
+      "source_immutable": true,
+      "deletion": "NOT EXECUTED; root must classify internal unique diagnostics and preserve them before any later cleanup",
+      "unavailable_optional_JUnit": []
+    }
+  ],
+  "sum_allocated_du_bytes": 790933504,
+  "sum_regular_files_unique_lower_bound_bytes": 734113792,
+  "fresh_all_live_agent_process_proof": {
+    "observed_unix": 1791370992.1721268,
+    "agent_uid": 1000,
+    "candidate_prefixes": [
+      "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site",
+      "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+      "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+      "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+      "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+      "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+      "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+      "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion"
+    ],
+    "live_agent_process_count": 5,
+    "active_users": [],
+    "unreadable_agent_processes": [],
+    "privileged_infrastructure_exclusions": [
+      {
+        "pid": 199,
+        "uid": 0,
+        "argv0": "/usr/local/bin/dockerd",
+        "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+      },
+      {
+        "pid": 250,
+        "uid": 0,
+        "argv0": "containerd",
+        "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+      }
+    ],
+    "observations": [
+      {
+        "pid": 1,
+        "uid": 1000,
+        "argv0": "tail",
+        "cwd": "/workspace",
+        "target_evidence": []
+      },
+      {
+        "pid": 2,
+        "uid": 1000,
+        "argv0": "/usr/local/bin/caas-prefix-transfer-server",
+        "cwd": "/workspace",
+        "target_evidence": []
+      },
+      {
+        "pid": 515,
+        "uid": 1000,
+        "argv0": "/opt/codex/bin/codex",
+        "cwd": "/workspace",
+        "target_evidence": []
+      },
+      {
+        "pid": 534438,
+        "uid": 1000,
+        "argv0": "/bin/bash",
+        "cwd": "/workspace",
+        "target_evidence": []
+      },
+      {
+        "pid": 534439,
+        "uid": 1000,
+        "argv0": "python3",
+        "cwd": "/workspace",
+        "target_evidence": []
+      }
+    ]
+  },
+  "deletions": [],
+  "protected": [
+    "all source clones/code/docs/Git/registrations",
+    "ROOT/DoE/current runtime cache/environments",
+    "all native receipts/JUnit/stdout outside these candidates",
+    "production/user inputs/current stages not listed"
+  ],
+  "observational_error": {
+    "command": "git rev-parse a502",
+    "exit_code": 128,
+    "reason": "Short identity ambiguous among one commit and three trees; corrected exact commit a5021561c7630b8a1e721e34307d30550825b07d used for every publication proof. No source mutation occurred."
+  }
+}

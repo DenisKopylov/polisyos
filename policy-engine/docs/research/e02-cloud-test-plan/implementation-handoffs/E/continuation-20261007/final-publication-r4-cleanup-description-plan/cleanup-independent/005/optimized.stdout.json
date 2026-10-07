@@ -1,0 +1,16 @@
+{
+  "outcome": "GO bounded custody",
+  "receipt": {
+    "path": "/tmp/e02-E-cleanup-append-custody-independent/review-optimized.json",
+    "bytes": 26086,
+    "sha256": "ad6cb3c202ddbbca93a06cd170c5a01ddeb75876356917627a4b5fefa662dae7"
+  },
+  "selected_files": 101,
+  "selected_bytes": 1057547,
+  "actual_corrupt_controls": 11,
+  "source_guard": {
+    "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+  },
+  "archives_decompressed": 0
+}

@@ -1,0 +1,21 @@
+"""Actual facade/fragment checks for the append-only companion delta."""
+import hashlib,json,subprocess,tomllib
+from pathlib import Path
+from polisyos.foundry import uncertainty
+from polisyos.foundry.uncertainty import sampling_admission
+ROOT=Path('/workspace/e02-E-mc-20261006')
+OUT=Path('/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5')
+CANDIDATE='ca17a489559eb574285bb1c7291cc3c56a9e29da'
+def require(v,msg):
+ if not v:raise ValueError(msg)
+require(subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()==CANDIDATE,'head_changed')
+require(subprocess.check_output(['git','diff','--name-only','2c0fb5e26172129ab3ae032c24b35ed2ced6c80f',CANDIDATE,'--','policy-engine/src'],cwd=ROOT)==b'','product_delta')
+for name in ['admit_empirical_weights','empirical_cdf']:
+ require(name in uncertainty.__all__,'undeclared_facade_name')
+ require(getattr(uncertainty,name) is getattr(sampling_admission,name),'facade_behavioral_identity')
+fragment=ROOT/'policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml'
+d=tomllib.loads(fragment.read_text());require(d['change_class']=='persisted-artifact-format','classification')
+require('persisted-artifact-format' in (ROOT/'policy-engine/release-fragments/README.md').read_text(),'canonical_fragment_enum')
+result={'schema':'policyos.e02.E.ca17_companion.v1','source':CANDIDATE,'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip(),'product_unchanged':True,'facade':[{'name':n,'definition_module':getattr(uncertainty,n).__module__,'identity_equal':True,'declared_export':True} for n in ['admit_empirical_weights','empirical_cdf']],'release_fragment':{'sha256':hashlib.sha256(fragment.read_bytes()).hexdigest(),'change_class':d['change_class']},'native_internal_test_seams':[{'path':'polisyos.foundry.calibration.uncertainty_adapter','symbol':'summarize_bayesian_calibration_posterior','classification':'Native E producer fixture, no public alias claimed; canonical Calibration/Core API admission is separate owner packet.'},{'path':'polisyos.foundry.uncertainty.monte_carlo','symbol':'MonteCarloPropagator','classification':'Native E sampler fixture, no public alias claimed; Foundry facade export owner packet separate.'},{'path':'polisyos.foundry.uncertainty.sampling_admission','symbol':'module removal fixture','classification':'Canonical facade-bound internal module used only to remove the actual admission in a negative; not declared public API.'}],'finding_closure':False}
+(OUT/'ca17-companion-results.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

@@ -1,0 +1,80 @@
+"""Bind native whole-suite retry arguments without executing browser tests."""
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+REPO = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+ENGINE = REPO / 'policy-engine'
+OUT = Path('/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007')
+DASHBOARD = ENGINE / 'apps/runtime-dashboard'
+CAPTURER = ENGINE / 'docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py'
+SCRIPT = Path('/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4')
+checks = []
+
+def check(name, value):
+    checks.append({'name': name, 'passed': bool(value)})
+    if not value:
+        raise ValueError(name)
+
+def bind(path):
+    body = path.read_bytes()
+    return {'path': str(path), 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()}
+
+def source(path):
+    relative = path.relative_to(REPO).as_posix()
+    exact = subprocess.check_output(['/usr/bin/git', 'show', SOURCE + ':' + relative], cwd=REPO)
+    if exact != path.read_bytes():
+        raise ValueError('Current source mismatch: ' + relative)
+    return {**bind(path), 'source_sha': SOURCE, 'repository_path': relative}
+
+original_root = Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22')
+original_path = original_root / 'standalone-ci-22.json'
+original = json.loads(original_path.read_bytes())
+original_stdout = Path(original['stdout_path'])
+check('original_storybook_native_interruption_preserved', original['exit_code'] == 130 and original['outcome'] == 'FAIL' and original['counts'] is None and original['source_immutable'] is True)
+check('original_complete_stdout_binding', original['stdout_bytes'] == original_stdout.stat().st_size and original['stdout_sha256'] == bind(original_stdout)['sha256'])
+check('root_exact_source_and_tree', subprocess.check_output(['/usr/bin/git', 'rev-parse', 'HEAD', 'HEAD^{tree}'], cwd=REPO).decode().splitlines() == [SOURCE, TREE])
+package = json.loads((DASHBOARD / 'package.json').read_bytes())
+check('actual_original_full_storybook_body', package['scripts']['test:storybook'] == 'vitest run --config vitest.storybook.config.ts')
+check('actual_full_a11y_body_preserved', package['scripts']['test:a11y'] == 'corepack pnpm run a11y:contrast && corepack pnpm run a11y:motion && corepack pnpm run a11y:color-blind && corepack pnpm run test:a11y:components && corepack pnpm run test:a11y:pages')
+storybook = OUT / 'storybook'
+a11y = OUT / 'a11y'
+storybook_argv = ['npm', 'exec', '--', 'vitest', 'run', '--config', 'vitest.storybook.config.ts', '--browser.screenshotDirectory=' + str(storybook / 'screenshots'), '--reporter=verbose', '--reporter=junit', '--outputFile.junit=' + str(storybook / 'storybook.junit.xml')]
+a11y_argv = ['npm', 'run', 'test:a11y']
+native_module = next((ENGINE / 'node_modules/.pnpm').glob('vitest@4.1.5_*/node_modules/vitest/dist/chunks/cac.DJJmV0dT.js'))
+provider = next((ENGINE / 'node_modules/.pnpm').glob('@vitest+browser@4.1.5_*/node_modules/@vitest/browser/dist/index.js'))
+support_source = """import{pathToFileURL}from'node:url';import{readFileSync}from'node:fs';import path from'node:path';
+const{p:parseCLI}=await import(pathToFileURL(process.argv[1]).href);const original=JSON.parse(process.argv[2]);const parsed=parseCLI([...original]);
+const source=readFileSync(process.argv[3],'utf8');const start=source.indexOf('function resolveScreenshotPath(');const end=source.indexOf('\\nasync function getBrowserProvider(',start);if(start<0||end<0)throw Error('actual native resolver missing');
+const literal=source.slice(start,end);const native=new Function('dirname','basename','resolve','relative',literal+';return resolveScreenshotPath;')(path.dirname,path.basename,path.resolve,path.relative);
+const target=parsed.options.browser.screenshotDirectory;const test='/native/source/src/exact.test.ts';const file=native(test,'control.png',{root:'/native/source',browser:{screenshotDirectory:target}});const without=native(test,'control.png',{root:'/native/source',browser:{}});
+console.log(JSON.stringify({parsed,native_resolver_literal:literal,external:file,without_override:without,external_expected:path.resolve(target,'src','exact.test.ts','control.png'),effectively_removed_override_diverges:file!==without}));"""
+argv = ['vitest', 'run', *storybook_argv[5:]]
+support = subprocess.run(['node', '--input-type=module', '-e', support_source, str(native_module), json.dumps(argv), str(provider)], cwd=DASHBOARD, capture_output=True, check=False)
+(SCRIPT / 'required-retry-native-support-observer.mjs.txt').write_text(support_source)
+(SCRIPT / 'required-retry-native-support.stdout.txt').write_bytes(support.stdout)
+(SCRIPT / 'required-retry-native-support.stderr.txt').write_bytes(support.stderr)
+check('actual_native_parse_and_resolver_execute', support.returncode == 0)
+native = json.loads(support.stdout)
+check('full_unfiltered_native_selector', native['parsed']['filter'] == [] and native['parsed']['options']['run'] is True and native['parsed']['options']['config'] == 'vitest.storybook.config.ts')
+check('actual_native_external_screenshot_path', native['external'] == native['external_expected'] and native['effectively_removed_override_diverges'] is True)
+check('unchanged_timeout_and_parallelism_options', not any(key in native['parsed']['options'] for key in ['testTimeout', 'hookTimeout', 'maxWorkers', 'fileParallelism', 'exclude', 'testNamePattern']) and not any(key in native['parsed']['options']['browser'] for key in ['connectTimeout', 'fileParallelism', 'headless']))
+check('detailed_and_persisted_native_reporters', native['parsed']['options']['reporter'] == ['verbose', 'junit'] and native['parsed']['options']['outputFile']['junit'] == str(storybook / 'storybook.junit.xml'))
+jobs = []
+for name, root, command, junit in [('storybook-full-native-retry', storybook, storybook_argv, storybook / 'storybook.junit.xml'), ('a11y-full-native-retry', a11y, a11y_argv, None)]:
+    tmp = root / 'environment-tmp'
+    tmp.mkdir(parents=True, exist_ok=True)
+    capture = [str(ENGINE / '.venv/bin/python'), str(CAPTURER), '--repo', str(REPO), '--candidate', SOURCE, '--cwd', str(DASHBOARD), '--output', str(root / 'checks' / name), '--name', name]
+    if junit is not None:
+        capture += ['--junit', str(junit)]
+    capture += ['--', *command]
+    jobs.append({'name': name, 'command': command, 'capture_argv': capture, 'cwd': str(DASHBOARD), 'environment_override': {'TMPDIR': str(tmp)}, 'native_junit': None if junit is None else str(junit), 'check_outcome': 'UNRUN preparation only; launch after lease CLOSED', 'screenshot_directory': str(storybook / 'screenshots') if junit is not None else 'Existing configured native a11y output behavior; no source/config mutation', 'cache_policy': 'Existing source-configured distinct cache retained; no clearing/deletion or new runtime environment'})
+report = {'schema': 'policyos.e02.E.required_frontend_retry_preparation.v1', 'candidate_sha': SOURCE, 'candidate_tree_sha': TREE, 'original_interruption': {'receipt': bind(original_path), 'stdout': bind(original_stdout), 'outcome': 'FAIL', 'exit_code': 130, 'counts': None, 'interpretation': 'Root SIGINT of owned stalled controller; no individual case FAIL/ERROR inferred'}, 'checks': checks, 'native_support': native, 'jobs_in_serial_order': jobs, 'source_inputs': [source(path) for path in [CAPTURER, DASHBOARD / 'package.json', DASHBOARD / 'vitest.storybook.config.ts', DASHBOARD / 'vitest.a11y.config.ts', DASHBOARD / 'playwright.config.ts']], 'installed_native_inputs': [bind(native_module), bind(provider)], 'environment': {'python': sys.version, 'executable': sys.executable, 'node_version': subprocess.check_output(['node', '--version']).decode().strip()}, 'admission': {'shared_snapshot_lease': 'imports_r4 ACTIVE at preparation; launch refused until explicit CLOSED', 'browser_prior_controller': 'Original terminal and ps inspection shows no survivor; fresh pre-launch check required', 'a11y_cache_serialization': 'After Storybook closes and no existing confidence/browser/base controller writer; exact full npm script preserves all five native stages', 'production_data_or_source_edits': False, 'worker_caps_timeout_changes_exclusions': False, 'cleanup': 'No old cache/data deleted; isolated repeatable outputs remain listed for later Trash only'}, 'finding_closure': False}
+(OUT / 'required-retry-preparation.json').write_text(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'checks': len(checks), 'all_passed': all(row['passed'] for row in checks), 'jobs': len(jobs), 'executed': False, 'original_exit': 130, 'native_screenshot_path': native['external']}))

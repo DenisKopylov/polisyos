@@ -1,0 +1,134 @@
+from __future__ import annotations
+from collections import Counter
+from copy import deepcopy
+from fractions import Fraction
+import hashlib,importlib,importlib.metadata,importlib.util,json,subprocess,sys,tempfile,traceback
+from pathlib import Path
+import numpy as np
+from polisyos.core import artifacts as ca,canon as cc
+from polisyos.core.contracts import SimulationResult
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior as produce
+from polisyos.foundry.uncertainty.sampling_admission import joint_carrier_digest
+from polisyos.ir.analytics import PosteriorParameterBinding,PosteriorSummaryContext,load_posterior_summary_envelope,posterior_nominal_mean,read_posterior_summary_profile
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope,persist_uncertainty_envelope,load_uncertainty_envelope
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF
+ps=importlib.import_module('polisyos.ir.analytics.posterior_summary')
+ROOT=Path('/workspace/e02-E-frc-20261006'); OUT=Path('/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review'); CAND='c87f532e6ce6ab2507d937c10eb6eff8153c1699'; BASE='cdaea067935c8062a6a13fab8d7ffb53ae5fd401'
+paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only',BASE,CAND]).decode().splitlines()
+def identity():
+ d={}
+ for path in paths:
+  original=subprocess.check_output(['git','-C',str(ROOT),'show',CAND+':'+path]);actual=(ROOT/path).read_bytes();assert actual==original,path
+  d[path]={'sha256':hashlib.sha256(actual).hexdigest(),'bytes':len(actual)}
+ return d
+before=identity();cases=[];scratch=[]
+def directory(name):
+ p=Path(tempfile.mkdtemp(prefix=name+'-',dir=OUT));scratch.append(str(p));return p
+def save_fresh(env,root):
+ ref=persist_uncertainty_envelope(ca.FileSystemCAS(root),env);fresh=load_posterior_summary_envelope(ca.FileSystemCAS(root),ref);return ref,fresh
+spec=importlib.util.spec_from_file_location('native_fixture',ROOT/'policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py');fixture=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixture)
+def run_node(draws,*,mutation=None,weights=None):
+ ctx,state,refs=fixture._posterior_node_fixture(directory('node'),draws,mutation=mutation,weights=weights)
+ calls=[];builders=[];original=node._build_propagation_fn
+ def observe(*a,**kw):
+  builders.append(dict(kw['nominal_params']));fn,mapped=original(*a,**kw)
+  def measured(**params):calls.append({k:float(v) for k,v in params.items()});return fn(**params)
+  measured._sensitivity_map=fn._sensitivity_map
+  return measured,mapped
+ node._build_propagation_fn=observe
+ try:
+  outcome=node.PropagateUncertaintyNode().execute(ctx,state)
+  if outcome.status!='ok':return {'status':outcome.status,'error':str(outcome.error),'calls':calls,'builders':builders}
+  fresh=ca.FileSystemCAS(ctx.store.root if hasattr(ctx.store,'root') else directory('unused')) if False else ctx.store
+  sim=SimulationResult.model_validate(cc.from_canonical_bytes(fresh.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)))
+  result=load_uncertainty_envelope(fresh,sim.uncertainty_envelopes['y'])
+  return {'status':outcome.status,'calls':calls,'builders':builders,'output':result,'refs':refs}
+ except Exception as exc:return {'exception_type':type(exc).__name__,'exception':str(exc),'calls':calls,'builders':builders}
+ finally:node._build_propagation_fn=original
+
+def case(name,fn):
+ try: detail=fn();cases.append({'id':name,'check_status':'PASS','detail':detail})
+ except Exception as exc:cases.append({'id':name,'check_status':'FAIL','error':repr(exc),'traceback':traceback.format_exc()})
+def atom():
+ expected=Fraction(100,100);env=produce({'x':[0]*99+[100]}).parameter_envelopes['x'];ref,fresh=save_fresh(env,directory('atom'));profile=read_posterior_summary_profile(fresh)
+ assert posterior_nominal_mean(fresh,parameter_name='x')==float(expected) and fresh.point_estimate==0 and fresh.confidence_interval==(0,0) and not fresh.gate_eligible
+ result=run_node({'x':[0]*99+[100]});assert result['status']=='ok' and len(result['calls'])==257 and result['builders']==[{'x':1.0}] and set(result['output'].distribution_payload.samples)=={-1.,99.}
+ return {'mean':profile.posterior_mean,'median':fresh.point_estimate,'interval':fresh.confidence_interval,'sample_count':len(fresh.distribution_payload.samples),'ref':ref.model_dump(mode='json'),'actual_node_callback_count':len(result['calls']),'actual_nominal':result['calls'][0],'actual_centered_output_support':sorted(set(result['output'].distribution_payload.samples)),'gate_eligible':result['output'].gate_eligible}
+case('independent_atom_nativeCAS_actual_node',atom)
+def weighted():
+ vals=[0,999,2];probs=[Fraction(1,4),Fraction(0),Fraction(3,4)];mean=sum(p*x for p,x in zip(probs,vals));env=produce({'x':vals},weights=[1,0,3]).parameter_envelopes['x'];ref,fresh=save_fresh(env,directory('weighted'))
+ assert posterior_nominal_mean(fresh)==float(mean) and fresh.point_estimate==2 and fresh.confidence_interval==(0,2)
+ return {'fraction_mean':str(mean),'actual_mean':posterior_nominal_mean(fresh),'median':fresh.point_estimate,'interval':fresh.confidence_interval,'exact_raw_carrier_retained':fresh.distribution_payload.model_dump(mode='json'),'ref':ref.model_dump(mode='json')}
+case('weighted_zero_mass_inverseCDF',weighted)
+def distinct():
+ laws=[[-1]*30+[0]*40+[1]*30,[-4]+[-1]*14+[0]*70+[1]*14+[4]];root=directory('same-summaries');rs=[];zeros=[]
+ for law in laws:
+  assert sum(Fraction(x) for x in law)==0 and sum(Fraction(x)**2 for x in law)==60
+  env=produce({'x':law}).parameter_envelopes['x'];ref,fresh=save_fresh(env,root);rs.append(str(ref.artifact_id));assert posterior_nominal_mean(fresh)==0 and fresh.confidence_interval==(-1,1)
+  zeros.append(sum(Fraction.from_float(p) for x,p in zip(fresh.distribution_payload.samples,fresh.distribution_payload.weights) if x==0))
+ assert rs[0]!=rs[1] and abs(float(zeros[0])-.4)<1e-15 and abs(float(zeros[1])-.7)<1e-15
+ return {'same_independent_mean':'0','same_independent_population_variance':'3/5','same_interval':[-1,1],'distinct_actual_refs':rs,'fresh_P_zero':[float(x) for x in zeros]}
+case('same_summaries_different_laws_reopen',distinct)
+for sign,variance in [(1,0),(-1,4)]:
+ def paired(sign=sign,variance=variance):
+  result=run_node({'a':[-1,1],'b':[-sign,sign]});assert result['status']=='ok' and len(result['calls'])==257
+  rows=Counter(tuple(row[k] for k in ['a','b']) for row in result['calls'][1:]);assert sorted(rows.values())==[128,128]
+  draws=result['output'].distribution_payload.samples;assert np.mean(draws)==0 and np.var(draws)==variance and not result['output'].gate_eligible
+  return {'independent_expected_variance':variance,'actual_variance':float(np.var(draws)),'actual_callback_count':len(result['calls']),'actual_rows':[{'row':row,'count':n} for row,n in sorted(rows.items())],'nominal':result['builders']}
+ case('native_paired_'+str(sign),paired)
+for vals,weights in [([0,1],[5e-11,1-5e-11]),([0,1],[1-5e-11,5e-11]),([0,1,2],[.5,5e-11,.5-5e-11])]:
+ def tiny(vals=vals,weights=weights):
+  env=produce({'x':vals},weights=weights).parameter_envelopes['x'];_,fresh=save_fresh(env,directory('tiny'));p=read_posterior_summary_profile(fresh);assert all(x>0 for x in p.probabilities) and fresh.distribution_payload.samples==tuple(vals)
+  return {'values':vals,'weights':weights,'fresh_probabilities':p.probabilities,'mean':p.posterior_mean,'median':fresh.point_estimate,'interval':fresh.confidence_interval}
+ case('tiny_atom_'+str(weights),tiny)
+for draws,weights in [([0,1],[0,0]),([0,1],[1,-1]),([0,1],[True,1]),([0,1],[float('inf'),1]),([0,1,2],[.5,1e-20,.5]),([0,-1,1],[1e-20,.5,.5])]:
+ def refusal(draws=draws,weights=weights):
+  try:produce({'x':draws},weights=weights)
+  except (ValueError,TypeError) as exc:return {'actual_exception':type(exc).__name__,'reason':str(exc)}
+  raise AssertionError('invalid or collapsed law admitted')
+ case('producer_refusal_'+repr(weights),refusal)
+for mutation in ['mean','profile','carrier','rows','digest','rename','raw_bool','raw_string','inline_bool','inline_string']:
+ def bad(mutation=mutation):
+  result=run_node({'x':[0,1,4]},mutation=mutation);assert result.get('exception_type')=='ValueError' and result['calls']==[] and result['builders']==[]
+  return {'actual_exception':result['exception'],'actual_callback_count':len(result['calls']),'actual_builder_count':len(result['builders'])}
+ case('actual_node_before_callback_'+mutation,bad)
+def context():
+ binding=PosteriorParameterBinding(estimand_id='finite:x',unit='score',scale='linear');env=produce({'x':[0,1]},context=PosteriorSummaryContext(parameters={'x':binding})).parameter_envelopes['x'];raw=env.model_dump(mode='json');raw['metadata']['posterior_summary_profile']['context']['purpose']='forged';_,fresh=save_fresh(UncertaintyEnvelope.model_validate(raw),directory('context'))
+ try:posterior_nominal_mean(fresh)
+ except ValueError as exc:reason=str(exc)
+ else:raise AssertionError('stale context admitted')
+ try:posterior_nominal_mean(env,parameter_name='x',binding=PosteriorParameterBinding(estimand_id='finite:x',unit='money',scale='linear'))
+ except ValueError as exc:unit_reason=str(exc)
+ else:raise AssertionError('unit mismatch admitted')
+ return {'content_forgery_refused':reason,'expected_unit_mismatch_refused':unit_reason}
+case('context_content_and_expected_binding',context)
+def sorted_reader():
+ env=produce({'x':[0,-1,1]}).parameter_envelopes['x'];raw=env.model_dump(mode='json');raw['distribution_payload']['weights']=[1e-20,.5,.5];updated=UncertaintyEnvelope.model_validate(raw);md=raw['metadata'];pf=md['posterior_summary_profile'];pf['probabilities']=[1e-20,.5,.5];pf['carrier_content_hash']=ps.posterior_carrier_content_hash(updated.distribution_payload);digest=joint_carrier_digest(['x'],{'x':updated},md['joint_draw_ids']);pf['joint_law_sha256']=digest;md['joint_law_sha256']=md['joint_sample_id']=digest
+ _,fresh=save_fresh(UncertaintyEnvelope.model_validate(raw),directory('sorted-collapse'))
+ try:posterior_nominal_mean(fresh)
+ except ValueError as exc:assert 'category collapses' in str(exc);return {'actual_refusal':str(exc),'rawCDF_healthy':True,'sorted_positive_category_collapsed':True}
+ raise AssertionError('strict fresh reader admitted sorted CDF collapse')
+case('fresh_reader_sortedCDF_collapse',sorted_reader)
+def remove_nominal():
+ original=node.posterior_nominal_mean;node.posterior_nominal_mean=lambda env,**kw:env.point_estimate
+ try: result=run_node({'x':[0]*99+[100]})
+ finally:node.posterior_nominal_mean=original
+ assert result['status']=='ok' and set(result['output'].distribution_payload.samples)=={0.,100.}
+ try:assert set(result['output'].distribution_payload.samples)=={-1.,99.}
+ except AssertionError:return {'control_effective':True,'required_assertion_outcome':'FAIL','actual_output_support':sorted(set(result['output'].distribution_payload.samples)),'actual_callbacks':len(result['calls']),'profile_and_CAS_markers_retained':True}
+ raise AssertionError('named mean property removal did not falsify witness')
+case('effective_named_mean_property_removal',remove_nominal)
+def remove_raw():
+ original=ps.validate_raw_posterior_summary_envelope;ps.validate_raw_posterior_summary_envelope=lambda *a,**kw:None
+ try:result=run_node({'x':[0,1,4]},mutation='raw_bool')
+ finally:ps.validate_raw_posterior_summary_envelope=original
+ assert result['status']=='ok' and len(result['calls'])==257
+ try:assert result['calls']==[]
+ except AssertionError:return {'control_effective':True,'required_negative_assertion_outcome':'FAIL','actual_callbacks':len(result['calls']),'raw_bool_and_valid_profile_CAS_markers_retained':True}
+ raise AssertionError('raw profile guard removal did not falsify control')
+case('effective_raw_guard_property_removal',remove_raw)
+after=identity();assert after==before
+record={'schema':'policyos.e02.independent_ir_candidate_oracles.v1','candidate':CAND,'tree':'26a191ee37da336faf5f6f84f14bc54a883bb90b','base':BASE,'footprint':before,'source_unchanged':True,'environment':{'python':sys.version,**{p:importlib.metadata.version(p) for p in ['numpy','scipy','SALib','pydantic','jax','pytest']}},'cases':cases,'counts':dict(Counter(x['check_status'] for x in cases)),'cleanup_candidates':scratch,'limits':['Native synthetic mathematical/consumer fixture, not configured Bayesian fit/source-law or production authority.','Native fixture setup reused from committed author test, expectations and callback/removal assertions independently derived.','Separate canonical-adapter probe is an outstanding public store-route defect, not hidden by this family PASS.']}
+(OUT/'independent-oracle-results.json').write_text(json.dumps(record,indent=2,allow_nan=False)+'\n');print(json.dumps(record,indent=2,allow_nan=False));sys.exit(bool(record['counts'].get('FAIL')))

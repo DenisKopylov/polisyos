@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 114, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 95, in main
+    for name,identity in FIXED_METADATA.items():
+                         ^^^^^^^^^^^^^^
+NameError: name 'FIXED_METADATA' is not defined

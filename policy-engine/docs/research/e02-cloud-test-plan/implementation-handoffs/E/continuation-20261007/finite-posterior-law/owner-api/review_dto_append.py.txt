@@ -1,0 +1,77 @@
+from __future__ import annotations
+import ast, hashlib, importlib, importlib.metadata, json, pathlib, platform, subprocess, sys, xml.etree.ElementTree as ET
+REPO=pathlib.Path('/workspace/e02-E-mc-20261006')
+OUT=pathlib.Path('/tmp/e02-E-MC-public-api-review-ca17-20261007')
+AUTHOR=pathlib.Path('/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5')
+BASE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+OLD='ca17a489559eb574285bb1c7291cc3c56a9e29da'
+NEW='3932cded22a29254a7dfced99723e147d6fea7cb'
+PATH='policy-engine/src/polisyos/ir/analytics/posterior_summary.py'
+def git(*args): return subprocess.check_output(['git','-C',str(REPO),*args])
+def sha(b): return hashlib.sha256(b).hexdigest()
+def blob(rev,path): return git('show',rev+':'+path)
+def require(ok, message):
+ if not ok: raise ValueError(message)
+def binding(path):
+ b=path.read_bytes();return {'path':str(path),'bytes':len(b),'sha256':sha(b)}
+old=blob(OLD,PATH);new=blob(NEW,PATH)
+require(git('rev-parse','HEAD').decode().strip()==NEW,'wrong source HEAD')
+require((REPO/PATH).read_bytes()==new,'physical source mismatch')
+changes=git('diff','--name-only',OLD,NEW).decode().splitlines()
+require(changes==[PATH],'append footprint differs')
+a,b=ast.parse(old),ast.parse(new)
+def methods(tree):
+ return sorted(ast.dump(n,include_attributes=False) for n in ast.walk(tree) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)))
+def cls(tree,name): return next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name==name)
+require(methods(a)==methods(b),'function/method AST changed')
+require(ast.dump(cls(a,'PosteriorSummaryProfile'))==ast.dump(cls(b,'PosteriorSummaryProfile')),'old Profile1 AST changed')
+require(ast.dump(cls(b,'PosteriorSummaryProfileV2').bases[0])=="Name(id='BaseModel', ctx=Load())",'not direct DTO')
+require([ast.dump(n) for n in a.body if isinstance(n,(ast.Import,ast.ImportFrom))]==[ast.dump(n) for n in b.body if isinstance(n,(ast.Import,ast.ImportFrom))],'import AST changed')
+paths=git('diff','--name-only',BASE,NEW).decode().splitlines()
+rows=[]
+for p in paths:
+ data=blob(NEW,p);require((REPO/p).read_bytes()==data,'physical footprint differs '+p)
+ rows.append({'path':p,'bytes':len(data),'sha256':sha(data),'role':'product_python' if p.startswith('policy-engine/src/') and p.endswith('.py') else 'test_python' if p.endswith('.py') else 'companion','unchanged_from_ca17':blob(OLD,p)==data})
+require(len(paths)==24 and sum(p.endswith('.py') for p in paths)==12,'full footprint denominator changed')
+before=json.loads((AUTHOR/'dto-schemas-before.json').read_text());after=json.loads((AUTHOR/'dto-schemas-after.json').read_text())
+require(before['ABI_count']==103 and after['ABI_count']==103 and len(before['schemas'])==103,'ABI denominator differs')
+require(before['schemas']==after['schemas'],'complete schema arrays differ')
+sys.path[:0]=[str(REPO/'policy-engine/src'),str(REPO/'policy-engine')]
+from polisyos.ir.analytics import PosteriorSummaryProfileV2, canonicalize_posterior_weights, posterior_sampling_cdf, posterior_summary_functionals_v2, posterior_population_std_v2
+from polisyos.ir import PosteriorSummaryProfileV2 as ROOT_DTO
+from polisyos.ir.analytics.posterior_summary import PosteriorSummaryProfile
+from tools.quality.diagnostics.gen_schema import _generate_model_schema
+from polisyos.schemas.abi_models import ABI_MODELS
+require(ROOT_DTO is PosteriorSummaryProfileV2,'root/analytics DTO identity mismatch')
+fresh=[]
+for name,model in [('PosteriorSummaryProfile',PosteriorSummaryProfile),('PosteriorSummaryProfileV2',PosteriorSummaryProfileV2)]:
+ schema=_generate_model_schema(model)
+ saved=[row for row in after['schemas'] if row['fqn']=='polisyos.ir.analytics.posterior_summary.'+name]
+ require(len(saved)==1 and schema==saved[0]['schema'],'fresh localized schema differs '+name)
+ fresh.append({'name':name,'schema':schema,'equals_complete_saved_schema':True})
+require(len(ABI_MODELS)==103,'fresh registry count differs')
+require(not issubclass(PosteriorSummaryProfileV2,PosteriorSummaryProfile),'versioned DTO incorrectly inherits old DTO')
+public=[]
+for name,value in [('PosteriorSummaryProfileV2',PosteriorSummaryProfileV2),('canonicalize_posterior_weights',canonicalize_posterior_weights),('posterior_sampling_cdf',posterior_sampling_cdf),('posterior_summary_functionals_v2',posterior_summary_functionals_v2),('posterior_population_std_v2',posterior_population_std_v2)]:
+ direct=getattr(importlib.import_module('polisyos.ir.analytics.posterior_summary'),name)
+ require(value is direct,'facade target differs '+name)
+ public.append({'name':name,'curated_facade_resolves_identical_object':True,'module':value.__module__})
+fixture=REPO/'policy-engine/tests/fixtures/ir/posterior-summary-profile-v1'
+index=json.loads((fixture/'index.json').read_text());legacy=[]
+for r in index['records']:
+ data=(fixture/r['path']).read_bytes();require(len(data)==r['bytes'] and sha(data)==r['sha256'],'legacy fixture integrity')
+ require(data==blob(OLD,'policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/'+r['path']),'legacy fixture mutated by append')
+ legacy.append({'path':r['path'],'bytes':len(data),'sha256':sha(data),'equal_ca17_fixture':True})
+require(len(legacy)==7 and sum(x['bytes'] for x in legacy)==index['bytes'],'legacy fixture denominator')
+x=ET.parse(AUTHOR/'dto-native-delta.xml');cases=list(x.iter('testcase'))
+counts={'cases':len(cases),'failure':sum(c.find('failure') is not None for c in cases),'error':sum(c.find('error') is not None for c in cases),'skip':sum(c.find('skipped') is not None for c in cases)}
+require(counts=={'cases':13,'failure':0,'error':0,'skip':0},'author native DTO control counts differ')
+oldtypes=json.loads((OUT/'candidate-type.stdout.json').read_text());newtypes=json.loads((OUT/'typed3932.stdout.json').read_text());basetypes=json.loads((OUT/'base-resolved-type.stdout.json').read_text())
+rules=lambda d:[n.get('rule') for n in d['generalDiagnostics']]
+require(rules(oldtypes).count('reportIncompatibleVariableOverride')==2,'old override red absent')
+require(rules(newtypes)==['reportOptionalMemberAccess'] and rules(basetypes)==['reportOptionalMemberAccess'],'new typed diagnostics not bounded old class')
+require([n['message'] for n in newtypes['generalDiagnostics']]==[n['message'] for n in basetypes['generalDiagnostics']],'remaining diagnostic changed')
+require((REPO/PATH).read_bytes()==new and git('rev-parse','HEAD').decode().strip()==NEW,'source changed during review')
+result={'schema':'policyos.e02.E.independent_DTO_append_review.v1','candidate':NEW,'tree':git('rev-parse',NEW+'^{tree}').decode().strip(),'parent':OLD,'base':BASE,'outcome':'GO','scope':'Independent API/type/schema/source DTO delta only; no repeated finite-law numerical wave and no finding closure or global gate PASS.','actual_new_source_bindings':rows,'complete_footprint':{'paths':len(paths),'python':12,'product_python':7,'test_python':5},'single_append':{'paths':changes,'old_sha256':sha(old),'new_sha256':sha(new),'all_function_method_AST_equal':True,'old_Profile1_AST_equal':True,'imports_AST_equal':True,'V2_direct_BaseModel':True},'schema_equality':{'full_saved_arrays_equal':True,'full_saved_schema_count':103,'saved_capture_heads':{'before':before['head'],'after':after['head']},'saved_capture_context':'Author actual precommit working-source capture retained; independently compared complete arrays, final source/function proof and fresh two changed model schemas. No duplicate 103-model render.','fresh_localized_models':fresh,'ABI_registry_count':len(ABI_MODELS)},'public_facade_bindings':public,'literal_V1_fixtures':legacy,'author_native_DTO_controls':{'counts':counts,'provenance':'Existing author precommit working-source JUnit/source hash proof; not independently repeated native tests.','inputs':[binding(AUTHOR/'dto-native-delta.xml'),binding(AUTHOR/'dto-delta-author-proof.json')]},'actual_scoped_typecheck':{'outcome':'FAIL','exit_code':1,'base_errors':1,'ca17_errors':3,'current_errors':1,'removed_NEW_diagnostics':2,'remaining_rule':'reportOptionalMemberAccess','remaining_message':newtypes['generalDiagnostics'][0]['message'],'basis':'Actual exact resolved-base/current command; no full-source typing PASS and no generic inherited P41 waiver.','inputs':[binding(OUT/'scoped-type-correction.json'),binding(OUT/'candidate-type.stdout.json'),binding(OUT/'typed3932-execution.json'),binding(OUT/'typed3932.stdout.json'),binding(OUT/'base-resolved-type.stdout.json')]},'architecture_dependency_reuse':{'input':binding(OUT/'architecture-review.json'),'native_product_edges':3,'new_product_edges':0,'all12_source_and_test_AST_census':True,'reuse_basis':'Only DTO base/field declarations changed; all imports and guard sources unchanged. Native product collector excludes tests by canonical SRC_ROOT; two existing native test API boundaries retained separately.'},'native_test_API_owner_boundaries':[{'edge':'polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior','owner':'Calibration/Core API owner','state':'Requires public API admission; no extra export authored.'},{'edge':'polisyos.foundry.uncertainty.monte_carlo.MonteCarloPropagator','owner':'Foundry API owner','state':'Native internal testing seam retained, no facade widening.'}],'limitations':['G generator/public inventory review and actual runtime source_dependency_hash qualification remain separate.','Generic Core/IR CanonSpec public type lease remains separate and private forecast edge still open.','Current MC source is locally immutable but new source remote publication is not asserted.','No ROOT source/environment writes or global lint/numeric rerun.'],'environment':{'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'package_versions':{n:importlib.metadata.version(n) for n in ['pydantic','basedpyright','ruff','numpy','scipy','jax','SALib']},'cwd':str(pathlib.Path.cwd()),'profile_source':str(pathlib.Path(importlib.import_module('polisyos.ir.analytics.posterior_summary').__file__))},'inputs':[binding(AUTHOR/'dto-schemas-before.json'),binding(AUTHOR/'dto-schemas-after.json')],'source_immutable':True,'source_lane_git_status':git('status','--short').decode()}
+(OUT/'dto-append-independent-review.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'outcome':result['outcome'],'candidate':NEW,'paths':len(paths),'full_saved_schemas':103,'fresh_localized_schemas':2,'scoped_typing':'FAIL1; two new errors removed','output':binding(OUT/'dto-append-independent-review.json')},sort_keys=True))

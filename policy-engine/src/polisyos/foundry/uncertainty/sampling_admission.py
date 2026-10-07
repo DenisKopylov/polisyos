@@ -24,7 +24,10 @@ from polisyos.ir.analytics import (
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    admit_posterior_summary_profiles,
+    canonicalize_posterior_weights,
     posterior_joint_carrier_digest,
+    posterior_sampling_cdf,
 )
 
 
@@ -74,6 +77,7 @@ def admit_float32_range(values: object) -> np.ndarray:
 
 def admit_sampling_support(envelopes: Mapping[str, UncertaintyEnvelope]) -> None:
     """Check every input carrier, covariance row, and support before execution."""
+    admit_posterior_summary_profiles(envelopes)
     for envelope in envelopes.values():
         admit_float32_range([envelope.point_estimate, *envelope.confidence_interval])
         row = envelope.metadata.get("covariance_row")
@@ -105,43 +109,13 @@ def admit_covariance_sampling_family(envelopes: Mapping[str, UncertaintyEnvelope
 
 
 def empirical_cdf(probabilities: object) -> np.ndarray:
-    """Admit a finite float64 CDF without erasing any positive category.
-
-    The final boundary is exactly one. Positive categories must occupy distinct
-    representable CDF boundaries; zero-mass categories have no interval. This
-    is a finite-machine law, not a promise of arbitrary real-valued precision.
-    """
-    probabilities = _real_float64(probabilities)
-    if (
-        probabilities.ndim != 1
-        or probabilities.size == 0
-        or not np.all(np.isfinite(probabilities))
-        or np.any(probabilities < 0)
-        or not math.isclose(math.fsum(probabilities), 1.0, rel_tol=0, abs_tol=2e-15)
-    ):
-        raise ValueError("invalid canonical empirical probabilities")
-    cumulative = np.cumsum(probabilities, dtype=np.float64)
-    last_positive = np.flatnonzero(probabilities > 0)[-1]
-    cumulative[last_positive:] = 1.0
-    masses = np.diff(np.concatenate(([0.0], cumulative)))
-    if np.any(masses < 0) or not np.array_equal(masses > 0, probabilities > 0):
-        raise ValueError("positive empirical category collapses in the finite CDF")
-    return cumulative
+    """Return shared exact-ratio cuts; finite uniform draws discretize the law."""
+    return posterior_sampling_cdf(probabilities)
 
 
 def admit_empirical_weights(weights: object, sample_count: int) -> np.ndarray:
-    """Canonicalize weights once; aligned carriers must agree exactly afterward."""
-    weights = _real_float64(weights)
-    if weights.shape != (sample_count,) or not np.all(np.isfinite(weights)) or np.any(weights < 0):
-        raise ValueError("invalid empirical weights")
-    total = math.fsum(weights)
-    if not math.isfinite(total) or total <= 0:
-        raise ValueError("invalid empirical weight total")
-    probabilities = weights / total
-    if not np.array_equal(probabilities > 0, weights > 0):
-        raise ValueError("positive empirical weight underflows in normalization")
-    empirical_cdf(probabilities)
-    return probabilities
+    """Admit canonical ratio weights; aligned carriers must agree exactly."""
+    return canonicalize_posterior_weights(weights, sample_count)
 
 
 def admit_unit_uniform(values: object) -> np.ndarray:

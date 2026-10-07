@@ -1,0 +1,55 @@
+{
+  "schema": "policyos.e02.independent_http_custody_publication_selection.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/http-failure-attribution.json",
+      "bytes": 232669,
+      "sha256": "24bd1839a71410277c9b3a212f645cc2fb44ce86c9ddac40d02b5cdb72bc0fe7"
+    },
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/cleanup-custody-review.json",
+      "bytes": 19563,
+      "sha256": "789e72ea6ccd9f058455da9a0f6fec83275db1d222902c3295002cafe40040fa"
+    },
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/exact-native-case-index.json",
+      "bytes": 787546,
+      "sha256": "01ce10b6b28f7dea68fd4934956397fae5c8eb88d02a9a13a20f7d7d65866ded"
+    },
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/complete-deciding-trace-excerpts.json",
+      "bytes": 95464,
+      "sha256": "016bf0819f58c48ceeb55bfaa60ecb3f508b383d5c148b91b7f57043bbb6dd74"
+    },
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/fresh-agent-process-readback.json",
+      "bytes": 1783,
+      "sha256": "742d691e9480aea2bf20d1ce832b5ecc01cb413a69ee660bad7bcd5eca2e5517"
+    },
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/review-environment-source-guard.json",
+      "bytes": 615,
+      "sha256": "9d75ce67604327aa880480eab03ded36699cc7f84f995afb5351ce419e7c45e5"
+    },
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/review.stdout.txt",
+      "bytes": 3142,
+      "sha256": "0f803e7dc5741e0c4d992726c9e41e958f0923e7c101f28edac9774ccaa00e22"
+    },
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-http-error-independent-64d/review_http_custody.py.txt",
+      "bytes": 36233,
+      "sha256": "1eab8f2862c789efeb1a991935cfa773e2015e0c5f8d735bde6b8b6db81d21e6"
+    }
+  ],
+  "count": 9,
+  "total_bytes": 1177015,
+  "excluded": "No large admission/archive copies, private Git config, rawCAS directories or duplicate native JUnit/stdout copied; original full receipts are exact size/hash refs. Original FAIL is retained and no finding closure claimed."
+}

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_metadata_66a4.py", line 57, in <module>
+    admit(H,I)
+  File "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_metadata_66a4.py", line 43, in admit
+    need(canon({k:h[k] for k in fixed})==canon(fixed),'typedbase/candidate/source/counts/flags')
+  File "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_metadata_66a4.py", line 8, in need
+    if not x:raise ValueError(m)
+             ^^^^^^^^^^^^^^^^^^^
+ValueError: typedbase/candidate/source/counts/flags

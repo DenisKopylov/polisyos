@@ -1,0 +1,41 @@
+{
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator_packet-final.py",
+    "--repo",
+    "/workspace/e02-E-frc-20261006",
+    "--candidate",
+    "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "--base",
+    "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "--output",
+    "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+  "script_sha256": "9b53c3458cef35f9a635e8bd52a6140dc81d6a2b8e69106cf016c745a4309985",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src:/workspace/e02-E-frc-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": null,
+    "OMP_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "exit_code": 0,
+  "wall_s": 13.279912903992226,
+  "outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a.stdout",
+      "bytes": 6750,
+      "sha256": "e81fdcff4b6e4bf9c70a775d0821d6be4719ce74ac1e1b5617d3f8ae3eea3289"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

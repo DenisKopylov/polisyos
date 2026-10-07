@@ -156,7 +156,10 @@ def _posterior_node_fixture(tmp_path, draws, *, weights=None, mutation=None):
         purpose="finite_fixture_predictive",
     )
     summary = uncertainty_adapter.summarize_bayesian_calibration_posterior(
-        draws, weights=weights, context=context
+        draws,
+        weights=weights,
+        context=context,
+        draw_ids=[f"source-row:{i}" for i in range(len(next(iter(draws.values()))))],
     )
     envelopes = dict(summary.parameter_envelopes)
     if mutation == "consistent_joint":

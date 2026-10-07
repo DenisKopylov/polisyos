@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.interruption_retry_completion.v1",
+  "scope": "One interrupted CAL_and_welfare_consumer group retry on unchanged frozen source; no second broad wave",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "original_observation": {
+    "receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 10457,
+      "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd"
+    },
+    "exit_code": -9,
+    "wrapper_outcome": "FAIL",
+    "counts": null,
+    "junit_present": false,
+    "signal": "SIGKILL",
+    "per_process_oom_cause": "not_established",
+    "max_rss_kib": 2303208,
+    "wall_seconds": 1827.2683534622192
+  },
+  "retry": {
+    "receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+      "sha256": "2a026082c9ae0f332147d8b121ca6841dcea20d2451ba712753b5160a5b49d35",
+      "bytes": 10726
+    },
+    "child_exit_code": 0,
+    "canonical_wrapper_process_exit_code": 0,
+    "check_outcome": "PASS",
+    "counts": {
+      "cases": 324,
+      "passed": 324,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "wall_seconds": 622.9987132549286,
+    "max_rss_kib": 2624064,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt",
+      "sha256": "878d5c6256968b7eba8ddbccd44ad7d165f61c4a7521d05198d615d5b5289e83",
+      "bytes": 400
+    },
+    "junit": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/pytest.xml",
+      "sha256": "e1990adf7d224852294334881d0a06f5a86b44a75c70f3018f7b6061013cde8b",
+      "bytes": 52854
+    },
+    "source_identity_before": {
+      "tracked_paths": 17016,
+      "bytes": 524100024,
+      "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+    },
+    "source_identity_after": {
+      "tracked_paths": 17016,
+      "bytes": 524100024,
+      "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+    },
+    "source_immutable": true,
+    "git_config_stable": true
+  },
+  "admission": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-admission.json",
+    "sha256": "054abd501722634289e8f7c88106a236e2900c531d5836c65668dd1b5d6af221",
+    "bytes": 31432
+  },
+  "actual_start": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-started.json",
+    "sha256": "8548493f44099aa6e23b420b51bfd7f9a6cf0e2e69e83df26430cdf20fa97416",
+    "bytes": 6117
+  },
+  "initial_launch_resource_refusal": {
+    "receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/first-launch-resource-refusal.json",
+      "sha256": "b388aca85ee0f8de8d934252416f79d436cac56f48d475f20684434ef9cd43e5",
+      "bytes": 694
+    },
+    "selected_check_attempt": false,
+    "selected_check_outcome": null,
+    "reason": "Physical launch did not occur until observed headroom\u22652.4GB; operational guard refusal not a method/finding FAIL"
+  },
+  "starting_observed_headroom_bytes": 3039879168,
+  "artificial_caps": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "XLA_FLAGS": null,
+    "POLISYOS_PYTEST_WORKERS": null,
+    "POLISYOS_PYTEST_DIST": null,
+    "PYTEST_ADDOPTS": null
+  },
+  "real_numeric_backend_preserved": true,
+  "original_receipt_and_stdout_unchanged": true,
+  "resources_after": {
+    "timestamp_unix": 1791367344.3048713,
+    "cgroup": {
+      "memory.current": "13825339392\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 3331781\noom 80\noom_kill 8\noom_group_kill 0\n",
+      "memory.stat": "anon 7798509568\nfile 4933189632\nkernel 1092784128\nkernel_stack 6995968\npagetables 120729600\nsec_pagetables 0\npercpu 19320\nsock 122880\nvmalloc 8192\nshmem 1031204864\nfile_mapped 298835968\nfile_dirty 10772480\nfile_writeback 0\nswapcached 0\nanon_thp 41943040\nfile_thp 98566144\nshmem_thp 0\ninactive_anon 7809953792\nactive_anon 1019592704\ninactive_file 1005031424\nactive_file 2896982016\nunevictable 0\nslab_reclaimable 919172432\nslab_unreclaimable 44790592\nslab 963963024\nworkingset_refault_anon 0\nworkingset_refault_file 139646150\nworkingset_activate_anon 0\nworkingset_activate_file 21215302\nworkingset_restore_anon 0\nworkingset_restore_file 9961033\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6636407631\npgsteal 145551450\npswpin 0\npswpout 0\npgscan_kswapd 6169666\npgscan_direct 6630233364\npgscan_khugepaged 4601\npgscan_proactive 0\npgsteal_kswapd 5800284\npgsteal_direct 139746749\npgsteal_khugepaged 4417\npgsteal_proactive 0\npgfault 534609795\npgmajfault 200388\npgrefill 42602058\npgactivate 20915426\npgdeactivate 39610044\npglazyfree 461262\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 36\nthp_collapse_alloc 54\nthp_swpout 0\nthp_swpout_fallback 0\n"
+    },
+    "storage": {
+      "/workspace": {
+        "total_bytes": 33770192896,
+        "available_bytes": 5756137472
+      },
+      "/tmp": {
+        "total_bytes": 9441349632,
+        "available_bytes": 8410144768
+      }
+    }
+  },
+  "findings": "Check outcome does not close or reclassify any finding; historical ledger/owner decisions remain separate",
+  "finding_closure": false,
+  "review": "Independent oracle_r4 input/output review requested, not author self-review of IR/source",
+  "cleanup_candidates": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cache",
+      "role": "repeatable pytest/benchmark cache",
+      "status": "preserved; await all deciding receipt readers before cleanup"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry",
+      "role": "repeatable bounded native fixtures",
+      "status": "preserved; no production data, await all deciding receipt readers before cleanup"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/tmp-env/cal-and-welfare-consumer-retry",
+      "role": "isolated temporary directory",
+      "status": "preserved; await all deciding receipt readers before cleanup"
+    }
+  ],
+  "preserved": "Original/retry deciding evidence, source, rootenv and unique inputs remain intact; private Git config contents excluded from publication"
+}

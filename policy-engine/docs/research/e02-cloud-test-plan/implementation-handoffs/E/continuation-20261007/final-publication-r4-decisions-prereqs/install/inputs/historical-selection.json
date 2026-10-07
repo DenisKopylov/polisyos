@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v1",
+  "scope": "Read-only declared dependency admission/retry and frontend shared-state packet; all install/retry commands are UNRUN",
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependency-admission-and-retry.json",
+      "bytes": 11894,
+      "sha256": "4098541e4753242a62d29c40758e98dea70d9406dec26ec47569d51179347f99"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-dependency-artifacts.json",
+      "bytes": 3938,
+      "sha256": "b5d2470a6dc28030488b3f9a3a91839c52fed7b31193e25171b39aa354c7feae"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependencies.requirements.txt",
+      "bytes": 406,
+      "sha256": "8c04f2b1cea4fac78dafdf548e2b5cad9a0658e360895ad216613cbb8f0967e1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/observe-root-environment.py.txt",
+      "bytes": 6616,
+      "sha256": "93e9a2f50ff64ecd6432e78de6a8f28d9d57daf123a32d407a2071e066106d64"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-before-read-only.json",
+      "bytes": 84697,
+      "sha256": "c1173ca53947224fac54a1fdb8582cf4ed94b01e7f96a235c1a01babc94e3d0d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-observer.stdout.txt",
+      "bytes": 205,
+      "sha256": "dd9df4c26d2d5318709faec67eb0f98f741a74811564fa32c9989b1845d0954f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-observer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/a11y-shared-state-and-retry-packet.json",
+      "bytes": 8132,
+      "sha256": "efcc40be3465b5357762debf75feca233720a2db79ba6d239c7405033a92bc32"
+    }
+  ],
+  "total_bytes": 115888,
+  "preserved_original_receipts": "Existing workspace14/ci23 actualreceipts, complete stdout/source/env are referenced by exact hashes; no duplication needed in this packet",
+  "source_mutation": false,
+  "environment_mutation": false,
+  "new_environment_created": false,
+  "observed_capability_boundary": "Active rootenv readers/writers prevent mutation now; UID0 infrastructure process private fields remain unreadable, explicitly retained"
+}

@@ -1,0 +1,106 @@
+"""Two exact G conditions; current producer/CAS/MC NumPy path only, no broad wave."""
+from __future__ import annotations
+from collections import Counter
+from fractions import Fraction
+import hashlib
+import importlib.metadata
+import json
+import math
+import platform
+import subprocess
+import sys
+from pathlib import Path
+import numpy as np
+from polisyos.core import artifacts as ca
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior as produce
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator, _build_empirical_joint_spec
+from polisyos.foundry.uncertainty.sampling_admission import empirical_cdf
+from polisyos.ir.analytics import admit_posterior_summary_profiles, load_posterior_summary_envelope, posterior_nominal_mean, read_posterior_summary_profile
+from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path('/tmp/e02-E-ir-G855-conditions-independent-64d')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+IR_SOURCE='700f9d5a5e2167787d7042ca11e1ef3bf80ced74'
+G='855cb26a7a2c9fea60356663cf81e7d01e20c738'
+PATHS=[
+ 'policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py',
+ 'policy-engine/src/polisyos/ir/analytics/posterior_summary.py',
+ 'policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py',
+ 'policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py',
+ 'policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py',
+ 'policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py',
+]
+
+def require(value,message):
+ if not value: raise ValueError(message)
+
+def guard():
+ rows=[]
+ for path in PATHS:
+  current=(ROOT/path).read_bytes()
+  frozen=subprocess.check_output(['git','-C',str(ROOT),'show',SOURCE+':'+path])
+  prior=subprocess.check_output(['git','-C',str(ROOT),'show',IR_SOURCE+':'+path])
+  require(current==frozen==prior,'immutable_source_delta:'+path)
+  rows.append({'path':path,'bytes':len(current),'sha256':hashlib.sha256(current).hexdigest(),'700_equals_64d_equals_physical':True})
+ return rows
+
+def fresh(summary,label):
+ root=OUT/(label+'-cas')
+ root.mkdir(exist_ok=False)
+ original=ca.FileSystemCAS(root)
+ refs={name:persist_uncertainty_envelope(original,env) for name,env in summary.parameter_envelopes.items()}
+ reopened=ca.FileSystemCAS(root)
+ envelopes={name:load_posterior_summary_envelope(reopened,ref) for name,ref in refs.items()}
+ admit_posterior_summary_profiles(envelopes)
+ return envelopes,{name:ref.model_dump(mode='json') for name,ref in refs.items()}
+
+before=guard()
+observed=[]
+for label,second,ids in [('generated_ids_same_marginals',[-1,1],None),('generated_ids_reversed_marginals',[1,-1],None),('explicit_shared_ids_healthy',[-1,1],['row:0','row:1'])]:
+ kwargs={} if ids is None else {'draw_ids':ids}
+ summary=produce({'a':[-1,1],'b':second},**kwargs)
+ envelopes,refs=fresh(summary,label)
+ profile=read_posterior_summary_profile(envelopes['a'])
+ spec,failure=_build_empirical_joint_spec(['a','b'],envelopes)
+ require(spec is not None and failure is None,'current_joint_inlet_did_not_admit')
+ callbacks=[]
+ def actual_evaluator(**row):
+  callbacks.append({name:float(value) for name,value in row.items()})
+  return {'difference':float(row['a']-row['b'])}
+ config=PropagationConfig(mc_n_samples=128,mc_batch_size=128,mc_min_valid_samples=10,mc_sampling_method='sobol',mc_qmc_scramble=False,compute_sensitivity=False)
+ outputs=MonteCarloPropagator(config).propagate(actual_evaluator,{name:posterior_nominal_mean(env,parameter_name=name) for name,env in envelopes.items()},envelopes,['difference'])
+ require(len(callbacks)==129 and len(outputs)==1,'actual_callback_denominator_changed')
+ counts=Counter(tuple(row[name] for name in ['a','b']) for row in callbacks[1:])
+ values=[row['a']-row['b'] for row in callbacks[1:]]
+ require(sorted(counts.values())==[64,64],'complete128_net_rows_changed')
+ expected=0.0 if second==[-1,1] else 4.0
+ require(float(np.var(values))==expected,'independent_difference_variance_changed')
+ observed.append({'label':label,'producer_explicit_draw_ids':ids,'profile_row_identity_basis':profile.row_identity_basis,'profile_draw_ids':profile.draw_ids,'context_lineage_refs':profile.context.model_dump(mode='json')['lineage_refs'],'parameter_order':profile.parameter_order,'joint_digest':profile.joint_law_sha256,'fresh_CAS_refs':refs,'actual_MC_admission_failure':failure,'actual_callback_count':len(callbacks),'actual_callback_rows':[{'row':row,'count':count} for row,count in sorted(counts.items())],'actual_difference_population_variance':float(np.var(values)),'output_gate_eligible':outputs[0].envelope.gate_eligible,'criterion_condition':'Generated positional IDs and equal lengths are admitted as an exact paired law without explicit shared row IDs or aligned-source lineage. This demonstrates admission, not the factual source law of unknown production inputs.'})
+# One finite float64 corpus admitted through producer and fresh CAS; mean and
+# actual inverse-CDF use different represented category masses. No rare-event
+# sample estimate is used as the oracle.
+summary=produce({'x':[0.0]*99+[1e15]})
+envelopes,refs=fresh(summary,'finite_probability_residual')
+env=envelopes['x']
+profile=read_posterior_summary_profile(env)
+p=np.asarray(env.distribution_payload.weights,dtype=np.float64)
+cdf=empirical_cdf(p)
+effective=np.diff(np.concatenate(([0.0],cdf)))
+values=np.asarray(env.distribution_payload.samples,dtype=np.float64)
+stored_mean=posterior_nominal_mean(env,parameter_name='x')
+cdf_mean=math.fsum(float(x)*float(weight) for x,weight in zip(values,effective,strict=True))
+exact_stored=sum(Fraction.from_float(float(x))*Fraction.from_float(float(weight)) for x,weight in zip(values,p,strict=True))
+exact_CDF=sum(Fraction.from_float(float(x))*Fraction.from_float(float(weight)) for x,weight in zip(values,effective,strict=True))
+require(stored_mean==summary.posterior_means['x']==1e13,'current_stored_weight_mean_changed')
+require(not np.array_equal(p,effective) and stored_mean!=cdf_mean,'finite_residual_class_no_longer_reproduces')
+require(np.array_equal(p>0,effective>0),'counterexample_used_atom_collapse')
+probability_case={'label':'same_finite_probability_convention_counterexample','fresh_CAS_ref':refs['x'],'source_values':'99 zero atoms, last atom=1e15; all100 weights default1','stored_probabilities':p.tolist(),'actual_inverse_CDF':cdf.tolist(),'effective_inverse_CDF_masses':effective.tolist(),'same_positive_category_support':True,'p_last':float(p[-1]),'CDF_last_residual_mass':float(effective[-1]),'math_fsum_stored_probabilities':math.fsum(p),'math_fsum_effective_CDF_masses':math.fsum(effective),'stored_profile_named_mean':stored_mean,'actual_CDF_law_mean_independent':cdf_mean,'mean_difference':stored_mean-cdf_mean,'exact_binary_rational_mean_difference':str(exact_stored-exact_CDF),'profile_mean_reconciles_from_stored_weights':True,'strict_fresh_profile_reader_admitted':True,'point_median':env.point_estimate,'equal_tail_interval':env.confidence_interval,'gate_eligible':env.gate_eligible,'numerical_oracle':'Mean derived separately from actual finite CDF increments, not callback sample means; all categories remain positive and all inputs are finite float64/backend-range representable.'}
+after=guard()
+require(before==after,'source_changed_during_probe')
+result={'schema':'policyos.e02.G855_two_IR_conditions_actual_probe.v1','source':SOURCE,'tree':TREE,'IR_candidate':IR_SOURCE,'G_review':G,'environment':{'executable':sys.executable,'python':sys.version,'prefix':sys.prefix,'platform':platform.platform(),'numpy':importlib.metadata.version('numpy'),'scipy':importlib.metadata.version('scipy'),'pydantic':importlib.metadata.version('pydantic'),'jax':importlib.metadata.version('jax')},'source_guard_before':before,'source_guard_after':after,'source_unchanged':True,'joint_source_condition':{'outcome':'FAIL current admission premise','observations':observed,'independent_law_oracle':'Each coordinate has the same two-atom marginal; coupling+1 gives Var(a-b)=0 and coupling-1 gives4. Marginal arrays and equal lengths alone do not select either joint law. Explicit IDs are a bounded positive aligned-row declaration, not production source/quality authority.'},'finite_probability_condition':{'outcome':'FAIL current finite convention','observation':probability_case},'tests_or_wave_repeated':False,'ROOT_interpreter_or_packages_mutated':False,'numeric_execution':'Actual producer/native Core CAS/fresh typed profile and 3 tiny128-net MC NumPy/SciPy callbacks; no JAX autodiff/compile/test wave. Finite probability oracle is exact binary rational/CDF increments.','cleanup_candidates':[str(OUT/(label+'-cas')) for label in ['generated_ids_same_marginals','generated_ids_reversed_marginals','explicit_shared_ids_healthy','finite_probability_residual']],'limitations':['No production posterior source/fit quality is established; unknown relation remains unknown.','Findings/closure remain separate from current two conditional implementation seams.','G review pins historical source050/c4; current claims here pin actual700/64d and exact unchanged bytes.']}
+path=OUT/'actual-conditions-counterexamples.json'
+path.write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'outcome':'CHANGE_REQUIRED two bounded current conditions','receipt':{'path':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()},'joint_generated_inlet_admits':True,'actual_callback_count_per_case':129,'finite_profile_mean':stored_mean,'finite_CDF_mean':cdf_mean,'mean_difference':stored_mean-cdf_mean,'source_unchanged':True},indent=2))

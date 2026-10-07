@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.independent_PR_description_observer_history.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "history": [
+    {
+      "kind": "symbol_name_message_error",
+      "historical_wrong_symbol": "load_forecast_calibration_evidence",
+      "actual_source_symbol": "load_forecasting_uncertainty_bundle",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source_line": 995,
+      "correction_before_current_GO": true,
+      "historical12_correction_receipt": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/historical12-frozen64d-reconciliation.json",
+        "bytes": 5025,
+        "sha256": "e564e6fc33525ae9a259360c10429f0713fe2b569c9b88ababcf801ecd123c2c"
+      },
+      "scope": "Wrong symbol came from helper message and was repeated in first parent notification; exact packet/source AST corrected it. Not an actual product symbol or finding criterion."
+    },
+    {
+      "kind": "initial_baseline_control_observer_ERROR",
+      "source": {
+        "source_path": "/tmp/e02-E-pr38-description-independent-doe-20261007/historical-observer-v1.py.txt",
+        "bytes": 19977,
+        "sha256": "da087f537d31db8cc8e550b8f9716eb15d0b9a89053051e6bdc75f4fe98d7155"
+      },
+      "stdout": {
+        "source_path": "/tmp/e02-E-pr38-description-review-doe-normal.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "source_path": "/tmp/e02-E-pr38-description-review-doe-normal.stderr.txt",
+        "bytes": 912,
+        "sha256": "60e129ba197671009804a86f87eca8ba8ef9106ba9502d75c2b1cc6cc6f20521"
+      },
+      "error": "Property-removal source match used four spaces against one-space indentation, refusing observer before report creation; corrected passive source and actualcontrols rerun.",
+      "product_or_native_failure": false
+    },
+    {
+      "kind": "initial_append_report_observer_ERROR",
+      "source": {
+        "source_path": "/tmp/e02-E-pr38-description-independent-doe-20261007/historical-current-observer-v1.py.txt",
+        "bytes": 9124,
+        "sha256": "4b00f4834d84cc8fec316f6ed2faff7af5585e3c4bd61673d92ba85312b48e8a"
+      },
+      "normal_stdout": {
+        "source_path": "/tmp/e02-E-pr38-description-current-review-doe-normal.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "normal_stderr": {
+        "source_path": "/tmp/e02-E-pr38-description-current-review-doe-normal.stderr.txt",
+        "bytes": 2269,
+        "sha256": "6de957f693cb171b39fc9d82735503aeeaff2a88604be01dd00de87e8eaf99ca"
+      },
+      "optimized_stdout": {
+        "source_path": "/tmp/e02-E-pr38-description-current-review-doe-optimized.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "optimized_stderr": {
+        "source_path": "/tmp/e02-E-pr38-description-current-review-doe-optimized.stderr.txt",
+        "bytes": 2269,
+        "sha256": "6de957f693cb171b39fc9d82735503aeeaff2a88604be01dd00de87e8eaf99ca"
+      },
+      "error": "Adversarial loop shadowed old-report Path with a text string; report-construction ref() raised AttributeError after controls. Corrected variable and reran normal/-O, original captures retained.",
+      "product_or_native_failure": false
+    }
+  ],
+  "current_status": "Current append GO and historical publication CHANGE_REQUIRED are separate immutable review observations. No remote/source/env/native modifications by reviewer."
+}

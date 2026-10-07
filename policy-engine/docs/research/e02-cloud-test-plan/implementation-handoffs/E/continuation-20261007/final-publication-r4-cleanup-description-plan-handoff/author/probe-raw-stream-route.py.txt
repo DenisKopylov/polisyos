@@ -1,0 +1,25 @@
+import copy,hashlib,json,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage');O=S/'raw-stream-property-control';O.mkdir()
+old=json.loads((S/'historical-before-raw-stream-manifest.json').read_text());cur=json.loads((S/'manifest.json').read_text())
+# Reconstruct exactly old logical routes from the immutable original selected bytes.
+for r in old['canonical_copies']:
+ pair=(r['source_sha256'],r['source_bytes']);new=next(a for a in cur['canonical_copies'] if (a['source_sha256'],a['source_bytes'])==pair)
+ p=O/'payload'/r['destination'];p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((S/'payload'/new['destination']).read_bytes())
+for name in ['build-stage.py.txt','README.md','qualification.json','build.stdout.json','build.stderr.txt','resume-admission.json','resume-admission.stderr.txt']:(O/name).symlink_to(S/name)
+(O/'manifest.json').write_bytes((S/'historical-before-raw-stream-manifest.json').read_bytes())
+(O/'copy-cleanup-description-plan.py.txt').write_bytes((S/'historical-before-raw-stream-normalization.py.txt').read_bytes())
+rows=[]
+for name,script in [('current-shared-route-admission',S/'copy-cleanup-description-plan.py.txt'),('old-present-normalizer-divergence',O/'copy-cleanup-description-plan.py.txt')]:
+ target=O/name;argv=[sys.executable,str(script),'--manifest',str(O/'manifest.json'),'--destination-root',str(target)]
+ p=subprocess.run(argv,capture_output=True);(O/(name+'.stdout.txt')).write_bytes(p.stdout);(O/(name+'.stderr.txt')).write_bytes(p.stderr)
+ row={'name':name,'argv':argv,'exit_code':p.returncode,'destination_created':target.exists()};rows.append(row)
+ if name.startswith('current') and (p.returncode!=1 or target.exists()):raise ValueError('current shared route admission escape')
+ if name.startswith('old'):
+  if p.returncode!=0 or not target.exists():raise ValueError('old present normalizer failed prior healthy route')
+  raw=target/cur['proposed_git_prefix']/'PR-description/historical-publication/rest-before.stdout.json'
+  try:json.loads(raw.read_bytes())
+  except (ValueError,UnicodeError):row['JSON_extension_defining_property']='FAIL preserved historical rawstream'
+  else:raise ValueError('old proxy did not diverge')
+x={'schema':'policyos.e02.raw_stream_portable_control.v1','current_rejects_wrong_route_before_write':True,'old_present_normalizer_divergent':True,'original_bytes_preserved':True,'rows':rows,'native_source_numeric_gate_execution':False}
+(S/'raw-stream-property-control.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps(x,indent=2))

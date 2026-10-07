@@ -1,0 +1,27 @@
+"""Actual FRC writer refuses when only finite-float admission is removed from public factory."""
+import hashlib,json,sys
+from pathlib import Path
+from polisyos.core import canon as cc,artifacts as ca
+from polisyos.calibration import forecast_bridge as fb
+
+OUT=Path('/tmp/e02-E-forecast-canon-public-route-64d-20261007')
+CAS=OUT/'existing_public_core_spec-cas'
+def require(v,message):
+ if not v:raise ValueError(message)
+old=fb.CanonSpec;calls=[]
+def existing_export_but_property_removed(**kw):
+ calls.append(kw);return cc.CanonSpec(forbid_floats=True)
+store=ca.FileSystemCAS(CAS)
+evidence=fb.load_empirical_calibration_evidence(store,fb.EmpiricalCalibrationEvidenceRef(artifact_id='sha256:a7c27f4516c921c11f49b6cb6b53d55202648035c2a2442ea453c4772016c942'))
+receipt=fb.load_forecast_candidate_receipt(store,fb.ForecastCandidateReceiptRef(artifact_id='sha256:cd8bc614f9c93c00a92f5d190fbde057612b40e3883a67f0c824edd0bfcf54eb'))
+fb.CanonSpec=existing_export_but_property_removed;controls=[]
+try:
+ for name,fn,obj in [('empirical',fb.persist_empirical_calibration_evidence,evidence),('candidate',fb.persist_forecast_candidate_receipt,receipt)]:
+  try:fn(store,obj)
+  except ValueError as e:
+   require('Float values forbidden' in str(e),'unexpected refusal');controls.append({'control':'actual_public_name_present_finite_float_property_removed:'+name,'outcome':'PASS','healthy_public_route_expected':'PASS','mutant_runtime_persistence':'FAIL','refusal':str(e),'requested_factory_config':calls[-1],'public_class_or_original_reader_removed':False})
+  else:raise ValueError('removed numericalconfig accepted')
+finally:fb.CanonSpec=old
+require(len(calls)==2,'two real writer factory calls')
+value={'schema':'policyos.e02.forecast_public_canon_factory_effective_removal.v1','source':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','controls':controls,'source_files_modified':False,'CoreIRexport_names_still_present':True,'nativeETS_or_other_numericproducer_run':False,'global_arch_or_static_run':False,'ROOTenv_interpreter_used':False,'finding_closure':False,'environment':{'executable':sys.executable,'python':sys.version},'observer_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+sys.stdout.write(json.dumps(value,indent=2)+'\n')

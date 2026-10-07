@@ -185,6 +185,23 @@ IR_NAMING_CONVENTIONS: dict[str, str] = {
 }
 
 ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
+    "posterior_population_std_v2": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_population_std_v2",
+    ),
+    "PosteriorSummaryProfileV2": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryProfileV2",
+    ),
+    "canonicalize_posterior_weights": (
+        "polisyos.ir.analytics.posterior_summary",
+        "canonicalize_posterior_weights",
+    ),
+    "posterior_sampling_cdf": ("polisyos.ir.analytics.posterior_summary", "posterior_sampling_cdf"),
+    "posterior_summary_functionals_v2": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_summary_functionals_v2",
+    ),
     "load_posterior_summary_envelope": (
         "polisyos.ir.analytics.posterior_summary",
         "load_posterior_summary_envelope",

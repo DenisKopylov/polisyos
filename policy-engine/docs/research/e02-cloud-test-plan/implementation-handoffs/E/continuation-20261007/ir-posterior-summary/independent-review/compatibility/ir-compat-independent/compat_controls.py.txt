@@ -1,0 +1,254 @@
+"""Independent compatible-reader and actual E consumer controls on immutable source."""
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import hashlib
+import importlib.util
+import json
+import logging
+import subprocess
+import sys
+from dataclasses import replace
+from pathlib import Path
+from unittest.mock import patch
+
+
+def require(condition: object, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def import_file(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    require(spec is not None and spec.loader is not None, "real source module missing")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", required=True, type=Path)
+    parser.add_argument("--candidate", required=True)
+    parser.add_argument("--base", required=True)
+    parser.add_argument("--output", required=True, type=Path)
+    args = parser.parse_args()
+    root = args.repo / "policy-engine"
+    args.output.mkdir(parents=True, exist_ok=False)
+    logs = []
+
+    def git(*argv: str) -> bytes:
+        return subprocess.run(["git", *argv], cwd=args.repo, check=True, capture_output=True).stdout
+
+    footprint = git("diff", "--name-only", args.base, args.candidate).decode().splitlines()
+    bindings = []
+    for path in footprint:
+        if not (args.repo / path).is_file():
+            continue
+        blob = git("show", args.candidate + ":" + path)
+        require(blob == (args.repo / path).read_bytes(), "working source differs from candidate:" + path)
+        bindings.append({"path": path, "bytes": len(blob), "sha256": hashlib.sha256(blob).hexdigest()})
+    old_path = "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+    old_blob = git("show", args.base + ":" + old_path)
+    require(old_blob == git("show", args.candidate + ":" + old_path), "wire1.1 owner source changed")
+    old_file = args.output / "exact-base-uncertainty.py"
+    old_file.write_bytes(old_blob)
+
+    # This runs before the parent loads any product module, so the lazy boundary is native.
+    lazy_script = """
+import json, sys
+import polisyos.ir as ir
+import polisyos.ir.analytics as analytics
+before = 'polisyos.ir.analytics.posterior_summary' in sys.modules
+names = ['PosteriorParameterBinding', 'PosteriorSummaryContext', 'PosteriorSummaryProfile']
+classes = {name: getattr(ir,name) for name in names}
+import polisyos.ir.analytics.posterior_summary as owned
+same = all(classes[name] is getattr(analytics,name) is getattr(owned,name) for name in names)
+print(json.dumps({'before':before,'after':'polisyos.ir.analytics.posterior_summary' in sys.modules,'same':same,'root_exports':all(name in ir.__all__ for name in names),'analytics_exports':len(analytics.__all__)}))
+"""
+    probe = subprocess.run([sys.executable, "-c", lazy_script], cwd=root, capture_output=True, text=True, check=True)
+    lazy = json.loads(probe.stdout)
+    expected_exports = None
+    for statement in ast.parse(git("show",args.candidate+":policy-engine/src/polisyos/ir/api.py")).body:
+        if isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name) and statement.target.id=="ANALYTICS_FACADE_EXPORTS":
+            expected_exports = len(ast.literal_eval(statement.value))
+    require(expected_exports is not None, "complete canonical analytics source map absent")
+    require(lazy == {"before":False,"after":True,"same":True,"root_exports":True,"analytics_exports":expected_exports}, "actual lazy API identity/export denominator")
+    logs.append({"property":"lazy facade identity and complete analytics count","actual":lazy})
+
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.contracts import SimulationResult
+    from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior
+    from polisyos.ir.analytics import PosteriorParameterBinding, PosteriorSummaryContext, PosteriorSummaryProfile, posterior_nominal_mean, read_posterior_summary_profile
+    from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, load_uncertainty_envelope, persist_uncertainty_envelope
+    from polisyos.ir.analytics.welfare import load_welfare_bundle
+    from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+    from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as welfare
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF, ARTIFACT_WELFARE_BUNDLE_REF
+
+    old = import_file("polisyos.ir.analytics.exact_base_uncertainty", old_file)
+    store_path = args.output / "compatibility-cas"
+    store = FileSystemCAS(store_path)
+    legacy = old.UncertaintyEnvelope(point_estimate=0, confidence_interval=(-1,1), source=old.UncertaintySource.CALIBRATION, distribution_family=old.DistributionFamily.BAYESIAN, distribution_payload=old.PosteriorSamplesCarrier(samples=(-1,1)))
+    legacy_ref = old.persist_uncertainty_envelope(store, legacy)
+    legacy_raw = store.get_bytes(legacy_ref.artifact_id)
+    new_legacy = load_uncertainty_envelope(FileSystemCAS(store_path), legacy_ref)
+    require(new_legacy.schema_version == "1.1" and posterior_nominal_mean(new_legacy)==0 and read_posterior_summary_profile(new_legacy) is None, "unprofiled old semantic meaning changed")
+    roundtrip = persist_uncertainty_envelope(FileSystemCAS(store_path), new_legacy)
+    require(store.get_bytes(roundtrip.artifact_id) == legacy_raw, "old1.1 replay bytes drift")
+    logs.append({"property":"exact base oldwriter→fresh newreader→existing writer replay","artifact_id":legacy_ref.artifact_id,"canonical_bytes":len(legacy_raw),"canonical_sha256":hashlib.sha256(legacy_raw).hexdigest(),"point":new_legacy.point_estimate,"profile":None})
+
+    env = summarize_bayesian_calibration_posterior({"x":[0]*99+[100]}).parameter_envelopes["x"]
+    ref = persist_uncertainty_envelope(store, env)
+    new_raw = store.get_bytes(ref.artifact_id)
+    old_read = old.load_uncertainty_envelope(FileSystemCAS(store_path), ref)
+    require(old_read.schema_version == "1.1" and old_read.point_estimate == 0 and old_read.confidence_interval == (0,0) and not old_read.gate_eligible, "new profile not oldreader compatible")
+    require(old_read.metadata["point_functional"] == "median" and old_read.metadata["interval_functional"] == "equal_tail_inverse_cdf", "oldreader loses named labels")
+    require(old_read.distribution_payload.samples == tuple([0.]*99+[100.]) and len(old_read.metadata["joint_draw_ids"]) ==100, "old reader changes stored law bytes")
+    old_replay = old.persist_uncertainty_envelope(FileSystemCAS(store_path), old_read)
+    require(store.get_bytes(old_replay.artifact_id) == new_raw, "new profile replayed through exact oldreader/writer differs")
+    fresh = load_uncertainty_envelope(FileSystemCAS(store_path), ref)
+    require(posterior_nominal_mean(fresh,parameter_name="x") ==1 and read_posterior_summary_profile(fresh).point_functional =="median", "fresh new named reader loses functional distinction")
+    logs.append({"property":"real newproducer→configured CAS→exactold1.1 reader/writer→fresh newreader","artifact_id":ref.artifact_id,"canonical_bytes":len(new_raw),"canonical_sha256":hashlib.sha256(new_raw).hexdigest(),"old_generic_point":old_read.point_estimate,"new_named_mean":1,"gate_eligible":False})
+
+    for cls,kwargs in [(PosteriorParameterBinding,{"estimand_id":"x","unit":"score","scale":"linear"}),(PosteriorSummaryContext,{}),(PosteriorSummaryProfile,read_posterior_summary_profile(fresh).model_dump(mode="python"))]:
+        try: cls.model_validate({**kwargs,"forged_extra":True})
+        except ValueError as error: logs.append({"property":"strict public DTO","type":cls.__name__,"outcome":"REFUSED","error":str(error)})
+        else: raise ValueError("public extra field admitted:"+cls.__name__)
+
+    node_tests = import_file("independent_native_node_fixture",root/"tests/unit/scientist/nodes/test_propagate_uncertainty_node.py")
+    welfare_tests = import_file("independent_native_welfare_fixture",root/"tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py")
+    legacy_fixture_path = "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py"
+    require(git("show",args.base+":"+legacy_fixture_path) == (args.repo/legacy_fixture_path).read_bytes(), "historical paired fixture source changed")
+    legacy_fixture = import_file("independent_preprofile_joint_fixture",args.repo/legacy_fixture_path)
+    legacy_pairs = legacy_fixture.paired()
+    native_legacy_path = args.output/"native-old-paired-joint"
+    ctx,state,_ = node_tests._posterior_node_fixture(native_legacy_path,{"a":[0,1],"b":[0,1]})
+    native_store = FileSystemCAS(native_legacy_path)
+    old_refs = {}
+    for name,envelope in legacy_pairs.items():
+        old_envelope = old.UncertaintyEnvelope.model_validate(envelope.model_dump(mode="python"))
+        old_refs[name] = old.persist_uncertainty_envelope(native_store,old_envelope)
+        from polisyos.ir.analytics import load_posterior_summary_envelope
+        fresh_legacy = load_posterior_summary_envelope(FileSystemCAS(native_legacy_path),old_refs[name])
+        require(read_posterior_summary_profile(fresh_legacy) is None and posterior_nominal_mean(fresh_legacy)==old_envelope.point_estimate, "old joint metadata wrongly requires new summary profile")
+        replay_ref = persist_uncertainty_envelope(FileSystemCAS(native_legacy_path),fresh_legacy)
+        require(native_store.get_bytes(replay_ref.artifact_id)==native_store.get_bytes(old_refs[name].artifact_id), "old joint canonical replay changed")
+    from polisyos.foundry.calibration.report import CalibrationReport, put_calibration_report, put_calibration_config
+    from polisyos.ir.analytics.calibration import CalibrationConfig
+    from polisyos.core.artifacts import InputRef
+    def publish_report(store,params,refs):
+        config=put_calibration_config(store,CalibrationConfig())
+        return put_calibration_report(store,CalibrationReport(total_loss=0,calibrated_params=params,uncertainty_envelope_refs=refs),inputs=[InputRef(artifact_id=config.artifact_id,role="calibration_config")])
+    from polisyos.scientist.nodes.builtins.state_keys import INPUT_CALIBRATION_REPORT_REF
+    old_report = publish_report(native_store,{name:env.point_estimate for name,env in legacy_pairs.items()},old_refs)
+    state.inputs[INPUT_CALIBRATION_REPORT_REF] = old_report
+    observed=[];original=node._build_propagation_fn
+    def measured_legacy(*a,**kw):
+        observed.append(dict(kw["nominal_params"]));return original(*a,**kw)
+    with patch.object(node,"_build_propagation_fn",measured_legacy):
+        outcome=node.PropagateUncertaintyNode().execute(ctx,state)
+    require(outcome.status=="ok" and observed==[{"a":2.25,"b":3.0}], "actual old unprofiled paired-law node compatibility changed")
+    logs.append({"property":"preprofile shared joint markers retain legacy native consumer semantics","source_fixture":legacy_fixture_path+"@"+args.base,"nominal":observed,"outcome":"PASS","native_persisted_output_ref":outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id,"declaredprofile":None,"joint_markers_preserved":["joint_sample_id","joint_draw_ids","joint_parameter_order","joint_law_sha256"]})
+    for removal in (False,True):
+        native_node_path=args.output/("native-node-removal" if removal else "native-node-healthy")
+        ctx,state,_=node_tests._posterior_node_fixture(native_node_path,{"x":[0]*99+[100]})
+        observed=[];original=node._build_propagation_fn
+        def measured(*a,**kw):
+            observed.append(dict(kw["nominal_params"]))
+            return original(*a,**kw)
+        with patch.object(node,"_build_propagation_fn",measured):
+            if removal:
+                with patch.object(node,"posterior_nominal_mean",lambda envelope,**kw:envelope.point_estimate):outcome=node.PropagateUncertaintyNode().execute(ctx,state)
+            else:outcome=node.PropagateUncertaintyNode().execute(ctx,state)
+        require(outcome.status=="ok", "native uncertainty node did not execute")
+        sim_ref=outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+        result=SimulationResult.model_validate(from_canonical_bytes(FileSystemCAS(native_node_path).get_bytes(sim_ref.artifact_id)))
+        require(result.uncertainty_envelopes,"native uncertainty output not persisted")
+        wanted=[{"x":1.0}]
+        if removal:
+            require(observed != wanted and observed==[{"x":0.0}], "removal did not falsify actual nominal guard")
+        else:require(observed==wanted,"native evaluator builder used genericmedian instead of namedmean")
+        logs.append({"property":"actual fresh uncertainty nominal caller","removal":removal,"observed_nominal":observed,"persisted_output_ref":sim_ref.artifact_id,"outcome":"PROPERTY_REMOVAL_DETECTED" if removal else "PASS"})
+    for mutation in ["profile","carrier","rename","raw_bool","raw_string","inline_bool","inline_string","profile_missing_required_false","profile_missing_required_string","profile_and_flag_removed"]:
+        ctx,state,refs=node_tests._posterior_node_fixture(args.output/("native-node-negative-"+mutation),{"x":[0,1,4]},mutation=mutation if mutation in {"profile","carrier","rename","raw_bool","raw_string","inline_bool","inline_string"} else None)
+        if mutation.startswith("profile_missing_") or mutation=="profile_and_flag_removed":
+            raw=from_canonical_bytes(ctx.store.get_bytes(refs["x"].artifact_id))
+            raw["metadata"].pop("posterior_summary_profile")
+            raw["metadata"].pop("posterior_summary_profile_required")
+            if mutation=="profile_missing_required_false":raw["metadata"]["posterior_summary_profile_required"]=False
+            if mutation=="profile_missing_required_string":raw["metadata"]["posterior_summary_profile_required"]="false"
+            forged_ref=persist_uncertainty_envelope(ctx.store,UncertaintyEnvelope.model_validate(raw))
+            state.inputs[INPUT_CALIBRATION_REPORT_REF]=publish_report(ctx.store,{"x":5/3},{"x":forged_ref})
+        calls=[]
+        def forbidden(*a,**kw):calls.append(kw);raise RuntimeError("native evaluator builder reached")
+        with patch.object(node,"_build_propagation_fn",forbidden):
+            try:node.PropagateUncertaintyNode().execute(ctx,state)
+            except ValueError as error:reason=str(error)
+            else:raise ValueError("invalid native node profile admitted:"+mutation)
+        require(not calls,"invalid profile reached nominal/evaluator builder")
+        logs.append({"property":"actual native uncertainty declaredprofile/target preflight","mutation":mutation,"callback_count":len(calls),"outcome":"REFUSED","reason":reason})
+
+    for mode in ["profile","direct_profile","legacy","removal"]:
+        env=summarize_bayesian_calibration_posterior({"A":[0.0]*99+[0.5]}).parameter_envelopes["A"] if mode!="legacy" else welfare_tests._envelope()
+        path=args.output/("native-welfare-"+mode)
+        ctx,state,source=welfare_tests._native_fixture(path,env,run_id="compat_welfare_"+mode)
+        if mode=="direct_profile":state.params["welfare_config"]["input_envelopes"]["A"]=env.model_dump(mode="json")
+        ctx=replace(ctx,store=FileSystemCAS(path));observed=[];original=welfare._build_simulation_fn
+        def measured(*a,**kw):
+            fn,nominal,envelopes,refs=original(*a,**kw)
+            observed.append(dict(nominal));return fn,nominal,envelopes,refs
+        with patch.object(welfare,"_build_simulation_fn",measured):
+            if mode=="removal":
+                with patch.object(welfare,"posterior_nominal_mean",lambda envelope,**kw:envelope.point_estimate):outcome=welfare.PropagateWelfareNode().execute(ctx,state)
+            else:outcome=welfare.PropagateWelfareNode().execute(ctx,state)
+        require(outcome.status=="ok","native singlecoordinate Welfare did not execute")
+        bundle_ref=outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+        bundle=load_welfare_bundle(FileSystemCAS(path),bundle_ref)
+        expected=.25 if mode=="legacy" else .005
+        if mode=="removal":require(observed==[{"A":0.0}] and observed!=[{"A":expected}],"Welfare nominal reader removal not detected")
+        else:require(observed==[{"A":expected}],"Welfare changed legacy point or lost namedmean")
+        logs.append({"property":"actual fresh single-coordinate Welfare nominal caller","mode":mode,"observed_nominal":observed,"source_ref":source.artifact_id,"persisted_bundle_ref":bundle_ref.artifact_id,"persisted_point":bundle.point_estimate,"outcome":"PROPERTY_REMOVAL_DETECTED" if mode=="removal" else "PASS"})
+    for mutation in ["profile","carrier","rename","raw_bool","raw_string","state_bool","state_string"]:
+        envelope=summarize_bayesian_calibration_posterior({"A" if mutation!="rename" else "wrong_target":[0.0,.5]}).parameter_envelopes["A" if mutation!="rename" else "wrong_target"]
+        data=envelope.model_dump(mode="python")
+        if mutation=="profile":data["metadata"]["posterior_summary_profile"]["profile_version"]="999.0"
+        if mutation=="carrier":data["distribution_payload"]=None
+        forged=UncertaintyEnvelope.model_validate(data)
+        path=args.output/("native-welfare-negative-"+mutation)
+        ctx,state,_=welfare_tests._native_fixture(path,forged,run_id="compat_welfare_negative_"+mutation)
+        if mutation in {"raw_bool","raw_string","state_bool","state_string"}:
+            raw=envelope.model_dump(mode="json")
+            raw["distribution_payload"]["samples"][0]=False if mutation.endswith("bool") else "0.0"
+            if mutation.startswith("state_"):
+                state.params["welfare_config"]["input_envelopes"]["A"]=raw
+            else:
+                from polisyos.core.artifacts import PutOptions, SchemaInfo
+                from polisyos.core.canon import CanonSpec
+                record=ctx.store.put_json(raw,PutOptions(kind="ir.uncertainty_envelope",media_type="application/json",schema=SchemaInfo(name="ir.uncertainty_envelope",version="1.1")),canon_spec=CanonSpec(forbid_floats=False))
+                require(ctx.store.verify(record).ok,"actual raw negative artifact integrity")
+                state.params["welfare_config"]["input_envelopes"]["A"]=record.model_dump(include={"artifact_id","kind","media_type"})
+        ctx=replace(ctx,store=FileSystemCAS(path));calls=[];original=welfare._build_simulation_fn
+        def measured(*a,**kw):
+            fn,nominal,envelopes,refs=original(*a,**kw)
+            def counted(**params):calls.append(params);return fn(**params)
+            return counted,nominal,envelopes,refs
+        with patch.object(welfare,"_build_simulation_fn",measured):
+            try:welfare.PropagateWelfareNode().execute(ctx,state)
+            except ValueError as error:reason=str(error)
+            else:raise ValueError("invalid Welfare profile admitted:"+mutation)
+        require(not calls,"invalid Welfare profile reached nominal simulation")
+        logs.append({"property":"actual native Welfare declaredprofile/target preflight","mutation":mutation,"callback_count":len(calls),"outcome":"REFUSED","reason":reason})
+    for item in bindings:
+        require(hashlib.sha256((args.repo/item["path"]).read_bytes()).hexdigest()==item["sha256"],"source changed during controls:"+item["path"])
+    receipt={"candidate":args.candidate,"tree":git("rev-parse",args.candidate+"^{tree}").decode().strip(),"base":args.base,"scope":"public compatibility and actual consumer companions only; functional math/joint law oracle separate","cases":logs,"complete_footprint_bindings":bindings,"old_wire_source":{"path":old_path,"base":args.base,"candidate_bytes_equal":True,"sha256":hashlib.sha256(old_blob).hexdigest()},"python":sys.version,"source_edit":False,"broad_wave":False}
+    (args.output/"controls.json").write_text(json.dumps(receipt,indent=2,default=str)+"\n")
+    print(json.dumps(receipt,indent=2,default=str))
+
+
+if __name__=="__main__":
+    main()

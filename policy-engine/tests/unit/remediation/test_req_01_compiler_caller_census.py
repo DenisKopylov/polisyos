@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import ast
 import importlib.util
+import os
 import sys
 from pathlib import Path
+
+import pytest
 
 _SCANNER_PATH = (
     Path(__file__).resolve().parents[3]
@@ -34,8 +38,8 @@ def _source_findings(source: str) -> dict[str, list[dict[str, object]]]:
     )
 
 
-def test_unrebound_global_and_nonlocal_import_aliases_remain_resolved() -> None:
-    source = f'''\
+def _clean_global_nonlocal_import_source() -> str:
+    return f'''\
 from importlib import import_module as module_loader
 
 def use_global_alias():
@@ -54,6 +58,10 @@ def outer():
         enclosing_loader("{_COMPILER_MODULE}")
 '''
 
+
+def test_unrebound_global_and_nonlocal_import_aliases_remain_resolved() -> None:
+    source = _clean_global_nonlocal_import_source()
+
     findings = _source_findings(source)
 
     assert [row["module"] for row in findings["dynamic_import_literals"]] == [
@@ -62,6 +70,45 @@ def outer():
         _COMPILER_MODULE,
     ]
     assert findings["unresolved_reflective_calls"] == []
+
+
+@pytest.mark.skipif(
+    os.environ.get("POLISYOS_E02_COMPILER_BINDING_ROUTING_REMOVAL") != "1",
+    reason="R1 mutation witness runs only when binding-routing removal is requested",
+)
+def test_clean_global_nonlocal_alias_control_detects_removed_routing() -> None:
+    scanner_tree = ast.parse(_SCANNER_PATH.read_text(encoding="utf-8"), filename=str(_SCANNER_PATH))
+    routing_loops = [
+        node
+        for node in ast.walk(scanner_tree)
+        if isinstance(node, ast.For)
+        and isinstance(node.iter, ast.Name)
+        and node.iter.id in {"global_events", "nonlocal_events"}
+    ]
+    assert len(routing_loops) == 2
+    assert {node.iter.id for node in routing_loops if isinstance(node.iter, ast.Name)} == {
+        "global_events",
+        "nonlocal_events",
+    }
+    for node in routing_loops:
+        node.iter = ast.Tuple(elts=[], ctx=ast.Load())
+    ast.fix_missing_locations(scanner_tree)
+
+    namespace: dict[str, object] = {
+        "__file__": str(_SCANNER_PATH),
+        "__name__": "e02_census_tracked_python_r1_probe",
+    }
+    exec(  # noqa: S102 - execute an in-memory AST clone of the tracked scanner.
+        compile(scanner_tree, str(_SCANNER_PATH), "exec"), namespace
+    )
+    probe_source_findings = namespace["source_findings"]
+    findings = probe_source_findings(
+        "synthetic_req_01_binding_routing_removal.py",
+        _clean_global_nonlocal_import_source(),
+        _PACKAGE_INIT_PATHS,
+    )
+
+    assert len(findings["dynamic_import_literals"]) == 3
 
 
 def test_global_and_nonlocal_rebindings_are_unresolved_for_the_sibling_scope() -> None:

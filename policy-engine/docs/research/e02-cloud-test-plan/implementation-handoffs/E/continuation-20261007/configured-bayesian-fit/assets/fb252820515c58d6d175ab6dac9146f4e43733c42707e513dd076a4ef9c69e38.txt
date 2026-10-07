@@ -1,0 +1,15 @@
+import hashlib,importlib.metadata,json,os,pathlib,platform,subprocess,sys
+repo=pathlib.Path('/workspace/e02-E-cal-20261006');out=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6');sha='77b4d68ec37e3f34b84ce4fd1787746e3d5f5322';base='3cc20af36297493aa8ba8fdc66f3810abadf81a2'
+allpaths=subprocess.check_output(['git','diff','--name-only',base,sha],cwd=repo,text=True).splitlines();author=[r['path'] for r in json.loads((out/'source-environment.json').read_text())['files']]
+files=[]
+for p in allpaths:
+ b=subprocess.check_output(['git','show',sha+':'+p],cwd=repo);physical=(repo/p).read_bytes()
+ if physical!=b:raise ValueError('source mismatch '+p)
+ files.append({'path':p,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',sha+':'+p],cwd=repo,text=True).strip(),'writer_scope':'E fit source' if p in author else 'ordinary approved root/G merge companion'})
+dists=[]
+for dist in importlib.metadata.distributions():
+ path=pathlib.Path(dist._path)/'METADATA';b=path.read_bytes();dists.append({'name':dist.metadata['Name'],'version':dist.version,'metadata_path':str(path),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+dists.sort(key=lambda r:r['name'].lower())
+old=json.loads((out/'source-environment.json').read_text())['distributions']
+receipt={'candidate':sha,'tree':subprocess.check_output(['git','rev-parse',sha+'^{tree}'],cwd=repo,text=True).strip(),'base':base,'branch':subprocess.check_output(['git','branch','--show-current'],cwd=repo,text=True).strip(),'status':subprocess.check_output(['git','status','--porcelain=v1'],cwd=repo,text=True),'full_ancestry_footprint':files,'author_paths':author,'distribution_count':len(dists),'distributions':dists,'all184_metadata_equal_6638_observation':dists==old,'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'environment':{k:os.environ.get(k) for k in ('OPENBLAS_NUM_THREADS','OMP_NUM_THREADS','MKL_NUM_THREADS','POLISYOS_METRICS_PORT','PYTHONDONTWRITEBYTECODE')},'metadata_observation_scope':'after closed author checks; not retrospective per-run preflight','global_gate_pass':False,'custody_loss':'author-capture-custody-loss.json historical raw74/23 unavailable; immutable independent9147 native74 is deciding'}
+(out/'source-environment-77b4-v2.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'paths':len(files),'author_paths':len(author),'metadata_count':len(dists),'all184_metadata_equal':dists==old,'clean':not receipt['status']}))

@@ -1,0 +1,9 @@
+{
+  "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "scope": "publication observer only, no source/backend changes",
+  "error": "First builder enumerated its own redirected stdout/stderr before stdout closed. The stale zero-byte entry is historical and is not the deciding current copy-index.",
+  "source_v1_sha256": "b7371d5fef859652faa5f7e89d71354747a5b3212cd2db71794289ae729025b1",
+  "original_index": "copy-index-first-builder-history.json",
+  "actual_stdout": "prepare-final-publication.stdout.json",
+  "current_fix": "Exclude in-progress builder captures; append their closed literals after builder completion."
+}

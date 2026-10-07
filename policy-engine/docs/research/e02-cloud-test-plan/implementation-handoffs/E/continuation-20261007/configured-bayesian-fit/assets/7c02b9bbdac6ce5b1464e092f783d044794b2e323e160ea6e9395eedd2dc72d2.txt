@@ -1,0 +1,15 @@
+import hashlib,json,pathlib
+O=pathlib.Path('/tmp/e02-E-fit-independent-6638-20261007');assets=[];roots=[]
+for i,backend in enumerate(('hmc','nuts')):
+ root=O/'pytest-base'/f'real-bayesian-fit{i}';entries=[]
+ for p in sorted(root.glob('artifacts/sha256/*/*/*')):
+  if not p.is_file():continue
+  b=p.read_bytes();h=hashlib.sha256(b).hexdigest();a={'source_path':str(p),'portable_path':'closed-native-inputs/'+backend+'/'+p.name,'bytes':len(b),'sha256':h}
+  if p.suffix=='.blob' and p.stem!=h:raise ValueError('native CAS content digest mismatch')
+  if p.name.endswith('.manifest.json'):
+   m=json.loads(b);a['kind']=m['kind'];a['artifact_id']=m['artifact_id']
+  assets.append(a);entries.append(a)
+ roots.append({'backend':backend,'root':str(root),'objects':len(entries),'bytes':sum(a['bytes']for a in entries)})
+script=O/'select_native_inputs.py.txt';b=script.read_bytes();assets.append({'source_path':str(script),'portable_path':script.name,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+receipt={'source':'6638e18a3295e43a89b0ae6adba32e62952154bb','tree':'5bc2352671f5172a88268ec45d8dd537b4e048fe','scope':'complete exact native CAS artifacts from independently executed42 fixture; input/source/result/evidence/profile/report/output closure, no cache/locks/test overlay/environment','roots':roots,'assets':assets,'logical_count':len(assets),'bytes':sum(a['bytes']for a in assets)}
+p=O/'publication-selection-native-inputs.json';p.write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'selection':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'assets':len(assets),'bytes':receipt['bytes']}))

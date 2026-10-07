@@ -1,0 +1,27 @@
+{
+  "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "actual_typed_CoreCAS_return_wrapper": "stored valid unchanged payload/schema/kind/CAS digest; only returned generic ref kind/media changed; inputProfile2 return refs retained",
+  "rows": [
+    {
+      "method": "hmc",
+      "current_node_outcome": "REFUSED",
+      "exception": "ValidationError:2 validation errors for UncertaintyEnvelopeRef\nkind\n  Input should be 'ir.uncertainty_envelope' [type=literal_error, input_value='forged.wrong_kind', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nmedia_type\n  Input should be 'application/json' [type=literal_error, input_value='text/plain', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error",
+      "spy_calls": [
+        "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998"
+      ],
+      "old_IR_publisher_outcome": "REFUSED",
+      "old_exception": "ValidationError:2 validation errors for UncertaintyEnvelopeRef\nkind\n  Input should be 'ir.uncertainty_envelope' [type=literal_error, input_value='forged.wrong_kind', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nmedia_type\n  Input should be 'application/json' [type=literal_error, input_value='text/plain', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+    },
+    {
+      "method": "nuts",
+      "current_node_outcome": "REFUSED",
+      "exception": "ValidationError:2 validation errors for UncertaintyEnvelopeRef\nkind\n  Input should be 'ir.uncertainty_envelope' [type=literal_error, input_value='forged.wrong_kind', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nmedia_type\n  Input should be 'application/json' [type=literal_error, input_value='text/plain', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error",
+      "spy_calls": [
+        "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79"
+      ],
+      "old_IR_publisher_outcome": "REFUSED",
+      "old_exception": "ValidationError:2 validation errors for UncertaintyEnvelopeRef\nkind\n  Input should be 'ir.uncertainty_envelope' [type=literal_error, input_value='forged.wrong_kind', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nmedia_type\n  Input should be 'application/json' [type=literal_error, input_value='text/plain', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+    }
+  ]
+}

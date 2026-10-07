@@ -1,0 +1,126 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "publication_disposition": "GO",
+  "scope": "actual whole4034 required member Counter, actual923 physical bytecarriers/canonical role, literal current descriptor/source/check-field projections, raw evidence+Git custody and effective Counter removal; no backend/math/native/global repeats",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/independent-publication-review-77b4-v3.json",
+      "bytes": 7898,
+      "sha256": "8d44f97f2717bca276f7d31a1f455fce5c215beaf8712a479ae0af2356f9701f",
+      "portable_path": "independent-publication-review-77b4-v3.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/finalize_publication_review.py.txt",
+      "bytes": 5999,
+      "sha256": "32d7e3083bc2ae1a5cbad1b0e1ac4dc0b198269b7f1eed7be29a06deb23951a4",
+      "portable_path": "finalize_publication_review.py.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review_publication_v3.py.txt",
+      "bytes": 6888,
+      "sha256": "39cae342002f7a869959e48a70007066044411ac1fd00d1255af814993fdb88b",
+      "portable_path": "review_publication_v3.py.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review_publication_v3_corrected_observer.py.txt",
+      "bytes": 6852,
+      "sha256": "cded7f61ffae17811e047b5dd3b4d12e1144cc05c0ae1e263e9c9cc0db2dc827",
+      "portable_path": "review_publication_v3_corrected_observer.py.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/probe_publication_membership_v2.py.txt",
+      "bytes": 2300,
+      "sha256": "9439130337232fe7c94159c8d2f6cb320d2ca9edb11f1da972ace33e50a192f3",
+      "portable_path": "probe_publication_membership_v2.py.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/validate_final_publication-v2.py.historical.txt",
+      "bytes": 13938,
+      "sha256": "45993f13b9092733bb8cce6939a5be349566c443554b656d2e800e0eedc1c36f",
+      "portable_path": "validate_final_publication-v2.py.historical.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-descriptor-pending.json",
+      "bytes": 1745,
+      "sha256": "b55defa6bf5e4a36a74e207a5efb00c3bade20f83ec7239e445e0a4e42854f91",
+      "portable_path": "publication-descriptor-pending.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/publication-descriptor-v3-pending.json",
+      "bytes": 2693,
+      "sha256": "fd60e3d303d835e8af3caa109f2faaf2ea6143cb01c9127ba04697fe2ee955d6",
+      "portable_path": "publication-descriptor-v3-pending.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/publication-physical-role-relocation.json",
+      "bytes": 3828,
+      "sha256": "8e7a7b3ef146c03ed30cc606e9947dad17697a0912272611dfc4da81594d1c53",
+      "portable_path": "publication-physical-role-relocation.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-normal.stdout.json",
+      "bytes": 2100,
+      "sha256": "e5e155b1fbf579d503d865355815e044d6ef6d7f4f09f15fcd048ae087b48bd1",
+      "portable_path": "publication-membership-v2-normal.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "publication-membership-v2-normal.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-normal.stdout.json",
+      "bytes": 8535,
+      "sha256": "c021ea0ee527ea8ced5c6876b0ecc391d1e56b9bedd215469a018bdc19fc1262",
+      "portable_path": "review-v3-corrected-normal.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "review-v3-corrected-normal.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-optimized.stdout.json",
+      "bytes": 2099,
+      "sha256": "2f06d05704137c18667bd1a7a26d196a7bb9d0fb0339adba57f4400dfed3a34b",
+      "portable_path": "publication-membership-v2-optimized.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "publication-membership-v2-optimized.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-optimized.stdout.json",
+      "bytes": 8534,
+      "sha256": "b542f8b6928d1d25fa5aac9c6693efb75f6dfe4db68c810a96c63f21715c95de",
+      "portable_path": "review-v3-corrected-optimized.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "review-v3-corrected-optimized.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-normal.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "review-v3-normal.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-normal.stderr.txt",
+      "bytes": 372,
+      "sha256": "fb2767dca08d0840d34e5e789a51dd64221cdcfffb96282a97113b4938dbde72",
+      "portable_path": "review-v3-normal.stderr.txt"
+    }
+  ],
+  "logical_count": 19,
+  "unique_count": 15,
+  "logical_bytes": 73781,
+  "main_author4034_copy_not_duplicated": "Current/old complete index/923bytes already in author packet; peer receipt pins their exact refs and verifies them physically. No raw/native repeat."
+}

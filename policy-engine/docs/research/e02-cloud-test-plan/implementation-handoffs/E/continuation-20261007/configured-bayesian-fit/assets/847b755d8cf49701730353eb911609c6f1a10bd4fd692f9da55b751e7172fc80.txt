@@ -1,0 +1,42 @@
+"""Copy closed observations to a content-addressed passive publication, preserving aliases."""
+import hashlib,json,pathlib,subprocess
+P=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6')
+OUT=P/'final-publication-preparation'
+OUT.mkdir(exist_ok=True)
+ASSETS=OUT/'assets';ASSETS.mkdir(exist_ok=True)
+entries=[]
+def add(path,role,logical=None,expected=None):
+ path=pathlib.Path(path); raw=path.read_bytes(); h=hashlib.sha256(raw).hexdigest()
+ if expected and (len(raw)!=expected['bytes'] or h!=expected['sha256']): raise ValueError('input_changed '+str(path))
+ carrier='assets/'+h+'.txt'
+ dst=OUT/carrier
+ if dst.exists() and dst.read_bytes()!=raw: raise ValueError('hash_collision')
+ if not dst.exists(): dst.write_bytes(raw)
+ entries.append({'logical_at':logical or role+'/'+path.name,'stored_at':carrier,'original_path':str(path),'bytes':len(raw),'sha256':h,'role':role})
+for f in P.iterdir():
+ if f.is_file() and f.name not in {'prepare_final_publication.py','prepare-final-publication.stdout.json','prepare-final-publication.stderr.txt','prepare-final-publication-v2.stdout.json','prepare-final-publication-v2.stderr.txt'}:
+  add(f,'author-original-top-level','author/'+f.name)
+for dirname in ['admission','returned-ref-correction-r2','returned-ref-first-attempt-history']:
+ for f in sorted((P/dirname).iterdir()):
+  if f.is_file():add(f,'author-'+dirname,'author/'+dirname+'/'+f.name)
+for name in ['compat-receipt.json','compat.junit.xml','compat.stderr.txt','compat.stdout.txt','full-ancestry-footprint.json','publisher-equivalence-v2.stdout.json','publisher-equivalence-v2.stderr.txt','probe_output_publisher-v2.py','probe_output_publisher.py','publisher-equivalence.stdout.json','publisher-equivalence.stderr.txt','recompute_imports.py','recompute_imports-v2.py','import-edges.json','import-edges.stderr.txt','import-edges-v2.json','source-commit.stdout.txt','source-commit.stderr.txt']:
+ add(P/'profile-correction'/name,'author-later-qualified','author/profile-correction/'+name)
+for f in sorted((P/'closed-inputs').rglob('*')):
+ if f.is_file():add(f,'author-initial-cas-custody','author/'+str(f.relative_to(P)))
+for f in (P/'old-producer').iterdir():
+ if f.is_file():add(f,'old-exact-source-observer','author/old-producer/'+f.name)
+for role,selector in [
+ ('independent-initial6638','/tmp/e02-E-fit-independent-6638-20261007/publication-selection-initial.json'),
+ ('independent-initial6638-native','/tmp/e02-E-fit-independent-6638-20261007/publication-selection-native-inputs.json'),
+ ('independent-profile9147','/tmp/e02-E-fit-independent-9147-20261007/publication-selection-9147.json'),
+]:
+ s=pathlib.Path(selector);j=json.loads(s.read_text());add(s,role,role+'/'+s.name)
+ for row in j['assets']:add(row['source_path'],role,role+'/'+row['portable_path'],row)
+# Physical archived sources remain passive literal inputs; never claim they were re-executed.
+add(pathlib.Path(__file__),'current-publication-builder','prepare_final_publication.py.txt')
+logical=[r['logical_at'] for r in entries]
+if len(logical)!=len(set(logical)):raise ValueError('duplicate_logical_path')
+unique={r['stored_at']:(r['bytes'],r['sha256']) for r in entries}
+index={'schema':'policyos.e02.literal_copy_index.v1','candidate':'77b4d68ec37e3f34b84ce4fd1787746e3d5f5322','source_tree':'d5efa295c8af983a86a620a120ab091aae580db3','scope':'Closed observations and historical errors; source and scientific authority are separate. Final peer source review appended only after closure.','files':entries,'logical_count':len(entries),'unique_carrier_count':len(unique),'unique_bytes':sum(x[0] for x in unique.values()),'historical_loss_receipt':'author/author-capture-custody-loss.json','excluded':['No copied environments, pytest temp fixture trees, caches or repeated 171MB raw dump. Complete deciding CAS records selected by independent receipts are preserved.','Lost author9147 native74/old23 literal bytes are UNAVAILABLE, not reconstructed or replaced with later bytes.'],'literal_byte_custody':'author_recomputed; independent publication review pending'}
+(OUT/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({k:index[k] for k in ['candidate','logical_count','unique_carrier_count','unique_bytes']},indent=2))

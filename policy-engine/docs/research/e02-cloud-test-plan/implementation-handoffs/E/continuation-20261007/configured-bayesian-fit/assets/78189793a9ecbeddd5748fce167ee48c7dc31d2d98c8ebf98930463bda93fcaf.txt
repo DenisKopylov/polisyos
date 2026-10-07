@@ -1,0 +1,19 @@
+import hashlib,json,os,pathlib,subprocess,time
+repo=pathlib.Path('/workspace/e02-E-cal-20261006'); out=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6')
+sha='6638e18a3295e43a89b0ae6adba32e62952154bb'; base='3cc20af36297493aa8ba8fdc66f3810abadf81a2'
+paths=subprocess.check_output(['git','diff','--name-only',base,sha],cwd=repo,text=True).splitlines(); inputs=[p for p in paths if p.endswith('.py')]
+def snap():
+ rows=[]
+ for p in paths:
+  b=(repo/p).read_bytes(); expected=subprocess.check_output(['git','show',sha+':'+p],cwd=repo)
+  if b!=expected: raise ValueError('source mismatch '+p)
+  rows.append({'path':p,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ return {'head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip(),'status':subprocess.check_output(['git','status','--porcelain=v1'],cwd=repo,text=True),'inputs':rows}
+pre=snap(); env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',RUFF_CACHE_DIR=str(out/'ruff-cache-immutable'))
+ruff='/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff'; results=[]
+for name,args in [('ruff-immutable',['check','--output-format','json']),('format-immutable',['format','--check'])]:
+ argv=[ruff,*args,*[p.removeprefix('policy-engine/') for p in inputs]]; start=time.time(); run=subprocess.run(argv,cwd=repo/'policy-engine',env=env,capture_output=True)
+ for suffix,b in [('stdout',run.stdout),('stderr',run.stderr)]: (out/(name+'.'+suffix+'.txt')).write_bytes(b)
+ results.append({'name':name,'argv':argv,'cwd':str(repo/'policy-engine'),'exit_code':run.returncode,'elapsed_seconds':time.time()-start,'stdout':name+'.stdout.txt','stderr':name+'.stderr.txt'})
+post=snap(); receipt={'candidate':sha,'base':base,'full_footprint':paths,'python_input_denominator':inputs,'configuration_mode':'canonical cwd discovery, no explicit --config','environment_overrides':{k:env[k] for k in ('PYTHONDONTWRITEBYTECODE','RUFF_CACHE_DIR')},'before':pre,'after':post,'source_immutable':pre==post,'results':results,'global_gate_pass':False,'scope':'only current slice 5 Python inputs; no full global lint rerun'}
+(out/'scoped-style-immutable.json').write_text(json.dumps(receipt,indent=2)+'\n'); print(json.dumps({'results':results,'source_immutable':pre==post}))

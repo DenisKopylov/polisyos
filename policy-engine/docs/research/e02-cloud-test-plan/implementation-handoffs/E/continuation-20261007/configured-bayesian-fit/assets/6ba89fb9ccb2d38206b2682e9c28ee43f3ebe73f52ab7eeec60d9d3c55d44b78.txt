@@ -1,0 +1,85 @@
+"""Recompute bounded summary claims from closed literals and immutable Git inputs."""
+import copy,hashlib,json,pathlib,re,subprocess,sys,xml.etree.ElementTree as ET
+ROOT=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6')
+REPO=pathlib.Path('/workspace/e02-E-cal-20261006')
+SOURCE='6638e18a3295e43a89b0ae6adba32e62952154bb'
+BASE='3cc20af36297493aa8ba8fdc66f3810abadf81a2'
+TREE='5bc2352671f5172a88268ec45d8dd537b4e048fe'
+
+def typed_equal(a,b):
+ if type(a) is not type(b): return False
+ if isinstance(a,dict): return a.keys()==b.keys() and all(typed_equal(a[k],b[k]) for k in a)
+ if isinstance(a,list): return len(a)==len(b) and all(typed_equal(x,y) for x,y in zip(a,b,strict=True))
+ return a==b
+
+def relative(value):
+ if not isinstance(value,str) or not value or '\\' in value or any(v in ('','.','..') for v in value.split('/')) or pathlib.PurePosixPath(value).is_absolute(): raise ValueError('invalid_relative_path')
+ return value
+
+def preflight(source,index):
+ for key,expected in [('candidate',SOURCE),('base',BASE),('tree',TREE)]:
+  if not isinstance(source.get(key),str) or re.fullmatch('[0-9a-f]{40}',source[key]) is None or source[key]!=expected: raise ValueError('invalid_source_identity')
+ if type(source.get('distribution_count')) is not int or source['distribution_count']!=len(source['distributions']): raise ValueError('invalid_metadata_count')
+ paths=[]
+ for row in source['files']:
+  relative(row.get('path'));paths.append(row['path'])
+  if type(row.get('bytes')) is not int or row['bytes']<0 or not isinstance(row.get('sha256'),str) or re.fullmatch('[0-9a-f]{64}',row['sha256']) is None: raise ValueError('invalid_source_record')
+ if len(paths)!=len(set(paths)): raise ValueError('duplicate_source_record')
+ for row in index['inputs']:
+  relative(row.get('stored_at'))
+  if type(row.get('bytes')) is not int or row['bytes']<0 or not isinstance(row.get('sha256'),str) or re.fullmatch('[0-9a-f]{64}',row['sha256']) is None: raise ValueError('invalid_copy_record')
+
+def derive(source=None,index=None,git_call=None):
+ source=source or json.loads((ROOT/'source-environment.json').read_text());index=index or json.loads((ROOT/'closed-inputs/index.json').read_text())
+ preflight(source,index)
+ git_call=git_call or (lambda args:subprocess.check_output(['git',*args],cwd=REPO))
+ if git_call(['rev-parse',SOURCE+'^{tree}']).decode().strip()!=TREE: raise ValueError('wrong_tree')
+ paths=git_call(['diff','--name-only',BASE,SOURCE]).decode().splitlines()
+ if sorted(paths)!=sorted(row['path'] for row in source['files']): raise ValueError('footprint_mismatch')
+ for row in source['files']:
+  b=git_call(['show',SOURCE+':'+row['path']])
+  if len(b)!=row['bytes'] or hashlib.sha256(b).hexdigest()!=row['sha256'] or (REPO/row['path']).read_bytes()!=b: raise ValueError('source_byte_mismatch')
+ for row in index['inputs']:
+  b=(ROOT/row['stored_at']).read_bytes()
+  if len(b)!=row['bytes'] or hashlib.sha256(b).hexdigest()!=row['sha256']: raise ValueError('copy_byte_mismatch')
+ counts={}
+ for name in ('pytest','pytest-final','pytest-source'):
+  raw=(ROOT/(name+'.junit.xml')).read_bytes()
+  if b'<!DOCTYPE' in raw or b'<!ENTITY' in raw: raise ValueError('unsupported_xml_entities')
+  cases=ET.fromstring(raw).findall('.//testcase');c={'PASS':0,'FAIL':0,'ERROR':0,'SKIP':0}
+  for case in cases:
+   key='ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS';c[key]+=1
+  counts[name]=c
+ style=json.loads((ROOT/'scoped-style-immutable.json').read_text());typing=json.loads((ROOT/'typing-final.json').read_text())
+ if style['candidate']!=SOURCE or style['source_immutable'] is not True: raise ValueError('style_binding_mismatch')
+ return {'candidate':SOURCE,'tree':TREE,'base':BASE,'changed_paths':paths,'python_path_count':sum(p.endswith('.py') for p in paths),'native_counts':counts,'style_exit_codes':{r['name']:r['exit_code'] for r in style['results']},'scoped_typing_errors':typing['summary']['errorCount'],'distribution_count':len(source['distributions']),'copied_cas_input_count':len(index['inputs']),'copied_cas_bytes':sum(r['bytes'] for r in index['inputs']),'global_gate_pass':False,'finding_closure_decided':False}
+
+def admit_summary(summary,expected):
+ if not typed_equal(summary,expected): raise ValueError('summary_mismatch')
+
+def run_controls():
+ expected=derive();controls=[]
+ admit_summary(expected,expected);controls.append({'name':'healthy_recomputed_summary','outcome':'PASS'})
+ mutations=[('native_count',lambda d:d['native_counts']['pytest-source'].__setitem__('PASS',1)),('typing_count',lambda d:d.__setitem__('scoped_typing_errors',0)),('copied_cas_bytes',lambda d:d.__setitem__('copied_cas_bytes',0)),('extra_product_path',lambda d:d['changed_paths'].append('policy-engine/src/polisyos/runtime/quality/generation_cycle.py')),('bool_int_count',lambda d:d.__setitem__('python_path_count',True)),('authority_marker',lambda d:d.__setitem__('global_gate_pass',True))]
+ for name,change in mutations:
+  bad=copy.deepcopy(expected);change(bad)
+  try: admit_summary(bad,expected)
+  except ValueError as exc: controls.append({'name':name,'outcome':'PASS','refusal':str(exc),'PASS_markers_preserved_except_target':True})
+  else: raise ValueError('corruption_admitted '+name)
+ for name,change in [('option_like_candidate',lambda d:d.__setitem__('candidate','--output=/tmp/forbidden')),('late_none_path',lambda d:d['files'][-1].__setitem__('path',None)),('late_dot_path',lambda d:d['files'][-1].__setitem__('path','.')),('late_bool_path',lambda d:d['files'][-1].__setitem__('path',False)),('metadata_bool_count',lambda d:d.__setitem__('distribution_count',True))]:
+  source=json.loads((ROOT/'source-environment.json').read_text());change(source);callbacks=[]
+  def spy(args): callbacks.append(args);return b''
+  try: derive(source=source,git_call=spy)
+  except ValueError as exc:
+   if callbacks: raise ValueError('malformed_source_reached_git')
+   controls.append({'name':name,'outcome':'PASS','refusal':str(exc),'git_callback_count':0})
+  else: raise ValueError('malformed_source_admitted')
+ # Effective removal replaces only the shared equality predicate; raw derivation
+ # and the complete immutable input/source checks remain unchanged.
+ original=admit_summary.__code__;namespace={'typed_equal':typed_equal,'ValueError':ValueError};exec('def removed(summary,expected):\n if False: raise ValueError("summary_mismatch")\n',namespace)
+ admitted=[]
+ for name,change in mutations[:4]:
+  bad=copy.deepcopy(expected);change(bad);namespace['removed'](bad,expected);admitted.append(name)
+ controls.append({'name':'summary_predicate_removal','outcome':'PASS','defining_refusal_property_outcome':'FAIL','bad_summaries_re_admitted':admitted,'unchanged_markers_and_raw_inputs':True})
+ return {'source':SOURCE,'summary':expected,'controls':controls,'control_count':len(controls),'optimization_mode':not __debug__,'scope':'receipt claims only; no method/native/backend rerun','scientific_or_global_closure':False}
+if __name__=='__main__': print(json.dumps(run_controls(),indent=2))

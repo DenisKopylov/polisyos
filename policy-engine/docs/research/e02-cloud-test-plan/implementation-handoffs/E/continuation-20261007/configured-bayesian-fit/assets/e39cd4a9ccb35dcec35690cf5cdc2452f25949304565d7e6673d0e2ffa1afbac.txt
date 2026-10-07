@@ -1,0 +1,28 @@
+"""Append fully closed literals without reading the builder's pending captures."""
+import argparse,hashlib,json,pathlib
+P=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6');O=P/'final-publication-preparation'
+def append(items):
+ index=json.loads((O/'copy-index.json').read_text()); rows=index['files'];names={r['logical_at'] for r in rows}
+ for path,logical,role,expected in items:
+  path=pathlib.Path(path);raw=path.read_bytes();h=hashlib.sha256(raw).hexdigest()
+  if expected is not None and (len(raw)!=expected['bytes'] or h!=expected['sha256']):raise ValueError('input_changed '+str(path))
+  row={'logical_at':logical,'stored_at':'assets/'+h+'.txt','original_path':str(path),'bytes':len(raw),'sha256':h,'role':role}
+  if logical in names:
+   if next(r for r in rows if r['logical_at']==logical)!=row:raise ValueError('alias_changed '+logical)
+   continue
+  dst=O/row['stored_at']
+  if dst.exists() and dst.read_bytes()!=raw:raise ValueError('hash_collision')
+  if not dst.exists():dst.write_bytes(raw)
+  rows.append(row);names.add(logical)
+ unique={r['stored_at']:(r['bytes'],r['sha256']) for r in rows}
+ index.update(logical_count=len(rows),unique_carrier_count=len(unique),unique_bytes=sum(v[0] for v in unique.values()))
+ (O/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+ return {k:index[k] for k in ['logical_count','unique_carrier_count','unique_bytes']}
+if __name__=='__main__':
+ p=argparse.ArgumentParser();p.add_argument('--final-peer',action='store_true');a=p.parse_args();items=[]
+ if a.final_peer:
+  s=pathlib.Path('/tmp/e02-E-fit-independent-77b4-20261007/publication-selection-77b4.json');j=json.loads(s.read_text());items.append((s,'independent-final77/'+s.name,'independent-final77',None))
+  for row in j['assets']:items.append((row['source_path'],'independent-final77/'+row['portable_path'],'independent-final77',row))
+ for n in ['prepare-final-publication.stdout.json','prepare-final-publication.stderr.txt','prepare-final-publication-v2.stdout.json','prepare-final-publication-v2.stderr.txt','build_final_handoff.py','build-final-handoff.stdout.json','build-final-handoff.stderr.txt','validate_final_publication.py']:
+  items.append((P/n,'author/current-publication/'+n,'closed-publication-observer',None))
+ print(json.dumps(append(items),indent=2))

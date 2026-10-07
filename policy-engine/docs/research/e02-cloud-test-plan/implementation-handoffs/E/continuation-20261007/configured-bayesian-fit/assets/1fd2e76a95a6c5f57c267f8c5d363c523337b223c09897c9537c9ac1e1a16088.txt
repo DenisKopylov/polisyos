@@ -1,0 +1,4 @@
+Merge made by the 'ort' strategy.
+ .../composition-and-fit-admission-20261007.json    | 67 ++++++++++++++++++++++
+ 1 file changed, 67 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/composition-and-fit-admission-20261007.json

@@ -1,0 +1,138 @@
+{
+  "candidate": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+  "base": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+  "full_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml",
+    "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+  ],
+  "python_input_denominator": [
+    "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+  ],
+  "configuration_mode": "canonical cwd discovery, no explicit --config",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "RUFF_CACHE_DIR": "/tmp/e02-E-bayesian-fit-bridge-r6/ruff-cache-immutable"
+  },
+  "before": {
+    "head": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+    "status": "",
+    "inputs": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml",
+        "bytes": 1986,
+        "sha256": "e576677093fe86b6f9187cea290ae2e4de05cae742377cc40e465012cb8de12c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+        "bytes": 6567,
+        "sha256": "55dd769d34a2cdb4ca66a7c0d49f5a30b7c97e69ebfeaf883de006e9a7eca373"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "bytes": 16707,
+        "sha256": "c6cfc4e4c2c412903bd37411951362846e09eca64b9f1384ace27684e838a70e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "bytes": 3933,
+        "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "bytes": 22460,
+        "sha256": "cb44707c2bc02ae9d2fc483f858cd7b338061faffa748ddd47bbb83bed45f45d"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "bytes": 22494,
+        "sha256": "7cefa4f0699f4ddba4782cca19136c5cb7070158d0a5f7c3975db54d1f457f05"
+      }
+    ]
+  },
+  "after": {
+    "head": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+    "status": "",
+    "inputs": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml",
+        "bytes": 1986,
+        "sha256": "e576677093fe86b6f9187cea290ae2e4de05cae742377cc40e465012cb8de12c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+        "bytes": 6567,
+        "sha256": "55dd769d34a2cdb4ca66a7c0d49f5a30b7c97e69ebfeaf883de006e9a7eca373"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "bytes": 16707,
+        "sha256": "c6cfc4e4c2c412903bd37411951362846e09eca64b9f1384ace27684e838a70e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "bytes": 3933,
+        "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "bytes": 22460,
+        "sha256": "cb44707c2bc02ae9d2fc483f858cd7b338061faffa748ddd47bbb83bed45f45d"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "bytes": 22494,
+        "sha256": "7cefa4f0699f4ddba4782cca19136c5cb7070158d0a5f7c3975db54d1f457f05"
+      }
+    ]
+  },
+  "source_immutable": true,
+  "results": [
+    {
+      "name": "ruff-immutable",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--output-format",
+        "json",
+        "src/polisyos/foundry/calibration/__init__.py",
+        "src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "src/polisyos/foundry/uncertainty/__init__.py",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "exit_code": 0,
+      "elapsed_seconds": 0.0651559829711914,
+      "stdout": "ruff-immutable.stdout.txt",
+      "stderr": "ruff-immutable.stderr.txt"
+    },
+    {
+      "name": "format-immutable",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/calibration/__init__.py",
+        "src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "src/polisyos/foundry/uncertainty/__init__.py",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "exit_code": 0,
+      "elapsed_seconds": 0.04102468490600586,
+      "stdout": "format-immutable.stdout.txt",
+      "stderr": "format-immutable.stderr.txt"
+    }
+  ],
+  "global_gate_pass": false,
+  "scope": "only current slice 5 Python inputs; no full global lint rerun"
+}

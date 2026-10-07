@@ -1,0 +1,158 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "source_disposition": "GO from unchanged immutable source review4339639c; not re-decided by this custody pass",
+  "publication_disposition": "GO",
+  "bounded_scope": "actual whole4034 required member Counter, actual923 physical bytecarriers/canonical role, literal current descriptor/source/check-field projections, raw evidence+Git custody and effective Counter removal; no backend/math/native/global repeats",
+  "complete_main_assets": {
+    "logical": 4034,
+    "unique": 923,
+    "bytes": 13506849,
+    "binary_roles": "24 logical aliases/5 unique compressed-binary carriers now .bin; all literal UTF8 carriers .txt"
+  },
+  "supplement": {
+    "logical": 9,
+    "unique": 7,
+    "unique_bytes": 64180,
+    "selfhashcycle": false
+  },
+  "actual_commands": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-S",
+        "/tmp/e02-E-fit-publication-independent-77b4-20261007/review_publication_v3_corrected_observer.py.txt"
+      ],
+      "cwd": "/workspace",
+      "stdout": {
+        "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-normal.stdout.json",
+        "bytes": 8535,
+        "sha256": "c021ea0ee527ea8ced5c6876b0ecc391d1e56b9bedd215469a018bdc19fc1262"
+      }
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-S",
+        "-O",
+        "/tmp/e02-E-fit-publication-independent-77b4-20261007/review_publication_v3_corrected_observer.py.txt"
+      ],
+      "cwd": "/workspace",
+      "stdout": {
+        "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-corrected-optimized.stdout.json",
+        "bytes": 8534,
+        "sha256": "b542f8b6928d1d25fa5aac9c6693efb75f6dfe4db68c810a96c63f21715c95de"
+      }
+    }
+  ],
+  "current_controls": {
+    "own_observer_checks_each_mode": 12,
+    "actual_author_controls_reproduced_each_mode": 23,
+    "own_retotalled_omission_classes": [
+      "independent_source_GO",
+      "native_HMC_sourceCAS_blob",
+      "historical9147_source_receipt"
+    ],
+    "pre_Git_refusal": true,
+    "actual_guard_removal": "only actual!=expected Counter predicate disabled; all3 retotalled omissions re-admit via whole derive+summary+handoff while trusted0dab basis/physical bytes/rawXML/Git checks remain active"
+  },
+  "historical_V2": {
+    "validator": {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/validate_final_publication-v2.py.historical.txt",
+      "bytes": 13938,
+      "sha256": "45993f13b9092733bb8cce6939a5be349566c443554b656d2e800e0eedc1c36f"
+    },
+    "actual_false_admission_outputs": {
+      "normal": {
+        "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-normal.stdout.json",
+        "bytes": 2100,
+        "sha256": "e5e155b1fbf579d503d865355815e044d6ef6d7f4f09f15fcd048ae087b48bd1"
+      },
+      "optimized": {
+        "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/publication-membership-v2-optimized.stdout.json",
+        "bytes": 2099,
+        "sha256": "2f06d05704137c18667bd1a7a26d196a7bb9d0fb0339adba57f4400dfed3a34b"
+      }
+    },
+    "notes": "Old source/PASS/summary marker-preserving4034\u21924033 omissions retained, not silently corrected or rebranded."
+  },
+  "physical_role_first_attempt": {
+    "observer": {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review_publication_v3.py.txt",
+      "bytes": 6888,
+      "sha256": "39cae342002f7a869959e48a70007066044411ac1fd00d1255af814993fdb88b"
+    },
+    "stderr": {
+      "source_path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/review-v3-normal.stderr.txt",
+      "bytes": 372,
+      "sha256": "fb2767dca08d0840d34e5e789a51dd64221cdcfffb96282a97113b4938dbde72"
+    },
+    "actual_failure": "preparation physical928 vs current selected923 due five repeatable binary.txt copies; no native or Git assertion executed after failure",
+    "correction": {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/publication-physical-role-relocation.json",
+      "bytes": 3828,
+      "sha256": "8e7a7b3ef146c03ed30cc606e9947dad17697a0912272611dfc4da81594d1c53"
+    },
+    "later_inventory": "all923 exact physical selected files verified; oldfive duplicate bytes moved outside publication after equality with .bin, oldmetadata preserved",
+    "reviewer_companion_correction": "Observer admitted entrypoint field renamed to actual admitted_import_entrypoints before successful run; original observer bytes retained."
+  },
+  "immutable_current_inputs": [
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/publication-descriptor-v3-pending.json",
+      "bytes": 2693,
+      "sha256": "fd60e3d303d835e8af3caa109f2faaf2ea6143cb01c9127ba04697fe2ee955d6"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/implementation-handoff.json",
+      "bytes": 100320,
+      "sha256": "ff6ddcdf4a79b492c61390e25efe38add94cf4c270a1f8bab0c75e08b01fa50b"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/bounded-summary.json",
+      "bytes": 1573,
+      "sha256": "71e603f0673d78990c459510a33fefdaadfe5f1ea43969cf160fec25351ef21e"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/copy-index.json",
+      "bytes": 2684584,
+      "sha256": "350fe4ab1bfddad8e9f3d1ed0781ddf61f4000990c998773e4deda13fccb97db"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/copy-index-pending.json",
+      "bytes": 2684584,
+      "sha256": "0dab441bf2120a2fa6726cbab8c489fc21ddb84e08b17150bed6947206c3e873"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/supplement-index.json",
+      "bytes": 3764,
+      "sha256": "5b03f1415700c0cbfaf8a40231053817046af3928857c73b6d9602008b025f34"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/validate_final_publication-v3.py.txt",
+      "bytes": 17214,
+      "sha256": "52684bde9c9568545d12d399d82cc7c8db77b05830964b4aaa304dbfe1c12bb8"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/public-api-claim-correction.json",
+      "bytes": 1953,
+      "sha256": "9d08ba3064463071cd82fafbb9ea8c166fef64ec5038d9e5b8e13ec0f5fac1de"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/public-surface-contract.toml.txt",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/publication-binary-role-correction.json",
+      "bytes": 13109,
+      "sha256": "93c87a7ab66160962d46450f067f644683b193b88bb13af7c2f2e86e1d13f1d0"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/implementation-handoff-v2-pending-historical.json",
+      "bytes": 99639,
+      "sha256": "534e6ba810e8f8a58b93fa3121c7835a90d3db5433f4e8732edb31ffcbbbd93c"
+    }
+  ],
+  "qualification": "Checks/source/finding acceptance/global gates remain distinct. No claim of posterior mixing/noise/production/served authority; historical author74/23 custody loss explicit and independent9147 literal74 retained. Supported entrypoints read from actual frozen contract; Core module attributes and owned calibration export module distinguished. ROOT207 was not imported/read or modified by stdlib/Git review.",
+  "source_or_environment_action": "No source or environment writes directed at repo/ROOT207; author stage DOC changes independently recorded; no blanket full filesystem/environment byte guard claimed."
+}

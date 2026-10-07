@@ -1,0 +1,1 @@
+{"pytest": {"PASS": 3, "FAIL": 0, "ERROR": 15, "SKIP": 0}, "pytest-r2": {"PASS": 18, "FAIL": 0, "ERROR": 0, "SKIP": 0}, "pytest-r3": {"PASS": 33, "FAIL": 0, "ERROR": 0, "SKIP": 0}, "pytest-final": {"PASS": 64, "FAIL": 0, "ERROR": 0, "SKIP": 0}, "pytest-source": {"PASS": 42, "FAIL": 0, "ERROR": 0, "SKIP": 0}}

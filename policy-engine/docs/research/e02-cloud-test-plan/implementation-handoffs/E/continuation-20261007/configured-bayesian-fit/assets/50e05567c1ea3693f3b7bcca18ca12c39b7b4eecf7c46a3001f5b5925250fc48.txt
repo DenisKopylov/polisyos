@@ -1,0 +1,671 @@
+{
+  "artifacts": {
+    "backend_runtime_fingerprint": {
+      "available": true,
+      "backend": "bayesian",
+      "determinism_tier": "statistical",
+      "execution_device": "cpu:bayesian",
+      "fingerprint": "3b5840c004660a2e",
+      "library_versions": {
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3"
+      },
+      "notes": [
+        "diagnostic_gate_failed:minimum_chains",
+        "diagnostic_gate_failed:rhat",
+        "diagnostic_gate_failed:bulk_ess",
+        "diagnostic_gate_failed:tail_ess",
+        "diagnostic_gate_failed:divergences",
+        "determinism_degraded:thread_configuration_not_pinned_single_thread",
+        "posterior_geometry:inconclusive_sampling_geometry"
+      ],
+      "observed_tolerance_budget": {
+        "abs_tol_p50": null,
+        "abs_tol_p95": null,
+        "abs_tol_p99": null,
+        "budget_source": "seed_prior",
+        "canary_suite_id": null,
+        "distributional_metrics": {
+          "ks_statistic": null,
+          "q50_abs_error": null,
+          "q90_width_abs_error": null
+        },
+        "downgraded_from": null,
+        "downgraded_to": null,
+        "expected_budget": {
+          "cross_architecture_abs_tol": null,
+          "cross_architecture_ks_tol": 0.12,
+          "cross_architecture_q50_abs_tol": 0.1,
+          "cross_architecture_q90_width_abs_tol": 0.12,
+          "cross_architecture_rel_tol": null,
+          "same_architecture_abs_tol": null,
+          "same_architecture_ks_tol": 0.08,
+          "same_architecture_q50_abs_tol": 0.05,
+          "same_architecture_q90_width_abs_tol": 0.08,
+          "same_architecture_rel_tol": null,
+          "same_fingerprint_abs_tol": null,
+          "same_fingerprint_ks_tol": 0.05,
+          "same_fingerprint_q50_abs_tol": 0.02,
+          "same_fingerprint_q90_width_abs_tol": 0.05,
+          "same_fingerprint_rel_tol": null,
+          "semantic_mode": "distributional_replay"
+        },
+        "failure_reasons": [],
+        "mode": "distributional",
+        "reference_fingerprint": "3b5840c004660a2e",
+        "rel_tol_p50": null,
+        "rel_tol_p95": null,
+        "rel_tol_p99": null,
+        "route_key": {
+          "arch_family": "x86_64",
+          "autotune_key": null,
+          "backend_route": "bayesian:numpy",
+          "blas_vendor": "unknown",
+          "device_family": "cpu",
+          "dtype_mode": "float64_capable",
+          "jax_matmul_precision": null,
+          "solver_name": "numpy",
+          "solver_options_hash": null,
+          "thread_policy": "default",
+          "xla_flags_hash": null
+        },
+        "sample_count": 0,
+        "scope": "same_fingerprint",
+        "solver_residual_budget": {
+          "dual": null,
+          "gap": null,
+          "optimality": null,
+          "primal": null
+        },
+        "ulp_tol_p99": null,
+        "validation_status": "compatible"
+      },
+      "replay_semantics": "Replay is seed-stable only up to statistical envelopes, not bitwise equality.",
+      "route_key": {
+        "arch_family": "x86_64",
+        "autotune_key": null,
+        "backend_route": "bayesian:numpy",
+        "blas_vendor": "unknown",
+        "device_family": "cpu",
+        "dtype_mode": "float64_capable",
+        "jax_matmul_precision": null,
+        "solver_name": "numpy",
+        "solver_options_hash": null,
+        "thread_policy": "default",
+        "xla_flags_hash": null
+      },
+      "runtime_backend": "numpy",
+      "runtime_stack": [
+        "numpy",
+        "numpyro",
+        "jax",
+        "jaxlib"
+      ],
+      "seed": 321,
+      "tolerance_budget": {
+        "cross_architecture_abs_tol": null,
+        "cross_architecture_ks_tol": 0.12,
+        "cross_architecture_q50_abs_tol": 0.1,
+        "cross_architecture_q90_width_abs_tol": 0.12,
+        "cross_architecture_rel_tol": null,
+        "same_architecture_abs_tol": null,
+        "same_architecture_ks_tol": 0.08,
+        "same_architecture_q50_abs_tol": 0.05,
+        "same_architecture_q90_width_abs_tol": 0.08,
+        "same_architecture_rel_tol": null,
+        "semantic_mode": "distributional_replay"
+      }
+    },
+    "bayesian_backend_health": {
+      "available": true,
+      "default_runtime": "numpy",
+      "engines": [
+        {
+          "available": true,
+          "detail": null,
+          "engine": "numpy",
+          "version": "2.3.5"
+        },
+        {
+          "available": false,
+          "detail": "missing_dependency:numpyro",
+          "engine": "numpyro",
+          "version": null
+        },
+        {
+          "available": true,
+          "detail": null,
+          "engine": "jax",
+          "version": "0.8.2"
+        },
+        {
+          "available": true,
+          "detail": null,
+          "engine": "jaxlib",
+          "version": "0.8.2"
+        },
+        {
+          "available": false,
+          "detail": "missing_dependency:arviz",
+          "engine": "arviz",
+          "version": null
+        },
+        {
+          "available": false,
+          "detail": "missing_dependency:sbi",
+          "engine": "sbi",
+          "version": null
+        },
+        {
+          "available": false,
+          "detail": "missing_dependency:torch",
+          "engine": "torch",
+          "version": null
+        },
+        {
+          "available": false,
+          "detail": "missing_dependency:pymc",
+          "engine": "pymc",
+          "version": null
+        },
+        {
+          "available": false,
+          "detail": "missing_dependency:pymc-bart",
+          "engine": "pymc_bart",
+          "version": null
+        }
+      ],
+      "method_variant": "hmc",
+      "preferred_engine": "numpyro",
+      "warnings": [
+        "numpyro_unavailable:using_numpy_fallback"
+      ]
+    },
+    "bayesian_runtime_backend": "numpy",
+    "cost_attribution": {
+      "backend": "bayesian",
+      "compile_time_ms": null,
+      "cpu_time_ms": null,
+      "determinism_tier": "statistical",
+      "estimated_cost_usd": 0.0035180952,
+      "method_fqn": "bayesian.sampling.hmc@1.0.0",
+      "seed": 321,
+      "usd_per_ms": 1.5e-06,
+      "wall_time_ms": 2345.3968269750476
+    },
+    "diagnostic_gates": {
+      "bfmi": true,
+      "bulk_ess": false,
+      "divergences": false,
+      "max_treedepth_hits": true,
+      "minimum_chains": false,
+      "rhat": false,
+      "tail_ess": false
+    },
+    "dispatch_trace": {
+      "attempts": [
+        {
+          "backend": "bayesian",
+          "outcome": "success"
+        }
+      ],
+      "declared_route_budget": {
+        "abs_tol_p50": null,
+        "abs_tol_p95": null,
+        "abs_tol_p99": null,
+        "budget_source": "seed_prior",
+        "canary_suite_id": null,
+        "distributional_metrics": {
+          "ks_statistic": null,
+          "q50_abs_error": null,
+          "q90_width_abs_error": null
+        },
+        "downgraded_from": null,
+        "downgraded_to": null,
+        "expected_budget": {
+          "cross_architecture_abs_tol": null,
+          "cross_architecture_ks_tol": 0.12,
+          "cross_architecture_q50_abs_tol": 0.1,
+          "cross_architecture_q90_width_abs_tol": 0.12,
+          "cross_architecture_rel_tol": null,
+          "same_architecture_abs_tol": null,
+          "same_architecture_ks_tol": 0.08,
+          "same_architecture_q50_abs_tol": 0.05,
+          "same_architecture_q90_width_abs_tol": 0.08,
+          "same_architecture_rel_tol": null,
+          "same_fingerprint_abs_tol": null,
+          "same_fingerprint_ks_tol": 0.05,
+          "same_fingerprint_q50_abs_tol": 0.02,
+          "same_fingerprint_q90_width_abs_tol": 0.05,
+          "same_fingerprint_rel_tol": null,
+          "semantic_mode": "distributional_replay"
+        },
+        "failure_reasons": [],
+        "mode": "distributional",
+        "reference_fingerprint": "e490ae001e3cd74f",
+        "rel_tol_p50": null,
+        "rel_tol_p95": null,
+        "rel_tol_p99": null,
+        "route_key": {
+          "arch_family": "x86_64",
+          "autotune_key": null,
+          "backend_route": "bayesian",
+          "blas_vendor": "unknown",
+          "device_family": "cpu",
+          "dtype_mode": "float64_capable",
+          "jax_matmul_precision": null,
+          "solver_name": null,
+          "solver_options_hash": null,
+          "thread_policy": "default",
+          "xla_flags_hash": null
+        },
+        "sample_count": 0,
+        "scope": "same_fingerprint",
+        "solver_residual_budget": {
+          "dual": null,
+          "gap": null,
+          "optimality": null,
+          "primal": null
+        },
+        "ulp_tol_p99": null,
+        "validation_status": "compatible"
+      },
+      "degraded": false,
+      "method_fqn": "bayesian.sampling.hmc@1.0.0",
+      "n_obs": 5,
+      "observed_route_budget": {
+        "abs_tol_p50": null,
+        "abs_tol_p95": null,
+        "abs_tol_p99": null,
+        "budget_source": "seed_prior",
+        "canary_suite_id": null,
+        "distributional_metrics": {
+          "ks_statistic": null,
+          "q50_abs_error": null,
+          "q90_width_abs_error": null
+        },
+        "downgraded_from": null,
+        "downgraded_to": null,
+        "expected_budget": {
+          "cross_architecture_abs_tol": null,
+          "cross_architecture_ks_tol": 0.12,
+          "cross_architecture_q50_abs_tol": 0.1,
+          "cross_architecture_q90_width_abs_tol": 0.12,
+          "cross_architecture_rel_tol": null,
+          "same_architecture_abs_tol": null,
+          "same_architecture_ks_tol": 0.08,
+          "same_architecture_q50_abs_tol": 0.05,
+          "same_architecture_q90_width_abs_tol": 0.08,
+          "same_architecture_rel_tol": null,
+          "same_fingerprint_abs_tol": null,
+          "same_fingerprint_ks_tol": 0.05,
+          "same_fingerprint_q50_abs_tol": 0.02,
+          "same_fingerprint_q90_width_abs_tol": 0.05,
+          "same_fingerprint_rel_tol": null,
+          "semantic_mode": "distributional_replay"
+        },
+        "failure_reasons": [],
+        "mode": "distributional",
+        "reference_fingerprint": "3b5840c004660a2e",
+        "rel_tol_p50": null,
+        "rel_tol_p95": null,
+        "rel_tol_p99": null,
+        "route_key": {
+          "arch_family": "x86_64",
+          "autotune_key": null,
+          "backend_route": "bayesian:numpy",
+          "blas_vendor": "unknown",
+          "device_family": "cpu",
+          "dtype_mode": "float64_capable",
+          "jax_matmul_precision": null,
+          "solver_name": "numpy",
+          "solver_options_hash": null,
+          "thread_policy": "default",
+          "xla_flags_hash": null
+        },
+        "sample_count": 0,
+        "scope": "same_fingerprint",
+        "solver_residual_budget": {
+          "dual": null,
+          "gap": null,
+          "optimality": null,
+          "primal": null
+        },
+        "ulp_tol_p99": null,
+        "validation_status": "compatible"
+      },
+      "predicted_requested_ms": null,
+      "predicted_selected_ms": null,
+      "requested_backend": "bayesian",
+      "selected_backend": "bayesian",
+      "selection_reason": "declared_backend"
+    },
+    "posterior_draws": {
+      "artifact_hash": "sha256:3b66740812535430f3ad2237e78988e489cf364a347bf1f1b1b3d99df44b57dd",
+      "artifact_ref": "artifact://foundry/bayesian/posterior/sha256:3b66740812535430f3ad2237e78988e489cf364a347bf1f1b1b3d99df44b57dd",
+      "payload": {
+        "draw_layout": {
+          "array_order": "C",
+          "axis_order": [
+            "chain",
+            "draw",
+            "parameter"
+          ],
+          "canonicalization_version": "foundry.bayesian.draws.v1",
+          "dtype": "<f8"
+        },
+        "method_name": "bayesian_hmc_regression",
+        "parameters": {
+          "coefficients": {
+            "data_base64": "Xfqxx+CkxT+tGue7p+jGP+UkbwKeD8Y/5SRvAp4Pxj/AQuMIeQ3GPyhd/c9/CMg/k2KYe6XczD9YH16y38zMP3K8cCal58s/qspOhZ8myj9ogh6QiMbHP+4QJJzrRsA/4EENmGt0xD/rLOqo8E/EP6HTLEGKocU/9/1xJUT5wz+j8HKGeZ3QP1WY1rM3z7g/ACYj3BaM0D//BeS4BFO9P2/mzsHtGc4/XPDcJvYkpL860FL3CffbPx42jUOgasK/bMGzHEaTxz8O4cYUIRzDP+iCPJqE3NQ/kkNcSx1Ctz/CeZT7El7OP8LKxV/i9sA/ocH3Yz7UyT/rCDyKA97IP8t8FRzU8Mc/ndKJi0Ahuz+2GEgXGYzFP7YYSBcZjMU/thhIFxmMxT+6QjrPQ06zP+EKybLdfcc/liGirs29yj8LUvtSYQ2/Px1UHqYUn7s/+78TPUH9wz/QpD15txvMP9CkPXm3G8w/sXxOEwHK0T9sD+jozJTFP8wLaLO6Ysg/WYIFL5n9xD/3W12egmPFP2VDPKPdOMM/IrZqSjqfwj/VQl724svDP1yKGyrsy70/1+dSIX2Bvj/X51IhfYG+P5qo73Nxrr0/NvoP7KpryD92mBRoaDXCP3+9yWTtZ88/03fn4MTEwT9KeBgWtRfRPznnflvpm74/6O/Hhw85xz8=",
+            "dtype": "<f8",
+            "shape": [
+              2,
+              32,
+              1
+            ]
+          },
+          "intercept": {
+            "data_base64": "XEKg42szej/IZaqHjfBtv65bLDzTf6c/rlssPNN/pz8mc5LpP/anvyDMDMYu6aA/1u9jAFnHh7+mXk+uLEKXP2CW4opRAJi/hFbfKyVjgT+LCP9/PRakP0W1BRt+TZS/8e5JkpyzqL9gM8fQC9xlP7aE64PM6qw/HfuncKEur78+9fxF41CnP1GE2RWBdLI/YK9PxwmJeD8e/sdTjeN9P1KjK2b5Yoc/ADek+xkgFD+JD49Z+dShv5dUkXZwFK0/QSA3g+catr9I8lXybcCpv7T2er43Aa2/Cv8HJ8jzub8oX4vnq120v+6+AzPX87U/eKoWyTrwh7+vB6XmItOnv6oeWaEqlrG/P9dHXdA1sr8Q6OIOkDCmvxDo4g6QMKa/EOjiDpAwpr95STsYLXGwv851bHxwS7U/1h2j1j1coD911Rc1h16xP0rpCic3U7C/XOmuOH84qT8Gui3IfCO2Pwa6Lch8I7Y/RCRQPSr4tj+ECFEyIheSPxDDQfm+vZe/VQHvgqGAkr9S2wE8j+q2v0Tl1CSC7Le/rDk99XkQuT9AQdUnkhacP87g8FQSIZO/lzjoIIt6vz+XOOggi3q/P1jJQ+9A2MI/+P0FCchqh7+3B/SudmGcP1qUpR3mga2/aIdkjikLq7/VzwkiEJKyv0GZAvIhc6i/M+7O4u1oob8=",
+            "dtype": "<f8",
+            "shape": [
+              2,
+              32
+            ]
+          },
+          "sigma": {
+            "data_base64": "G0F0nldAvz+HF/LoHJ+wP6KSY7KSpKw/opJjspKkrD+SNPv5QzSsPwgmMOuA2a8/hX7+UgwHtD/UKjFxPfS1P4QeRVaaubM/0M4V+eVyuT/5V9bswU23P7913U0XX7g/eeEFbt0Ftz9mbJF0k9K4P3CjYtswnLY/Ea5uh/y0uD8puZE7oZm3P6D/vhSl7sQ/jbxHRy8uwD88JZKVv6y7P1FwGTIl9bg/9k9BPINJwD+M+8zfL8rGP80/SKvcqc4/B1G4Sl1N0T9Uewhfrh3CP3o0/oMaGMA/WSHCgVjqvz88862Yl6LBP1eTssANT8Q/D5kbFNftwT/bqS9bqtTBPxkqpU1w47U/H7c+OKO+tD/+u7/uRdu3P/67v+5F27c//ru/7kXbtz/m24DR3azNP2rzy8vPWdI/LFXzAYrzyD8IfyfkoSXAP3qHxz4k1rY/BlFD3mtnxT+O+waANZ3CP477BoA1ncI/81Ty3J2Uuz9vLT4iKT+0P3Goo+0CM68/AVqfu6Ontj8vUinUaRK2PxT9E1miBrY/Nb4tiKC8wD93TJ2HZPW5Pymnpq7nub0/TRCaHsuOvT9NEJoey469Py+wslEdxc4/yZv2/C6ZzD85B6hRGMy9PxA2aEuAH80/lNEqtWUgvT+06sJAoGLMP+Fs2MA+/8A/x1Oe/J7rwD8=",
+            "dtype": "<f8",
+            "shape": [
+              2,
+              32
+            ]
+          }
+        },
+        "sampler_kernel": "hmc",
+        "schema": "foundry.bayesian.draws.v1",
+        "stage": "posterior"
+      }
+    },
+    "sampler_reproducibility": {
+      "chain_seed_derivation": "SeedSequence([root_seed, sampler_code, contract_salt, chain_id, phase, iteration, purpose, stream_tokens...])",
+      "contract_version": "foundry.bayesian.reference_sampler.v1",
+      "degradation_reasons": [
+        "thread_configuration_not_pinned_single_thread"
+      ],
+      "determinism_envelope": {
+        "arch_family": "x86_64",
+        "chain_execution": "sequential",
+        "contract_version": "foundry.bayesian.reference_sampler.v1",
+        "effective_runtime_backend": "numpy",
+        "execution_device": "cpu:bayesian",
+        "float_precision": "float64",
+        "gpu_allowed": false,
+        "jit_enabled": false,
+        "libc": {
+          "lib": "glibc",
+          "version": "2.41"
+        },
+        "machine": "x86_64",
+        "numpy_runtime_config": {
+          "blas_name": "scipy-openblas",
+          "blas_version": "0.3.30",
+          "host_cpu": "x86_64",
+          "host_family": "x86_64",
+          "host_system": "linux",
+          "lapack_name": "scipy-openblas",
+          "lapack_version": "0.3.30"
+        },
+        "numpy_version": "2.3.5",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "processor": "",
+        "python_implementation": "CPython",
+        "python_version": "3.14.7",
+        "requested_runtime_backend": "numpy",
+        "rng_partitioning": {
+          "components": [
+            "root_seed",
+            "sampler_code",
+            "contract_salt",
+            "chain_id",
+            "phase",
+            "iteration",
+            "purpose",
+            "stream_tokens"
+          ],
+          "scheme": "seedsequence_substreams"
+        },
+        "sampler_kernel": "hmc",
+        "thread_configuration": {
+          "observed": {},
+          "required_variables": [
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS"
+          ],
+          "single_thread_pinned": false
+        }
+      },
+      "draw_layout": {
+        "array_order": "C",
+        "axis_order": [
+          "chain",
+          "draw",
+          "parameter"
+        ],
+        "canonicalization_version": "foundry.bayesian.draws.v1",
+        "dtype": "<f8"
+      },
+      "effective_determinism_tier": "statistical",
+      "effective_runtime_backend": "numpy",
+      "envelope_id": "sha256:13ffc17f9a80922f4e57b13eec4787ba865b57d38ca5680bbb2cac2641b01586",
+      "observed_tolerance_budget": {
+        "abs_tol_p50": null,
+        "abs_tol_p95": null,
+        "abs_tol_p99": null,
+        "budget_source": "seed_prior",
+        "canary_suite_id": null,
+        "distributional_metrics": {
+          "ks_statistic": null,
+          "q50_abs_error": null,
+          "q90_width_abs_error": null
+        },
+        "downgraded_from": null,
+        "downgraded_to": null,
+        "expected_budget": {
+          "cross_architecture_abs_tol": null,
+          "cross_architecture_ks_tol": 0.12,
+          "cross_architecture_q50_abs_tol": 0.1,
+          "cross_architecture_q90_width_abs_tol": 0.12,
+          "cross_architecture_rel_tol": null,
+          "same_architecture_abs_tol": null,
+          "same_architecture_ks_tol": 0.08,
+          "same_architecture_q50_abs_tol": 0.05,
+          "same_architecture_q90_width_abs_tol": 0.08,
+          "same_architecture_rel_tol": null,
+          "same_fingerprint_abs_tol": null,
+          "same_fingerprint_ks_tol": 0.05,
+          "same_fingerprint_q50_abs_tol": 0.02,
+          "same_fingerprint_q90_width_abs_tol": 0.05,
+          "same_fingerprint_rel_tol": null,
+          "semantic_mode": "distributional_replay"
+        },
+        "failure_reasons": [],
+        "mode": "distributional",
+        "reference_fingerprint": "3e10dac3118b73f4",
+        "rel_tol_p50": null,
+        "rel_tol_p95": null,
+        "rel_tol_p99": null,
+        "route_key": {
+          "arch_family": "x86_64",
+          "autotune_key": null,
+          "backend_route": "bayesian:numpy",
+          "blas_vendor": "unknown",
+          "device_family": "cpu",
+          "dtype_mode": "float64_capable",
+          "jax_matmul_precision": null,
+          "solver_name": "numpy",
+          "solver_options_hash": null,
+          "thread_policy": "default",
+          "xla_flags_hash": null
+        },
+        "sample_count": 0,
+        "scope": "same_fingerprint",
+        "solver_residual_budget": {
+          "dual": null,
+          "gap": null,
+          "optimality": null,
+          "primal": null
+        },
+        "ulp_tol_p99": null,
+        "validation_status": "compatible"
+      },
+      "replay_output_hash": "sha256:3b66740812535430f3ad2237e78988e489cf364a347bf1f1b1b3d99df44b57dd",
+      "requested_determinism_tier": "library_deterministic",
+      "requested_runtime_backend": "numpy",
+      "root_seed": 321,
+      "route_key": {
+        "arch_family": "x86_64",
+        "autotune_key": null,
+        "backend_route": "bayesian:numpy",
+        "blas_vendor": "unknown",
+        "device_family": "cpu",
+        "dtype_mode": "float64_capable",
+        "jax_matmul_precision": null,
+        "solver_name": "numpy",
+        "solver_options_hash": null,
+        "thread_policy": "default",
+        "xla_flags_hash": null
+      },
+      "warmup_output_hash": "sha256:f0be1e81c2a2aabd773477827c8e6e1590067ff424cdb010c0cd8ed358bc27c4"
+    },
+    "sampler_status": "diagnostics_failed",
+    "truthfulness_receipt": {
+      "certificate_version": "1.0",
+      "declared_truthfulness_tier": null,
+      "degradation_reasons": [
+        "diagnostic_gate_failed:minimum_chains",
+        "diagnostic_gate_failed:rhat",
+        "diagnostic_gate_failed:bulk_ess",
+        "diagnostic_gate_failed:tail_ess",
+        "diagnostic_gate_failed:divergences"
+      ],
+      "diagnostics": {
+        "acceptance_rate": 0.9296875,
+        "basis": "asymptotic_sampler_runtime_diagnostics",
+        "bfmi": 0.973904405892424,
+        "divergences": 1.0,
+        "invalid_bfmi_count": 0.0,
+        "invalid_bulk_ess_count": 0.0,
+        "invalid_rhat_count": 0.0,
+        "invalid_tail_ess_count": 0.0,
+        "max_rhat": 1.1428196913446727,
+        "max_treedepth_hits": 0.0,
+        "mean_acceptance_rate": 0.9296875,
+        "min_bfmi": 0.973904405892424,
+        "min_bulk_ess": 17.63126243559549,
+        "min_tail_ess": 24.38095238095238,
+        "minimum_required_ess": 200.0,
+        "num_monitored_chains": 2.0,
+        "num_scalar_parameters_monitored": 3.0
+      },
+      "effective_truthfulness_tier": "unverified",
+      "evidence_ref": null,
+      "runtime_truthfulness_tier": "unverified",
+      "status": "runtime_only",
+      "truthfulness_scope": "posterior"
+    },
+    "warmup_draws": {
+      "artifact_hash": "sha256:f0be1e81c2a2aabd773477827c8e6e1590067ff424cdb010c0cd8ed358bc27c4",
+      "artifact_ref": "artifact://foundry/bayesian/warmup/sha256:f0be1e81c2a2aabd773477827c8e6e1590067ff424cdb010c0cd8ed358bc27c4",
+      "payload": {
+        "draw_layout": {
+          "array_order": "C",
+          "axis_order": [
+            "chain",
+            "draw",
+            "parameter"
+          ],
+          "canonicalization_version": "foundry.bayesian.draws.v1",
+          "dtype": "<f8"
+        },
+        "method_name": "bayesian_hmc_regression",
+        "parameters": {
+          "coefficients": {
+            "data_base64": "89PaLDfyxj/MOX8jRIPBP82byGFM0MQ/CgsMSP8uxj+QHxR8v8TGP0f6tuts68o/XI/jy69RtT+j0/EENnTPP+g1tI7jZLY/6DW0juNktj/cvvT8VY7QP8ZXcu7joMU/KTl4eWw0yD98ErrACszEP3wSusAKzMQ/edL03MeHxz950vTcx4fHP4P6IXvIhM4/Vri8Fx13wz/Ih3PoUaHOP3IvfouWycU/Q7V9S17Fxj+ete2LvBrIPyAqC3G9lcU/5dTprWu/xT9hpEsTEFzEP+y8Od3M/Mk/DwfkXVT8wD/NdxphuKjOP813GmG4qM4/wWcZMPrtuD/ayDPKSqG4PwQ/yulbrsQ/dyKkoEalwz+7jm2DX6fCP5JpWcVF8cs/9GWS1nmWyz9d06GOIYnGP96CYmn4lMA/jLzRgFDczj9f9YR6u7K+P3Pfct2mN84/UB1+TVyKwT/7mca9xMfNP9x+hv6Iz7s/5SPZ733/0T8Y+pjKEfnAPwtoukgdWtE/9zecA8ebxz9U51FPcwLAP/KxQwBIDME/33txBFyCwz+WRDOo7SXMPzj4L1Oh+8I/PvwYHBCAyD8SPxnON23VP7unenEyqsI/dr6vHcZcxT80811BW/POP2rLYRrDb9E/hvIHM//K0T9+kreH0aK+P8hZtah9csU/olxqc1c/yj8=",
+            "dtype": "<f8",
+            "shape": [
+              2,
+              32,
+              1
+            ]
+          },
+          "intercept": {
+            "data_base64": "SAQ/poGzmr/SzU7beXCPP+ovX5/VW4a/9UeCvKMQmz+4jKp3Tjmmv8aw47aCfIy/SUurmsBhmj/vCsnkDnOgv9RtFviSQ3O/1G0W+JJDc788eiMi/QFQP3j2Q/hvv6S/cJoqN/i3iD8GQSFTONiAvwZBIVM42IC/6PlE1n8mhL/o+UTWfyaEvwQdU9xPcJO/BS1lN/5wmL8+kCUHb5icv7bqbtaaQKS/2IHN5VU5rb9mtXSfLqOlv7gGNngo9aa/THKN2qCboT80Ea/zX/uIvyWPlBv2EZ4/bcGw13eZkz9m/zGunmWCP2b/Ma6eZYI/HO0szBb/oT/GHzOepZmivwxJ7QvM/IK/JGlq9256hD+2y3UfwPCGv7GEaLBvxIo/MFw5q1lqf78rT4hugZeTPwKgWKVGR5e/39KsCBodlD+8Wb8bS7OTv2w2JLjutJE/ql0usX8uiz/KobubbH2XP5bm8Jq7cqQ/ajSb6MH1mz98xeFCxGmTP+tisGKUOY8/+BnE1rbonz+a77tNV1CrPwAfPYFIsqs/FcXQD0PUor+0MAvjEmWYP4/dMaqVQcK/v4xzVgPavL9yWqPeqBCyv+1lIrhuNrK/mX0qPmdwo7/sfdcAdoGlv5uL/jiIvbC/+vWTWL/wtT9Q6DiphvpgP5enW0Zfpbi/2HGAnJntp78=",
+            "dtype": "<f8",
+            "shape": [
+              2,
+              32
+            ]
+          },
+          "sigma": {
+            "data_base64": "flCSFNSwuD+gLr+OMsG3P/+dSU0fH7Y/SFFWNQHXsz/Qokj2f4GyP12Mxxr2arg/9YjTNAdLuz/v0uIWRA+3P+/O2RqOZ7c/787ZGo5ntz/xq03U34y9P0CfiHVnHr8/sxXKlRlktD//d5u/Hf+8P/93m78d/7w/AXlWUJjdtT8BeVZQmN21PwJw86Xh6rM/C/CjHSHpuj9ldj9dMBa4PwZHRblNS78/NBi7IsJzwj/g65xz3lu6PwsoIKnwA7g/gjwMc4dGsT/CFcoIr/atP5brEBvI164/pH9Nm0a2sT8M/CU9L2StPwz8JT0vZK0/L99ns6/lsz+i8k37apO0P80cpNVPLrc/twu/bvKfuD9IdlJ1ymW3P5dN4kZcx7c/c+93Cxhquj9x+vpIOQq4P+l67Q8GILs/Q+Fog74ZuT9ihue0Mz+4P5Pvs87lU7U/uIDi3r6rtD8VqYq56Ta3P+fu41IvlLQ/GozDU/Kasj8BJBy3qDGyPznzTnB/6rQ/+qh3+R1tsT/xrjFc00e1P2Nkfv949bo/JkPgzJ5OvD+MH63mB4PGP2i47aySIb0/vgZl5Di3uz9UPfBkWbC3P9CqQ1AaLL8/gpYktr7nuT+BpTkym/O3P1UTIgH1Mco/Zzs1buYh0j8L/fkY0E3CP3G0wvhVhrg/NfDs9InmtD8=",
+            "dtype": "<f8",
+            "shape": [
+              2,
+              32
+            ]
+          }
+        },
+        "sampler_kernel": "hmc",
+        "schema": "foundry.bayesian.draws.v1",
+        "stage": "warmup"
+      }
+    }
+  },
+  "authoritative_for": [
+    "execution_reproducibility"
+  ],
+  "authority_purpose": "method_execution",
+  "backend": "bayesian",
+  "execution_backend": "bayesian",
+  "may_not_use_for": [
+    "governance_admissibility",
+    "method_validity"
+  ],
+  "method_fqn": "bayesian.sampling.hmc@1.0.0",
+  "reproducibility": {
+    "fingerprint": "ea6f51ba6187b2a4",
+    "library_versions": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    },
+    "note": "Replay is seed-stable only up to statistical envelopes, not bitwise equality.",
+    "seed": 321,
+    "solver_gap": null,
+    "solver_iterations": null,
+    "solver_status": null,
+    "tier": "statistical"
+  },
+  "result_ref": "sha256:f83b653b14032b78c8829f2aa966e4b75438142337a5786912ecdb540e852b52",
+  "timing": {
+    "policy": "runtime_timing_excluded_from_content_addressed_evidence",
+    "reason": "wall/cpu/compile timings are volatile runtime observations; method evidence CAS identity is restricted to semantic execution provenance"
+  },
+  "warnings": [
+    "diagnostic_gate_failed:minimum_chains",
+    "diagnostic_gate_failed:rhat",
+    "diagnostic_gate_failed:bulk_ess",
+    "diagnostic_gate_failed:tail_ess",
+    "diagnostic_gate_failed:divergences",
+    "determinism_degraded:thread_configuration_not_pinned_single_thread",
+    "posterior_geometry:inconclusive_sampling_geometry"
+  ]
+}

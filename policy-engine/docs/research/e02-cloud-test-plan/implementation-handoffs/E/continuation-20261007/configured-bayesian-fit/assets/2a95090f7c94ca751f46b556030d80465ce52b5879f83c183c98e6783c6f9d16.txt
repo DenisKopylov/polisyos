@@ -1,0 +1,43 @@
+import copy,importlib.util,json,pathlib,sys,types
+from polisyos.core import artifacts,canon
+from polisyos.foundry.uncertainty import BayesianFitBinding
+from polisyos.ir.analytics import UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
+O=pathlib.Path('/tmp/e02-E-fit-independent-9147-20261007');OLD=pathlib.Path('/tmp/e02-E-fit-independent-6638-20261007');R=pathlib.Path('/workspace/e02-E-cal-20261006')
+s=importlib.util.spec_from_file_location('current_tests',R/'policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py');t=importlib.util.module_from_spec(s);sys.modules[s.name]=t;s.loader.exec_module(t)
+rows=[]
+for i,method in enumerate(('hmc','nuts')):
+ root=OLD/'pytest-base'/f'real-bayesian-fit{i}';original=artifacts.FileSystemCAS(root);refs={}
+ for p in root.glob('artifacts/sha256/*/*/*.manifest.json'):
+  if '.view.' in p.name:continue
+  m=json.loads(p.read_text())
+  if m['kind'] in('scientist.method_result.bayesian.sampling','scientist.method_evidence'):refs[m['kind']]=artifacts.ArtifactRef(artifact_id=m['artifact_id'],kind=m['kind'],media_type=m['media_type'])
+ r=refs['scientist.method_result.bayesian.sampling'];e=refs['scientist.method_evidence'];raw_result=canon.from_canonical_bytes(original.get_bytes(r));evidence=canon.from_canonical_bytes(original.get_bytes(e));sources={}
+ for edge in original.get_manifest(r).inputs:
+  m=original.get_manifest(edge.artifact_id);sources[edge.role.split(':')[1]]=artifacts.ArtifactRef(artifact_id=edge.artifact_id,kind=m.kind,media_type=m.media_type)
+ b=BayesianFitBinding(method_fqn=f'bayesian.sampling.{method}@1.0.0',source_refs=sources,seed=321)
+ fit_tuple=(root,original,types.SimpleNamespace(method_result_ref=r,method_evidence_ref=e),b,raw_result,evidence)
+ fresh,r,e,b=t._copy_pair(O/('selected-return-ref-'+method),fit_tuple);ctx,state=t._node_fixture(fresh,r,e,b);original_put=artifacts.FileSystemCAS.put_json;calls=[]
+ def forged(self,obj,opts,canon_spec=None):
+  ref=original_put(self,obj,opts,canon_spec)
+  if opts.kind=='ir.uncertainty_envelope' and isinstance(obj,dict) and 'posterior_summary_profile' not in obj.get('metadata',{}):
+   calls.append(str(ref.artifact_id));
+   hexid=ref.artifact_id.hex;vp=next(self.root.glob('artifacts/sha256/'+hexid[:2]+'/'+hexid[2:4]+'/'+hexid+'.view.*.manifest.json'));profile='sha256:'+vp.name.split('.view.')[1].split('.manifest.json')[0]
+   return ref.model_copy(update={'manifest_profile_sha256':profile})
+  return ref
+ artifacts.FileSystemCAS.put_json=forged
+ try:
+  out=t.node.PropagateUncertaintyNode().execute(ctx,state);sim=canon.from_canonical_bytes(fresh.get_bytes(out.state.artifacts_index[t.ARTIFACT_SIMULATION_RESULT_REF]));row={'method':method,'current_node_outcome':'ADMITTED','status':out.status,'output_refs':sim['uncertainty_envelopes'],'spy_calls':list(calls)}
+ except Exception as ex:row={'method':method,'current_node_outcome':'REFUSED','exception':type(ex).__name__+':'+str(ex),'spy_calls':list(calls)}
+ finally:artifacts.FileSystemCAS.put_json=original_put
+ # Historical actual IR publisher discriminator on identical valid stored envelope.
+ raw=next(r['output']for r in json.loads((OLD/'probe-results.json').read_text())['rows']if r['case']=='fresh_finite_pair_output' and r['method']==method);env=UncertaintyEnvelope.model_validate(raw);artifacts.FileSystemCAS.put_json=forged
+ try:legacy_ref=persist_uncertainty_envelope(fresh,env);row['old_IR_publisher_outcome']='ADMITTED';row['old_ref']=legacy_ref.model_dump(mode='json')
+ except Exception as ex:row['old_IR_publisher_outcome']='REFUSED';row['old_exception']=type(ex).__name__+':'+str(ex)
+ finally:artifacts.FileSystemCAS.put_json=original_put
+ 
+ if row['current_node_outcome']=='ADMITTED':
+  try: t.SimulationResult.model_validate(sim);row['fresh_strict_simulation_reader']='ADMITTED'
+  except Exception as ex:row['fresh_strict_simulation_reader']='REFUSED';row['fresh_strict_reader_error']=type(ex).__name__+':'+str(ex)
+ rows.append(row);print(json.dumps(row),flush=True)
+(O/'selected-return-ref-results.json').write_text(json.dumps({'source':'9147c06c0ec72083214f5ce32206f9aa01dc3a5b','tree':'dcbc46f07f50c4efa438586bbb6e9314b35f3862','actual_typed_CoreCAS_return_wrapper':'stored valid unchanged payload/schema/kind/CAS digest; only returned generic ref adds valid existing selected-profile hash; inputProfile2 return refs retained','rows':rows},indent=2)+'\n')

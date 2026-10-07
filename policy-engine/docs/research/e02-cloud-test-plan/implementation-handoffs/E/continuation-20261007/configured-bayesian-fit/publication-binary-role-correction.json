@@ -1,0 +1,205 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "source_unchanged": true,
+  "old_pending_counter_sha256": "0dab441bf2120a2fa6726cbab8c489fc21ddb84e08b17150bed6947206c3e873",
+  "current_index_role_correction_only": true,
+  "changes": [
+    {
+      "logical_at": "independent-initial6638/typing-base/inventory.json.gz",
+      "original_stored_at": "assets/347e7acff85ddd99b7155a6bafdbbdeecb249dec649b028f945a96088cad9806.txt",
+      "current_stored_at": "assets/347e7acff85ddd99b7155a6bafdbbdeecb249dec649b028f945a96088cad9806.bin",
+      "bytes": 231670,
+      "sha256": "347e7acff85ddd99b7155a6bafdbbdeecb249dec649b028f945a96088cad9806",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-initial6638/typing-candidate/inventory.json.gz",
+      "original_stored_at": "assets/77f1dc5548853efb31ae3a57029a3143e5a527fb3c016763c0b890749f3c71aa.txt",
+      "current_stored_at": "assets/77f1dc5548853efb31ae3a57029a3143e5a527fb3c016763c0b890749f3c71aa.bin",
+      "bytes": 231719,
+      "sha256": "77f1dc5548853efb31ae3a57029a3143e5a527fb3c016763c0b890749f3c71aa",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-initial6638/source-before.json.gz",
+      "original_stored_at": "assets/c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099.txt",
+      "current_stored_at": "assets/c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099.bin",
+      "bytes": 1018606,
+      "sha256": "c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-initial6638/source-after.json.gz",
+      "original_stored_at": "assets/c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099.txt",
+      "current_stored_at": "assets/c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099.bin",
+      "bytes": 1018606,
+      "sha256": "c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-profile9147/source-before.json.gz",
+      "original_stored_at": "assets/da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af.txt",
+      "current_stored_at": "assets/da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af.bin",
+      "bytes": 1025414,
+      "sha256": "da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-profile9147/source-after.json.gz",
+      "original_stored_at": "assets/da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af.txt",
+      "current_stored_at": "assets/da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af.bin",
+      "bytes": 1025414,
+      "sha256": "da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/compat.source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/compat.source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/probe-output-ref.source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/probe-output-ref.source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/probe-selected-ref.source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/probe-selected-ref.source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/public-bindings-v2.source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/public-bindings-v2.source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/public-bindings-v3.source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/public-bindings-v3.source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/public-bindings-v4.source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/public-bindings-v4.source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/public-bindings.source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/public-bindings.source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/typing-current.source-after.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    },
+    {
+      "logical_at": "independent-final77/typing-current.source-before.json.gz",
+      "original_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "current_stored_at": "assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "reason": "NonUTF8 actual byte carrier; original gzip content unchanged, text parser role not asserted."
+    }
+  ],
+  "changed_logical_count": 24,
+  "unique_binary_carriers": 5,
+  "complete_required_counter": "same4034 aliases/bytes/hash/roles; only physical carrier extension changed",
+  "old_unpublished_mislabeled_binary_copies": "retained scratch; never promoted as UTF8 text in final tracked publication",
+  "gate_widened": false
+}

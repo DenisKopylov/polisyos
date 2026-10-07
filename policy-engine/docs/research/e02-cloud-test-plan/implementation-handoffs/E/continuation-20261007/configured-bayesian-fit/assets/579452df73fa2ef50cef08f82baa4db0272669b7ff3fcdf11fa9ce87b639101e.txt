@@ -1,0 +1,24 @@
+import hashlib,json,pathlib,subprocess,os,time
+R=pathlib.Path('/workspace/e02-E-cal-20261006');O=pathlib.Path('/tmp/e02-E-fit-independent-6638-20261007');B='3cc20af36297493aa8ba8fdc66f3810abadf81a2';C='6638e18a3295e43a89b0ae6adba32e62952154bb';P='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python';T='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/basedpyright'
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+rows=[]
+for tag,ref in [('base',B),('candidate',C)]:
+ root=O/('typing-'+tag);root.mkdir(); inventory=[]
+ for entry in git('ls-tree','-r','-z',ref,'policy-engine/src').split(b'\0'):
+  if not entry:continue
+  info,name=entry.split(b'\t',1);mode,kind,blob=info.decode().split();name=name.decode();relative=name[len('policy-engine/'):];q=root/relative;q.parent.mkdir(parents=True,exist_ok=True)
+  if kind!='blob':raise ValueError((name,kind))
+  data=git('cat-file','blob',blob);actual=R/name
+  same=actual.is_file() and actual.read_bytes()==data
+  if same:q.symlink_to(actual)
+  else:q.write_bytes(data)
+  inventory.append({'path':relative,'blob':blob,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'mode':'exact-immutable-candidate-symlink' if same else 'exact-immutable-Git-blob'})
+ (root/'inventory.json').write_text(json.dumps(inventory,indent=2)+'\n')
+ cfg={'include':['src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','src/polisyos/foundry/calibration/bayesian_fit_bridge.py'],'extraPaths':['src'],'pythonVersion':'3.14','typeCheckingMode':'standard'}
+ (root/'pyright.json').write_text(json.dumps(cfg,indent=2)+'\n')
+ cmd=[T,'--project',str(root/'pyright.json'),'--pythonpath',P,'--outputjson'];env=os.environ.copy();env.update(PYTHONDONTWRITEBYTECODE='1',TMPDIR=str(O/'tmp'))
+ started=time.time()
+ with (root/'stdout.json').open('xb') as out,(root/'stderr.txt').open('xb') as err:proc=subprocess.run(cmd,cwd=root,env=env,stdout=out,stderr=err)
+ result=json.loads((root/'stdout.json').read_text());rows.append({'source':ref,'tag':tag,'command':cmd,'cwd':str(root),'returncode':proc.returncode,'wall_seconds':time.time()-started,'inventory_count':len(inventory),'summary':result.get('summary'),'diagnostics':result.get('generalDiagnostics')})
+receipt={'scope':'identical declared two-path scoped standard configuration, complete actual source/import package materialized from each immutable Git tree; missing new bridge on exact parent remains explicit; no global baseline or full CI typing claim','base':B,'candidate':C,'rows':rows,'messages_equal':sorted((r['message'],r.get('rule'))for r in rows[0]['diagnostics'])==sorted((r['message'],r.get('rule'))for r in rows[1]['diagnostics'])}
+(O/'type-review.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({k:v for k,v in receipt.items()if k!='rows'}));print(json.dumps([{'tag':r['tag'],'returncode':r['returncode'],'summary':r['summary'],'diagnostics':[{'rule':d.get('rule'),'message':d['message'],'file':d['file'],'range':d['range']}for d in r['diagnostics']]}for r in rows]))

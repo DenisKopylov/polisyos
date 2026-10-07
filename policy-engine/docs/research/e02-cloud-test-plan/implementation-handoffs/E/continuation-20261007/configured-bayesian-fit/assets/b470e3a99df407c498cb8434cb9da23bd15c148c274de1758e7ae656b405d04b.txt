@@ -1,0 +1,997 @@
+{
+  "source": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+  "tree": "5bc2352671f5172a88268ec45d8dd537b4e048fe",
+  "scope": "complete exact native CAS artifacts from independently executed42 fixture; input/source/result/evidence/profile/report/output closure, no cache/locks/test overlay/environment",
+  "roots": [
+    {
+      "backend": "hmc",
+      "root": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0",
+      "objects": 66,
+      "bytes": 236881
+    },
+    {
+      "backend": "nuts",
+      "root": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1",
+      "objects": 66,
+      "bytes": 237619
+    }
+  ],
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "portable_path": "closed-native-inputs/hmc/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "f1790aa362b669489362acf43d2ac46f70284ed517ec1e8400f65c8ec8aa5322",
+      "kind": "ir.mechanism_registry",
+      "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "f1790aa362b669489362acf43d2ac46f70284ed517ec1e8400f65c8ec8aa5322",
+      "kind": "ir.mechanism_registry",
+      "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/10/28/102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148.blob",
+      "portable_path": "closed-native-inputs/hmc/102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148.blob",
+      "bytes": 912,
+      "sha256": "102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/10/28/102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148.manifest.json",
+      "bytes": 1093,
+      "sha256": "f671f71c3ce324ed28a3ad7fcccb326aa8454f988527cd566d8d00696859202e",
+      "kind": "foundry.simulation_result",
+      "artifact_id": "sha256:102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/10/28/102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148.view.b23144acfbf995558b4b263c7924edd8a53669ecb6b68abd1253d8cfe3e25ac4.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148.view.b23144acfbf995558b4b263c7924edd8a53669ecb6b68abd1253d8cfe3e25ac4.manifest.json",
+      "bytes": 1093,
+      "sha256": "f671f71c3ce324ed28a3ad7fcccb326aa8454f988527cd566d8d00696859202e",
+      "kind": "foundry.simulation_result",
+      "artifact_id": "sha256:102845bee116766b8a9252c57fd9a9cd5113997f13790b01fb5388d948e96148"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "portable_path": "closed-native-inputs/hmc/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "f9e360e50d58a0b2115890fe8df2c2ca212da15d2a2d599318d0153b10391ffd",
+      "kind": "ir.slot_registry",
+      "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "f9e360e50d58a0b2115890fe8df2c2ca212da15d2a2d599318d0153b10391ffd",
+      "kind": "ir.slot_registry",
+      "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/22/fc/22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36.blob",
+      "portable_path": "closed-native-inputs/hmc/22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36.blob",
+      "bytes": 26241,
+      "sha256": "22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/22/fc/22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36.manifest.json",
+      "bytes": 1054,
+      "sha256": "66a6042f2245ad68548a4fb782fe00096df9557776c6663508550ac437f64aa5",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/22/fc/22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36.view.fc164ccc9b6c771d29da885759c9726361dbdcfd680986f17d23fc05af715cc2.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36.view.fc164ccc9b6c771d29da885759c9726361dbdcfd680986f17d23fc05af715cc2.manifest.json",
+      "bytes": 1054,
+      "sha256": "66a6042f2245ad68548a4fb782fe00096df9557776c6663508550ac437f64aa5",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:22fc194ce6e989adae70af88920c4212d54d87b18f1a8fbccc02cf69b6b38d36"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/2a/d3/2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8.blob",
+      "portable_path": "closed-native-inputs/hmc/2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8.blob",
+      "bytes": 26293,
+      "sha256": "2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/2a/d3/2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8.manifest.json",
+      "bytes": 1054,
+      "sha256": "04716bf3a1650fd3c0577a0217e88670f2c44ff238c582738ebea54cf83a0c53",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/2a/d3/2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8.view.fc164ccc9b6c771d29da885759c9726361dbdcfd680986f17d23fc05af715cc2.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8.view.fc164ccc9b6c771d29da885759c9726361dbdcfd680986f17d23fc05af715cc2.manifest.json",
+      "bytes": 1054,
+      "sha256": "04716bf3a1650fd3c0577a0217e88670f2c44ff238c582738ebea54cf83a0c53",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:2ad35fb307b1b94d1128444cc9b9f146a4e17145611a60834dc338cbe49248d8"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/31/15/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.blob",
+      "portable_path": "closed-native-inputs/hmc/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.blob",
+      "bytes": 361,
+      "sha256": "3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/31/15/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.manifest.json",
+      "bytes": 552,
+      "sha256": "974ea78fe0561f15a2c9707c8b2c665c839b83ffde263c43d91385f41a6cd943",
+      "kind": "foundry.simulation_result",
+      "artifact_id": "sha256:3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/31/15/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.view.e014f9853637731eed96bdd65bc67efa8dc89b287414ea04f22b9cd5634b3b65.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.view.e014f9853637731eed96bdd65bc67efa8dc89b287414ea04f22b9cd5634b3b65.manifest.json",
+      "bytes": 552,
+      "sha256": "974ea78fe0561f15a2c9707c8b2c665c839b83ffde263c43d91385f41a6cd943",
+      "kind": "foundry.simulation_result",
+      "artifact_id": "sha256:3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/33/14/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.blob",
+      "portable_path": "closed-native-inputs/hmc/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.blob",
+      "bytes": 179,
+      "sha256": "3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/33/14/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.manifest.json",
+      "bytes": 544,
+      "sha256": "02a949cfad3605ab3ffb071597f54fd357b1866ff2f974efebadc5a67678582a",
+      "kind": "foundry.exec_plan",
+      "artifact_id": "sha256:3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/33/14/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.view.2862b06eef825059b200ec66366612274f5051bb52e5fb2677f55a9a9639049b.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.view.2862b06eef825059b200ec66366612274f5051bb52e5fb2677f55a9a9639049b.manifest.json",
+      "bytes": 544,
+      "sha256": "02a949cfad3605ab3ffb071597f54fd357b1866ff2f974efebadc5a67678582a",
+      "kind": "foundry.exec_plan",
+      "artifact_id": "sha256:3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/5c/2f/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.blob",
+      "portable_path": "closed-native-inputs/hmc/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.blob",
+      "bytes": 12,
+      "sha256": "5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/5c/2f/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.manifest.json",
+      "bytes": 547,
+      "sha256": "661a53bcaa014358d1eae6c907521968cfe080797ccb7af1bc518158fcb7da19",
+      "kind": "test.bayesian_source",
+      "artifact_id": "sha256:5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/5c/2f/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.view.de4f455706e16416c3d183d22defa2c42f26584a2b96c9fcf8a109305a611a37.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.view.de4f455706e16416c3d183d22defa2c42f26584a2b96c9fcf8a109305a611a37.manifest.json",
+      "bytes": 547,
+      "sha256": "661a53bcaa014358d1eae6c907521968cfe080797ccb7af1bc518158fcb7da19",
+      "kind": "test.bayesian_source",
+      "artifact_id": "sha256:5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "portable_path": "closed-native-inputs/hmc/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "0b2817970fa4648080eff8e70732b9e467071ef62b51b4a521972e72da52c0d5",
+      "kind": "ir.merge_rule_registry",
+      "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "0b2817970fa4648080eff8e70732b9e467071ef62b51b4a521972e72da52c0d5",
+      "kind": "ir.merge_rule_registry",
+      "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/6a/75/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.blob",
+      "portable_path": "closed-native-inputs/hmc/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.blob",
+      "bytes": 23,
+      "sha256": "6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/6a/75/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.manifest.json",
+      "bytes": 547,
+      "sha256": "d42a777d96879d07f83b6822a02b11dabd2644fd6e81abaf77b980354a23c403",
+      "kind": "test.bayesian_source",
+      "artifact_id": "sha256:6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/6a/75/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.view.de4f455706e16416c3d183d22defa2c42f26584a2b96c9fcf8a109305a611a37.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.view.de4f455706e16416c3d183d22defa2c42f26584a2b96c9fcf8a109305a611a37.manifest.json",
+      "bytes": 547,
+      "sha256": "d42a777d96879d07f83b6822a02b11dabd2644fd6e81abaf77b980354a23c403",
+      "kind": "test.bayesian_source",
+      "artifact_id": "sha256:6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "portable_path": "closed-native-inputs/hmc/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "fde7531f65702fdf59f283d7250ea05fa71aad374747c4a59b03d66600a5beee",
+      "kind": "ir.selector_field_registry",
+      "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "fde7531f65702fdf59f283d7250ea05fa71aad374747c4a59b03d66600a5beee",
+      "kind": "ir.selector_field_registry",
+      "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "portable_path": "closed-native-inputs/hmc/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "6fe44cce6a7b4e2182f363687ac9428d70c840ee3f3216b4de26f28a555e257a",
+      "kind": "ir.metric_registry",
+      "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "6fe44cce6a7b4e2182f363687ac9428d70c840ee3f3216b4de26f28a555e257a",
+      "kind": "ir.metric_registry",
+      "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/97/ff/97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23.blob",
+      "portable_path": "closed-native-inputs/hmc/97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23.blob",
+      "bytes": 25406,
+      "sha256": "97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/97/ff/97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23.manifest.json",
+      "bytes": 866,
+      "sha256": "3b373bfb46e3ec4df827168e74eaea503aa147ed636f1f1f008edb5fb592d693",
+      "kind": "scientist.method_result.bayesian.sampling",
+      "artifact_id": "sha256:97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/97/ff/97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23.view.5dd1b6808d8b2a0f67b0208f893a18e1c370822c406068560473cf2dba10629d.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23.view.5dd1b6808d8b2a0f67b0208f893a18e1c370822c406068560473cf2dba10629d.manifest.json",
+      "bytes": 866,
+      "sha256": "3b373bfb46e3ec4df827168e74eaea503aa147ed636f1f1f008edb5fb592d693",
+      "kind": "scientist.method_result.bayesian.sampling",
+      "artifact_id": "sha256:97ff06fed031c0ebfe6b191f10c236f288540ebc9123f7ec0cef42beeb5d5b23"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/99/58/9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990.blob",
+      "portable_path": "closed-native-inputs/hmc/9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990.blob",
+      "bytes": 26222,
+      "sha256": "9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/99/58/9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990.manifest.json",
+      "bytes": 1054,
+      "sha256": "1426cee550a2b11aec4dadcdd4751d2af0b324538b05a5091240857cae653c19",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/99/58/9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990.view.fc164ccc9b6c771d29da885759c9726361dbdcfd680986f17d23fc05af715cc2.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990.view.fc164ccc9b6c771d29da885759c9726361dbdcfd680986f17d23fc05af715cc2.manifest.json",
+      "bytes": 1054,
+      "sha256": "1426cee550a2b11aec4dadcdd4751d2af0b324538b05a5091240857cae653c19",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:9958ff925c9a14805b4a353038169817b024c8144bbe49173f045fa6eaa02990"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/a4/3c/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.blob",
+      "portable_path": "closed-native-inputs/hmc/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.blob",
+      "bytes": 56,
+      "sha256": "a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/a4/3c/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.manifest.json",
+      "bytes": 542,
+      "sha256": "444e8c7f71f249c4163a3461f2773ad59cdbb15c35aea76845c6d08959d90ee7",
+      "kind": "foundry.metrics",
+      "artifact_id": "sha256:a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/a4/3c/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.view.5432c9eaab2483d4a572217016c4035cbea979a3865acd5ed3246a601acad197.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.view.5432c9eaab2483d4a572217016c4035cbea979a3865acd5ed3246a601acad197.manifest.json",
+      "bytes": 542,
+      "sha256": "444e8c7f71f249c4163a3461f2773ad59cdbb15c35aea76845c6d08959d90ee7",
+      "kind": "foundry.metrics",
+      "artifact_id": "sha256:a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/a5/cb/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.blob",
+      "portable_path": "closed-native-inputs/hmc/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.blob",
+      "bytes": 570,
+      "sha256": "a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/a5/cb/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.manifest.json",
+      "bytes": 625,
+      "sha256": "872d58651352668cccfa5a018e661a421acb9de845491494aa7f0c0f875b8db1",
+      "kind": "foundry.propagation_config",
+      "artifact_id": "sha256:a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/a5/cb/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.view.4274ee3a16cabb017154be8a34e6cd48e98a8271c592228226a1acb113b2f10b.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.view.4274ee3a16cabb017154be8a34e6cd48e98a8271c592228226a1acb113b2f10b.manifest.json",
+      "bytes": 625,
+      "sha256": "872d58651352668cccfa5a018e661a421acb9de845491494aa7f0c0f875b8db1",
+      "kind": "foundry.propagation_config",
+      "artifact_id": "sha256:a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "portable_path": "closed-native-inputs/hmc/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "30c65d62262380477714d2b42aadfd4f54ce9420d60d4844eaf32a01478e943b",
+      "kind": "core.registry_bundle",
+      "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "30c65d62262380477714d2b42aadfd4f54ce9420d60d4844eaf32a01478e943b",
+      "kind": "core.registry_bundle",
+      "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/be/b2/beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0.blob",
+      "portable_path": "closed-native-inputs/hmc/beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0.blob",
+      "bytes": 42722,
+      "sha256": "beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/be/b2/beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0.manifest.json",
+      "bytes": 997,
+      "sha256": "976e83e363b285e028f1c242864880ce5f012be122fb9afa77d813a7625b3dce",
+      "kind": "foundry.propagation_report",
+      "artifact_id": "sha256:beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/be/b2/beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0.view.e329c6a05c7d9f6b3d3254cd0cf618da52fa8920d5c9592c6d21b81acbb57fbe.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0.view.e329c6a05c7d9f6b3d3254cd0cf618da52fa8920d5c9592c6d21b81acbb57fbe.manifest.json",
+      "bytes": 997,
+      "sha256": "976e83e363b285e028f1c242864880ce5f012be122fb9afa77d813a7625b3dce",
+      "kind": "foundry.propagation_report",
+      "artifact_id": "sha256:beb22695c52dc3e021b33472ce28a3a2b74670cdc93ce9f34bc8d8c97e3f45a0"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "portable_path": "closed-native-inputs/hmc/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "91365f7a283659e9ef6243259f29a1dc50f66102a8298b24e78eeb540e85b12f",
+      "kind": "ir.units_registry",
+      "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "91365f7a283659e9ef6243259f29a1dc50f66102a8298b24e78eeb540e85b12f",
+      "kind": "ir.units_registry",
+      "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/e2/76/e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998.blob",
+      "portable_path": "closed-native-inputs/hmc/e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998.blob",
+      "bytes": 15462,
+      "sha256": "e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/e2/76/e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998.manifest.json",
+      "bytes": 613,
+      "sha256": "dab7f05632cc565bc64a2dfa7165ea3b085c59bc2537dc09ac8989e3f393bc35",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/e2/76/e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998.view.e35daa83e8c965091496244090973be9d9a778a6d89a0be2a160c7e9be404cdd.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998.view.e35daa83e8c965091496244090973be9d9a778a6d89a0be2a160c7e9be404cdd.manifest.json",
+      "bytes": 613,
+      "sha256": "dab7f05632cc565bc64a2dfa7165ea3b085c59bc2537dc09ac8989e3f393bc35",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/e4/e8/e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e.blob",
+      "portable_path": "closed-native-inputs/hmc/e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e.blob",
+      "bytes": 21084,
+      "sha256": "e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/e4/e8/e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e.manifest.json",
+      "bytes": 748,
+      "sha256": "5137ed997a99e849441c3e1e186a394f4d7a4229f977ee46700fb9f38f8e4899",
+      "kind": "scientist.method_evidence",
+      "artifact_id": "sha256:e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/e4/e8/e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e.view.d82bdcd031ef812d97bea9e076d5ca2525dde8e164feb173a90a4391ab9db000.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e.view.d82bdcd031ef812d97bea9e076d5ca2525dde8e164feb173a90a4391ab9db000.manifest.json",
+      "bytes": 748,
+      "sha256": "5137ed997a99e849441c3e1e186a394f4d7a4229f977ee46700fb9f38f8e4899",
+      "kind": "scientist.method_evidence",
+      "artifact_id": "sha256:e4e8c68ed26c94f8f6d1b0f29af5cc22c866136284c778612c5a6b73df40555e"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "portable_path": "closed-native-inputs/hmc/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "f1b2527cc03c2447e7c5cbb9a1e7bc2295b1122112af60422de2d73f938ba19d",
+      "kind": "ir.constraint_registry",
+      "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit0/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "portable_path": "closed-native-inputs/hmc/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "f1b2527cc03c2447e7c5cbb9a1e7bc2295b1122112af60422de2d73f938ba19d",
+      "kind": "ir.constraint_registry",
+      "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "portable_path": "closed-native-inputs/nuts/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "6950c7b34ff6431ed26fd98705171c542eca77690afdf586e4f418391f26474f",
+      "kind": "ir.mechanism_registry",
+      "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "6950c7b34ff6431ed26fd98705171c542eca77690afdf586e4f418391f26474f",
+      "kind": "ir.mechanism_registry",
+      "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "portable_path": "closed-native-inputs/nuts/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "282aefdbc2fce4ed2e2def2ecb337beef03177cff1398e924b77c9776ce488d0",
+      "kind": "ir.slot_registry",
+      "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "282aefdbc2fce4ed2e2def2ecb337beef03177cff1398e924b77c9776ce488d0",
+      "kind": "ir.slot_registry",
+      "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/16/04/16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d.blob",
+      "portable_path": "closed-native-inputs/nuts/16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d.blob",
+      "bytes": 21286,
+      "sha256": "16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/16/04/16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d.manifest.json",
+      "bytes": 748,
+      "sha256": "851d814329ec6257fad9c864ef84db170abd73b8a47531f8434064affa4ca77b",
+      "kind": "scientist.method_evidence",
+      "artifact_id": "sha256:16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/16/04/16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d.view.1e52db30b3ef51b9bb84030a8e5d76d1e15e0192498890a7a88917f8f3c40874.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d.view.1e52db30b3ef51b9bb84030a8e5d76d1e15e0192498890a7a88917f8f3c40874.manifest.json",
+      "bytes": 748,
+      "sha256": "851d814329ec6257fad9c864ef84db170abd73b8a47531f8434064affa4ca77b",
+      "kind": "scientist.method_evidence",
+      "artifact_id": "sha256:16047b31db8ba4c717467cc95db2d49d829a06b9c6122fd230046d98600b9e5d"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/31/15/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.blob",
+      "portable_path": "closed-native-inputs/nuts/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.blob",
+      "bytes": 361,
+      "sha256": "3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/31/15/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.manifest.json",
+      "bytes": 552,
+      "sha256": "e00ad76e9a7c7320ec0065d8e999e3f0014be2a360bb21f3535195e196957eab",
+      "kind": "foundry.simulation_result",
+      "artifact_id": "sha256:3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/31/15/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.view.e014f9853637731eed96bdd65bc67efa8dc89b287414ea04f22b9cd5634b3b65.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96.view.e014f9853637731eed96bdd65bc67efa8dc89b287414ea04f22b9cd5634b3b65.manifest.json",
+      "bytes": 552,
+      "sha256": "e00ad76e9a7c7320ec0065d8e999e3f0014be2a360bb21f3535195e196957eab",
+      "kind": "foundry.simulation_result",
+      "artifact_id": "sha256:3115e6b90c048eb77f01760c4b7e7aab155886b8c13a41ef7266dfea72228c96"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/33/14/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.blob",
+      "portable_path": "closed-native-inputs/nuts/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.blob",
+      "bytes": 179,
+      "sha256": "3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/33/14/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.manifest.json",
+      "bytes": 544,
+      "sha256": "ca45de58a2c47afb3e49e8c58d6105bc7557bc19331508c035b5553b32732dbc",
+      "kind": "foundry.exec_plan",
+      "artifact_id": "sha256:3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/33/14/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.view.2862b06eef825059b200ec66366612274f5051bb52e5fb2677f55a9a9639049b.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100.view.2862b06eef825059b200ec66366612274f5051bb52e5fb2677f55a9a9639049b.manifest.json",
+      "bytes": 544,
+      "sha256": "ca45de58a2c47afb3e49e8c58d6105bc7557bc19331508c035b5553b32732dbc",
+      "kind": "foundry.exec_plan",
+      "artifact_id": "sha256:3314b19b4ca4e15588cd52dc5ab8b01001624ee349fb5b5cee7b3f659d2c6100"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/37/3a/373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11.blob",
+      "portable_path": "closed-native-inputs/nuts/373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11.blob",
+      "bytes": 26228,
+      "sha256": "373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/37/3a/373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11.manifest.json",
+      "bytes": 1054,
+      "sha256": "5e6d3a1f286447e32a0875c129a78332a28631226000a3c9ce07b3198d0e4bf7",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/37/3a/373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11.view.698c9859a980f6af4ffbdaecac05ec6d287fad7f611fecc18c167ec127fb78ea.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11.view.698c9859a980f6af4ffbdaecac05ec6d287fad7f611fecc18c167ec127fb78ea.manifest.json",
+      "bytes": 1054,
+      "sha256": "5e6d3a1f286447e32a0875c129a78332a28631226000a3c9ce07b3198d0e4bf7",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:373a7b0d661a7ff3fd02fee6e0f207527cd1ce52d3a5664b3a12303358faaa11"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/5c/2f/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.blob",
+      "portable_path": "closed-native-inputs/nuts/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.blob",
+      "bytes": 12,
+      "sha256": "5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/5c/2f/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.manifest.json",
+      "bytes": 547,
+      "sha256": "7e135f4766691791ee76f311856f5888664f4743de7f45c06a5c5ffca214c9b5",
+      "kind": "test.bayesian_source",
+      "artifact_id": "sha256:5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/5c/2f/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.view.de4f455706e16416c3d183d22defa2c42f26584a2b96c9fcf8a109305a611a37.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.view.de4f455706e16416c3d183d22defa2c42f26584a2b96c9fcf8a109305a611a37.manifest.json",
+      "bytes": 547,
+      "sha256": "7e135f4766691791ee76f311856f5888664f4743de7f45c06a5c5ffca214c9b5",
+      "kind": "test.bayesian_source",
+      "artifact_id": "sha256:5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "portable_path": "closed-native-inputs/nuts/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "f10f7db10da59117b0051038b1abed037e568cf1176ed428985fdec7feec7abf",
+      "kind": "ir.merge_rule_registry",
+      "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "f10f7db10da59117b0051038b1abed037e568cf1176ed428985fdec7feec7abf",
+      "kind": "ir.merge_rule_registry",
+      "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/66/26/6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79.blob",
+      "portable_path": "closed-native-inputs/nuts/6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79.blob",
+      "bytes": 15735,
+      "sha256": "6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/66/26/6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79.manifest.json",
+      "bytes": 613,
+      "sha256": "2aeea50b72a3f0a60a39fe96dcac5149fe86d343bf60ef2dda77f53aac5cf24e",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/66/26/6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79.view.e35daa83e8c965091496244090973be9d9a778a6d89a0be2a160c7e9be404cdd.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79.view.e35daa83e8c965091496244090973be9d9a778a6d89a0be2a160c7e9be404cdd.manifest.json",
+      "bytes": 613,
+      "sha256": "2aeea50b72a3f0a60a39fe96dcac5149fe86d343bf60ef2dda77f53aac5cf24e",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/6a/75/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.blob",
+      "portable_path": "closed-native-inputs/nuts/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.blob",
+      "bytes": 23,
+      "sha256": "6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/6a/75/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.manifest.json",
+      "bytes": 547,
+      "sha256": "46230750c42574959630a7360a27da6cf86e7289781c8be073e8bd065305ef37",
+      "kind": "test.bayesian_source",
+      "artifact_id": "sha256:6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/6a/75/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.view.de4f455706e16416c3d183d22defa2c42f26584a2b96c9fcf8a109305a611a37.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659.view.de4f455706e16416c3d183d22defa2c42f26584a2b96c9fcf8a109305a611a37.manifest.json",
+      "bytes": 547,
+      "sha256": "46230750c42574959630a7360a27da6cf86e7289781c8be073e8bd065305ef37",
+      "kind": "test.bayesian_source",
+      "artifact_id": "sha256:6a758a1ab9480363d9635ee716f54a817f0063c929fc27601f438a85240f2659"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "portable_path": "closed-native-inputs/nuts/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "cae0f0e60671de09a99049dd1d16d003383776f47cbfad7d9e3cb8dbcdec00ea",
+      "kind": "ir.selector_field_registry",
+      "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "cae0f0e60671de09a99049dd1d16d003383776f47cbfad7d9e3cb8dbcdec00ea",
+      "kind": "ir.selector_field_registry",
+      "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "portable_path": "closed-native-inputs/nuts/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "1d04980a9605b570926a98be62c37b2a46d45496b287398d9307062277305823",
+      "kind": "ir.metric_registry",
+      "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "1d04980a9605b570926a98be62c37b2a46d45496b287398d9307062277305823",
+      "kind": "ir.metric_registry",
+      "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/a4/3c/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.blob",
+      "portable_path": "closed-native-inputs/nuts/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.blob",
+      "bytes": 56,
+      "sha256": "a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/a4/3c/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.manifest.json",
+      "bytes": 542,
+      "sha256": "c50de7041ccd09fe22afad61721da7359602bfda3d43a7626e719367b1ad95a6",
+      "kind": "foundry.metrics",
+      "artifact_id": "sha256:a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/a4/3c/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.view.5432c9eaab2483d4a572217016c4035cbea979a3865acd5ed3246a601acad197.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5.view.5432c9eaab2483d4a572217016c4035cbea979a3865acd5ed3246a601acad197.manifest.json",
+      "bytes": 542,
+      "sha256": "c50de7041ccd09fe22afad61721da7359602bfda3d43a7626e719367b1ad95a6",
+      "kind": "foundry.metrics",
+      "artifact_id": "sha256:a43c625908bdf48d9348e5165a86cca38db4242c05dcd979882d717e60e871d5"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/a5/cb/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.blob",
+      "portable_path": "closed-native-inputs/nuts/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.blob",
+      "bytes": 570,
+      "sha256": "a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/a5/cb/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.manifest.json",
+      "bytes": 625,
+      "sha256": "767625963652152fb94d9de1102cc348cd879aa52736b03c5775ffa9cd8ee217",
+      "kind": "foundry.propagation_config",
+      "artifact_id": "sha256:a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/a5/cb/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.view.4274ee3a16cabb017154be8a34e6cd48e98a8271c592228226a1acb113b2f10b.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc.view.4274ee3a16cabb017154be8a34e6cd48e98a8271c592228226a1acb113b2f10b.manifest.json",
+      "bytes": 625,
+      "sha256": "767625963652152fb94d9de1102cc348cd879aa52736b03c5775ffa9cd8ee217",
+      "kind": "foundry.propagation_config",
+      "artifact_id": "sha256:a5cb7184b52ae79a48b9083acd8d8831fbaef6b91ecab76e773b3e4b415cd7cc"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/ac/e2/ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b.blob",
+      "portable_path": "closed-native-inputs/nuts/ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b.blob",
+      "bytes": 42722,
+      "sha256": "ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/ac/e2/ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b.manifest.json",
+      "bytes": 997,
+      "sha256": "c410ca249d05c232415f26b62e05f2f18bc7c36c9a08f4cd6823bd8f99524cfe",
+      "kind": "foundry.propagation_report",
+      "artifact_id": "sha256:ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/ac/e2/ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b.view.c5d7e82101749350beb3cd75baa92d281b585570faadd76663eeb823d8c3969e.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b.view.c5d7e82101749350beb3cd75baa92d281b585570faadd76663eeb823d8c3969e.manifest.json",
+      "bytes": 997,
+      "sha256": "c410ca249d05c232415f26b62e05f2f18bc7c36c9a08f4cd6823bd8f99524cfe",
+      "kind": "foundry.propagation_report",
+      "artifact_id": "sha256:ace23bd0a7d208b5503a1b29c725e2eaf4cab819a90109ccf14a4085fb4d0d1b"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "portable_path": "closed-native-inputs/nuts/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "3b622299d17b593f23b82c11e3358387fa6604951acfe02ec9bea328fcc63b1c",
+      "kind": "core.registry_bundle",
+      "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "3b622299d17b593f23b82c11e3358387fa6604951acfe02ec9bea328fcc63b1c",
+      "kind": "core.registry_bundle",
+      "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "portable_path": "closed-native-inputs/nuts/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "9f4fed66d15c5957acf132fb1b619d157ba51fdca6bc782adb8682e3f061ab59",
+      "kind": "ir.units_registry",
+      "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "9f4fed66d15c5957acf132fb1b619d157ba51fdca6bc782adb8682e3f061ab59",
+      "kind": "ir.units_registry",
+      "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/e1/2c/e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42.blob",
+      "portable_path": "closed-native-inputs/nuts/e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42.blob",
+      "bytes": 25592,
+      "sha256": "e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/e1/2c/e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42.manifest.json",
+      "bytes": 866,
+      "sha256": "2a8c11e93e97e66a3119fe86d38d9bc5bf1a9806202833fb4a4603ce75a0dc3e",
+      "kind": "scientist.method_result.bayesian.sampling",
+      "artifact_id": "sha256:e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/e1/2c/e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42.view.5dd1b6808d8b2a0f67b0208f893a18e1c370822c406068560473cf2dba10629d.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42.view.5dd1b6808d8b2a0f67b0208f893a18e1c370822c406068560473cf2dba10629d.manifest.json",
+      "bytes": 866,
+      "sha256": "2a8c11e93e97e66a3119fe86d38d9bc5bf1a9806202833fb4a4603ce75a0dc3e",
+      "kind": "scientist.method_result.bayesian.sampling",
+      "artifact_id": "sha256:e12c9de43d2c197ddaa03243dad5acf910538b7f991219ec00642ca3b406ac42"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/e6/5b/e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4.blob",
+      "portable_path": "closed-native-inputs/nuts/e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4.blob",
+      "bytes": 912,
+      "sha256": "e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/e6/5b/e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4.manifest.json",
+      "bytes": 1093,
+      "sha256": "146a62f74bb7c4a6736ec67ba005278d05f381d7698aafe11e70d03d786197c5",
+      "kind": "foundry.simulation_result",
+      "artifact_id": "sha256:e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/e6/5b/e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4.view.eaa1092994c6a4337af93aaca808014f8f962a69610d99b3ce989ff5ec6f9cb7.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4.view.eaa1092994c6a4337af93aaca808014f8f962a69610d99b3ce989ff5ec6f9cb7.manifest.json",
+      "bytes": 1093,
+      "sha256": "146a62f74bb7c4a6736ec67ba005278d05f381d7698aafe11e70d03d786197c5",
+      "kind": "foundry.simulation_result",
+      "artifact_id": "sha256:e65bdc7243b84143e7e6e9ee6de772435097cd55cb7974257e9e2d18dea4f8e4"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "portable_path": "closed-native-inputs/nuts/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "5ca7b65dc0abd72089963a5b40d6d8803af9959b26d83098e569374e9e5a7609",
+      "kind": "ir.constraint_registry",
+      "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "5ca7b65dc0abd72089963a5b40d6d8803af9959b26d83098e569374e9e5a7609",
+      "kind": "ir.constraint_registry",
+      "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/f7/ca/f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0.blob",
+      "portable_path": "closed-native-inputs/nuts/f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0.blob",
+      "bytes": 26251,
+      "sha256": "f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/f7/ca/f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0.manifest.json",
+      "bytes": 1054,
+      "sha256": "389d09c897fe3d81be481a43f643e11aabde13ad1cec55d2a0126f5321203990",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/f7/ca/f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0.view.698c9859a980f6af4ffbdaecac05ec6d287fad7f611fecc18c167ec127fb78ea.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0.view.698c9859a980f6af4ffbdaecac05ec6d287fad7f611fecc18c167ec127fb78ea.manifest.json",
+      "bytes": 1054,
+      "sha256": "389d09c897fe3d81be481a43f643e11aabde13ad1cec55d2a0126f5321203990",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:f7ca64c513457d95df2eb149490a188aff1fc2ca29e3f36c7e28f59fbbf861e0"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/fc/95/fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51.blob",
+      "portable_path": "closed-native-inputs/nuts/fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51.blob",
+      "bytes": 26354,
+      "sha256": "fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/fc/95/fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51.manifest.json",
+      "bytes": 1054,
+      "sha256": "46eee2a75b08da654b394301181e49934c4d185a5d7f10c3fa38aa836cffaf74",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/pytest-base/real-bayesian-fit1/artifacts/sha256/fc/95/fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51.view.698c9859a980f6af4ffbdaecac05ec6d287fad7f611fecc18c167ec127fb78ea.manifest.json",
+      "portable_path": "closed-native-inputs/nuts/fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51.view.698c9859a980f6af4ffbdaecac05ec6d287fad7f611fecc18c167ec127fb78ea.manifest.json",
+      "bytes": 1054,
+      "sha256": "46eee2a75b08da654b394301181e49934c4d185a5d7f10c3fa38aa836cffaf74",
+      "kind": "ir.uncertainty_envelope",
+      "artifact_id": "sha256:fc95cf649312784b6ba54616a0d4172ba23b9226c7b61cf9576a903aebeebf51"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-independent-6638-20261007/select_native_inputs.py.txt",
+      "portable_path": "select_native_inputs.py.txt",
+      "bytes": 1623,
+      "sha256": "7c02b9bbdac6ce5b1464e092f783d044794b2e323e160ea6e9395eedd2dc72d2"
+    }
+  ],
+  "logical_count": 133,
+  "bytes": 476123
+}

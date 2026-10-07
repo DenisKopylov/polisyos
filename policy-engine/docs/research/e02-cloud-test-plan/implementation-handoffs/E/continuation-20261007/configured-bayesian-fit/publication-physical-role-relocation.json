@@ -1,0 +1,52 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "scope": "publication directory role and exact selected inventory only",
+  "source_or_backend_or_env_changed": false,
+  "physical_carriers": 923,
+  "selected_carriers": 923,
+  "orphan_duplicates_moved_not_deleted": [
+    {
+      "from": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/347e7acff85ddd99b7155a6bafdbbdeecb249dec649b028f945a96088cad9806.txt",
+      "to": "/tmp/e02-E-bayesian-fit-bridge-r6/unpublished-binary-role-copies/347e7acff85ddd99b7155a6bafdbbdeecb249dec649b028f945a96088cad9806.txt.preparation-original",
+      "matching_current_bin": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/347e7acff85ddd99b7155a6bafdbbdeecb249dec649b028f945a96088cad9806.bin",
+      "bytes": 231670,
+      "sha256": "347e7acff85ddd99b7155a6bafdbbdeecb249dec649b028f945a96088cad9806",
+      "bytes_identical_after_move": true
+    },
+    {
+      "from": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt",
+      "to": "/tmp/e02-E-bayesian-fit-bridge-r6/unpublished-binary-role-copies/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.txt.preparation-original",
+      "matching_current_bin": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d.bin",
+      "bytes": 1025415,
+      "sha256": "75dfbb7ac759e2c26276907060e7922e6d5f097407fd4126960dfb87e62ff71d",
+      "bytes_identical_after_move": true
+    },
+    {
+      "from": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/77f1dc5548853efb31ae3a57029a3143e5a527fb3c016763c0b890749f3c71aa.txt",
+      "to": "/tmp/e02-E-bayesian-fit-bridge-r6/unpublished-binary-role-copies/77f1dc5548853efb31ae3a57029a3143e5a527fb3c016763c0b890749f3c71aa.txt.preparation-original",
+      "matching_current_bin": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/77f1dc5548853efb31ae3a57029a3143e5a527fb3c016763c0b890749f3c71aa.bin",
+      "bytes": 231719,
+      "sha256": "77f1dc5548853efb31ae3a57029a3143e5a527fb3c016763c0b890749f3c71aa",
+      "bytes_identical_after_move": true
+    },
+    {
+      "from": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099.txt",
+      "to": "/tmp/e02-E-bayesian-fit-bridge-r6/unpublished-binary-role-copies/c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099.txt.preparation-original",
+      "matching_current_bin": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099.bin",
+      "bytes": 1018606,
+      "sha256": "c779553583f4047e1a98e02e45316bed221fdbf19e6bdff217ce1cb386fd9099",
+      "bytes_identical_after_move": true
+    },
+    {
+      "from": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af.txt",
+      "to": "/tmp/e02-E-bayesian-fit-bridge-r6/unpublished-binary-role-copies/da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af.txt.preparation-original",
+      "matching_current_bin": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation/assets/da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af.bin",
+      "bytes": 1025414,
+      "sha256": "da723af0fd0d7ab13b4cb766fcebb3526b8e866e00a713315add1c27b6b4f3af",
+      "bytes_identical_after_move": true
+    }
+  ],
+  "prior_index_bytes_unchanged": true,
+  "active_users": "independent reviewer explicitly stopped before relocation; no source/native/method processes owned by author",
+  "historical_bytes_preserved_outside_current_publication": true
+}

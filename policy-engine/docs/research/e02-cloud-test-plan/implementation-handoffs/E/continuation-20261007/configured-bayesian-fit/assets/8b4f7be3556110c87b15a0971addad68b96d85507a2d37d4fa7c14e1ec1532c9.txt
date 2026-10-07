@@ -1,0 +1,48 @@
+import ast,base64,copy,hashlib,importlib.util,json,pathlib,sys,types
+from collections import Counter
+from fractions import Fraction
+import numpy as np
+from polisyos.core import artifacts,canon
+from polisyos.foundry.uncertainty import BayesianFitBinding,persist_bayesian_fit_envelopes
+R=pathlib.Path('/workspace/e02-E-cal-20261006');O=pathlib.Path('/tmp/e02-E-fit-independent-6638-20261007')
+spec=importlib.util.spec_from_file_location('actual_review_test',R/'policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py');t=importlib.util.module_from_spec(spec);sys.modules[spec.name]=t;spec.loader.exec_module(t)
+rows=[]
+for k,method in enumerate(('hmc','nuts')):
+ root=O/'pytest-base'/f'real-bayesian-fit{k}';store=artifacts.FileSystemCAS(root);refs={}
+ for path in root.glob('artifacts/sha256/*/*/*.manifest.json'):
+  if '.view.' in path.name:continue
+  raw=json.loads(path.read_text());kind=raw['kind'];ref=artifacts.ArtifactRef(artifact_id=raw['artifact_id'],kind=kind,media_type=raw['media_type'])
+  if kind=='scientist.method_result.bayesian.sampling':refs['result']=ref
+  elif kind=='scientist.method_evidence':refs['evidence']=ref
+ result=canon.from_canonical_bytes(store.get_bytes(refs['result']));evidence=canon.from_canonical_bytes(store.get_bytes(refs['evidence']));manifest=store.get_manifest(refs['result']);sources={}
+ for edge in manifest.inputs:
+  m=store.get_manifest(edge.artifact_id);sources[edge.role.split(':')[1]]=artifacts.ArtifactRef(artifact_id=edge.artifact_id,kind=m.kind,media_type=m.media_type)
+ params=dict(num_warmup=32,num_samples=32,num_chains=2,credible_mass=.9,step_size=.015)
+ params.update(n_leapfrog=8) if method=='hmc' else params.update(max_depth=3)
+ binding=BayesianFitBinding(method_fqn=f'bayesian.sampling.{method}@1.0.0',source_refs=sources,seed=321,effective_parameters=params)
+ fit_tuple=(root,store,types.SimpleNamespace(method_result_ref=refs['result'],method_evidence_ref=refs['evidence']),binding,result,evidence)
+ # Fresh real native node, compute expected finite paired response outside producer reductions.
+ values=t._values(evidence);paired=[Fraction.from_float(float(a))-Fraction.from_float(float(b)) for a,b in zip(values['intercept'],values['coefficients'],strict=True)];mean=sum(paired,Fraction())/len(paired);var=sum(((x-mean)**2 for x in paired),Fraction())/len(paired)
+ ctx,state=t._node_fixture(artifacts.FileSystemCAS(root),refs['result'],refs['evidence'],binding);outcome=t.node.PropagateUncertaintyNode().execute(ctx,state);simref=outcome.state.artifacts_index[t.ARTIFACT_SIMULATION_RESULT_REF];sim=canon.from_canonical_bytes(store.get_bytes(simref));eref=artifacts.ArtifactRef.model_validate(sim['uncertainty_envelopes']['y']);env=canon.from_canonical_bytes(store.get_bytes(eref));reportref=outcome.state.artifacts_index[t.ARTIFACT_PROPAGATION_REPORT_REF];report=canon.from_canonical_bytes(store.get_bytes(reportref));native={'case':'fresh_finite_pair_output','method':method,'source_refs':{n:r.model_dump(mode='json')for n,r in sources.items()},'result_ref':refs['result'].model_dump(mode='json'),'evidence_ref':refs['evidence'].model_dump(mode='json'),'output_ref':eref.model_dump(mode='json'),'mean_fraction':str(mean),'variance_fraction':str(var),'output':env,'report_ref':reportref.model_dump(mode='json'),'status':outcome.status}
+ # Report native samples are retained and persisted output spread equals finite corpus output law.
+ print('NATIVE_OUTPUT_KEYS',method,list(env),flush=True);rows.append(native)
+ for case in ('contract_version','envelope_contract_version','rank4_coefficients','missing_sigma'):
+  def mutate(result,evidence):
+   post=result['result'];rep=post['reproducibility']
+   if case=='contract_version':rep['contract_version']='foundry.bayesian.reference_sampler.unsupported.v99';evidence['artifacts']['sampler_reproducibility']=copy.deepcopy(rep)
+   elif case=='envelope_contract_version':
+    rep['determinism_envelope']['contract_version']='unsupported.v99';rep['envelope_id']=canon.content_hash(canon.to_canonical_bytes(rep['determinism_envelope'],canon.CanonSpec(forbid_floats=False)),prefix=True);evidence['artifacts']['sampler_reproducibility']=copy.deepcopy(rep)
+   elif case=='rank4_coefficients':evidence['artifacts']['posterior_draws']['payload']['parameters']['coefficients']['shape']=[2,32,1,1];t._rebind_corpus(result,evidence)
+   else:
+    del evidence['artifacts']['posterior_draws']['payload']['parameters']['sigma'];post['posterior_means'].pop('sigma');t._rebind_corpus(result,evidence)
+  target=O/('counterexample-'+method+'-'+case);s,r,e,b=t._copy_pair(target,fit_tuple,mutate);count={'envelope_publications':0};original=artifacts.FileSystemCAS.put_json
+  def counted(self,obj,opts,canon_spec=None):
+   if opts.kind=='ir.uncertainty_envelope':count['envelope_publications']+=1
+   return original(self,obj,opts,canon_spec)
+  artifacts.FileSystemCAS.put_json=counted
+  try:
+   fit=persist_bayesian_fit_envelopes(s,r,e,b);row={'case':case,'method':method,'outcome':'ADMITTED','parameter_labels':sorted(fit.envelopes),'corpus_hash':fit.corpus_hash}
+  except Exception as ex:row={'case':case,'method':method,'outcome':'REFUSED','exception_type':type(ex).__name__,'exception':str(ex)}
+  finally:artifacts.FileSystemCAS.put_json=original
+  row.update(count);row.update(result_ref=r.model_dump(mode='json'),evidence_ref=e.model_dump(mode='json'));rows.append(row);print(json.dumps(row),flush=True)
+(O/'probe-results.json').write_text(json.dumps({'source':'6638e18a3295e43a89b0ae6adba32e62952154bb','tree':'5bc2352671f5172a88268ec45d8dd537b4e048fe','rows':rows},indent=2)+'\n')

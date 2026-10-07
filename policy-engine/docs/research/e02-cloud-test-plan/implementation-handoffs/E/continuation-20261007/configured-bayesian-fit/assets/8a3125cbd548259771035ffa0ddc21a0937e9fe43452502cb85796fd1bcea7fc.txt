@@ -1,0 +1,26 @@
+import hashlib, json, os, pathlib, platform, subprocess, sys, time
+R=pathlib.Path('/workspace/e02-E-cal-20261006'); O=pathlib.Path('/tmp/e02-E-fit-independent-9147-20261007'); P=pathlib.Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python')
+def git(*a): return subprocess.check_output(['git','-C',str(R),*a]).decode().strip()
+def frame():
+ paths=subprocess.check_output(['git','-C',str(R),'ls-files','-z']).decode().split('\0'); rows=[]
+ for n in filter(None,paths):
+  p=R/n
+  if p.is_file():
+   b=p.read_bytes();rows.append({'path':n,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ return {'head':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'status':git('status','--porcelain=v1'),'files':rows}
+def envframe():
+ root=P.parent.parent;rows=[]
+ for p in sorted(root.glob('lib/python*/site-packages/*.dist-info/METADATA')):
+  b=p.read_bytes();rows.append({'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ for p in (root/'pyvenv.cfg',P.resolve(),root/'uv.lock'):
+  if p.is_file():
+   b=p.read_bytes();rows.append({'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ return rows
+before=frame(); eb=envframe(); (O/'source-before.json').write_text(json.dumps(before,indent=2)+'\n');(O/'environment-before.json').write_text(json.dumps(eb,indent=2)+'\n')
+env=os.environ.copy();env.update(PYTHONPATH=str(R/'policy-engine/src'),PYTHONDONTWRITEBYTECODE='1',POLISYOS_METRICS_PORT='0',TMPDIR=str(O/'tmp'))
+(O/'tmp').mkdir(); cmd=[str(P),'-m','pytest','-q','-s','tests/unit/scientist/nodes/test_bayesian_fit_consumer.py','--basetemp',str(O/'pytest-base'),'--junitxml',str(O/'pytest.junit.xml')]
+start=time.time()
+with (O/'pytest.stdout.txt').open('xb') as out, (O/'pytest.stderr.txt').open('xb') as err: p=subprocess.run(cmd,cwd=R/'policy-engine',env=env,stdout=out,stderr=err)
+after=frame();ea=envframe();(O/'source-after.json').write_text(json.dumps(after,indent=2)+'\n');(O/'environment-after.json').write_text(json.dumps(ea,indent=2)+'\n')
+receipt={'command':cmd,'cwd':str(R/'policy-engine'),'environment':{k:env[k] for k in ('PYTHONPATH','PYTHONDONTWRITEBYTECODE','POLISYOS_METRICS_PORT','TMPDIR')},'runner_interpreter':sys.executable,'runner_version':sys.version,'platform':platform.platform(),'started_epoch':start,'wall_seconds':time.time()-start,'returncode':p.returncode,'source_unchanged':before==after,'environment_metadata_unchanged':eb==ea,'metadata_record_count':len(eb),'source':before['head'],'tree':before['tree']}
+(O/'pytest.receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(receipt))

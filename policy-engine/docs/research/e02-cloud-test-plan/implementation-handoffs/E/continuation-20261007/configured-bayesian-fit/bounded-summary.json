@@ -1,0 +1,55 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "base": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+  "branch": "codex/e02-E-cal-20261006",
+  "author_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml",
+    "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+  ],
+  "full_ancestry_path_count": 187,
+  "full_ancestry_python_count": 7,
+  "author_python_count": 5,
+  "affected_native": {
+    "normal": {
+      "PASS": 28,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "optimized": {
+      "PASS": 28,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "existing_consumers": {
+      "PASS": 23,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    }
+  },
+  "affected_command_exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "scoped_typing": {
+    "filesAnalyzed": 2,
+    "errorCount": 0,
+    "warningCount": 0,
+    "informationCount": 0,
+    "timeInSec": 2.569
+  },
+  "author_metadata_distribution_count": 184,
+  "author_metadata_unchanged_6638": true,
+  "author_historical74_and23_raw_available": false,
+  "global_gate_pass": false,
+  "production_law_established": false,
+  "finding_closure_decided": false
+}

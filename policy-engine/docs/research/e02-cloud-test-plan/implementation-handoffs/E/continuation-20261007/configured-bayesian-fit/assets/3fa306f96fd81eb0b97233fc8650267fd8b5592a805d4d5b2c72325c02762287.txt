@@ -1,0 +1,1 @@
+{"inputs": 54, "bytes": 397597, "methods": [{"method": "hmc", "rows": 64, "corpus_hash": "sha256:72246fc93ce7d3e78b3086967ec881f505a5a74ccfee39b07adab42f210f6eab", "expected_callbacks": 256}, {"method": "nuts", "rows": 64, "corpus_hash": "sha256:6cc41b52dc112dfef50bdb11aab82f7ea71bdaf7fcef0eb3e1888404def8c9a4", "expected_callbacks": 256}]}

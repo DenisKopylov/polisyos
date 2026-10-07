@@ -1,0 +1,274 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "disposition": "GO",
+  "validator_sha256": "52684bde9c9568545d12d399d82cc7c8db77b05830964b4aaa304dbfe1c12bb8",
+  "descriptor_sha256": "fd60e3d303d835e8af3caa109f2faaf2ea6143cb01c9127ba04697fe2ee955d6",
+  "checks": [
+    {
+      "name": "full_descriptor_literal_refs",
+      "outcome": "PASS",
+      "count": 11
+    },
+    {
+      "name": "all_actual_physical_and_logical_assets",
+      "outcome": "PASS",
+      "logical": 4034,
+      "unique": 923,
+      "binary_unique": 5,
+      "binary_logical": 24
+    },
+    {
+      "name": "separate_supplement_closure",
+      "outcome": "PASS",
+      "logical": 9
+    },
+    {
+      "name": "healthy_actual_git_raw_derived_summary",
+      "outcome": "PASS",
+      "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+      "full_ancestry_paths": 187,
+      "affected_native": {
+        "normal": {
+          "PASS": 28,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "optimized": {
+          "PASS": 28,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "existing_consumers": {
+          "PASS": 23,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        }
+      },
+      "typing": {
+        "filesAnalyzed": 2,
+        "errorCount": 0,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 2.569
+      }
+    },
+    {
+      "name": "actual23_author_typed_count_counter_controls",
+      "outcome": "PASS",
+      "controls": [
+        {
+          "name": "healthy_recompute",
+          "outcome": "PASS"
+        },
+        {
+          "name": "native_count",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "raw_inputs_unchanged": true
+        },
+        {
+          "name": "typing_count",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "raw_inputs_unchanged": true
+        },
+        {
+          "name": "metadata_bool",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "raw_inputs_unchanged": true
+        },
+        {
+          "name": "raw_loss_hidden",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "raw_inputs_unchanged": true
+        },
+        {
+          "name": "extra_author_path",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "raw_inputs_unchanged": true
+        },
+        {
+          "name": "authority",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "raw_inputs_unchanged": true
+        },
+        {
+          "name": "handoff_source",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "markers_preserved": true
+        },
+        {
+          "name": "handoff_count_bool",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "markers_preserved": true
+        },
+        {
+          "name": "handoff_extra_path",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "markers_preserved": true
+        },
+        {
+          "name": "handoff_public_edges",
+          "outcome": "PASS",
+          "refusal": "summary_mismatch",
+          "markers_preserved": true
+        },
+        {
+          "name": "option_like_source",
+          "outcome": "PASS",
+          "refusal": "invalid_digest",
+          "git_callback_count": 0
+        },
+        {
+          "name": "late_none_path",
+          "outcome": "PASS",
+          "refusal": "invalid_relative_path",
+          "git_callback_count": 0
+        },
+        {
+          "name": "late_dot_path",
+          "outcome": "PASS",
+          "refusal": "invalid_relative_path",
+          "git_callback_count": 0
+        },
+        {
+          "name": "late_bool_path",
+          "outcome": "PASS",
+          "refusal": "invalid_relative_path",
+          "git_callback_count": 0
+        },
+        {
+          "name": "late_bool_size",
+          "outcome": "PASS",
+          "refusal": "invalid_size",
+          "git_callback_count": 0
+        },
+        {
+          "name": "late_copy_path",
+          "outcome": "PASS",
+          "refusal": "invalid_relative_path",
+          "git_callback_count": 0
+        },
+        {
+          "name": "copy_total_bool",
+          "outcome": "PASS",
+          "refusal": "invalid_copy_count",
+          "git_callback_count": 0
+        },
+        {
+          "name": "late_copy_hash",
+          "outcome": "PASS",
+          "refusal": "carrier_identity_mismatch",
+          "git_callback_count": 0
+        },
+        {
+          "name": "missing_peer_decision",
+          "outcome": "PASS",
+          "refusal": "required_member_counter_mismatch",
+          "git_callback_count": 0,
+          "retotalled_and_markers_preserved": true
+        },
+        {
+          "name": "missing_peer_native_cas",
+          "outcome": "PASS",
+          "refusal": "required_member_counter_mismatch",
+          "git_callback_count": 0,
+          "retotalled_and_markers_preserved": true
+        },
+        {
+          "name": "sole_required_counter_admission_removal",
+          "outcome": "PASS",
+          "defining_member_property": "FAIL",
+          "missing_review_readmitted": true,
+          "pinned_counter_basis_and_markers_unchanged": true,
+          "actual_whole_derive_re_admitted": true
+        },
+        {
+          "name": "sole_summary_admission_removal",
+          "outcome": "PASS",
+          "defining_refusal_property": "FAIL",
+          "false_summaries_readmitted": [
+            "native_count",
+            "typing_count",
+            "metadata_bool",
+            "raw_loss_hidden",
+            "extra_author_path"
+          ],
+          "raw_source_unchanged": true
+        }
+      ]
+    },
+    {
+      "name": "retotalled_independent_GO_omission",
+      "outcome": "PASS",
+      "actual_refusal": "required_member_counter_mismatch",
+      "git_callback_count": 0,
+      "source_summary_PASS_unchanged": true,
+      "removed_logical": "independent-final77/independent-review-77b4.json"
+    },
+    {
+      "name": "retotalled_native_HMC_input_blob_omission",
+      "outcome": "PASS",
+      "actual_refusal": "required_member_counter_mismatch",
+      "git_callback_count": 0,
+      "source_summary_PASS_unchanged": true,
+      "removed_logical": "independent-final77/pytest-base/real-bayesian-fit0/artifacts/sha256/5c/2f/5c2f97b5f57e559b6c05802afa8a5514a9c1b0b4d26f3bcb63af7449454dbe79.blob"
+    },
+    {
+      "name": "retotalled_historical_source_receipt_omission",
+      "outcome": "PASS",
+      "actual_refusal": "required_member_counter_mismatch",
+      "git_callback_count": 0,
+      "source_summary_PASS_unchanged": true,
+      "removed_logical": "independent-profile9147/independent-review-9147.json"
+    },
+    {
+      "name": "effective_Counter_removal_independent_GO",
+      "outcome": "PASS",
+      "defining_member_property": "FAIL",
+      "whole_actual_derive_and_summary_admitted": true,
+      "trusted_original0dab_counter_and_remaining_raw_Git_checks_unchanged": true
+    },
+    {
+      "name": "effective_Counter_removal_native_HMC_input_blob",
+      "outcome": "PASS",
+      "defining_member_property": "FAIL",
+      "whole_actual_derive_and_summary_admitted": true,
+      "trusted_original0dab_counter_and_remaining_raw_Git_checks_unchanged": true
+    },
+    {
+      "name": "effective_Counter_removal_historical_source_receipt",
+      "outcome": "PASS",
+      "defining_member_property": "FAIL",
+      "whole_actual_derive_and_summary_admitted": true,
+      "trusted_original0dab_counter_and_remaining_raw_Git_checks_unchanged": true
+    },
+    {
+      "name": "corrected_supported_import_entrypoints",
+      "outcome": "PASS",
+      "declared": [
+        "polisyos.core",
+        "polisyos.core.contracts",
+        "polisyos.foundry.uncertainty",
+        "polisyos.ir.analytics"
+      ],
+      "contract_sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    }
+  ],
+  "optimization_mode": false,
+  "interpreter": "/usr/bin/python3",
+  "python_version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "scope": "stdlib/Git literal custody and typed claimed check-field projections; SOURCE77/native/backend acceptance remains separate, no new native/math/global/source/environment actions",
+  "old_V2_actual_false_admissions": "preserved independent normal/-O immutable history; corrected V3 covers entire required member class"
+}

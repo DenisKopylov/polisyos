@@ -1,0 +1,51 @@
+{
+  "source": "9147c06c0ec72083214f5ce32206f9aa01dc3a5b",
+  "tree": "dcbc46f07f50c4efa438586bbb6e9314b35f3862",
+  "actual_typed_CoreCAS_return_wrapper": "stored valid unchanged payload/schema/kind/CAS digest; only returned generic ref adds valid existing selected-profile hash; inputProfile2 return refs retained",
+  "rows": [
+    {
+      "method": "hmc",
+      "current_node_outcome": "ADMITTED",
+      "status": "ok",
+      "output_refs": {
+        "y": {
+          "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        }
+      },
+      "spy_calls": [
+        "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998"
+      ],
+      "old_IR_publisher_outcome": "ADMITTED",
+      "old_ref": {
+        "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "fresh_strict_simulation_reader": "ADMITTED"
+    },
+    {
+      "method": "nuts",
+      "current_node_outcome": "ADMITTED",
+      "status": "ok",
+      "output_refs": {
+        "y": {
+          "artifact_id": "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        }
+      },
+      "spy_calls": [
+        "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79"
+      ],
+      "old_IR_publisher_outcome": "ADMITTED",
+      "old_ref": {
+        "artifact_id": "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "fresh_strict_simulation_reader": "ADMITTED"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "argv": [
+    "python3",
+    "capture_native.py"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward",
+  "outcome": "ERROR",
+  "exit_code": 1,
+  "reason": "Orchestrator invoked after wait returned RUNNING binder; capture correctly refuses absent complete archive byte proof before launching any installed native process. No fit/native case executed.",
+  "original_script": "capture_native.py",
+  "stdout": "initial-capture-before-binder.stdout.json",
+  "stderr": "initial-capture-before-binder.stderr.txt",
+  "preserved_complete_outputs": true
+}

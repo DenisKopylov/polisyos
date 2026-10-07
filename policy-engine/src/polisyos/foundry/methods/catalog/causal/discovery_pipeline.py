@@ -3,7 +3,8 @@ Track 3 — Task 1.3: Unified Constraint Discovery Pipeline
 
 Runs PC / FCI / GES / DAGMA / PCMCI based on data characteristics and
 combines their outputs into a single PAG via weighted edge-mark voting.
-The resulting CausalGraphModel (graph_type=PAG) is ready for id_algorithm().
+The resulting CausalGraphModel retains PAG semantics for supported downstream
+consumers; requested reconciliation limits remain visible in the report.
 """
 
 from __future__ import annotations
@@ -749,21 +750,43 @@ def _build_consensus_pag(
 # ---------------------------------------------------------------------------
 
 
+def _reconciliation_limitation(
+    graph: CausalGraphModel, *, reason: str, detail: str
+) -> tuple[list[str], dict[str, Any]]:
+    """Disclose a requested no-op without changing the retained graph semantics."""
+    return [f"reconciliation_not_applied:{reason}"], {
+        "requested": True,
+        "applied": False,
+        "status": "not_applied",
+        "reason": reason,
+        "detail": detail,
+        "input_graph_type": graph.graph_type.value,
+        "output_graph_type": graph.graph_type.value,
+    }
+
+
 def _maybe_reconcile(
     pag: CausalGraphModel,
     state: UnifiedDiscoveryData,
     params: Mapping[str, Any],
-) -> CausalGraphModel:
-    """If literature_prior or llm_hints are provided, run graph reconciliation."""
+) -> tuple[CausalGraphModel, list[str], dict[str, Any] | None]:
+    """Reconcile when requested and carry any refusal to the pipeline report."""
     if state.literature_prior is None and not state.llm_hints:
-        return pag
+        return pag, [], None
 
+    reason = "reconciliation_failed"
     try:
         from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
             ReconcileCausalGraph,
+            _validate_reconciliation_profile,
         )
         from polisyos.foundry.methods.catalog.causal.protocols import GraphReconciliationData
 
+        try:
+            _validate_reconciliation_profile(pag)
+        except ValueError:
+            reason = "unsupported_profile"
+            raise
         recon_data = GraphReconciliationData(
             data_graph=pag,
             literature_prior=state.literature_prior,
@@ -781,9 +804,22 @@ def _maybe_reconcile(
                 skg_version_id=reconciled.skg_version_id,
                 metadata=reconciled.metadata,
             )
-        return reconciled
-    except Exception:
-        return pag
+        return (
+            reconciled,
+            [],
+            {
+                "requested": True,
+                "applied": True,
+                "status": "applied",
+                "input_graph_type": pag.graph_type.value,
+                "output_graph_type": reconciled.graph_type.value,
+            },
+        )
+    except Exception as exc:
+        reconcile_warnings, limitation = _reconciliation_limitation(
+            pag, reason=reason, detail=f"{type(exc).__name__}: {exc}"
+        )
+        return pag, reconcile_warnings, limitation
 
 
 def _pipeline_dispute_summary(
@@ -1264,6 +1300,15 @@ def _run_unified_discovery(
             edges=[],
             discovery_method="unified_consensus_pag_empty",
         )
+        reconciliation_metadata: dict[str, Any] = {}
+        if state.literature_prior is not None or state.llm_hints:
+            reconcile_warnings, limitation = _reconciliation_limitation(
+                empty_pag,
+                reason="discovery_failed",
+                detail="Reconciliation was not run because all discovery algorithms failed.",
+            )
+            warnings.extend(reconcile_warnings)
+            reconciliation_metadata["reconciliation"] = limitation
         report = DiscoveryPipelineReport(
             unified_pag=empty_pag,
             individual_results=[],
@@ -1275,6 +1320,7 @@ def _run_unified_discovery(
             warnings=warnings + ["all_algorithms_failed"],
             computation_time_seconds=time.perf_counter() - t0,
             metadata={
+                **reconciliation_metadata,
                 "disputed_edges": [],
                 "disputed_edge_count": 0,
                 "disputed_edge_fraction": 0.0,
@@ -1291,7 +1337,11 @@ def _run_unified_discovery(
                 },
             },
         )
-        return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
+        return {
+            "report": report,
+            "discovery_pipeline_report": report,
+            "__determinism_tier__": DeterminismTier.STATISTICAL,
+        }
 
     # 4. Build consensus PAG (4-phase: temporal segregation, skeleton, v-structures, completion)
     min_presence_score = float(params.get("min_presence_score", 0.3))
@@ -1354,7 +1404,8 @@ def _run_unified_discovery(
             )
 
     # 5. Optional reconciliation with priors
-    unified_pag = _maybe_reconcile(unified_pag, state, params)
+    unified_pag, reconcile_warnings, reconciliation = _maybe_reconcile(unified_pag, state, params)
+    warnings.extend(reconcile_warnings)
 
     # 5b. Re-validate PAG after reconciliation (prior injection may introduce
     # orientation conflicts that violate PAG invariants — e.g. new v-structures
@@ -1374,6 +1425,8 @@ def _run_unified_discovery(
             constraints_applied=regime_constraints_applied,
         ),
     }
+    if reconciliation is not None:
+        pipeline_metadata["reconciliation"] = reconciliation
 
     report = DiscoveryPipelineReport(
         unified_pag=unified_pag,
@@ -1390,7 +1443,11 @@ def _run_unified_discovery(
         computation_time_seconds=time.perf_counter() - t0,
         metadata=pipeline_metadata,
     )
-    return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
+    return {
+        "report": report,
+        "discovery_pipeline_report": report,
+        "__determinism_tier__": DeterminismTier.STATISTICAL,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -1409,8 +1466,9 @@ class UnifiedCausalDiscovery:
 
     Auto-selects PC / FCI / GES / DAGMA / PCMCI based on data characteristics,
     runs the selected algorithms concurrently, and combines their outputs into a
-    single PAG via weighted edge-mark voting.  The unified PAG is ready for
-    consumption by id_algorithm().
+    single PAG via weighted edge-mark voting. The report preserves requested
+    reconciliation limits; downstream identification requires its own supported
+    graph profile and cannot infer authority from this discovery output.
     """
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -1508,7 +1566,8 @@ class UnifiedCausalDiscovery:
         output_interpretation=(
             "Returns a weighted PAG (partial ancestral graph) with bootstrap stability "
             "scores on each edge mark.  Edges with stability > 0.5 are robust across "
-            "algorithms.  Feed the PAG to id_algorithm() for causal identification."
+            "algorithms. Requested reconciliation limits are disclosed; downstream "
+            "identification remains bounded by its supported graph profile."
         ),
     )
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal import discovery_pipeline as pipeline_module
 from polisyos.foundry.methods.catalog.causal.protocols import (
     TabularCausalDiscoveryData,
@@ -134,7 +135,7 @@ def test_unified_discovery_surfaces_disputed_edges_and_algebraic_summary(
     monkeypatch.setattr(
         pipeline_module,
         "_maybe_reconcile",
-        lambda pag, state, params: pag,
+        lambda pag, state, params: (pag, [], None),
     )
 
     result = pipeline_module._run_unified_discovery(_state(), params={})
@@ -203,7 +204,7 @@ def test_unified_discovery_applies_regime_shift_orientations(
     monkeypatch.setattr(
         pipeline_module,
         "_maybe_reconcile",
-        lambda pag, state, params: pag,
+        lambda pag, state, params: (pag, [], None),
     )
 
     rng = np.random.default_rng(2026)
@@ -320,7 +321,7 @@ def test_unified_discovery_blocks_regime_shift_orientations_when_pre_screen_is_a
     monkeypatch.setattr(
         pipeline_module,
         "_maybe_reconcile",
-        lambda pag, state, params: pag,
+        lambda pag, state, params: (pag, [], None),
     )
 
     rng = np.random.default_rng(2027)
@@ -421,7 +422,7 @@ def test_unified_discovery_surfaces_prior_track7_blockers_in_regime_shift_summar
     monkeypatch.setattr(
         pipeline_module,
         "_maybe_reconcile",
-        lambda pag, state, params: pag,
+        lambda pag, state, params: (pag, [], None),
     )
 
     rng = np.random.default_rng(2028)

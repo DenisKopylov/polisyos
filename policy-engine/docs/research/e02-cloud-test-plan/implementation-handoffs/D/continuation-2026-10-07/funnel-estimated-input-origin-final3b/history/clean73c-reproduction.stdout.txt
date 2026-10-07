@@ -1,0 +1,28 @@
+{
+  "output": "/dev/shm/e02-D-funnel-oct07/estimated-origin-design-73c/reproduction.json",
+  "source": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+  "stable": true,
+  "cases": [
+    {
+      "case": "estimated_only",
+      "numeric_oracle": "0.50000",
+      "reported_input_usd": "0",
+      "reported_input_status": "reported",
+      "final_action": "reject"
+    },
+    {
+      "case": "reported_zero",
+      "numeric_oracle": "0.0",
+      "reported_input_usd": "0.0",
+      "reported_input_status": "reported",
+      "final_action": "reject"
+    },
+    {
+      "case": "reported_positive",
+      "numeric_oracle": "0.25",
+      "reported_input_usd": "0.25",
+      "reported_input_status": "reported",
+      "final_action": "reject"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "e02.D.native_wrapper_AST.final_review_addendum.v1",
+  "executed_source_sha": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "executed_source_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "initial_reviewed_manifest": {
+    "path": "initial-reviewed-output-manifest.json",
+    "sha256": "9166e55db86135d3b04bb78af266d4c05d592c902732db918ceea4e50ad60201",
+    "files": 62,
+    "original_path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/publication-GP-AST-final3b31e/output-manifest.json"
+  },
+  "reading_rule": "Original handoff/runtime output bytes remain immutable. Its review-pending phrases record pre-review chronology; this additive receipt establishes independent current bounded runtime/portable GO. It does not alter execution source, test result, finding disposition, authority, or numerical scope.",
+  "independent_runtime_and_portable_review": {
+    "path": "reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+    "sha256": "ccee10fd77f71371fb1626fd750a96e042d93b5757fa74fbeba5c47291059162",
+    "reviewer": "transfer_oct07; neither production nor test author",
+    "verdict": "GO_BOUNDED_EXECUTED_PROPERTIES",
+    "basis": "All6861 executed Git3b input bytes plus actual origins/outputs and selected3 metadata inputs independently reconciled; actual native MLL three starts/returns8/4/4, fresh restore/next no refit; count-only8 and exactoldunion25 assertion failures, zero setup/teardown ERROR/SKIP."
+  },
+  "P37_review_addendum": {
+    "native_state_count_and_actual_train_corpus": "independently_reconciled",
+    "tracked_AST_input_and_binding_syntax": "independently_reconciled",
+    "runtime_reaching_definitions_and_scientific_authority": "not_established",
+    "holder": "gp_oct07 ran conditional technical fixtures; independent non-producing transfer_oct07 reconciled actual recorded measurements against immutable Git/native input arithmetic"
+  },
+  "qualified_carry_to_a795": {
+    "candidate_sha": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "candidate_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+    "delta_paths": [
+      "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+    ],
+    "actual_loaded_repository_overlap": 0,
+    "canonical63_read_overlap": 0,
+    "selected_fragment_or_link_overlap": 0,
+    "result": "source-qualified unchanged selected assertions only; no new a795 run and no unchanged all6861 snapshot claim",
+    "review_path": "reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json"
+  },
+  "scope_limits": [
+    "GP12 actualwrapper/CAS/training/restore only; oldposteriororacle43/MO88/state142 not renewed",
+    "AST canonical63 is one bounded source diagnostic; actual node semantics UNRUN and original A B04 closure not asserted",
+    "Selected3 release fragment metadata only; global release/architecture/frontend/schema gates UNRUN",
+    "Complete large inventories/origins/resources remain ignored raw paths+hashes, not claimed Gitportable",
+    "First unavailable GNU time preflight ERROR preserved, zero property execution; actual resource capture standard POSIX with no imposed compute caps"
+  ],
+  "formal_finding_closure": false,
+  "G_acceptance": false,
+  "source_footprint_path": "source-footprint.json",
+  "cleanup": "none; no unlink/Trash operation performed"
+}

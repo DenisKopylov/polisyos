@@ -1,0 +1,149 @@
+{
+  "scope": "Actual post-test canonical fixture state. Not a standalone scientific or authority verdict.",
+  "files": [
+    {
+      "fixture_path": "test_actual_native_pending_rec0/budget.json",
+      "bytes": 2446,
+      "sha256": "a642d3684b04397cc93aa1d8be954ac2d36309d61a91b8acb00755ee9d05ac76",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/9851621e79125590.json.gz",
+      "gzip_bytes": 862,
+      "gzip_sha256": "0f88c2ba9fa9b3c5142466b82eff7f1641e861c9bcbe1243bb566ac12ec3a3e2"
+    },
+    {
+      "fixture_path": "test_actual_native_pending_rec1/budget.json",
+      "bytes": 3383,
+      "sha256": "48946161c5b3f92481da11a9cbaf18966354b5ec62a2899eab0862cec5a2438a",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/e0c8e12e32b36961.json.gz",
+      "gzip_bytes": 1020,
+      "gzip_sha256": "3530dcb17d211825d9917d73f3318a64e3bd265cd3d5db255a6704322c28f0e8"
+    },
+    {
+      "fixture_path": "test_actual_spend_does_not_res0/budget.json",
+      "bytes": 8554,
+      "sha256": "38f63c0e517e6d69757cf09f46b152ab041048a6377d3b379872d51bcebafb06",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/95221b3aa88ce9c2.json.gz",
+      "gzip_bytes": 1088,
+      "gzip_sha256": "89ab922cbd0f15956db589d9e86325e4e8f72194ef2c9216d7b1f50b5a938221"
+    },
+    {
+      "fixture_path": "test_native_factory_unknown_am0/budget.json",
+      "bytes": 2438,
+      "sha256": "aacc195b6023b72370755a046da8617be1c02e3cf87eb191c593e3fe60512944",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/0a307faa6f342803.json.gz",
+      "gzip_bytes": 853,
+      "gzip_sha256": "f2306c0966c623752080fb6db4dbd1f6fec6d1d654415d1369152a1d6d2e172b"
+    },
+    {
+      "fixture_path": "test_native_factory_unknown_am1/budget.json",
+      "bytes": 2438,
+      "sha256": "a886ff7243726dee2c10e8b765c7a6926847a4d3d43b3c1d848c288d49c202d1",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/7cb303ae33065ea9.json.gz",
+      "gzip_bytes": 852,
+      "gzip_sha256": "a952749af3e7a76eeb98801a8d0e67b3fb9e9d56b3c8ae087ef6a838c9d23ff2"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi0/budget.json",
+      "bytes": 2447,
+      "sha256": "e67cab3f3c9f0c091926adc82688415eea333f875fd754709a8f059ed605355c",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/e0935507641c5a44.json.gz",
+      "gzip_bytes": 864,
+      "gzip_sha256": "7a01d077dfac961ea0872df6e02ed6c079dfe2f42671d551f28433a92c184e88"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi1/budget.json",
+      "bytes": 2446,
+      "sha256": "2931d9dd8d3540490318ef2b150f579d859ad75953e017002e2881deda473dac",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/3d30cfdfc727929c.json.gz",
+      "gzip_bytes": 860,
+      "gzip_sha256": "cdde8faee082974cb40b438f7c1f87a83ab0b834e1353735aac8a04c7b0a8189"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi2/budget.json",
+      "bytes": 2447,
+      "sha256": "fe2fae3ac0d64d4360a7bca764173a5a97b72e1135657d54652aa0cf4ef7608b",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/c189dcc28cd099ac.json.gz",
+      "gzip_bytes": 862,
+      "gzip_sha256": "aeb78b805e8543d854e94f439398d56a4e8fbe1fc41012e55921a28fa7a7dceb"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi3/budget.json",
+      "bytes": 3384,
+      "sha256": "e79bc634b7c262c1a373d6a93f7219d680e99c7ea589e5ce8c858e34c6c4d231",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/1f7c5d860eabddd6.json.gz",
+      "gzip_bytes": 1022,
+      "gzip_sha256": "1e9833551b6836b6637f1af5c3b21fa8d85b9b68d3ec8f68229b0d4df71349ab"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi4/budget.json",
+      "bytes": 3383,
+      "sha256": "27ecb4a648dcf6eea1fdebe576d7a352f2a3752b8f1645c3202a5e21f21f763b",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/5b3bed588324de2e.json.gz",
+      "gzip_bytes": 1017,
+      "gzip_sha256": "a8e5144e8e73a693e98317f7f347d742a7f6c6f91b8445a548563fba250f7a2d"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi5/budget.json",
+      "bytes": 3389,
+      "sha256": "899f406949ea9109b8edb9babe90893a71be4c675dc2f98e3e8cc023deb87dff",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/224969293ab774ee.json.gz",
+      "gzip_bytes": 1017,
+      "gzip_sha256": "2f1fc018bf7dbd588b17d6cfcd8b04b18b9c0b165de1ff68dcd1da5dff39e0d8"
+    },
+    {
+      "fixture_path": "test_native_policy_callers_ful0/full/budget.json",
+      "bytes": 5562,
+      "sha256": "ba86cbf6d8e2eeb629071455eafc50d55d14ad3fed54b31c608672b3af94dec9",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/3a8e7ec66699eec5.json.gz",
+      "gzip_bytes": 899,
+      "gzip_sha256": "84d1519b496282e92c473234154ce8dfd0ce815c655bedcaae3846b7feb93886"
+    },
+    {
+      "fixture_path": "test_native_policy_callers_ful0/split/budget.json",
+      "bytes": 5562,
+      "sha256": "fcddcfd4292db79e843553e0ea04166c960ac7510c4087c897fc2aaa2db29422",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/84ee552c1556660e.json.gz",
+      "gzip_bytes": 911,
+      "gzip_sha256": "50989d418ed9f63e28601b1f90bca790e160e50c9e5aecd706b934ccf35e2698"
+    },
+    {
+      "fixture_path": "test_native_unknown_amount_pre0/budget.json",
+      "bytes": 2438,
+      "sha256": "e1396e13441988d0b8fca098ab546f8e2205fca90915a738a25e984d4b512148",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/083106949ca1cbb7.json.gz",
+      "gzip_bytes": 852,
+      "gzip_sha256": "581287bf3019b5dc1b352e4ba5891ab6fd36dcd8331865a962a83b9dbeb9ec73"
+    },
+    {
+      "fixture_path": "test_native_unknown_amount_pre1/budget.json",
+      "bytes": 4382,
+      "sha256": "11c60267eaf57bfa8e1e2e1a08b106a17e8a75a79e792adab9dc9baa767750f5",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/317f399d0db26e72.json.gz",
+      "gzip_bytes": 1145,
+      "gzip_sha256": "5f679986aae127abd6a6a84e3ded3773e473ebb89101b1e72e1802a0ecf4d1c7"
+    },
+    {
+      "fixture_path": "test_native_unknown_amount_pre2/budget.json",
+      "bytes": 4382,
+      "sha256": "4d86520a2e9ffb3ce0d5c21961d1902cea4f7358853184057721293b9bd214b2",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/b3aa6c375143e37e.json.gz",
+      "gzip_bytes": 1145,
+      "gzip_sha256": "0dde2c0f94f93d78103a91fef43ef5917fcaa8874a665e44550dd3fd91705c97"
+    },
+    {
+      "fixture_path": "test_native_zero_estimate_is_n0/budget.json",
+      "bytes": 2447,
+      "sha256": "f6655f61eb7907217a9ac29b6eb95cb3d8b72301acf869bb7d943784570ccfa1",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/3d29c05599a94683.json.gz",
+      "gzip_bytes": 860,
+      "gzip_sha256": "ca1fbfc1c4eee8508239f43cbd298730748e92f28c4e5abb9dc63051c09a65f4"
+    },
+    {
+      "fixture_path": "test_two_native_input_origins_0/budget.json",
+      "bytes": 4443,
+      "sha256": "22378f3c1056cacd0cbb4ab5f326b8adce89f819319a5abee0726190846485cb",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-deciding-ledgers/f835252a2e2a7012.json.gz",
+      "gzip_bytes": 1142,
+      "gzip_sha256": "0660a6362819441a15163df28338b8a1c8b96729aa842575137ffe67b471449d"
+    }
+  ]
+}

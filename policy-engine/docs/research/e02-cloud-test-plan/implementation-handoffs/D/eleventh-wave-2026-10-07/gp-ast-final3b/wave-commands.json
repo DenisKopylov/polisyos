@@ -1,0 +1,109 @@
+{
+  "GP-positive12": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_gp_wrapper_frozen.py",
+      "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12",
+      "positive12"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+    },
+    "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12.wrapper.stdout.txt",
+    "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12.wrapper.stderr.txt",
+    "script_sha256": "4685c4a8184b800235919cf631625df60be21475639c94db49723a3aea66aa6c",
+    "numerical_caps": "none introduced; inherited ownerprofile observed separately"
+  },
+  "GP-remove8": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_gp_wrapper_frozen.py",
+      "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8",
+      "remove8"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+    },
+    "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stdout.txt",
+    "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stderr.txt",
+    "script_sha256": "4685c4a8184b800235919cf631625df60be21475639c94db49723a3aea66aa6c",
+    "numerical_caps": "none introduced; inherited ownerprofile observed separately"
+  },
+  "AST-canonical63": {
+    "argv": [
+      "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+      "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63",
+      "canonical"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+    },
+    "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63.wrapper.stdout.txt",
+    "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63.wrapper.stderr.txt",
+    "script_sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+    "numerical_caps": "none introduced; inherited ownerprofile observed separately"
+  },
+  "AST-positive44": {
+    "argv": [
+      "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+      "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44",
+      "targeted44"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+    },
+    "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44.wrapper.stdout.txt",
+    "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44.wrapper.stderr.txt",
+    "script_sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+    "numerical_caps": "none introduced; inherited ownerprofile observed separately"
+  },
+  "AST-remove25": {
+    "argv": [
+      "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+      "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25",
+      "remove25"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+    },
+    "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25.wrapper.stdout.txt",
+    "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25.wrapper.stderr.txt",
+    "script_sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+    "numerical_caps": "none introduced; inherited ownerprofile observed separately"
+  },
+  "fragments3": {
+    "argv": [
+      "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/validate_selected_resume_fragments.py",
+      "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+    },
+    "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3.wrapper.stdout.txt",
+    "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3.wrapper.stderr.txt",
+    "script_sha256": "b53784a3d37dbe149cb74f0be38810a5f761eb9f695f210d6a0868dbad22f3a7",
+    "numerical_caps": "none introduced; inherited ownerprofile observed separately"
+  }
+}

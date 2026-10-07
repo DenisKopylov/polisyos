@@ -1,0 +1,25 @@
+{
+  "schema": "D.current-authoritative-source-footprint-reference.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "own_receipt_base": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+  "common_original_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "full_source_footprints": {
+    "external_source": "/dev/shm/e02-D-eleventh-root-s9l1y4uq/final-a795-complete-footprints.json.gz",
+    "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/full-source-footprints.json.gz",
+    "sha256": "dd59bae55468fc0b7eeb301e33ae73480bf81d8d39d6012938b26b533eab0030",
+    "bytes": 242813,
+    "role": "Authoritative complete1983796/617554/merged7328 pathsets andexactcandidate contenthashes; no trackedsourcecopies",
+    "availability": "exact_external_bytes_read_pending_root_publication_readback"
+  },
+  "selected_owning_mechanisms": {
+    "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+    "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+    "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+    "bytes": 100415,
+    "role": "Exact46 selected owning-source scopes, not complete import closure",
+    "availability": "exact_external_bytes_read_pending_root_publication_readback"
+  },
+  "complete_import_closure_established": false,
+  "no_raw_tracked_source_copies": true
+}

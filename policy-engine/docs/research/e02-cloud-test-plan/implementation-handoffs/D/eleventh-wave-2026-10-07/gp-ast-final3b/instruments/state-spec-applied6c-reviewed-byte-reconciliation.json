@@ -1,0 +1,37 @@
+{
+  "candidate": "6c1729a7bc86cf90d443d73515d98dd4ebfa2894",
+  "tree": "e2a0d7cc43fef185bee794944ed306ddc29e4ab8",
+  "reviewed_patch_sha256": "b3b68ea2466b1fc45811e0debc7d9a3edcb516fa8a58e861cbf75cb8744c6dda",
+  "all4_exact_applied_bytes": [
+    {
+      "path": "policy-engine/tools/quality/diagnostics/check_state_reads.py",
+      "candidate_blob": "e763bac72db9bdcd76cc9c82e5623a8f04444525",
+      "candidate_sha256": "4d7cf858fb2ef9f852e406a4962a605619c19ab89cc049b7ca4341fa10cf2af9",
+      "reviewed_draft_sha256": "4d7cf858fb2ef9f852e406a4962a605619c19ab89cc049b7ca4341fa10cf2af9",
+      "bytes_exact": true
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py",
+      "candidate_blob": "d1cb103824cf5bf7fbe0be20e9855709e3f06694",
+      "candidate_sha256": "ad556c6bb8976771e7b811ab06e35a83a698bf6151bc4ad309a1b69b515844e2",
+      "reviewed_draft_sha256": "ad556c6bb8976771e7b811ab06e35a83a698bf6151bc4ad309a1b69b515844e2",
+      "bytes_exact": true
+    },
+    {
+      "path": "policy-engine/tools/quality/diagnostics/README.md",
+      "candidate_blob": "f9d5964d710e53a38ab605982581ba96d9456c0a",
+      "candidate_sha256": "805e484189cea0c25931da2c41ed0cff5203d5e1f507523d59e5938c6685796e",
+      "reviewed_draft_sha256": "805e484189cea0c25931da2c41ed0cff5203d5e1f507523d59e5938c6685796e",
+      "bytes_exact": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-state-read-binding-ambiguity.toml",
+      "candidate_blob": "99d56dd89b3a23a2cf01e759b1cc475c1b5b73c4",
+      "candidate_sha256": "b6951cf2bd3b3d5c3f7d7bc299f4975dbfe6012efc07780e852bd17feceec9f2",
+      "reviewed_draft_sha256": "b6951cf2bd3b3d5c3f7d7bc299f4975dbfe6012efc07780e852bd17feceec9f2",
+      "bytes_exact": true
+    }
+  ],
+  "runtime": "UNRUN awaiting combined freeze",
+  "classification": "author artifact integrity only; independent Transfer5cd44 source-review separate"
+}

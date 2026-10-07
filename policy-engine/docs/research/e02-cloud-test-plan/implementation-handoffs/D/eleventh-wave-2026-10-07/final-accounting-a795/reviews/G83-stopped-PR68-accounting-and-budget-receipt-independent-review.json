@@ -1,0 +1,565 @@
+{
+  "schema": "D.census.G83-stoppedPR68-accounting-and-budget-review.v1",
+  "reviewer": "/root/census_oct07",
+  "mode": "READ_ONLY; no child/source/index/ref/merge/checkout/test/cleanup mutations",
+  "pins": {
+    "original_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "original_main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "D_implementation": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "D_implementation_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "D_receipt": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+    "D_receipt_tree": "82ca9b751e508437ee557a6bda2fe529a45ac8b0",
+    "G_fetched": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "G_tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d",
+    "prior_G": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+    "root_notified_ordinary_merge": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+    "merge_tree": "ed9cb531070e8e6ca72c3ba07028495cc1edd5ad",
+    "merge_parents": [
+      "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+      "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+    ]
+  },
+  "instruction_and_G_review_bindings": [
+    {
+      "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+      "blob": "d549b92b6a33efc32ffcb7c27261538f06a8e26e",
+      "bytes": 8565,
+      "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79"
+    },
+    {
+      "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-pr68-680.md",
+      "blob": "e7b70f63df8c3efb896003660507fa359133cb56",
+      "bytes": 14785,
+      "sha256": "f42a80448bffc2fd111f9fb6303528c1f23b5656579f1eec90d2cd9fc0a3f04b"
+    },
+    {
+      "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/README.md",
+      "blob": "fe0c5c0a5afdfc57ead076f67eda90edba214c8a",
+      "bytes": 3279,
+      "sha256": "6d68518248fbec547711c4766488aa689d272b28c789eb48c567a7f43672e6d0"
+    },
+    {
+      "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/D.md",
+      "blob": "794bf02addcc26bf942919ac13833f11a5e676b8",
+      "bytes": 9734,
+      "sha256": "0c9e52b40c5b3940f567be6b52be4953ce22bed2106c3671f3570ff9a6cfa276"
+    },
+    {
+      "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/B120-correction.md",
+      "blob": "fc1d085653036d6a6cdcb05cc21c4eedbec75195",
+      "bytes": 1970,
+      "sha256": "98ebad8c14fde6c2c9cf4c1a434be71b06347b9837a0bd6971c3d0c3100ebd5d"
+    },
+    {
+      "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/D-prompt-independent-review.md",
+      "blob": "b355557ea0d87cb34cfe6015fd961ec917804be9",
+      "bytes": 5483,
+      "sha256": "e38c00d4d1d5cf650bcd8d3f9cdc6fb9b4d1a8c4bdb87b865da14965e6da1082"
+    },
+    {
+      "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/final-publication-review.md",
+      "blob": "2e5d3e1334d49bdf5b2454222fae16c491582b07",
+      "bytes": 4305,
+      "sha256": "6d54afc3815e213203e2755918f63c1d07d07358add66203be7f03efc1a5e2be"
+    }
+  ],
+  "mandatory_reading": "Full latest tracked prompt, AGENTS, CONTRIBUTING, HANDOFF, current COMMON and deciding G docs/receipt/runner/test source read; previously fully read unchanged register/organization/closure pack retained with exact source delta checks. No ownership from query labels.",
+  "accounting": {
+    "ledger": {
+      "source": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+      "blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+      "bytes": 467218,
+      "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee"
+    },
+    "unchanged_on_merge": true,
+    "complete_original46_fragment_acceptance_and_17card_SHA_checks": "PASS zero mismatch",
+    "bundles": 17,
+    "unique_IDs": 45,
+    "occurrences": 46,
+    "owner_packets": 16,
+    "occurrence_proposals": {
+      "closed": 40,
+      "limited": 1,
+      "held": 5
+    },
+    "historical_unique_proposals": {
+      "closed": 39,
+      "held": 5,
+      "limited": 1
+    },
+    "formal_closed": 0,
+    "accepted_G": 0,
+    "P41": "not_established on46",
+    "owner_tables": [
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+        "blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+        "bytes": 12413,
+        "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+        "full_rows": 127,
+        "D_rows": 17,
+        "unchanged_since_G767": true
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+        "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+        "bytes": 9504,
+        "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+        "full_rows": 282,
+        "D_rows": 45,
+        "unchanged_since_G767": true
+      }
+    ],
+    "LA015": "CTL-01 supplier companion +SRV-03 canonical closure owner",
+    "current_reading_rule": "Historical39 proposals remain immutable; new generic-resume/estimated-projection/static-checker residuals and changed dependencies require owner disposition before an unqualified successor completion claim."
+  },
+  "B120": {
+    "original_document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "original_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "lines": [
+      3192,
+      3205
+    ],
+    "bytes": 3460,
+    "sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29",
+    "acceptance_text": "**Приёмка.** Одна измеряемая трата видна владельцу, остановке и результату; нет двойного списания кэша и обнуления при retry. Внешняя независимая бюджетная защита может уже остановить соответствующий маршрут: опыт не доказывает обход всех ограничений PolicyOS.",
+    "scope": "Existing canonical budget owner scoped/unit-aware confirmed spend/reserves -> admission/stopping/result, honest unknown, no cache doublecharge or retryzero. Universal external budget bypass-proofness/vendor invoice truth is expressly not original B120.",
+    "G_coverage_exact_surgical_changes": [
+      "/findings/32/selected_plan_not_executed/acceptance_command",
+      "/findings/32/selected_plan_not_executed/capability_state_label",
+      "/findings/32/selected_plan_not_executed/concrete_next_task",
+      "/findings/32/selected_plan_not_executed/independent_oracle_after_integration",
+      "/findings/32/selected_plan_not_executed/next_owner",
+      "/findings/32/selected_plan_not_executed/remaining_input"
+    ],
+    "other281_rows_original_criteria_closure_now_unchanged": true,
+    "current_verdict": "Bounded owner/controller/freshCAS bridge supported; integrated-source code acceptance/formal closure remains pending, not bridge_missing."
+  },
+  "G_factory10": {
+    "ref": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "prefix": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/",
+    "complete_published_packet_bindings": [
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/README.md",
+        "blob": "d1366284e683ff4358a0c9ffe68619bf94397438",
+        "bytes": 2753,
+        "sha256": "23528b0b89c49a43de44c341cc6697ee4196707cce67b6829f32ee162871efd6"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/candidate_pytest_runner.py",
+        "blob": "4b3fd0144904acbe551d9851ed7c00fa3948611b",
+        "bytes": 5683,
+        "sha256": "7be92b4444bb4520abac4e5000555d603290effb82cbbf124330260889561f41"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/dependency-inventory.json",
+        "blob": "a41fb2d6af10da1a277620165b9b26741bb062cb",
+        "bytes": 11747,
+        "sha256": "dddd8c29847a4d7d69f748c5b08e14223a28ca3537f4e4bd5fa2e0199034d460"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/environment-history.json",
+        "blob": "dbda0ebaad5060c4fb45196c4b4a2bd6ca219de6",
+        "bytes": 3108,
+        "sha256": "891c831d70ef20d7de5202fb0e3db4067eca58698c775a2a8482eba38e0f95f5"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/environment-readback-execution.json",
+        "blob": "51b8a7d2e266247c532c86863e2434d28a5b70ed",
+        "bytes": 695,
+        "sha256": "439c7b05cb6671edc23bcddc87d0c110f1ca2bafba17d2db82291270b7b26586"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/environment-readback.json",
+        "blob": "e38bdbd106ec34016f42b150bb3a51920a1dff55",
+        "bytes": 1326,
+        "sha256": "99425cf697e74e41d70f1d1823cdc28568cce251cab26c92560a7612acd3acd2"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-receipt.json",
+        "blob": "dd9bc36614d3055e558a01aa969862f8f77fb9f3",
+        "bytes": 13760,
+        "sha256": "181a2a60c53003f732ca3a1b3bdd26e293329a226e29b1dae9d4752c4beeb4fe"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-report.md",
+        "blob": "cec4079e3cf1528e3d5b7028a80051e1fbde595c",
+        "bytes": 4330,
+        "sha256": "9af9fc5418b51ee1c1bf83768867f36723f3e71b28a7bf315e71e12e9711412c"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/harness-repair-01.json",
+        "blob": "062a0d2cdd3d4622d51a1884078a1dbf7d7656a5",
+        "bytes": 4920,
+        "sha256": "66379e6a29bb3952084be5ec5ba50fc5b72ef2599ecbc8a4df1fa30e942be6c5"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/harness-repair-01.md",
+        "blob": "d27a6e7a7746527c56c4367d94a8bd2056a4985d",
+        "bytes": 1450,
+        "sha256": "6ee4cc2146144a60e0b89a0f135e52b13cb811e22a0b4a0263e415a9c1cfe1d3"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/owner-budget-factory.attempt-02.junit.xml",
+        "blob": "616364bbfaf11663ba285a585349ca50c71f6107",
+        "bytes": 2186,
+        "sha256": "a540cfc627c54d2e133fd29598f6638cc2103f082e5261969b856ee2aa285a08"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/pytest.attempt-02.stderr.txt",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/pytest.attempt-02.stdout.txt",
+        "blob": "7fb81dacd0b4c10235bffcc36bbb844d8caeea87",
+        "bytes": 5328,
+        "sha256": "16bdd1cc561e94bc8360fe3b2f31897df877bc0f2dd9d8a1cf93b342362890f0"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/receipt-attempt-02.json",
+        "blob": "06e4140b683f2f1520e61b7bc91301f26bfbec33",
+        "bytes": 6387,
+        "sha256": "402f9414549356dfaf516350aab44091958582de5881bfafe9475dba36bb7cc8"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/run_wave_driver_attempt02.py",
+        "blob": "e9e72fb639310dc3cbc79efaa53d4c8529e0a0a2",
+        "bytes": 8831,
+        "sha256": "eeab304d3b4b04ebc0f71a00983f30c15b181ae69831cfe5442446acef8b7e53"
+      },
+      {
+        "source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/source-immutability-attempt-02.json",
+        "blob": "1a408a1861a0b34414cfaca6eff4376c79616f61",
+        "bytes": 487,
+        "sha256": "c80fbc2f89115fbe7bbbf94506974b26e4df9f6ac4ec2700ab8c4b07d804c860"
+      }
+    ],
+    "candidate": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "test": {
+      "commit": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "implementation_test_path": "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+      "test_git_blob": "a0aea243679bf00941607134cc21990b4e2d5e0f",
+      "test_sha256": "922009de411b72438d0e05f6dd7c82e984e2db0a9d995e0f8833b3b0a756889f"
+    },
+    "repaired_tracked_config": {
+      "path": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "mode": "100644",
+      "type": "blob",
+      "git_blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f",
+      "size": 38632,
+      "sha256": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+      "actual_mode": "000644"
+    },
+    "JUnit": {
+      "bytes": 2186,
+      "sha256": "a540cfc627c54d2e133fd29598f6638cc2103f082e5261969b856ee2aa285a08",
+      "PASS": 10,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "case_names": [
+        "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot[run-0]",
+        "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot[run-1]",
+        "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot[native-resource-0]",
+        "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot[native-resource-1]",
+        "test_public_runner_paid_cutoff_refuses_before_actual_generator_and_evaluator",
+        "test_public_factory_pending_owner_fence_survives_fresh_cas_restore_and_resume[1e-1000]",
+        "test_public_factory_pending_owner_fence_survives_fresh_cas_restore_and_resume[-1e-1000]",
+        "test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero",
+        "test_public_factory_resume_refuses_changed_cost_scope_or_rule[key]",
+        "test_public_factory_resume_refuses_changed_cost_scope_or_rule[limit]"
+      ]
+    },
+    "deciding_stdout_stderr_JUnit_crosslinks": "all exact SHA/bytes agree with immutable final receipt",
+    "consumer": "Real TextGateway response bytes -> TracedLLMClient/enforcer -> canonical settlement/BudgetMiddleware/FileBudgetLedger -> public SearchLoopRunner -> qualifiedCAS checkpoint/fresh reader restore/resume; paid/truezero, ±tiny pending, afterpreflightowner race, key/limit refusal assertions read in actual exacttest.",
+    "runtime": {
+      "Python": "3.14.3",
+      "pytest_seconds": 7.809,
+      "wall_seconds": 11.777,
+      "sampled_peak_RSS_KiB": 554800,
+      "nonfatal_warnings": 6,
+      "local_one_thread_profile_not_cloud_quota": true
+    },
+    "identity": {
+      "G_recorded_tracked_source_config_test_rows": 2926,
+      "G_recorded_loaded_modules": 833,
+      "G_recorded_mismatches": 0,
+      "cloud_independent_scope": "Test/config candidateGit hashes, full deciding output/JUnit arithmetic and binding crosslinks, full importguard/driver and source recipe reviewed. Complete raw2926manifest/833origins are local-only locators, not independently enumerated by leaf."
+    },
+    "first_attempt": {
+      "collected": 10,
+      "JUnit_failures": 6,
+      "JUnit_errors": 0,
+      "classified": "HARNESS_INPUT_INCOMPLETE/ERROR: six FileNotFoundError instances on same tracked TOML, no product assertion failures",
+      "first_stdout_SHA": "453ddabdb3351d7d5c96c7b103b1d8664b3eae8259f6ee658c47db5ca539f13a",
+      "first_JUnit_SHA": "86c64bf6792990888c41856aa6f41a38db40ed67b25f05be77b30eefca5d9696",
+      "raw_history_cloud_availability": "not_established; complete rawfirstattempt files local hash locators only in fetchedpacket",
+      "repair": "Exactly candidateTOML added; wrong stagingplacement refusedpreflight before any new test; one bounded exact rerun then10PASS."
+    },
+    "environment_history": "695B execution snapshot hash439c7… vs1326B augmentation99425… independently checked as distinct immutable Git bindings",
+    "carry_rule": "No rerun of the unchanged exact680 receipt. A successor changes source/dependencies: carry only complete exact unchanged inputs or run only affected cases after finalfreeze; never relabel this as merge73/newSHA execution."
+  },
+  "G_delta": {
+    "since767_paths": 81,
+    "all_E02_docs": true,
+    "full_path_set": [
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-d030.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C-resume-after-c54-v10.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-pr68-680.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-offline-519e.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/candidate_pytest_runner.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/dependency-inventory.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/environment-history.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/environment-readback-execution.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/environment-readback.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-report.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/harness-repair-01.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/harness-repair-01.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/owner-budget-factory.attempt-02.junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/pytest.attempt-02.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/pytest.attempt-02.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/receipt-attempt-02.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/run_wave_driver_attempt02.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/source-immutability-attempt-02.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/.gitignore",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/independent-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/pytest.junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/runner-result.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/supervisor-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/report.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervisor-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/B-evidence.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/B.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/B120-correction.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/C-prompt-independent-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/C.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/D-prompt-independent-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/D.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/E-DOE.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/E-FRC.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/E-consumers.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/E-source.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/final-publication-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/pins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/storage/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/storage/audit.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/storage/native-Trash.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/B.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-journal-correction.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-journal-readback.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-prompt-independent-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/C.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/D.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E-IR-decision.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-prompt-independent-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/independent-publication-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/pins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-extractions-1116-native.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-old-admin-1008-native.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-old-and-env-1008-native.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/source-preservation.md"
+    ],
+    "G198_changed_paths": 532,
+    "G198_production_source_paths": [
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/src/polisyos/common/async_tools.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+    ],
+    "D198_changed_paths": 3261,
+    "overlapping_paths": 8,
+    "different_overlap_paths": [
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+    ],
+    "owner_implications": "Ledger/middleware/settlement test are canonical B dependencies; twoREADME overlaps are companions. G sharedasync is newer canonicalB/B333 source, not Droot old helper; downstream loaded/called source qualification required."
+  },
+  "ordinary_merge_readback": {
+    "canonical_B12_preservation": [
+      {
+        "source": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+        "bytes": 59381,
+        "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+        "equals_D617_and_canonicalB_f011": true,
+        "G83_source_sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+      },
+      {
+        "source": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+        "bytes": 10751,
+        "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+        "equals_D617_and_canonicalB_f011": true,
+        "G83_source_sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+      },
+      {
+        "source": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "blob": "a8a6ad561cc598fb72c7fd6c0e2170b0d11dd36f",
+        "bytes": 13720,
+        "sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+        "equals_D617_and_canonicalB_f011": true,
+        "G83_source_sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4"
+      }
+    ],
+    "G_only_three_executable_sources": {
+      "policy-engine/src/polisyos/common/async_tools.py": {
+        "merge": {
+          "source": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+          "path": "policy-engine/src/polisyos/common/async_tools.py",
+          "blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+          "bytes": 11846,
+          "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+        },
+        "equalsG83": true
+      },
+      "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py": {
+        "merge": {
+          "source": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+          "path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+          "blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+          "bytes": 15975,
+          "sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230"
+        },
+        "equalsG83": true
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": {
+        "merge": {
+          "source": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+          "bytes": 209996,
+          "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+        },
+        "equalsG83": true
+      }
+    },
+    "changed_src_tool_test_paths": [
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/src/polisyos/common/async_tools.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/tests/unit/common/test_async_tools.py",
+      "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py",
+      "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+      "policy-engine/tests/unit/runtime/http/test_control_plane_store.py"
+    ],
+    "source_acceptance": "Ordinary merge observed, not made by leaf; parent two refs exact. No D main/G publication or formal finding acceptance inferred.",
+    "current_budget_receipt_dependency_gap": "G test/origins are exact680. New root async helper and subsequent Service/history/FUN changes need affected-consumer qualification on one frozen successor; unchanged680 witness is retained, not repeated pre-freeze."
+  },
+  "remaining_tasks": {
+    "generic_history_resume": {
+      "owner": "D SearchService/strategy restore",
+      "clause_join": "B125 persisted supported state nextsequence; LA014/LA015 resumed semantics; B127 pending/completed only if its consumed-history profile is affected",
+      "discriminator": "Empty/truncated state digests with markers retained must refuse before generator/pending/checkpoint mutation; realservice/CAS/freshreader compares nextproposal to uninterrupted, or unsupportedprofile refuses."
+    },
+    "estimated_only_funnel_projection": {
+      "owner": "D FUN ordinary canonicalprojection if confirmed",
+      "discriminator": "sole estimated0.5 must not become reported0; actualordinaryconsumer estimated-only/realreportedzero/mixed/unknown preserves origin."
+    },
+    "_SPEC_diagnostic": {
+      "owner": "Existing architecture/devx checker",
+      "discriminator": "one supported directunambiguous binding, generic refusal/resolution of multiplewrites; overwrite/dead/nested adversary, static-only no runtimeclaim."
+    },
+    "old48_plus_contract2": {
+      "actualsource": "96905636726483fdea3a98d9313871d825b54a9e",
+      "changeddependency": "search/objective.py after969, plus current merged dependencies",
+      "minimal_selectors": [
+        "tests/unit/scientist/methods/autotune/test_dedup.py",
+        "tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+        "tests/unit/scientist/search/test_contracts.py"
+      ],
+      "rule": "currentfrozen affected-only run/or complete importclosure disjointness, no widerSearch/GP replay."
+    }
+  },
+  "unavailable_owner_positives": {
+    "held": [
+      "B131",
+      "B137",
+      "B157",
+      "B161",
+      "B164"
+    ],
+    "limited": "B108 actual fiscal producerunit/sign/alias law",
+    "minimum_inputs": "Real owner artifact/purpose/basis refs only, no wholesale production/cloudtransfer."
+  },
+  "baseline_preflight": {
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+    "initial_exit": 1,
+    "initial_cause": "physical sparse checkout missing tracked full-run/allocation.json",
+    "classification": "harnessinput missing, not productFAIL/P41 inheritedred",
+    "complete_verification_read": true,
+    "queries": "notrun pending admittedcheck, no transferredbaseline decidingevidence consumed"
+  },
+  "P37_P38": "Fullpublishedoutput/JUnit/sourcebindings recomputed/independentlyreconciled. LocalG2926/833 frame is recorded bounded issuerG receipt, rawcloudenumeration notestablished. Actualledger/freshreader vs traceamount; fullconsumedhistory vs prefix; reportedorigin evidence vs empty sum; currentruntime vs staticSPEC all have nameddivergence.",
+  "P41": "not_established, no slice-base replay/zero-overlap waiver",
+  "cleanup": "No leaf cleanup. Latestprompt nativeTrash only for verifiedunusedregenerable leaves; absentnativeTrash listcandidates. Prior permanentcleanup authorization/receipts historical only.",
+  "result": "ACCOUNTING_AND_EXACT680_BUDGET_RECEIPT_RECONCILED; ordinarymerge canonicalB source preservation readbackPASS; currentmechanism/affectedverification tasks remain."
+}

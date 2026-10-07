@@ -1,0 +1,41 @@
+{
+  "schema": "e02.D.sealed-publication-files.v1",
+  "root": "/tmp/e02-D-requested-three-publication-final3b31-9j05odyr",
+  "publication_relative_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/pr68-requested-three-final3b31",
+  "files": [
+    {
+      "source": "/tmp/e02-D-requested-three-publication-final3b31-9j05odyr/HANDOFF.json",
+      "relative_path": "HANDOFF.json",
+      "sha256": "ff7ab772c9bdc25a678f7ad8b8aabfc280d3bd8824b747520ac09c8b901ba504",
+      "bytes": 15662
+    },
+    {
+      "source": "/tmp/e02-D-requested-three-publication-final3b31-9j05odyr/essential-deciding-output.json.gz",
+      "relative_path": "essential-deciding-output.json.gz",
+      "sha256": "931f520b7b484ddc1cec2be5915efb0bc5203e97e6eb543cb360a603aa2981fb",
+      "bytes": 234346
+    },
+    {
+      "source": "/tmp/e02-D-requested-three-publication-final3b31-9j05odyr/qualified-carry.json.gz",
+      "relative_path": "qualified-carry.json.gz",
+      "sha256": "2a2e893a6a66adfd3f64e735eaf9e6b3696344af730bc973f41054a4ec678217",
+      "bytes": 67694
+    },
+    {
+      "source": "/tmp/e02-D-requested-three-publication-final3b31-9j05odyr/review/requested50-compact-output-and-a795-carry-independent-seal.json",
+      "relative_path": "review/requested50-compact-output-and-a795-carry-independent-seal.json",
+      "sha256": "8da74263b606de25c187c1d93a78d5cb006e9f56d03207ebaf2fa2aa0083ea60",
+      "bytes": 2063
+    },
+    {
+      "source": "/tmp/e02-D-requested-three-publication-final3b31-9j05odyr/review/requested50-final3b31-independent-runtime-review.json",
+      "relative_path": "review/requested50-final3b31-independent-runtime-review.json",
+      "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+      "bytes": 3840
+    }
+  ],
+  "runtime_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "qualified_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "scope": "Declared fivefiles only; no sourcecopies or raw fixture corpus. Preserve externalraw exacthash; no futurecloudavailability claim.",
+  "self_not_in_files": "output-manifest.json hash supplied separately to parent"
+}

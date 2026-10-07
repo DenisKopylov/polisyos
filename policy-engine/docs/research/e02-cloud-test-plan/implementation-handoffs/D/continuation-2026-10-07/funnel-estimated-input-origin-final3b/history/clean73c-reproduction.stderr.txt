@@ -1,0 +1,6 @@
+2026-10-07 13:37:11.226 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual canonical settlement acknowledgement unavailable before write
+2026-10-07 13:37:11.227 | DEBUG    | polisyos.common.logger:_call:120 - Funnel stopped at funnel_L3_medium: not promising (obj=inf)
+2026-10-07 13:37:11.244 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual canonical settlement acknowledgement unavailable before write
+2026-10-07 13:37:11.245 | DEBUG    | polisyos.common.logger:_call:120 - Funnel stopped at funnel_L3_medium: not promising (obj=inf)
+2026-10-07 13:37:11.260 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual canonical settlement acknowledgement unavailable before write
+2026-10-07 13:37:11.261 | DEBUG    | polisyos.common.logger:_call:120 - Funnel stopped at funnel_L3_medium: not promising (obj=inf)

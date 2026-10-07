@@ -1,0 +1,101 @@
+{
+  "schema": "e02.D.independent-review.v1",
+  "reviewer": "transfer_oct07",
+  "created_utc": "2026-10-07T13:42:41.385103+00:00",
+  "decision": "GO_SOURCE_ONLY",
+  "candidate_base": "6816fc538965e38c1f390ade717d0f991a31b1b1",
+  "manifest_sha256": "6db0ecd8af5b9c43a0178145ddd3e3cbfad0f22b11bb75b461181d3d52364dea",
+  "patch_sha256": "b3b68ea2466b1fc45811e0debc7d9a3edcb516fa8a58e861cbf75cb8744c6dda",
+  "files": [
+    {
+      "repo_path": "policy-engine/release-fragments/unreleased/2026-10-07-state-read-binding-ambiguity.toml",
+      "draft_sha256": "b6951cf2bd3b3d5c3f7d7bc299f4975dbfe6012efc07780e852bd17feceec9f2",
+      "bytes": 2303,
+      "complete_read": true
+    },
+    {
+      "repo_path": "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py",
+      "draft_sha256": "ad556c6bb8976771e7b811ab06e35a83a698bf6151bc4ad309a1b69b515844e2",
+      "bytes": 16232,
+      "complete_read": true,
+      "base_exact_current_match": true,
+      "unchanged_old_functions": [
+        "_node",
+        "tree",
+        "_run",
+        "test_actual_checker_admits_existing_declared_spec_constructor",
+        "test_actual_checker_preserves_missing_read_failure",
+        "test_outside_selector_evidence_cannot_supply_selected_read",
+        "test_unreadable_selected_utf8_remains_unrun",
+        "test_missing_enumerated_member_remains_unrun",
+        "test_unknown_case_constructor_remains_undecided",
+        "test_invalid_selected_python_remains_unrun",
+        "test_changed_declared_reads_changes_actual_failure_and_receipt",
+        "test_annotated_spec_assignment_remains_explicitly_unresolved",
+        "test_annotated_existing_spec_preserves_declared_read_admission",
+        "test_async_execute_missing_read_preserves_original_failure",
+        "test_nonliteral_reads_remain_undecided"
+      ],
+      "changed_old_functions": [],
+      "new_functions": [
+        "test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding",
+        "test_imported_source_name_does_not_create_a_local_spec_binding"
+      ]
+    },
+    {
+      "repo_path": "policy-engine/tools/quality/diagnostics/README.md",
+      "draft_sha256": "805e484189cea0c25931da2c41ed0cff5203d5e1f507523d59e5938c6685796e",
+      "bytes": 8877,
+      "complete_read": true,
+      "base_exact_current_match": true
+    },
+    {
+      "repo_path": "policy-engine/tools/quality/diagnostics/check_state_reads.py",
+      "draft_sha256": "4d7cf858fb2ef9f852e406a4962a605619c19ab89cc049b7ca4341fa10cf2af9",
+      "bytes": 10631,
+      "complete_read": true,
+      "base_exact_current_match": true,
+      "unchanged_old_functions": [
+        "_state_bucket",
+        "_string_arg",
+        "_string_subscript",
+        "_extract_execute_requirements",
+        "_read_value_to_path",
+        "_covers_prefix",
+        "_covers_exact",
+        "_iter_node_files"
+      ],
+      "changed_old_functions": [
+        "_extract_spec_reads",
+        "main"
+      ],
+      "new_functions": [
+        "_is_spec_binding",
+        "_extract_spec_binding"
+      ]
+    }
+  ],
+  "mechanism": "One generic syntactic binding census before selecting a sole direct module Assign/AnnAssign. Name Store/Del, import local name, argument, match mapping rest and other AST named binders are admitted to the census; multiple or unsupported declarations refuse as UNRUN rather than union. Prior required-read evaluator and measured input denominator remain intact.",
+  "test_review": "Complete existing 18 testcase scope retained, 25 actual checker ambiguity/scope refusal callers plus one genuine renamed-source import admission added. Actual checker.main, complete fixture enumeration/read/hash, status/exit and absence of success marker asserted; no fabricated runtime node authority.",
+  "P37": {
+    "basis": "independently_reconciled_source",
+    "runtime": "UNRUN until immutable applied source",
+    "property": "No ambiguous or nested declaration supplies a purported admitted module read; genuine missing read remains FAIL and unresolved syntax remains UNRUN."
+  },
+  "P38": {
+    "divergent_proxy": "Union of nonempty read markers from overwritten/dead/local declarations would pass even when current module declaration does not supply the required read.",
+    "falsifier": "Restore previous union intake with actual two direct declarations first nonempty/last empty; actual command must lose expected UNRUN and test assertion must FAIL rather than setup ERROR."
+  },
+  "P40": {
+    "classification": "deeper prior static declaration/admission class, widened once through generic binding intake",
+    "not_new_authority": "Does not appoint A B04 closure or runtime reaching-definition law."
+  },
+  "compatibility": "Bounded tooling behavior narrows to one unambiguous direct declaration; ambiguous unsupported cases exit2 incomplete explicitly documented as breaking in internal-tooling fragment. Existing canonical command, single supported constructor and missing-read exit1 unchanged.",
+  "limitations": [
+    "Conservative harmless local/dead shadow and reverse valid rebind remain UNRUN.",
+    "Dynamic writes, star-import effects, aliases/object mutation, reaching definitions and runtime dispatch are not established by this diagnostic.",
+    "No production/runtime or formal finding closure from this static-only review.",
+    "Removal plugin not yet reviewed/executed; exact runtime positive44 and actual old-intake negative required after freeze."
+  ],
+  "no_source_index_git_mutations": true
+}

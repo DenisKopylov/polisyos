@@ -1,0 +1,22 @@
+{
+  "scope": "Interpreter-only predicate removal, not a product-source change or inherited-red attribution",
+  "source_path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+  "function": "FunnelOrchestrator.advance",
+  "original_function_sha256": "10c73af69aff33c41ae0fb280024cdcc320c4d3236c7c614eeb577d08f550994",
+  "removed_function_sha256": "950c0e10a70b7fc738a488803e36ab9ad50416c6f11b98b42975be9745f53093",
+  "changed_predicates": [
+    "reported amount subset admission",
+    "reported status subset admission"
+  ],
+  "retained_tokens": [
+    "feedback[\"resource_estimated_input_usd\"]",
+    "feedback[\"resource_estimated_input_status\"]",
+    "feedback[\"resource_settlement_pending\"]",
+    "feedback[\"resource_settlement_status\"]",
+    "feedback[\"resource_unknown_ack_readback_ids\"]",
+    "\"payload_digest\": value.event.payload_digest",
+    "\"budget_keys\": list(value.budget_keys)",
+    "else \"not_reported\""
+  ],
+  "expected_divergence": "estimated-only known input produces old synthetic reported zero; estimated and pending markers remain"
+}

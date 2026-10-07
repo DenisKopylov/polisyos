@@ -1,0 +1,31 @@
+{
+  "schema": "D.independent.compact_FUN_seal.v1",
+  "reviewer": "census_oct07",
+  "review": "GO",
+  "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "single_test_fixture_delta": [
+    "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+  ],
+  "manifest": {
+    "path": "/dev/shm/e02-D-funnel-oct07/estimated-origin-final3b-publication-v2/output-manifest.json",
+    "sha256": "eac805d3913e75989af44060b41fe5c28710b65570a6800f3f934d77e93c7717",
+    "bytes": 79748
+  },
+  "members": 143,
+  "bytes": 372886,
+  "runtime_review": {
+    "path": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+    "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+    "bytes": 8205
+  },
+  "older_receipt_execution_attribution_reconciled": true,
+  "all_portable_bytes_and_destination_membership_verified": true,
+  "candidate_scope": "FUN four implementation/source/test blobs unchanged; this is manifest/source seal, not a new17 execution at a795.",
+  "limitations": [
+    "Large complete origin/input/resource inventories remain ignored exact path/hash references and were independently read in runtime review; no claim those inventories are in Git.",
+    "Actual17 and removal11 remain3b; no wholeNode.run, invoice, global quality or G acceptance claim."
+  ],
+  "formal_closed": 0,
+  "accepted_in_G": false
+}

@@ -1,0 +1,82 @@
+{
+  "files": [
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.inputs.json",
+      "bytes": 1201670,
+      "sha256": "267950573494031f48ad7dc8edadc42b5c16df5b8dddd753bf1fe2cbb08af172",
+      "purpose": "inputs.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.modules.json",
+      "bytes": 415570,
+      "sha256": "4469ec404fc328e69701b9b494f5d7b28dee720bcda888c7b626cc794c21be87",
+      "purpose": "modules.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.environment.json",
+      "bytes": 10503,
+      "sha256": "28fdd07f411ed3b4385bb58d13110b62296526dd6ce61c7eae01ae4a05ddfbc0",
+      "purpose": "environment.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.cgroup-before.json",
+      "bytes": 506,
+      "sha256": "6f86d3182901b9373c4ec24ebdc8b395b1faf20f5e042dfcd08bad5ff2d8522d",
+      "purpose": "cgroup-before.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "62655b25241f4a0222b988284f150e48549f374f6f1a4c724fbc822b699b64c3",
+      "purpose": "cgroup-after.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b.inputs.json",
+      "bytes": 1201670,
+      "sha256": "267950573494031f48ad7dc8edadc42b5c16df5b8dddd753bf1fe2cbb08af172",
+      "purpose": "inputs.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b.modules.json",
+      "bytes": 415570,
+      "sha256": "ca0125e92b80baa10c72237c5af2187a89a5259f78bff2b5b00d44109a650877",
+      "purpose": "modules.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b.environment.json",
+      "bytes": 10503,
+      "sha256": "28fdd07f411ed3b4385bb58d13110b62296526dd6ce61c7eae01ae4a05ddfbc0",
+      "purpose": "environment.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b.cgroup-before.json",
+      "bytes": 507,
+      "sha256": "ba77dd30949cfa0c5ac8abc982339e4e8a75c53e6d39dd94dd3d62417707b7dc",
+      "purpose": "cgroup-before.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "6cd54b7befd306f915b2a4cc3fd01137951761e1503588cd30dd11c475ff8dea",
+      "purpose": "cgroup-after.json",
+      "scope": "Ignored diagnostic/provenance artifact; independently reviewed by hash/Git identity, not a requested cloud input or new execution claim"
+    }
+  ],
+  "complete_inventories_remain_ignored": true,
+  "independent_initial_Git_identity_review": {
+    "path": "reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+    "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+    "available_initial_inputs_matched": 6320,
+    "loaded_module_rows_per_cohort_matched": 1174
+  },
+  "cloud_availability_claim": false
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "D.current.production-invocation-attempt.v1",
+  "reviewer": "census_oct07",
+  "check_result": "UNRUN",
+  "finding_verdict_not_inferred": true,
+  "slice_base": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+  "executed_candidate": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "current_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+    "--receipt",
+    "/tmp/e02-D-production-invocation-final3b31-census/run/production-invocation-receipt.json"
+  ],
+  "returncode": -9,
+  "signal": 9,
+  "receipt_admission": {
+    "verdict": "ERROR",
+    "reasons": [
+      "executed_pytest_or_command_process_origin_packet_missing"
+    ],
+    "expected_case_denominator": null,
+    "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+    "command_without_pytest_no_case_property_claim": true,
+    "actual_collected": 0,
+    "phase_denominator": 0,
+    "missing_python_child_packets": [],
+    "sparse_unread_boundaries": 8894,
+    "property_result_distinct_from_receipt_admission": true
+  },
+  "elapsed_seconds": 180.0337510399986,
+  "sampled_peak_process_family_rss_kib": 4099028,
+  "canonical_deciding_receipt_available": false,
+  "canonical_initial_selected_python_files": 6035,
+  "all_selected_python_inputs_initially_available_and_Git_bound": true,
+  "tracked_input_denominator": 17350,
+  "available_inputs": 8456,
+  "before_after_input_identity": true,
+  "complete_raw_receipt": {
+    "external_path": "/tmp/e02-D-production-invocation-final3b31-census/run/receipt.json",
+    "sha256": "99fd4e470c8e993b6b8bb91e4316e8bd765eda67bf0d02f6bcea93ab9ff7103a",
+    "bytes": 72984,
+    "cloud_availability": "not_established; complete raw inventories remain ignored"
+  },
+  "raw_outputs": [
+    {
+      "path": "command.json",
+      "bytes": 36629,
+      "sha256": "07cce82dee675c5e69cad5b44273b545e4d377a798cd6b6cd1c29cab53eb35da"
+    },
+    {
+      "path": "inputs-after.json.gz",
+      "bytes": 1107683,
+      "sha256": "429a7b181f49692b647a0b00039434455173e0a35885b07ab7ea0218ad520e2e"
+    },
+    {
+      "path": "inputs-before.json.gz",
+      "bytes": 1107683,
+      "sha256": "429a7b181f49692b647a0b00039434455173e0a35885b07ab7ea0218ad520e2e"
+    },
+    {
+      "path": "origins/process-628365.json",
+      "bytes": 27933,
+      "sha256": "a1abdc73b81ea5684ed56b4b6b8799770aa61054ab4588791098e91003b4a6ec"
+    },
+    {
+      "path": "rss-samples.json",
+      "bytes": 288361,
+      "sha256": "dd21a42cde33711261e8d961614c4599740f54f2117876b773fc2904f35823fa"
+    },
+    {
+      "path": "stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "memory_interval_observation": {
+    "source": "Root read-only shared-cgroup observation in same interval, no PID-specific kill record",
+    "oom_before": 300,
+    "oom_after": 301,
+    "oom_kill_before": 57,
+    "oom_kill_after": 58,
+    "PID_specific_cause": "not_established"
+  },
+  "capability_state_label": "verification_missing",
+  "cause": "not_established",
+  "scope": "Static direct-invocation diagnostic only; no runtime integration witness, product FAIL, inheritedP41 waiver or automatic OOM attribution. No rerun without changed dependency/capacity."
+}

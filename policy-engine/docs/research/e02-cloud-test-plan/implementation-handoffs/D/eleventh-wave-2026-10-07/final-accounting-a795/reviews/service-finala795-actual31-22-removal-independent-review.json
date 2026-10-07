@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-07T15:08:56.850211+00:00",
+  "reviewer": "transfer_oct07; independent of Service production/test/fixture author",
+  "verdict": "GO_BOUNDED_EXECUTED_PROPERTIES",
+  "implementation_sha": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "actual_runtime_root": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u",
+  "backend": "minimal Python3.14.7/pytest9/pydantic2.12.5; native typed CAS/service/Adapter/Sequence/RL ports; numerical Torch/HNSW profile cells are admission/refusal only",
+  "input_reconciliation": {
+    "index": 17350,
+    "available": 8456,
+    "sparse": 8894,
+    "scopes": {
+      "new31": {
+        "origins": 3353,
+        "repo_origins": 848,
+        "phases": 93,
+        "phases_outcomes": {
+          "setup:passed": 31,
+          "call:passed": 31,
+          "teardown:passed": 31
+        },
+        "cases": {
+          "PASS": 31,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "returncode": 0,
+        "all_output_hashes_match": true
+      },
+      "affected22": {
+        "origins": 3665,
+        "repo_origins": 1159,
+        "phases": 66,
+        "phases_outcomes": {
+          "setup:passed": 22,
+          "call:passed": 22,
+          "teardown:passed": 22
+        },
+        "cases": {
+          "PASS": 22,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "returncode": 0,
+        "all_output_hashes_match": true
+      },
+      "consumption-removal1": {
+        "origins": 3354,
+        "repo_origins": 848,
+        "phases": 3,
+        "phases_outcomes": {
+          "setup:passed": 1,
+          "call:failed": 1,
+          "teardown:passed": 1
+        },
+        "cases": {
+          "PASS": 0,
+          "FAIL": 1,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "returncode": 1,
+        "all_output_hashes_match": true
+      }
+    }
+  },
+  "complete_index_Git_match": true,
+  "all8456_available_sha256_and_blob_ids_recomputed": true,
+  "sparse8894_explicitly_named": "captured complete17350 command inputs; unavailable files are not counted as executed",
+  "actual_CAS": {
+    "valid_blobs": 439,
+    "qualified_views": 439,
+    "mismatch_blobs": [],
+    "selected_refs": [
+      {
+        "ref": "sha256:a4a8b433b7db9b9333d88d72a9efcc7f6e51eb0d1e5f32450f5182d8d3e7f59c",
+        "history_rows": 3,
+        "count": 2,
+        "rows": 2,
+        "digests": 2,
+        "native_owned_consumed_values": [
+          1,
+          2
+        ],
+        "native_owned_consumed_sum": 3
+      },
+      {
+        "ref": "sha256:98694f6b0b34c34889dc5097c6dd6cc9b0ed15925bcabe505da587f0cf8ac732",
+        "history_rows": 3,
+        "count": 2,
+        "rows": 2,
+        "digests": 2,
+        "native_owned_consumed_values": [
+          1,
+          2
+        ],
+        "native_owned_consumed_sum": 3
+      },
+      {
+        "ref": "sha256:a996da9831d2db53eec98c750b0e009ebd7b5443324282a20f2c3e5e115fc65c",
+        "history_rows": 3,
+        "count": 1,
+        "rows": 1,
+        "digests": 1,
+        "native_owned_consumed_values": [
+          1,
+          2
+        ],
+        "native_owned_consumed_sum": 3
+      }
+    ]
+  },
+  "independent_next_proposal_arithmetic": {
+    "history": [
+      1,
+      2,
+      4
+    ],
+    "original_consumed_prefix": [
+      1,
+      2
+    ],
+    "unconsumed_tail": [
+      4
+    ],
+    "expected_fresh_next": 8,
+    "negative_replayed_owner_values": [
+      1,
+      2,
+      2,
+      4
+    ],
+    "negative_wrong_next": 10,
+    "actual_positive_next": 8,
+    "actual_removal_next": 10,
+    "original_native_bytes_preserved": true,
+    "history_configuration_pending_and_cursor_preserved": true,
+    "no_fresh_evaluator_calls": true
+  },
+  "actual_consumer_chain": "source-custodied SearchLoopRunner factory -> actual evaluator/candidate/evaluation/suite CAS -> acknowledged service checkpoint -> pure history admission before restore -> fresh next proposal; pending13 fixture-owned complete corpus/cursor and composed put/readback faults -> independent reader actual restored checkpoint",
+  "fresh_child_origins": {
+    "observed_reports": 8,
+    "per_report_repo_origins_verified": 4,
+    "unique_fault_types": [
+      "put",
+      "readback"
+    ],
+    "each_fault_writer_next_proposal": 2,
+    "fixture_source_sha256": "da117cc31b86f0c85327435f6b0d25317852701df76723506866b350a23e0b6a"
+  },
+  "negative": {
+    "plugin_path": "/dev/shm/e02-D-service-history-binding-drafts/e02_history_consumption_removal.py",
+    "plugin_sha256": "85d6619fcfd07531b5f61569794bc444166db607665e3c3a5480ea4ff96a8177",
+    "removed_only": "canonical StrategyAdapter._validate_strategy_consumption owner relation",
+    "retained": "qualified CAS, exact v2 full-row/count/digest structural checks, config, native StrategyState, actual complete service history, public factory and RNG",
+    "result": "one real call-phase assertion FAIL after actual fresh restore accepted corrupted shortened corpus and actual wrong proposal10; setup and teardown PASS; no ERROR/SKIP"
+  },
+  "P37": "original generic resume history influences the next proposal via actual update-owned accumulator; erased/shortened consumed corpus cannot be inferred from count/digest pair alone; strict owner relation is measured",
+  "P38": "same markers/config/native state plus syntactically matching shortened count/rows/digests diverges physically: intact8 vs removal10; aggregate success proxy would miss corruption",
+  "P40": "deeper same generic state/history binding class widened at owner admission + direct closed-profile service boundary; borrowed/instance/private call overrides conservative live-only, not adversarial Python security",
+  "P41": "not_established; baseline failures and old mixed-wave owned fixture failure remain exact historical evidence, no inherited-red claim",
+  "historical_receipts": {
+    "3b31_affected": "36PASS/1owned batch-fixture FAIL preserved; a795 correct fixture-own pure complete-corpus/cursor port retested actual22",
+    "3b31_new31_and_removal": "historical executed source; new current31 and removal explicitly rerun due whole persistence source-hash in native replay profile"
+  },
+  "outputs": [
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22.command.json",
+      "bytes": 8336272,
+      "sha256": "1cb18db175d3dc97298f5b8b68b83c9aa0842485895f8fce6313dd93be92b3e5"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22.junit.xml",
+      "bytes": 4533,
+      "sha256": "b2d270f53fcfd28de2933c23fdfb1031ce7d015392f94d9c71f81e81da88d707"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22.origins-phases.json",
+      "bytes": 969118,
+      "sha256": "f5ad2b8c2659f9489744e598a8fd7acb7655e5c5c5dfbee06de85daa1be6b742"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22.stderr.txt",
+      "bytes": 2103,
+      "sha256": "3e9ddaea44e9f7934cf38e18c02486d5abf2d88c0998fbea8f8c00bebb81c09a"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22.stdout.txt",
+      "bytes": 18855,
+      "sha256": "43f60df8b50ff72c9c2d4cef0890ac724be8d1f789f29385b8f65af30159ddd9"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22.summary.json",
+      "bytes": 902,
+      "sha256": "2f46fc5f21a0ac9012046cdf9cb2333821e3d397472513755a9d5a694f48b6da"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1.command.json",
+      "bytes": 8334967,
+      "sha256": "97b23b9af41a2769a66ffe3ffd2bf1b7e348dd819d418c80d3fcfe67f138e4a8"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1.junit.xml",
+      "bytes": 3888,
+      "sha256": "fc9d5c668b913f51bd4fab89109dd91d326d16c2c1202eca160c06e109b8cff6"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1.origins-phases.json",
+      "bytes": 860066,
+      "sha256": "3dd06cdb0aa17b6b0ca978a39079bb2eb76e8496a0eda0ae897ee6d148ddab89"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1.stdout.txt",
+      "bytes": 4959,
+      "sha256": "a5353b7f441c61d70c0164fe4c0a20f29babcee842b587c5125be9c04d2dca1b"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1.summary.json",
+      "bytes": 908,
+      "sha256": "4535d789e8338e9403b29d3498e028b72c2265a509b0eb97912b552064f1397c"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31.command.json",
+      "bytes": 8334427,
+      "sha256": "d5529fdf372cb406cf37c5409594f98f2094db717bcf788872aa4fd0e76a7b04"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31.junit.xml",
+      "bytes": 6495,
+      "sha256": "b57e4e0693631111be00278fa909f471d61dbcaeb0ecef94c74e6e6b9aa3ac18"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31.origins-phases.json",
+      "bytes": 887310,
+      "sha256": "812a09a9d21fcb4c53d14cd28e7e1da903370257c2de3061121bf5967d19237a"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31.stdout.txt",
+      "bytes": 941,
+      "sha256": "b9df054919dc7181b2632b14b005ff54b74ecc05cd0ba53079dffeab0b53a0b5"
+    },
+    {
+      "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31.summary.json",
+      "bytes": 893,
+      "sha256": "ce9434eb5addd0473c5da9a0607421bf7c6d6b1a57646fb637e6c446dde8a590"
+    }
+  ],
+  "limitations": [
+    "No generic opaque/NN live-only checkpoint profile claim; unsupported profile persists live safely and refuses resume.",
+    "Numerical GP/posterior and production data/authority criteria are separate exact receipts/owner inputs.",
+    "No formal finding closure/G acceptance/default served caller/scientific law/P41 claim.",
+    "Unknown cache_dir pytest warning remains; no test ERROR/SKIP."
+  ]
+}

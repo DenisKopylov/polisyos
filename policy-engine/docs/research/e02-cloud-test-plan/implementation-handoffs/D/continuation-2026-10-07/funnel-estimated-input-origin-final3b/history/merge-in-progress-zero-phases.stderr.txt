@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/dev/shm/e02-D-funnel-oct07/probe_estimated_input_origin_617.py", line 11, in <module>
+    from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import _serialize_funnel_outcome
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", line 62, in <module>
+    from polisyos.scientist.methods.search.calibration_report import (
+    ...<3 lines>...
+    )
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/calibration_report.py", line 13, in <module>
+    from polisyos.scientist.methods.search.cold_start import BurnInRunReport
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/cold_start.py", line 17, in <module>
+    from polisyos.scientist.methods.search.funnel import (
+    ...<8 lines>...
+    )
+  File "<frozen importlib._bootstrap>", line 1431, in _handle_fromlist
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/funnel/__init__.py", line 75, in __getattr__
+    from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py", line 45, in <module>
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py", line 15
+    <<<<<<< HEAD
+    ^^
+SyntaxError: invalid syntax

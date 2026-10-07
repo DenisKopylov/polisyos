@@ -1,0 +1,316 @@
+{
+  "schema": "D.current-source.G-verification-overlay.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "current_G": {
+    "sha": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d",
+    "prompt": {
+      "git_ref": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-pr68-680.md",
+      "sha256": "f42a80448bffc2fd111f9fb6303528c1f23b5656579f1eec90d2cd9fc0a3f04b",
+      "bytes": 14785,
+      "git_blob": "e7b70f63df8c3efb896003660507fa359133cb56"
+    },
+    "accepted_D": false,
+    "formal_closure": false,
+    "merged_dependency_source": {
+      "sha": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
+    },
+    "latest_observed_after_freeze": {
+      "sha": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+      "tree": "1aa2e587332108de1b60d9d9eb5a1d1fcae46ff6",
+      "observed_after_source_freeze": true,
+      "product_dependency_delta": [],
+      "documentation_paths": 37,
+      "accepted_D": false,
+      "formal_closure": false,
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/G83-to-c75-after-freeze-independent-source-census.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/G83-to-c75-after-freeze-independent-source-census.json",
+        "sha256": "d39e33c2331d70d5bc3bdddb0dea6ac22ebead7f784df4d0cd7581f80732704e",
+        "bytes": 9714,
+        "role": "Latest observedG c75 is docs-only; mergedG83 source and nonacceptance remain separate"
+      }
+    }
+  },
+  "finding_denominator": {
+    "bundles": 17,
+    "unique_findings": 45,
+    "criterion_occurrences": 46,
+    "acceptance_binding_occurrences": 46,
+    "original_source_prefix198_is_not_a_count": true
+  },
+  "ledger": "ledger-overlay.json",
+  "owner_inputs": "owner-inputs.json",
+  "source_footprint": "source-bindings.json",
+  "evidence_map": "evidence-map.json",
+  "taskboard": "taskboard.json",
+  "historical_proposals": {
+    "closed": 39,
+    "held": 5,
+    "limited": 1,
+    "open": 0
+  },
+  "current_verification_missing_occurrences": [
+    "B106@STR-01",
+    "B107@STR-01",
+    "B108@OPT-01",
+    "B109@OPT-01",
+    "B110@OPT-01",
+    "B111@OPT-01",
+    "B112@OPT-02",
+    "B113@OPT-02",
+    "B114@OPT-03",
+    "B115@OPT-03",
+    "B116@OPT-04",
+    "B117@OPT-04",
+    "B118@CTL-01",
+    "B119@CTL-01",
+    "B120@CTL-03",
+    "B121@CTL-03",
+    "B122@STP-01",
+    "B123@CTL-03",
+    "B125@CTL-02",
+    "B126@CTL-02",
+    "B127@OPT-02",
+    "B128@TRN-01",
+    "B129@TRN-02",
+    "B130@TRN-01",
+    "B132@TRN-01",
+    "B133@TRN-02",
+    "B134@TRN-02",
+    "B135@TRN-03",
+    "B136@TRN-03",
+    "B156@FUN-01",
+    "B158@FUN-01",
+    "B159@FUN-01",
+    "B160@FUN-02",
+    "B162@FUN-02",
+    "B163@FUN-03",
+    "B165@FUN-02",
+    "B41@STP-01",
+    "LA-014@SRV-01"
+  ],
+  "B120_original_controlling_scope": "One measured spend visible to owner, stopping and result; no cache double-charge/retry zero. Not universal deployed route/invoice truth. Exact original row acceptance retained.",
+  "exact680_G_factory10": {
+    "result": "PASS10",
+    "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "junit_sha256": "a540cfc627c54d2e133fd29598f6638cc2103f082e5261969b856ee2aa285a08",
+    "receipt_directory": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/",
+    "same_receipt_not_replayed": true,
+    "first_attempt_six_missing_tracked_TOML_harness_errors_preserved": true,
+    "current_source_carry_is_scoped_not_automatic": true
+  },
+  "patterns": {
+    "P01": {
+      "basis": "independently_reconciled",
+      "scope": "Each16packet uses canonical missingcapability labels or nullwhenbounded supplied; detailedscope keptseparate."
+    },
+    "P02": {
+      "basis": "independently_reconciled",
+      "scope": "Full17cards/fullTSVs/46originalacceptancebindings retained, sameconditions notgreenerreplacement."
+    },
+    "P05": {
+      "basis": "consumer_asserted",
+      "scope": "Currentactual producer→artifact→bridge→consumer/readback17/50/12/31/22; oldproofs pinned ownsource."
+    },
+    "P09": {
+      "basis": "independently_reconciled",
+      "scope": "Availableinitial bytes andactualrepositorymodule origins independentlyGitmatched; sparse/unavailable boundaries explicit."
+    },
+    "P10": {
+      "basis": "consumer_asserted",
+      "scope": "Knownoldmeasurementseed/basis/content/source refs retained; no independentmeasurementorauthorityfromlabels."
+    },
+    "P14": {
+      "basis": "independently_reconciled",
+      "scope": "Rawcost/source/estimate/unknown andquantityfinite/reason semantics preserved; source unitlaws notinvented."
+    },
+    "P27": {
+      "basis": "consumer_asserted",
+      "scope": "Actualoldqualifiedhistory andnewfreshCASconsumption/nextproposal; no marker-onlystateproof."
+    },
+    "P29": {
+      "basis": "independently_reconciled",
+      "scope": "AllcheckPASS/FAIL/ERROR/SKIP/UNRUN remainseparatefrom39proposal/5held/1limited/formal0/G0."
+    },
+    "P32": {
+      "basis": "consumer_asserted",
+      "scope": "Removedcount8 andfinancialemptyprojection3 andownerhistory1 diverge withrealmarkers/artifacts retained."
+    },
+    "P35": {
+      "basis": "independently_reconciled",
+      "scope": "Currentownsourcea795 topic publication readback rootreports, originalhistoryretained; G83merged vs c75observed separated."
+    },
+    "P37": {
+      "basis": "independently_reconciled",
+      "scope": "Every46row eachgatebasis uses registered labels; ownerauthority positives notsynthetic."
+    },
+    "P38": {
+      "basis": "consumer_asserted",
+      "scope": "Originaldivergentproxy andcurrentnegativeinput/output recorded byrow; no metricproxy substitutedforactualproperty."
+    },
+    "P40": {
+      "basis": "independently_reconciled",
+      "scope": "Completecanonicalowner consumption attestation widenedonce, unsupportedmutableprofiles explicitlyrefuse persistence; remainingarbitraryclassmutationnotPythonsecurity guarantee."
+    },
+    "P41": {
+      "basis": "not_established",
+      "scope": "All46 inheritedredprovenance notestablished; staticcommandagainst617didnotcomplete andcannotprovide zerooverlapwaiver."
+    }
+  },
+  "verification_remaining": [
+    {
+      "capability_state_label": "verification_missing",
+      "scope": "Complete staticproduction_invocation diagnosticUNRUN signal9/receiptadmissionERROR, decidingreceipt absent; no PID-specificcauseproof",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/production-invocation-final3b31-UNRUN-independent-summary.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/production-invocation-final3b31-UNRUN-independent-summary.json",
+        "sha256": "668b22dffdebd8359270f420dab81abe268dc08f5049ed229ffb4e2d84d88a13",
+        "bytes": 3610,
+        "role": "Current complete quality diagnostic remainsUNRUN with signal9 and absent deciding receipt"
+      }
+    },
+    {
+      "capability_state_label": "verification_missing",
+      "scope": "Historical wholecriteria/currentcompleteimportclosures remain sourcequalified/notreplayed exceptnamedcurrentboundedservice/dateassertions; no global quality/architecture/frontend/schema PASS."
+    },
+    {
+      "capability_state_label": "not_established",
+      "scope": "Realowner positives tenantreuse/revalidation/refinement/fiscalunitlaw; typedpermitbridge and native drawproducer absent as individuallypacket-labeled."
+    }
+  ],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "no_main_publication_authorization": true,
+  "actual_current_cohorts": [
+    {
+      "scope": "requested3selectors",
+      "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "qualified_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "PASS": 50
+      },
+      "phase_count": 150,
+      "receipt_admission": "ADMITTED",
+      "portable_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/pr68-requested-three-final3b31/",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+        "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+        "bytes": 3840,
+        "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled"
+      },
+      "carry": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-compact-output-and-a795-carry-independent-seal.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-compact-output-and-a795-carry-independent-seal.json",
+        "sha256": "8da74263b606de25c187c1d93a78d5cb006e9f56d03207ebaf2fa2aa0083ea60",
+        "bytes": 2063,
+        "role": "Same actual3b50 qualified at finala795; no new run or wholecandidatePASS"
+      }
+    },
+    {
+      "scope": "nativefinancialinputorigin17",
+      "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "qualified_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "PASS": 17
+      },
+      "negative_counts": {
+        "FAIL": 3,
+        "PASS": 8
+      },
+      "portable_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+        "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+        "bytes": 8205,
+        "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS"
+      },
+      "qualified_carry_review": {
+        "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+        "sha256": "9e205dbc92a9cd860bf0a0186900a748600c1338654826c108629c1d93b3134f",
+        "bytes": 4165,
+        "role": "Independently qualified sameactual17/removal11 across unconsumed testfixture-only delta; no newexecution"
+      }
+    },
+    {
+      "scope": "GPwrapper12/nativeMLL3",
+      "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "qualified_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "PASS": 12
+      },
+      "negative_counts": {
+        "FAIL": 8
+      },
+      "portable_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+        "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+        "bytes": 4662,
+        "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments"
+      },
+      "qualified_carry_review": {
+        "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+        "sha256": "ccee10fd77f71371fb1626fd750a96e042d93b5757fa74fbeba5c47291059162",
+        "bytes": 8442,
+        "role": "IndependentactualGP/AST62 and same-scope a795 assertion qualification; no newexecution"
+      }
+    },
+    {
+      "scope": "ASTdiagnostic44/canonical63reads/fragments3",
+      "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "counts": {
+        "pytest_PASS": 44,
+        "canonical_selected_read_operations": 63,
+        "selected_fragments_PASS": 3
+      },
+      "negative_counts": {
+        "FAIL": 25
+      },
+      "global_gate": "UNRUN",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+        "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+        "bytes": 4662,
+        "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments"
+      }
+    },
+    {
+      "scope": "nativehistoryservice31/affected22",
+      "executed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "new_PASS": 31,
+        "affected_PASS": 22
+      },
+      "negative_counts": {
+        "FAIL": 1
+      },
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+        "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+        "bytes": 3439,
+        "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation"
+      },
+      "portable_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/"
+    }
+  ],
+  "production_invocation": {
+    "external_source": "/dev/shm/e02-D-census-review-oct07/production-invocation-final3b31-UNRUN-independent-summary.json",
+    "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/production-invocation-final3b31-UNRUN-independent-summary.json",
+    "sha256": "668b22dffdebd8359270f420dab81abe268dc08f5049ed229ffb4e2d84d88a13",
+    "bytes": 3610,
+    "role": "Current complete quality diagnostic remainsUNRUN with signal9 and absent deciding receipt"
+  },
+  "cleanup": "Native Trash only for eligible unused regenerable leaves; no cleanup by this read-only leaf; no permanent deletion."
+}

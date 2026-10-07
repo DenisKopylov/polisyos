@@ -1,0 +1,76 @@
+{
+  "scope": "GP-remove8",
+  "command": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_gp_wrapper_frozen.py",
+      "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8",
+      "remove8"
+    ],
+    "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "env_overrides": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+    },
+    "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stdout.txt",
+    "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stderr.txt",
+    "script_sha256": "4685c4a8184b800235919cf631625df60be21475639c94db49723a3aea66aa6c",
+    "numerical_caps": "none introduced; inherited ownerprofile observed separately"
+  },
+  "command_file_sha256": "d2364a462c11431f940714587f5a79050a9f643789f1b90d29db3f26bcb2f0d3",
+  "wrapper_file": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_captured_scope.py",
+  "wrapper_sha256": "db812ce167e5798af77a4f19dd56083b9f2d302f35c7167b44cb68c09a25c524",
+  "exitcode": 1,
+  "wall_s": 7.257019768992905,
+  "resource_method": "one subprocess; POSIX RUSAGE_CHILDREN Linux ru_maxrss KiB; shared cgroup only context, no per-child quota or OOM inference",
+  "rusage": {
+    "ru_utime": 6.34862,
+    "ru_stime": 0.71422,
+    "ru_maxrss": 937824,
+    "ru_minflt": 192103,
+    "ru_majflt": 0,
+    "ru_nswap": 0,
+    "ru_inblock": 3256,
+    "ru_oublock": 248,
+    "ru_nvcsw": 418,
+    "ru_nivcsw": 473
+  },
+  "before": {
+    "timestamp": "2026-10-07T14:45:54.613430+00:00",
+    "cgroup_observation_shared_not_per_process": {
+      "memory.current": "14689976320\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38170832\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.stat": "anon 40562688\nfile 13227696128\nkernel 1390407680\nkernel_stack 507904\npagetables 1286144\nsec_pagetables 0\npercpu 13776\nsock 0\nvmalloc 0\nshmem 11608039424\nfile_mapped 24576\nfile_dirty 4096\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 7357394944\nactive_anon 4291055616\ninactive_file 326737920\nactive_file 1292918784\nunevictable 0\nslab_reclaimable 925110440\nslab_unreclaimable 463260248\nslab 1388370688\nworkingset_refault_anon 0\nworkingset_refault_file 1691329814\nworkingset_activate_anon 0\nworkingset_activate_file 241834565\nworkingset_restore_anon 0\nworkingset_restore_file 100598131\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 17401737807\npgsteal 1700063997\npswpin 0\npswpout 0\npgscan_kswapd 5820168\npgscan_direct 17395917639\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 5485712\npgsteal_direct 1694578285\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 625437417\npgmajfault 2361628\npgrefill 338675260\npgactivate 72391237\npgdeactivate 316744282\npglazyfree 3050\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 3\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+      "pids.current": "998\n",
+      "pids.max": "max\n",
+      "cpu.max": "400000 100000\n"
+    }
+  },
+  "after": {
+    "timestamp": "2026-10-07T14:46:01.870269+00:00",
+    "cgroup_observation_shared_not_per_process": {
+      "memory.current": "15191674880\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38170832\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.stat": "anon 547483648\nfile 13244080128\nkernel 1399123968\nkernel_stack 835584\npagetables 7974912\nsec_pagetables 0\npercpu 14000\nsock 0\nvmalloc 0\nshmem 11620487168\nfile_mapped 373702656\nfile_dirty 102400\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 7865585664\nactive_anon 4302262272\ninactive_file 237752320\nactive_file 1385844736\nunevictable 0\nslab_reclaimable 925434984\nslab_unreclaimable 464647752\nslab 1390082736\nworkingset_refault_anon 0\nworkingset_refault_file 1691330732\nworkingset_activate_anon 0\nworkingset_activate_file 241834819\nworkingset_restore_anon 0\nworkingset_restore_file 100598382\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 17401737807\npgsteal 1700063997\npswpin 0\npswpout 0\npgscan_kswapd 5820168\npgscan_direct 17395917639\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 5485712\npgsteal_direct 1694578285\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 626019204\npgmajfault 2361629\npgrefill 338675260\npgactivate 72416080\npgdeactivate 316744282\npglazyfree 3050\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 3\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+      "pids.current": "1010\n",
+      "pids.max": "max\n",
+      "cpu.max": "400000 100000\n"
+    }
+  },
+  "finalized_outer_streams": {
+    "stdout": {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stdout.txt",
+      "sha256": "6b3915431df7a246230f3ecb61383cadc2a2ca627bd75cdecb4361dafaa0a8e8",
+      "bytes": 27543
+    },
+    "stderr": {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "numerical_caps": "none introduced; environment is recorded by child and command; existing intrinsic ownerprofile observed"
+}

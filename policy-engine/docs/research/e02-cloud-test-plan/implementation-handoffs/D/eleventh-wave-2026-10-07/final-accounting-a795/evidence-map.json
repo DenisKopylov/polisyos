@@ -1,0 +1,2660 @@
+{
+  "schema": "D.original46.current-evidence-map.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "rows": [
+    {
+      "id": "B106@STR-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/0/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/0/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/0/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B107@STR-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/1/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/1/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/1/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B108@OPT-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/2/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/2/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/2/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B109@OPT-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/3/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/3/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/3/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B110@OPT-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/4/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/4/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/4/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B111@OPT-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/5/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/5/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/5/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+          "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+          "bytes": 3840,
+          "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B112@OPT-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/6/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/6/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/6/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B113@OPT-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/7/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/7/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/7/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+          "bytes": 4662,
+          "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+          "sha256": "ccee10fd77f71371fb1626fd750a96e042d93b5757fa74fbeba5c47291059162",
+          "bytes": 8442,
+          "role": "IndependentactualGP/AST62 and same-scope a795 assertion qualification; no newexecution",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B114@OPT-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/8/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/8/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/8/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+          "bytes": 4662,
+          "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+          "sha256": "ccee10fd77f71371fb1626fd750a96e042d93b5757fa74fbeba5c47291059162",
+          "bytes": 8442,
+          "role": "IndependentactualGP/AST62 and same-scope a795 assertion qualification; no newexecution",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B115@OPT-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/9/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/9/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/9/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+          "bytes": 4662,
+          "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+          "sha256": "ccee10fd77f71371fb1626fd750a96e042d93b5757fa74fbeba5c47291059162",
+          "bytes": 8442,
+          "role": "IndependentactualGP/AST62 and same-scope a795 assertion qualification; no newexecution",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B116@OPT-04",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/10/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/10/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/10/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B117@OPT-04",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/11/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/11/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/11/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B118@CTL-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/12/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/12/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/12/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B119@CTL-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/13/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/13/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/13/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+          "bytes": 3439,
+          "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B120@CTL-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/14/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/14/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/14/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+          "bytes": 8205,
+          "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "sha256": "3820d8b0639a573919e657984dd65fcfb137cfd68a392d707e7902e8a2e5fe93",
+          "bytes": 37561,
+          "role": "ExactG680factory10 and originalB120 controllingtext independently reviewed; not replayed/current whole-import carry",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+          "sha256": "9e205dbc92a9cd860bf0a0186900a748600c1338654826c108629c1d93b3134f",
+          "bytes": 4165,
+          "role": "Independently qualified sameactual17/removal11 across unconsumed testfixture-only delta; no newexecution",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B121@CTL-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/15/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/15/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/15/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B122@STP-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/16/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/16/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/16/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B123@CTL-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/17/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/17/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/17/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B124@CTL-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/18/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/18/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "actual_current_runtime",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+        ],
+        "scope_boundary": "Bounded originalknownscenario assertions actuallyexecuted3b/currenta795; this is neither universaldeployedservice nor allnumericalprofile guarantee.",
+        "verification_missing": false
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/18/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+          "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+          "bytes": 3840,
+          "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+          "bytes": 3439,
+          "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": false
+    },
+    {
+      "id": "B125@CTL-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/19/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/19/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+          "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/19/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+          "bytes": 3439,
+          "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+          "bytes": 4662,
+          "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+          "sha256": "ccee10fd77f71371fb1626fd750a96e042d93b5757fa74fbeba5c47291059162",
+          "bytes": 8442,
+          "role": "IndependentactualGP/AST62 and same-scope a795 assertion qualification; no newexecution",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B126@CTL-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/20/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/20/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+          "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/20/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B127@OPT-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/21/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/21/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/21/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+          "bytes": 3439,
+          "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B128@TRN-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/22/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/22/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/22/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B129@TRN-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/23/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/23/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/23/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B130@TRN-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/24/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/24/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/24/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B131@TRN-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/25/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/25/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "required_owner_positive_unavailable",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+        ],
+        "scope_boundary": "Historical source/output identity only; no wholecurrentPASS or completeimportclosure claimed. Unchanged core/producer assertions require explicit scope qualification; changed importedG dependency remains currentverification_missing.",
+        "verification_missing": false,
+        "required_positive_status": "UNRUN",
+        "capability_state_label": "not_established"
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/25/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": false
+    },
+    {
+      "id": "B132@TRN-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/26/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/26/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/26/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B133@TRN-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/27/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/27/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/27/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B134@TRN-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/28/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/28/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/28/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B135@TRN-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/29/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/29/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/29/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B136@TRN-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/30/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/30/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/30/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B137@TRN-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/31/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/31/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "required_owner_positive_unavailable",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+        ],
+        "scope_boundary": "Historical source/output identity only; no wholecurrentPASS or completeimportclosure claimed. Unchanged core/producer assertions require explicit scope qualification; changed importedG dependency remains currentverification_missing.",
+        "verification_missing": false,
+        "required_positive_status": "UNRUN",
+        "capability_state_label": "not_established"
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/31/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": false
+    },
+    {
+      "id": "B156@FUN-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/32/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/32/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/32/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B157@FUN-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/33/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/33/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "required_owner_positive_unavailable",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+        ],
+        "scope_boundary": "Historical source/output identity only; no wholecurrentPASS or completeimportclosure claimed. Unchanged core/producer assertions require explicit scope qualification; changed importedG dependency remains currentverification_missing.",
+        "verification_missing": false,
+        "required_positive_status": "UNRUN",
+        "capability_state_label": "producer_missing"
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/33/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": false
+    },
+    {
+      "id": "B158@FUN-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/34/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/34/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/34/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+          "bytes": 8205,
+          "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+          "sha256": "9e205dbc92a9cd860bf0a0186900a748600c1338654826c108629c1d93b3134f",
+          "bytes": 4165,
+          "role": "Independently qualified sameactual17/removal11 across unconsumed testfixture-only delta; no newexecution",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B159@FUN-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/35/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/35/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/35/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+          "bytes": 8205,
+          "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+          "sha256": "9e205dbc92a9cd860bf0a0186900a748600c1338654826c108629c1d93b3134f",
+          "bytes": 4165,
+          "role": "Independently qualified sameactual17/removal11 across unconsumed testfixture-only delta; no newexecution",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B160@FUN-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/36/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/36/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/36/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B161@FUN-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/37/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/37/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "required_owner_positive_unavailable",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+        ],
+        "scope_boundary": "Historical source/output identity only; no wholecurrentPASS or completeimportclosure claimed. Unchanged core/producer assertions require explicit scope qualification; changed importedG dependency remains currentverification_missing.",
+        "verification_missing": false,
+        "required_positive_status": "UNRUN",
+        "capability_state_label": "not_established"
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/37/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": false
+    },
+    {
+      "id": "B162@FUN-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/38/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/38/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/38/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B163@FUN-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/39/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/39/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/39/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B164@FUN-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/40/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/40/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "required_owner_positive_unavailable",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+        ],
+        "scope_boundary": "Historical source/output identity only; no wholecurrentPASS or completeimportclosure claimed. Unchanged core/producer assertions require explicit scope qualification; changed importedG dependency remains currentverification_missing.",
+        "verification_missing": false,
+        "required_positive_status": "UNRUN",
+        "capability_state_label": "bridge_missing"
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/40/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": false
+    },
+    {
+      "id": "B165@FUN-02",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/41/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/41/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/41/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "B41@STP-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/42/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/42/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py"
+        ],
+        "scope_boundary": "Exactoriginalhistorical decidinglineage retained; selectedcurrentowningblob/source scopes independentlybound. Currenttargetedcontributions listed separately. Complete currentimport closure/wholeoriginalproperty replay notestablished; no newfullposterior/vector/state/FUN/stress PASS.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/42/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/43/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/43/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "historical_source_qualified_not_replayed",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "NativeSearchService/run_state/current supportedowner attestation branches"
+        ],
+        "scope_boundary": "Actual currentLegacy ask/tell/run_search andpublicnativehistory/restore assertions are listed; contract-only isolatedimport receipt staysits ownhistoricalsource. Wholeoriginalcriterion is a source-qualifiedproposal, not whollycurrentreplayed.",
+        "verification_missing": true
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/43/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+          "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+          "bytes": 3840,
+          "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+          "bytes": 3439,
+          "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": true
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/44/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/44/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "actual_current_runtime",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+        ],
+        "scope_boundary": "Bounded originalknownscenario assertions actuallyexecuted3b/currenta795; this is neither universaldeployedservice nor allnumericalprofile guarantee.",
+        "verification_missing": false
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/44/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+          "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+          "bytes": 3840,
+          "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+          "bytes": 3439,
+          "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": false
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "historical_decision_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/45/decision"
+      },
+      "historical_output_refs": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/45/deciding_outputs"
+      },
+      "current_source_qualification": {
+        "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "kind": "actual_current_runtime",
+        "complete_dependency_closure_established": false,
+        "changed_imported_dependencies": [
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "currentNativeSearchService/StrategyAdapter/Bayesianwrapper/FUN sourcebranches"
+        ],
+        "scope_boundary": "Bounded originalknownscenario assertions actuallyexecuted3b/currenta795; this is neither universaldeployedservice nor allnumericalprofile guarantee.",
+        "verification_missing": false
+      },
+      "current_output_evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+          "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+          "bytes": 467218,
+          "json_pointer": "/criterion_occurrences/45/deciding_outputs",
+          "role": "Immutable original680 accounting/output pointers only; each historical deciding receipt keeps its own executed source, never relabeled current.",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/PR68-a795-original46-owning-source-scope.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/original46-owning-source-scope.json",
+          "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+          "bytes": 100415,
+          "role": "Exact46 selected owning-source scopes, not complete import closure",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+          "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+          "bytes": 3840,
+          "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+          "bytes": 3439,
+          "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "current_verification_missing": false
+    }
+  ],
+  "current_execution_cohorts": [
+    {
+      "scope": "requested3selectors",
+      "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "qualified_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "PASS": 50
+      },
+      "phase_count": 150,
+      "receipt_admission": "ADMITTED",
+      "portable_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/pr68-requested-three-final3b31/",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+        "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+        "bytes": 3840,
+        "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled"
+      },
+      "carry": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-compact-output-and-a795-carry-independent-seal.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-compact-output-and-a795-carry-independent-seal.json",
+        "sha256": "8da74263b606de25c187c1d93a78d5cb006e9f56d03207ebaf2fa2aa0083ea60",
+        "bytes": 2063,
+        "role": "Same actual3b50 qualified at finala795; no new run or wholecandidatePASS"
+      }
+    },
+    {
+      "scope": "nativefinancialinputorigin17",
+      "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "qualified_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "PASS": 17
+      },
+      "negative_counts": {
+        "FAIL": 3,
+        "PASS": 8
+      },
+      "portable_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+        "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+        "bytes": 8205,
+        "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS"
+      },
+      "qualified_carry_review": {
+        "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+        "sha256": "9e205dbc92a9cd860bf0a0186900a748600c1338654826c108629c1d93b3134f",
+        "bytes": 4165,
+        "role": "Independently qualified sameactual17/removal11 across unconsumed testfixture-only delta; no newexecution"
+      }
+    },
+    {
+      "scope": "GPwrapper12/nativeMLL3",
+      "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "qualified_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "PASS": 12
+      },
+      "negative_counts": {
+        "FAIL": 8
+      },
+      "portable_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+        "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+        "bytes": 4662,
+        "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments"
+      },
+      "qualified_carry_review": {
+        "external_source": "/dev/shm/e02-D-resume617-independent-rgh_3_73/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+        "sha256": "ccee10fd77f71371fb1626fd750a96e042d93b5757fa74fbeba5c47291059162",
+        "bytes": 8442,
+        "role": "IndependentactualGP/AST62 and same-scope a795 assertion qualification; no newexecution"
+      }
+    },
+    {
+      "scope": "ASTdiagnostic44/canonical63reads/fragments3",
+      "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "counts": {
+        "pytest_PASS": 44,
+        "canonical_selected_read_operations": 63,
+        "selected_fragments_PASS": 3
+      },
+      "negative_counts": {
+        "FAIL": 25
+      },
+      "global_gate": "UNRUN",
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+        "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+        "bytes": 4662,
+        "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments"
+      }
+    },
+    {
+      "scope": "nativehistoryservice31/affected22",
+      "executed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "counts": {
+        "new_PASS": 31,
+        "affected_PASS": 22
+      },
+      "negative_counts": {
+        "FAIL": 1
+      },
+      "review": {
+        "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+        "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+        "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+        "bytes": 3439,
+        "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation"
+      },
+      "portable_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/"
+    }
+  ],
+  "no_aggregate_product_PASS": true
+}

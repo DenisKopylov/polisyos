@@ -1,0 +1,12 @@
+{
+  "actual_output_sha256": {
+    "actual-canonical-selected-fragment-report.json": "dcdc6bca33499f4e940000a65267970e0af9db7a1014aa55b01e09c0c68d50d0",
+    "after.json": "0d1b2a8f2f8ed7bc68b7858ab30dd480970bcb05c154069bb28fc9e1566ce772",
+    "before.json": "f6dc12a623c3f96ba1b94831c123528d5cf08d0ceb1e6ae6b9b19542ac31f583",
+    "selected-release-notes.md": "c2d997f98a0454df32a790020537d6d56ebdc626591143eb39e01e67ec4caa44"
+  },
+  "check": "selected three release fragment metadata",
+  "exitcode": 0,
+  "global_gate": "UNRUN; not asserted",
+  "outer_streams": "Finalized by separate postcompletion manifest after wrapper END"
+}

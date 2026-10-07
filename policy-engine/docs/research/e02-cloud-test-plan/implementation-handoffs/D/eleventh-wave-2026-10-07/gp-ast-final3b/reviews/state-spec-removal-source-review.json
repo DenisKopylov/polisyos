@@ -1,0 +1,24 @@
+{
+  "schema": "e02.D.independent-review.v1",
+  "reviewer": "transfer_oct07",
+  "created_utc": "2026-10-07T13:44:44.871798+00:00",
+  "decision": "GO_SOURCE_ONLY",
+  "plugin_path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/state_spec_union_removal_680.py",
+  "plugin_sha256": "f53dcdc63802cb7fd2d4d89cea16291452013f03afe816b003be1113db686bba",
+  "manifest_sha256": "18cab938f9fe122bd7a9c12a13a7b672806028d8064fdb486d21892ac99c69d9",
+  "original_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "original_path": "policy-engine/tools/quality/diagnostics/check_state_reads.py",
+  "old_function_sha256": "d42773e0d890eb2197437d8744cf2e9bd217df313c836b6866df508a1bc79dd6",
+  "old_function_AST_sha256": "294dae418d5e8795283494286e37e7d54c29bf07bf9ba9ff1a0ee4c225a13248",
+  "exact_old_function_text_and_AST": true,
+  "removed_property": "Only sole-binding/cardinality/direct-module scope admission at read intake. Exact680 function restores union over all Assign/AnnAssign declarations rather than choosing the first.",
+  "retained": "Actual current checker globals/free grammar helpers, reader/measurement denominator/content hashes, main receipt markers and comparison predicate remain intact. Single empty direct declaration still lacks actualrequired read.",
+  "P37": "Actual complete current caller and final measurement must be inspected, not plugin injected marker flags.",
+  "P38": "Expected new25 cells lose UNRUN and assertFAIL after actual union checker falsely reportsPASS0. An error/collection failure/timeout is not a useful removal result.",
+  "runtime": "UNRUN until actual immutable applied candidate positive44 and canonical disclosed input denominator, then isolated exact union counterfactual25.",
+  "limitations": [
+    "Static diagnostic only, not runtime node or authority evidence.",
+    "Plugin does not independently enforce frozen-source identity; execution wrapper must bind exact source/current critical paths and unchanged-origin census."
+  ],
+  "no_source_index_git_mutations": true
+}

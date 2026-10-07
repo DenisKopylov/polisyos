@@ -1,0 +1,48 @@
+{
+  "schema": "D.census.native-GP-wrapper-and-AST-diagnostic-capture-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "author": "/root/gp_oct07",
+  "result": "STATIC_GO_BOUNDED_RUNTIME_PENDING",
+  "reviewed_files": [
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_gp_wrapper_frozen.py",
+      "sha256": "4685c4a8184b800235919cf631625df60be21475639c94db49723a3aea66aa6c",
+      "bytes": 7344
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+      "sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+      "bytes": 7598
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/gp_wrapper_v3_count_grounding_removal.py",
+      "sha256": "f13c209edf1f28eedcec8ef3d7c1472f4307f7f5e694cc053950a4ca68bdec97",
+      "bytes": 1698
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/state_spec_union_removal_680.py",
+      "sha256": "f53dcdc63802cb7fd2d4d89cea16291452013f03afe816b003be1113db686bba",
+      "bytes": 2128
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-ast-wave-plan.json",
+      "sha256": "86acd5517a1e7153f37537fb9d50b200a5ed7d9a96d0d8db7f25a1c4dd80f442",
+      "bytes": 842
+    }
+  ],
+  "GP_capture": "Locked actual Torch2.10.0+cu128/BoTorch0.16.1/GPyTorch1.15.1 CPU sequential wrapper profile. MLLobserver calls original realfit callable and records actual traininputs/targets/fullstate before+after successfulfit; actual core MLL spy is not a fakebackend. Positive12 consumes converted-row count/nativeiteration and actual CAS warm8/zero currenthistory/fresh modelrestore/nextproposal. No newposteriororacle; old independent covariance output remains on oldsource.",
+  "GP_removal": "Only three nativeiteration/rowcount/digestcount cardinality grounding terms removed from actual set_state and validate_checkpoint_history guard, retaining schema3/config/nativeartifact/CAS/RNG/row/digest parser and pairedlists length relation. Removal8 must yield actual protectedassertionFAIL, not ERROR/skip or marker-only discrepancy.",
+  "AST_capture": "Canonical script uses actual minimal interpreter and selected tracked63 pathset checked against filesystem and actual checker measurement. uv wrapper not claimed. Targeted44 direct checker tests and removal25 are static diagnostic consumers, no runtime state-read/A-B04 closure/numerical inference.",
+  "AST_removal": "Independently verified byte-text equality of replacement _extract_spec_reads with exact code680 lines112–140. Only old union helper replaced; current actual main/read/measurement grammar/receipts stay current. Overwrite/dead/nested ambiguity should regain falsegreen, actual test assertions decide.",
+  "receipt_identity": "Both finalscripts assert actual resolved cwd==PRODUCT before imports/runs, record actual cwd/selfpath/selfSHA in command/result and enforce ownfile unchangedafter. Clean exactHEAD/tree, selected available source before-after hashes/origins/phases/fullstreams retained.",
+  "runtime_review_requirement": "Before positive admission independently compare initial available source/moduleorigin bytes to finalcandidateGit; stability alone does not prove initialidentity. Reconcile actual12/8 and canonical63/targeted44/remove25, complete call/setup/teardown/JUnit, actual pairedMLLreturnevents and real CAS artifacts. Failed fixedversion/inputpreflight is UNRUN/harnessERROR, not productFAIL. No currentruntime launched by reviewer.",
+  "P37": "Actual source/controlAPI independently inspected; property runtime stillUNRUN before finalfreeze. Current backendversions imported/asserted, complete numericalproperty only actual positivecalls/readbacks.",
+  "P38": "Metadata/markers or installed Torch cannot prove fitted warmcorpus, restoredstate, no refit or nextproposal; actual realfit/CAS/consumerassertions required. ASTunion staticsyntax differs from runtime reachingdefinitions; counterfactual is diagnosticonly.",
+  "limitations": [
+    "Observed sys.modules is normal current process snapshot, not complete transient-import history or all possible subprocesses.",
+    "CanonicalAST child runs actual script; its measurement input binding is deciding, parentmoduleorigins do not stand for child runtime/numericalorigins.",
+    "No artificial compute limits introduced; inherited environment recorded, no OOM cause inferred.",
+    "No wholeD/G accepted finding claim; P41 not_established, no inherited-red waiver."
+  ],
+  "leaf_changes": "ExternalreviewJSON only; no repo/source/index/Git or testexecution."
+}

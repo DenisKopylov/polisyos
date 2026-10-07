@@ -1,0 +1,233 @@
+[
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.005606154998531565,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]",
+    "when": "call",
+    "outcome": "failed",
+    "duration": 0.18069001697585918,
+    "longrepr": "tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_failed_input_origi0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2cc59ba0>\nprofile = 'estimated', reported = None, estimated = Decimal('0.5')\nreported_status = 'not_reported', estimated_status = 'estimated'\nwrite_before_ack = False\n\n    @pytest.mark.parametrize(\n        (\"profile\", \"reported\", \"estimated\", \"reported_status\", \"estimated_status\"),\n        [\n            (\"estimated\", None, Decimal(\"0.5\"), \"not_reported\", \"estimated\"),\n            (\"reported_zero\", Decimal(0), None, \"reported\", \"not_estimated\"),\n            (\"reported_quarter\", Decimal(\"0.25\"), None, \"reported\", \"not_estimated\"),\n        ],\n    )\n    @pytest.mark.parametrize(\"write_before_ack\", [False, True])\n    def test_native_failed_input_origin_survives_funnel_and_fresh_cas(\n        tmp_path, monkeypatch, profile, reported, estimated, reported_status, estimated_status,\n        write_before_ack,\n    ):\n        path, outcome, ledger, events = _native_inputs(\n            tmp_path, monkeypatch, (profile,), write_before_ack=write_before_ack\n        )\n        expected = reported if reported is not None else estimated\n        # Independent fixed decimal pricing oracle: 50000 observed prompt tokens at\n        # the declared default input price 1e-5 USD; do not call producer's estimator.\n        if profile == \"estimated\":\n            assert Decimal(50000) * Decimal(\"0.00001\") == expected\n        assert Decimal(events[0][\"amount\"]) == expected\n        assert events[0][\"cost_origin\"] == (\"estimated\" if estimated is not None else \"reported\")\n        feedback = _fresh_projection(tmp_path, outcome)\n        if reported is None:\n>           assert feedback[\"resource_reported_input_usd\"] is None\nE           AssertionError: assert '0' is None\n\ntests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:144: AssertionError"
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00023266300559043884,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0008661620086058974,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.029828052007360384,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00015592999989166856,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0007587920117657632,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.016377004998503253,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00012567397789098322,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.000728244980564341,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]",
+    "when": "call",
+    "outcome": "failed",
+    "duration": 0.017456743982620537,
+    "longrepr": "tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_failed_input_origi3')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2cb4d590>\nprofile = 'estimated', reported = None, estimated = Decimal('0.5')\nreported_status = 'not_reported', estimated_status = 'estimated'\nwrite_before_ack = True\n\n    @pytest.mark.parametrize(\n        (\"profile\", \"reported\", \"estimated\", \"reported_status\", \"estimated_status\"),\n        [\n            (\"estimated\", None, Decimal(\"0.5\"), \"not_reported\", \"estimated\"),\n            (\"reported_zero\", Decimal(0), None, \"reported\", \"not_estimated\"),\n            (\"reported_quarter\", Decimal(\"0.25\"), None, \"reported\", \"not_estimated\"),\n        ],\n    )\n    @pytest.mark.parametrize(\"write_before_ack\", [False, True])\n    def test_native_failed_input_origin_survives_funnel_and_fresh_cas(\n        tmp_path, monkeypatch, profile, reported, estimated, reported_status, estimated_status,\n        write_before_ack,\n    ):\n        path, outcome, ledger, events = _native_inputs(\n            tmp_path, monkeypatch, (profile,), write_before_ack=write_before_ack\n        )\n        expected = reported if reported is not None else estimated\n        # Independent fixed decimal pricing oracle: 50000 observed prompt tokens at\n        # the declared default input price 1e-5 USD; do not call producer's estimator.\n        if profile == \"estimated\":\n            assert Decimal(50000) * Decimal(\"0.00001\") == expected\n        assert Decimal(events[0][\"amount\"]) == expected\n        assert events[0][\"cost_origin\"] == (\"estimated\" if estimated is not None else \"reported\")\n        feedback = _fresh_projection(tmp_path, outcome)\n        if reported is None:\n>           assert feedback[\"resource_reported_input_usd\"] is None\nE           AssertionError: assert '0' is None\n\ntests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:144: AssertionError"
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00014373799785971642,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0007852419803384691,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.017389810003805906,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00013646300067193806,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0007584319973830134,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.017572648997884244,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.000140232004923746,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.00044672100921161473,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero",
+    "when": "call",
+    "outcome": "failed",
+    "duration": 0.02049663200159557,
+    "longrepr": "tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_zero_estimate_is_n0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2b6cb950>\n\n    def test_native_zero_estimate_is_not_a_provider_reported_zero(tmp_path, monkeypatch):\n        _, outcome, ledger, events = _native_inputs(tmp_path, monkeypatch, (\"estimated_zero\",))\n        assert events[0][\"cost_origin\"] == \"estimated\" and Decimal(events[0][\"amount\"]) == 0\n        feedback = _fresh_projection(tmp_path, outcome)\n>       assert feedback[\"resource_reported_input_usd\"] is None\nE       AssertionError: assert '0' is None\n\ntests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:166: AssertionError"
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00014495901996269822,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.00044704199535772204,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.030072377005126327,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00011530498159117997,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0005069230101071298,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.014233825000701472,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.0001483260130044073,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.00044025000534020364,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.029907490010373294,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00017976501840166748,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.00048173702089115977,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.04326801898423582,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00035689500509761274,
+    "longrepr": null
+  }
+]

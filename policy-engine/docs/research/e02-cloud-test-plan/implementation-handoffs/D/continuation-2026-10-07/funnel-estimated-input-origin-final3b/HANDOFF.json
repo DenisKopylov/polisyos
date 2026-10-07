@@ -1,0 +1,119 @@
+{
+  "schema": "e02.D.FUN.estimated_input_origin_final3b.v1",
+  "slice_base": "6c1729a7bc86cf90d443d73515d98dd4ebfa2894",
+  "implementation": "4645738aee05809552e95aecb14d365793fc6bb2",
+  "implementation_tree": "770352baededf4119fef4d79d3a93da6689a375e",
+  "verification_candidate": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "verification_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "complete_changed_paths": "bindings/source-footprint.json",
+  "original_criterion": "bindings/original-criterion.json",
+  "finding": {
+    "id": "B120",
+    "canonical_owner_bundle": "CTL-03",
+    "source_status": "historical partial",
+    "finding_verdict_proposal": "closed",
+    "formal_closed": false,
+    "G_accepted": false,
+    "scope": "Corrected original bounded existing-owner budget/result criterion; this append finishes the owned estimated-input projection residual, while root joins canonical controller/factory evidence"
+  },
+  "check_results": {
+    "positive17": "PASS",
+    "new_defining11": "PASS within positive17",
+    "affected_consumers6": "PASS within positive17",
+    "legacy_projection_removal11": "3 expected assertion FAIL,8 unaffected PASS; negative divergence established",
+    "ERROR": 0,
+    "SKIP": 0,
+    "UNRUN": "Optional GP/vector numerical assertions and entire Node.execute are not selected by this receipt"
+  },
+  "actual_producer_artifact_bridge_consumer": "existing configured native L3/L4 worker factory -> controlled real HTTP response text -> canonical B decoder/enforcer -> actual B1.2 completion/settlement and fresh FileBudgetLedger -> D FunnelOrchestrator failure-input projection -> actual Node outcome serializer helper -> ExperimentState JSON -> real FileSystemCAS/fresh readback",
+  "actual_input_origins": "Reported and estimated subsets are independently present/absent; actual reported0 remains present, actual estimated0 remains estimated, unknown/partial remain distinct. Pending event IDs/payload digests and owner readback are retained.",
+  "oracle": "Independent fixed Decimal 50000 * 0.00001 = 0.5 and independent reported0/0.25/mixed subset expectations; no production estimator helper used as numerical oracle",
+  "negative": "instruments/legacy_projection_removal.py restores the two old empty-reported-subset conditions only in one interpreter, retaining estimated fields and typed event/pending/status markers; actual CAS returns forbidden reported0 at exactly three asserted failures",
+  "complete_deciding_outputs": "runtime/ full commands/stdout/stderr/JUnit/phases plus portable-deciding-artifact-map.json actual 29 ledger snapshots and 78 CAS records",
+  "large_diagnostics": "ignored-diagnostic-refs.json exact paths/hashes/counts; source/module identity independently reviewed rather than committing large inventories",
+  "runtime_environment": "runtime-summary.json exact Python/packages/backend profile, tokenizer SHA in command receipts, canonical local filesystem B1.2 and actual configured native callers; optional numerical backends not asserted",
+  "P37": "Actual typed origin/amount and canonical pending/readback predicates survive ordinary CAS consumer. Reported knowledge requires a real reported subset, including literal0.",
+  "P38": "Known estimated input does not imply any reported subset; the old empty sum0 proxy diverges with all markers retained.",
+  "P41": "not_established/not asserted; no inherited-red attribution",
+  "historical_originals": "history/ clean73c exact defect and mixed681 source-identical diagnostic preserved; initial merge-in-progress SyntaxError has zero property phases and is not a product verdict",
+  "previous_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/output-manifest.json",
+      "sha256": "739d0f21b05f1ac2e82c3b360fdcf785e2e4a1757d18dd3172e6fa2a56c87744",
+      "bytes": 239559,
+      "scope": "Existing immutable historical/independent receipt reference only; not relabeled current replay",
+      "git_ref": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "actual_execution_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "actual_execution_sources": [
+        "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e"
+      ],
+      "actual_execution_source_basis": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/a7-deciding/raw32-a7e.command.json",
+          "json_pointer": "/source"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/b652-publicfactory-deciding/publicfactory10-b652.command.json",
+          "json_pointer": "/source"
+        }
+      ],
+      "git_ref_scope": "Git ref locates unchanged published receipt documents only; never the execution source of the older check"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/output-manifest.json",
+      "sha256": "4543b88e73745692e5c69571299d41fb81669492704d32ba940fa4172beed479",
+      "bytes": 12505,
+      "scope": "Existing immutable historical/independent receipt reference only; not relabeled current replay",
+      "git_ref": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "actual_execution_source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "actual_execution_source_basis": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/output-manifest.json",
+        "json_pointer": "/source"
+      },
+      "git_ref_scope": "Git ref locates unchanged published receipt documents only; never the execution source of the older check"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/README.md",
+      "sha256": "23528b0b89c49a43de44c341cc6697ee4196707cce67b6829f32ee162871efd6",
+      "bytes": 2753,
+      "scope": "Existing immutable historical/independent receipt reference only; not relabeled current replay",
+      "git_ref": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "actual_execution_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "actual_execution_source_basis": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/README.md",
+        "text": "Exact-680 implementation source in first paragraph"
+      },
+      "git_ref_scope": "Git ref locates unchanged published receipt documents only; never the execution source of the older check"
+    }
+  ],
+  "no_new_missing_owner_input": "This owned projection repair needs no invented authority or newB bridge. Native draws/refinement/promotion issuer held inputs remain unchanged in root45-ID ledger.",
+  "limitations": [
+    "Mixed fixture composes actual distinct-key L3/L4 operations inside one observer; it does not prove failedL3 naturally schedulesL4.",
+    "Actual consumer is the Node serializer helper plus ExperimentState/CAS fresh readback, not entire Node.execute.",
+    "Controlled provider usage/cost reports are not invoice truth, native estimand or appointed refinement/promotion authority.",
+    "No new canonicalB parser/ledger/schema, memory receipt, authority subsystem or distributed/multikey atomicity guarantee.",
+    "No G exact680 budgetfactory10 replay; its independent existing receipt stays separately scoped.",
+    "Sole missing census asset is tracked Grafana dashboard, unused by selected17/11; no monitoring/property availability claim.",
+    "Positive full/split metrics exporter bootstrap logged defaultport conflict; financial predicates passed and no metrics verification is claimed.",
+    "Shared cgroup max-event delta147; oom/oom_kill deltas0. Observations do not attribute prior signal9 or historical kills.",
+    "Global API/schema/architecture/frontend quality gates and production histories are not established by this scoped receipt."
+  ],
+  "independent_review": {
+    "path": "reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+    "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+    "verdict": "GO_BOUNDED_INPUT_ORIGIN_PROJECTION_AND_AFFECTED_CONSUMERS",
+    "actual_initial_inputs_Git_matched": 6320,
+    "loaded_module_rows_per_cohort_Git_matched": 1174,
+    "scope": "Actual 17 and deliberate removal11 on 3b; no newer-head execution attribution"
+  },
+  "publication": "Root alone copies exact manifest entries and commits separate receipt after implementation on ownD topic; G decides integration acceptance; no main push",
+  "cleanup": "No leaf deletion. Preserve all unique inputs/code/docs/deciding outputs. Reproducible own fixture dirs are root-only inventory candidates after publication/readback; cloud withoutTrash retains exact candidates.",
+  "delivery_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b",
+  "publication_ref_is_not_execution_source": "A newer test-only/receipt commit can publish this immutable packet; actual tests remain bound to verification_candidate 3b.",
+  "supersedes_packet_metadata_only": {
+    "old_manifest_path": "/dev/shm/e02-D-funnel-oct07/estimated-origin-final3b-publication/output-manifest.json",
+    "old_manifest_sha256": "21c28fa0fd01f285dd54fba1ee49a294aff3b8d04627dcbe50c7b18205f6c476",
+    "reason": "Distinguish Git document ref from prior actual execution SHA and append independently verified actual runtime review. All original deciding streams/artifacts unchanged."
+  }
+}

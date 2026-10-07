@@ -1,0 +1,9 @@
+{
+  "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/gp_wrapper_v3_count_grounding_removal.py",
+  "sha256": "f13c209edf1f28eedcec8ef3d7c1472f4307f7f5e694cc053950a4ca68bdec97",
+  "scope": "exact8 public wrapper state/count paired-array controls; actual schema/config/nativeartifact/CAS/RNG/record-index/digest parsers preserved",
+  "changed_boundary": "only count==native.iteration and len(savedrows/digests)==count removed, restored prior paired-list len equivalence",
+  "expected": "8 assertionFAIL at pytest.raises when actual methods accept paired truncated/empty input, noERROR/SKIP",
+  "runtime": "UNRUN awaiting independent source review/frozen root",
+  "production_source": "final Service wrapper6235 binding implementation; actual source guard AST reidentified at runtime, fails harness if changed"
+}

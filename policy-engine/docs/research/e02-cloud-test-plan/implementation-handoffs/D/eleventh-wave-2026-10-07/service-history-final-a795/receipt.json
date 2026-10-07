@@ -1,0 +1,39 @@
+{
+  "schema_version": "e02.D.essential-delivery-receipt.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "manifest": {
+    "path": "/dev/shm/e02-D-history-essential-a795-4jvljc4_/manifest.json",
+    "bytes": 27051,
+    "sha256": "114cfaeb6869e8edc64667e5a69c111b2aba47cea96d0b5db23099dd76cbc962"
+  },
+  "essential_archive": {
+    "path": "/dev/shm/e02-D-history-essential-a795-4jvljc4_/deciding-essential.tar.gz",
+    "bytes": 137126,
+    "sha256": "24d4e9e9c67a8b880da6ee4e33a5dd0a74f3d65d0e5ea5ed041ebba66b87da8f"
+  },
+  "handoff": {
+    "archive_member": "HANDOFF.json",
+    "sha256": "e1030f9162990d5681da6185ba65c3b82bb87676976d43d4ec34c4148280bc3b"
+  },
+  "checks": "31 currentPASS +22 affectedPASS; isolated expected removal1FAIL. Historical/baseline scopes retained separately.",
+  "raw_archive_not_for_git": {
+    "path": "/dev/shm/e02-D-history-portable-lossless-a795-r8lq491m/deciding-output-lossless.tar.gz",
+    "bytes": 2454624,
+    "sha256": "8aeb20ac86170383fba874d982c4559d6a05a749f994e4ba14464394f1aa325a"
+  },
+  "copy_manifest": [
+    {
+      "path": "/dev/shm/e02-D-history-essential-a795-4jvljc4_/manifest.json",
+      "bytes": 27051,
+      "sha256": "114cfaeb6869e8edc64667e5a69c111b2aba47cea96d0b5db23099dd76cbc962"
+    },
+    {
+      "path": "/dev/shm/e02-D-history-essential-a795-4jvljc4_/deciding-essential.tar.gz",
+      "bytes": 137126,
+      "sha256": "24d4e9e9c67a8b880da6ee4e33a5dd0a74f3d65d0e5ea5ed041ebba66b87da8f"
+    }
+  ],
+  "finding_disposition": "no formal closure/G acceptance claimed",
+  "P41": "not_established"
+}

@@ -1,0 +1,242 @@
+{
+  "schema": "e02.D.pr68-final-three-handoff.v1",
+  "implementation_slice_base": "9def216eda8aa02c61ec5a89e603627d47633a75",
+  "continuation_merged_base": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+  "frozen_executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "frozen_executed_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "qualified_final_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "qualified_final_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "not_executed_at_qualified_final_candidate": true,
+  "footprint": {
+    "implementation_manifest": {
+      "source_patch_sha256": "ac72eab229f4c48ada197b0e74636124ab82fa71d31a01a8671023e92c26c823",
+      "full9applied_byte_seal_sha256": "68bca58fdfd1db82d94c2517a4b9d31d41366b54390849af83e8fc0b274b3aa2",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "sha256": "1d13658009e1b86566239b9c8fa4cfc331dbdfb6928de4a2f1296fc6d251c5d2",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+          "sha256": "2df06c83bfb9bff038345ab96e8a4c02557a7ef485053e168e634ea1ed90a3b6",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "sha256": "6b6920b6ca0331d2fc7180bb9a7f6e348cc06ccb50bbfa3bee31d9289b379825",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "sha256": "8a945d516a27e55f740ab8eed3f9654e7668139c856c22fa1920f3e56acb5d4f",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "sha256": "73ad9254535b8238a77c77dca0a40bafeb1c0d1dc2e032e5997406c2d88ddaf2",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+          "sha256": "7d8fb0852af0e96037c97daff1fe77082ffbf1721e09086b04ff7c4201c5386e",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_service_history_binding.py",
+          "sha256": "f2b56517e31ae372222402c77f0c543ecfe7747995d76812c9d106af1ec896c1",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        },
+        {
+          "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+          "sha256": "60decfc338c807352c7dd307bfaf0378b1daa737b53ae653fc2a20105e62eaac",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-search-complete-history-resume.toml",
+          "sha256": "d94ce00c10d60bcbf0790d23c1cc049180d084a9b0621cb730ca68a157cbb841",
+          "candidate_blob_byte_identical": true,
+          "approved_manifest_byte_identical": true
+        }
+      ]
+    },
+    "qualification_full_delta": [
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+        "before": {
+          "mode": "100644",
+          "type": "blob",
+          "blob": "562a9ca426381c6e66e03fb7658f3e3107527a28"
+        },
+        "after": {
+          "mode": "100644",
+          "type": "blob",
+          "blob": "4a59ace1d3d5c445a736675d4938f732349f0e36"
+        }
+      }
+    ]
+  },
+  "check_result": {
+    "PASS": 50,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "receipt_admission": {
+    "verdict": "ADMITTED",
+    "reasons": [],
+    "expected_case_denominator": 50,
+    "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+    "command_without_pytest_no_case_property_claim": false,
+    "actual_collected": 50,
+    "phase_denominator": 150,
+    "missing_python_child_packets": [],
+    "sparse_unread_boundaries": 8894,
+    "property_result_distinct_from_receipt_admission": true
+  },
+  "selected_denominator": {
+    "files": [
+      "tests/unit/scientist/methods/autotune/test_dedup.py",
+      "tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+      "tests/unit/scientist/search/test_contracts.py"
+    ],
+    "cases": 50,
+    "phases": 150,
+    "class_cases": 8,
+    "native_service_cases": 40,
+    "contract_cases": 2,
+    "prior_receipts_are_denominator_only": true
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "installed_packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "loguru": "0.7.3",
+      "botorch": null,
+      "gpytorch": null,
+      "torch": null,
+      "hnswlib": null
+    },
+    "limitations": [
+      "Installed package metadata only; actual loaded backend origins are separate."
+    ]
+  },
+  "requested_environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONPATH": "/tmp/e02-D-pr68-dependency-8s67j1ro:/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "E02_D_OBSERVED_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_D_OBSERVER_OUT": "/tmp/e02-D-requested-three-final3b31-dj53_wdl/run/origins"
+  },
+  "inherited_compute_limits": {},
+  "backend": "Actual existing SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry, scalar controlled producer profile; no numerical GP backend selected.",
+  "seed_and_inputs": "Controlled native corpus/evaluator/replicate/seed inputs recorded in actual selected test blobs, complete observed loaded origins and actual CAS minrefs. No additional stochastic GP fit selected.",
+  "producer_artifact_bridge_consumer": [
+    "Actual canonical Sequence producer -> qualified FileSystemCAS candidate/evaluation/service checkpoint -> native dedup completed/pending membership -> actual physical evaluator calls and registry/frontier/fresh reader.",
+    "Existing SearchLoopRunner run/create_service/resume -> consumed native semantic dates and explicit replica/seed identities -> actual CAS resolve/readback -> new process reader resumes real pending history.",
+    "LegacySearchServiceAdapter real ask/tell and OrchestratorFunnelService submit/get_result retain the existing implementation path; these two cases are bounded adapter consumers, not default deployment authority."
+  ],
+  "runtime_property": "Current actual producer->qualifiedCAS->nativehistory/dedup/service->fresh reader and real adapter consumers. Honest unavailable/truezero native primary seam retained.",
+  "independent_oracle": "Expected physical evaluation/corpus/history counts and direct content/date distinctions reside in existing authored current defining tests; math independently executed them and verified byte/input/origin admission. This is a scalar/CAS consistency witness, no independent GP posterior oracle claim.",
+  "original_criteria_authority": {
+    "git_source": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/HANDOFF.json",
+    "sha256": "09a072192d339dedbe29c6b98a45a0fd4a871a5e73a5e872566d7ca50949bf9e",
+    "note": "Original criterion text unchanged; this continuation is affected-consumer evidence rather than a shortened replacement criterion."
+  },
+  "original_criteria": {
+    "B124@CTL-02": {
+      "canonical_text_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+      "text": "Разные даты реального действия дают разные предметные ключи; только дата загрузки/trace не вызывает лишнее вычисление. Тестируется нормальная дедупликация одного и того же канонического входа и сохранение нескольких оценок/реплик. Перестановка полей JSON не меняет смысл, а временные данные не удаляются только по суффиксу имени.",
+      "proposal": "closed bounded original engineering criterion; formalGclosure not claimed"
+    },
+    "B111@OPT-01": {
+      "scope": "ordinary native primary missing/status-not-ok preserves unavailable rather than numerical0; genuinezero andordinaryone distinct; this is an affected native consumer seam alongside Math-owned fulloriginalquantity criteria",
+      "finding_verdict": "root joins full original occurrence; no independent fullB111closureclaim"
+    }
+  },
+  "predicate_basis": {
+    "P37": "Actual physical evaluator counts, full history, changed finite/unavailable primary quantity and real qualified CAS refs/registry readback decide assertions. Package availability/import and metadata booleans do not replace those observations.",
+    "P38": "Returned candidate hash markers cannot collapse distinct actual semantic dates; failed/missing outcomes cannot create free completed membership; effective evaluator/context/suite/policy changes refuse before next proposal effects. Actual missing/status-not-ok primary remains unavailable while genuinezero/ordinaryone are distinct.",
+    "P40": "Current generic resume profile is now closed over exact callable owner identities; final50 replays its actual canonical caller/resume path. New31 history negative cells/native12 numerical wrapper checks are separate owner receipts.",
+    "P41": "No inherited-red claim. Old48+2 receipts bind the complete expected node denominator only; all50 are actually executed at this new source."
+  },
+  "proxy_divergence": "Returned candidate hash markers cannot collapse distinct actual semantic dates; failed/missing outcomes cannot create free completed membership; effective evaluator/context/suite/policy changes refuse before next proposal effects. Actual missing/status-not-ok primary remains unavailable while genuinezero/ordinaryone are distinct.",
+  "negative_controls": "Current40 native tests contain changedbasis/context/evaluator/suite/policy/opaque/ref/status/marker controls and prove beforeeffect refusal or required physical evaluation. No new removal run was requested for this unchanged selected test denominator; historical fourremoval receipts stay exact969 scoped evidence.",
+  "outputs": {
+    "essential_gzip": "essential-deciding-output.json.gz",
+    "sha256": "931f520b7b484ddc1cec2be5915efb0bc5203e97e6eb543cb360a603aa2981fb",
+    "bytes": 234346,
+    "members": 19,
+    "full_original_receipt_sha256": "02b8e0130ec9005f492e441c82e47e7525238a2d189b1b580be1bf3ee90a578e",
+    "junit_sha256": "5e48de01336adc7e7b81c63cbc4668fe3c51bcf8004b0cdf107d4d79e46c6dbb",
+    "complete_raw_pool_preserved_externally": {
+      "path": "/tmp/e02-D-requested-three-final3b31-dj53_wdl/complete-deciding-outputs.json.gz",
+      "sha256": "4d43b80c1cc0591a3f65691742e0f93bc29b32e2b8b3b25e02ccc4ec7bb6d0f3",
+      "bytes": 2256857,
+      "cloud_availability": "not established until separately transferred; preserved external raw outputs"
+    },
+    "compactness_limits": "All essential stdout/stderr/JUnit/cases/phases/resources/instruments/candidateorigins and four qualifiedCAS minrefs portable. Full externalorigin rows, trackedbeforeafter17350 catalog and repeated1112 fixturefiles retain external rawpath/hash; no other-environment availability asserted."
+  },
+  "scoped_carry": {
+    "file": "qualified-carry.json.gz",
+    "observed_origin_rows": 1670,
+    "unique_candidate_paths": 842,
+    "config_bindings": 36,
+    "meaning": "Same original50 assertions qualify; completeinputbytes changed for sole nonconsumedfixture, so no wholefinalcandidatePASS. Scopes importing that fixture are separately rerun.",
+    "decompressed_sha256": "dd09194f522da50ad5fd051c16853d7266f3ae86b319c8264426eeee29133d6e",
+    "compressed_sha256": "2a2e893a6a66adfd3f64e735eaf9e6b3696344af730bc973f41054a4ec678217"
+  },
+  "independent_source_review": {
+    "sha256": "dbb2413dc10cc575b2bd300dd7b3fe6489276ad4f6df0d7cdf312114dad6f718",
+    "portable_member": "instrument/service-v7.1-independent-source-dependency-review.json"
+  },
+  "independent_instrument_review": {
+    "sha256": "d43b849eda125f7206a1466c211410818f6da7edbe89e48b3e2e98bd7278e575",
+    "portable_member": "instrument/independent-instrument-review.json"
+  },
+  "independent_runtime_review": {
+    "path": "review/requested50-final3b31-independent-runtime-review.json",
+    "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+    "verdict": "GO_BOUNDED_EXACT_SOURCE_50_NOT_WHOLE_D"
+  },
+  "disposition": "Affected engineering/consumer evidence; root owns complete45-ID/46-occurrence matching and G acceptance",
+  "formal_closed": false,
+  "G_accepted": false,
+  "limitations": [
+    "No GP numerical/backend property PASS; Torch/BoTorch/GPyTorch/HNSW are absent in this selected minimal profile.",
+    "No G exact680 BudgetFactory10 replay or new budgetfactory claim. Its separately committed exact680 evidence remains historical scoped evidence.",
+    "No invoice, fiscal issuer unit/sign law, deployed served caller, production history, distributed CAS or power-loss authority follows from controlled local fixtures.",
+    "No full original B111 closure from this selected native seam alone. Root joins independent quantity, champion, service and other canonical outputs against original criteria.",
+    "Full imported byte identity is measured for available candidate origins.8894 sparse tracked members remain explicitly unavailable rather than silently treated as read.",
+    "Future source changes need their own delta/affected-consumer qualification; this current50 is pinned to3b31.",
+    "Adopted async import and shutdown observations do not establish its executor behavior; root directasync2 is separate.",
+    "This pack does not replay or override G exact680 BudgetFactory10 receipt."
+  ],
+  "cleanup_candidates": [
+    "/tmp/e02-D-requested-three-final3b31-dj53_wdl/run/fixtures: repeatable output after publication/readback and inactive-user check only",
+    "/tmp/e02-D-requested-three-final3b31-dj53_wdl/run fullraw remains unique decidingoutput unless complete custody elsewhere established; do not delete"
+  ],
+  "cloud_cleanup": "No standardTrash used; nothing permanently deleted.",
+  "independent_portable_and_carry_review": {
+    "path": "review/requested50-compact-output-and-a795-carry-independent-seal.json",
+    "sha256": "8da74263b606de25c187c1d93a78d5cb006e9f56d03207ebaf2fa2aa0083ea60",
+    "verdict": "GO same50 assertion scope only"
+  },
+  "publication_relative_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/pr68-requested-three-final3b31",
+  "scope_sealed": "Actual execution3b31/qualifiedsame50a795; source/ref/update no future wholecurrentPASS attribution."
+}

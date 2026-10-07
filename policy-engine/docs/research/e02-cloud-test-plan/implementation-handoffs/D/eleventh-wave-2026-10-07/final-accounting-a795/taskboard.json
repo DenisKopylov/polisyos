@@ -1,0 +1,736 @@
+{
+  "schema": "D.five-queue.current46-taskboard.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "queues": {
+    "Q5": [
+      {
+        "id": "B106@STR-01",
+        "bundle": "STR-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B107@STR-01",
+        "bundle": "STR-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B122@STP-01",
+        "bundle": "STP-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B41@STP-01",
+        "bundle": "STP-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      }
+    ],
+    "Q1": [
+      {
+        "id": "B108@OPT-01",
+        "bundle": "OPT-01",
+        "role": "canonical_owner",
+        "proposal": "limited",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": "not_established actualfiscalunit/sign/aliasprofile",
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B109@OPT-01",
+        "bundle": "OPT-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B110@OPT-01",
+        "bundle": "OPT-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B111@OPT-01",
+        "bundle": "OPT-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 1,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B112@OPT-02",
+        "bundle": "OPT-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B113@OPT-02",
+        "bundle": "OPT-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 1,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B114@OPT-03",
+        "bundle": "OPT-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 1,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B115@OPT-03",
+        "bundle": "OPT-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 1,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B124@CTL-02",
+        "bundle": "CTL-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "explicit_current_source_qualification_bound",
+        "current_verification_missing": false,
+        "residual": {
+          "owned_fixable_defect": null,
+          "bounded_original_mechanism": "currentselectedknownscenario assertions verified",
+          "neighbor_deployed_context": "not_established; not added as originalcriterion gate",
+          "formal_G_decision": "pending separate fromcode/runtime"
+        }
+      },
+      {
+        "id": "B125@CTL-02",
+        "bundle": "CTL-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 2,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B126@CTL-02",
+        "bundle": "CTL-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B127@OPT-02",
+        "bundle": "OPT-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 1,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      }
+    ],
+    "Q3": [
+      {
+        "id": "B116@OPT-04",
+        "bundle": "OPT-04",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B117@OPT-04",
+        "bundle": "OPT-04",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B118@CTL-01",
+        "bundle": "CTL-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B119@CTL-01",
+        "bundle": "CTL-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 1,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B121@CTL-03",
+        "bundle": "CTL-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B123@CTL-03",
+        "bundle": "CTL-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "LA-014@SRV-01",
+        "bundle": "SRV-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "bounded_original_mechanism": "currentselectedknownscenario assertions verified",
+          "neighbor_deployed_context": "not_established; not added as originalcriterion gate",
+          "formal_G_decision": "pending separate fromcode/runtime",
+          "current_whole_property_verification": "verification_missing: isolated contract-only import check not repeated; exact contract source retained."
+        }
+      },
+      {
+        "id": "LA-015@CTL-01",
+        "bundle": "CTL-01",
+        "role": "supplier_companion_only",
+        "proposal": "closed",
+        "current_evidence_state": "explicit_current_source_qualification_bound",
+        "current_verification_missing": false,
+        "residual": {
+          "owned_fixable_defect": null,
+          "bounded_original_mechanism": "currentselectedknownscenario assertions verified",
+          "neighbor_deployed_context": "not_established; not added as originalcriterion gate",
+          "formal_G_decision": "pending separate fromcode/runtime"
+        }
+      },
+      {
+        "id": "LA-015@SRV-03",
+        "bundle": "SRV-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "explicit_current_source_qualification_bound",
+        "current_verification_missing": false,
+        "residual": {
+          "owned_fixable_defect": null,
+          "bounded_original_mechanism": "currentselectedknownscenario assertions verified",
+          "neighbor_deployed_context": "not_established; not added as originalcriterion gate",
+          "formal_G_decision": "pending separate fromcode/runtime"
+        }
+      }
+    ],
+    "Q4": [
+      {
+        "id": "B120@CTL-03",
+        "bundle": "CTL-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 2,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B156@FUN-01",
+        "bundle": "FUN-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B157@FUN-02",
+        "bundle": "FUN-02",
+        "role": "canonical_owner",
+        "proposal": "held",
+        "current_evidence_state": "explicit_current_source_qualification_bound",
+        "current_verification_missing": false,
+        "residual": {
+          "owned_fixable_defect": null,
+          "required_owner_positive": {
+            "required_runtime_falsifier": "stage labels/sample_count unchanged while actual L3 reduction/L4 restoration removed; native physical draw/work oracle must detect",
+            "required_input_keys": [
+              "native_draw_producer"
+            ],
+            "prior_exact_criterion_pointer": "/findings/34",
+            "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+          },
+          "capability_state_label": "producer_missing",
+          "authority_or_nativeinput_not_synthesized": true
+        }
+      },
+      {
+        "id": "B158@FUN-01",
+        "bundle": "FUN-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 1,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B159@FUN-01",
+        "bundle": "FUN-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 1,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B160@FUN-02",
+        "bundle": "FUN-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B161@FUN-03",
+        "bundle": "FUN-03",
+        "role": "canonical_owner",
+        "proposal": "held",
+        "current_evidence_state": "explicit_current_source_qualification_bound",
+        "current_verification_missing": false,
+        "residual": {
+          "owned_fixable_defect": null,
+          "required_owner_positive": {
+            "required_runtime_falsifier": "lower foreign-population/time/input/rule estimate cannot supersede; owner-authorized same-scope refinement changes only intended component",
+            "required_input_keys": [
+              "same_scope_refinement"
+            ],
+            "prior_exact_criterion_pointer": "/findings/38",
+            "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+          },
+          "capability_state_label": "not_established",
+          "authority_or_nativeinput_not_synthesized": true
+        }
+      },
+      {
+        "id": "B162@FUN-02",
+        "bundle": "FUN-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B163@FUN-03",
+        "bundle": "FUN-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B164@FUN-03",
+        "bundle": "FUN-03",
+        "role": "canonical_owner",
+        "proposal": "held",
+        "current_evidence_state": "explicit_current_source_qualification_bound",
+        "current_verification_missing": false,
+        "residual": {
+          "owned_fixable_defect": null,
+          "required_owner_positive": {
+            "required_runtime_falsifier": "bool=true retained preflight followed by real revoke-before-commit gives zero effects; actual current owner-issued permit gives one persisted effect",
+            "required_input_keys": [
+              "typed_write_permit"
+            ],
+            "prior_exact_criterion_pointer": "/findings/41",
+            "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+          },
+          "capability_state_label": "bridge_missing",
+          "authority_or_nativeinput_not_synthesized": true
+        }
+      },
+      {
+        "id": "B165@FUN-02",
+        "bundle": "FUN-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      }
+    ],
+    "Q2": [
+      {
+        "id": "B128@TRN-01",
+        "bundle": "TRN-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B129@TRN-02",
+        "bundle": "TRN-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B130@TRN-01",
+        "bundle": "TRN-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B131@TRN-01",
+        "bundle": "TRN-01",
+        "role": "canonical_owner",
+        "proposal": "held",
+        "current_evidence_state": "explicit_current_source_qualification_bound",
+        "current_verification_missing": false,
+        "residual": {
+          "owned_fixable_defect": null,
+          "required_owner_positive": {
+            "required_runtime_falsifier": "tenant/split/source-target basis changed while source approval text remains; numeric reuse requires actual owner decision",
+            "required_input_keys": [
+              "tenant_split_transfer"
+            ],
+            "prior_exact_criterion_pointer": "/findings/26",
+            "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+          },
+          "capability_state_label": "not_established",
+          "authority_or_nativeinput_not_synthesized": true
+        }
+      },
+      {
+        "id": "B132@TRN-01",
+        "bundle": "TRN-01",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B133@TRN-02",
+        "bundle": "TRN-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B134@TRN-02",
+        "bundle": "TRN-02",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B135@TRN-03",
+        "bundle": "TRN-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B136@TRN-03",
+        "bundle": "TRN-03",
+        "role": "canonical_owner",
+        "proposal": "closed",
+        "current_evidence_state": "bounded_historical_proposal_current_verification_missing",
+        "current_verification_missing": true,
+        "residual": {
+          "owned_fixable_defect": null,
+          "current_whole_property_verification": "verification_missing; historicalproposal remains honest executed-source qualification, not wholecurrentPASS",
+          "targeted_current_contributions": 0,
+          "required_owner_positive": null,
+          "neighbor_foreign_capability_not_new_original_gate": true
+        }
+      },
+      {
+        "id": "B137@TRN-03",
+        "bundle": "TRN-03",
+        "role": "canonical_owner",
+        "proposal": "held",
+        "current_evidence_state": "explicit_current_source_qualification_bound",
+        "current_verification_missing": false,
+        "residual": {
+          "owned_fixable_defect": null,
+          "required_owner_positive": {
+            "required_runtime_falsifier": "future evidence or retention access-only update cannot make past-as-of evidence fresh; only authorized new grounds/version can revalidate",
+            "required_input_keys": [
+              "authorized_revalidation"
+            ],
+            "prior_exact_criterion_pointer": "/findings/32",
+            "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+          },
+          "capability_state_label": "not_established",
+          "authority_or_nativeinput_not_synthesized": true
+        }
+      }
+    ]
+  },
+  "owner_inputs_file": "owner-inputs.json",
+  "no_generic_missing_bridge_for_available_canonical_owner_API": true
+}

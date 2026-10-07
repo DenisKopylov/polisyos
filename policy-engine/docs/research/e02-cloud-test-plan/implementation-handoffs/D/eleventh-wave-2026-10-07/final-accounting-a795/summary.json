@@ -1,0 +1,73 @@
+{
+  "schema": "D.original46.final-overlay-summary.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "denominator": {
+    "bundles": 17,
+    "unique_findings": 45,
+    "criterion_occurrences": 46,
+    "acceptance_binding_occurrences": 46,
+    "original_source_prefix198_is_not_a_count": true
+  },
+  "historical_proposal_counts": {
+    "closed": 39,
+    "held": 5,
+    "limited": 1,
+    "open": 0
+  },
+  "active_disposition_proposal_counts": {
+    "closed": 39,
+    "limited": 1,
+    "held": 5
+  },
+  "current_source_qualified_unique_proposal_counts": {
+    "closed": 2,
+    "held": 5
+  },
+  "current_verification_missing_occurrences": [
+    "B106@STR-01",
+    "B107@STR-01",
+    "B108@OPT-01",
+    "B109@OPT-01",
+    "B110@OPT-01",
+    "B111@OPT-01",
+    "B112@OPT-02",
+    "B113@OPT-02",
+    "B114@OPT-03",
+    "B115@OPT-03",
+    "B116@OPT-04",
+    "B117@OPT-04",
+    "B118@CTL-01",
+    "B119@CTL-01",
+    "B120@CTL-03",
+    "B121@CTL-03",
+    "B122@STP-01",
+    "B123@CTL-03",
+    "B125@CTL-02",
+    "B126@CTL-02",
+    "B127@OPT-02",
+    "B128@TRN-01",
+    "B129@TRN-02",
+    "B130@TRN-01",
+    "B132@TRN-01",
+    "B133@TRN-02",
+    "B134@TRN-02",
+    "B135@TRN-03",
+    "B136@TRN-03",
+    "B156@FUN-01",
+    "B158@FUN-01",
+    "B159@FUN-01",
+    "B160@FUN-02",
+    "B162@FUN-02",
+    "B163@FUN-03",
+    "B165@FUN-02",
+    "B41@STP-01",
+    "LA-014@SRV-01"
+  ],
+  "formal_closed": 0,
+  "G_accepted": 0,
+  "P41_not_established_occurrences": 46,
+  "historical_not_whole_current_PASS": true,
+  "check_results_are_separate_from_finding_dispositions": true,
+  "counts_do_not_sum_execution_lineages": true
+}

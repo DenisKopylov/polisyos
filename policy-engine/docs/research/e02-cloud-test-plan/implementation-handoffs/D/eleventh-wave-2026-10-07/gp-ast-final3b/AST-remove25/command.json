@@ -1,0 +1,52 @@
+{
+  "actual_cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25/basetemp",
+    "--junitxml=/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25/junit.xml",
+    "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding"
+  ],
+  "backend_versions": {
+    "botorch": "missing",
+    "gpytorch": "missing",
+    "hnswlib": "missing",
+    "pytest": "9.0.2",
+    "torch": "missing"
+  },
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "environment_variables_observed_no_caps": {
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null
+  },
+  "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+  "harness_file": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+  "harness_sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+  "negative_plugin": {
+    "behavior": "exact Git680 original _extract_spec_reads only; actual current canonical main/read receipt/input binding remains",
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/state_spec_union_removal_680.py",
+    "sha256": "f53dcdc63802cb7fd2d4d89cea16291452013f03afe816b003be1113db686bba"
+  },
+  "numerical_property": "UNRUN; this scope checks static AST tooling only",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "scope": "remove25",
+  "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "wrapper_argv": [
+    "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+    "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25",
+    "remove25"
+  ]
+}

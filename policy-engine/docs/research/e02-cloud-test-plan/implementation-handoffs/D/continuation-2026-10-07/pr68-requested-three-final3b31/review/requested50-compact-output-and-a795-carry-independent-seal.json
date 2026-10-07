@@ -1,0 +1,42 @@
+{
+  "schema": "D.independent.actual50.compact-carry-seal.v1",
+  "reviewer": "census_oct07",
+  "review": "GO",
+  "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "qualified_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "runtime_review": {
+    "path": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+    "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+    "bytes": 3840
+  },
+  "compact_output": {
+    "path": "/tmp/e02-D-requested-three-final3b31-dj53_wdl/essential-deciding-output-v2.json.gz",
+    "sha256": "931f520b7b484ddc1cec2be5915efb0bc5203e97e6eb543cb360a603aa2981fb",
+    "bytes": 234346
+  },
+  "compact_members": 19,
+  "all_encoded_content_and_original_member_hashes_verified": true,
+  "carry": {
+    "path": "/tmp/e02-D-requested-three-final3b31-dj53_wdl/final50-3b-to-a795-qualified-carry.json",
+    "sha256": "dd09194f522da50ad5fd051c16853d7266f3ae86b319c8264426eeee29133d6e",
+    "bytes": 236676
+  },
+  "draft_handoff": {
+    "path": "/tmp/e02-D-requested-three-final3b31-dj53_wdl/HANDOFF.draft.json",
+    "sha256": "0580525deed4a3b663a5e01f52c375845f43abaac6c74301ef017142a739a539",
+    "bytes": 14871
+  },
+  "full_git_delta": [
+    "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+  ],
+  "loaded_origin_rows": 1670,
+  "loaded_unique_paths": 842,
+  "config_bindings": 36,
+  "scoped_qualification": "Same recorded50 assertions only; selected imported/config dependencies unchanged. Full byte-input catalog differs in unconsumed test fixture. No new execution at a795.",
+  "limits": [
+    "Full external origins/tracked17350 input catalog/resource/rawfixture corpus remain ignored hash-bound references; compact package includes all1670 candidate origins and four minrefs.",
+    "Finite atexit module observer can miss removed modules/abnormal processes; this bound is explicit.",
+    "No async function execution witness, old whole posterior renewal, formal closure or G acceptance."
+  ],
+  "P41": "not_established"
+}

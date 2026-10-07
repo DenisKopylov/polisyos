@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-07T15:06:02.721737+00:00",
+  "reviewer": "transfer_oct07; neither GP/AST production nor test author",
+  "verdict": "GO_BOUNDED_EXECUTED_PROPERTIES",
+  "implementation_sha": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "reviewed_runtime_root": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave",
+  "complete_executable_denominator": 6861,
+  "complete6861_Git_bytes_verified": true,
+  "scopes": {
+    "GP-positive12": {
+      "origins_rehashed": 3947,
+      "repo_origins": 257,
+      "changed_fixture_loaded": false,
+      "outputs_matched": true,
+      "testcases": 12,
+      "outcomes": {
+        "PASS": 12
+      },
+      "events": {
+        "collection_finish": 1,
+        "report": 36,
+        "session_finish": 1
+      },
+      "phase_events": 36,
+      "phase_outcomes": {
+        "setup:passed": 12,
+        "call:passed": 12,
+        "teardown:passed": 12
+      }
+    },
+    "GP-remove8": {
+      "origins_rehashed": 3459,
+      "repo_origins": 251,
+      "changed_fixture_loaded": false,
+      "outputs_matched": true,
+      "testcases": 8,
+      "outcomes": {
+        "FAIL": 8
+      },
+      "events": {
+        "collection_finish": 1,
+        "report": 24,
+        "session_finish": 1
+      },
+      "phase_events": 24,
+      "phase_outcomes": {
+        "setup:passed": 8,
+        "call:failed": 8,
+        "teardown:passed": 8
+      }
+    },
+    "AST-positive44": {
+      "origins_rehashed": 1051,
+      "repo_origins": 81,
+      "changed_fixture_loaded": false,
+      "outputs_matched": true,
+      "testcases": 44,
+      "outcomes": {
+        "PASS": 44
+      },
+      "events": {
+        "collection_finish": 1,
+        "report": 132,
+        "session_finish": 1
+      },
+      "phase_events": 132,
+      "phase_outcomes": {
+        "setup:passed": 44,
+        "call:passed": 44,
+        "teardown:passed": 44
+      }
+    },
+    "AST-remove25": {
+      "origins_rehashed": 1051,
+      "repo_origins": 81,
+      "changed_fixture_loaded": false,
+      "outputs_matched": true,
+      "testcases": 25,
+      "outcomes": {
+        "FAIL": 25
+      },
+      "events": {
+        "collection_finish": 1,
+        "report": 75,
+        "session_finish": 1
+      },
+      "phase_events": 75,
+      "phase_outcomes": {
+        "setup:passed": 25,
+        "call:failed": 25,
+        "teardown:passed": 25
+      }
+    },
+    "AST-canonical63": {
+      "origins_rehashed": 0,
+      "repo_origins": 0,
+      "changed_fixture_loaded": false,
+      "outputs_matched": true
+    }
+  },
+  "actual_fit": {
+    "starts": 3,
+    "returns": 3,
+    "row_counts": [
+      8,
+      4,
+      4
+    ],
+    "real_callable": "botorch.fit.fit_gpytorch_mll",
+    "model": "botorch SingleTaskGP",
+    "warm_raw_y_mean": -0.0917148148148148,
+    "warm_raw_y_sample_std": 0.09308805709664558,
+    "independent_check": "stdlib mean/sample stdev and raw X min/range recomputed against actual return train_inputs/train_targets for all3 fits; fitted transforms also exact test assertions",
+    "fresh_restore_next_refits": 0,
+    "scope": "warm8 receiving0 and mixed4 converted receiving records; current fixed-parameter full posterior oracle UNRUN"
+  },
+  "negative_controls": {
+    "GP8": "strict wrapper v3/CAS/native schema retained; only independent iteration/count coverage removed. Eight actual call assertion failures DID NOT RAISE ValueError; setup/teardown passed. Numerical fit intentionally absent in these no-model Sobol controls.",
+    "AST25": "exact historical union method restored. Each actual checker returned false PASS0; assertions expected undecided2 and failed. Original missing-read failure remains preserved by positive44 suite."
+  },
+  "canonical63": {
+    "result": "PASS",
+    "actual_explicit_read_text_operations": 63,
+    "all_selected_text_sha256_and_character_counts_recomputed": true,
+    "unresolved_inputs": [],
+    "predicate": "sole syntactic module declaration and direct execute state reads; conservative ambiguity refusal",
+    "runtime_node_semantics": "UNRUN"
+  },
+  "fragments3": {
+    "result": "scoped metadata PASS3",
+    "selected_inputs": 8,
+    "linked_inputs": 9,
+    "all17_exact_Git_bytes_verified": true,
+    "global_gate": "UNRUN"
+  },
+  "portable_manifest": {
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/publication-GP-AST-final3b31e/output-manifest.json",
+    "sha256": "9166e55db86135d3b04bb78af266d4c05d592c902732db918ceea4e50ad60201",
+    "files_verified": 62,
+    "raw_complete_inventories": "preserved ignored paths/hash explicitly recorded; not claimed Git-portable"
+  },
+  "streams": [
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63.wrapper.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63.wrapper.stdout.txt",
+      "bytes": 148,
+      "sha256": "b897e1fa72f25bbc53cad9d8b6403255527da6cb8e21f560fe950e6e1acde2a4"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44.wrapper.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44.wrapper.stdout.txt",
+      "bytes": 710,
+      "sha256": "c469f346e395a8a53f5dc4bbeee2e372ba731234f40465606cdc90126a9fb39d"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25.wrapper.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25.wrapper.stdout.txt",
+      "bytes": 225675,
+      "sha256": "2f4cc5ed08e10dfedb5ac72aa2bad4d75c83301647b42a5de75911496c5bf757"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12.wrapper.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12.wrapper.stdout.txt",
+      "bytes": 3820,
+      "sha256": "0399de996f27e33686a2135a6d083453bf0d3ccd1def2fb7002f65a560472015"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stdout.txt",
+      "bytes": 27543,
+      "sha256": "6b3915431df7a246230f3ecb61383cadc2a2ca627bd75cdecb4361dafaa0a8e8"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3.wrapper.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3.wrapper.stdout.txt",
+      "bytes": 138,
+      "sha256": "68f96cffe22a34b2938c1b4d2b7bd20253cb2a7cb8ebb76a0573de3eb9db2109"
+    }
+  ],
+  "carry_to_a795": {
+    "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "delta_paths": [
+      "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+    ],
+    "loaded_repo_origin_overlap": 0,
+    "selected_canonical63_read_overlap": 0,
+    "fragment_selected_linked_overlap": 0,
+    "decision": "carry only unchanged scoped historical3b assertions/source/backend; not a new a795 run and not complete6861 snapshot identity, whose changed fixture record differs"
+  },
+  "limitations": [
+    "Optional backend actual executed as listed GP12; posterior scientific oracle not rerun on this head.",
+    "AST/static fragment checks cannot establish runtime production invocation, authority or original scientific law.",
+    "Preflight GNU time unavailable capture ERROR had zero property execution, preserved; actual completed captures use POSIX getrusage, source runners unchanged.",
+    "No formal finding closure/G acceptance or P41 inherited-red claim; P41 not_established."
+  ]
+}

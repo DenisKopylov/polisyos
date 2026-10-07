@@ -1,0 +1,193 @@
+{
+  "schema_version": "e02.D.service-history-essential-handoff.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "slice_base": "4645738aee05809552e95aecb14d365793fc6bb2",
+  "implementation_sha": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "fixture_receipt_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "source_footprint": "source-bindings.json",
+  "matched_original_occurrences": "matched-original-criteria.json",
+  "scopes": [
+    {
+      "lineage": "first-3b31",
+      "name": "new31",
+      "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+      "cases": {
+        "PASS": 31,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phases": 93,
+      "returncode": 0,
+      "same_inputs_recorded": true,
+      "command": "first-3b31/new31.command.derived-subset.json",
+      "literal_stdout": "first-3b31/new31.stdout.txt",
+      "literal_stderr": "first-3b31/new31.stderr.txt",
+      "literal_junit": "first-3b31/new31.junit.xml",
+      "complete_phases": "first-3b31/new31.phases.derived-projection.json"
+    },
+    {
+      "lineage": "first-3b31",
+      "name": "affected",
+      "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+      "cases": {
+        "PASS": 36,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phases": 111,
+      "returncode": 1,
+      "same_inputs_recorded": true,
+      "command": "first-3b31/affected.command.derived-subset.json",
+      "literal_stdout": "first-3b31/affected.stdout.txt",
+      "literal_stderr": "first-3b31/affected.stderr.txt",
+      "literal_junit": "first-3b31/affected.junit.xml",
+      "complete_phases": "first-3b31/affected.phases.derived-projection.json"
+    },
+    {
+      "lineage": "first-3b31",
+      "name": "consumption-removal1",
+      "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+      "cases": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phases": 3,
+      "returncode": 1,
+      "same_inputs_recorded": true,
+      "command": "first-3b31/consumption-removal1.command.derived-subset.json",
+      "literal_stdout": "first-3b31/consumption-removal1.stdout.txt",
+      "literal_stderr": "first-3b31/consumption-removal1.stderr.txt",
+      "literal_junit": "first-3b31/consumption-removal1.junit.xml",
+      "complete_phases": "first-3b31/consumption-removal1.phases.derived-projection.json"
+    },
+    {
+      "lineage": "final-a795",
+      "name": "new31",
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "cases": {
+        "PASS": 31,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phases": 93,
+      "returncode": 0,
+      "same_inputs_recorded": true,
+      "command": "final-a795/new31.command.derived-subset.json",
+      "literal_stdout": "final-a795/new31.stdout.txt",
+      "literal_stderr": "final-a795/new31.stderr.txt",
+      "literal_junit": "final-a795/new31.junit.xml",
+      "complete_phases": "final-a795/new31.phases.derived-projection.json"
+    },
+    {
+      "lineage": "final-a795",
+      "name": "affected22",
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "cases": {
+        "PASS": 22,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phases": 66,
+      "returncode": 0,
+      "same_inputs_recorded": true,
+      "command": "final-a795/affected22.command.derived-subset.json",
+      "literal_stdout": "final-a795/affected22.stdout.txt",
+      "literal_stderr": "final-a795/affected22.stderr.txt",
+      "literal_junit": "final-a795/affected22.junit.xml",
+      "complete_phases": "final-a795/affected22.phases.derived-projection.json"
+    },
+    {
+      "lineage": "final-a795",
+      "name": "consumption-removal1",
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+      "cases": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phases": 3,
+      "returncode": 1,
+      "same_inputs_recorded": true,
+      "command": "final-a795/consumption-removal1.command.derived-subset.json",
+      "literal_stdout": "final-a795/consumption-removal1.stdout.txt",
+      "literal_stderr": "final-a795/consumption-removal1.stderr.txt",
+      "literal_junit": "final-a795/consumption-removal1.junit.xml",
+      "complete_phases": "final-a795/consumption-removal1.phases.derived-projection.json"
+    }
+  ],
+  "baseline": {
+    "source": "4645738aee05809552e95aecb14d365793fc6bb2",
+    "result": "2 actual assertion FAIL, empty next11/truncated next10 vs expected8",
+    "receipt": "baseline-4645/baseline-receipt.json",
+    "phase_capture": "not recorded on baseline command; complete literal JUnit/stdout/stderr retained"
+  },
+  "runtime_property": "Complete consumed prefix count/rows/digests bound to actual native corpus/iteration before mutation; legitimate unconsumed tell tail is replayed once. Canonical wrapper profiles use a direct nonvirtual owner callable gate.",
+  "actual_consumer": "SearchLoopRunner.create_service -> native ask/tell -> qualified FileSystemCAS checkpoint -> fresh service.restore/public consumer -> next actual proposal; composed write/readback fault -> fresh public resume in affected22.",
+  "independent_oracle": "Actual supported accumulator law next=1+sum([1,2,4])=8; fresh no evaluator calls.",
+  "divergent_proxy": "Empty/truncated outer digest marker preserved original consumed state but baseline gave11/10; removal retaining all outer count/row/digest/CAS guards and dropping only actual native-consumption relation gave10.",
+  "negative": "Final consumption-removal1 is an intended protected-property assertion FAIL, not setup ERROR; ordinary corruptions reject before live state mutation.",
+  "historical_carry15": {
+    "receipt": "independent-reviews/service-batch12-cleanup3-historical3b-to-a795-qualified-carry.json",
+    "meaning": "15 actual3b cells/45phases own origins unchanged; mixed session imported changed fixture, so no whole-session zero-overlap or new15a795 PASS"
+  },
+  "predicate_basis": {
+    "P37": "actual complete consumed corpus/state, not arbitrary declared count or nonempty prefix",
+    "P38": "independent next8 vs actual baseline11/10 and removal10",
+    "P40": "one closed canonical wrapper owner rule and actual pure custom owner consumption contract; no Python security guarantee",
+    "P41": "not_established"
+  },
+  "supported_profile": "Exact built-in Adapter/nativeBayesian/Sensitivity/Sequence and RL consumption owner methods, canonical bound callables; complete custom checkpoint/history implementation is trusted owner contract. Borrowed/modified built-in profiles remain live-only and refuse persisted resume.",
+  "limitations": [
+    "NN update-owned historical corpus has no complete owner consumption validator in the existing direct warm-state codec; through Adapter service discovery is None and resume unsupported, while direct NN warm state remains separately scoped.",
+    "GP native10 sibling numerical/corpus tests and release metadata3 have separate exact-source receipts; not represented by minimal wrapper-profile checks.",
+    "No production default caller appointment/scientific model authority/distributed checkpoint guarantee is inferred.",
+    "Full imported-source/input tables are ignored raw, not Git available; source/custody reviewers verified them locally.",
+    "Four original occurrences are bindings for this slice, not entire B125/LA014/LA015 formal closure."
+  ],
+  "raw_output_availability": {
+    "git_available": false,
+    "preserved_ignored_raw_archive": {
+      "path": "/dev/shm/e02-D-history-portable-lossless-a795-r8lq491m/deciding-output-lossless.tar.gz",
+      "bytes": 2454624,
+      "sha256": "8aeb20ac86170383fba874d982c4559d6a05a749f994e4ba14464394f1aa325a"
+    },
+    "preserved_ignored_manifest": {
+      "path": "/dev/shm/e02-D-history-portable-lossless-a795-r8lq491m/manifest.json",
+      "bytes": 84723,
+      "sha256": "e6b9548ea8d9334275c6abc4b7736dcfab9d91f9340743eb0af9119476bcfbe6"
+    },
+    "independent_lossless_seal": {
+      "path": "/dev/shm/e02-D-resume617-independent-rgh_3_73/service-a795-lossless161-delivery-independent-seal.json",
+      "bytes": 2770,
+      "sha256": "f3444c7162592404a36a2fea5fa1175f50fb6d1291b98cbc0014e3acc92c2863"
+    },
+    "meaning": "Original raw commands, complete 17350-path input table and full module origin maps are preserved locally, not included in this Git-essential archive. This pointer is provenance, not cloud availability."
+  },
+  "finding_disposition": "Root/G joined criterion ledger decides; leaf source/consumer work ready and independently reviewed, zero formal closure claimed.",
+  "G_acceptance": "not claimed",
+  "resource_scope": "Actual wall durations and no artificial quotas are in derived commands; CPU/peak RSS were not measured.",
+  "cleanup_candidates_no_native_trash": [
+    "/dev/shm/e02-D-history-baseline-vqthdnu_/fixtures",
+    "/dev/shm/e02-D-generic-history-final3b31-2vo6p0_f/new31-fixtures",
+    "/dev/shm/e02-D-generic-history-final3b31-2vo6p0_f/affected-fixtures",
+    "/dev/shm/e02-D-generic-history-final3b31-2vo6p0_f/consumption-removal1-fixtures",
+    "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31-fixtures",
+    "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22-fixtures",
+    "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1-fixtures"
+  ],
+  "cleanup_action": "none; unique data/source/deciding outputs preserved; no native Trash and no permanent deletion"
+}

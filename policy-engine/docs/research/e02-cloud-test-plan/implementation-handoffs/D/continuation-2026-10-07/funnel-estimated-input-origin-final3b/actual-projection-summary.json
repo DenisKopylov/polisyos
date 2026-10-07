@@ -1,0 +1,336 @@
+{
+  "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "rows": [
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_actual_native_pending_rec0",
+      "actual_cas_blob_sha256": "060566835e271f4f0f71a3cb7cc7a562f9dd5ba5cde60a395b98955c805729f7",
+      "reported": "1.0",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "reported"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_actual_native_pending_rec1",
+      "actual_cas_blob_sha256": "9a306dde9946c414e60094e71ca75e13b6d5b7222f47e85651d61877757fda9a",
+      "reported": "1.0",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "committed_after_unknown_ack",
+      "pending_origins": []
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_factory_unknown_am0",
+      "actual_cas_blob_sha256": "feb578e2a1bde58c59e4d324be889f0a166e123a95410f06bf9cbd11de858a7b",
+      "reported": null,
+      "reported_status": "unknown",
+      "estimated": null,
+      "estimated_status": "unknown",
+      "settlement": "unknown",
+      "pending_origins": [
+        "unknown"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_factory_unknown_am1",
+      "actual_cas_blob_sha256": "10fb7acb818f6b97067ede341e6fc6de79d0fd06872b7e98b82bf272b2fab60e",
+      "reported": null,
+      "reported_status": "unknown",
+      "estimated": null,
+      "estimated_status": "unknown",
+      "settlement": "unknown",
+      "pending_origins": [
+        "unknown"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_failed_input_origi0",
+      "actual_cas_blob_sha256": "1033b41a2deeca942aff0fb498760fa04a8ede8b4220aee90d19941a93cb5c56",
+      "reported": null,
+      "reported_status": "not_reported",
+      "estimated": "0.5",
+      "estimated_status": "estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "estimated"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_failed_input_origi1",
+      "actual_cas_blob_sha256": "b3cc9739616896ffbf414fde84c9a453c4cd861f16e525bf0dc180aa35675cf8",
+      "reported": "0.0",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "reported"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_failed_input_origi2",
+      "actual_cas_blob_sha256": "7c1671642bbc7a6feddefa8aff6d98556c510e5ac0b0136e47d0efab27fda252",
+      "reported": "0.25",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "reported"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_failed_input_origi3",
+      "actual_cas_blob_sha256": "211be7e35c520669f892da42aec9932bd506fd1b6a48bd581584cf4cb9b711da",
+      "reported": null,
+      "reported_status": "not_reported",
+      "estimated": "0.5",
+      "estimated_status": "estimated",
+      "settlement": "committed_after_unknown_ack",
+      "pending_origins": []
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_failed_input_origi4",
+      "actual_cas_blob_sha256": "04e31fc6e27f99d7b4c5168429a0c138225e8f9d840bb6fea28913b251c65571",
+      "reported": "0.0",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "committed_after_unknown_ack",
+      "pending_origins": []
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_failed_input_origi5",
+      "actual_cas_blob_sha256": "c60c3df2c422045947dc2f3e79228b68d002e887c28d61bd7337ee4d14d36871",
+      "reported": "0.25",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "committed_after_unknown_ack",
+      "pending_origins": []
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_unknown_amount_pre0",
+      "actual_cas_blob_sha256": "1efcef0402591c21369ab332f710c178d80f143de86529a18e9914f1de04917c",
+      "reported": null,
+      "reported_status": "unknown",
+      "estimated": null,
+      "estimated_status": "unknown",
+      "settlement": "unknown",
+      "pending_origins": [
+        "unknown"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_unknown_amount_pre1",
+      "actual_cas_blob_sha256": "db2ad563ba6aae6837e84399217cc6cce49b16794b1240bd6c2242e23e60a5a6",
+      "reported": "0.25",
+      "reported_status": "partial",
+      "estimated": null,
+      "estimated_status": "unknown",
+      "settlement": "unknown",
+      "pending_origins": [
+        "unknown",
+        "reported"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_unknown_amount_pre2",
+      "actual_cas_blob_sha256": "c76943222ffcc7014fd30358ff1924950176c7aa6fdce200b2605bab784f4f83",
+      "reported": null,
+      "reported_status": "unknown",
+      "estimated": "0.5",
+      "estimated_status": "partial",
+      "settlement": "unknown",
+      "pending_origins": [
+        "unknown",
+        "estimated"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_native_zero_estimate_is_n0",
+      "actual_cas_blob_sha256": "d04919cf3cd462f289979375452497c1a9bf76fb2eb931d0a7b78d4cca99d2ad",
+      "reported": null,
+      "reported_status": "not_reported",
+      "estimated": "0.0",
+      "estimated_status": "estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "estimated"
+      ]
+    },
+    {
+      "cohort": "origin17-final3b",
+      "fixture": "test_two_native_input_origins_0",
+      "actual_cas_blob_sha256": "f4895ae864eb0247c08c34fc2d0f62c21912d35719a8f692c932d04138aaa887",
+      "reported": "0.25",
+      "reported_status": "reported",
+      "estimated": "0.5",
+      "estimated_status": "estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "estimated",
+        "reported"
+      ]
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_failed_input_origi0",
+      "actual_cas_blob_sha256": "cd1a6acf0c65e3032978b602fa2139a25a3ec5416e7766ec183fc7f4ed8bf6d8",
+      "reported": "0",
+      "reported_status": "reported",
+      "estimated": "0.5",
+      "estimated_status": "estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "estimated"
+      ]
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_failed_input_origi1",
+      "actual_cas_blob_sha256": "87ea0d8ee46144241d973a3bc92afb5c9e35e53983cdebfadd9763180e56bbaf",
+      "reported": "0.0",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "reported"
+      ]
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_failed_input_origi2",
+      "actual_cas_blob_sha256": "45b15352c6439a0bb4de69b9500ef6c4380fb46e30504cbbfeaa966208b96efe",
+      "reported": "0.25",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "reported"
+      ]
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_failed_input_origi3",
+      "actual_cas_blob_sha256": "73f39196eb1c5592ef8939beac3edb46a3c317de7b276ebbc2fe45c09eaf11f9",
+      "reported": "0",
+      "reported_status": "reported",
+      "estimated": "0.5",
+      "estimated_status": "estimated",
+      "settlement": "committed_after_unknown_ack",
+      "pending_origins": []
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_failed_input_origi4",
+      "actual_cas_blob_sha256": "8530122397ac9f7d4b86a1dcb9909c265cf9d93f4ce749a3f7bbcc690e045b91",
+      "reported": "0.0",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "committed_after_unknown_ack",
+      "pending_origins": []
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_failed_input_origi5",
+      "actual_cas_blob_sha256": "2e81c2b10aebdc6df9fb2bfed327ea411017146e3c7fab8e1bcc02e91a57f9fa",
+      "reported": "0.25",
+      "reported_status": "reported",
+      "estimated": null,
+      "estimated_status": "not_estimated",
+      "settlement": "committed_after_unknown_ack",
+      "pending_origins": []
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_unknown_amount_pre0",
+      "actual_cas_blob_sha256": "b36fb2edf52c29c19d6924f8b5d9e929fed024c78aa3c467a1d92bfc5560cb0c",
+      "reported": null,
+      "reported_status": "unknown",
+      "estimated": null,
+      "estimated_status": "unknown",
+      "settlement": "unknown",
+      "pending_origins": [
+        "unknown"
+      ]
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_unknown_amount_pre1",
+      "actual_cas_blob_sha256": "75e3d54de0abf908b43ccbf846d81c959b8b81ef58e16a090802fe241ac89658",
+      "reported": "0.25",
+      "reported_status": "partial",
+      "estimated": null,
+      "estimated_status": "unknown",
+      "settlement": "unknown",
+      "pending_origins": [
+        "unknown",
+        "reported"
+      ]
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_unknown_amount_pre2",
+      "actual_cas_blob_sha256": "6c54cbb9f6a6703193887607b0269a14b1847a28ce7cfe8e9d8d048f75b79952",
+      "reported": null,
+      "reported_status": "unknown",
+      "estimated": "0.5",
+      "estimated_status": "partial",
+      "settlement": "unknown",
+      "pending_origins": [
+        "unknown",
+        "estimated"
+      ]
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_native_zero_estimate_is_n0",
+      "actual_cas_blob_sha256": "62f18d98d41690166f1178a90cc70334fca5d4030b8627784d2e7e5f3807a178",
+      "reported": "0",
+      "reported_status": "reported",
+      "estimated": "0.0",
+      "estimated_status": "estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "estimated"
+      ]
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "fixture": "test_two_native_input_origins_0",
+      "actual_cas_blob_sha256": "c2fbc7bce11cd8f5bb65b71c072db68b4b1a2f81f242fb3dff4d58b50ac365eb",
+      "reported": "0.25",
+      "reported_status": "reported",
+      "estimated": "0.5",
+      "estimated_status": "estimated",
+      "settlement": "unknown",
+      "pending_origins": [
+        "estimated",
+        "reported"
+      ]
+    }
+  ],
+  "basis": "Decoded from preserved actual CAS blobs; convenience index, canonical deciding bytes are portable gzip records"
+}

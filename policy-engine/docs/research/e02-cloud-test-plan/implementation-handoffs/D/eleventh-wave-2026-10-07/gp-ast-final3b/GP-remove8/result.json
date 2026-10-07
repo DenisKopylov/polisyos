@@ -1,0 +1,35 @@
+{
+  "P41": "not_established; no inherited-red claim",
+  "actual_cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_fit_start_ids": 0,
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "complete_executable_input_denominator": 6861,
+  "deciding_output_sha256": {
+    "after.json": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932",
+    "before.json": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932",
+    "command.json": "63d081d62c1f475e9ac2a04e4c50b6f62f13bbbb7407aff90f4f756508f48187",
+    "events.jsonl": "27b812168d5e82514a3f236621ec6c29d2208e9f054200373cdcecf3a62ccab7",
+    "junit.xml": "570385c6797ace15b0b2c127f06bb48e3e9dafc4bcba20eeb5c3ed899a5ab485",
+    "origins.json": "7c3fca0ea1430a6172e5870c98afed5fa41c64aeae8ad2686d74d2897d711540"
+  },
+  "exitcode": 1,
+  "harness_file": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_gp_wrapper_frozen.py",
+  "harness_sha256": "4685c4a8184b800235919cf631625df60be21475639c94db49723a3aea66aa6c",
+  "mode": "remove8",
+  "outer_streams": "Append hashes after wrapper END; not hashed prematurely here",
+  "predicate": "actual converted consumed history count/nativeiteration, original CAS warm8 corpus reaches real transformed SingleTaskGP fit/restore, fresh nextproposal; no newposteriororacle",
+  "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "source_and_executable_inputs_immutable": true,
+  "torch_interop_threads_after": 1,
+  "torch_threads_after": 4,
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "wall_s": 2.3742965960118454
+}

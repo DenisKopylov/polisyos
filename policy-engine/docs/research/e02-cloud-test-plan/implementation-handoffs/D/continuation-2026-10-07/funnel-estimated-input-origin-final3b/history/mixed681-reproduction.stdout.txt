@@ -1,0 +1,51 @@
+{
+  "output": "/dev/shm/e02-D-funnel-oct07/estimated-origin-mixed-design-73c/reproduction.json",
+  "source": "6816fc538965e38c1f390ade717d0f991a31b1b1",
+  "cases": [
+    {
+      "case": "mixed_report_estimate",
+      "events": [
+        [
+          "estimated",
+          "0.5"
+        ],
+        [
+          "reported",
+          "0.25"
+        ]
+      ],
+      "reported": "0.25",
+      "status": "reported"
+    },
+    {
+      "case": "partial_report_unknown",
+      "events": [
+        [
+          "unknown",
+          null
+        ],
+        [
+          "reported",
+          "0.25"
+        ]
+      ],
+      "reported": "0.25",
+      "status": "partial"
+    },
+    {
+      "case": "partial_estimate_unknown",
+      "events": [
+        [
+          "unknown",
+          null
+        ],
+        [
+          "estimated",
+          "0.5"
+        ]
+      ],
+      "reported": null,
+      "status": "unknown"
+    }
+  ]
+}

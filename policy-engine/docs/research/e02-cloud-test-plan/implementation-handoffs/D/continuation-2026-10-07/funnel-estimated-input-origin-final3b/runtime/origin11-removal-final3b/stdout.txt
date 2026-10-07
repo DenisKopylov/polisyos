@@ -1,0 +1,180 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /tmp/e02-D-runtime-minimal-20261006/bin/python
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/dev/shm/e02-D-oct07-continuation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /dev/shm/e02-D-oct07-continuation/policy-engine
+configfile: pytest.ini
+plugins: xdist-3.8.0, benchmark-5.2.3, asyncio-1.3.0, langsmith-0.6.0, jaxtyping-0.3.4, hypothesis-6.151.2, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated] FAILED [  9%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated] PASSED [ 18%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated] PASSED [ 27%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated] FAILED [ 36%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated] PASSED [ 45%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated] PASSED [ 54%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero FAILED [ 63%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts PASSED [ 72%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None] PASSED [ 81%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter] PASSED [ 90%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated] PASSED [100%]
+
+=================================== FAILURES ===================================
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_failed_input_origi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2cc59ba0>
+profile = 'estimated', reported = None, estimated = Decimal('0.5')
+reported_status = 'not_reported', estimated_status = 'estimated'
+write_before_ack = False
+
+    @pytest.mark.parametrize(
+        ("profile", "reported", "estimated", "reported_status", "estimated_status"),
+        [
+            ("estimated", None, Decimal("0.5"), "not_reported", "estimated"),
+            ("reported_zero", Decimal(0), None, "reported", "not_estimated"),
+            ("reported_quarter", Decimal("0.25"), None, "reported", "not_estimated"),
+        ],
+    )
+    @pytest.mark.parametrize("write_before_ack", [False, True])
+    def test_native_failed_input_origin_survives_funnel_and_fresh_cas(
+        tmp_path, monkeypatch, profile, reported, estimated, reported_status, estimated_status,
+        write_before_ack,
+    ):
+        path, outcome, ledger, events = _native_inputs(
+            tmp_path, monkeypatch, (profile,), write_before_ack=write_before_ack
+        )
+        expected = reported if reported is not None else estimated
+        # Independent fixed decimal pricing oracle: 50000 observed prompt tokens at
+        # the declared default input price 1e-5 USD; do not call producer's estimator.
+        if profile == "estimated":
+            assert Decimal(50000) * Decimal("0.00001") == expected
+        assert Decimal(events[0]["amount"]) == expected
+        assert events[0]["cost_origin"] == ("estimated" if estimated is not None else "reported")
+        feedback = _fresh_projection(tmp_path, outcome)
+        if reported is None:
+>           assert feedback["resource_reported_input_usd"] is None
+E           AssertionError: assert '0' is None
+
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:144: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.710 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_failed_input_origi3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2cb4d590>
+profile = 'estimated', reported = None, estimated = Decimal('0.5')
+reported_status = 'not_reported', estimated_status = 'estimated'
+write_before_ack = True
+
+    @pytest.mark.parametrize(
+        ("profile", "reported", "estimated", "reported_status", "estimated_status"),
+        [
+            ("estimated", None, Decimal("0.5"), "not_reported", "estimated"),
+            ("reported_zero", Decimal(0), None, "reported", "not_estimated"),
+            ("reported_quarter", Decimal("0.25"), None, "reported", "not_estimated"),
+        ],
+    )
+    @pytest.mark.parametrize("write_before_ack", [False, True])
+    def test_native_failed_input_origin_survives_funnel_and_fresh_cas(
+        tmp_path, monkeypatch, profile, reported, estimated, reported_status, estimated_status,
+        write_before_ack,
+    ):
+        path, outcome, ledger, events = _native_inputs(
+            tmp_path, monkeypatch, (profile,), write_before_ack=write_before_ack
+        )
+        expected = reported if reported is not None else estimated
+        # Independent fixed decimal pricing oracle: 50000 observed prompt tokens at
+        # the declared default input price 1e-5 USD; do not call producer's estimator.
+        if profile == "estimated":
+            assert Decimal(50000) * Decimal("0.00001") == expected
+        assert Decimal(events[0]["amount"]) == expected
+        assert events[0]["cost_origin"] == ("estimated" if estimated is not None else "reported")
+        feedback = _fresh_projection(tmp_path, outcome)
+        if reported is None:
+>           assert feedback["resource_reported_input_usd"] is None
+E           AssertionError: assert '0' is None
+
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:144: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.917 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+__________ test_native_zero_estimate_is_not_a_provider_reported_zero ___________
+
+tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_zero_estimate_is_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2b6cb950>
+
+    def test_native_zero_estimate_is_not_a_provider_reported_zero(tmp_path, monkeypatch):
+        _, outcome, ledger, events = _native_inputs(tmp_path, monkeypatch, ("estimated_zero",))
+        assert events[0]["cost_origin"] == "estimated" and Decimal(events[0]["amount"]) == 0
+        feedback = _fresh_projection(tmp_path, outcome)
+>       assert feedback["resource_reported_input_usd"] is None
+E       AssertionError: assert '0' is None
+
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:166: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.978 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.868 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.899 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.941 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.960 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+________ test_two_native_input_origins_keep_independent_subset_amounts _________
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:26.004 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+2026-10-07 14:44:26.016 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_unknown_amount_preserves_component_absence_and_partial_input[None] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:26.034 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+
+_ test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:26.052 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+
+2026-10-07 14:44:26.064 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:26.093 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+
+2026-10-07 14:44:26.105 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+- generated xml file: /dev/shm/e02-D-funnel-oct07/origin11-removal-final3b.junit.xml -
+=========================== short test summary info ============================
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated]
+FAILED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated] - AssertionError: assert '0' is None
+FAILED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated] - AssertionError: assert '0' is None
+FAILED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero - AssertionError: assert '0' is None
+==================== 3 failed, 8 passed, 1 warning in 8.52s ====================

@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-07T15:33:19.394360+00:00",
+  "reviewer": "transfer_oct07",
+  "verdict": "GO_TRANSPORT_ONLY_SMALL_ESSENTIAL_SUBSET",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "manifest_sha256": "114cfaeb6869e8edc64667e5a69c111b2aba47cea96d0b5db23099dd76cbc962",
+  "archive_sha256": "24d4e9e9c67a8b880da6ee4e33a5dd0a74f3d65d0e5ea5ed041ebba66b87da8f",
+  "receipt_sha256": "b700912e89cac45ac3964139e35554d82d7ea1529829abc995e8425a18362de5",
+  "archive_bytes": 137126,
+  "members_verified": 102,
+  "literal_members_hash_equal_verified161raw_pool": 73,
+  "literal_deciding_streams_junit_CAS": "unchanged original bytes, no original raw hash retag on derived data",
+  "compact_commands": [
+    {
+      "member": "final-a795/affected22.command.derived-subset.json",
+      "exact_original_non_table_fields": 21,
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "raw_original_sha256": "1cb18db175d3dc97298f5b8b68b83c9aa0842485895f8fce6313dd93be92b3e5"
+    },
+    {
+      "member": "final-a795/consumption-removal1.command.derived-subset.json",
+      "exact_original_non_table_fields": 22,
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "raw_original_sha256": "97b23b9af41a2769a66ffe3ffd2bf1b7e348dd819d418c80d3fcfe67f138e4a8"
+    },
+    {
+      "member": "final-a795/new31.command.derived-subset.json",
+      "exact_original_non_table_fields": 21,
+      "source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "raw_original_sha256": "d5529fdf372cb406cf37c5409594f98f2094db717bcf788872aa4fd0e76a7b04"
+    },
+    {
+      "member": "first-3b31/affected.command.derived-subset.json",
+      "exact_original_non_table_fields": 21,
+      "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "raw_original_sha256": "c6c01bcdff5da8ed2945d9581958474cb6148ef165d56f9fe9c5bc5435c8ffd2"
+    },
+    {
+      "member": "first-3b31/consumption-removal1.command.derived-subset.json",
+      "exact_original_non_table_fields": 22,
+      "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "raw_original_sha256": "ea0beb78b2a06fd05f049d03d4c4c07a9eccbf91126beeae8b597c7bb38dd046"
+    },
+    {
+      "member": "first-3b31/new31.command.derived-subset.json",
+      "exact_original_non_table_fields": 21,
+      "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "raw_original_sha256": "fd99ebe9d24c4afe627d4b76fdf91f51968a477b6aec73598e13d4431932fc95"
+    }
+  ],
+  "complete_phase_projections": [
+    {
+      "member": "final-a795/affected22.phases.derived-projection.json",
+      "complete_phases": 66
+    },
+    {
+      "member": "final-a795/consumption-removal1.phases.derived-projection.json",
+      "complete_phases": 3
+    },
+    {
+      "member": "final-a795/new31.phases.derived-projection.json",
+      "complete_phases": 93
+    },
+    {
+      "member": "first-3b31/affected.phases.derived-projection.json",
+      "complete_phases": 111
+    },
+    {
+      "member": "first-3b31/consumption-removal1.phases.derived-projection.json",
+      "complete_phases": 3
+    },
+    {
+      "member": "first-3b31/new31.phases.derived-projection.json",
+      "complete_phases": 93
+    }
+  ],
+  "explicit_partial_origin_rows": [
+    {
+      "member": "final-a795/affected22.critical-origins.derived-subset.json",
+      "literal_origin_rows": 14
+    },
+    {
+      "member": "final-a795/consumption-removal1.critical-origins.derived-subset.json",
+      "literal_origin_rows": 17
+    },
+    {
+      "member": "final-a795/new31.critical-origins.derived-subset.json",
+      "literal_origin_rows": 16
+    },
+    {
+      "member": "first-3b31/affected.critical-origins.derived-subset.json",
+      "literal_origin_rows": 16
+    },
+    {
+      "member": "first-3b31/consumption-removal1.critical-origins.derived-subset.json",
+      "literal_origin_rows": 17
+    },
+    {
+      "member": "first-3b31/new31.critical-origins.derived-subset.json",
+      "literal_origin_rows": 16
+    }
+  ],
+  "derived_case_inventories": [
+    {
+      "member": "final-a795/affected22.collected-cases.derived-projection.json",
+      "cases": 22
+    },
+    {
+      "member": "final-a795/consumption-removal1.collected-cases.derived-projection.json",
+      "cases": 1
+    },
+    {
+      "member": "final-a795/new31.collected-cases.derived-projection.json",
+      "cases": 31
+    },
+    {
+      "member": "first-3b31/affected.collected-cases.derived-projection.json",
+      "cases": 37
+    },
+    {
+      "member": "first-3b31/consumption-removal1.collected-cases.derived-projection.json",
+      "cases": 1
+    },
+    {
+      "member": "first-3b31/new31.collected-cases.derived-projection.json",
+      "cases": 31
+    }
+  ],
+  "minimum_CAS_records": 7,
+  "matched_original_occurrences": 4,
+  "raw_pool_unchanged_sha256": "8aeb20ac86170383fba874d982c4559d6a05a749f994e4ba14464394f1aa325a",
+  "raw_provenance_availability": "complete17350 input tables/full module maps omitted from Git package, explicitly preserved external path/hash notGitavailable. Delivery cannot claim complete input independently portable; runtime5d0f/carryec72 stay separately reviewed.",
+  "scope": "Transport comparison only, no source review/test rerun/new productPASS/aggregate/current retag/P41/Gacceptance."
+}

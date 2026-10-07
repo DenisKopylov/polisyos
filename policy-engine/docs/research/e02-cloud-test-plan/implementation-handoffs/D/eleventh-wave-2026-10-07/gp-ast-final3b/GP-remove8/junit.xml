@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="0.369" timestamp="2026-10-07T14:45:59.146826+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" name="test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty-set_state]" time="0.033"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/basetemp/test_public_wrapper_consumptio0')
+operation = 'set_state', mutation = 'empty'
+
+    @pytest.mark.parametrize("operation", ["set_state", "validate_checkpoint_history"])
+    @pytest.mark.parametrize(
+        "mutation", ["empty", "truncated", "empty_count", "truncated_count"]
+    )
+    def test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history(
+        tmp_path, operation, mutation
+    ):
+        """Native iteration independently binds the converted consumed-row denominator."""
+    
+        def receiver():
+            return BayesianCandidateGenerator(
+                SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+                primary_metric="cost",
+                n_initial=6,
+                seed=31,
+            )
+    
+        history = [
+            {"candidate": {"x": 2}, "stage_b_result": {"cost": 2.0}},
+            {"candidate": {"x": 4}, "stage_a_passed": True},
+            {"candidate": {"x": 6}, "stage_b_result": {"cost": 1.0}},
+        ]
+        live = receiver()
+        assert live.botorch_available
+        first = live.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "sobol_init"
+        state = live.get_state()
+        assert state["schema_version"] == "bayesian_candidate_generator.v3"
+        assert state["consumed_history_count"] == state["strategy_state"]["iteration"] == 3
+        assert state["strategy_state"]["model_state"] is None
+        assert len(state["history_rows"]) == len(state["history_digests"]) == 3
+        assert state["history_rows"][1]["evaluation"] is None
+        immutable_native = json.dumps(
+            state["strategy_state"], sort_keys=True, allow_nan=False
+        )
+        size = 0 if mutation.startswith("empty") else 1
+        state["history_rows"] = state["history_rows"][:size]
+        state["history_digests"] = state["history_digests"][:size]
+        if mutation.endswith("_count"):
+            state["consumed_history_count"] = size
+        assert (
+            json.dumps(state["strategy_state"], sort_keys=True, allow_nan=False)
+            == immutable_native
+        )
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(
+                kind="search.generator_state", media_type="application/json"
+            ),
+        )
+        incoming = json.loads(artifacts.FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+        fresh = receiver()
+        before = json.dumps(fresh.get_state(), sort_keys=True, allow_nan=False)
+&gt;       with pytest.raises(ValueError, match="current-row coverage"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:370: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" name="test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty-validate_checkpoint_history]" time="0.012"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/basetemp/test_public_wrapper_consumptio1')
+operation = 'validate_checkpoint_history', mutation = 'empty'
+
+    @pytest.mark.parametrize("operation", ["set_state", "validate_checkpoint_history"])
+    @pytest.mark.parametrize(
+        "mutation", ["empty", "truncated", "empty_count", "truncated_count"]
+    )
+    def test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history(
+        tmp_path, operation, mutation
+    ):
+        """Native iteration independently binds the converted consumed-row denominator."""
+    
+        def receiver():
+            return BayesianCandidateGenerator(
+                SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+                primary_metric="cost",
+                n_initial=6,
+                seed=31,
+            )
+    
+        history = [
+            {"candidate": {"x": 2}, "stage_b_result": {"cost": 2.0}},
+            {"candidate": {"x": 4}, "stage_a_passed": True},
+            {"candidate": {"x": 6}, "stage_b_result": {"cost": 1.0}},
+        ]
+        live = receiver()
+        assert live.botorch_available
+        first = live.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "sobol_init"
+        state = live.get_state()
+        assert state["schema_version"] == "bayesian_candidate_generator.v3"
+        assert state["consumed_history_count"] == state["strategy_state"]["iteration"] == 3
+        assert state["strategy_state"]["model_state"] is None
+        assert len(state["history_rows"]) == len(state["history_digests"]) == 3
+        assert state["history_rows"][1]["evaluation"] is None
+        immutable_native = json.dumps(
+            state["strategy_state"], sort_keys=True, allow_nan=False
+        )
+        size = 0 if mutation.startswith("empty") else 1
+        state["history_rows"] = state["history_rows"][:size]
+        state["history_digests"] = state["history_digests"][:size]
+        if mutation.endswith("_count"):
+            state["consumed_history_count"] = size
+        assert (
+            json.dumps(state["strategy_state"], sort_keys=True, allow_nan=False)
+            == immutable_native
+        )
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(
+                kind="search.generator_state", media_type="application/json"
+            ),
+        )
+        incoming = json.loads(artifacts.FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+        fresh = receiver()
+        before = json.dumps(fresh.get_state(), sort_keys=True, allow_nan=False)
+&gt;       with pytest.raises(ValueError, match="current-row coverage"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:370: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" name="test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated-set_state]" time="0.016"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/basetemp/test_public_wrapper_consumptio2')
+operation = 'set_state', mutation = 'truncated'
+
+    @pytest.mark.parametrize("operation", ["set_state", "validate_checkpoint_history"])
+    @pytest.mark.parametrize(
+        "mutation", ["empty", "truncated", "empty_count", "truncated_count"]
+    )
+    def test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history(
+        tmp_path, operation, mutation
+    ):
+        """Native iteration independently binds the converted consumed-row denominator."""
+    
+        def receiver():
+            return BayesianCandidateGenerator(
+                SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+                primary_metric="cost",
+                n_initial=6,
+                seed=31,
+            )
+    
+        history = [
+            {"candidate": {"x": 2}, "stage_b_result": {"cost": 2.0}},
+            {"candidate": {"x": 4}, "stage_a_passed": True},
+            {"candidate": {"x": 6}, "stage_b_result": {"cost": 1.0}},
+        ]
+        live = receiver()
+        assert live.botorch_available
+        first = live.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "sobol_init"
+        state = live.get_state()
+        assert state["schema_version"] == "bayesian_candidate_generator.v3"
+        assert state["consumed_history_count"] == state["strategy_state"]["iteration"] == 3
+        assert state["strategy_state"]["model_state"] is None
+        assert len(state["history_rows"]) == len(state["history_digests"]) == 3
+        assert state["history_rows"][1]["evaluation"] is None
+        immutable_native = json.dumps(
+            state["strategy_state"], sort_keys=True, allow_nan=False
+        )
+        size = 0 if mutation.startswith("empty") else 1
+        state["history_rows"] = state["history_rows"][:size]
+        state["history_digests"] = state["history_digests"][:size]
+        if mutation.endswith("_count"):
+            state["consumed_history_count"] = size
+        assert (
+            json.dumps(state["strategy_state"], sort_keys=True, allow_nan=False)
+            == immutable_native
+        )
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(
+                kind="search.generator_state", media_type="application/json"
+            ),
+        )
+        incoming = json.loads(artifacts.FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+        fresh = receiver()
+        before = json.dumps(fresh.get_state(), sort_keys=True, allow_nan=False)
+&gt;       with pytest.raises(ValueError, match="current-row coverage"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:370: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" name="test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated-validate_checkpoint_history]" time="0.023"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/basetemp/test_public_wrapper_consumptio3')
+operation = 'validate_checkpoint_history', mutation = 'truncated'
+
+    @pytest.mark.parametrize("operation", ["set_state", "validate_checkpoint_history"])
+    @pytest.mark.parametrize(
+        "mutation", ["empty", "truncated", "empty_count", "truncated_count"]
+    )
+    def test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history(
+        tmp_path, operation, mutation
+    ):
+        """Native iteration independently binds the converted consumed-row denominator."""
+    
+        def receiver():
+            return BayesianCandidateGenerator(
+                SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+                primary_metric="cost",
+                n_initial=6,
+                seed=31,
+            )
+    
+        history = [
+            {"candidate": {"x": 2}, "stage_b_result": {"cost": 2.0}},
+            {"candidate": {"x": 4}, "stage_a_passed": True},
+            {"candidate": {"x": 6}, "stage_b_result": {"cost": 1.0}},
+        ]
+        live = receiver()
+        assert live.botorch_available
+        first = live.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "sobol_init"
+        state = live.get_state()
+        assert state["schema_version"] == "bayesian_candidate_generator.v3"
+        assert state["consumed_history_count"] == state["strategy_state"]["iteration"] == 3
+        assert state["strategy_state"]["model_state"] is None
+        assert len(state["history_rows"]) == len(state["history_digests"]) == 3
+        assert state["history_rows"][1]["evaluation"] is None
+        immutable_native = json.dumps(
+            state["strategy_state"], sort_keys=True, allow_nan=False
+        )
+        size = 0 if mutation.startswith("empty") else 1
+        state["history_rows"] = state["history_rows"][:size]
+        state["history_digests"] = state["history_digests"][:size]
+        if mutation.endswith("_count"):
+            state["consumed_history_count"] = size
+        assert (
+            json.dumps(state["strategy_state"], sort_keys=True, allow_nan=False)
+            == immutable_native
+        )
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(
+                kind="search.generator_state", media_type="application/json"
+            ),
+        )
+        incoming = json.loads(artifacts.FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+        fresh = receiver()
+        before = json.dumps(fresh.get_state(), sort_keys=True, allow_nan=False)
+&gt;       with pytest.raises(ValueError, match="current-row coverage"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:370: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" name="test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty_count-set_state]" time="0.016"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/basetemp/test_public_wrapper_consumptio4')
+operation = 'set_state', mutation = 'empty_count'
+
+    @pytest.mark.parametrize("operation", ["set_state", "validate_checkpoint_history"])
+    @pytest.mark.parametrize(
+        "mutation", ["empty", "truncated", "empty_count", "truncated_count"]
+    )
+    def test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history(
+        tmp_path, operation, mutation
+    ):
+        """Native iteration independently binds the converted consumed-row denominator."""
+    
+        def receiver():
+            return BayesianCandidateGenerator(
+                SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+                primary_metric="cost",
+                n_initial=6,
+                seed=31,
+            )
+    
+        history = [
+            {"candidate": {"x": 2}, "stage_b_result": {"cost": 2.0}},
+            {"candidate": {"x": 4}, "stage_a_passed": True},
+            {"candidate": {"x": 6}, "stage_b_result": {"cost": 1.0}},
+        ]
+        live = receiver()
+        assert live.botorch_available
+        first = live.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "sobol_init"
+        state = live.get_state()
+        assert state["schema_version"] == "bayesian_candidate_generator.v3"
+        assert state["consumed_history_count"] == state["strategy_state"]["iteration"] == 3
+        assert state["strategy_state"]["model_state"] is None
+        assert len(state["history_rows"]) == len(state["history_digests"]) == 3
+        assert state["history_rows"][1]["evaluation"] is None
+        immutable_native = json.dumps(
+            state["strategy_state"], sort_keys=True, allow_nan=False
+        )
+        size = 0 if mutation.startswith("empty") else 1
+        state["history_rows"] = state["history_rows"][:size]
+        state["history_digests"] = state["history_digests"][:size]
+        if mutation.endswith("_count"):
+            state["consumed_history_count"] = size
+        assert (
+            json.dumps(state["strategy_state"], sort_keys=True, allow_nan=False)
+            == immutable_native
+        )
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(
+                kind="search.generator_state", media_type="application/json"
+            ),
+        )
+        incoming = json.loads(artifacts.FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+        fresh = receiver()
+        before = json.dumps(fresh.get_state(), sort_keys=True, allow_nan=False)
+&gt;       with pytest.raises(ValueError, match="current-row coverage"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:370: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" name="test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty_count-validate_checkpoint_history]" time="0.011"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/basetemp/test_public_wrapper_consumptio5')
+operation = 'validate_checkpoint_history', mutation = 'empty_count'
+
+    @pytest.mark.parametrize("operation", ["set_state", "validate_checkpoint_history"])
+    @pytest.mark.parametrize(
+        "mutation", ["empty", "truncated", "empty_count", "truncated_count"]
+    )
+    def test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history(
+        tmp_path, operation, mutation
+    ):
+        """Native iteration independently binds the converted consumed-row denominator."""
+    
+        def receiver():
+            return BayesianCandidateGenerator(
+                SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+                primary_metric="cost",
+                n_initial=6,
+                seed=31,
+            )
+    
+        history = [
+            {"candidate": {"x": 2}, "stage_b_result": {"cost": 2.0}},
+            {"candidate": {"x": 4}, "stage_a_passed": True},
+            {"candidate": {"x": 6}, "stage_b_result": {"cost": 1.0}},
+        ]
+        live = receiver()
+        assert live.botorch_available
+        first = live.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "sobol_init"
+        state = live.get_state()
+        assert state["schema_version"] == "bayesian_candidate_generator.v3"
+        assert state["consumed_history_count"] == state["strategy_state"]["iteration"] == 3
+        assert state["strategy_state"]["model_state"] is None
+        assert len(state["history_rows"]) == len(state["history_digests"]) == 3
+        assert state["history_rows"][1]["evaluation"] is None
+        immutable_native = json.dumps(
+            state["strategy_state"], sort_keys=True, allow_nan=False
+        )
+        size = 0 if mutation.startswith("empty") else 1
+        state["history_rows"] = state["history_rows"][:size]
+        state["history_digests"] = state["history_digests"][:size]
+        if mutation.endswith("_count"):
+            state["consumed_history_count"] = size
+        assert (
+            json.dumps(state["strategy_state"], sort_keys=True, allow_nan=False)
+            == immutable_native
+        )
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(
+                kind="search.generator_state", media_type="application/json"
+            ),
+        )
+        incoming = json.loads(artifacts.FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+        fresh = receiver()
+        before = json.dumps(fresh.get_state(), sort_keys=True, allow_nan=False)
+&gt;       with pytest.raises(ValueError, match="current-row coverage"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:370: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" name="test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated_count-set_state]" time="0.016"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/basetemp/test_public_wrapper_consumptio6')
+operation = 'set_state', mutation = 'truncated_count'
+
+    @pytest.mark.parametrize("operation", ["set_state", "validate_checkpoint_history"])
+    @pytest.mark.parametrize(
+        "mutation", ["empty", "truncated", "empty_count", "truncated_count"]
+    )
+    def test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history(
+        tmp_path, operation, mutation
+    ):
+        """Native iteration independently binds the converted consumed-row denominator."""
+    
+        def receiver():
+            return BayesianCandidateGenerator(
+                SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+                primary_metric="cost",
+                n_initial=6,
+                seed=31,
+            )
+    
+        history = [
+            {"candidate": {"x": 2}, "stage_b_result": {"cost": 2.0}},
+            {"candidate": {"x": 4}, "stage_a_passed": True},
+            {"candidate": {"x": 6}, "stage_b_result": {"cost": 1.0}},
+        ]
+        live = receiver()
+        assert live.botorch_available
+        first = live.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "sobol_init"
+        state = live.get_state()
+        assert state["schema_version"] == "bayesian_candidate_generator.v3"
+        assert state["consumed_history_count"] == state["strategy_state"]["iteration"] == 3
+        assert state["strategy_state"]["model_state"] is None
+        assert len(state["history_rows"]) == len(state["history_digests"]) == 3
+        assert state["history_rows"][1]["evaluation"] is None
+        immutable_native = json.dumps(
+            state["strategy_state"], sort_keys=True, allow_nan=False
+        )
+        size = 0 if mutation.startswith("empty") else 1
+        state["history_rows"] = state["history_rows"][:size]
+        state["history_digests"] = state["history_digests"][:size]
+        if mutation.endswith("_count"):
+            state["consumed_history_count"] = size
+        assert (
+            json.dumps(state["strategy_state"], sort_keys=True, allow_nan=False)
+            == immutable_native
+        )
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(
+                kind="search.generator_state", media_type="application/json"
+            ),
+        )
+        incoming = json.loads(artifacts.FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+        fresh = receiver()
+        before = json.dumps(fresh.get_state(), sort_keys=True, allow_nan=False)
+&gt;       with pytest.raises(ValueError, match="current-row coverage"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:370: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" name="test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated_count-validate_checkpoint_history]" time="0.013"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/basetemp/test_public_wrapper_consumptio7')
+operation = 'validate_checkpoint_history', mutation = 'truncated_count'
+
+    @pytest.mark.parametrize("operation", ["set_state", "validate_checkpoint_history"])
+    @pytest.mark.parametrize(
+        "mutation", ["empty", "truncated", "empty_count", "truncated_count"]
+    )
+    def test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history(
+        tmp_path, operation, mutation
+    ):
+        """Native iteration independently binds the converted consumed-row denominator."""
+    
+        def receiver():
+            return BayesianCandidateGenerator(
+                SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+                primary_metric="cost",
+                n_initial=6,
+                seed=31,
+            )
+    
+        history = [
+            {"candidate": {"x": 2}, "stage_b_result": {"cost": 2.0}},
+            {"candidate": {"x": 4}, "stage_a_passed": True},
+            {"candidate": {"x": 6}, "stage_b_result": {"cost": 1.0}},
+        ]
+        live = receiver()
+        assert live.botorch_available
+        first = live.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "sobol_init"
+        state = live.get_state()
+        assert state["schema_version"] == "bayesian_candidate_generator.v3"
+        assert state["consumed_history_count"] == state["strategy_state"]["iteration"] == 3
+        assert state["strategy_state"]["model_state"] is None
+        assert len(state["history_rows"]) == len(state["history_digests"]) == 3
+        assert state["history_rows"][1]["evaluation"] is None
+        immutable_native = json.dumps(
+            state["strategy_state"], sort_keys=True, allow_nan=False
+        )
+        size = 0 if mutation.startswith("empty") else 1
+        state["history_rows"] = state["history_rows"][:size]
+        state["history_digests"] = state["history_digests"][:size]
+        if mutation.endswith("_count"):
+            state["consumed_history_count"] = size
+        assert (
+            json.dumps(state["strategy_state"], sort_keys=True, allow_nan=False)
+            == immutable_native
+        )
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(
+                kind="search.generator_state", media_type="application/json"
+            ),
+        )
+        incoming = json.loads(artifacts.FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+        fresh = receiver()
+        before = json.dumps(fresh.get_state(), sort_keys=True, allow_nan=False)
+&gt;       with pytest.raises(ValueError, match="current-row coverage"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:370: Failed</failure></testcase></testsuite></testsuites>

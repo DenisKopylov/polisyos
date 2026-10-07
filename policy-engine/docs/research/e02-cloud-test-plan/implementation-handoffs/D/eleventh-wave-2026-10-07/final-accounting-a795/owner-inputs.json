@@ -1,0 +1,1337 @@
+{
+  "schema": "D.current16.owner-input-overlay.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "packets": [
+    {
+      "key": "tenant_split_transfer",
+      "finding_ids": [
+        "B131"
+      ],
+      "original_criterion_relation": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/0",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/0"
+      },
+      "producer": "Existing data/evaluation/tenant owner authorizes specific source-to-target numerical reuse.",
+      "bridge": "Content-bound numeric_transfer_basis.v1/WarmStartBridge retains actual physical parameters, unit/direction and complete data/model/evaluator/split/scalarizer refs.",
+      "actual_consumer": "Real saved evaluation -> native warm-transfer target.",
+      "minimum_owner_supplied_content": [
+        "Actual source and target tenant/split/subject refs",
+        "Specific allowed reuse/adapter decision from the real owner",
+        "Source/target data/model/evaluator/metric/unit/direction basis",
+        "Exact source physical parameter and evaluation refs",
+        "Permitted adapter/ref and bounded applicability, or explicit refusal"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "not_established",
+      "canonical_owner": {
+        "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Held B131: exact owner-approved tenant/split/subject source→target refs, numeric basis and reuse/refusal law remain absent. Technical CAS/coordinate admission is available; it does not supply rights.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/0",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        }
+      ],
+      "missing_capability_labels": [
+        "not_established"
+      ],
+      "bounded_availability": {
+        "minimum_original_owner_inputs": "unchanged typedrequest",
+        "real_positive": "UNRUN notestablished",
+        "no_synthetic_issuer_or_scientificlaw": true
+      }
+    },
+    {
+      "key": "authorized_revalidation",
+      "finding_ids": [
+        "B137"
+      ],
+      "original_criterion_relation": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/1",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/1"
+      },
+      "producer": "Actual authorized revalidation occurrence with new grounds, not retention access.",
+      "bridge": "Existing lesson evidence anchor/version/as-of reader; retention sidecar remains separate.",
+      "actual_consumer": "Cold/warm/restart and transfer reads of the same lesson.",
+      "minimum_owner_supplied_content": [
+        "Prior and newly produced exact evidence refs/version",
+        "Actual new grounds and occurrence time from producer",
+        "Owner authorization for this revalidation purpose",
+        "Subject/input/rule scope tying old and new version",
+        "Declared content/confidence/freshness basis"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "not_established",
+      "canonical_owner": {
+        "requested_canonical_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Held B137: actual old/new evidence, new grounds/time and authorized purpose remain absent. Historical TTL/access guards are technical reader proofs only.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/1",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        }
+      ],
+      "missing_capability_labels": [
+        "not_established"
+      ],
+      "bounded_availability": {
+        "minimum_original_owner_inputs": "unchanged typedrequest",
+        "real_positive": "UNRUN notestablished",
+        "no_synthetic_issuer_or_scientificlaw": true
+      }
+    },
+    {
+      "key": "native_draw_producer",
+      "finding_ids": [
+        "B157"
+      ],
+      "original_criterion_relation": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/2",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/2"
+      },
+      "producer": "Actual L3/L4 stage producer exposes executed draws/work for the same candidate/config boundary.",
+      "bridge": "Existing effective-config L3 reduction/L4 restoration plus native stage adapter.",
+      "actual_consumer": "Actual direct L4 vs L3->L4 FunnelOrchestrator on the same boundary.",
+      "minimum_owner_supplied_content": [
+        "Exact candidate/input/seed/config/basis refs",
+        "Actual executed sample/draw/work count and source result ref",
+        "L3 reduced effective request, actual cheaper work/cost evidence",
+        "L4 full effective request on both paths",
+        "Unmutated caller context and exact run/evaluation/attempt scope"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "producer_missing",
+      "canonical_owner": {
+        "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Held B157: no native actual draw/work artifact and same-run effective L3 reduced/L4 full producer lineage. Foundry20/80 profile is distinct and cannot substitute native labels/counts.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/2",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        }
+      ],
+      "missing_capability_labels": [
+        "producer_missing"
+      ],
+      "bounded_availability": {
+        "minimum_original_owner_inputs": "unchanged typedrequest",
+        "real_positive": "UNRUN notestablished",
+        "no_synthetic_issuer_or_scientificlaw": true
+      }
+    },
+    {
+      "key": "same_scope_refinement",
+      "finding_ids": [
+        "B161"
+      ],
+      "original_criterion_relation": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/3",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/3"
+      },
+      "producer": "Real subsequent estimator output is authorized to refine the same value/subject/input/rule/time scope.",
+      "bridge": "Existing L5 tracker update and reentrant funnel consume authorized same-scope relation; preserve independent components.",
+      "actual_consumer": "Legitimate later estimate changes current result without erasing independent0.8 or unknown risks.",
+      "minimum_owner_supplied_content": [
+        "Actual prior and later estimate refs",
+        "Same subject/value/input/rule/time comparison basis",
+        "Owner supplied permitted refinement relation/conditions",
+        "Producer evidence for later value/interval",
+        "Independent risk components that remain unaffected"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "not_established",
+      "canonical_owner": {
+        "requested_canonical_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Held B161: actual same-subject/value/input/rule/time authorized refinement relation and independent risk components remain absent; no min/last-write law is appointed.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/3",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        }
+      ],
+      "missing_capability_labels": [
+        "not_established"
+      ],
+      "bounded_availability": {
+        "minimum_original_owner_inputs": "unchanged typedrequest",
+        "real_positive": "UNRUN notestablished",
+        "no_synthetic_issuer_or_scientificlaw": true
+      }
+    },
+    {
+      "key": "typed_write_permit",
+      "finding_ids": [
+        "B164"
+      ],
+      "original_criterion_relation": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/4",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/4"
+      },
+      "producer": "Existing authorized owner produces a current typed permit for the specific write purpose and committed subject.",
+      "bridge": "Existing purpose-bound issuer/verifier/revoke-vs-commit writer bridge supplied by authoritative owner.",
+      "actual_consumer": "Actual Level6/native commit effect; prepared payload read remains separately allowed.",
+      "minimum_owner_supplied_content": [
+        "Actual issued permit ref and purpose/subject/input binding",
+        "Existing current verifier/owner API and source",
+        "Serialized revoke-before-commit writer protocol",
+        "Real prepared payload/ref and permitted write target",
+        "Positive current permit plus revoked/lost-permission control"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "bridge_missing",
+      "canonical_owner": {
+        "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Held B164: existing owner-issued typed permit/current verifier/serialized revoke+write owner positive remains unavailable. Boolean/marker refusal fixtures do not appoint issuer or prove valid effect.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/4",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        }
+      ],
+      "missing_capability_labels": [
+        "bridge_missing"
+      ],
+      "bounded_availability": {
+        "minimum_original_owner_inputs": "unchanged typedrequest",
+        "real_positive": "UNRUN notestablished",
+        "no_synthetic_issuer_or_scientificlaw": true
+      }
+    },
+    {
+      "key": "lossless_gateway_cost",
+      "finding_ids": [
+        "B120"
+      ],
+      "original_criterion_relation": "required_original_numeric_boundary",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/5",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/5"
+      },
+      "producer": "Actual GatewayLLMClient._post_json consumes native response.text before any binary-float loss.",
+      "bridge": "Preserve original declared USD numeric value/sign through raw/typed envelope; strict core intake must refuse nonzero-underflow/invalid-present before settlement.",
+      "actual_consumer": "Actual HTTP text -> Gateway -> core response -> enforcer -> B middleware -> fresh FileBudgetLedger.",
+      "minimum_owner_supplied_content": [
+        "Owner-selected lossless declared-cost numeric representation or explicit refusal",
+        "Exact corrected decoder/consumer source/tree",
+        "Current response-text fixture unchanged at qualified test ref",
+        "Fresh schema1.1 ledger and per-event receipt readback",
+        "Genuine0/0.0/1 and both-sign/all-five-field tiny numeric controls"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B LLM-01/LLM-02 B-W09 Gateway text decoder owner; D CTL-03 composed consumer",
+        "appointment_established": "CanonicalBownerexacte7/f011source, notDparallelparser",
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": null,
+      "canonical_owner": {
+        "requested_canonical_owner": "B LLM-01/LLM-02 B-W09 Gateway text decoder owner; D CTL-03 composed consumer",
+        "appointment_established": "CanonicalBownerexacte7/f011source, notDparallelparser",
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Canonical B decoder and typed raw-cost intake are present on a795. Actual financial17 verifies the selected native response path and source/reported/estimated/unknown projections; exact G68010 remains an older bounded factory receipt. No missing parallel parser, invoice truth or universal deployed route is inferred.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/5",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "git_blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+          "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+          "bytes": 28025,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-receipt.json",
+          "git_blob": "dd9bc36614d3055e558a01aa969862f8f77fb9f3",
+          "sha256": "181a2a60c53003f732ca3a1b3bdd26e293329a226e29b1dae9d4752c4beeb4fe",
+          "bytes": 13760,
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+          "bytes": 8205,
+          "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "sha256": "3820d8b0639a573919e657984dd65fcfb137cfd68a392d707e7902e8a2e5fe93",
+          "bytes": 37561,
+          "role": "ExactG680factory10 and originalB120 controllingtext independently reviewed; not replayed/current whole-import carry",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "missing_capability_labels": [],
+      "bounded_availability": {
+        "canonical_source": "available exactB1.2 mergedsource",
+        "bounded_bridge_consumer": "wired and verified within current17 native financialprojection/receipts; exact680 G10 remainsoldsource",
+        "full_owner_profile_replay": "not claimed",
+        "ordinary_missing_parser_or_secondledger": "none"
+      }
+    },
+    {
+      "key": "owned_multikey_durability",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B159"
+      ],
+      "original_criterion_relation": "actual_default_translator_two_key_durability_profile_dependency",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/6",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/6"
+      },
+      "producer": "Actual native default translator attributes its physical provider event to its two declared accounting keys under the existing owner reservation; B owns that consumed durable scope.",
+      "bridge": "Reconcile the actual default translator two-key reservation/settlement with the existing B1.1 owner transaction. Do not treat this consumed profile as an arbitrary optional schema project or replace primary-key evidence.",
+      "actual_consumer": "Actual native translator/adversary full/split scope and fresh-process ledger reopen.",
+      "minimum_owner_supplied_content": [
+        "Actual caller multi-key/owned reservation profile and purpose",
+        "Physical event ID/digest/amount/provider and exact distinct accounting scopes",
+        "Owner chosen atomic settlement/release/reconciliation contract",
+        "Unknown ACK replay using same event/digest/reservation",
+        "Exact crash/reopen fault boundary and compatible schema/reader"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 B-W05 ledger/middleware owner, B-W09 enforcer; D native caller attribution",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": null,
+      "canonical_owner": {
+        "requested_canonical_owner": "B DUR-01 B-W05 ledger/middleware owner, B-W09 enforcer; D native caller attribution",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Canonical B1.2 ledger/settlement/unknown-ack APIs are supplied and wired. Current native17 exercises full/split paid-event and owned-prerequisite readback. Original exact event, key, retry and durable receipts retain their historical source pins; no new entire owner-suite replay or distributed guarantee.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/6",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "bytes": 59381,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "bytes": 10751,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-receipt.json",
+          "git_blob": "dd9bc36614d3055e558a01aa969862f8f77fb9f3",
+          "sha256": "181a2a60c53003f732ca3a1b3bdd26e293329a226e29b1dae9d4752c4beeb4fe",
+          "bytes": 13760,
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+          "bytes": 8205,
+          "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "sha256": "3820d8b0639a573919e657984dd65fcfb137cfd68a392d707e7902e8a2e5fe93",
+          "bytes": 37561,
+          "role": "ExactG680factory10 and originalB120 controllingtext independently reviewed; not replayed/current whole-import carry",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "missing_capability_labels": [],
+      "bounded_availability": {
+        "canonical_source": "available exactB1.2 mergedsource",
+        "bounded_bridge_consumer": "wired and verified within current17 native financialprojection/receipts; exact680 G10 remainsoldsource",
+        "full_owner_profile_replay": "not claimed",
+        "ordinary_missing_parser_or_secondledger": "none"
+      }
+    },
+    {
+      "key": "public_typed_budget_snapshot",
+      "finding_ids": [
+        "B118",
+        "B120",
+        "B121"
+      ],
+      "original_criterion_relation": "additional_read_contract_only",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/7",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/7"
+      },
+      "producer": "Configured existing middleware supplies one public typed view from its own ledger under its lock.",
+      "bridge": "Owner-chosen public delegate to existing snapshot, with no second ledger or private _ledger access.",
+      "actual_consumer": "Same-owner CostBudgetStopping/native service result projection/fresh read.",
+      "minimum_owner_supplied_content": [
+        "Owner-approved public method/signature and source",
+        "One canonical immutable view/revision/receipt ref",
+        "Supported durable and explicitly memory-only profiles",
+        "Exact restore/schema compatibility/refusal contract"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 configured middleware owner pending G confirmation; D CTL-03/SRV consumers",
+        "appointment_established": "Actual canonicalB BudgetMiddleware.snapshot/pre_check/receipt ports and D configuredcurrentconsumer bridge available; no newly appointed scientific authority",
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": null,
+      "canonical_owner": {
+        "requested_canonical_owner": "B DUR-01 configured middleware owner pending G confirmation; D CTL-03/SRV consumers",
+        "appointment_established": "Actual canonicalB BudgetMiddleware.snapshot/pre_check/receipt ports and D configuredcurrentconsumer bridge available; no newly appointed scientific authority",
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Owner public typed receipt/snapshot API is available. Current native financial17 and a795 service31/22 are bounded selected consumer checks; exact680 stopping/factory10 remains historical source-qualified. No false zero or new schema authority is claimed.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/7",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "bytes": 59381,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "bytes": 10751,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "git_blob": "759bb74100da7ba5be5e217eb6fbba923679962c",
+          "sha256": "6b6920b6ca0331d2fc7180bb9a7f6e348cc06ccb50bbfa3bee31d9289b379825",
+          "bytes": 24622,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-receipt.json",
+          "git_blob": "dd9bc36614d3055e558a01aa969862f8f77fb9f3",
+          "sha256": "181a2a60c53003f732ca3a1b3bdd26e293329a226e29b1dae9d4752c4beeb4fe",
+          "bytes": 13760,
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+          "bytes": 8205,
+          "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "sha256": "3820d8b0639a573919e657984dd65fcfb137cfd68a392d707e7902e8a2e5fe93",
+          "bytes": 37561,
+          "role": "ExactG680factory10 and originalB120 controllingtext independently reviewed; not replayed/current whole-import carry",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "missing_capability_labels": [],
+      "bounded_availability": {
+        "canonical_source": "available exactB1.2 mergedsource",
+        "bounded_bridge_consumer": "wired and verified within current17 native financialprojection/receipts; exact680 G10 remainsoldsource",
+        "full_owner_profile_replay": "not claimed",
+        "ordinary_missing_parser_or_secondledger": "none"
+      }
+    },
+    {
+      "key": "A_frontier_default_workflow",
+      "finding_ids": [
+        "B109"
+      ],
+      "original_criterion_relation": "separate_G_ordinary_workflow_task",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/8",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/8"
+      },
+      "producer": "Actual current admitted frontier assessments originate from the appointed evaluator/source owner.",
+      "bridge": "Wire the existing ParetoRegistry into actual default HierarchicalPolicySearchAdapter coordinator, or cite a real appointed served caller; manual injected fixture is insufficient for this task.",
+      "actual_consumer": "Default evaluation -> registry update -> persisted fresh reader -> ranked frontier report.",
+      "minimum_owner_supplied_content": [
+        "Actual caller source/owner appointment and ordinary request terminus",
+        "Metric/split/direction/unit/definition-version assessed result refs",
+        "Eligible/feasible/unknown complete requested denominator",
+        "Producer source/input/evaluator admission basis",
+        "Existing registry/report CAS refs and normal bridge source"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "not_established",
+      "canonical_owner": {
+        "requested_canonical_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Separate optional A serving edge: actual appointed ordinary A frontier publisher/request universe is absent. Does not gate original B109 direct-vs-fast comparator; no synthetic producer appointment.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/8",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        }
+      ],
+      "missing_capability_labels": [
+        "not_established"
+      ],
+      "bounded_availability": {
+        "minimum_original_owner_inputs": "unchanged typedrequest",
+        "real_positive": "UNRUN notestablished",
+        "no_synthetic_issuer_or_scientificlaw": true
+      }
+    },
+    {
+      "key": "served_hierarchical_context",
+      "finding_ids": [
+        "LA-014",
+        "LA-015",
+        "B109"
+      ],
+      "original_criterion_relation": "separate_G_served_factory_scope",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/9",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/9"
+      },
+      "producer": "Actual existing hierarchical workflow supplies its ordinary candidate/request and admitted evaluation context.",
+      "bridge": "Use existing actual node/coordinator request seam and available public NativeSearchService checkpoint route only under owner-approved mapping.",
+      "actual_consumer": "Real served hierarchical node with fresh public resume/readback and evaluated-subject/cost/history parity.",
+      "minimum_owner_supplied_content": [
+        "Actual supported caller source and owner-approved mapping",
+        "Admitted concrete candidate/request and source refs",
+        "Existing eval-safety execution context/current verifier and world-model/provenance basis",
+        "Configured exact checkpoint owner/ref exposure",
+        "Known new/resumed/stopped/empty/evaluator-failure and rollback subjects"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "A-W01/CYC-01 actual workflow owner and evaluator owner; G to confirm the actual served caller; D native API/bridge consumers",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "not_established",
+      "canonical_owner": {
+        "requested_canonical_owner": "A-W01/CYC-01 actual workflow owner and evaluator owner; G to confirm the actual served caller; D native API/bridge consumers",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Actual public SearchLoopRunner/NativeSearchService factory, complete owned-history attestation, CAS restore/resume and Legacy compatibility are verified in current31/22/50. An appointed deployed caller/hierarchical production context is not_established, an adjacent serving input rather than a new original LA criterion.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/9",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "git_blob": "759bb74100da7ba5be5e217eb6fbba923679962c",
+          "sha256": "6b6920b6ca0331d2fc7180bb9a7f6e348cc06ccb50bbfa3bee31d9289b379825",
+          "bytes": 24622,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+          "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+          "bytes": 3439,
+          "role": "Actualfinala79531/22 and consumption removal1 with complete17350 byte/source/origin/phase reconciliation",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+          "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+          "bytes": 3840,
+          "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "missing_capability_labels": [
+        "not_established"
+      ],
+      "bounded_availability": {
+        "native_publicfactory": "currentactual31/22/50; completeconsumption/profile admission fixed",
+        "unappointed_deployed_caller": "not_established, adjacentoptionaldeployment notoriginalLAgate",
+        "originalbounded_service_proposal": "supported"
+      }
+    },
+    {
+      "key": "ordinary_blueprint_configured_owner",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B160",
+        "B165"
+      ],
+      "original_criterion_relation": "additional_actual_factory_profile",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/10",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/10"
+      },
+      "producer": "Ordinary configured caller constructs the available typed PolicyBudgetExecutionContext with the same existing BudgetMiddleware and admitted evaluation context.",
+      "bridge": "Available keyword-only frozen D context forwards same instance/run/candidate/evaluation scope into FunnelOrchestrator; actual stage producer must be separately provided if paid work is claimed.",
+      "actual_consumer": "Actual RunPolicyBlueprintRuntimeNode -> existing backend/L5 and true producer -> node outcome JSON/CAS.",
+      "minimum_owner_supplied_content": [
+        "Actual caller source/appointment and runnable request",
+        "Same configured B middleware owner instance and existing key scope",
+        "Existing admitted evaluation context/verifier/world-model refs",
+        "Actual stage producer output for the cost/work being claimed",
+        "Exact fresh output/report refs and pending ACK attribution if used"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "A actual node/evaluator caller owner; B existing resource owner; D blueprint node owner",
+        "appointment_established": "not_established",
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "verification_missing",
+      "canonical_owner": {
+        "requested_canonical_owner": "A actual node/evaluator caller owner; B existing resource owner; D blueprint node owner",
+        "appointment_established": "not_established",
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Existing configured B owner and D native Funnel are wired; current17 executes native full/split/recheck and the ordinary result serializer/CAS/fresh-reader seam. Whole Node.run under all changed imports is not replayed here; its old deciding receipt remains at its own source. This is verification_missing, not a missing factory.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/10",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "git_blob": "191ef201a2c952f1696eebb62a497d8778e777bb",
+          "sha256": "ab17c66058929ca33a6f1c917cd32d0c3f18175b87af1180036b5c854516cbef",
+          "bytes": 67876,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "bytes": 10751,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+          "bytes": 8205,
+          "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "missing_capability_labels": [
+        "verification_missing"
+      ],
+      "bounded_availability": {
+        "source_mechanism": "wired existingD configuredowner/FUN, actual17includingfullsplit/recheck",
+        "newordinaryserializer_CAS_freshreader": "verified",
+        "wholeNode_run_undercurrentimports": "not replayed; oldnamedwholeNode receipt keptoldsource",
+        "not_an_owned_missing_factory": "true"
+      }
+    },
+    {
+      "key": "B_canonical_history_compatibility",
+      "finding_ids": [
+        "LA-014",
+        "LA-015",
+        "B120"
+      ],
+      "original_criterion_relation": "additional_actual_persisted_owner_profile",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/11",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/11"
+      },
+      "producer": "B owns canonical schema1.1 spend_receipts/history/ref semantics and any required actual legacy reader decision.",
+      "bridge": "Preserve owner original commits and compatible read/refusal; never reconstruct old D1.0 resource_events/resource_reservations beside B1.1.",
+      "actual_consumer": "Actual fresh configured ledger/checkpoint/history reader for supported owner profile.",
+      "minimum_owner_supplied_content": [
+        "Exact appointed canonical persisted profile/reader source",
+        "Any actually supported prior history/artifact refs needing compatibility",
+        "Owner migration/refusal decision and existing release companion",
+        "Actual qualified CAS source/manifest lineage",
+        "Normal reader round-trip/explicit refusal evidence"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 canonical ledger owner and CAS-01 qualified ref owner; D consumes compatible profile",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": null,
+      "canonical_owner": {
+        "requested_canonical_owner": "B DUR-01 canonical ledger owner and CAS-01 qualified ref owner; D consumes compatible profile",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Canonical B1.2 history/schema/unknown-ack compatibility source is present. D old historical paid/retry/readback receipts and current17 declared consumer assertions are retained separately. No silent schema1.0 adoption, complete current reader universe or new migration guarantee.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/11",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "bytes": 59381,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "git_blob": "97a775859e8c91bd7713dc4604b194452a6dd83d",
+          "sha256": "8a945d516a27e55f740ab8eed3f9654e7668139c856c22fa1920f3e56acb5d4f",
+          "bytes": 42200,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+          "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+          "bytes": 8205,
+          "role": "Actual3b native financial projection17 and removed-projection3FAIL8PASS",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+          "sha256": "3820d8b0639a573919e657984dd65fcfb137cfd68a392d707e7902e8a2e5fe93",
+          "bytes": 37561,
+          "role": "ExactG680factory10 and originalB120 controllingtext independently reviewed; not replayed/current whole-import carry",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "missing_capability_labels": [],
+      "bounded_availability": {
+        "canonical_source": "available exactB1.2 mergedsource",
+        "bounded_bridge_consumer": "wired and verified within current17 native financialprojection/receipts; exact680 G10 remainsoldsource",
+        "full_owner_profile_replay": "not claimed",
+        "ordinary_missing_parser_or_secondledger": "none"
+      }
+    },
+    {
+      "key": "B_public_API_surface",
+      "finding_ids": [
+        "B118",
+        "B120",
+        "B121",
+        "LA-014",
+        "LA-015"
+      ],
+      "original_criterion_relation": "separate_quality_API_gate",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/12",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/12"
+      },
+      "producer": "Actual intended public APIs and callback signatures are declared by canonical source owner.",
+      "bridge": "Either reconcile intended public FileBudgetLedger/LLMBudgetEnforcer/create_traced_gateway_client interfaces or classify internal consistently.",
+      "actual_consumer": "Actual exported public facade/import/caller; D releases preserve owner classifications.",
+      "minimum_owner_supplied_content": [
+        "Owner intended classification for exact APIs/callback types",
+        "Actual canonical contract/inventory update refs",
+        "Matching generated inventory/docs/release refs",
+        "Supported signature/compatibility/operator recipe"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01/LLM-01/LLM-02 API owners plus G public inventory/contract owner",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "verification_missing",
+      "canonical_owner": {
+        "requested_canonical_owner": "B DUR-01/LLM-01/LLM-02 API owners plus G public inventory/contract owner",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Canonical B public source is present. Three selected current structured release fragments pass a bounded metadata check; global public API/schema/architecture/frontend quality gates remain incomplete and verification_missing, without blocking unrelated completed original numerical mechanisms.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/12",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "bytes": 59381,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "bytes": 10751,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "git_blob": "759bb74100da7ba5be5e217eb6fbba923679962c",
+          "sha256": "6b6920b6ca0331d2fc7180bb9a7f6e348cc06ccb50bbfa3bee31d9289b379825",
+          "bytes": 24622,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+          "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+          "bytes": 4662,
+          "role": "Actual3b native GPwrapper12/count-removal8, AST44/25/canonical63 and scoped fragments",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "missing_capability_labels": [
+        "verification_missing"
+      ],
+      "bounded_availability": {
+        "selected3structuredcompanions": "actualscopedPASS",
+        "globalAPI_schema_architecture_frontend_companions": "incomplete; notPASS",
+        "canonicalBpublicsource": "available"
+      }
+    },
+    {
+      "key": "E_mutable_cardinality_cap",
+      "finding_ids": [
+        "B106",
+        "B107",
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "original_criterion_relation": "E_DOE01_dependency_profile",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/13",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/13"
+      },
+      "producer": "Existing public mutable SensitivityPlan/current sampling plan is admitted at the point materialization consumes it.",
+      "bridge": "Existing generate_sensitivity_samples direct API must not rely solely on constructor validation if publicly mutated plan is consumed; existing AdaptiveSampler round reconstruction/preflight already remains.",
+      "actual_consumer": "Public direct sampling and actual D SensitivityBridge/AdaptiveSampler -> truthful report fraction.",
+      "minimum_owner_supplied_content": [
+        "Actual mutable/immutable public-plan contract and source",
+        "Current method/parameter/n_trajectories/cap/allow_large_run values at consumed boundary",
+        "Oversize refusal before backend array/materialization",
+        "Declared round count and original physical direction/threshold",
+        "Exact affected E producer tests and ordinary D consumer profile refs"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "E DOE-01 E-W06 canonical SensitivityPlan/sampling owner; D actual E->stress consumer",
+        "appointment_established": "not_established",
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "not_established",
+      "canonical_owner": {
+        "requested_canonical_owner": "E DOE-01 E-W06 canonical SensitivityPlan/sampling owner; D actual E->stress consumer",
+        "appointment_established": "not_established",
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Separate E DOE/B100 law and mutable-plan-cap contract remain source-owner obligations. Historical exact D scenario fraction/direction native DOE is retained; no E sampler/analyzer law or changed-cap before materialization success claimed.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/13",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        }
+      ],
+      "missing_capability_labels": [
+        "not_established"
+      ],
+      "bounded_availability": {
+        "minimum_original_owner_inputs": "unchanged typedrequest",
+        "real_positive": "UNRUN notestablished",
+        "no_synthetic_issuer_or_scientificlaw": true
+      }
+    },
+    {
+      "key": "owner_declared_fiscal_profile",
+      "finding_ids": [
+        "B108"
+      ],
+      "original_criterion_relation": "separate_scientific_issuer_claim",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/14",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/14"
+      },
+      "producer": "Actual fiscal measurement producer declares its unit/sign/alias applicability and source measurement basis.",
+      "bridge": "Existing strict fiscal extractor uses declared unit/profile and presence/null/conflict semantics.",
+      "actual_consumer": "Actual user/evaluator fiscal input; finite alias/unit boundary controls remain separately verified.",
+      "minimum_owner_supplied_content": [
+        "Actual producer/result and source refs",
+        "Owner-declared sign/unit/alias equivalence/profile",
+        "Measurement and applicable time/context basis",
+        "Real conflict/missing policy for that producer"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Actual fiscal unit/sign/source-law declaring owner to be confirmed by A/G",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "not_established",
+      "canonical_owner": {
+        "requested_canonical_owner": "Actual fiscal unit/sign/source-law declaring owner to be confirmed by A/G",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "B108 limited: actual issuer unit/sign/alias law is absent. Exact680 Decimal/objective73 and independent13 plus stop controls are technical numeric receipts, not fiscal authority; current merged async/import closure not automatically inherited.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/14",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        }
+      ],
+      "missing_capability_labels": [
+        "not_established"
+      ],
+      "bounded_availability": {
+        "minimum_original_owner_inputs": "unchanged typedrequest",
+        "real_positive": "UNRUN notestablished",
+        "no_synthetic_issuer_or_scientificlaw": true
+      }
+    },
+    {
+      "key": "D_coordinate_volume_corrective",
+      "finding_ids": [
+        "B110",
+        "B111"
+      ],
+      "original_criterion_relation": "required_original_same_class_control",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/15",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "prior_680_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+        "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+        "bytes": 75438,
+        "git_blob": "6c1293ce11c1c9f20b8120d607981fb0a8738a0a",
+        "json_pointer": "/packets/15"
+      },
+      "producer": "Existing coordinate identity and assessed volume adapter/optimizer consumer enforce paired identity and numeric representability.",
+      "bridge": "Use current identity/basis refusal and typed unavailable outcome; retain real CAS and existing upstream guards.",
+      "actual_consumer": "Actual promoter/persisted registry/is_dominated/physical quantity and optimizer reference consumer.",
+      "minimum_owner_supplied_content": [
+        "Exact source/test/tree and ordinary consumer source",
+        "All axes/policies/values/reference transformed together plus stale/unpaired refusal",
+        "Independent rational positive tiny-volume vs genuine empty-zero expected",
+        "Finite-input derived reference arithmetic refusal",
+        "Complete immutable positive and source-removal/old-source outputs"
+      ],
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "D-W01 search_owner producer/consumer plus numerical_oracle independent controls",
+        "appointment_established": "Dcanonicalmathmechanism authors and independentGP review bound actualsource.",
+        "no_new_owner_apppointed": true
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "production_dataset_transfer": false,
+      "capability_state_label": "verification_missing",
+      "canonical_owner": {
+        "requested_canonical_owner": "D-W01 search_owner producer/consumer plus numerical_oracle independent controls",
+        "appointment_established": "Dcanonicalmathmechanism authors and independentGP review bound actualsource.",
+        "no_new_owner_apppointed": true
+      },
+      "current_scope": "Original paired-coordinate and exact-volume evidence remains on its exact c0/969/680 lineage. Current50 additionally verifies native missing/nonfinite/true-zero reason/score/frontier/CAS behavior. Whole current numerical property/import closure is not replayed; no new bounding-box or underflow proxy replaces the original criterion.",
+      "evidence": [
+        {
+          "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+          "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/owner-inputs.json",
+          "sha256": "71d467b5dc6ecbbc8883e0b0762974ed8415638eb86e20fdf3b2b4dfd6c0467d",
+          "bytes": 75438,
+          "json_pointer": "/packets/15",
+          "role": "Originalminimumrequirements and recorded historicalavailability only, not currentruntimePASS",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+          "git_blob": "63c3dd0bebe17eb599444070caebbb7acb926417",
+          "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+          "bytes": 39563,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "git_path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "git_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+          "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "bytes": 8212,
+          "role": "Current exact source identity, not automatic runtime acceptance",
+          "availability": "exact_immutable_Git_bytes_independently_reconciled"
+        },
+        {
+          "external_source": "/dev/shm/e02-D-census-review-oct07/requested50-final3b31-independent-runtime-review.json",
+          "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/requested50-final3b31-independent-runtime-review.json",
+          "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+          "bytes": 3840,
+          "role": "Actual3b50/150 phases/parent+freshreader origins and Git bytes independently reconciled",
+          "availability": "exact_external_bytes_read_pending_root_publication_readback"
+        }
+      ],
+      "missing_capability_labels": [
+        "verification_missing"
+      ],
+      "bounded_availability": {
+        "originalnumericalquantityproof": "exacthistoricalc0/969/680 oldsource retained",
+        "newnativequantityconsumer": "actualcurrent50 missing/nonfinitezero/status/reason/CAS",
+        "wholecurrentnumericalquantity/importreplay": "notreplayed; no blanketcurrentPASS"
+      }
+    }
+  ],
+  "original_minimum_inputs_preserved": true,
+  "no_production_dataset_transfer": true,
+  "formal_closed": 0,
+  "accepted_in_G": false
+}

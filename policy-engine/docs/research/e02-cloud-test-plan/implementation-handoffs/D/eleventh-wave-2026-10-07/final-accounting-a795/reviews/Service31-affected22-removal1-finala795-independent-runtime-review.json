@@ -1,0 +1,84 @@
+{
+  "schema": "D.independent.Service-currenta795-runtime.v1",
+  "reviewer": "census_oct07",
+  "review": "GO",
+  "executed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "checks": [
+    {
+      "scope": "new31",
+      "cases": {
+        "PASS": 31
+      },
+      "phases": 93,
+      "repository_origins": 848,
+      "wall_seconds": 14.033053559978725,
+      "command": {
+        "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31.command.json",
+        "sha256": "d5529fdf372cb406cf37c5409594f98f2094db717bcf788872aa4fd0e76a7b04",
+        "bytes": 8334427
+      },
+      "junit": {
+        "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/new31.junit.xml",
+        "sha256": "b57e4e0693631111be00278fa909f471d61dbcaeb0ecef94c74e6e6b9aa3ac18",
+        "bytes": 6495
+      }
+    },
+    {
+      "scope": "affected22",
+      "cases": {
+        "PASS": 22
+      },
+      "phases": 66,
+      "repository_origins": 1159,
+      "wall_seconds": 42.60104953299742,
+      "command": {
+        "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22.command.json",
+        "sha256": "1cb18db175d3dc97298f5b8b68b83c9aa0842485895f8fce6313dd93be92b3e5",
+        "bytes": 8336272
+      },
+      "junit": {
+        "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/affected22.junit.xml",
+        "sha256": "b2d270f53fcfd28de2933c23fdfb1031ce7d015392f94d9c71f81e81da88d707",
+        "bytes": 4533
+      }
+    },
+    {
+      "scope": "consumption-removal1",
+      "cases": {
+        "FAIL": 1
+      },
+      "phases": 3,
+      "repository_origins": 848,
+      "wall_seconds": 10.407143108983291,
+      "command": {
+        "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1.command.json",
+        "sha256": "97b23b9af41a2769a66ffe3ffd2bf1b7e348dd819d418c80d3fcfe67f138e4a8",
+        "bytes": 8334967
+      },
+      "junit": {
+        "path": "/dev/shm/e02-D-generic-history-finala795-dgk9qc7u/consumption-removal1.junit.xml",
+        "sha256": "fc9d5c668b913f51bd4fab89109dd91d326d16c2c1202eca160c06e109b8cff6",
+        "bytes": 3888
+      }
+    }
+  ],
+  "input_denominator": {
+    "tracked_members": 17350,
+    "available": 8456,
+    "sparse_absence_explicit": true,
+    "before_after_complete_manifest_unchanged": true,
+    "available_initial_bytes_independently_match_executed_Git": true
+  },
+  "runtime_property": "Actual canonical owner complete consumption attestation before checkpoint, paired fresh restore/resume and tail; unavailable owner profiles refuse persistence rather than claiming restored history.",
+  "negative": "Existing real restore retains history/markers/CAS; removing consumed-history attestation causes assertion failure, not setup/error.",
+  "consumer": "SearchLoopRunner.create_service -> actual ask/evaluate/tell -> CAS checkpoint -> fresh reader/public resume; actual affected native lifecycle/fault consumers.",
+  "limits": [
+    "This is scoped current31 and affected22, not summed wholeD/GP posterior/optional backends.",
+    "Supported exact scalar/grid/RL/wrapper owner profiles only; arbitrary mutable implementation/Python security or deployed served context not established.",
+    "Old3b owned fixture failure preserved; a795 corrects only actual fixture custody and production is byte-identical3b."
+  ],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "P41": "not_established"
+}

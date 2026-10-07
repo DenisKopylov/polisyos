@@ -1,0 +1,126 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F/cau",
+  "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+  "target_tree": "1a078f2fd38602dd0f885f77be1f3fa7585852ad",
+  "specification_verdict": "GO_BOUNDED_DECLARED_NATIVE_SCIENTIFIC_PROFILE",
+  "engineering_verdict": "GO_BOUNDED_CAS_PROJECTION_AND_ORIGINAL_QUERY_BINDING",
+  "check": "PASS",
+  "outcome": "limited",
+  "positive_native": {
+    "check": "PASS",
+    "counts": "22PASS/0SKIP/0ERROR,31 actual warnings",
+    "execution_receipt": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.json",
+    "source_hashes_before_after_identical": true,
+    "wall_seconds": 175.24648714065552
+  },
+  "independent_custody_controls": {
+    "check": "PASS",
+    "execution_receipt": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected.json",
+    "actual_positive_node_status": "ok",
+    "peer_mean_mutant": {
+      "actual_method_artifact_mean": 2.1300856285262015,
+      "candidate_peer_mean": 7.130085628526201,
+      "node_status": "fail",
+      "reason": "peer output differs from canonical method-result payload",
+      "unchanged_backend_source_result_kind_markers": true
+    },
+    "coherent_genuine_alternate_query": {
+      "genuine_alternate_target": 2.0,
+      "original_requested_target": 1.0,
+      "genuine_method_artifact_mean": 4.260171257052403,
+      "complete_peer_and_actual_cas_coherent": true,
+      "node_status": "fail",
+      "reason": "result does not match original requested query"
+    },
+    "no_product_or_worker_source_mutation": true
+  },
+  "prior_discovered_class": {
+    "id": "F-SCM-CONSUMER-BINDING",
+    "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+    "prior_check": "FAIL",
+    "prior_production_node_status": "ok",
+    "original_receipt": "/workspace/e02-F-20261006-receipts/cau/scm-independent-review.json",
+    "resolution": "Source mechanism repair reconciles whole runtime serialization against genuine CAS method payload, validates original SCM manifest input and original requested query; independent runtime falsifiers now typed-refused. Original failure outputs retained unchanged."
+  },
+  "static_delta_review": "Complete eight-path correction read: public facade exports preserve actual provider identity/consumer invocation and pickle ABI; genuine-job controls cover summary,draws,kind,metadata,coherent other query,missing artifact. Production node reads canonical CAS and validates both result aliases. Tests updated only to explicitly supply actual method-result artifact/bindings; mocked branch-state test remains a limited fixture. Prior scientific source path laws unchanged by custody repair. Total finite-primitive guard catches oversize-int float overflow in sharedworker/bridge, no shim.",
+  "scientific_scope": [
+    "Actual pinned DoWhy0.14/Python3.12 worker; fresh Python3.14 native CAS reader and actual Scientist node on known synthetic source-bound static DAG.",
+    "Conditional Gaussian posterior with analytic/singular evidence, shared-arm same-noise contrast/do2-do0=6 and exact supported noise laws including extreme tails measured by native selectors.",
+    "Outcome/ITE/predictive and conditional-posterior distributions are typed separately from optional approximate iid-row estimator refit CI; both remain nongating.",
+    "Lag/unknown-law unsupported profiles refuse; no claimed empirical identification, real input admission, unrestricted backend, policy authority or E-global propagation."
+  ],
+  "limitations": [
+    "This GO is for exact declared finite native profile and repaired consumer class; finding/full production closure remains root/G adjudication.",
+    "Canonical dispatcher succeeds despite retained unexpected_key/empty warnings diagnostics; raw output key warnings are not claimed absent nor consumer failure.",
+    "Whole repository architecture/docs/compatibility/static invocation/CI gates are outside this independent selector denominator.",
+    "No real-world protected production promotion or authority evidence fabricated."
+  ],
+  "deciding_artifacts": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.json",
+      "bytes": 6786,
+      "sha256": "65435f7cc5e80f79cd5ca7e3d434652776e10dd3465071d9148ed3a33d6b1d93"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.stdout.txt",
+      "bytes": 6944,
+      "sha256": "27b8d2333666ad5484843a1f6ab3232204130db766f21c6fc43dde2cab805657"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected.json",
+      "bytes": 6525,
+      "sha256": "c24d2931c25a630a5615b34ec265ee468ec2d71fccf7fa26325e32acb8e2cba1"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected.stdout.txt",
+      "bytes": 131712,
+      "sha256": "a4cab484eaeabb6d543f49de9e3308e4be576f46fb11a0567cf438060833d0cc"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected.stderr.txt",
+      "bytes": 1940,
+      "sha256": "dcae352d89af04816e4bb20f03afd5f075cab8875cb2132f3494d3775661e69f"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected-probe.py",
+      "bytes": 5065,
+      "sha256": "8e42f71b33e67685ba5f05d3297289b5f3adec5d2c7371b6e5764f24b9e5bdb8"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/run-scm-independent-corrected.py",
+      "bytes": 1953,
+      "sha256": "7bddf034ff26918a61f293e279f0537f3f66c953ae2811ced92b1020132f85c7"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-review.json",
+      "bytes": 4779,
+      "sha256": "28c5604a4a19acf3bd25d2e5ec36ffc9f64fd3e78b94be4a593eac74c1450a9b"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.json",
+      "bytes": 6208,
+      "sha256": "cbdcc79e6c4a93f2bce9bcecdebab0d9dc23a8ccafd8a48985969e235107045e"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.stdout.txt",
+      "bytes": 130619,
+      "sha256": "9e7284deccfa06bac48ce80acd8e3f4bf546fb2cd95d2001adb2880452350361"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.stderr.txt",
+      "bytes": 2373,
+      "sha256": "07355e1a5b15a16cfa1396d12bf335b1be39802f9dde150c52642cbee5ba1dd9"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-probe.py",
+      "bytes": 3638,
+      "sha256": "5001cd8e349c3ab3895ee0b833f526e18af96f379364efdf13f175492adf0124"
+    }
+  ]
+}

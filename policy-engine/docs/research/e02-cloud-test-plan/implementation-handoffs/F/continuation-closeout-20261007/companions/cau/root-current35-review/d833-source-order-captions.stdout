@@ -1,0 +1,16 @@
+{
+  "check": "PASS",
+  "target": {
+    "sha": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "tree": "a68dbc3ecf4ccf9a5a59fa4b830464e32d81dd8f"
+  },
+  "issues": [],
+  "source_order_topics": 6,
+  "minimal_packets": 7,
+  "per_ID_semantic_rows": 35,
+  "product_delta_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+  ],
+  "elapsed_s": 0.3233980060031172
+}

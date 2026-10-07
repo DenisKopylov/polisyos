@@ -1,0 +1,58 @@
+....FF.............                                                      [100%]
+=================================== FAILURES ===================================
+_ test_catalog_membership_does_not_admit_wrong_threshold_payment[license_scoring_reserve_v1] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic-tmp/test_catalog_membership_does_n0')
+family_id = 'license_scoring_reserve_v1'
+
+    @pytest.mark.parametrize("family_id", FAMILY_IDS[2:])
+    def test_catalog_membership_does_not_admit_wrong_threshold_payment(tmp_path, family_id):
+        before = mechanism_family_catalog()
+        store = FileSystemCAS(tmp_path / "cas")
+        input_ref = store.put_json(
+            _policy(family_id, wrong_payment=True),
+            PutOptions(kind="ir.policy_spec", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        result = verify_incentive_compatibility(
+            store, ICVerificationRequest(property="dominant_strategy_ic", input_ref=input_ref)
+        )
+>       assert not result.ok and result.verdict == "negative", result.notes
+E       AssertionError: ['Phase 3 mechanism-family constructive certificate passed']
+E       assert (not True)
+E        +  where True = ICVerificationResult(ok=True, verdict='positive', certificate_ref=ICVerificationCertificateRef(artifact_id=ArtifactID(...='application/json', manifest_profile_sha256=None), notes=['Phase 3 mechanism-family constructive certificate passed']).ok
+
+tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py:169: AssertionError
+_ test_catalog_membership_does_not_admit_wrong_threshold_payment[license_myerson_score_v1] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic-tmp/test_catalog_membership_does_n1')
+family_id = 'license_myerson_score_v1'
+
+    @pytest.mark.parametrize("family_id", FAMILY_IDS[2:])
+    def test_catalog_membership_does_not_admit_wrong_threshold_payment(tmp_path, family_id):
+        before = mechanism_family_catalog()
+        store = FileSystemCAS(tmp_path / "cas")
+        input_ref = store.put_json(
+            _policy(family_id, wrong_payment=True),
+            PutOptions(kind="ir.policy_spec", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        result = verify_incentive_compatibility(
+            store, ICVerificationRequest(property="dominant_strategy_ic", input_ref=input_ref)
+        )
+>       assert not result.ok and result.verdict == "negative", result.notes
+E       AssertionError: ['Phase 3 mechanism-family constructive certificate passed']
+E       assert (not True)
+E        +  where True = ICVerificationResult(ok=True, verdict='positive', certificate_ref=ICVerificationCertificateRef(artifact_id=ArtifactID(...='application/json', manifest_profile_sha256=None), notes=['Phase 3 mechanism-family constructive certificate passed']).ok
+
+tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py:169: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py::test_catalog_membership_does_not_admit_wrong_threshold_payment[license_scoring_reserve_v1]
+FAILED tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py::test_catalog_membership_does_not_admit_wrong_threshold_payment[license_myerson_score_v1]
+2 failed, 17 passed, 1 warning in 1.46s

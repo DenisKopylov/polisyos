@@ -1,0 +1,53 @@
+{
+  "schema": "F-original35-independent-selection/1",
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.json",
+      "bytes": 235804,
+      "sha256": "95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.md",
+      "bytes": 11817,
+      "sha256": "e0bc6c25bd908fedfdc20e05fb70f017296f8d88fd7be0a3ddd5b2b933a439b9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.replayer.py",
+      "bytes": 41994,
+      "sha256": "b493f41a7b8fa4c2410dd4310281383c446d1b69eb856ac9ee217d9813e706f6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.stdout.txt",
+      "bytes": 421,
+      "sha256": "c380fdf67d8ce318bd9fbfa3331f12d88a0de780454c57b27e4379a9a75219a5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.execution.json",
+      "bytes": 1271,
+      "sha256": "8d5027817bef7e4464f2304777ab68705643a526fe63d14cdd774e654ea1c46e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.initial.stdout.txt",
+      "bytes": 1483,
+      "sha256": "746818b7e81c5516942cdefc04d52ef399024a948f2ca104a6ec647d1a13664d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.initial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.initial.execution.json",
+      "bytes": 636,
+      "sha256": "af3a461e56c806aa69a571bb0a15410cb5b18ea830ee535c5013fa166057f228"
+    }
+  ],
+  "unique_observations": "Criterion mapping/corrections plus complete read-only validation stdout/stderr/execution and initial locator errors. Original cards, tracked source and full421 audit remain immutable hash/reconstruction references; no repeated source copies.",
+  "no_scientific_reruns": true,
+  "no_source_ledger_G_edits": true
+}

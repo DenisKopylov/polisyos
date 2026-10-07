@@ -1,0 +1,34 @@
+{
+  "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "source_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "-k",
+    "public_source_bound_validation or complete_cas_projection or actual_gcm_job or row_permutation_source"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:."
+  },
+  "started_utc": "2026-10-06T11:20:59.859417+00:00",
+  "wall_s": 81.12756140300189,
+  "exit": 0,
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/gcm-root-public-custody.stdout.txt",
+      "bytes": 5718,
+      "sha256": "6f70fc603ca360bf9266c8be8c65a105821390641c358142f9776974e43d85d8"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/gcm-root-public-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

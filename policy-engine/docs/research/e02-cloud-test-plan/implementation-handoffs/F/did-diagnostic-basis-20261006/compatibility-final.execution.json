@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/ops_runners/release/check_compatibility_release_gates.py",
+    "--repo-root",
+    ".",
+    "--fail-on-contract-errors"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_sha": "0b522ed173730b4ec744253bb75b6ee260bfcebb",
+  "source_tree": "a402720194c41d0b6c5bb93cceb326cd4699df72",
+  "utc": "2026-10-06T15:12:16.420151+00:00",
+  "elapsed_s": 0.18986135900195222,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:.:tools"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/compatibility-final.stdout",
+    "bytes": 1253,
+    "sha256": "500e2a792a4256c897fd74a9426bed853fb9f1bb80ea6485331c82f4a017d53d"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/compatibility-final.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

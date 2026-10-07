@@ -1,0 +1,895 @@
+{
+  "suite_id": "policy_did_interference",
+  "run_id": null,
+  "mode": "smoke",
+  "benchmark_tier": "local_evidence",
+  "validation_contour": "legacy",
+  "visibility": "public",
+  "core_circuits": [
+    "estimation"
+  ],
+  "sub_circuit": "policy_did_interference",
+  "data_source": "synthetic_policy_did_interference",
+  "estimator_profile": "default",
+  "dependency_status": {},
+  "comparator_status": {},
+  "degraded_reasons": [],
+  "dataset_family": null,
+  "batch_id": null,
+  "n_total": 3,
+  "n_passed": 3,
+  "n_failed": 0,
+  "n_errors": 0,
+  "n_skipped": 0,
+  "n_over_budget": 0,
+  "pass_rate": 1.0,
+  "overall_status": "passed",
+  "scores": {
+    "estimation": {
+      "circuit_name": "estimation",
+      "n_cases": 3,
+      "n_passed": 3,
+      "accuracy": null,
+      "timing": {
+        "n": 3,
+        "mean_s": 0.0009146743347325051,
+        "std_s": 0.000244158952501487,
+        "min_s": 0.0006445290055125952,
+        "max_s": 0.0011196019913768396,
+        "p50_s": 0.0009798920073080808,
+        "p95_s": 0.0011056309929699637
+      },
+      "memory": {
+        "n": 3,
+        "mean_mb": 0.4114583333333333,
+        "peak_mb": 1.109375,
+        "std_mb": 0.6076364087250972
+      },
+      "proof_steps": null
+    }
+  },
+  "cases": [
+    {
+      "case_id": "policy_did::clean_policy_rollout",
+      "name": "policy_did::clean_policy_rollout",
+      "status": "passed",
+      "circuit": "estimation",
+      "verdict": "PASS",
+      "elapsed_s": 0.0009798920073080808,
+      "memory_delta_mb": 1.109375,
+      "error_msg": null,
+      "proof_step_count": 0,
+      "is_identifiable_gt": null,
+      "is_identifiable_pred": null,
+      "formula_correct": null,
+      "runtime": {
+        "elapsed_s": 0.0009798920073080808,
+        "memory_delta_mb": 1.109375,
+        "proof_step_count": 0,
+        "budget_s": 10.0,
+        "budget_exceeded": false,
+        "budget_ratio": 9.798920073080807e-05,
+        "budget_note": null
+      },
+      "runtime_budget_s": 10.0,
+      "runtime_budget_exceeded": false,
+      "runtime_budget_ratio": 9.798920073080807e-05,
+      "runtime_budget_note": null,
+      "result_payload": {
+        "artifact": {
+          "schema_version": "1.0",
+          "method": "difference_in_differences",
+          "status": "success",
+          "status_reason": null,
+          "estimand": "ATT",
+          "identified_estimand": null,
+          "estimand_type": null,
+          "graph_ref": null,
+          "point_estimate": 2.012798428004468,
+          "standard_error": 0.27231963006768123,
+          "confidence_interval": [
+            1.4790617607885421,
+            2.546535095220394
+          ],
+          "confidence_level": 0.95,
+          "p_value": 1.4539072056844615e-13,
+          "inference_method": "asymptotic",
+          "n_bootstrap_samples": null,
+          "effect_size_cohen_d": 8.529640735409322,
+          "pre_treatment_fit": {},
+          "diagnostics": [
+            {
+              "test_name": "pre_trend_parallelism",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "identification_authority": false,
+                "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+                "status": "not_testable",
+                "reason": "insufficient_pre_periods"
+              }
+            },
+            {
+              "test_name": "parallel_trends_warning",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "message": "Pretrend evidence is limited; it does not establish identification.",
+                "status": "not_testable",
+                "identification_authority": false
+              }
+            }
+          ],
+          "refutation_results": [],
+          "placebo_results": [],
+          "placebo_p_value": null,
+          "time_effects": {},
+          "method_params": {
+            "staggered": false,
+            "cov_type": "HC1",
+            "covariance_procedure": "hc1",
+            "confidence_procedure": "normal_two_sided",
+            "critical_value": 1.9599639845400536,
+            "delta_hat": 2.012798428004468,
+            "inference_scope": "iid_rows",
+            "finite_cluster_guarantee": false,
+            "parallel_trends_identified": false,
+            "pretrend_status": "not_testable"
+          },
+          "assumptions": {
+            "parallel_trends": "Untreated potential outcomes follow parallel trends.",
+            "no_anticipation": "No treatment effect before treatment start (unless explicitly modeled).",
+            "stable_composition": "Group composition is stable over analysis horizon."
+          },
+          "sutva_assumed": true,
+          "sutva_violation_risk": null,
+          "transport_result": null,
+          "metadata": {},
+          "sample_size": 32,
+          "n_treated": 4,
+          "n_control": 4,
+          "pre_periods": 2,
+          "post_periods": 2
+        },
+        "artifact_kind": "did",
+        "warnings": [],
+        "expected_point_estimate": 2.0,
+        "design": "clean_policy_rollout"
+      }
+    },
+    {
+      "case_id": "policy_did::spillover_contaminated_rollout",
+      "name": "policy_did::spillover_contaminated_rollout",
+      "status": "passed",
+      "circuit": "estimation",
+      "verdict": "PASS",
+      "elapsed_s": 0.0006445290055125952,
+      "memory_delta_mb": 0.0,
+      "error_msg": null,
+      "proof_step_count": 0,
+      "is_identifiable_gt": null,
+      "is_identifiable_pred": null,
+      "formula_correct": null,
+      "runtime": {
+        "elapsed_s": 0.0006445290055125952,
+        "memory_delta_mb": 0.0,
+        "proof_step_count": 0,
+        "budget_s": 10.0,
+        "budget_exceeded": false,
+        "budget_ratio": 6.445290055125951e-05,
+        "budget_note": null
+      },
+      "runtime_budget_s": 10.0,
+      "runtime_budget_exceeded": false,
+      "runtime_budget_ratio": 6.445290055125951e-05,
+      "runtime_budget_note": null,
+      "result_payload": {
+        "artifact": {
+          "schema_version": "1.0",
+          "method": "difference_in_differences",
+          "status": "success",
+          "status_reason": null,
+          "estimand": "ATT",
+          "identified_estimand": null,
+          "estimand_type": null,
+          "graph_ref": null,
+          "point_estimate": 1.2948659719226079,
+          "standard_error": 0.2698594470240098,
+          "confidence_interval": [
+            0.7659511748676541,
+            1.8237807689775618
+          ],
+          "confidence_level": 0.95,
+          "p_value": 1.6001979514615227e-06,
+          "inference_method": "asymptotic",
+          "n_bootstrap_samples": null,
+          "effect_size_cohen_d": 5.42711730494824,
+          "pre_treatment_fit": {},
+          "diagnostics": [
+            {
+              "test_name": "pre_trend_parallelism",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "identification_authority": false,
+                "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+                "status": "not_testable",
+                "reason": "insufficient_pre_periods"
+              }
+            },
+            {
+              "test_name": "parallel_trends_warning",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "message": "Pretrend evidence is limited; it does not establish identification.",
+                "status": "not_testable",
+                "identification_authority": false
+              }
+            }
+          ],
+          "refutation_results": [],
+          "placebo_results": [],
+          "placebo_p_value": null,
+          "time_effects": {},
+          "method_params": {
+            "staggered": false,
+            "cov_type": "HC1",
+            "covariance_procedure": "hc1",
+            "confidence_procedure": "normal_two_sided",
+            "critical_value": 1.9599639845400536,
+            "delta_hat": 1.2948659719226079,
+            "inference_scope": "iid_rows",
+            "finite_cluster_guarantee": false,
+            "parallel_trends_identified": false,
+            "pretrend_status": "not_testable"
+          },
+          "assumptions": {
+            "parallel_trends": "Untreated potential outcomes follow parallel trends.",
+            "no_anticipation": "No treatment effect before treatment start (unless explicitly modeled).",
+            "stable_composition": "Group composition is stable over analysis horizon."
+          },
+          "sutva_assumed": true,
+          "sutva_violation_risk": null,
+          "transport_result": null,
+          "metadata": {},
+          "sample_size": 32,
+          "n_treated": 4,
+          "n_control": 4,
+          "pre_periods": 2,
+          "post_periods": 2
+        },
+        "artifact_kind": "did",
+        "warnings": [],
+        "expected_point_estimate": 1.3000000000000003,
+        "design": "spillover_contaminated_rollout"
+      }
+    },
+    {
+      "case_id": "policy_did::graph_interference_detection",
+      "name": "policy_did::graph_interference_detection",
+      "status": "passed",
+      "circuit": "estimation",
+      "verdict": "PASS",
+      "elapsed_s": 0.0011196019913768396,
+      "memory_delta_mb": 0.125,
+      "error_msg": null,
+      "proof_step_count": 0,
+      "is_identifiable_gt": null,
+      "is_identifiable_pred": null,
+      "formula_correct": null,
+      "runtime": {
+        "elapsed_s": 0.0011196019913768396,
+        "memory_delta_mb": 0.125,
+        "proof_step_count": 0,
+        "budget_s": 10.0,
+        "budget_exceeded": false,
+        "budget_ratio": 0.00011196019913768396,
+        "budget_note": null
+      },
+      "runtime_budget_s": 10.0,
+      "runtime_budget_exceeded": false,
+      "runtime_budget_ratio": 0.00011196019913768396,
+      "runtime_budget_note": null,
+      "result_payload": {
+        "artifact": {
+          "schema_version": "1.0",
+          "treatment": "A",
+          "outcome": "Y",
+          "status": "non_identified",
+          "interference_detected": true,
+          "sutva_violated": true,
+          "identification_method": "graph_based_interference_id",
+          "augmented_graph": {
+            "original_graph": {
+              "schema_version": "1.0",
+              "graph_type": "admg",
+              "nodes": [
+                "A__0",
+                "A__1",
+                "Y__0",
+                "Y__1"
+              ],
+              "edges": [
+                {
+                  "src": "A__0",
+                  "dst": "Y__0",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "A__0",
+                  "dst": "Y__1",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "A__1",
+                  "dst": "Y__1",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "A__1",
+                  "dst": "Y__0",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                }
+              ],
+              "discovery_method": "",
+              "skg_version_id": null,
+              "pag_identification_policy": "conservative",
+              "id_confidence_under_pag": null,
+              "metadata": {
+                "cluster_partition": [
+                  [
+                    "A__0",
+                    "Y__0"
+                  ],
+                  [
+                    "A__1",
+                    "Y__1"
+                  ]
+                ],
+                "dataset_ref": "synthetic_policy_interference_graph"
+              }
+            },
+            "augmented_graph": {
+              "schema_version": "1.0",
+              "graph_type": "admg",
+              "nodes": [
+                "A__0",
+                "A__1",
+                "Y__0",
+                "Y__1",
+                "E__u0",
+                "E__u1"
+              ],
+              "edges": [
+                {
+                  "src": "A__0",
+                  "dst": "Y__0",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "A__0",
+                  "dst": "Y__1",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "A__1",
+                  "dst": "Y__1",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "A__1",
+                  "dst": "Y__0",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "A__1",
+                  "dst": "E__u0",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "E__u0",
+                  "dst": "Y__0",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "A__0",
+                  "dst": "E__u1",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                },
+                {
+                  "src": "E__u1",
+                  "dst": "Y__1",
+                  "mark_src": "tail",
+                  "mark_dst": "arrow",
+                  "lag": null,
+                  "sources": [],
+                  "data_confidence": null,
+                  "literature_confidence": null,
+                  "llm_confidence": null,
+                  "expert_confidence": null,
+                  "simulation_confidence": null,
+                  "combined_confidence": null,
+                  "unsupported_by_evidence": false,
+                  "evidence_refs": [],
+                  "p_value": null,
+                  "metadata": {}
+                }
+              ],
+              "discovery_method": "",
+              "skg_version_id": null,
+              "pag_identification_policy": "conservative",
+              "id_confidence_under_pag": null,
+              "metadata": {
+                "cluster_partition": [
+                  [
+                    "A__0",
+                    "Y__0"
+                  ],
+                  [
+                    "A__1",
+                    "Y__1"
+                  ]
+                ],
+                "dataset_ref": "synthetic_policy_interference_graph",
+                "interference": {
+                  "exposure_nodes": [
+                    "E__u0",
+                    "E__u1"
+                  ],
+                  "cluster_partition_size": 2,
+                  "treatment_nodes": [
+                    "A__0",
+                    "A__1"
+                  ],
+                  "outcome_nodes": [
+                    "Y__0",
+                    "Y__1"
+                  ],
+                  "cross_unit_edges": [
+                    [
+                      "A__0",
+                      "Y__1"
+                    ],
+                    [
+                      "A__1",
+                      "Y__0"
+                    ]
+                  ]
+                }
+              }
+            },
+            "exposure_nodes": [
+              "E__u0",
+              "E__u1"
+            ],
+            "cluster_partition": [
+              [
+                "A__0",
+                "Y__0"
+              ],
+              [
+                "A__1",
+                "Y__1"
+              ]
+            ],
+            "interference_type": "network",
+            "exposure_mapping": "fractional",
+            "cross_unit_edges": [
+              [
+                "A__0",
+                "Y__1"
+              ],
+              [
+                "A__1",
+                "Y__0"
+              ]
+            ],
+            "node_to_cluster": {
+              "A__0": "0",
+              "Y__0": "0",
+              "A__1": "1",
+              "Y__1": "1"
+            },
+            "cluster_var": null
+          },
+          "proof_steps": [
+            {
+              "rule_name": "SUTVA_CHECK",
+              "description": "Detected 2 cross-unit edge(s) in the original graph.",
+              "variables_affected": [
+                "A",
+                "Y"
+              ],
+              "graph_subset": "original graph",
+              "rule_formal_name": "graph-based SUTVA check",
+              "applicable_theorem": "phase-10-interference",
+              "graph_state_before": "4 nodes / 4 edges",
+              "graph_state_after": "interference detected",
+              "step_id": "",
+              "theorem_family": "",
+              "input_expr_ref": null,
+              "output_expr_ref": null,
+              "witness_ids": [],
+              "depends_on_steps": [],
+              "local_status": "unknown",
+              "invalidation_reason": null
+            },
+            {
+              "rule_name": "EXPOSURE_AUGMENTATION",
+              "description": "Added 2 exposure node(s) for spillover routing.",
+              "variables_affected": [
+                "A",
+                "Y"
+              ],
+              "graph_subset": "augmented graph",
+              "rule_formal_name": "exposure-node augmentation",
+              "applicable_theorem": "phase-10-interference",
+              "graph_state_before": "4 nodes / 4 edges",
+              "graph_state_after": "6 nodes / 8 edges",
+              "step_id": "",
+              "theorem_family": "",
+              "input_expr_ref": null,
+              "output_expr_ref": null,
+              "witness_ids": [],
+              "depends_on_steps": [],
+              "local_status": "unknown",
+              "invalidation_reason": null
+            },
+            {
+              "rule_name": "ORACLE",
+              "description": "no ID rule applies",
+              "variables_affected": [
+                "A__0",
+                "A__1",
+                "Y__0",
+                "Y__1"
+              ],
+              "graph_subset": "no ID rule applies",
+              "rule_formal_name": "ORACLE",
+              "applicable_theorem": "id-algorithm",
+              "graph_state_before": "",
+              "graph_state_after": "no ID rule applies",
+              "step_id": "",
+              "theorem_family": "",
+              "input_expr_ref": null,
+              "output_expr_ref": null,
+              "witness_ids": [],
+              "depends_on_steps": [],
+              "local_status": "unknown",
+              "invalidation_reason": null
+            }
+          ],
+          "trace": [
+            "[interference] SUTVA check: violated; cross_unit_edges=2",
+            "[interference] Exposure augmentation: added 2 exposure node(s)",
+            "[depth=0] id_algorithm(X=['A__0', 'A__1'], Y=['Y__0', 'Y__1'], V=['A__0', 'A__1', 'E__u0', 'E__u1', 'Y__0', 'Y__1'])",
+            "[depth=0] Step 4: C(G\\X)=[['Y__0'], ['Y__1'], ['E__u0'], ['E__u1']]",
+            "[depth=0] Step 7: no rule applies \u2192 ORACLE_NEEDED",
+            "[interference] base ID status=oracle_needed"
+          ],
+          "base_identification_status": "oracle_needed",
+          "estimand_ast": null,
+          "required_distributions": [],
+          "negative_certificate": {
+            "status": "oracle_needed",
+            "trace": [
+              "[depth=0] id_algorithm(X=['A__0', 'A__1'], Y=['Y__0', 'Y__1'], V=['A__0', 'A__1', 'E__u0', 'E__u1', 'Y__0', 'Y__1'])",
+              "[depth=0] Step 4: C(G\\X)=[['Y__0'], ['Y__1'], ['E__u0'], ['E__u1']]",
+              "[depth=0] Step 7: no rule applies \u2192 ORACLE_NEEDED"
+            ],
+            "required_distributions": []
+          },
+          "warnings": []
+        },
+        "artifact_kind": "interference_detection",
+        "design": "graph_cross_unit_spillover"
+      }
+    }
+  ],
+  "blockers": [],
+  "preflight": {
+    "run_id": null,
+    "mode": "smoke",
+    "benchmark_tier": "local_evidence",
+    "validation_contour": "legacy",
+    "visibility": "public",
+    "data_source": "synthetic_policy_did_interference",
+    "dataset_family": null,
+    "batch_id": null,
+    "estimator_profile": "default",
+    "comparator_profile": null,
+    "required_comparators": [],
+    "dependency_status": {},
+    "comparator_status": {},
+    "degraded_reasons": [],
+    "environment": {
+      "python_version": "3.14.7",
+      "python_executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "machine": "x86_64",
+      "processor": ""
+    },
+    "benchmark_env_spec": "/workspace/e02-F-cau-20261006/policy-engine/benchmarks/comparators/research_acceptance_environment.yml",
+    "installed_comparator_versions": {
+      "econml": null,
+      "zepid": "0.9.1",
+      "stochtree": null,
+      "dowhy": null,
+      "y0": "0.2.11",
+      "lightgbm": "4.6.0",
+      "causallib": null,
+      "causalml": null,
+      "pgmpy": null,
+      "ananke": null,
+      "causal-learn": "0.1.4.4",
+      "tigramite": "5.2.10.1",
+      "pygformula": null,
+      "pot": null,
+      "openspiel": null,
+      "nashpy": null,
+      "pywhy-graphs": null,
+      "bartpy": null,
+      "pymc_bart": null
+    },
+    "data_manifest_path": null,
+    "data_manifest_hash": null,
+    "run_config_hash": "5ab3b173cfb0779f5e1c3da6537310adfb9df6c258a136533c4b731185c56575"
+  },
+  "aggregate_metrics": {
+    "case_rows": [
+      {
+        "case": "policy_did::clean_policy_rollout",
+        "artifact_kind": "did",
+        "design": "clean_policy_rollout",
+        "status": "success",
+        "warnings": 0,
+        "point_estimate": 2.012798428004468,
+        "expected_point_estimate": 2.0
+      },
+      {
+        "case": "policy_did::spillover_contaminated_rollout",
+        "artifact_kind": "did",
+        "design": "spillover_contaminated_rollout",
+        "status": "success",
+        "warnings": 0,
+        "point_estimate": 1.2948659719226079,
+        "expected_point_estimate": 1.3000000000000003
+      },
+      {
+        "case": "policy_did::graph_interference_detection",
+        "artifact_kind": "interference_detection",
+        "design": "graph_cross_unit_spillover",
+        "status": "non_identified",
+        "warnings": 0,
+        "sutva_violated": true,
+        "interference_detected": true,
+        "exposure_nodes": 2
+      }
+    ],
+    "mean_abs_att_error": 0.008966228040930169,
+    "max_abs_att_error": 0.012798428004467954,
+    "did_bias_gap": 0.7179324560818601,
+    "n_detected_spillover_cases": 1,
+    "ranking_summary": {
+      "aggregate": {
+        "policy_os_interference_did": {
+          "mean_rank": 1.0,
+          "worst_case_rank": 1.0,
+          "max_deviation_from_best": 0.0,
+          "top_quartile_failures": 0
+        }
+      }
+    },
+    "case_groups": {
+      "clean_policy_rollout": {
+        "policy_os_interference_did": {
+          "abs_att_error_mean": 0.012798428004467954,
+          "point_estimate_mean": 2.012798428004468
+        }
+      },
+      "spillover_contaminated_rollout": {
+        "policy_os_interference_did": {
+          "abs_att_error_mean": 0.005134028077392383,
+          "point_estimate_mean": 1.2948659719226079
+        }
+      }
+    },
+    "flagship_scorecard": {
+      "flagship_method": "policy_os_interference_did",
+      "checks": {
+        "mean_abs_att_error": true,
+        "spillover_detection": true,
+        "all_cases_green": true
+      },
+      "passes_all": true
+    }
+  },
+  "standardized_metrics": {},
+  "method_groups": {},
+  "method_manifest": {},
+  "gate_method_set": [],
+  "flagship_presence": {},
+  "exploratory_methods": [],
+  "selection_manifest": {},
+  "overlap_diagnostics": {},
+  "calibration_metrics": {},
+  "prioritization_metrics": {},
+  "dataset_group_summaries": {},
+  "epistemic_metrics": {},
+  "governance_metrics": {},
+  "certificate_metrics": {},
+  "lineage_metrics": {},
+  "comparator_matrix": {},
+  "comparator_runs": {},
+  "ablation_matrix": {},
+  "leaderboard_tables": {},
+  "release_gate_results": {},
+  "benchmark_family": "policy",
+  "proof_class": "publication_benchmark",
+  "claim_profile_targets": [
+    "full_stack_publication_claim"
+  ],
+  "workflow_levels": [],
+  "competitor_gap": {},
+  "literature_anchor": [
+    "Hudgens & Halloran (2008): causal inference with interference",
+    "Aronow & Samii (2017): general interference and exposure mappings"
+  ],
+  "evidence_bundle_complete": null,
+  "public_claim_eligible": null,
+  "dataset_regime": "synthetic_canonical_panel_and_graphs",
+  "baseline_snapshot_ref": "policy_did_interference@synthetic-v1",
+  "regression_guard": {
+    "max_abs_att_error": 0.2,
+    "max_did_bias_gap": 1.5,
+    "min_detected_spillover_cases": 1
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 73,
+  "decoded_sha256": "f125cbeb0fcd08cedb1a6e2e96c3ec724f526541693418e6c71ee3b7366dd8e9",
+  "text": "3.14.7\n/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python\n"
+}

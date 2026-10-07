@@ -1,0 +1,209 @@
+{
+  "outcome": "PASS",
+  "source_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+  "observed_branch": "codex/e02-F-economics-20261006",
+  "tree": "18711c5732863a4e50672112c7f3c5ba4a1b229b",
+  "slice_base_sha": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+  "root_base_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+  "root_base_3_blob_equality": "PASS no merge needed",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"
+  ],
+  "documents": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "base_bytes": 36326,
+      "base_sha256": "5a086df1622e4dfa060b432f0643f3634c839d735894d9640208a66c7ad40a82",
+      "candidate_bytes": 20726,
+      "candidate_sha256": "a654c049c83a0133503926f47e77950bea3817443fc317eccdc685d9e52be38b",
+      "non_F_full_section_bytes": 0,
+      "non_F_full_section_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "non_F_sections_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "base_bytes": 144848,
+      "base_sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8",
+      "candidate_bytes": 104210,
+      "candidate_sha256": "47993533fca8f262817dac4e93805d208c42efb63de797ef083668e30f1566a2",
+      "non_F_full_section_bytes": 73820,
+      "non_F_full_section_sha256": "d0c393f5d15d9b65deb9fcc306cf5bc1e6b655a43b37060dd6f58bd7e88a7235",
+      "non_F_sections_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "base_bytes": 46944,
+      "base_sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0",
+      "candidate_bytes": 34592,
+      "candidate_sha256": "09a9d58d24e39a79f62c71548498a2eb96d763b45c2778d22bc974e284973cc0",
+      "non_F_full_section_bytes": 18913,
+      "non_F_full_section_sha256": "47a729aa941fc894580051f2b14c7572dc18999fe976d82f779637bdbbc5bca3",
+      "non_F_sections_equal": true
+    }
+  ],
+  "exact_F_finding_set": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "B210",
+    "B211",
+    "B212",
+    "B213",
+    "B214",
+    "B215",
+    "B216",
+    "B217",
+    "B218",
+    "B219",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225",
+    "B54",
+    "B56",
+    "LA-001",
+    "LA-002",
+    "LA-003",
+    "LA-004",
+    "LA-007",
+    "LA-016",
+    "LA-017",
+    "LA-019",
+    "LA-020",
+    "LA-035",
+    "LA-037"
+  ],
+  "bundle_anchors": 17,
+  "method_anchors": 16,
+  "complete_cited_receipt_bindings": [
+    {
+      "path": "economics-continuation-20261006.json",
+      "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "bytes": 127652,
+      "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162"
+    },
+    {
+      "path": "economic-training-dtype-continuation-20261006.json",
+      "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "bytes": 58922,
+      "sha256": "cb9efb8452c6446d78d19225dcae4c69dadaa817810e16fcc9c8741dee8ad6c7"
+    },
+    {
+      "path": "family-layout-consumers-20261006.json",
+      "git_ref": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "bytes": 97248,
+      "sha256": "04fba06be549c934631ea496ae1cbf6b3698e2f235a94b61880ba540308f2cbf"
+    },
+    {
+      "path": "scm-schema-version-20261006.json",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 131648,
+      "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570"
+    },
+    {
+      "path": "static-admg-profile-20261006.json",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 50088,
+      "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818"
+    },
+    {
+      "path": "polynomial-helper-cas-20261006.json",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 44860,
+      "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4"
+    },
+    {
+      "path": "did-diagnostic-basis-20261006.json",
+      "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "bytes": 162688,
+      "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc"
+    },
+    {
+      "path": "did-selected-cohort-20261006.json",
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+    },
+    {
+      "path": "rdd-sharp-rbc-20261006.json",
+      "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+    },
+    {
+      "path": "causal-consumer-boundaries-continuation-20261006.json",
+      "git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+      "bytes": 13477,
+      "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927"
+    },
+    {
+      "path": "scm-source-bound-20261006.json",
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+    },
+    {
+      "path": "treasury-execution-20261006.json",
+      "git_ref": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "bytes": 77903,
+      "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e"
+    },
+    {
+      "path": "dowhy-worker-20261006.json",
+      "git_ref": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "bytes": 93732,
+      "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833"
+    },
+    {
+      "path": "tmle-20261006.json",
+      "git_ref": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "bytes": 28486,
+      "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429"
+    },
+    {
+      "path": "api-20261006.json",
+      "git_ref": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "bytes": 33029,
+      "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99"
+    },
+    {
+      "path": "lex-pass-plan-20261006.json",
+      "git_ref": "77166daa0ff8b9659e3978447f9016c691694266",
+      "bytes": 24363,
+      "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a"
+    },
+    {
+      "path": "rdd-sharp-rbc-20261006.json",
+      "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+    },
+    {
+      "path": "rdd-sharp-rbc-20261006.json",
+      "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+    }
+  ],
+  "negative_controls": [
+    {
+      "property": "original card content binding",
+      "retained_markers": "same finding/source/path/range/size, false digest",
+      "outcome": "FAIL expected; rejected against reconstructed Git bytes"
+    },
+    {
+      "property": "implementation tree binding",
+      "retained_markers": "same implementation ID with false claimedtree",
+      "outcome": "FAIL expected; actual Git tree differs"
+    }
+  ],
+  "semantic_check": "independent graph owner review; this structural check does not claim scientific or G authority",
+  "scientific_reruns": false
+}

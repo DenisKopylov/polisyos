@@ -1,0 +1,29 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "initial_receipt_commit": "40e58209f34921d20218c6c5af3a2820db732d22",
+  "initial_diff_check_outcome": "FAIL",
+  "reason": "Raw captured gitdiff context lines themselves end in whitespace. Commit command continued after check; append-only correction encodes exact original diff text as losslessJSON in same path, preserving decodedbyteidentity and oldhistory.",
+  "runtime_source_changed": false,
+  "native_repeated": false,
+  "corrected_diff_storage": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/independent/full-product-delta.diff",
+  "original_diff_decoded_bytes": 38787,
+  "original_diff_decoded_sha256": "f9ce33229480285d99859f17032cae3fecb9b94d8cebe6b48069ec760ed43f21",
+  "corrected_staged_diff_check": {
+    "command": "git diff --cached --check",
+    "cwd": "/workspace/e02-F-fry-20261006",
+    "receipt_head_before_append": "40e58209f34921d20218c6c5af3a2820db732d22",
+    "outcome": "PASS",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "complete_staged_transport_integrity": {
+    "outcome": "PASS",
+    "complete_records": 122,
+    "unique_stored_files": 91,
+    "mandatory_companions": 92,
+    "all_original_stored_and_decoded_byte_hashes_equal": true,
+    "readback": "actual git index blobs via git show :path, gzip/UTF8JSON decode and original scratch raw bytes; all ten canonical checks checked",
+    "scientific_replay": false
+  }
+}

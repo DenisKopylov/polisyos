@@ -1,0 +1,1 @@
+{"outcome": "PASS", "byte_count": 2107204224, "file_count": 44, "root_head_before": "7185572917f7a3db5e93385a176cb611b35aff42", "root_tree_before": "90fbdfba15cbc22e8cee477b2c21260c08e09197", "root_python_probe": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]\n/workspace/e02-F-closeout-20261006/policy-engine/.venv\n2.3.5 1.16.3 0.8.2\n"}

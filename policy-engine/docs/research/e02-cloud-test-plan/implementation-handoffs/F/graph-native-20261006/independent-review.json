@@ -1,0 +1,226 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F/fit_tmle independent read-only review",
+  "source_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+  "source_tree": "94ee1936893827c13316ee537e286d0791cd4854",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+    "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py"
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968",
+      "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738",
+      "bytes": 40707
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "git_blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d",
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+      "bytes": 20114
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "git_blob": "99fc9cc09cc915cd5c555d61ff7dd585a519253f",
+      "sha256": "0babf1b38ae1e1146ddfc9ce5d04345601b67b1e60893d282f46fda9a6222867",
+      "bytes": 15982
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "git_blob": "4535a540ddeca9632b8e254848e28eddd352e941",
+      "sha256": "4ea4c07555000dee55d3b1b4d7ed15b07862899b3776c8362485322a9e64a253",
+      "bytes": 6926
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+      "git_blob": "e727129401c7de566e0dc6d68ea39db617ca47af",
+      "sha256": "7dff47e167e6ecbf5088b755a429047b6aa0586b8e27e927bff997c606a471ec",
+      "bytes": 3423
+    }
+  ],
+  "environment": {
+    "python": "3.14.2",
+    "executable": "/workspace/e02-F-graph-env/bin/python",
+    "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+    "module_origins": {
+      "networkx": {
+        "version": "3.6.1",
+        "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/networkx/__init__.py"
+      },
+      "polisyos.foundry.methods.catalog.causal.admg_ops": {
+        "version": null,
+        "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      },
+      "polisyos.ir.analytics.causal_graph": {
+        "version": null,
+        "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      }
+    }
+  },
+  "outcome": "PASS",
+  "code_review": "GO for finite synthetic graph contract; no runtime patch",
+  "native": {
+    "passed": 56,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "pytest_duration_s": 10.11,
+    "receipt": "/workspace/e02-F-20261006-receipts/tmle/graph-review/native.json"
+  },
+  "finite_oracle": {
+    "three_node_admgs": 200,
+    "m_separation_queries": 2400,
+    "perfect_do_queries": 19200,
+    "native_networkx_edge_orderings": 120,
+    "unique_orderings": 60,
+    "full_payload_multiset_after_fresh_cas": true
+  },
+  "negative_controls": [
+    {
+      "property": "collider endpoint semantics",
+      "runtime_mutation": "is_collider=False preserving graph marks",
+      "exit": 1,
+      "failed": 1,
+      "receipt": "/workspace/e02-F-20261006-receipts/tmle/graph-review/m_separation.json"
+    },
+    {
+      "property": "perfect-do bidirected surgery",
+      "runtime_mutation": "omit bidirected cut preserving graph declaration",
+      "exit": 1,
+      "failed": 1,
+      "receipt": "/workspace/e02-F-20261006-receipts/tmle/graph-review/do_operator.json"
+    },
+    {
+      "property": "actual multiedge export",
+      "runtime_mutation": "NetworkX MultiDiGraph replaced with DiGraph",
+      "expected": "full export assertion fails while all edge markers remain",
+      "covered_by": "native test_native_networkx_export_loss_is_detected_with_markers_preserved"
+    }
+  ],
+  "supplemental_emp01": {
+    "outcome": "FAIL",
+    "passed": 5,
+    "failed": 5,
+    "errors": 0,
+    "skipped": 0,
+    "receipt": "/workspace/e02-F-20261006-receipts/tmle/graph-review/emp01.json",
+    "attribution": "not_established; no complete input-denominator proof or exact-base replay performed by this reviewer",
+    "actual_failures": [
+      "scope test expects interpolatedSQL; runtime uses parameter placeholders",
+      "profile test expects interpolatedSQL; runtime uses parameter placeholders",
+      "rowcap test expects LIMIT literal; runtime uses placeholder",
+      "ValueOuterSet missing statistical_lower",
+      "proxy asymmetric interval replaced by center plus guessed symmetric radius"
+    ]
+  },
+  "per_id": [
+    {
+      "bundle": "GRF-01",
+      "finding_ids": [
+        "B216",
+        "B217",
+        "LA-007",
+        "LA-019"
+      ],
+      "scope": "complete three-node ADMG latent-DAG d/m separation + perfect do surgery + actual do-calculus consumers; installed package/shim companions UNRUN in this graph test review",
+      "outcome": "bounded GO for native primitives; package companion pending"
+    },
+    {
+      "bundle": "GRF-02",
+      "finding_ids": [
+        "B219",
+        "B220"
+      ],
+      "scope": "NetworkX3.6.1 actual lossless mixed/lagged duplicate multiedge export with full payload and fresh CAS readback",
+      "outcome": "bounded GO for actual current backend; historical B219 receipt still not established"
+    },
+    {
+      "bundle": "GRF-03",
+      "finding_ids": [
+        "B214",
+        "B218"
+      ],
+      "scope": "bounded DAG/ADMG cache, topology, model_copy and fresh CAS payload contract",
+      "outcome": "bounded GO"
+    }
+  ],
+  "limits": [
+    "B219 historical backend receipt is not established by this new finite test; G must admit current backend evidence",
+    "No general PAG/circle/ID/temporal method, package-wheel or admitted-real-data identification claim",
+    "120 edge permutations include two equal edge records and therefore 60 unique payload orderings",
+    "EMP01 FAIL is not assigned inherited status absent P41 exact base and disjoint full denominator"
+  ],
+  "defects": [],
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/do_operator.json",
+      "bytes": 332,
+      "sha256": "cd61b1904ae8d64880f77dc65b56bbb58733b4c36831b07cd5d4bb84bc7a1a21"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/do_operator.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/do_operator.stdout.txt",
+      "bytes": 3305,
+      "sha256": "1984ad9944a5dc703017f64c41cd28e946fb34bfa6c35decd53e11814c85d8c6"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/emp01.json",
+      "bytes": 447,
+      "sha256": "7547a513f91e28f3d8c59ab6438a264311e87c798938913ca003d5c622233beb"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/emp01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/emp01.stdout.txt",
+      "bytes": 31075,
+      "sha256": "ff8bb29c36a8d0cf3df1dff0122ae381c1b71a9929c34d51227e064bd12d9562"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/m_separation.json",
+      "bytes": 333,
+      "sha256": "c12ede47663cb4ded6701f22fb0cf4ca5841a280492433b537396af06536500e"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/m_separation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/m_separation.stdout.txt",
+      "bytes": 2161,
+      "sha256": "10e9c65389f895ccd120a5373927ab9950f527e71d4cfd9a6a3f9e7f179e494f"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/native.json",
+      "bytes": 734,
+      "sha256": "c375341018ac00d174999cd7ce7e81d59368bc33e6461757a4b694c1cfb1a720"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/native.stdout.txt",
+      "bytes": 100,
+      "sha256": "a22f013aaa5037bb4e606637b21a92b1d90c07994f8a795ada40871ef7cfa214"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/tmle/graph-review/removal_replayer.py",
+      "bytes": 937,
+      "sha256": "916b996f5ee6e8690b1c88331999d4fdbdb07f65649ee821eae39bb304f5dd78"
+    }
+  ],
+  "audit_corrections": [
+    "Initial summary swapped GRF bundle labels. Mapping corrected from canonical finding-owners.tsv; source, native checks, output bytes and finite scope unchanged."
+  ]
+}

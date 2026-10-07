@@ -1,0 +1,35 @@
+[
+  {
+    "name": "runtime-same",
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "193b3582a72c640c1d06a131f93502654a77a36a",
+      "--",
+      "policy-engine/src"
+    ],
+    "exit_code": 0,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ""
+  },
+  {
+    "name": "old-held-literal",
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "193b3582a72c640c1d06a131f93502654a77a36a",
+      "--",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json"
+    ],
+    "exit_code": 0,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ""
+  }
+]

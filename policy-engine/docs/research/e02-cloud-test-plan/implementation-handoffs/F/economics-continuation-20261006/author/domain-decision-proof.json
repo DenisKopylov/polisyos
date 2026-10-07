@@ -1,0 +1,14 @@
+{
+  "owner": "@foundry-owners",
+  "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "path": "policy-engine/docs/reference/foundry/numeric-guardrails.md",
+  "bytes": 2232,
+  "sha256": "fa136ef34494108f7e1a1e4ecec1981a18dc5b18124cb0e99fb6412169fa14b5",
+  "full_source": "# Foundry Numeric Guardrails\n\nOwner: `@foundry-owners`\nSource of truth: `src/polisyos/foundry/runtime/numeric.py` and `tests/unit/foundry/**`\n\nThis note documents the WS-4 numeric invariants that are now enforced across\ncalibration, constraints, actor-critic math, distributional metrics, and fiscal\nmechanisms.\n\n## Domain epsilon policy\n\n- `probability`: `1e-6`\n- `positive`: `1e-8`\n- `relative_loss`: `1e-8`\n- `decimal`: `1e-12`\n- `utility`: `1e-6`\n- `percent_delta`: `1e-12`\n\nThese values are centralized in `polisyos.foundry.runtime.numeric` and should be used\ninstead of introducing ad hoc epsilons in downstream modules.\n\n## Fail-closed behavior\n\n- Calibration losses return `+inf` when predictions, targets, weights, or\n  reduced losses become `NaN` or `Inf`.\n\n- Constraint aggregation raises `ValueError` when state values, weights, or\n  quantile parameters are non-finite or out of bounds.\n\n- Decimal conversion rejects non-finite inputs before any `Decimal`\n  materialization.\n\n- Public fiscal entrypoints reject tax or subsidy rates outside `[0, 1]`.\n- Hessian-derived calibration envelopes are published as\n  `heuristic_range`, not statistical confidence intervals.\n\n## Stable transform invariants\n\n- Bounded bijectors use symmetric probability clipping and stable logit /\n  softplus inverses.\n\n- Hessian damping is applied before covariance inversion, and raw singular\n  directions report `condition_number = inf`.\n\n- Actor-critic continuous policies clip `log_std` to `[-20, 5]` before\n  exponentiation, log-prob evaluation, and entropy calculation.\n\n- CARA utility uses the `gamma -> 0` limit instead of dividing by zero.\n\n## Economic metric semantics\n\n- Positive, non-debt-like baselines keep the usual percent-change semantics.\n- Zero, negative, and debt-like baselines use bounded symmetric percent delta:\n  `200 * (after - before) / (abs(before) + abs(after) + eps)`.\n\n- Classical Gini and Palma remain unavailable for negative-value inputs.\n\n## Expected failure modes\n\n- Invalid quantiles: `ValueError`\n- Non-finite constraint inputs: `ValueError`\n- Invalid fiscal rates: `ValueError`\n- Non-finite calibration loss components: `+inf`\n- Non-statistical Hessian envelopes: `heuristic_range`, `gate_eligible=False`\n",
+  "deciding_lines": [
+    50,
+    56
+  ],
+  "law": "Classical Gini and Palma remain unavailable for negative-value inputs.",
+  "existing_api": "analysis.distributional.compute_gini: None for invalid negative/nonfinite resources"
+}

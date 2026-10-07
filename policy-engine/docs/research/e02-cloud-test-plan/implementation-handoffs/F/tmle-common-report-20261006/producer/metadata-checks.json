@@ -1,0 +1,54 @@
+{
+  "checks": [
+    {
+      "tag": "ruff",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "src/polisyos/ir/analytics/causal.py",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "tag": "test-format",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "tag": "owned-fragment-structured-contract",
+      "errors": [],
+      "findings": [],
+      "bytes": 2631,
+      "sha256": "4e20936d1519d242a6cf9f0178df3813c6f6b5365290b0e7644dae1fb23b87ac"
+    },
+    {
+      "tag": "report-schema-enum-footprint",
+      "prior_values": 36,
+      "current_values": 37,
+      "added": [
+        "tmle"
+      ],
+      "body_equal_after_enum_projection": false,
+      "snapshot_path": "schemas/snapshots/ir/causal_effect_report.schema.json",
+      "snapshot_sha256": "be2a79b4eb17dc03b4c29a810dd704a6269697a33fc47a3223db1e899a878ceb",
+      "generated_snapshots_owner": "ROOT",
+      "existing_snapshot_description_delta": {
+        "base_provider_description_unchanged": true,
+        "snapshot_description_sha256": "7c565e8d2552322ce0d9c72e47e8d905eb46f9cee308441db5fe1ce4699c6bb9",
+        "current_description_sha256": "6f2f8d8f17e4627c8b4970102086bd95f591453d0cd6b557ee89a441aef651dc"
+      },
+      "body_equal_after_enum_and_existing_description_projection": true
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "schema": "F-independent-final35-transfer-selection/1",
+  "reviewer": "/root/fit_tmle",
+  "candidate_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "verdict": "GO_BOUNDED",
+  "files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/review.json",
+      "relative_path": "review.json",
+      "bytes": 119698,
+      "sha256": "71f1c71ba204a538a70c042e9d4a11e4a1fe960df5dc1bd3f33ed133acf9b8d8"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/semantic_decisions.json",
+      "relative_path": "semantic_decisions.json",
+      "bytes": 19972,
+      "sha256": "55bdebe9039c6b7d0b7b1c03c9597f9b74cfc5502980f6e530cd43631cdb41cd"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/strict-template-audit.json",
+      "relative_path": "strict-template-audit.json",
+      "bytes": 65542,
+      "sha256": "5a18910e9ba920aa08fc9d98e755d61cf09a9849503d81a6229f59cd163c7f00"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/strict-template-audit.stdout.txt",
+      "relative_path": "strict-template-audit.stdout.txt",
+      "bytes": 185,
+      "sha256": "7a1660bd10d800dc9e2c505a0d4e67bb9854cd20c28696687b177af4f9d77a6b"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/strict-template-audit.stderr.txt",
+      "relative_path": "strict-template-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/audit_template.py",
+      "relative_path": "audit_template.py",
+      "bytes": 2803,
+      "sha256": "43bdc7fd005de8eb9c3a1c696a07690b94ca291615330483fcbef06d67bc3891"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs.py",
+      "relative_path": "bind_inputs.py",
+      "bytes": 8589,
+      "sha256": "46f3ae7515e65d8d0827e8ddb105896e0e04bf80a0c7844fe3b1e33e89bd9217"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs_initial.py",
+      "relative_path": "bind_inputs_initial.py",
+      "bytes": 7355,
+      "sha256": "beaa62514bba9cacbf3c07e30d311bd725b63ff0858cac70058ae7bc16384d9c"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs_intermediate.py",
+      "relative_path": "bind_inputs_intermediate.py",
+      "bytes": 7348,
+      "sha256": "63ee285109ffe64b99c652a4386da6ca599d67eafd4aae3948ce53efadb0fb5a"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs_scratch_bound.py",
+      "relative_path": "bind_inputs_scratch_bound.py",
+      "bytes": 7451,
+      "sha256": "daac20c60d37e75aef385a9d35e5d23c5fd0030a949dfbe5016614fd48c749b9"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs.stdout.txt",
+      "relative_path": "bind-inputs.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs.stderr.txt",
+      "relative_path": "bind-inputs.stderr.txt",
+      "bytes": 262,
+      "sha256": "aea4af92da42f161faefc738a2c1c2320241ed141fb202e67d37e3dc11126127"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs-corrected.stdout.txt",
+      "relative_path": "bind-inputs-corrected.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs-corrected.stderr.txt",
+      "relative_path": "bind-inputs-corrected.stderr.txt",
+      "bytes": 802,
+      "sha256": "8ff5eef97dd0a5b08383f854002981d99c4ef8880f8437716c78458331ab7961"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs-final.stdout.txt",
+      "relative_path": "bind-inputs-final.stdout.txt",
+      "bytes": 240,
+      "sha256": "e3e96bf9841fc07cfcb1d88cef38bb380597a443827c121e9de54a12e4edf16c"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs-final.stderr.txt",
+      "relative_path": "bind-inputs-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/git-only-reconstruction.stdout.txt",
+      "relative_path": "git-only-reconstruction.stdout.txt",
+      "bytes": 264,
+      "sha256": "9c62006f572c7876208712165ca01b1a36c53f4798a12d1f2e9061cc48e08b30"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/git-only-reconstruction.stderr.txt",
+      "relative_path": "git-only-reconstruction.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/git-only-reconstruction-proof.json",
+      "relative_path": "git-only-reconstruction-proof.json",
+      "bytes": 590,
+      "sha256": "2ccce38b6ae93e2f0467adeec64a981a8265905cf0277d054150269252369d62"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/assemble_review.py",
+      "relative_path": "assemble_review.py",
+      "bytes": 10088,
+      "sha256": "719f94309b82a09f73222e29261ccd10b227bd2c543b6cae037840a8955e1524"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/assemble-review-final.stdout.txt",
+      "relative_path": "assemble-review-final.stdout.txt",
+      "bytes": 404,
+      "sha256": "50101e9ffa73129ceae95c2fb67317a92f912c5ffa51f48e5d552418b303b45a"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/assemble-review-final.stderr.txt",
+      "relative_path": "assemble-review-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/read_published_api.py",
+      "relative_path": "read_published_api.py",
+      "bytes": 2219,
+      "sha256": "8a54f5d9e0ce7d2c4d800b897b454bfb58001a7f3f20459eef6b6058293be4f8"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/published-api-readback.stdout.txt",
+      "relative_path": "published-api-readback.stdout.txt",
+      "bytes": 1322,
+      "sha256": "4379eb98d9bbb071d20d52bea87886a22fc9db298ba19326628aabf103f0bbfc"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/published-api-readback.stderr.txt",
+      "relative_path": "published-api-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/latest-published-inputs.json",
+      "relative_path": "latest-published-inputs.json",
+      "bytes": 1819,
+      "sha256": "df94ea917c6851f8d2a0776c394d3f50f8fbb74ab46686b50a97bc156cece3ad"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/finalize_selection.py",
+      "relative_path": "finalize_selection.py",
+      "bytes": 3977,
+      "sha256": "c2b4c92de7f6a41f5fa50979059d9d02f643f274db8c3c91a0b4181086b9818f"
+    }
+  ],
+  "unique_files": 27,
+  "unique_bytes": 260930,
+  "reconstruction_only": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/input-bindings.json",
+      "bytes": 418258,
+      "sha256": "23246162782cbef3b130747f3c507128a446f227915c1d677285f46afa7a496f",
+      "replayer": "bind_inputs.py",
+      "command": "python3 bind_inputs.py --repository-root <fetched-repository> --output-directory <unique-local-output>",
+      "immutable_receipt_roots": [
+        "613a55a5946bdeff2dc849f2488fb88c81b01360",
+        "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d"
+      ],
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "reason": "Deterministic Git-derived35/36 criterion metadata and25primary check headers; all11sitepacket inputs decoded from existing Foundry immutable Git. Exact418258byte reconstruction was actually verified without/tmp input reads.",
+      "proof": "git-only-reconstruction-proof.json",
+      "copy_to_Git": false
+    }
+  ],
+  "existing_git_files": [
+    {
+      "git_ref": "90c72b51155321684c788cd5a03fbb70fc001d53",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+      "bytes": 50455,
+      "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29",
+      "candidate_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "git_ref": "90c72b51155321684c788cd5a03fbb70fc001d53",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/census-8236-full.json.gz",
+      "bytes": 101555,
+      "sha256": "93aa7998ecc2718b6783c83c91745c35294e230813e2bcf8ec657da0f8070f8b",
+      "decoded_bytes": 2044623,
+      "decoded_sha256": "a4616b37c5ba57c6050e9b8c068dec4e14752ea2f96af92e9b66517f34566093",
+      "encoding": "gzip-lossless"
+    },
+    {
+      "git_ref": "90c72b51155321684c788cd5a03fbb70fc001d53",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/filename-loader-8236-classification.json.gz",
+      "bytes": 1930758,
+      "sha256": "19944500c39b89a1cd2180f2ec6bcdd57d55de9473b7bfe5ff54cad517457b00",
+      "decoded_bytes": 12729788,
+      "decoded_sha256": "80ac6849946ffcade877984d7b5992bf102a2308e505f3cdd8de91f0b2fda1a8",
+      "encoding": "gzip-lossless"
+    },
+    {
+      "git_ref": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+      "bytes": 60843,
+      "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+      "git_blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21"
+    }
+  ],
+  "existing_evidence_scope": "FinalAPI90c72 commits full own115 outputs/census/setup/replayers and binds53Foundry companions ata2d55; use these complete existing byte sources without duplicating them.",
+  "not_copied": "No original source card bodies, production inputs, generated views, archives, installed environments or whole source inventories copied by this reviewer.",
+  "limits": "Review identity/contentdigest is technical attribution only; G formal acceptance/identification issuer/currentadmitted study budget remain separateUNRUN. First inline candidate_sha readerror rawbytes were not separately retained and are explicitlynot_established inreview."
+}

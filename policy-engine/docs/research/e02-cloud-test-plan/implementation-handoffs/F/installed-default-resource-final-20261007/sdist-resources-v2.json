@@ -1,0 +1,10 @@
+{
+  "wait4_pid": 959567,
+  "user_seconds": 63.722612,
+  "system_seconds": 1.039689,
+  "maxrss_KiB": 1534200,
+  "minor_faults": 239681,
+  "major_faults": 0,
+  "voluntary_context_switches": 321,
+  "involuntary_context_switches": 1330
+}

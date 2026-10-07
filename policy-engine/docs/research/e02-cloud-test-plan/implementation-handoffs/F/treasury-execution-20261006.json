@@ -1,0 +1,1081 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "treasury-execution-20261006",
+  "closure_ids": [
+    "LA-001"
+  ],
+  "related_finding_ids": [
+    "LA-001",
+    "LA-002",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "FRY-01"
+  ],
+  "source_phase": "Original FRY-01 and selected F-M12 continuation. The native Treasury seed fix selects an explicit versioned law, separate from prior equivalent owner moves.",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "03bbfe14225d64a9977b77775c200e83eb717c5f",
+    "63425f734946979cfc990e9cb91b00163f051898"
+  ],
+  "scientific_implementation_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+  "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+  "branch": "codex/e02-F-fry-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/60",
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/randomization-profile.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
+    "policy-engine/src/polisyos/foundry/compile/randomization.py",
+    "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/README.md",
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+    "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py"
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/docs/reference/foundry/randomization-profile.md",
+      "bytes": 3406,
+      "sha256": "8744e0f5885f99ff8d356acd37b4c9b34b135d5a1614893e4c8e97f7374cf22d"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
+      "bytes": 2112,
+      "sha256": "2da3ae89196b0b1fb026db5be8fbaaae2c171745f34a9a62051a0ec9bfc743e2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+      "bytes": 2179,
+      "sha256": "8b49c7b17d328aa8c117de72410cd11ce489c305a9f46294ebb0ac5a1aa07a4a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "bytes": 17693,
+      "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/README.md",
+      "bytes": 1673,
+      "sha256": "dbe0012274875f384dd8e0e9679dd4b287b342fe1886a175606a7c750842c505"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+      "bytes": 46124,
+      "sha256": "db3f2630e0c7ca4ad159a4d4b1d8ed99892189b0d76e00ff8c669a0992d8625a"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+      "bytes": 8018,
+      "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py",
+      "bytes": 22267,
+      "sha256": "98a9a099cfe96f674e64161e1ffa4d5b9853dc6b526be7b4924e76248cf3efc9"
+    }
+  ],
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA001-baseline-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA002-baseline-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA037-baseline-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-only-fidelity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/e02_census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.pytest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stdout.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family_trace.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/full-implementation.patch.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/family-original-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base-v2.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base-v3.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v1.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v2.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v3.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-executor-v1.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v1.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v2.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v3.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/root-supplied-emp01-base198.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/controls.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/fry-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/test_independent_treasury_controls.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/installed-layout-companion-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.pytest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation-gzip.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.raw.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/source-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json"
+  ],
+  "content_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.json",
+      "sha256": "b911c8530da5b5ea97fa0e5e29b7c298b40aecd78a732dfc0ff90fba69e89088",
+      "bytes": 1201,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/architecture.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/architecture.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stdout.txt",
+      "sha256": "bd9eb14b5004a48144f755bc3634ea75197816ad9591bc06dd9bb8afe28985a0",
+      "bytes": 118097,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/architecture.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.json",
+      "sha256": "097b7809234bdfdaa1ed1600175a581dc31639c4c8cde380c25ab7a12536a6e1",
+      "bytes": 1375,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/compatibility-release-scoped.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/compatibility-release-scoped.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stdout.txt",
+      "sha256": "7e937664becee0c273d389c5229c3dfd37f5596fc4513477017fef08fec9858c",
+      "bytes": 544,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/compatibility-release-scoped.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.json",
+      "sha256": "57f9067250151c2ce242a14ff232da579d0f2f22a91e208eb8019bbe82e2d22a",
+      "bytes": 1272,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/compatibility-release.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/compatibility-release.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stdout.txt",
+      "sha256": "ef2df826e72e0fddc72f9d33acfcc06eed9c982d775f69fd78d7e00efb6cd02c",
+      "bytes": 1253,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/compatibility-release.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/diff-check.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.json",
+      "sha256": "7640a0741ab133cefa8d2aac4794fabb2d4c611c6a85d647581a461a32219754",
+      "bytes": 1300,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stdout.txt",
+      "sha256": "adad015876d7b55daeb97f451629d864411e9753cb50cd8fe4fcfb5c6589b231",
+      "bytes": 118690,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.json",
+      "sha256": "95bc6712cdb79208bd233a0a6f9b5c4726c8732cecc3571c8d2252c832e33172",
+      "bytes": 1339,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate-source.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate-source.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stdout.txt",
+      "sha256": "7b26fd9a89c3d8ca0358112a57f3322d4e46c0589fa0606509602686fa3f20b3",
+      "bytes": 118945,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate-source.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.json",
+      "sha256": "aadbcdf0d24c1c87bade1514be13272a36325a55143bed0165ff385e286227f5",
+      "bytes": 1182,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stdout.txt",
+      "sha256": "e20c49d09d178da49e50c7effa9355764ea21d5db9f2fdf57ce3443546c327ed",
+      "bytes": 79,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-gate.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-only-fidelity.json",
+      "sha256": "e3713aa33d50823b9194eb3ef9184eb497f47afcd2dbb90d337d718d3915c90f",
+      "bytes": 4306,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/docs-only-fidelity.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/e02_census.py",
+      "sha256": "4f2fec208d8f794f9c1391addbb60a031bdcb57e15eca28c5a42b85dc650e42e",
+      "bytes": 886,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/e02_census.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "sha256": "583cbca8da124db5d927d5d8ae2085a06d87f69c2de7fa6fa90abd6dd5112b6f",
+      "bytes": 979,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/environment.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.json",
+      "sha256": "4e273b4e75d137621ca31305a01c83be5d8e77532de1c7550a7c42ced4d1e762",
+      "bytes": 1758,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/executor-frozen.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.pytest.json",
+      "sha256": "8360e125d25b4c6c5ab58ba6f071db2139a681ac278123ea479aaa96d68a02ed",
+      "bytes": 48502,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/executor-frozen.pytest.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/executor-frozen.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stdout.txt.text.json",
+      "sha256": "52f8ef915042b9120470db4c97f1686dcc8899226a3ec421ef23061f25254f0a",
+      "bytes": 32442,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/executor-frozen.stdout.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "386fb6a60c94c3a93a307e147e94ffc30cdafec019f2c27a00c20992125ebef2",
+      "decoded_bytes": 31160
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.json",
+      "sha256": "2671509d851da76c0b4f2e0760ece1ea0fa909a91d2173374c1d93b9caa5866d",
+      "bytes": 4236,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/family-trace.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/family-trace.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family_trace.py",
+      "sha256": "084b13a185087a1391b38751c9c94cae501ce25caccdec792ba0859b8cafa182",
+      "bytes": 1859,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/family_trace.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/full-implementation.patch.text.json",
+      "sha256": "a057883fed7f3a528277a7a8b713daf322aeb5e44de63eec2b7a9a939a77c15f",
+      "bytes": 51000,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/full-implementation.patch",
+      "encoding": "utf-8",
+      "decoded_sha256": "67ae9cf0f66f23a4d8fd980ff31f0d637bfc424b00d2bb6e87b85a128ca3aaa5",
+      "decoded_bytes": 49089
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/installed-layout-companion-binding.json",
+      "sha256": "3c2ce4745ba44402737855a0f313f88c7b9e4e4f677c30543f392de736339953",
+      "bytes": 3491,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/installed-layout-companion-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.json",
+      "sha256": "c2899d33074df2a571ea0b4fb65e81c924547a7fcd6bc02bb4ed6185f9401e3d",
+      "bytes": 2053,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/native-frozen.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.pytest.json",
+      "sha256": "c5c876aeb4a5f32cdf545fd39c0ba684fe3ee1c2449bb9dc158236544a7a2fad",
+      "bytes": 67542,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/native-frozen.pytest.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/native-frozen.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stdout.txt",
+      "sha256": "02a53857091c61a3c8b2bd45bb9954decd969c64ce4283782f1e9aedb174b341",
+      "bytes": 180,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/native-frozen.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation-gzip.json",
+      "sha256": "352f4f3ae21cba0decba9c2bc76c8bef0257da54f89d422f8b0ad705e65f2063",
+      "bytes": 498,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/production-invocation-gzip.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.json",
+      "sha256": "fb83ba82d176ab68a01b157c0b07458c54c2315f8112768f8824e2a5332eefcc",
+      "bytes": 1387,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/production-invocation.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.raw.json.gz",
+      "sha256": "0eac90d0ddfc2aca5321ded8002d4a7eb4cfcf9baa7b038491ed25fc2d2de7f9",
+      "bytes": 5985614,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/production-invocation.raw.json.gz",
+      "encoding": "gzip",
+      "decoded_sha256": "e48ddecbf9ffda1f584cc47a7a35140bcd878fbada13c50b4bea94b030c08993",
+      "decoded_bytes": 170879136
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/production-invocation.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stdout.txt",
+      "sha256": "5d425889b81d99ee4daf8cba2a882faa89d705e6e6cf4f63592f206f1881865e",
+      "bytes": 1496,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/production-invocation.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/ruff-check.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt",
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "bytes": 26,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/ruff-format.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/run_check.py",
+      "sha256": "f08ae1e7605c3ac351f830d4363b7e04410d437ba0f41e098bdc975e81e12878",
+      "bytes": 1759,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/run_check.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/source-identity.json",
+      "sha256": "1ce8c49693119aae73ac1cd22ca2630ef77ebe1808b6d490b883567b04b11d37",
+      "bytes": 1893,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry/source-identity.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/controls.txt",
+      "sha256": "af5fb7eec5b974d5f46454beb5a6cb86f36cab60aa4fad0f9b46131381ad9e1a",
+      "bytes": 7243,
+      "local_source": "/workspace/e02-F-20261006-receipts/economics/fry-review/controls.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/fry-independent-review.json",
+      "sha256": "89f2009214a1c2f341c4a5b8d0d7d845b1e20666e491c3cd74a89b09d24f525d",
+      "bytes": 7211,
+      "local_source": "/workspace/e02-F-20261006-receipts/economics/fry-review/fry-independent-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/native.txt",
+      "sha256": "dc319c6557f3150182eae2b1c0e45825731f2b8f58f6ebe88a3841420375611f",
+      "bytes": 7876,
+      "local_source": "/workspace/e02-F-20261006-receipts/economics/fry-review/native.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/test_independent_treasury_controls.py",
+      "sha256": "0cccfa73c8f5f3bebe338a34c59cbf26f38a59b4dddd296ec874a046f42f1111",
+      "bytes": 5781,
+      "local_source": "/workspace/e02-F-20261006-receipts/economics/fry-review/test_independent_treasury_controls.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base-v2.txt.text.json",
+      "sha256": "c229d44856894225bd8bc4d308abec78fa3b795fa19c58fd0262821b610842da",
+      "bytes": 8641,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-base-v2.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "037a8a4da9a4a9723f786a9d89bb3e5c5c0918856518ba3d60499c4e0a55790d",
+      "decoded_bytes": 8196
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base-v3.txt",
+      "sha256": "d1ac2a1043855c69346bc859b82adb77028d218d4dd5a9adcf65387b065b57b8",
+      "bytes": 6289,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-base-v3.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base.txt.text.json",
+      "sha256": "d77a0d05598c3ee0f93bc381e8007e98cfef072c2c1dcdce8b31783fd5c3474d",
+      "bytes": 8623,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-base.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "1cc99f4b400125e90a6cf8762f3b68cd403f16f7752b07f6a2c37215f1260613",
+      "decoded_bytes": 8178
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v1.txt",
+      "sha256": "790a1b1f0866bb905b39374df749b9708378c889c43a4cfcff380d3e023d7bb5",
+      "bytes": 99,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-candidate-v1.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v2.txt.text.json",
+      "sha256": "d8d6bb6c7ca620e28ccdf83ca622026cd8533055f8d2b30c56d9be55068845c7",
+      "bytes": 15301,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-candidate-v2.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "f347a91ad496d02498723805feea8396b7cc8e4e2d6c304f5dd1ba3171aac44a",
+      "decoded_bytes": 14535
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v3.txt",
+      "sha256": "ce6a0b54c4d86f6ab8967673239fb75b0ab0380878115d44072bffb493f9d959",
+      "bytes": 8205,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-candidate-v3.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v4.txt",
+      "sha256": "f7203890ab5909eccab7e2e8eee4b4b423ccb99fc102fa44279bb277f9fed0e2",
+      "bytes": 100,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-candidate-v4.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-executor-v1.txt.text.json",
+      "sha256": "07f9df8310f72d500ebe1e6722901c48e5b4a9148b6b701a4b67761ffa08989d",
+      "bytes": 32430,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-executor-v1.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "2740f525d9b5c12e56c046dde9b2650f31cc4ddc3715444ad9b5e2abae5546af",
+      "decoded_bytes": 31148
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v1.txt.text.json",
+      "sha256": "4ce24257f04669024a0972bf4c6e17c36dcb64695986921a89bf0f62711d9b9d",
+      "bytes": 7709,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-full-v1.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "c2cc47c33d1b709f7bb98a7404c1247a0d77820fee2037fef0db7ac1acd9cdf0",
+      "decoded_bytes": 7275
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v2.txt.text.json",
+      "sha256": "b81fadbcd2e70c882efe04f055fd9915d5c52c50c6e6a001d54de36f6d0695b2",
+      "bytes": 7288,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-full-v2.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "834c25f838dcc8bac9e1b6cf4db165100e46dcb92a4e16fb0f4fd8925a11a91d",
+      "decoded_bytes": 6867
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v3.txt.text.json",
+      "sha256": "05ec29ba779ba35d75251d2ba2af8e883a21457ab91c3230c47ad984116a0862",
+      "bytes": 4705,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-full-v3.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "97bb1a5e3c42495f1585e6d4a7f27facdcb8afde51bcc4a09a7b62cc07a5d719",
+      "decoded_bytes": 4379
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v4.txt",
+      "sha256": "4fa0080137032831d7d7fef6fa2e963ccea2a6e227207f0fc1194835fbf77bcb",
+      "bytes": 180,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-full-v4.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA001-baseline-query.json",
+      "sha256": "046936f3673b9a747f12c98002317e01467e61e758f9a6c5aef0819587abcf57",
+      "bytes": 21036,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-LA001-baseline-query.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA002-baseline-query.json",
+      "sha256": "ed748fbeaeafddc4fe09dbbf6f7cb5cc7b83738094e89a532c057831e0436aaa",
+      "bytes": 21036,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-LA002-baseline-query.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA037-baseline-query.json",
+      "sha256": "c0f9079fc5aa2864b23f34c95052f9b7db654ad7c7aef0facfd0ad9817d19bc8",
+      "bytes": 21036,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-LA037-baseline-query.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/family-original-stdout.txt",
+      "sha256": "70550d105a792d3937205607397aa554eaa178cea7c36227c32052772cf039e4",
+      "bytes": 3350,
+      "local_source": "/workspace/e02-F-20261006-receipts/fry-family-trace.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/root-supplied-emp01-base198.txt.text.json",
+      "sha256": "42f6b34fc475ab13604deca2e37855414294ffcdaa52c6bb8d4671c6219fb11d",
+      "bytes": 32357,
+      "local_source": "/workspace/e02-F-20261006-receipts/graph/emp01-base198.txt",
+      "encoding": "utf-8",
+      "decoded_sha256": "a8e88705e8602da2fa3464ce335d9955caa7fb5c1b28747ea0c8348fee149a7d",
+      "decoded_bytes": 31075
+    }
+  ],
+  "receipt_transport_map": {
+    "/workspace/e02-F-20261006-receipts/fry/architecture.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.json",
+    "/workspace/e02-F-20261006-receipts/fry/architecture.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/architecture.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stdout.txt",
+    "/workspace/e02-F-20261006-receipts/fry/compatibility-release-scoped.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.json",
+    "/workspace/e02-F-20261006-receipts/fry/compatibility-release-scoped.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/compatibility-release-scoped.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stdout.txt",
+    "/workspace/e02-F-20261006-receipts/fry/compatibility-release.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.json",
+    "/workspace/e02-F-20261006-receipts/fry/compatibility-release.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/compatibility-release.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stdout.txt",
+    "/workspace/e02-F-20261006-receipts/fry/diff-check.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.json",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate-final.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stdout.txt",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate-source.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.json",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate-source.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate-source.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stdout.txt",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.json",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/docs-gate.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stdout.txt",
+    "/workspace/e02-F-20261006-receipts/fry/docs-only-fidelity.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-only-fidelity.json",
+    "/workspace/e02-F-20261006-receipts/fry/e02_census.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/e02_census.py",
+    "/workspace/e02-F-20261006-receipts/fry/environment.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+    "/workspace/e02-F-20261006-receipts/fry/executor-frozen.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.json",
+    "/workspace/e02-F-20261006-receipts/fry/executor-frozen.pytest.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.pytest.json",
+    "/workspace/e02-F-20261006-receipts/fry/executor-frozen.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/executor-frozen.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stdout.txt.text.json",
+    "/workspace/e02-F-20261006-receipts/fry/family-trace.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.json",
+    "/workspace/e02-F-20261006-receipts/fry/family-trace.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/family_trace.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family_trace.py",
+    "/workspace/e02-F-20261006-receipts/fry/full-implementation.patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/full-implementation.patch.text.json",
+    "/workspace/e02-F-20261006-receipts/fry/installed-layout-companion-binding.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/installed-layout-companion-binding.json",
+    "/workspace/e02-F-20261006-receipts/fry/native-frozen.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.json",
+    "/workspace/e02-F-20261006-receipts/fry/native-frozen.pytest.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.pytest.json",
+    "/workspace/e02-F-20261006-receipts/fry/native-frozen.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/native-frozen.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stdout.txt",
+    "/workspace/e02-F-20261006-receipts/fry/production-invocation-gzip.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation-gzip.json",
+    "/workspace/e02-F-20261006-receipts/fry/production-invocation.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.json",
+    "/workspace/e02-F-20261006-receipts/fry/production-invocation.raw.json.gz": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.raw.json.gz",
+    "/workspace/e02-F-20261006-receipts/fry/production-invocation.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stderr.txt",
+    "/workspace/e02-F-20261006-receipts/fry/production-invocation.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stdout.txt",
+    "/workspace/e02-F-20261006-receipts/fry/ruff-check.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt",
+    "/workspace/e02-F-20261006-receipts/fry/ruff-format.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt",
+    "/workspace/e02-F-20261006-receipts/fry/run_check.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/run_check.py",
+    "/workspace/e02-F-20261006-receipts/fry/source-identity.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/source-identity.json",
+    "/workspace/e02-F-20261006-receipts/economics/fry-review/controls.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/controls.txt",
+    "/workspace/e02-F-20261006-receipts/economics/fry-review/fry-independent-review.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/fry-independent-review.json",
+    "/workspace/e02-F-20261006-receipts/economics/fry-review/native.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/native.txt",
+    "/workspace/e02-F-20261006-receipts/economics/fry-review/test_independent_treasury_controls.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/test_independent_treasury_controls.py",
+    "/workspace/e02-F-20261006-receipts/fry-base-v2.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base-v2.txt.text.json",
+    "/workspace/e02-F-20261006-receipts/fry-base-v3.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base-v3.txt",
+    "/workspace/e02-F-20261006-receipts/fry-base.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-base.txt.text.json",
+    "/workspace/e02-F-20261006-receipts/fry-candidate-v1.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v1.txt",
+    "/workspace/e02-F-20261006-receipts/fry-candidate-v2.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v2.txt.text.json",
+    "/workspace/e02-F-20261006-receipts/fry-candidate-v3.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v3.txt",
+    "/workspace/e02-F-20261006-receipts/fry-candidate-v4.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-candidate-v4.txt",
+    "/workspace/e02-F-20261006-receipts/fry-executor-v1.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-executor-v1.txt.text.json",
+    "/workspace/e02-F-20261006-receipts/fry-full-v1.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v1.txt.text.json",
+    "/workspace/e02-F-20261006-receipts/fry-full-v2.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v2.txt.text.json",
+    "/workspace/e02-F-20261006-receipts/fry-full-v3.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v3.txt.text.json",
+    "/workspace/e02-F-20261006-receipts/fry-full-v4.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/fry-full-v4.txt",
+    "/workspace/e02-F-20261006-receipts/fry-LA001-baseline-query.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA001-baseline-query.json",
+    "/workspace/e02-F-20261006-receipts/fry-LA002-baseline-query.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA002-baseline-query.json",
+    "/workspace/e02-F-20261006-receipts/fry-LA037-baseline-query.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA037-baseline-query.json",
+    "/workspace/e02-F-20261006-receipts/fry-family-trace.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/family-original-stdout.txt",
+    "/workspace/e02-F-20261006-receipts/graph/emp01-base198.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/history/root-supplied-emp01-base198.txt.text.json"
+  },
+  "baseline_cells": [
+    {
+      "finding_id": "LA-001",
+      "matching_cells": 18,
+      "states": {
+        "PASS": 18
+      },
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "semantic_adequacy": "not_established",
+      "full_query_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA001-baseline-query.json"
+    },
+    {
+      "finding_id": "LA-037",
+      "matching_cells": 18,
+      "states": {
+        "PASS": 18
+      },
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "semantic_adequacy": "not_established",
+      "full_query_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA037-baseline-query.json"
+    },
+    {
+      "finding_id": "LA-002",
+      "matching_cells": 18,
+      "states": {
+        "PASS": 18
+      },
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "semantic_adequacy": "not_established",
+      "full_query_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/baseline/fry-LA002-baseline-query.json"
+    }
+  ],
+  "checks": [
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/compile/test_treasury_execution.py tests/unit/foundry/compile/test_compile_artifact_contracts.py tests/unit/foundry/compile/test_randomization.py tests/unit/foundry/compile/test_compile_determinism.py tests/unit/foundry/compile/test_trinity_compiler.py tests/unit/foundry/facade/test_compile_facade.py tests/unit/foundry/facade/test_execute_facade_smoke.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/methods/catalog/mechanism/test_families.py tests/unit/foundry/mechanisms/test_treasury.py tests/unit/foundry/mechanisms/test_mechanism_design.py tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py -o addopts= -q -ra -p e02_census --basetemp=/workspace/e02-F-20261006-receipts/fry-native-frozen-tmp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/compile/test_treasury_execution.py",
+        "tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+        "tests/unit/foundry/compile/test_randomization.py",
+        "tests/unit/foundry/compile/test_compile_determinism.py",
+        "tests/unit/foundry/compile/test_trinity_compiler.py",
+        "tests/unit/foundry/facade/test_compile_facade.py",
+        "tests/unit/foundry/facade/test_execute_facade_smoke.py",
+        "tests/unit/foundry/contracts/test_layout.py",
+        "tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+        "tests/unit/foundry/mechanisms/test_treasury.py",
+        "tests/unit/foundry/mechanisms/test_mechanism_design.py",
+        "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "-p",
+        "e02_census",
+        "--basetemp=/workspace/e02-F-20261006-receipts/fry-native-frozen-tmp"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "target_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "76 actual native compiler, randomization, layout, family, Scientist compile and public execute cases. Complete setup/call/teardown census has zero skips, errors and warnings. The synthetic policy has 32 active agents and fixed MLP initialization; compile seeds None/0/17/2147483655 and runtime overrides 0/101.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 36.82429099082947,
+      "child_peak_rss_kib": 790276,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/native-frozen.json",
+      "limits": []
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/runtime/test_executor_runtime_semantics.py tests/unit/foundry/runtime/test_executor_provenance.py tests/unit/foundry/runtime/test_executor_fail_semantics.py tests/unit/foundry/runtime/test_execute_input_bindings.py tests/unit/foundry/runtime/test_constraints_executor.py tests/unit/foundry/agent_sim/test_graph_mechanisms.py tests/unit/remediation/test_emp_01.py -o addopts= -q -ra -p e02_census --basetemp=/workspace/e02-F-20261006-receipts/fry-executor-frozen-tmp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/runtime/test_executor_runtime_semantics.py",
+        "tests/unit/foundry/runtime/test_executor_provenance.py",
+        "tests/unit/foundry/runtime/test_executor_fail_semantics.py",
+        "tests/unit/foundry/runtime/test_execute_input_bindings.py",
+        "tests/unit/foundry/runtime/test_constraints_executor.py",
+        "tests/unit/foundry/agent_sim/test_graph_mechanisms.py",
+        "tests/unit/remediation/test_emp_01.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "-p",
+        "e02_census",
+        "--basetemp=/workspace/e02-F-20261006-receipts/fry-executor-frozen-tmp"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "target_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "59 actual executor/importer/graph/EMP cases: 49 executor passes and EMP five passes/five failures. The whole 59-case gate FAILS.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 41.89835715293884,
+      "child_peak_rss_kib": 1581536,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stdout.txt.text.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/executor-frozen.json",
+      "limits": [
+        "No P41 inherited exemption; changed executor intersects full input denominator."
+      ]
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/devx/architecture/guardrails.py check",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/devx/architecture/guardrails.py",
+        "check"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "target_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "Actual full guardrail command with required generators.",
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "wall_s": 298.93148708343506,
+      "child_peak_rss_kib": 903728,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/architecture.json",
+      "limits": [
+        "Required runtime-api-client/dashboard generator exits254 missing openapi-typescript; partial measured deep-import/generated-output failures retained. No complete architecture verdict."
+      ]
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/quality/validation/check_production_invocation.py --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt /workspace/e02-F-20261006-receipts/fry/production-invocation.raw.json",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-F-20261006-receipts/fry/production-invocation.raw.json"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "target_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "Complete static corpus current5905/base5904/source2698 files at source03bb vs immutablebase198;full raw lossless gzip supplied.",
+      "outcome": "UNRUN",
+      "exit_code": 3,
+      "wall_s": 292.2074360847473,
+      "child_peak_rss_kib": 8300456,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/production-invocation.json",
+      "limits": [
+        "Measured partial UNRESOLVED rc3,0regressions,2new unresolved boundaries;not runtime non-invocation or runtime acceptance."
+      ]
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/ops_runners/release/check_compatibility_release_gates.py --fail-on-contract-errors",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "target_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "Full82-fragment canonical release contract gate.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.30083131790161133,
+      "child_peak_rss_kib": 22596,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release.json",
+      "limits": [
+        "2 unowned fragment public-surface-review errors retained;no inherited-red exemption claimed."
+      ]
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/ops_runners/release/check_compatibility_release_gates.py --fragments-dir /workspace/e02-F-20261006-receipts/fry/release-inputs --fail-on-contract-errors",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--fragments-dir",
+        "/workspace/e02-F-20261006-receipts/fry/release-inputs",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "target_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "One exact owned release fragment through the canonical validator;1fragment,1compatibilitychange,0errors.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.3308408260345459,
+      "child_peak_rss_kib": 22332,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/compatibility-release-scoped.json",
+      "limits": [
+        "This bounded PASS does not replace the full82-fragment FAIL."
+      ]
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/quality/validation/check_docs_gate.py --base-ref 198076863e143dea9f89f02734b13d50dae3eed5 --head-ref 03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_docs_gate.py",
+        "--base-ref",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--head-ref",
+        "03bbfe14225d64a9977b77775c200e83eb717c5f"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "target_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "Full7-path implementation docs window at03bb;actual architecture childcommand.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 282.70525884628296,
+      "child_peak_rss_kib": 908632,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-source.json",
+      "limits": [
+        "Owned README freshness failure measured before companion correction;strict later stages UNRUN after child failure."
+      ]
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/quality/validation/check_docs_gate.py --base-ref 198076863e143dea9f89f02734b13d50dae3eed5 --head-ref HEAD",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_docs_gate.py",
+        "--base-ref",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--head-ref",
+        "HEAD"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+      "target_tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "Full8-path final implementation window at634;actual architecture childcommand.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 216.79852604866028,
+      "child_peak_rss_kib": 907936,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate-final.json",
+      "limits": [
+        "Owned README freshness finding is now absent;global architecture child UNRUN/partialFAIL retains whole docsFAIL and later strict stagesUNRUN."
+      ]
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python tools/quality/validation/check_docs_gate.py",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_docs_gate.py"
+      ],
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "target_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "input_closure": "Historical default changed-file window was0;exit0 with no triggered checks.",
+      "outcome": "UNRUN",
+      "exit_code": 0,
+      "wall_s": 0.24696564674377441,
+      "child_peak_rss_kib": 23292,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.stderr.txt",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-gate.json",
+      "limits": [
+        "Empty-window proxy is not full slice documentation acceptance;exact source-window replays above supersede it."
+      ]
+    },
+    {
+      "command": "Independent Economics native+rawSHA256/JAX controls; exact argv in reviewerJSON",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "outcome": "PASS",
+      "input_closure": "45 actual native cases plus33 independently authored controls (27word-order/seed/node panels+6selected-CAS admission escapes),0skip/error",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/fry-independent-review.json",
+      "limits": [
+        "Bounded GO for numerical RNG binding;LA002familystateactivation limited."
+      ],
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json"
+    },
+    {
+      "command": "Canonical build_gate_plan complete8paths and remove-README adversarial7paths;Git bytes03bb→634 reconciled",
+      "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+      "outcome": "PASS",
+      "input_closure": "Owned README path-presence discriminator only. All seven original product/test/profile/release files have identical bytes between 03bb and 634.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-only-fidelity.json",
+      "limits": [
+        "No second numeric run on634 is claimed;full docs gate is separatelyFAIL."
+      ],
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json"
+    },
+    {
+      "command": "Canonical4-family get_mechanism_class admission census",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "outcome": "PASS",
+      "input_closure": "All four catalog family IDs and the actual five-descriptor runtime registry. All four family admissions raise MissingRuntimeMechanismSupportError.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/family-trace.json",
+      "limits": [
+        "PASS is refusal/census evidence;no family state activation;source files are unchanged frombase198."
+      ],
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json"
+    },
+    {
+      "command": "API729 installed source bindings and final peer receipt/manifest hashes",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "outcome": "PASS",
+      "input_closure": "Five existing layout/facade/family/IC source blobs are identical between FRY03bb and API729. The installed wheel/sdist companion is PR59, published head 6825.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/installed-layout-companion-binding.json",
+      "limits": [
+        "Installed existinglayout ABI only;not installation of the new FRY Treasury code and not family activation."
+      ],
+      "environment": "Read-only Git object and receipt hash comparison. Actual installed wheel/sdist runtime environments are bound in the API729 peer receipt and complete outputs manifest cited by installed-layout-companion-binding.json; this comparison is not a new installed Treasury run."
+    },
+    {
+      "command": "ruff check;ruff format --check;git diff base198..634 --check",
+      "target_sha": "63425f734946979cfc990e9cb91b00163f051898",
+      "outcome": "PASS",
+      "input_closure": "Exact5changedPython files plus complete8pathsource diff",
+      "output": "Complete committed outputs: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-check.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/ruff-format.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/diff-check.txt"
+      ]
+    }
+  ],
+  "property": {
+    "statement": "Compiled Treasury root and complete persisted salts bind actual native stochastic state changes;selected CAS lineage is admitted before a versioned per-node RNG draw and historical unmarked law remains reproducible.",
+    "runtime_path": [
+      "Trinity compiler with actual registered adaptive_agent",
+      "CASProgramGraph+TreasuryPlan+ExecPlan.notes+selectedmanifestinputs",
+      "Native graph admission and low/high32 folding",
+      "Actual native mechanism+registereddispatcher draw",
+      "Public Foundry execute boundStateSnapshot→CASSimulationResult→freshreader actualincome"
+    ],
+    "proxy_divergence": "Base198 native compilation with ExecPlan.random_seed17 persisted Treasury.root_seed0. A valid DTO/profile marker can also survive actualsalt removal while nativeincome changes;all/high-word/stream removals are detected.",
+    "negative_controls": [
+      "14CAS-bound valid-shape lineage/root/salt/profile/schema variants refused before kernel",
+      "3memory-only remove-salt controls retainprofile+CASmarkers and change actualnativeincome",
+      "Scheduled real prior draw moves historical sequential stream but cannot move the versioned later-node stream",
+      "Independent27rawSHA256 panels reject word-order/salt-order/high-word alterations",
+      "Independent6selectedmanifest escapes inclsamepayloadwrongview refused",
+      "OwnedREADME removal makes canonical freshness discriminatorred"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "limited",
+  "criterion_decisions": [
+    {
+      "id": "LA-001",
+      "finding_state": "closed",
+      "check_outcome": "PASS",
+      "scope": "Original generic seed, builder serialization, recompile, permutation and historical plan compatibility, plus the selected real compiler-to-native-RNG consumer. New randomness uses an explicit version marker.",
+      "limits": "Owner candidate recommendation; G review and integration remain pending. Synthetic determinism does not establish economic or real-data validity."
+    },
+    {
+      "id": "LA-002",
+      "finding_state": "limited",
+      "check_outcome": "PASS",
+      "scope": "Four catalog IDs, assumptions, parameters and unknown-ID behavior, plus native positive/negative IR IC certificates. Actual runtime admission refuses all four family IDs.",
+      "limits": "An owner-ratified family certificate-to-state operation mapping is missing. No runtime activation or economic law was invented."
+    },
+    {
+      "id": "LA-037",
+      "finding_state": "limited",
+      "check_outcome": "PASS",
+      "scope": "Native layout/family/compiler outputs and the API729 installed wheel/sdist identity, real path and CAS companions with identical existing source bytes.",
+      "limits": "Full documentation/build acceptance is unresolved. Family-to-state activation remains unestablished in the shared F-M12 criterion. The installed API profile does not contain the new FRY Treasury source."
+    }
+  ],
+  "environment_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/environment.json",
+  "full_input_closure": "Known synthetic Trinity policy, default registry, 32 active agents with zero income, and fixed MLP initialization. Literal historical Treasury bytes and native repository fixtures; no admitted real data or production inputs.",
+  "source_fidelity": {
+    "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/docs-only-fidelity.json",
+    "scientific_target": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+    "final_doc_target": "63425f734946979cfc990e9cb91b00163f051898",
+    "classification": "Documentation-only append: all seven prior implementation files have identical bytes. Native 76 and independent 78 checks target 03bb; no numeric replay on 634 is claimed."
+  },
+  "independent_review": {
+    "verdict": "GO",
+    "source_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/independent/fry-independent-review.json",
+    "limitations": [
+      "Bounded synthetic determinism and selected CAS admission only.",
+      "LA-002 family state activation remains limited; no economic mapping was invented.",
+      "The reviewer tested source 03bb. The README-only append retains all seven original source/test/profile/release bytes."
+    ]
+  },
+  "dependencies": [
+    {
+      "slice": "F API installed facade companion",
+      "implementation_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "published_head": "6825b6a83e13ec9187a08794bcd34379d7e64a31",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/59",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+      "binding": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-20261006/installed-layout-companion-binding.json",
+      "scope": "Existing5sourcebloblayout/certificate ABI only"
+    }
+  ],
+  "integration_state": "Pending G fetch, review and integration; no merge into main or product acceptance is claimed.",
+  "limitations_and_next_owner": [
+    "G must fetch the exact topic head and committed receipts. Integrated regression and installation of the new Treasury profile remain UNRUN.",
+    "LA-002 needs an owner-ratified family certificate-to-state operation contract. IR certificate success alone does not prove a state transition.",
+    "LA-037 has bounded installed layout evidence; documentation/build acceptance and full shared F-M12 activation remain limited.",
+    "The whole 59-case executor/EMP gate FAILS with five EMP failures. The root-supplied exact base198 EMP output has the same five failures and five passes, but P41 attribution is not established because the changed executor intersects the gate denominator.",
+    "Architecture is UNRUN for two required generators, with measured partial failures. The full documentation gate FAILS and later strict stages are UNRUN. The full release gate FAILS with two contract errors; the owned fragment separately PASSES.",
+    "Static invocation is partial/UNRESOLVED with two new boundaries and zero regressions. All 170879136 raw bytes are supplied as lossless gzip with hashes and sizes. This does not establish framework runtime invocation.",
+    "DoWhy/EconML exclusion or absence is not a positive backend witness. Neither optional backend was exercised by this slice.",
+    "No global baseline, allowlist, lockfile, shared environment, economic norm, main branch, force push, rewritten history, deletion or full production data publication is part of this slice."
+  ],
+  "development_history": {
+    "scope": "Preserved complete diagnostic stdout;not all are deciding final receipts",
+    "events": [
+      "Initial fixture omitted required utility and then supplied an invalid utility type: link failures are harness errors, not the deciding seed baseline.",
+      "Corrected baseline v3 has three semantic failures (missing profile and root zero for nonzero compile seeds), 7.40s, on source base198.",
+      "The first three native cases passed. An expanded run passed 32 cases and failed one expected-error string: canonical CAS correctly rejected a wrong kind before the custom validator.",
+      "The public consumer initially supplied generic ArtifactRef instead of typed ExecPlanRef. It was corrected to the actual declared input ABI.",
+      "The registered method test first requested version 0.0.0, then omitted the version. The actual EXACT registry requires 1.0.0; real version 1.0.0 execution was then observed.",
+      "The dispatcher assertion wrongly narrowed serialized values to float32 while the suite enabled JAX x64. Narrowing was removed and exact equality retained; no tolerance was relaxed.",
+      "The default docs window had zero changed files and did not validate the slice. The actual seven-path gate found the owned README gap; the append-only README fix and actual eight-path replay remove that finding while preserving the global child failure."
+    ]
+  },
+  "receipt_protocol_corrections": {
+    "supersedes_receipt_head": "7ab97aa425f64819280ef1c4241a8f51de0fc5f3",
+    "scope": "Metadata only: required environment for checks9–13, canonical string output plus retained output_refs on check13, and actual published draftPR60. Native/independent output bytes, scientific03bb and documentation634 source bindings, all criterion decisions and full red/UNRUN limits unchanged.",
+    "retests": "No numerical/source rerun: no implementation source or deciding output was modified."
+  }
+}

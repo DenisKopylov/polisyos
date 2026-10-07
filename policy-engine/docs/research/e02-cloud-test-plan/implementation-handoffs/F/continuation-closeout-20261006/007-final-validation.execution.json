@@ -1,0 +1,98 @@
+{
+  "role": "independent_metadata_custody_only",
+  "packet_sha": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+  "packet_tree": "80b462622fb762ca040582b66e58b184ce307f95",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/final35-validator/validate_packet.py",
+    "--repo",
+    "/workspace/e02-F-closeout-20261006",
+    "--manifest",
+    "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.json",
+    "--index",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/immutable-index.json",
+    "--output",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/final-validation.json",
+    "--transports",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/immutable-transports.json",
+    "--packet-sha",
+    "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+    "--report",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/immutable-report.md",
+    "--source-order",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/immutable-source-order.json",
+    "--required-registry",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/required-registry-final.json"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d",
+  "exit_code": 0,
+  "wall_seconds": 13.185380291004549,
+  "immutable_inputs": {
+    "index": {
+      "git_ref": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/index.json",
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/immutable-index.json",
+      "bytes": 691428,
+      "sha256": "fe1e427b03e66673109bd40315f963752f5f3829799f291f9210d740f932019b"
+    },
+    "report": {
+      "git_ref": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/REPORT.md",
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/immutable-report.md",
+      "bytes": 21419,
+      "sha256": "042f0b14d68c3a2119a5b33506b2c5307474e54898d282d713e007a3e82b283f"
+    },
+    "source_order": {
+      "git_ref": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/source-order.json",
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/immutable-source-order.json",
+      "bytes": 852802,
+      "sha256": "07d7e24e57a3cb05b919b69e69b0b61a24fbff3531cfdd53fa29834e2659aa65"
+    },
+    "transports": {
+      "git_ref": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/artifact-transports.json",
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/immutable-transports.json",
+      "bytes": 2411177,
+      "sha256": "610f3c67b452eb467e17167d550ee2cf0d744231f570c80096491b562b43ee6e"
+    }
+  },
+  "frozen_input_bindings": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/final35-validator/validate_packet.py",
+      "bytes": 26477,
+      "sha256": "51a95464831e426050bc9aac6abc0ed094a871c01d5634a8a021972acf0d9e1f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/required-registry-final.json",
+      "bytes": 20278,
+      "sha256": "e108437f8bb439d85fdb00016c9c2164d14af5a22768f542013df7eeef7b6d95"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.json",
+      "bytes": 235804,
+      "sha256": "95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7"
+    }
+  ],
+  "frozen_inputs_unchanged_after": true,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/final-validation.stdout.txt",
+    "bytes": 166,
+    "sha256": "826097cc9b4443140cf868618e14a70dd1791a16e746f64fe333689ed132d1e3"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/final-validation.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "validator_output": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/d645cea93fe5bde8419b5ecbe6b612209891e16d/final-validation.json",
+    "bytes": 1509949,
+    "sha256": "f2b782db55d2c871cf6a7488815ab0b92824258041d50a18d2cda9c09b0c5cd7"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/execute_final_validator.py",
+    "bytes": 4344,
+    "sha256": "5b112ce7d834f7a6799bbea63a8769ad10d0aae1acb622db900c47c9d89019e8"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "command": [
+    "gh",
+    "pr",
+    "edit",
+    "65",
+    "--title",
+    "fix(scientist): complete F causal consumers and source-bound 35-ID handoff",
+    "--body-file",
+    "/tmp/e02-F-continuation-20261006/root-closeout-publication/pr65-body.md"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "exit_code": 1
+}

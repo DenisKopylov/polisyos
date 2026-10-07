@@ -1,0 +1,126 @@
+{
+  "schema": "policyos.e02.transfer_selection.v1",
+  "scope": "Only new unique read-only economic-review deciding observations/replayers; no copied product/card/source/Git-derived views",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/review.json",
+      "bytes": 19729,
+      "sha256": "42f454c8be5e40b53ad15517224665bdfba971337dbb1426dde7d83cfc635f73"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.py",
+      "bytes": 9312,
+      "sha256": "3a392021332e28c822c0e33e1da2decfc71f452ab2b00975bd18088590227a7c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.initial.py",
+      "bytes": 8877,
+      "sha256": "77d01db2d48f10a1e5d5ebd270a1d6f467e777c78f51c3c2ba1778f607c1201a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.second.py",
+      "bytes": 8886,
+      "sha256": "2ad6c4b39ec4e0286cbe2f2a1cdf03d576dd547d426303784c0377240a6e0e40"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.stdout.txt",
+      "bytes": 1843,
+      "sha256": "610e4b68ff4edb7372a27ec4a76cae7ebd85e578afe4a4fb273b15a8c4ae31ba"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.initial.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.initial.stderr.txt",
+      "bytes": 1464,
+      "sha256": "c77283228be86a9669b89946985da6bea5abe68c4044a2f944807676b9a4b4da"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.second.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.second.stderr.txt",
+      "bytes": 332,
+      "sha256": "f416abe2e1536cf142eafb819d09f7a1814ff7164c2f07b6046a44424caa0860"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication_replay.py",
+      "bytes": 4265,
+      "sha256": "c7b94cd006ecfbcf9982f1cb9f66715a0d9c9c5e9f0a18cca195e5238b4c4b14"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication_replay.initial.py",
+      "bytes": 4080,
+      "sha256": "fc9b9597fa18e7e695f83b794e5dd6f8ed2c28a208596c36e0cd180e69af21ef"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.json",
+      "bytes": 2944,
+      "sha256": "4cf50955d34a62dcc0c137cc16efb7dcfd2628265296bd86ec9f18f97c82cd97"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.stdout.txt",
+      "bytes": 2944,
+      "sha256": "4cf50955d34a62dcc0c137cc16efb7dcfd2628265296bd86ec9f18f97c82cd97"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.initial.json",
+      "bytes": 2944,
+      "sha256": "4cf50955d34a62dcc0c137cc16efb7dcfd2628265296bd86ec9f18f97c82cd97"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.initial.stdout.txt",
+      "bytes": 2944,
+      "sha256": "4cf50955d34a62dcc0c137cc16efb7dcfd2628265296bd86ec9f18f97c82cd97"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.initial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "total_bytes": 70564,
+  "existing_git_files": [
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+      "bytes": 106928,
+      "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e"
+    },
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/current-caption-role-classification.json",
+      "json_pointer": "/rows"
+    },
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+      "json_pointer": "/evidence_transfer/manifest",
+      "all108_deciding_files_preserved": "Use exact published paths, stored/raw hashes and lossless xz encodings; do not recopy."
+    }
+  ],
+  "reconstruction_only": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.json",
+      "bytes": 108373,
+      "sha256": "aaa23428d9e206060ffae832e04964827edc62c46a52ab34f110c1139446c7c6",
+      "classification": "Git-derived full manifest/source comparison view; not selected",
+      "recipe": "audit.py derives all entries from immutable primary/fa53,13 providers at pinned refs and source-bound doc bodies. Original actual assertion output is selected. Portable publication_replay.py requires only Git refs and its own pinned observed hashes, no /tmp input access."
+    }
+  ],
+  "sanitation": "No sanitation or text normalization applied; all selected bytes exact. No credentials/signed queries/production data were read or copied."
+}

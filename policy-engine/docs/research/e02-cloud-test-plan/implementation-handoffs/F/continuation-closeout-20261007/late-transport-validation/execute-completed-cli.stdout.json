@@ -1,0 +1,24 @@
+{
+  "outcome": "PASS",
+  "completed": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-refresh.execution.json",
+      "bytes": 5065,
+      "sha256": "10357de074bb03465d83e61c73ea53fabc18cf17f64634714ad1eef40e22d45b",
+      "exit_code": 0
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-completed-validate.execution.json",
+      "bytes": 1606,
+      "sha256": "fc6d8f4a273f562c396c7d4253ef8278f9039957d023012e4de601b5dd78592c",
+      "exit_code": 0
+    }
+  ],
+  "selection": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-final-cdf-v5-completed.json",
+    "bytes": 1572145,
+    "sha256": "860c3784156b773e8e1a8f9ae47cc0c5d434d66a3e6f52c05009effb548a303d"
+  },
+  "root_or_Git_writes": false,
+  "science_tests_run": false
+}

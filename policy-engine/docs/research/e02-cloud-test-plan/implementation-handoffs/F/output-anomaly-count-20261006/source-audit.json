@@ -1,0 +1,125 @@
+{
+  "source_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+  "source_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+  "slice_base_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+  "slice_base_tree": "90fbdfba15cbc22e8cee477b2c21260c08e09197",
+  "old_reproduction_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-foundry-output-anomaly-count.toml",
+    "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/README.md",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_output_anomaly_count.py"
+  ],
+  "exact_defining_source_refs": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-foundry-output-anomaly-count.toml",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "c3b7ae9a5204bc805b78549c8b25d2d6f0c3ecf8",
+      "sha256": "4e4c85567f23f0483ab176d554dcec8540a47b1cfcd20e209cd433f48303c09d",
+      "size_bytes": 2377
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "e4e5e9e2f6824b4d031731ac7d27c00dd5e72057",
+      "sha256": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1",
+      "size_bytes": 39376
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/README.md",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "dde10a179a93297b2e6942334d62a1e4ca5ec6c9",
+      "sha256": "8a20012f96211f2fd6b6cd68fc8fb03647126a1c8758f11cbfa3c7f9d3c7ef2b",
+      "size_bytes": 3411
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "688d2f6225962d1572a09c7a4c531232e5a7b51d",
+      "sha256": "87ef51fd2f181bc64b1bbd6d5349fc8d06066bf2a384ad1ecefac1a62de02108",
+      "size_bytes": 15564
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "3fe148ea7c11fcff751fbdcdb744de19ccb9f1d0",
+      "sha256": "980c2fa4225233abc2b43f6d165a459bd0a4e78859f84943a67d462732d4047a",
+      "size_bytes": 8509
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "ef58fdce69de184765575024b25934daf317c927",
+      "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+      "size_bytes": 7890
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/observability.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "827f0d153a86626e2e213391df94b982a0783aa1",
+      "sha256": "b62293e42a4a8dd0afe8188c432899fbd7971d385aae71df06a3e2d078e9b4fe",
+      "size_bytes": 9361
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "be699405347df781fe79554ff598b6a830af6741",
+      "sha256": "42167e977b859277e02d3df24c0b94b6dd840614aa65df39cdab70c883f52936",
+      "size_bytes": 8067
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_output_monitor.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "94a46b337636a6b45cfccf5921fd2c35b5c1aab7",
+      "sha256": "8063024023058874a8d840d7b8a45f4f668a41ad3be3b2fed5b932baaa11d271",
+      "size_bytes": 7774
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_backends.py",
+      "git_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "git_blob": "7039b7262aaa377e15aa32223c368490baaeff6f",
+      "sha256": "225be875ed66356acc53779e69fa28858ee3ce7b3a906cf2495d63ccedac2981",
+      "size_bytes": 23081
+    }
+  ],
+  "prepatch_code_byte_equivalence": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "old_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "slice_base_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "equal_git_blob": "b8ba9c0d69025da47b2f60ebfb7cad59b944c53e",
+      "sha256": "3a90df93dcb75cd6bab79abbd10f57f438913bb9aed11e07074c29b38418e259",
+      "size_bytes": 37674
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+      "old_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "slice_base_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "equal_git_blob": "840d95279d55f1c11446aab9a6c238fd554fe495",
+      "sha256": "e678cf8c5131318578cb38aa3cd25ef3ba895f1035b6c480322c62fd85b7bbbf",
+      "size_bytes": 14826
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+      "old_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "slice_base_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+      "equal_git_blob": "be699405347df781fe79554ff598b6a830af6741",
+      "sha256": "42167e977b859277e02d3df24c0b94b6dd840614aa65df39cdab70c883f52936",
+      "size_bytes": 8067
+    }
+  ],
+  "G_checkpoint_owner_input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-delta-owner-actions-2026-10-06.md",
+    "git_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "git_blob": "3f46f749a7c1d8c02b549e881901519b60a956ce",
+    "sha256": "dfb72de43231dcad851d18927eb92ad7e7660eae47a558052741427d6130176d",
+    "size_bytes": 10651
+  },
+  "own_source_overlap": {
+    "canonical_runtime_files": 2,
+    "mandatory_implementation_companions": 3,
+    "excluded": "No common.py, Core, IR/schema, generated inventory, authority/value owner or worker source edits."
+  },
+  "assembled_dependency_limit": "Base718 is carried as an existing append-only dependency ancestor, not own source implementation. G should integrate commit3c152 against accepted prerequisites; do not treat cumulative branch diff as owned changes."
+}

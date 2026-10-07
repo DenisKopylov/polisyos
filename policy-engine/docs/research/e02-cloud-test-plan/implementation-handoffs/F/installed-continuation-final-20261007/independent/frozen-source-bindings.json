@@ -1,0 +1,36 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "base_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "runtime_and_profile_delta_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+  ],
+  "runtime_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "git_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+      "bytes": 62212,
+      "sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+      "equal_graph647": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "git_blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+      "bytes": 48349,
+      "sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+      "equal_graph647": true
+    }
+  ],
+  "all_other_product_tools_app_and_worker_profile_bytes_unchanged": true,
+  "api_case": {
+    "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py",
+    "bytes": 7224,
+    "sha256": "65625b4786535bd2864b0a7726bed69cde7b0b0975efd364c8aa7ec292d0c27b",
+    "equal_api6f": true
+  },
+  "canonical_ir_graph_blob": "f2635665550259d20323d29a784faf11dc8896b7",
+  "competing3dde_unmerged": "Independent canonical distribution proof targets b5, not whole3dde. Original cache reconciliation AST-only-equivalent source remains separately recorded; no competing branch merged",
+  "actual_archives_and_installed_profiles": "UNRUN pending Foundry sole build",
+  "past8236_installed199": "Historical source-specific proof, not b5 wholehead PASS"
+}

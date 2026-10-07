@@ -1,0 +1,26 @@
+id = "2026-10-06-tmle-common-report"
+title = "Expose native cross-sectional TMLE through the common causal report"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-polisyos"
+summary = "TMLE preserves its result slot, accepts existing typed HTE observations and native parameters, and adds a canonical candidate or point-free failure report with its uncertainty projection."
+change_class = "python-public-api"
+surface_classification = "public_stable: CausalMethod.TMLE and TMLEEstimator.report_from_result; internal: method signature parameters and additive scalar report/envelope slots"
+compatibility = "The existing result slot ID, descriptive payload and numerical core remain unchanged. CausalMethod adds tmle; existing report fields and schema_version are unchanged. Prior enum readers cannot parse new TMLE reports. Exact-output-key consumers must accept the two added slots."
+migration = "Upgrade TMLE producers, CausalMethod readers and generated schema/catalog snapshots together. Continue reading result for descriptive limited output. Treat SUCCESS plus a 95% EIF interval as a non-gating candidate; unsupported profiles return existing point-free failure reports and explicitly heuristic failure envelopes."
+api = "Public parameters use the actual ATENuisanceContract.from_params defaults. Typed confounders join covariates. No authority enum, issuer, admission seal, Runtime import into IR, or scheduler is introduced."
+limitations = "Regular IID and causal assumptions are caller asserted. Actual common admitted study resource coverage and genuine causal identification remain UNRUN/limited until the canonical Runtime/C/G owner context, verifier, workload and budget packet is supplied."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py"]
+migration_docs = ["docs/reference/foundry/tmle-common-report.md"]
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "cross-sectional-tmle-canonical-report"
+change_class = "python-public-api"
+impact = "consumer_input_update"
+surface = "public_stable: CausalMethod.TMLE and TMLEEstimator.report_from_result; internal: causal.treatment_effects.tmle@1.0.0 signature"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "TMLE adds declared native parameters and report/envelope slots while preserving result. New report readers require the added tmle method enum value and a coherent generated-schema deployment. Numerical success does not grant causal identification or aggregate production budget admission."

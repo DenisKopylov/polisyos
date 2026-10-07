@@ -1,0 +1,36 @@
+{
+  "source_sha": "d5ae668fe6079bfa81bd7448aa911fa4bee4e03b",
+  "source_tree": "299a64a56f84ae9ce0044032dba78f014ceec60e",
+  "branch": "codex/e02-F-api-20261006",
+  "generation_record": "/tmp/e02-F-continuation-20261006/api/final-d5ae-inventory-generation.json",
+  "generated_outputs": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 305296,
+      "sha256": "93a37fc07dd2c58c8bb76c268718790e476290e70ca3f6181cdf1ddad0fe9a84",
+      "byte_equal_to_frozen_git": true
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "bytes": 127724,
+      "sha256": "928f050cf4b43bd8b0af692ce9895869710c2cbe25f0c93fb77a6c537d7a61a0",
+      "byte_equal_to_frozen_git": true
+    }
+  ],
+  "byte_delta_paths": [],
+  "input_denominator": {
+    "entrypoints": 38,
+    "explicit_file_operations": 253,
+    "unique_read_bytes_paths": 45,
+    "all_read_bytes_and_is_file_operations_reconciled_with_exact_git": true,
+    "source_of_declared_inputs": "policy-engine/architecture/public_surface/inventory.json@d5ae668fe6079bfa81bd7448aa911fa4bee4e03b"
+  },
+  "canonical_completeness_gate": {
+    "outcome": "FAIL",
+    "incomplete_entrypoints": 38,
+    "unknown_total": true,
+    "known_zero_means": "No runtime export names proven by conservative finite parser; not runtime namespace zero."
+  },
+  "historical_generation_preserved": "composed-inventory-generation.json remains unchanged; fresh deciding record separately written.",
+  "source_guard": "attached clean same exact SHA/tree before and after generation; no implementation commit needed because zero byte delta."
+}

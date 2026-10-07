@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-env/bin/python",
+    "-I",
+    "/dev/shm/e02-F-profile-consistency-installed/fresh_profile_bridge.py",
+    "--reader"
+  ],
+  "cwd": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/neutral-reader-cwd",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9476"
+  },
+  "exit_code": 0,
+  "seconds": 0.4972571410180535,
+  "stdout": {
+    "path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/fresh-reader.stdout.txt",
+    "bytes": 102,
+    "sha256": "d4b623c91f38c0176106def74bd447f08d7eb5330454e0684587d6de24aabda2"
+  },
+  "stderr": {
+    "path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/fresh-reader.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

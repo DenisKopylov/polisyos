@@ -1,0 +1,35 @@
+{
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "assets": {
+    "worker.py": {
+      "source_path": "policy-engine/workers/dowhy-014/worker.py",
+      "bytes": 10652,
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253"
+    },
+    "protocol.py": {
+      "source_path": "policy-engine/workers/dowhy-014/protocol.py",
+      "bytes": 4704,
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239"
+    },
+    "pyproject.toml": {
+      "source_path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "bytes": 379,
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447"
+    },
+    "uv.lock": {
+      "source_path": "policy-engine/workers/dowhy-014/uv.lock",
+      "bytes": 98340,
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+    },
+    ".python-version": {
+      "source_path": "policy-engine/workers/dowhy-014/.python-version",
+      "bytes": 5,
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+    },
+    "README.md": {
+      "source_path": "policy-engine/workers/dowhy-014/README.md",
+      "bytes": 4934,
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198"
+    }
+  }
+}

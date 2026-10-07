@@ -1,0 +1,516 @@
+{
+  "schema": "policyos.e02.layout_docs_transport.v1",
+  "source_sha": "6beacc8b42dacabff214901919203323f07d1fef",
+  "source_tree": "64dc785b6bf29659e94acdd7cf3100c02179e2c0",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/api-review/combined4ee/la037-independent-review.json",
+      "encoding": "identity",
+      "bytes": 13642,
+      "sha256": "95c88c2d73d97c7abefec19d67727635d981858322f5611bf9f3eccc2c85f34e",
+      "decoded_bytes": 13642,
+      "decoded_sha256": "95c88c2d73d97c7abefec19d67727635d981858322f5611bf9f3eccc2c85f34e",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/la037-independent-review.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/api-review/combined4ee/source-audit.json",
+      "encoding": "identity",
+      "bytes": 37449,
+      "sha256": "cdaa5b52a594ed51ab389104bef6afee62a1f77a2a783609db4c0e3be5e99d43",
+      "decoded_bytes": 37449,
+      "decoded_sha256": "cdaa5b52a594ed51ab389104bef6afee62a1f77a2a783609db4c0e3be5e99d43",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/source-audit.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs.json",
+      "encoding": "identity",
+      "bytes": 4716,
+      "sha256": "15c688101fe56732005594318ccad7a38563245fff64145d42bd300326547d32",
+      "decoded_bytes": 4716,
+      "decoded_sha256": "15c688101fe56732005594318ccad7a38563245fff64145d42bd300326547d32",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs.yml",
+      "encoding": "identity",
+      "bytes": 309,
+      "sha256": "6e6396b01a501f06746e9256a33b44f59dd50a5c5bda1596145e1b9bda091933",
+      "decoded_bytes": 309,
+      "decoded_sha256": "6e6396b01a501f06746e9256a33b44f59dd50a5c5bda1596145e1b9bda091933",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.yml",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs.stdout.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.stdout.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs.stderr.txt.gz",
+      "encoding": "gzip",
+      "bytes": 646,
+      "sha256": "5fb908ee08f56c1439a5d035786c1099c5d6c5752e4c519bc3d41dbe0379ec39",
+      "decoded_bytes": 1579,
+      "decoded_sha256": "949582608c8f1462589b237eb9c6a93d8e0e84dab9c02078b9bc8e57ea713caa",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.stderr.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": true,
+        "reasons": [
+          "binary_control_byte"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs-site/reference/foundry/state/index.html.gz",
+      "encoding": "gzip",
+      "bytes": 41485,
+      "sha256": "357e21b2530b3876d77ae5a8a75deb4e9c9939c7ac98a14dc732ad70f9dbb669",
+      "decoded_bytes": 423355,
+      "decoded_sha256": "33286ff53aa7888e2f7ba21a679ecb1087e3b9945e70f3c78ee3b7ff7f899396",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-site/reference/foundry/state/index.html",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-native.execution.json",
+      "encoding": "identity",
+      "bytes": 1151,
+      "sha256": "652137e9f1afab10e28cbc355fe9816260aaafad4dc301daaffdc63f41cd67d7",
+      "decoded_bytes": 1151,
+      "decoded_sha256": "652137e9f1afab10e28cbc355fe9816260aaafad4dc301daaffdc63f41cd67d7",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.execution.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-native.stdout.txt.gz",
+      "encoding": "gzip",
+      "bytes": 303,
+      "sha256": "580e423f71b9675ebb56cb5fcabc3e9748fdb1f0344db414d286fc0c535b7930",
+      "decoded_bytes": 618,
+      "decoded_sha256": "0bf0715dcf8ac214360fed8fd18c610723e809192836c45bc65239b264825d4e",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.stdout.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": true,
+        "reasons": [
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-native.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.stderr.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-native.xml",
+      "encoding": "identity",
+      "bytes": 1207,
+      "sha256": "5d69f1a7bef79b57efac262b347022f97f69bac9a944ef9bc124fb387a654a09",
+      "decoded_bytes": 1207,
+      "decoded_sha256": "5d69f1a7bef79b57efac262b347022f97f69bac9a944ef9bc124fb387a654a09",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.xml",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/build_layout_docs.py",
+      "encoding": "identity",
+      "bytes": 4480,
+      "sha256": "43a3aa9e44c84a2711b24e2ffa5f88ba90d6c0d0fc0376f9ef9d9c4effcb3711",
+      "decoded_bytes": 4480,
+      "decoded_sha256": "43a3aa9e44c84a2711b24e2ffa5f88ba90d6c0d0fc0376f9ef9d9c4effcb3711",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/build_layout_docs.py",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs-run.execution.json",
+      "encoding": "identity",
+      "bytes": 857,
+      "sha256": "84e9445e7df0858a15264c39db24d92e875cd54c9492175f379889f368996c9d",
+      "decoded_bytes": 857,
+      "decoded_sha256": "84e9445e7df0858a15264c39db24d92e875cd54c9492175f379889f368996c9d",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-run.execution.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs-run.stdout.txt",
+      "encoding": "identity",
+      "bytes": 4716,
+      "sha256": "15c688101fe56732005594318ccad7a38563245fff64145d42bd300326547d32",
+      "decoded_bytes": 4716,
+      "decoded_sha256": "15c688101fe56732005594318ccad7a38563245fff64145d42bd300326547d32",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-run.stdout.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs-run.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-run.stderr.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/api-review/combined4ee/la037-transfer-selection.json",
+      "encoding": "identity",
+      "bytes": 3465,
+      "sha256": "804bcf05d82cca94c37125bf08311e9c3fe359dbb79c78b67081d3ad0813e8e1",
+      "decoded_bytes": 3465,
+      "decoded_sha256": "804bcf05d82cca94c37125bf08311e9c3fe359dbb79c78b67081d3ad0813e8e1",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/la037-transfer-selection.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/publish_layout_docs_handoff.py",
+      "encoding": "identity",
+      "bytes": 10086,
+      "sha256": "074ca0270cfacf03c802fc251d5a2adf4e1870eb15a64593e1a6c6c005bf0663",
+      "decoded_bytes": 10086,
+      "decoded_sha256": "074ca0270cfacf03c802fc251d5a2adf4e1870eb15a64593e1a6c6c005bf0663",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/publish_layout_docs_handoff.py",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs-bytecarry.json",
+      "encoding": "identity",
+      "bytes": 1793,
+      "sha256": "3071d7627da5f5cd64c54561ee64f5d022247ec6edeb01b974c1ec764ea24b77",
+      "decoded_bytes": 1793,
+      "decoded_sha256": "3071d7627da5f5cd64c54561ee64f5d022247ec6edeb01b974c1ec764ea24b77",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-bytecarry.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs-implementation-commit.execution.json",
+      "encoding": "identity",
+      "bytes": 1094,
+      "sha256": "908e3914139c82dbfb8b40d41097644a33e3b8ca29c367bccdc8715e6b66fecd",
+      "decoded_bytes": 1094,
+      "decoded_sha256": "908e3914139c82dbfb8b40d41097644a33e3b8ca29c367bccdc8715e6b66fecd",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-implementation-commit.execution.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs-implementation-commit.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-implementation-commit.stderr.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/layout-docs-implementation-commit.stdout.txt",
+      "encoding": "identity",
+      "bytes": 159,
+      "sha256": "ade0c350d23ad7e39775297dae36cb7f59200a534650e575e1145e7cabaec1a4",
+      "decoded_bytes": 159,
+      "decoded_sha256": "ade0c350d23ad7e39775297dae36cb7f59200a534650e575e1145e7cabaec1a4",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-implementation-commit.stdout.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/baseline-LA037.execution.json",
+      "encoding": "identity",
+      "bytes": 688,
+      "sha256": "da70df551d3024b897636d08bd08e615b662113d92d23a8b392d2f89feaa12ea",
+      "decoded_bytes": 688,
+      "decoded_sha256": "da70df551d3024b897636d08bd08e615b662113d92d23a8b392d2f89feaa12ea",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/baseline-LA037.execution.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/baseline-LA037.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/baseline-LA037.stderr.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/baseline-LA037.stdout.json",
+      "encoding": "identity",
+      "bytes": 21036,
+      "sha256": "c0f9079fc5aa2864b23f34c95052f9b7db654ad7c7aef0facfd0ad9817d19bc8",
+      "decoded_bytes": 21036,
+      "decoded_sha256": "c0f9079fc5aa2864b23f34c95052f9b7db654ad7c7aef0facfd0ad9817d19bc8",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/baseline-LA037.stdout.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/baseline-F-failures.execution.json",
+      "encoding": "identity",
+      "bytes": 694,
+      "sha256": "c9a5857940303c50fe34cb86a9e9a494ad5c7869538d47c35eb7fdf4c8d4ccd7",
+      "decoded_bytes": 694,
+      "decoded_sha256": "c9a5857940303c50fe34cb86a9e9a494ad5c7869538d47c35eb7fdf4c8d4ccd7",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/baseline-F-failures.execution.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/baseline-F-failures.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/baseline-F-failures.stderr.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/baseline-F-failures.stdout.json",
+      "encoding": "identity",
+      "bytes": 19253,
+      "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "decoded_bytes": 19253,
+      "decoded_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/baseline-F-failures.stdout.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/merge-25c.execution.json",
+      "encoding": "identity",
+      "bytes": 755,
+      "sha256": "165ceb33e8f95f85bb60124404f317c87df51d48f5d592b2e2422933ead65fb8",
+      "decoded_bytes": 755,
+      "decoded_sha256": "165ceb33e8f95f85bb60124404f317c87df51d48f5d592b2e2422933ead65fb8",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/merge-25c.execution.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/merge-25c.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/merge-25c.stderr.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/merge-25c.stdout.txt.gz",
+      "encoding": "gzip",
+      "bytes": 46225,
+      "sha256": "d1c33da7d04a9a046b50cc84bd3a0a6c6e6175743414104e86a4a5ea47d6bff1",
+      "decoded_bytes": 625676,
+      "decoded_sha256": "5922577762cd286adaea925924cdb1fee629f9752c1e7a2b5962a191e4c49b04",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/merge-25c.stdout.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/resume-admission.execution.json",
+      "encoding": "identity",
+      "bytes": 840,
+      "sha256": "ac7066304d1fd60b763b2001f30ddc440aab15fa2c5c3b71642f509fc224b460",
+      "decoded_bytes": 840,
+      "decoded_sha256": "ac7066304d1fd60b763b2001f30ddc440aab15fa2c5c3b71642f509fc224b460",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/resume-admission.execution.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/resume-admission.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/resume-admission.stderr.txt",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007/companions/foundry/resume-admission.stdout.json.gz",
+      "encoding": "gzip",
+      "bytes": 12206,
+      "sha256": "a56ca6e717fbfa2934b56fecff65f24e10ca2db861c456a5559f1c90dae213c7",
+      "decoded_bytes": 147928,
+      "decoded_sha256": "d8473a1c67cf15af43d6bffa4efd962cdc76c180bf49064e7ccc34d2d6ae27e8",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/resume-admission.stdout.json",
+      "role": "Complete admission/source/query/native/render/reviewer deciding output or exact execution input; no copied tracked product source.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    }
+  ],
+  "counts": {
+    "files": 33,
+    "stored_bytes": 229255,
+    "decoded_bytes": 1327546
+  },
+  "complete_output_commit_reason": "User-required complete deciding outputs and source-bound admission/native/render denominator; each exact body once, lossless gzip for large or whitespace-unsafe bytes.",
+  "sanitation": "none",
+  "transport_helper_config": "Existing independently-reviewed V5 writer configured only to this fixed authorized PREFIX; no helper/product source mutation."
+}

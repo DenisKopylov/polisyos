@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/api/publish_source_handoff.py", line 17, in <module>
+    for item in obj['items']:
+                ~~~^^^^^^^^^
+KeyError: 'items'

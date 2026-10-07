@@ -1,0 +1,64 @@
+Merge made by the 'ort' strategy.
+ ...stalled-default-resource-recovery-20261007.json | 195 ++++++++
+ .../assemble_recovery_receipt.py                   |  57 +++
+ .../capture_fresh_bridge.py                        |  10 +
+ .../capture_postguard.py                           |   7 +
+ .../capture_recovered.py                           |  10 +
+ .../custody-review.json                            | 141 ++++++
+ .../finish_recovered_review.py                     |  53 +++
+ .../fresh-bridge-proof.json.gz                     | Bin 0 -> 13681 bytes
+ .../fresh-bridge.command.json                      |  27 ++
+ .../fresh-bridge.stdout.txt.gz                     | Bin 0 -> 444 bytes
+ .../fresh-reader-proof.json                        | 161 +++++++
+ .../fresh-reader.command.json                      |  25 +
+ .../fresh-reader.stdout.txt.gz                     | Bin 0 -> 222 bytes
+ .../fresh_graph_bridge.py                          |  91 ++++
+ .../observed-cas-payloads.json                     | 104 +++++
+ .../original-publication-readback.json             |   7 +
+ .../outputs.json                                   | 509 +++++++++++++++++++++
+ .../post-recovered-fresh-bridge.command.json       |  26 ++
+ .../preflight.json                                 | 179 ++++++++
+ .../reader-input.json                              | 112 +++++
+ .../review.json                                    | 197 ++++++++
+ .../review_custody.command.json                    |  26 ++
+ .../review_native_outputs.command.json             |  26 ++
+ .../review_native_outputs.py                       |  28 ++
+ ...15e6aa1545811162dc977e88173923a15881dbc.blob.gz | Bin 0 -> 373 bytes
+ ...1545811162dc977e88173923a15881dbc.manifest.json |   1 +
+ ...8b9b0ec4d2032082f94fcfa209101f37815c1bf.blob.gz | Bin 0 -> 674 bytes
+ ...c4d2032082f94fcfa209101f37815c1bf.manifest.json |   1 +
+ ...42b0aceedd734fe4cce745f4c08c9b7fe07e10e.blob.gz | Bin 0 -> 723 bytes
+ ...eedd734fe4cce745f4c08c9b7fe07e10e.manifest.json |   1 +
+ .../transfer-selection.json                        | 261 +++++++++++
+ 31 files changed, 2255 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/assemble_recovery_receipt.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/capture_fresh_bridge.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/capture_postguard.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/capture_recovered.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/custody-review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/finish_recovered_review.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-bridge-proof.json.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-bridge.command.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-bridge.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-reader-proof.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-reader.command.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh-reader.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/fresh_graph_bridge.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/observed-cas-payloads.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/original-publication-readback.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/outputs.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/post-recovered-fresh-bridge.command.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/preflight.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/reader-input.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/review_custody.command.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/review_native_outputs.command.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/review_native_outputs.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.blob.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.blob.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/e8/8b/e88b7f3bfbb8ccb56f01f4c0a42b0aceedd734fe4cce745f4c08c9b7fe07e10e.blob.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/synthetic-context/cas/artifacts/sha256/e8/8b/e88b7f3bfbb8ccb56f01f4c0a42b0aceedd734fe4cce745f4c08c9b7fe07e10e.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007/transfer-selection.json

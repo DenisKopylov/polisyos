@@ -1,0 +1,16 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.json",
+    "bytes": 230617,
+    "sha256": "7cea307f6acbe0600a49770d5f596e8f8e40ac61d6d80d9f9cbe04ea63fb0e1a"
+  },
+  "outcome": "PASS",
+  "counts": {
+    "stored_files": 196,
+    "aliases": 203,
+    "existing_git_files": 24,
+    "additional_declared_git_references": 3,
+    "changed_prior_inputs": 3
+  },
+  "wall_s": 0.6124675379833207
+}

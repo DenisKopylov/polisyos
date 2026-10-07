@@ -1,0 +1,82 @@
+{
+  "policy-engine/tests/unit/remediation/test_grf_03.py": [
+    {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "bytes": 3265,
+      "sha256": "b7d1c7e736eac4ef3beedc0b1e4f7f3b6485099ec42c9cfe5468b6a359db8648",
+      "git_blob": "ee0fefdc86d1179b900e074f8b8960391d4d713f"
+    },
+    {
+      "source_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "bytes": 3265,
+      "sha256": "b7d1c7e736eac4ef3beedc0b1e4f7f3b6485099ec42c9cfe5468b6a359db8648",
+      "git_blob": "ee0fefdc86d1179b900e074f8b8960391d4d713f"
+    },
+    {
+      "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "bytes": 3265,
+      "sha256": "b7d1c7e736eac4ef3beedc0b1e4f7f3b6485099ec42c9cfe5468b6a359db8648",
+      "git_blob": "ee0fefdc86d1179b900e074f8b8960391d4d713f"
+    }
+  ],
+  "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py": [
+    {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "bytes": 40707,
+      "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738",
+      "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968"
+    },
+    {
+      "source_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "bytes": 40707,
+      "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738",
+      "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968"
+    },
+    {
+      "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "bytes": 40707,
+      "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738",
+      "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968"
+    }
+  ],
+  "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py": [
+    {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "bytes": 15982,
+      "sha256": "0babf1b38ae1e1146ddfc9ce5d04345601b67b1e60893d282f46fda9a6222867",
+      "git_blob": "99fc9cc09cc915cd5c555d61ff7dd585a519253f"
+    },
+    {
+      "source_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "bytes": 15982,
+      "sha256": "0babf1b38ae1e1146ddfc9ce5d04345601b67b1e60893d282f46fda9a6222867",
+      "git_blob": "99fc9cc09cc915cd5c555d61ff7dd585a519253f"
+    },
+    {
+      "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "bytes": 15982,
+      "sha256": "0babf1b38ae1e1146ddfc9ce5d04345601b67b1e60893d282f46fda9a6222867",
+      "git_blob": "99fc9cc09cc915cd5c555d61ff7dd585a519253f"
+    }
+  ],
+  "policy-engine/src/polisyos/ir/analytics/causal_graph.py": [
+    {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "bytes": 20114,
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+      "git_blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d"
+    },
+    {
+      "source_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "bytes": 20114,
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+      "git_blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d"
+    },
+    {
+      "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "bytes": 20114,
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+      "git_blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d"
+    }
+  ]
+}

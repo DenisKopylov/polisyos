@@ -77,7 +77,7 @@ def test_cau_05_legacy_staggered_slots_match_dedicated_request() -> None:
 
     legacy_report = _report(legacy)
     dedicated_report = _report(dedicated)
-    assert legacy_report.status == dedicated_report.status == EstimationStatus.ASSUMPTION_FAILED
+    assert legacy_report.status == dedicated_report.status == EstimationStatus.SUCCESS
     assert legacy_report.point_estimate == pytest.approx(dedicated_report.point_estimate)
     assert legacy_report.method_params == dedicated_report.method_params
     assert legacy["warnings"] == dedicated["warnings"]

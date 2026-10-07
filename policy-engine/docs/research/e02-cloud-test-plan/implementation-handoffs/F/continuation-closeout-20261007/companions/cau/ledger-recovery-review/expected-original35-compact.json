@@ -1,0 +1,1029 @@
+{
+  "schema": "e02.F.original35-recovery-expected-criteria.v1",
+  "status": "reviewer_proposal_waiting_ROOT_immutable_final_ledger",
+  "not_ROOT_or_G_decision": true,
+  "source": {
+    "original_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "own_packet": {
+      "git_ref": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.json.gz",
+      "bytes": 119985,
+      "sha256": "9bdbbf870a823b798e5bdc278099dd825b4341793c63e3b4de9ab16b67c13626",
+      "git_blob": "08d459a9e753ab5cf5a032b5c948c694fd41211c"
+    },
+    "own_packet_decoded_bytes": 998227,
+    "own_packet_decoded_sha256": "67607c87d420030944247874fdc6ac6962f6201fc982f534257529b89fa820b6",
+    "prior_reviewed_ledger": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "fresh_G_checkpoint": {
+      "sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5"
+    },
+    "coverage": {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 551054,
+      "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce",
+      "git_blob": "fa766a86b8bc6f0f60937001b7addc438fa55418"
+    }
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36,
+    "full_source_TSVs": {
+      "finding_rows": 282,
+      "bundle_rows": 127
+    }
+  },
+  "independent_proposed_counts": {
+    "original_check": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "F_original_recommendation": {
+      "closed": 33,
+      "limited": 2
+    },
+    "original_technical_lens": {
+      "closed": 33,
+      "limited": 2
+    },
+    "formal_G_closures": 0
+  },
+  "rows": [
+    {
+      "finding_id": "B204",
+      "primary_bundle": "CAU-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
+        "bytes": 17977,
+        "sha256": "7aa74d7d63ea315cb62caf38177e72f8096ac2cc65e2932b6fb63ee079054573",
+        "git_blob": "caab6dac3877baa5de480bb98d54191a5a6818ee"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Standard DiD requires estimable pre/post and compared regimes, recovers hand ATT3, and distinguishes invalid/not_testable/nonrejection/violation. Pretrend nonsignificance is not identification or real parallel-trends proof.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B205",
+      "primary_bundle": "CAU-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B205.json",
+        "bytes": 18259,
+        "sha256": "0c4e43f0c69da653b49a12d71d8facecae5ad647a5de96affda824ae49859e47",
+        "git_blob": "46cc12baa5462e47cac19c92a0198809fe3bafe3"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Actual selected HC1 and unit-cluster CR0 covariance agree with independent Statsmodels, preserve ATT, row permutation and technical period duplication; unsupported covariance/cluster variable refuses. No universal small-cluster coverage claim.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B206",
+      "primary_bundle": "CAU-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B206.json",
+        "bytes": 16603,
+        "sha256": "966e06017cfc047163463383f41c528d340ea8037d3b33df7601422b5e1f730f",
+        "git_blob": "77ab8308a5e0de55ffe690a09e2ed5af3ecb8b34"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Both Standard DiD and RDD honor actual confidence level, preserve95 compatibility, widen at positive SE and refuse invalid levels. Separate cebe DiD/fb RBC source receipts remain; interval-level fix does not itself prove covariance/RBC.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B207",
+      "primary_bundle": "CAU-02",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B207.json",
+        "bytes": 18357,
+        "sha256": "90f0dac9839dc4f60f3a9c0b2609752e834b77c28a04026208c86d7d4ffde089",
+        "git_blob": "e83c7f264f4a7f15beecee42ed90dc79c269d52a"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Unit-level shared Mammen draws act coherently on ATT cells; selected scalar target includes estimated-share ratio IF and fixed eligible horizons. One-cell variable-unit uncertainty and independent serial/multicohort DGP coverage are measured on exact historical sources; no real-data inference.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B208",
+      "primary_bundle": "CAU-02",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B208.json",
+        "bytes": 16634,
+        "sha256": "89ee8ddda25563fad8b807ad387a3361154e7f20d2d2724920438c56de519466",
+        "git_blob": "af1620082677f8879feda984d28daa0b42e56a2a"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Centered studentized null statistic and matching CI inversion use the same unit influence law, with exact discrete-tail/endpoint decision correction; retained source-bound null/power/coverage/removal results suffice for the finite original profile.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B209",
+      "primary_bundle": "CAU-02",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B209.json",
+        "bytes": 16920,
+        "sha256": "ce1972b0332d4ab23d38ec1b4d00b6185c75dfe2917e61d8ca91546ba93a3c04",
+        "git_blob": "99b88af6bba17a0db9d11c39a642dc5d2a0f12a4"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Admissible not-yet controls require timing beyond t+anticipation and valid baselines; boundary/never-treated/a=0 controls and no silent cohort/horizon drop preserve requested aggregate scope. Additional diagnostic basis time_treatment binding remains separate from theta target.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B210",
+      "primary_bundle": "CAU-03",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B210.json",
+        "bytes": 11808,
+        "sha256": "db8cb14aedc681ed2120964155332a9291e41d9e1d8b03281dcc5e6529538b50",
+        "git_blob": "5f2af0cfe587272fedca60cee589ec8024e2250b"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Real local-polynomial RBC executes curvature correction and appropriate variance on declared finiteHC0 profile; external locked rdrobust parity, heteroskedastic coverage and property-removal evidence are exact fb sources. No unsupported backend/selector or production law claim.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+        "tree": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B211",
+      "primary_bundle": "CAU-03",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B211.json",
+        "bytes": 11038,
+        "sha256": "9776e7ca7463f863df751e5bcd76a06be0d1ba0a1a7f44e49a157f1a41bcd9a0",
+        "git_blob": "cd200528978785245a72f39da9a86d678c3da798"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Vector/weighted-QR local polynomial preserves point/SE/effective support across declared kernel/order without N-by-N weight matrix; insufficient support typed refusal. Performance property remains distinct from RBC calibration.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+        "tree": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B212",
+      "primary_bundle": "CAU-04",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json",
+        "bytes": 25002,
+        "sha256": "9865ef5b2eb055ebbe3a11a8e5338ee45b8394e81449347c7f42477d07792124",
+        "git_blob": "f38a014995c1f677381230dec434b3eba7315f42"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Genuine selected3.12 DoWhy worker preserves useful point-only partial result without invented CI and preserves actual backend interval through report/CAS/freshreader. Baseline3.14 excludedbackend remains UNRUN, not a witness or new production-authority prerequisite.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "tree": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B213",
+      "primary_bundle": "CAU-04",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B213.json",
+        "bytes": 24849,
+        "sha256": "c3cdfd38eb984cbda041243522203f4f505486e89736f2b241c5ae0da1795974",
+        "git_blob": "83cbe220d4e02d89eab16a9eb03da67d010458e9"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Requested estimand_type/contrast/target is bound to actual identify/estimate arguments and result; default ATE remains and unsupported types refuse. Actual dispatcher/backend/CAS binding is the finite criterion, not unprovided observational identification authority.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+        "tree": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B214",
+      "primary_bundle": "GRF-03",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
+        "bytes": 23731,
+        "sha256": "0ea28cd0d3de5ced4ecb51efe5026327a5c5171e3daad3dd5d6201e4183e0afe",
+        "git_blob": "42a2df2a390bfacbe3c821a91c82a20bce7ac455"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "limited",
+      "proposed_original_technical_lens": "limited",
+      "expected_rationale": "Known reverse direction and marks are preserved; uncertainty/static-temporal routes are typed limited/refused and DAG/latent positive paths measured. Original additionally requires supported partial/conditional models or sound extension; universal refusal alone does not close this part.",
+      "missing_original_criterion": "Supported sound extension/declared conditional partial-model route and exact finite capability discrimination need owner clarification; no protected-authority prerequisite.",
+      "next_original_owner": "Existing F graph-reconciliation/causal method owner; A/C protected contract only for requested broader route",
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B215",
+      "primary_bundle": "SCM-02",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B215.json",
+        "bytes": 16686,
+        "sha256": "a5582866c5557abf7cde2790c4135fe401576bdfd03e1e86be3e6682efa70935",
+        "git_blob": "df50ef0ea504669d2fb630431409e404e9614514"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Partial factual linear-Gaussian abduction matches independent conditional mean/covariance including singular cases; fully observed invertible residual and shared posteriorU worlds preserved in native CAS consumers. General nonlinear posterior and real SCM validity stay outside declared profile.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B216",
+      "primary_bundle": "GRF-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B216.json",
+        "bytes": 25745,
+        "sha256": "e7e321b5567e19bab23e5b38ded2a58c5fcdff8a25e9108f601e0a7a0dddffb8",
+        "git_blob": "0a39fdb4d8e80cfb15507b6819b918846e4cd322"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Correct staticADMG separation matches full200-by12 independent latent-DAG oracle plus symmetry/rename/descendant controls and actual do/sigma/ID/IDC family consumers. PAG/temporal unidentified semantics not silently promoted.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B217",
+      "primary_bundle": "GRF-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B217.json",
+        "bytes": 21673,
+        "sha256": "b6a773174eb3a9f683fb4b8b7276e523d77f8736fd104e8943aec1066773b3c5",
+        "git_blob": "f223b4b29bdea2a3cfcd7ef0b928717796ebdff6"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Perfect surgery removes directed/bidirected incoming arrowhead influence while preserving outgoing effects and other latent causes; actual multiple-action/static latent-DAG controls discriminate from conditioning/fixing.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B218",
+      "primary_bundle": "GRF-03",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+        "bytes": 22939,
+        "sha256": "3f5bf2a8157298dd10a987dad810af3badb27bd6660660357efdb3aa5991082a",
+        "git_blob": "020730387579951019a70437665e35be9884581f"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Compact lag1/lag2 and lagged self-dependence retain time in validated roundtrip/export; zero-lag cycles refuse and static consumers refuse unresolved temporal conversion. Original allows exact static incompatibility; no new universal temporal-identification engine required.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B219",
+      "primary_bundle": "GRF-02",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B219.json",
+        "bytes": 19781,
+        "sha256": "294e6da91ba24fc4ea0f821ecc8ddbe29917549d54473d1c0980d4eef865b7bb",
+        "git_blob": "f32c3bb23f2e720e409b4c93447c1ea17ab3172d"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Declared mixed/parallel/lag relationship identity survives actual backend export/roundtrip and edge permutation. MultiDiGraph storage is not proof arbitrary directed algorithms interpret causal marks; actual supported backend window remains bounded.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B220",
+      "primary_bundle": "GRF-02",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B220.json",
+        "bytes": 24036,
+        "sha256": "b3ffc832480aba04486d03e806ee3c03498e6a716f0e4f75c5d9882914d349f4",
+        "git_blob": "9c554b6bcb20d2fdab4544269d1202be1120b980"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Deep immutable topology/nested metadata, warmed copy/update cache invalidation, detached prepared rows and oldweakref release are measured together; actual dump/ancestor/export agree. Internal stable cache contract is not recategorized as publicstable.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+        "tree": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B221",
+      "primary_bundle": "SCM-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B221.json",
+        "bytes": 32675,
+        "sha256": "38a6297dc33b8ebd0b717f27cf2874a86318660bb0a3159532a720663bf3f667",
+        "git_blob": "553770f4a8f3aef6360760d7458c6f9f30ee5385"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Observed root law/source rows are fitted/persisted and actually consumed by GCM query with required joint dependence; no invented N(0,1) substituted for data. Missing/default root assumptions stay explicit scoped limitations.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B222",
+      "primary_bundle": "SCM-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B222.json",
+        "bytes": 23556,
+        "sha256": "c634b0c879552ac38c6347b4066288966b29c5a5c015eb29e1f2e916af3cd782",
+        "git_blob": "d39ade2904249a6ec68f2099a94f68f29c1225af"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Existing additive polynomial helper payload without cross terms is executed consistently by typedmanualSCM→realMethodJob/CAS→query/twin/abduction; polynomial/LINEAR retained-fields discriminators pass. Original is conditional payload reachability, not new default nonlinear fitter or unrestricted posterior.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B223",
+      "primary_bundle": "SCM-02",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B223.json",
+        "bytes": 29643,
+        "sha256": "559f5f5307ba6a658a56c7b4e88f38105f2848b946ad334b0fd98a43e320d09c",
+        "git_blob": "6af529144a31a8c23acfec1728d992233e65fb64"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Explicit target and baseline/query refs produce do2-do0=6 and same-arm0, observational/stochastic comparators; independent outcome draws versus sharedU ITE remain distinct. Optional IID-refit intervals are an additional boundary, not replacement criterion.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B224",
+      "primary_bundle": "SCM-03",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B224.json",
+        "bytes": 21302,
+        "sha256": "ee75e8a8aaa0f26847ff020215f04903273631265b3d40e297dc14b6c6d49ef1",
+        "git_blob": "a6eae0ce64c5906ca8c60578f379097531be5774"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Perfectdo bypasses replaced natural mechanism and active query plan omits irrelevant nodes while preserving needed factual/latent ancestors and shift semantics. Actual source/query cache binding and RNG rules are explicit; no claimed global speedup.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B225",
+      "primary_bundle": "SCM-03",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B225.json",
+        "bytes": 21025,
+        "sha256": "ededeb576b1999c7dc2b69fbac0896a4246a5faaf999b8c5611710a6c0fa53c3",
+        "git_blob": "45a6a0b2ad8b832b83e92390840d78a4fd13a747"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Declared supported stochastic law preserves scale/support/tails/degenerate semantics with independent math.erfc/tail oracle and native consumers; unknown law refuses rather than silently atomic fallback. Clip policy and conditionaltruncnorm remain distinct.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B54",
+      "primary_bundle": "FIT-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B54.json",
+        "bytes": 29465,
+        "sha256": "523f9dd0f6364d200eb4fa232a75fafac9cb0a1fdfa40772e8b226229be9d621",
+        "git_blob": "c226729d29239fad0ef93fe8319b58e8ca138072"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Immutable reusable fit core preserves source/split/seed identity; current diagnostic policy rebinds without refit and detached readers cannot poison hits. Real TMLE report/CAS consumers and neighbor causal-blocker preservation are bounded evidence, not statistical authority.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "B56",
+      "primary_bundle": "FIT-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B56.json",
+        "bytes": 31546,
+        "sha256": "d80fc4d9035997286543b7a47bb2d741315f5c68fa5c9c5389a7304a4f3043b9",
+        "git_blob": "28eafe3ce8e7672b8572fba4df5f31a8305870bc"
+      },
+      "expected_original_check": "UNRUN",
+      "proposed_F_original_recommendation": "limited",
+      "proposed_original_technical_lens": "limited",
+      "expected_rationale": "Actual admitted shared study workload/resource composition is not measured. Historical custom4study/24fold and configured/default native15fold singles are useful siblings, while attempted pool failed before0fits. Need actual admitted workload/cap/wait/results/wall/RSS denominator.",
+      "missing_original_criterion": "Actual admitted common-budget study/fold measurement remains UNRUN.",
+      "next_original_owner": "Actual Runtime/study admitted workload and resource budget owner",
+      "scientific_implementation": {
+        "sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+        "tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-001",
+      "primary_bundle": "FRY-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-001.json",
+        "bytes": 11889,
+        "sha256": "588711561156a4d937a5616088978e7aea1d8ab71b55c00eef89867ec2bf320f",
+        "git_blob": "de7bc510d20d0759c8ee0b2c02fe697650eb66df"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Equivalent randomization-plan relocation preserves seed0/nonzero, node IDs/order, repeat compilation and historical serialized plan/actual compiler-executor callers. No new temporalRNG law or digest change required.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-002",
+      "primary_bundle": "FRY-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-002.json",
+        "bytes": 11904,
+        "sha256": "0313f47365a148d60106556d9db9697d9fe74ed44ff9274586922f6359efc211",
+        "git_blob": "3ace6139769edb333e8b16e0fdd468f5bbd62147"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Four family IDs/params/assumptions and IC lookup/unknown behavior, actual registered runtime loading and existing IR certificates are preserved. Catalog declaration alone not IC proof; four new optional solver implementations are not original acceptance.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-003",
+      "primary_bundle": "FRY-03",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-003.json",
+        "bytes": 21583,
+        "sha256": "15f17c84c97014af22fa5491c207b5badb3ebb6b1b0e8ca03c0aca68ed61c237",
+        "git_blob": "c2c5b08dc1e3850eeb8f140ead7637591d1984ee"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Named baseline fiscal/labor profile preserves registry/spec/PatchMap masks/balance/employer/key, compiler/CAS/replay and gradients with declared minfloat compatibility. Separate ABM diagnosticFAIL and P41notestablished stay visible; no model law change hidden as relocation.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-004",
+      "primary_bundle": "ECO-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-004.json",
+        "bytes": 18375,
+        "sha256": "2e423bee342388e40cccf45ef4693462a6d2d580a261d36eee456c680e0862a4",
+        "git_blob": "47ce598f87ca0e3703053f3526856822103a5ca0"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Original compares two distinct PatchMap/GlobalState and plugin/EconomicState fiscal/labor models with state/unit/time/tax-base/RNG/budget mapping, matched law equality and deliberate divergence. Gini/welfare/signed C-PPO route is separate, not replacement acceptance.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-007",
+      "primary_bundle": "GRF-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-007.json",
+        "bytes": 29063,
+        "sha256": "ef26068d5d29bc2afc8cb1797551ab2756de3c388d7b6082e42b4273037b3a23",
+        "git_blob": "34e73a13be7669b8357bfd1baf9004545a6a9b58"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Only exact empty id_engine.py sibling is absent alreadyat198; real package/publicimports/find_spec/filename-loader/source inventory and installed distribution/native ID consumers retained. No new deletion or universal external-loader absence asserted.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-016",
+      "primary_bundle": "CAU-05",
+      "original_binding_count": 2,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-016.json",
+        "bytes": 18192,
+        "sha256": "6ee9cbc1266a3ac5f7beb65ee1a16be20229b95bd9bcc00af3fd527dce25758a",
+        "git_blob": "9df5c6a7768e2771095bbac05f25cb295b2321e8"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Independent dedicated metadata/helpers and maintained FQN/flag/slot request route replace deprecated default registry; declared historical adapter/old-slot replay preserves effective result/warnings. Two original bindings remain one ID; numerical estimators separately proven.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-017",
+      "primary_bundle": "LEX-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-017.json",
+        "bytes": 13955,
+        "sha256": "a27331278a0c2a100542adf77ca7dfb4c4e465f13294a5c4289c3237fad0ce13",
+        "git_blob": "cf954d21eb17e14d7fb4a8e2eb2eb9595c5de6fb"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "All unchanged/added/removed/modified norm diffs, issuekeys/passconfiguration, report IDs/refs/persistence and actual CLI downstream readers measured; candidate topics not magnitudes. Dedupealone insufficient; equivalent relocation needs no production current-law corpus or Gclosure.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+        "tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-019",
+      "primary_bundle": "GRF-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-019.json",
+        "bytes": 30336,
+        "sha256": "216500c4567a885171e2e072f960c514fe4c729a87753b8728d2e78bbc6d3f1f",
+        "git_blob": "74100dddb120c1572f892a05ad3dfbbdad36d982"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Only two empty causal_engine.py/interference.py siblings are absent alreadyat198; actual packages/export/filename loader supportedwindow plus installed native consumers preserved. No global/external computed-loader zero claimed.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+        "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-020",
+      "primary_bundle": "API-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-020.json",
+        "bytes": 36091,
+        "sha256": "6ba1897af5ebe277e088394e2a9bdc17f56ebd1b6a8a127d7e8841bf6b7273cb",
+        "git_blob": "20449d797f4b61b072635671ad8320a4e5f1bace"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Explicit public/historical-supported surface preserves import/star/FQN/pickle/monkeypatch/docs/distribution identity and incidental-import isolation. Actual finite manifest/window and unresolved computed/external clients explicit; reflectionabsence alone not ABI.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "729d137279b7d6334230045e420255762fe55f08",
+        "tree": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-035",
+      "primary_bundle": "ECO-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-035.json",
+        "bytes": 23823,
+        "sha256": "7269513ecb744b7406596e19c8aea5713b5d658174dc7668055fbb77f2bf66f4",
+        "git_blob": "fcdffe08c97985ad880482996d532989133902bd"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Unchanged named GlobalState normalized-income/budget baseline preserves original formula/sign/scales/population/minbalance/breach/nonfinite, aliases/native guard/eager-JIT-grad/import/caller paths. Fraction32panels-by2=64 comparisons and83native are distinct from Gini. No new optimizer/welfare/norm packet prerequisite;9007 tracked literal census leaves constructed/external/untracked/production use unknown.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    },
+    {
+      "finding_id": "LA-037",
+      "primary_bundle": "FRY-01",
+      "original_binding_count": 1,
+      "original_card_refs_pointer": "/original_card_refs",
+      "original_norm_text_ref": {
+        "git_ref": "d8334672f44d24dd32113264f96ca3f7954dace4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-037.json",
+        "bytes": 14768,
+        "sha256": "8b53e8216bc456d57e697d30d029cd955b1a7041a6a90594642c730e08beda0b",
+        "git_blob": "a065f5f4ac039bdaee2db69af50fae1f772d4c9d"
+      },
+      "expected_original_check": "PASS",
+      "proposed_F_original_recommendation": "closed",
+      "proposed_original_technical_lens": "closed",
+      "expected_rationale": "Canonical IR slots/family builders and actual compiler/defaultregistry/PatchOp/state/CAS/docs/distribution preserve IDs/identity; one deliberate direct Foundry facade supports historical paths, not two hops/new layout algorithm.",
+      "missing_original_criterion": null,
+      "next_original_owner": null,
+      "scientific_implementation": {
+        "sha": "63425f734946979cfc990e9cb91b00163f051898",
+        "tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+        "not_receipt_carrier": true
+      },
+      "prior_deciding_receipts_pointer": "/deciding_receipt_refs",
+      "existing_author_or_reviewer_conflict_pointer": "/existing_author_or_reviewer_conflict",
+      "formal_G_closure": "not_issued"
+    }
+  ],
+  "dependent_caption_constraints": [
+    "HistoricalROOT072 current25/9/1 technical30/4/1 checks33/2 remain at their source, not relabeled519. New original35/36 recomputed from rows, not PR prose.",
+    "Both new F original recommendation and technical-original lens33closed/2limited; checks34PASS/1UNRUN. B218 temporal roundtrip/staticincompatibility and LA017 actualnormdiff/pass/readers satisfy original bounded criteria, not expanded authority conditions.",
+    "LA035 unchanged relocation requires no optimizer/normpacket;9007 literal tracked source/config inputs do not prove constructed/external/untracked callers or productionuse. Score/ranking/sign/scale ornew welfare change would require versioned accountable owner.",
+    "LA004 distinctmodelsnotGini; Gini prior244exact532/e157 arithmeticpositive fragment through8236 isnotwholeblob/wave reuse; fa53 signedsyntheticC-PPO refusal separate;64Fractioncomparisons are LA035.",
+    "B214 originalsupportedpartial/conditional route remains limited; B56 actualadmittedsharedpool workload remains limitedUNRUN. Missinginstitutional/value/law/realdata followups not inserted as unrequested originalcriterion prerequisites.",
+    "Fouraxes: original check; F recommendation; original technical lens; G formalacceptance/codeacceptance. Currentassembledinstalled readiness and genuine authority are separate explicit fields, not rolled into34 originalPASS.",
+    "Failedb5 each130PASS32FAIL preserved; recovered519 exactwave may be claimed only from published fullbytes/source/archives/sites/environment/controls, not old8236 or PR summary.",
+    "Scanner-9 isERROR/incomplete until actualretry; currentglobalqualityred/P41notestablished andhistorical175c4nondecidingcustodyUNRUN retained.",
+    "Baseline3.14 DoWhy/EconML markers excluded: UNRUN/absent notpositive witness. Selectedreal3.12 worker receipts stay own exactbackend/sourcepin."
+  ],
+  "negative_guard_plan": [
+    "droporiginalbinding",
+    "wrongoriginalhash",
+    "wrongTSVowner",
+    "duplicateoromittedID",
+    "retargetscientificsource/tree toreceiptcarrier",
+    "claimGclosedfromFrecommendation",
+    "turn9007literalcensus intoexternalzero",
+    "reintroduceLA035optimizerprerequisite",
+    "retag07225/9/1as519",
+    "roll34originalPASSintoassembledwholePASS"
+  ],
+  "method_execution": "No unchanged estimator/native/1659-material rerun. Full original text was read and all36 actual card block bytes compared to their Git source; only finite row/tree/card/owner metadata computed.",
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/prepare_expected_criteria.py",
+    "bytes": 17251,
+    "sha256": "1f3dd4d5fc6a811438f9d89b6172e40903a95a68bb7c5e1d9bc4227802b20bd5"
+  }
+}

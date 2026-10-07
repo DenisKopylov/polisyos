@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 709,
+  "decoded_sha256": "111f7fa4b246725d60d0a53d234c368224821fe3ae59711a77da6307b84b1b0f",
+  "text": "<frozen site>:101: RuntimeWarning: Unexpected value in sys.prefix, expected /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env, got /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer/../wheel-env\n<frozen site>:101: RuntimeWarning: Unexpected value in sys.exec_prefix, expected /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env, got /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer/../wheel-env\n../wheel-env/bin/python: can't open file '/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer/../diagnose_graph.py': [Errno 2] No such file or directory\n"
+}

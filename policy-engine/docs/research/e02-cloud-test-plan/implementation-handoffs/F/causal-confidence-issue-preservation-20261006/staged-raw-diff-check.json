@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--cached",
+    "--check"
+  ],
+  "target_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+  "cwd": "/workspace/e02-F-tmle-20261006",
+  "exit_code": 2,
+  "interpretation": "Actual staged byte transport check; any raw-log whitespace findings remain separate from runtime property results."
+}

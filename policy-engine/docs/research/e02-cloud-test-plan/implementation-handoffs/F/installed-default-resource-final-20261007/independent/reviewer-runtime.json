@@ -1,0 +1,5 @@
+{
+  "tool_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "tool_python": "3.12.14",
+  "scope": "Standard-library read-only verifier/metadata harness only; native consumers execute each configured owninstalled3.14.7 -I interpreter."
+}

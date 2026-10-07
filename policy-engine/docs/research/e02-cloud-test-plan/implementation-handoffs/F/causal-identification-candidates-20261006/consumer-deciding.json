@@ -1,0 +1,104 @@
+{
+  "scope": "Current shared report/uncertainty/ConfidencePass native provider replay; not whole G Runtime native",
+  "source_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+  "source_tree": "3a392defad301686740f27a246e747540b55332a",
+  "G_candidate_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "providers": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "own_blob": "6ada4b5b0444780b97bbb06f8fcb980a78f8911a",
+      "G_blob": "6ada4b5b0444780b97bbb06f8fcb980a78f8911a",
+      "own_matches_G": true,
+      "bytes": 75816,
+      "sha256": "494115ebd281156c564252b2f9e14d196553aafbccebe43fc05f0258243de8d7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "own_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "G_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "own_matches_G": true,
+      "bytes": 84428,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+      "own_blob": "92b3175c93a9b35c543456a8f107153ce42798bf",
+      "G_blob": "92b3175c93a9b35c543456a8f107153ce42798bf",
+      "own_matches_G": true,
+      "bytes": 9356,
+      "sha256": "008a5457867cac6808157eb4d8d22b6ab34a148a3826059ba44451244a0a65b5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+      "own_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+      "G_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+      "own_matches_G": true,
+      "bytes": 18448,
+      "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "own_blob": "db0afa517f18e19a595d8085a5cea89b1a4cf2fb",
+      "G_blob": "db0afa517f18e19a595d8085a5cea89b1a4cf2fb",
+      "own_matches_G": true,
+      "bytes": 38213,
+      "sha256": "1f99fbfc5119d3355d4ba705a59212fe6cf05dce75d58d469872ed7365f6ab73"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_value_evidence.py",
+      "own_blob": "b2b3d53a5845c4cf006c669db78f5aa7017e4c1a",
+      "G_blob": "b2b3d53a5845c4cf006c669db78f5aa7017e4c1a",
+      "own_matches_G": true,
+      "bytes": 19771,
+      "sha256": "d81e7d908c3eeebde6fcee02b0a32e888cac031ab9b0ebf1e1ab86aae5416f7e"
+    }
+  ],
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py",
+    "tests/unit/foundry/methods/test_value_evidence.py::test_projection_binding_is_intrinsically_nonproduction",
+    "tests/unit/foundry/methods/test_value_evidence.py::test_verified_native_intervals_remain_projectable"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "env": {
+    "PYTHONPATH": "src:."
+  },
+  "exit_code": 1,
+  "wall_seconds": 10.384041940997122,
+  "output": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/envelope/consumer-deciding.stdout.txt",
+      "bytes": 25979,
+      "sha256": "4a20977952a54f1715e64c04bc92741af96bc035f21f886e9f444590ad6b2cde"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/envelope/consumer-deciding.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "test_replayer": {
+    "path": "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py",
+    "bytes": 9210,
+    "sha256": "cd25b44d63a51e4d6395125183bcf4f882004e8a5b662cc498035ffde32a2efe"
+  },
+  "python": {
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5"
+  },
+  "historical_harness_limits": [
+    "consumer-class-red: invalid ComputeBackend.CPU fixture; other negatives include missing PutOptions",
+    "consumer-class-deciding: two direct intake fixture TypeErrors from missing PutOptions",
+    "consumer-final-red: two direct raw PutOptions fixtures blocked by canonical forbid_floats policy",
+    "direct-consumer-deciding: corrected canonical persistence establishes the two actual counterexamples"
+  ]
+}

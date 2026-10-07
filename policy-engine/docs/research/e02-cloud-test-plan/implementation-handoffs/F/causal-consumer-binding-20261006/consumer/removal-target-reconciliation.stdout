@@ -1,0 +1,122 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_________ test_target_markers_do_not_admit_a_different_scalar[periods] _________
+
+mutation = 'periods'
+
+    @pytest.mark.parametrize("mutation", ["periods", "binding", "data", "estimand"])
+    def test_target_markers_do_not_admit_a_different_scalar(mutation):
+        data = _panel()
+        params = {"n_bootstrap": 399, "__rng__": np.random.default_rng(19)}
+        output = StaggeredDifferenceInDifferences.pure_step(data, params)
+        _verify_selected_did_target(output, observational_data=data, params=params)
+        changed = copy.deepcopy(output)
+        if mutation == "data":
+            data = data.model_copy(deep=True)
+            data.outcome[0, -1] += 0.25
+        else:
+            report = changed["report"]
+            if mutation == "periods":
+                report.method_params["target_contract"]["eligible_periods"]["2"] = [2]
+            elif mutation == "binding":
+                report.method_params["target_binding"] = "0" * 64
+            else:
+                changed["report"] = report.model_copy(update={"estimand": "theta_W"})
+>       with pytest.raises(ValueError, match="target does not bind"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:159: Failed
+_________ test_target_markers_do_not_admit_a_different_scalar[binding] _________
+
+mutation = 'binding'
+
+    @pytest.mark.parametrize("mutation", ["periods", "binding", "data", "estimand"])
+    def test_target_markers_do_not_admit_a_different_scalar(mutation):
+        data = _panel()
+        params = {"n_bootstrap": 399, "__rng__": np.random.default_rng(19)}
+        output = StaggeredDifferenceInDifferences.pure_step(data, params)
+        _verify_selected_did_target(output, observational_data=data, params=params)
+        changed = copy.deepcopy(output)
+        if mutation == "data":
+            data = data.model_copy(deep=True)
+            data.outcome[0, -1] += 0.25
+        else:
+            report = changed["report"]
+            if mutation == "periods":
+                report.method_params["target_contract"]["eligible_periods"]["2"] = [2]
+            elif mutation == "binding":
+                report.method_params["target_binding"] = "0" * 64
+            else:
+                changed["report"] = report.model_copy(update={"estimand": "theta_W"})
+>       with pytest.raises(ValueError, match="target does not bind"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:159: Failed
+__________ test_target_markers_do_not_admit_a_different_scalar[data] ___________
+
+mutation = 'data'
+
+    @pytest.mark.parametrize("mutation", ["periods", "binding", "data", "estimand"])
+    def test_target_markers_do_not_admit_a_different_scalar(mutation):
+        data = _panel()
+        params = {"n_bootstrap": 399, "__rng__": np.random.default_rng(19)}
+        output = StaggeredDifferenceInDifferences.pure_step(data, params)
+        _verify_selected_did_target(output, observational_data=data, params=params)
+        changed = copy.deepcopy(output)
+        if mutation == "data":
+            data = data.model_copy(deep=True)
+            data.outcome[0, -1] += 0.25
+        else:
+            report = changed["report"]
+            if mutation == "periods":
+                report.method_params["target_contract"]["eligible_periods"]["2"] = [2]
+            elif mutation == "binding":
+                report.method_params["target_binding"] = "0" * 64
+            else:
+                changed["report"] = report.model_copy(update={"estimand": "theta_W"})
+>       with pytest.raises(ValueError, match="target does not bind"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:159: Failed
+________ test_target_markers_do_not_admit_a_different_scalar[estimand] _________
+
+mutation = 'estimand'
+
+    @pytest.mark.parametrize("mutation", ["periods", "binding", "data", "estimand"])
+    def test_target_markers_do_not_admit_a_different_scalar(mutation):
+        data = _panel()
+        params = {"n_bootstrap": 399, "__rng__": np.random.default_rng(19)}
+        output = StaggeredDifferenceInDifferences.pure_step(data, params)
+        _verify_selected_did_target(output, observational_data=data, params=params)
+        changed = copy.deepcopy(output)
+        if mutation == "data":
+            data = data.model_copy(deep=True)
+            data.outcome[0, -1] += 0.25
+        else:
+            report = changed["report"]
+            if mutation == "periods":
+                report.method_params["target_contract"]["eligible_periods"]["2"] = [2]
+            elif mutation == "binding":
+                report.method_params["target_binding"] = "0" * 64
+            else:
+                changed["report"] = report.model_copy(update={"estimand": "theta_W"})
+>       with pytest.raises(ValueError, match="target does not bind"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:159: Failed
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_target_markers_do_not_admit_a_different_scalar[periods]
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_target_markers_do_not_admit_a_different_scalar[binding]
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_target_markers_do_not_admit_a_different_scalar[data]
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_target_markers_do_not_admit_a_different_scalar[estimand]
+4 failed, 3 deselected, 1 warning in 0.23s

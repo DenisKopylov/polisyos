@@ -1,0 +1,11 @@
+{
+  "repository": "/workspace/e02-F-closeout-20261006",
+  "candidate_sha": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+  "candidate_tree": "396e5e0998c9e0cc11ba7372dcce6773200dd7bf",
+  "primary_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007.json",
+  "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+  "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+  "audit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/full-audit.json",
+  "finding_owners_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+  "scratch_window": "/tmp/e02-F-continuation-20261007"
+}

@@ -1,0 +1,35 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_public_and_retained_private_identity_pickle_and_documentation[polisyos.foundry.methods.catalog.causal.causal_engine] _
+
+module = <module 'polisyos.foundry.methods.catalog.causal.causal_engine' from '/tmp/e02-F-continuation-20261006/api/wheel-env-retry-5484/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py'>
+
+    @pytest.mark.parametrize("module", [causal_engine, interference])
+    def test_public_and_retained_private_identity_pickle_and_documentation(module) -> None:
+        """Every declared binding remains the canonical object at its serialized FQN."""
+        public = tuple(module.__all__)
+        compatibility = COMPATIBILITY[module.__name__]
+        assert set(public).isdisjoint(compatibility)
+        namespace = {}
+        exec(f"from {module.__name__} import *", namespace)
+        assert set(namespace) - {"__builtins__"} == set(public)
+        document = pydoc.plain(pydoc.render_doc(module))
+        for name in (*public, *compatibility):
+            value = getattr(module, name)
+            owner = importlib.import_module(value.__module__)
+            canonical = owner
+            for component in value.__qualname__.split("."):
+                canonical = getattr(canonical, component)
+>           assert value is canonical
+E           AssertionError: assert <class 'polisyos.foundry.methods.catalog.causal.causal_engine.api.CausalEngine'> is <class 'polisyos.foundry.methods.catalog.causal.causal_engine.api.CausalEngine'>
+
+test_installed_facade_contract.py:68: AssertionError
+=============================== warnings summary ===============================
+../../../../workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED test_installed_facade_contract.py::test_public_and_retained_private_identity_pickle_and_documentation[polisyos.foundry.methods.catalog.causal.causal_engine]
+1 failed, 1 passed, 11 deselected, 1 warning in 0.35s

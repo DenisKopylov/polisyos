@@ -1,0 +1,766 @@
+{
+  "mode": "base",
+  "source_bindings": [
+    {
+      "module": "polisyos.foundry.agent_sim.distributions",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 28974,
+      "sha256": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+      "functions": [
+        "compute_gini_hard",
+        "compute_gini_soft",
+        "compute_gini_proxy",
+        "compute_distribution_aware_reward"
+      ]
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.analysis",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 9064,
+      "sha256": "de8eb85ec91aacb2cbd1c81bc9b76a9d6bd05b95d3ca7c6595c15d7dff421765",
+      "functions": [
+        "BehaviorAnalyzer.counterfactual_analysis"
+      ]
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.credit_assignment",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 6242,
+      "sha256": "aa82d122a08dc40eb8ad4b35ce04aac1ac8f7e74e722f42da55acd7746f9bd85",
+      "functions": [
+        "CentralizedCritic.build_global_observations"
+      ]
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.metrics",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 9194,
+      "sha256": "c4a65cbabefe504868a37e91a21c250e293faf08872f442fbbbae3af850c6179",
+      "functions": [
+        "standard_training_metrics"
+      ]
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.modes",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 12468,
+      "sha256": "5b28a6cd9220253754e2b35deaf6e4a87a1a359652335dd284eea894326d692a",
+      "functions": [
+        "social_welfare_objective"
+      ]
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.government_policy",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 6925,
+      "sha256": "12c5b9de5f8945aeb0e5ad4ced21a9fa8f8fca6d2adcfeab819a217a81a7b19e",
+      "functions": [
+        "build_government_welfare_reward"
+      ]
+    },
+    {
+      "module": "polisyos.foundry.methods.catalog.simulation.dynamics",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 37726,
+      "sha256": "12abe0368717b6cb4d9d05c8c540730a82d664b68deef06044c584f507bac51e",
+      "functions": [
+        "AgentPopulationSimulationEstimator.pure_step"
+      ]
+    },
+    {
+      "module": "polisyos.foundry.plugins.economics.objectives",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 3941,
+      "sha256": "02f15748e361c3ed375062d3b3d1a824838cc6ce1fa6854c37360d751fdea468",
+      "functions": [
+        "GiniObjective.evaluate",
+        "SocialWelfareObjective.evaluate"
+      ]
+    },
+    {
+      "module": "polisyos.foundry.plugins.economics.plugin",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "bytes": 6838,
+      "sha256": "40e579d2d4efa4e3bc4da3f46462f075a88a3422b1492ede8ef5439accb7bb94",
+      "functions": [
+        "EconomicsPlugin._viz_wealth_distribution"
+      ]
+    }
+  ],
+  "signed_reproduction": [
+    {
+      "input": [
+        -2.0,
+        1.0
+      ],
+      "helper": -1.5,
+      "actual_aggregate": -1.5,
+      "plugin_aggregate": -1.5
+    },
+    {
+      "input": [
+        -1.0,
+        2.0
+      ],
+      "helper": 1.5,
+      "actual_aggregate": 1.5,
+      "plugin_aggregate": 1.5
+    }
+  ]
+}
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF..FFFFFFFFFF..FFFFFFFFFFFFFFFFFFFFFFFFFFFF [ 60%]
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF..FFF.                          [100%]
+=================================== FAILURES ===================================
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_hard] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_soft] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_proxy] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:41: in test_classical_gini_refuses_invalid_active_population
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[aggregate-values0] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[aggregate-values1] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[executor-values0] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[executor-values1] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[native-distribution-values0] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[native-distribution-values1] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-income-values0] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-income-values1] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-wealth-values0] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-wealth-values1] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:88: in test_invalid_metric_is_refused_before_actual_consumer_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-eager] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-jit] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-eager] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-jit] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_composite_interaction_current_population_is_admitted_at_registered_objective _
+tests/unit/foundry/agent_sim/test_gini_domain.py:148: in test_composite_interaction_current_population_is_admitted_at_registered_objective
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-critic-wealth] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-critic-income] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-metric] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-mode] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert -0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert -0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-method] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-critic-wealth] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-critic-income] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-metric] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-mode] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert -0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert -0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-method] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:106: in test_live_readers_measure_current_population_despite_valid_stale_snapshot
+    assert float(evaluate(state)) == pytest.approx(1 / 4, abs=2e-7)
+E   assert 0.0 == 0.25 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.25 ± 2.0e-07
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-critic-wealth] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-critic-income] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-metric] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-mode] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-method] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-critic-wealth] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-critic-income] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-metric] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-mode] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-method] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-critic-wealth] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-critic-income] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-metric] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-mode] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-method] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-critic-wealth] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-critic-income] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-metric] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-mode] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-method] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-critic-wealth] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-critic-income] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-metric] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-mode] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-method] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-critic-wealth] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-critic-income] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-metric] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-mode] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-government] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-reward] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-analysis] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-method] _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:120: in test_live_readers_refuse_invalid_current_population_before_metric_publication
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+__ test_social_welfare_uses_current_gini_with_original_sign_and_weight[eager] __
+tests/unit/foundry/agent_sim/test_gini_consumers.py:149: in test_social_welfare_uses_current_gini_with_original_sign_and_weight
+    assert float(evaluate(current)) == pytest.approx(-0.7 / 4, abs=2e-7)
+E   assert -0.045152854174375534 == -0.175 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.045152854174375534
+E     Expected: -0.175 ± 2.0e-07
+___ test_social_welfare_uses_current_gini_with_original_sign_and_weight[jit] ___
+tests/unit/foundry/agent_sim/test_gini_consumers.py:149: in test_social_welfare_uses_current_gini_with_original_sign_and_weight
+    assert float(evaluate(current)) == pytest.approx(-0.7 / 4, abs=2e-7)
+E   assert -0.045152854174375534 == -0.175 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.045152854174375534
+E     Expected: -0.175 ± 2.0e-07
+_ test_real_wealth_visualization_admits_current_population_before_modifying_axes _
+tests/unit/foundry/agent_sim/test_gini_consumers.py:169: in test_real_wealth_visualization_admits_current_population_before_modifying_axes
+    assert ax.get_title() == "Wealth Distribution (Gini: 0.250)"
+E   AssertionError: assert 'Wealth Distr...(Gini: 0.065)' == 'Wealth Distr...(Gini: 0.250)'
+E     
+E     - Wealth Distribution (Gini: 0.250)
+E     ?                              ^ -
+E     + Wealth Distribution (Gini: 0.065)
+E     ?                              ^^
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[aggregate-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[aggregate-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[executor-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[executor-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[native-distribution-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[native-distribution-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-income-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-income-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-wealth-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-wealth-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_composite_interaction_current_population_is_admitted_at_registered_objective
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-critic-wealth]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-critic-income]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-metric]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-mode]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[eager-method]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-critic-wealth]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-critic-income]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-metric]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-mode]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot[jit-method]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-critic-wealth]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-critic-income]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-metric]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-mode]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values0-method]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-critic-wealth]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-critic-income]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-metric]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-mode]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values1-method]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-critic-wealth]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-critic-income]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-metric]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-mode]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[eager-values2-method]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-critic-wealth]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-critic-income]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-metric]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-mode]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values0-method]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-critic-wealth]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-critic-income]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-metric]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-mode]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values1-method]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-critic-wealth]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-critic-income]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-metric]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-mode]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-government]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-reward]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-analysis]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication[jit-values2-method]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_social_welfare_uses_current_gini_with_original_sign_and_weight[eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_social_welfare_uses_current_gini_with_original_sign_and_weight[jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_real_wealth_visualization_admits_current_population_before_modifying_axes

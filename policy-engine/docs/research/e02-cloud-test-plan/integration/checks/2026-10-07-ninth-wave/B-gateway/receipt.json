@@ -1,0 +1,222 @@
+{
+  "candidate": {
+    "candidate_tree_checked_against_git": true,
+    "commit": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+    "tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f"
+  },
+  "review_integration_base_sha": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+  "check_utc": "2026-10-07T09:42:13.430977+00:00",
+  "source_profile": {
+    "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "runner_platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "pytest_version": "9.0.2",
+    "borrowed_environment": "Existing G environment, read-only; no installation.",
+    "input_closure": "Immutable Git source, selected test/helpers/conftests and project configs; no production data.",
+    "selected_loaded_modules": {
+      "polisyos.core.llm.response": {
+        "candidate_bound": true,
+        "git_blob_sha1": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/candidate/policy-engine/src/polisyos/core/llm/response.py",
+        "repo_path": "policy-engine/src/polisyos/core/llm/response.py",
+        "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+      },
+      "polisyos.scientist.orchestration.llm.gateway_client": {
+        "candidate_bound": true,
+        "git_blob_sha1": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/candidate/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "repo_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3"
+      },
+      "polisyos.scientist.orchestration.llm.prompt_cache": {
+        "candidate_bound": true,
+        "git_blob_sha1": "e4aece7bace8cc969a0c896727c09cd80cef25bf",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/candidate/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "repo_path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5"
+      }
+    },
+    "observed_origin_errors": []
+  },
+  "runtime_test": {
+    "pytest_warning": "PytestConfigWarning: Unknown config option: cache_dir after -p no:cacheprovider; one warning per run, no test skips.",
+    "selector": "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+    "timeout_seconds_each": 180
+  },
+  "candidate_run": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=-ra --import-mode=importlib --strict-markers",
+      "-vv",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "g_origin_plugin",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/results/candidate.junit.xml",
+      "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+    ],
+    "counts": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 30
+    },
+    "max_rss_bytes": 127631360,
+    "returncode": 0,
+    "timed_out": false,
+    "wall_seconds": 1.5404208750114776,
+    "environment_selected": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/candidate/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/candidate/policy-engine/tests:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/harness",
+      "VIRTUAL_ENV": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv"
+    }
+  },
+  "negative_control": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=-ra --import-mode=importlib --strict-markers",
+      "-vv",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "g_origin_plugin",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/results/control.junit.xml",
+      "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+    ],
+    "counts": {
+      "errors": 0,
+      "failures": 20,
+      "skipped": 0,
+      "tests": 30
+    },
+    "max_rss_bytes": 128204800,
+    "only_code_mutation": {
+      "after_sha256": "be5742ceb59d3d528a1937029df69121bd7b98df984bc7633420e78849227676",
+      "before_sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+      "candidate_unmodified_by_control": true,
+      "exact_change": "decoded = json.loads(raw_text, parse_float=Decimal) -> decoded = json.loads(raw_text)",
+      "only_differing_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+    },
+    "returncode": 1,
+    "timed_out": false,
+    "wall_seconds": 1.3607306249905378,
+    "environment_selected": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/control/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/control/policy-engine/tests:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-0837/B-local-numeric/harness",
+      "VIRTUAL_ENV": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv"
+    }
+  },
+  "ruff": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--output-format=full",
+      "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+    ],
+    "autofix": false,
+    "paths": [
+      "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.09206925000762567
+  },
+  "ruff_config_supplement": {
+    "bytes": 26782,
+    "git_blob_sha1": "b4e4d47dc80dbd45234e806f44073fd575ebf56d",
+    "mode": "100644",
+    "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+    "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607"
+  },
+  "assets": {
+    "candidate.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "control.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ruff.stdout.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "ruff.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "g_origin_plugin.executed.py.txt": {
+      "bytes": 5891,
+      "sha256": "cd9356c4ed7ea8adb953edbb5f9371b254123b18a735f9520061d904f9f1c22b"
+    },
+    "executed-observer-ruff.txt": {
+      "bytes": 2315,
+      "sha256": "3b0a506384c35757ac2bf2eafeca4597b13f0e3487ba4804db5833778737d0e3"
+    },
+    "candidate.stdout.txt.lossless.json": {
+      "bytes": 7038,
+      "sha256": "c11581ecdf3ba269ffa636069403bcb9fb5d6528da423cd27c1494dafc5e38fa",
+      "decoded_bytes": 6831,
+      "decoded_sha256": "12a722f3db95c3578b81b8a6c76fc2e127de9fe71eb607ce1c20a2dd11955631",
+      "encoding": "utf-8 lossless JSON text"
+    },
+    "control.stdout.txt.lossless.json": {
+      "bytes": 50053,
+      "sha256": "aa627d62bddced7d5bc99143ca0b26676d85426ba2618eae7d9e0a430f153b3a",
+      "decoded_bytes": 48763,
+      "decoded_sha256": "0216479e1899386a09ce42251aeed0f8c44d076622d44656404c611206068b5a",
+      "encoding": "utf-8 lossless JSON text"
+    },
+    "candidate.junit.xml.lossless.json": {
+      "bytes": 6172,
+      "sha256": "d4eb2dfa13ed2f18bb4cee256ffc2c18a63e2971e94aa3cccd759fc55debb740",
+      "decoded_bytes": 5817,
+      "decoded_sha256": "fe11afca936fb934199217d4365dd99553d1770f192c26725c3c11a35e7d2a47",
+      "encoding": "utf-8 lossless JSON text"
+    },
+    "control.junit.xml.lossless.json": {
+      "bytes": 42083,
+      "sha256": "adb675b7d63bba1c8a5bbb8bd134be817bee50e6d9a96322a96b50c6c4c6e538",
+      "decoded_bytes": 40767,
+      "decoded_sha256": "881a6b0c90caf2c1d8547d147025afe5aa512d594c1e597315a05ee56e361ffb",
+      "encoding": "utf-8 lossless JSON text"
+    }
+  },
+  "predicate_basis": "recomputed",
+  "new_source_accepted": [],
+  "new_findings_closed": [],
+  "limitations": [
+    "Narrow HTTP numeric decode and cost/status consumer only; original B120 controller bridge is not exercised.",
+    "Mutant only removes parse_float=Decimal; marker/test code remains.",
+    "Existing B carrier separately holds the known ArtifactRef write-scope violation.",
+    "The candidate pytest origin audit plugin is included; full recomputable source manifest and unrelated process inventories remain ignored.",
+    "Complete native/removal stdout, stderr and JUnit are retained here; counts do not qualify unrelated backends or broad gates.",
+    "Four stdout/JUnit outputs use lossless UTF-8 JSON containers because native pytest outputs contain trailing whitespace; decoded bytes and hashes are unchanged. Repository whitespace checking is retained."
+  ],
+  "executed_observer_artifact": {
+    "path": "g_origin_plugin.executed.py.txt",
+    "role": "Verbatim executed temporary observer source; retained as non-executable evidence text, not a maintained plugin or product implementation.",
+    "snapshot_lint_returncode": 1,
+    "snapshot_lint_diagnostics": 4,
+    "diagnostic_output": "executed-observer-ruff.txt",
+    "limitations": "Snapshot has two dynamic hook annotations and two long lines. No observer code was changed or re-executed; candidate/control results are unchanged. The two-path product/test Ruff PASS does not describe this observer."
+  }
+}

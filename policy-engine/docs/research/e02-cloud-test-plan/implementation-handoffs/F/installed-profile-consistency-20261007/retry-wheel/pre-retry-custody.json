@@ -1,0 +1,100 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "outcome": "PASS",
+  "candidate_wheel": {
+    "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "bytes": 15148329,
+    "sha256": "529ef8c597d18d75641d50e462bd6e8f59f10e77fd9695b47dcfc0114f43a3f2"
+  },
+  "complete_candidate_source_wheel_site_files": 3464,
+  "actual_python_files": 3147,
+  "carrier_files_checked": 55,
+  "unchanged_packaging_lock_resources": [
+    {
+      "path": "policy-engine/hatch.toml",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "ab91c577cc1fc7beed00b78d29efd9c84ba7c9f7"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "7f6cf78a02e4e58219353548af604de49e796442"
+    },
+    {
+      "path": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/protocol.py",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "770a46160a0b13614507d345f729910c9e81acde"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/.python-version",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/README.md",
+      "previous_source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a"
+    }
+  ],
+  "limits": "One new source-wheel byte-custody qualification; no old4ee16/old51991 rerun or new rebuilt-sdist."
+}

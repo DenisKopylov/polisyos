@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+    "check",
+    "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+    "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+  "runtime_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "published_C_G_source_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+  "exit_code": 0,
+  "wall_seconds": 0.2379732520203106,
+  "check": "PASS",
+  "environment": {
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

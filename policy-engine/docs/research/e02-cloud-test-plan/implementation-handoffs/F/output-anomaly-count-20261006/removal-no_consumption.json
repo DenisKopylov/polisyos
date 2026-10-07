@@ -1,0 +1,34 @@
+{
+  "source_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+  "source_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+  "after_sha_tree": [
+    "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+    "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal_replay.py",
+    "no_consumption"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "otel": "Explicit realSDK activation and real in-memory counter; no external collector claimed."
+  },
+  "exit_code": 1,
+  "wall_seconds": 3.04782824999711,
+  "refs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal-no_consumption.stdout.txt",
+      "sha256": "f07b7be1bdcc25c634e9ac30ef02da1865c308698374ef35c2acfcc3e9e07634",
+      "size_bytes": 6614
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/removal-no_consumption.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  }
+}

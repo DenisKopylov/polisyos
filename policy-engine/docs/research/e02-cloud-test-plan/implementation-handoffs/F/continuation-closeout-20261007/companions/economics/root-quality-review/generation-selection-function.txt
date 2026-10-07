@@ -1,0 +1,94 @@
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: WorldModelRecord,
+    cycle_substrate_context: CycleSubstrateContext | None,
+) -> object:
+    return _build_candidate_selection_diagram(
+        candidate=candidate,
+        problem=problem,
+        world_record=world_record,
+        query_treatment=_candidate_transport_treatment_variable(candidate),
+        query_outcome=_candidate_transport_outcome_variable(candidate, problem),
+        cycle_substrate_context=cycle_substrate_context,
+    )
+
+
+def _build_candidate_selection_diagram(
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: WorldModelRecord,
+    query_treatment: str,
+    query_outcome: str,
+    cycle_substrate_context: CycleSubstrateContext | None,
+) -> object:
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
+
+    if cycle_substrate_context is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:transport_context_unresolved",
+            "content-bound source/target transport context is absent",
+            owner_access_ref="cycle_substrate_context://transport_context_missing",
+        )
+    try:
+        context = revalidate_cycle_substrate_context(cycle_substrate_context)
+    except ValueError as exc:
+        raise ValueOwnerAccessError(
+            "transport_context_invalid",
+            str(exc),
+            owner_access_ref="cycle_substrate_context://content_validation_failed",
+        ) from exc
+    expected_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if context.design_problem_ref != expected_problem_ref or context.domain != problem.domain:
+        raise ValueOwnerAccessError(
+            "transport_context_problem_mismatch",
+            "transport context is not bound to the active DesignProblem",
+            owner_access_ref=context.content_hash,
+        )
+    if (
+        context.world_model_record_content_hash != world_record.content_hash
+        or context.world_model_record.world_model_record_id != world_record.world_model_record_id
+    ):
+        raise ValueOwnerAccessError(
+            "transport_context_world_mismatch",
+            "transport context is not bound to the active WorldModelRecord",
+            owner_access_ref=context.content_hash,
+        )
+    transport = context.transport_context
+    if transport is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:transport_context_unresolved",
+            "content-bound source/target transport measurements are absent",
+            owner_access_ref=context.content_hash,
+        )
+    runtime_hints = _object_get(problem, "runtime_hints")
+    graph_hint_present = isinstance(runtime_hints, Mapping) and any(
+        runtime_hints.get(key) is not None
+        for key in ("causal_graph_model", "causal_graph", "causal_hypothesis")
+    )
+    hypothesis_hint_present = isinstance(runtime_hints, Mapping) and (
+        runtime_hints.get("causal_hypothesis") is not None
+    )
+    if hypothesis_hint_present:
+        detail = (
+            "causal hypothesis is candidate-only and cannot enter a transport receipt without "
+            "a verified CausalGraphModelRef bridge"
+        )
+    elif graph_hint_present:
+        detail = (
+            "raw causal graph or hypothesis is present, but the generation-cycle boundary "
+            "has no ArtifactStore/CausalGraphModelRef verifier bridge"
+        )
+    else:
+        detail = (
+            "selection diagram requires a verified CausalGraphModelRef; the generation-cycle "
+            "boundary cannot derive topology from measured context deltas"
+        )
+    raise ValueOwnerAccessError(
+        "acquire_data:causal_graph_artifact_unresolved",
+        detail,
+        owner_access_ref=context.content_hash,
+    )

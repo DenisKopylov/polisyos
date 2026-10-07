@@ -1,0 +1,48 @@
+{
+  "name": "native",
+  "source_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "source_tree": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301",
+  "baseline_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "/tmp/e02-F-continuation-20261006/fit-fiscal-review/test_fiscal_independent.py",
+    "tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py",
+    "tests/unit/foundry/mechanisms/test_fiscal.py",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp=/tmp/e02-F-continuation-20261006/fit-fiscal-review/native-tmp"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine:/workspace/e02-F-economics-20261006/policy-engine/tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "FISCAL_REVIEW_SHA": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+    "FISCAL_REVIEW_BASE_SHA": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+    "FISCAL_REVIEW_PATHS": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/source-paths.json"
+  },
+  "inherited_environment": true,
+  "artificial_cloud_quota": false,
+  "exit_code": 1,
+  "wall_seconds": 25.021678207005607,
+  "peak_child_rss_kib_cumulative": 894916,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/native.stdout.txt",
+    "bytes": 247075,
+    "sha256": "c771ffdbd0ecdaac895a02baae9e670820c3695525adb922ab2a01e110875c02"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/native.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "canonical_outcome": "FAIL",
+  "interpretation": "83PASS2reviewer-harnessFAIL17warnings; guessed serialized marker wrongly applied to decoded Decimal. Whole24default32 and40lower dispositions alreadyPASS."
+}

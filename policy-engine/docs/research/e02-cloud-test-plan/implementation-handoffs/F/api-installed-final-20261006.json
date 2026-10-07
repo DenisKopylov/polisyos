@@ -1,0 +1,740 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "api-installed-final-20261006",
+  "change_kind": "verification_only_receipt",
+  "closure_ids": [],
+  "finding_ids": [
+    "LA-020"
+  ],
+  "related_finding_ids": [
+    "LA-007",
+    "LA-019",
+    "LA-020",
+    "LA-017",
+    "B56",
+    "B212",
+    "B213",
+    "B219",
+    "B220"
+  ],
+  "bundle_ids": [
+    "API-01"
+  ],
+  "slice_base_sha": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+  "implementation_commits": [
+    "8236d9c368336a5ea20c1586f29aea7321db6536"
+  ],
+  "candidate_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "candidate_tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "branch": "codex/e02-F-api-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/59",
+  "changed_paths": [],
+  "product_source_delta": [],
+  "source_binding_role": "Exact root-composed implementation frozen8236 tested; this new API commit adds receipts only, no new product/source modifications.",
+  "source_history": {
+    "own_original_source_receipt": {
+      "git_sha": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+      "bytes": 36426,
+      "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1"
+    },
+    "own_implementation_commits": [
+      "9eaca0ae66932844fb54414f472cbc875d629c42",
+      "544df5628bfaa3bb1f496fff22d629ea3bcc0699",
+      "5484db7a25014953bdab7cb2418df735f972ff93",
+      "190f4a98a9fc2e3b1b12af3ab87375abc71f5c81",
+      "737ecba79eb505ba3ec0af1fc7ef7e8308abcba7",
+      "2458891c9714404982110ee4c513a8d0142b34c3",
+      "e5764d9511417c68d599cf8ecabb1a8137d9fc4c",
+      "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "35b1808c63fa84dd0555ff9043e0aaffe9831e7b",
+      "0c6c7efaab3eba502b44bf6471e7a3c675608f2a",
+      "a7a96a53894defa6311a0f8d9428bac26e583673",
+      "a8c40ac9dca0d680dd82187e2538cbba9a34eb08",
+      "f9095536592150362747b063c0f4cf3aac899bb0",
+      "0c522b88cff658aa4cdf4990ada70dd363989e0d"
+    ],
+    "own_changed_paths": [
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+      "policy-engine/docs/reference/public-surface.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+      "policy-engine/hatch.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-api-installed-causal-profile.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+      "policy-engine/tools/devx/architecture/guardrails.py"
+    ],
+    "final_root_dependency_carry": [
+      {
+        "sha": "d5ae668fe6079bfa81bd7448aa911fa4bee4e03b",
+        "tree": "299a64a56f84ae9ce0044032dba78f014ceec60e",
+        "scope": "All reviewed owner sources/carriers, canonical scientific/report/schema/monitor/confidence/fiscal fixes; earlier d5 setup native UNRUN."
+      },
+      {
+        "sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "scope": "Root soleformatter forward9Fownedpaths + docs/fragment; independent8/9ASTexact/oneequivalentpytesttuple and identical108collectedcaseIDs. Source/runtime mechanisms retain owner receipts; no API claim of their original fixes."
+      }
+    ],
+    "merge_model": "Ordinary append-only forward merges, no whole dependency re-delivery or history rewriting."
+  },
+  "baseline_cells": [],
+  "baseline_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json@449d32909928caf39382f4ff02ac74b0adf277eb",
+  "checks": [
+    {
+      "name": "complete exact8236 maintained tracked source/config candidate census",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -I /workspace/e02-F-api-20261006/policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py --root /workspace/e02-F-api-20261006 --ref 8236d9c368336a5ea20c1586f29aea7321db6536 --output /tmp/e02-F-continuation-20261006/api/census-8236-full.json",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "16819 tracked Git entries;6815 Python parsed with0errors;243 literalimports/225 AST dynamic candidates, not actualclients; full exclusions named.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/census-8236-run.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/census-8236-run.stdout",
+        "bytes": 1717,
+        "sha256": "455b7529496c9399cfd7d3e6a47fddc46b28dff9288824379ef73b88fed88b10",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/census-8236-run.stdout",
+        "decoded_bytes": 1717,
+        "decoded_sha256": "455b7529496c9399cfd7d3e6a47fddc46b28dff9288824379ef73b88fed88b10",
+        "encoding": "identity"
+      },
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/census-8236-run.json",
+        "bytes": 1784,
+        "sha256": "7b461d1cd13a53774620b7d9740c1cf8319862b16a23ce26722647254390ec70",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/census-8236-run.json",
+        "decoded_bytes": 1784,
+        "decoded_sha256": "7b461d1cd13a53774620b7d9740c1cf8319862b16a23ce26722647254390ec70",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "exact8236 filename-loader/config classification",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -I /tmp/e02-F-continuation-20261006/api/classify_final_filename_basis.py",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "753 literal lexical matches+73 syntactic loadercalls; allcomputed arguments/externalclients unresolved; all3 retired filenames absent/nonempty package initializers byte-bound.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/filename-8236-run.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/filename-8236-run.stdout",
+        "bytes": 2411,
+        "sha256": "f8b94995e6dace1f2bef60e379739870cc5fa4562a4981ded4ccb822885223dd",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/filename-8236-run.stdout",
+        "decoded_bytes": 2411,
+        "decoded_sha256": "f8b94995e6dace1f2bef60e379739870cc5fa4562a4981ded4ccb822885223dd",
+        "encoding": "identity"
+      },
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/filename-8236-run.json",
+        "bytes": 2122,
+        "sha256": "7c54f9b67ec4f32824d3280274b2cd4b21c624a426ad6999a8923f6d2d52ac74",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/filename-8236-run.json",
+        "decoded_bytes": 2122,
+        "decoded_sha256": "7c54f9b67ec4f32824d3280274b2cd4b21c624a426ad6999a8923f6d2d52ac74",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "final actual source wheel/sdist/rebuilt-wheel setup",
+      "command": "python3 /tmp/e02-F-continuation-20261006/api/setup_installed_final_wave_v2.py /tmp/e02-F-continuation-20261006/api/installed-final-8236-config-input.json",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Explicit App interpreter/Hatchling1.32.4; source archives and explicitly rebuilt sdist wheel; fresh2 installed profiles; complete commands/startup/pth records.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/installed-final-8236-setup.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/installed-final-8236-setup.stdout",
+        "bytes": 882,
+        "sha256": "a2f97d54745098403a5c144caba2381a45f4917fa316a8eae0dae9704cc2bf20",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236-setup.stdout",
+        "decoded_bytes": 882,
+        "decoded_sha256": "a2f97d54745098403a5c144caba2381a45f4917fa316a8eae0dae9704cc2bf20",
+        "encoding": "identity"
+      },
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/installed-final-8236-setup.json",
+        "bytes": 1399,
+        "sha256": "b2804f66af1f9b272f11ee94151a3676b6e8d550c01ba21329ced2b2dacf2999",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236-setup.json",
+        "decoded_bytes": 1399,
+        "decoded_sha256": "b2804f66af1f9b272f11ee94151a3676b6e8d550c01ba21329ced2b2dacf2999",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "historical d5 setup retained; native never run",
+      "command": "python3 /tmp/e02-F-continuation-20261006/api/setup_installed_final_wave_v2.py /tmp/e02-F-continuation-20261006/api/installed-final-d5ae-config-input.json",
+      "target_sha": "d5ae668fe6079bfa81bd7448aa911fa4bee4e03b",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Complete setup command records/stdout/stderr; initial d5 setup is historical only and no d5 native test execution is claimed.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/installed-final-d5ae-setup.stdout",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/installed-final-d5ae-setup.stdout",
+        "bytes": 882,
+        "sha256": "ec56193c60ffafd3349e0822e3e83050c182091141cf3ec4538a0965d77140df",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae-setup.stdout",
+        "decoded_bytes": 882,
+        "decoded_sha256": "ec56193c60ffafd3349e0822e3e83050c182091141cf3ec4538a0965d77140df",
+        "encoding": "identity"
+      },
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/installed-final-d5ae-setup.json",
+        "bytes": 1423,
+        "sha256": "15f57e04a325f9c4b053043fd2651f4c73c5f03b488990e832fe1a59d455e1af",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae-setup.json",
+        "decoded_bytes": 1423,
+        "decoded_sha256": "15f57e04a325f9c4b053043fd2651f4c73c5f03b488990e832fe1a59d455e1af",
+        "encoding": "identity"
+      }
+    },
+    {
+      "command": "python3 verify_and_capture_final_wave.py installed-config.json preflight",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "Read-only Git plus original archives/sites, stdlib hash/ZIP/tar; no scientific backend invocation.",
+      "input_closure": "Complete3452 Git product paths+7 actual HATCH resources=3459; source wheel/rebuilt wheel/sdist/both sites and28 final Git carrier copies.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/preflight.stdout.txt.json",
+      "full_proof": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/independent-preflight.json",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/launch_independent_wave.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"configured_external_worker_python\": \"/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python\", \"app_python\": \"3.14.7\", \"actual_worker_python\": \"3.12.14/DoWhy0.14\", \"own_site\": \"wheel\"}",
+      "input_closure": "Exact final Git selected consumers; configured6-fold TMLE once plus default15fold once; genuine DoWhy/GCM/native MethodJob\u2192typed CAS\u2192fresh isolated reader. Synthetic inputs, no production data.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.stderr.txt.json",
+      "actual_census": {
+        "pass": 199,
+        "fail": 0,
+        "error": 0,
+        "skip": 0,
+        "deselected": 5,
+        "warnings": 90
+      },
+      "warnings_basis": "All90 optional LGBM feature-name warnings retained separately:Classifier30/Regressor60, on default15fold. Historical14 runtime+1instrumentation versus current0runtime+0instrumentation; no warning suppression.",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel raw_keys",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"wheel\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-raw_keys.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-raw_keys.stderr.txt.json",
+      "property_removed": "raw_keys",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel no_raw_numeric",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"wheel\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_raw_numeric.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_raw_numeric.stderr.txt.json",
+      "property_removed": "no_raw_numeric",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel no_consumption",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"wheel\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_consumption.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_consumption.stderr.txt.json",
+      "property_removed": "no_consumption",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel broad_identity_skip",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"wheel\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-broad_identity_skip.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-broad_identity_skip.stderr.txt.json",
+      "property_removed": "broad_identity_skip",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/launch_independent_wave.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"configured_external_worker_python\": \"/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python\", \"app_python\": \"3.14.7\", \"actual_worker_python\": \"3.12.14/DoWhy0.14\", \"own_site\": \"sdist\"}",
+      "input_closure": "Exact final Git selected consumers; configured6-fold TMLE once plus default15fold once; genuine DoWhy/GCM/native MethodJob\u2192typed CAS\u2192fresh isolated reader. Synthetic inputs, no production data.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.stderr.txt.json",
+      "actual_census": {
+        "pass": 199,
+        "fail": 0,
+        "error": 0,
+        "skip": 0,
+        "deselected": 5,
+        "warnings": 90
+      },
+      "warnings_basis": "All90 optional LGBM feature-name warnings retained separately:Classifier30/Regressor60, on default15fold. Historical14 runtime+1instrumentation versus current0runtime+0instrumentation; no warning suppression.",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist raw_keys",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"sdist\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-raw_keys.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-raw_keys.stderr.txt.json",
+      "property_removed": "raw_keys",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist no_raw_numeric",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"sdist\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_raw_numeric.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_raw_numeric.stderr.txt.json",
+      "property_removed": "no_raw_numeric",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist no_consumption",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"sdist\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_consumption.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_consumption.stderr.txt.json",
+      "property_removed": "no_consumption",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist broad_identity_skip",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"sdist\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-broad_identity_skip.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-broad_identity_skip.stderr.txt.json",
+      "property_removed": "broad_identity_skip",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/collect_installed_denominator.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "PYTHONPATH absent; own installed Python -I; literal readonly thirdparty site only. cwd=/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer",
+      "input_closure": "Actual wheel collection with same exact native selectors/substitution/expression; full199 selected sequence equal previous executed wave, five explicit source-only/static/computed-import deselections.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-collection.stdout.txt.json",
+      "semantic_runtime_witness": false,
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "command": "python3 finalize_installed_review.py installed-config.json",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "Read-only original source/tree+archives/both sites/carriers/full native/removal outputs; no numerical rerun.",
+      "input_closure": "All3459/site files+7resources, all3archive hashes and28carrier hashes after native/removals; full warning memberships/report/census and actual value refusal depth.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/finalize.stdout.txt.json",
+      "full_proof": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/review.json",
+      "output_git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "executing_party": "Independent F/foundry reviewer; no API duplicate scientific run"
+    },
+    {
+      "name": "canonical inventory representation and exact source binding",
+      "command": "Canonical build_public_surface_inventory/render_public_surface_json/render_public_surface_markdown and exact Git source binding; actual argv/script saved",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "ReadonlyApp3.14;PYTHONPATH=src:tools:.; no provider execution in static parser",
+      "input_closure": "38entrypoints;253fileoperations=103readoperations over45unique files+150is_file; both actual render outputs byte-identical to frozen Git.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/final-8236-inventory-samebytes-proof.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/final-8236-inventory-samebytes-proof.json",
+        "bytes": 1628,
+        "sha256": "706645ce97d79f00e5313fd9e252262ec276b3f177fa38d9de0310dcf107db0d",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/final-8236-inventory-samebytes-proof.json",
+        "decoded_bytes": 1628,
+        "decoded_sha256": "706645ce97d79f00e5313fd9e252262ec276b3f177fa38d9de0310dcf107db0d",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "canonical full static export completeness",
+      "command": "guardrails._check_public_surface_contracts(actual generated inventory)",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "Full conservative finite puredeclaration/passive dependency profile",
+      "input_closure": "All38entrypoints UNKNOWN; null export total/known0 notnamespacezero; analytics280/world41 source candidates unproved runtimeexports.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/final-8236-inventory-generation.json.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/final-8236-inventory-generation.json.gz",
+        "bytes": 5666,
+        "sha256": "e61d746f47604959b96a906fc47faad1c5679775635296759e15280ef787748f",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/final-8236-inventory-generation.json",
+        "decoded_bytes": 32245,
+        "decoded_sha256": "5ad6c779ea0045e8bbb90b4c6ef0720a45fe1c9ad4283d0b53672db6f63a8be4",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "production data/admission/authority positive",
+      "command": "No production invocation issued; exact owner-issued source/admission/runtime-verifier/context/freshchallenge arguments absent",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "Real synthetic/backend and installed consumer scope only",
+      "input_closure": "Owner-issued realworld inputs and lawful existing authority closure unavailable; no fake/copied/replayed issuer/seal/source refs.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/recipe/G-local-final-source-alignment.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/recipe/G-local-final-source-alignment.json",
+        "bytes": 11350,
+        "sha256": "ecc6d55548fc9b01fda1d3423de18d058506a7b6e5cd985e07582d5b75e63f6b",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/G-local-final-source-alignment.json",
+        "decoded_bytes": 11350,
+        "decoded_sha256": "ecc6d55548fc9b01fda1d3423de18d058506a7b6e5cd985e07582d5b75e63f6b",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "historical initial d5 native wave",
+      "command": "No native command issued before root quality hold",
+      "target_sha": "d5ae668fe6079bfa81bd7448aa911fa4bee4e03b",
+      "environment": "Initial archivedsetup completed; no numerical/ABI/asset removal at d5",
+      "input_closure": "Initialsetup archived byte hashes saved separately; do not use as final8236 consumer witness.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/installed-final-d5ae/initial-setup-build-and-pth-profile.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/installed-final-d5ae/initial-setup-build-and-pth-profile.json",
+        "bytes": 3219,
+        "sha256": "4268055541c4f2313c43033a30f13b6ecee3e8fbd4fb150af84b485ec28fb398",
+        "original_path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/initial-setup-build-and-pth-profile.json",
+        "decoded_bytes": 3219,
+        "decoded_sha256": "4268055541c4f2313c43033a30f13b6ecee3e8fbd4fb150af84b485ec28fb398",
+        "encoding": "identity"
+      }
+    }
+  ],
+  "full_output_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/outputs.json",
+    "bytes": 98002,
+    "sha256": "733a413685b1f6b6f9dc7386d04eb0b051f965640b7fd0b5f2498e18b2e550bf"
+  },
+  "independent_review": {
+    "git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+    "bytes": 60843,
+    "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+    "complete_companions": 53,
+    "stored_and_decoded_all_verified": true,
+    "scope": "Independent final installed consumer witness and eight marker-kept removal FAILs; fullpostguardsPASS. API owns build/census/assembly preparation, reviewer owns scientific runtime launches."
+  },
+  "distribution_profile": {
+    "archives": {
+      "wheel": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-source/policy_engine-0.1.0-py3-none-any.whl",
+        "bytes": 15116457,
+        "sha256": "5b056289a0a804f339890b603e4a0c7a8d7ee50d8b9ec9a0e910a12a66778869"
+      },
+      "sdist": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-source/policy_engine-0.1.0.tar.gz",
+        "bytes": 91236828,
+        "sha256": "19121b3a50b7c2bef35a93af94e78bfdf7f378d98b52a90069f01cf30e237a52"
+      },
+      "rebuilt_wheel": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl",
+        "bytes": 15116457,
+        "sha256": "5b056289a0a804f339890b603e4a0c7a8d7ee50d8b9ec9a0e910a12a66778869"
+      }
+    },
+    "sites": {
+      "wheel": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages",
+        "verified_product_files": 3459,
+        "complete_actual_python_files": 3146,
+        "extra_missing_python": []
+      },
+      "sdist": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/lib/python3.14/site-packages",
+        "verified_product_files": 3459,
+        "complete_actual_python_files": 3146,
+        "extra_missing_python": []
+      }
+    },
+    "installed_pythons": {
+      "wheel": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+      "sdist": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python"
+    },
+    "worker_python": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "force_resources": 7,
+    "complete_product_resource_files": 3459,
+    "tracked_product_files": 3452
+  },
+  "actual_source_and_loader_census": {
+    "output_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/census-8236-full.json.gz",
+      "bytes": 101555,
+      "sha256": "93aa7998ecc2718b6783c83c91745c35294e230813e2bcf8ec657da0f8070f8b",
+      "original_path": "/tmp/e02-F-continuation-20261006/api/census-8236-full.json",
+      "decoded_bytes": 2044623,
+      "decoded_sha256": "a4616b37c5ba57c6050e9b8c068dec4e14752ea2f96af92e9b66517f34566093",
+      "encoding": "gzip-lossless"
+    },
+    "denominator": {
+      "binary_nul": 1,
+      "extension:.blob": 11,
+      "extension:.candidate": 1,
+      "extension:.cfg": 1,
+      "extension:.cjs": 9,
+      "extension:.css": 17,
+      "extension:.csv": 15,
+      "extension:.cypher": 2,
+      "extension:.docx": 1,
+      "extension:.duckdb": 4,
+      "extension:.example": 3,
+      "extension:.fixture": 2,
+      "extension:.gz": 185,
+      "extension:.html": 3,
+      "extension:.ini": 11,
+      "extension:.initial-candidate": 1,
+      "extension:.js": 4,
+      "extension:.json": 4111,
+      "extension:.jsonc": 1,
+      "extension:.jsonl": 14,
+      "extension:.lock": 3,
+      "extension:.log": 20,
+      "extension:.md": 2187,
+      "extension:.mdc": 1,
+      "extension:.mjs": 40,
+      "extension:.nul": 1,
+      "extension:.patch": 15,
+      "extension:.pkl": 2,
+      "extension:.png": 42,
+      "extension:.py": 6815,
+      "extension:.pyi": 5,
+      "extension:.receiver-only": 1,
+      "extension:.rego": 23,
+      "extension:.reproducible": 1,
+      "extension:.retired": 1,
+      "extension:.sh": 46,
+      "extension:.sha256": 1,
+      "extension:.sql": 6,
+      "extension:.sqlite": 2,
+      "extension:.sqlite-wal": 2,
+      "extension:.stderr": 266,
+      "extension:.stdout": 196,
+      "extension:.svg": 18,
+      "extension:.tf": 1,
+      "extension:.tmpl": 7,
+      "extension:.toml": 297,
+      "extension:.tpl": 1,
+      "extension:.ts": 519,
+      "extension:.tsv": 6,
+      "extension:.tsx": 720,
+      "extension:.txt": 860,
+      "extension:.typed": 2,
+      "extension:.webm": 6,
+      "extension:.whl": 1,
+      "extension:.xml": 79,
+      "extension:.xz": 3,
+      "extension:.yaml": 85,
+      "extension:.yml": 72,
+      "extension:.zip": 8,
+      "extension:<none>": 62,
+      "non_utf8": 260,
+      "python": 6815,
+      "python_parsed": 6815,
+      "python_tracked": 6815,
+      "tracked_entries": 16819,
+      "utf8_text": 16558
+    },
+    "literal_imports": 243,
+    "literal_import_files": 91,
+    "dynamic_AST_candidates": 225,
+    "candidate_classifications": {
+      "computed_argument_unresolved": 155,
+      "finite_source_configuration": 36,
+      "fixed_other_namespace": 13,
+      "literal_target_candidate": 21
+    },
+    "computed_AST_candidates_are_not_actual_clients": true,
+    "address_strings": 18,
+    "addressed_syntactic_uses": 340,
+    "filename_basis_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/filename-loader-8236-classification.json.gz",
+      "bytes": 1930758,
+      "sha256": "19944500c39b89a1cd2180f2ec6bcdd57d55de9473b7bfe5ff54cad517457b00",
+      "original_path": "/tmp/e02-F-continuation-20261006/api/filename-loader-8236-classification.json",
+      "decoded_bytes": 12729788,
+      "decoded_sha256": "80ac6849946ffcade877984d7b5992bf102a2308e505f3cdd8de91f0b2fda1a8",
+      "encoding": "gzip-lossless"
+    },
+    "filename_lexical_counts_by_role": {
+      "runtime_source": 18,
+      "configuration_or_other_tracked_source": 19,
+      "documentation": 432,
+      "historical_research_source": 232,
+      "test_source": 41,
+      "tool_source": 11
+    },
+    "loader_AST_counts_by_role": {
+      "configuration_or_other_tracked_source": 13,
+      "documentation": 9,
+      "historical_research_source": 19,
+      "runtime_source": 4,
+      "test_source": 27,
+      "tool_source": 1
+    },
+    "runtime_loader_computed_arguments": "Four generic maintained loader paths accept computed file paths; none establishes retiredfilename usage. Unknown external/config/alias callers remain explicit."
+  },
+  "property": {
+    "statement": "On the exact final composed Git source, source wheel and explicitly rebuilt sdist wheel retain supported causal package/facade identities, loader policy, maintained related-package algorithms, real selected backend/CAS/fresh-reader consumers, normalized monitor/report and configured/default TMLE contracts. Complete artifacts/site files and actual source/config caller candidates are disclosed without promoting unsupported static export analysis.",
+    "runtime_path": [
+      "Git8236 canonical sources and7HATCHassets",
+      "actual Hatchling source wheel+sdist+explicit rebuiltwheel",
+      "freshPython3.14.7 neutral-I installedsites",
+      "maintained facade/ID/compiler dispatch and genuine selectedPython3.12.14 DoWhy/GCM worker",
+      "CASfreshreader/normalizedmonitor/ConfidencePass/valueprojector; nativeTMLE6fold+default15fold"
+    ],
+    "proxy_divergence": "Retained exportnames/importsuccess and all38UNKNOWN staticrepresentation are not actualcompatibility/causal/authority proofs. Marker-kept monitor removals fail genuine metric oracles; native supported FQN/pickle/patch/libraryfileloader consumers pass independently.",
+    "negative_controls": [
+      "Supported retired filename runpy/spec loader refuses while real nonempty package identification runs",
+      "Canonical clone/removed override bridge fails actual owneridentity/invocation while marker names stayfixed",
+      "Actual privateworker asset retirement refuses freshreader and restores allasset/sitebytes",
+      "Eight installed monitor retained-marker removals FAIL; alias-only canonical outputs countedonce, distinctsidecars still measured",
+      "Real configured TMLE report missing/fake/swappedproof blocks actualCAS\u2192ConfidencePass/valueconsumer without fabricated identification grant"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_classification": {
+    "supported_installed_consumer": "PASS199each/5explicitstaticdeselected/0SKIPERROR",
+    "complete_source_archives_sites": "PASS3459each+7resources+3146actualPythonfiles+28carrierblobs",
+    "current_tracked_census": "PASSboundedstaticenumeration, notallclientproof",
+    "static_export_completeness": "FAIL38",
+    "scientific_authority_production": "UNRUN absent real owner inputs",
+    "global_quality": "Separate red; no inherited attribution/P41 exclusion or exemption"
+  },
+  "per_id": [
+    {
+      "id": "LA-007",
+      "state": "limited_pending_root_adjudication",
+      "criterion": "Original id_engine.py emptyshadow already absent at base198; real maintained nonempty package identity, source/config/loader census, actual related ID tests and wheel/sdist both consumer windows measured. No new deletion or externalcaller absence claimed."
+    },
+    {
+      "id": "LA-019",
+      "state": "limited_pending_root_adjudication",
+      "criterion": "Original causal_engine.py/interference.py siblings already absent at base198; keep real packages, supported package loader/FQN/private/runtimepatched callers and real related-package tests measured onbothinstalledprofiles. No fake absence delivery or filename shim."
+    },
+    {
+      "id": "LA-020",
+      "state": "limited_pending_root_adjudication",
+      "criterion": "Existing explicit provider exports already acceptedbase198; current actual consumer/FQN/pickle/pydoc/monkeypatch/registry and maintained helper migrations/installfixtures measured. Computed AST candidates notestablishedclients; full38static completeness remainsFAIL."
+    },
+    {
+      "id": "LA-017",
+      "state": "held_real_norm_inputs",
+      "criterion": "Earlier acceptedLexsource notredelivered; real law/jurisdiction/NormPack/admission refs remainlocalowner dependent."
+    }
+  ],
+  "capability_state_or_finding_state": "Bounded final installed composition verified; no blanket35finding/backend/scientific/productionauthority closure. Closure decisions belongroot/G; closure_ids staysempty.",
+  "retained_publisher_observer_error": {
+    "outcome": "ERROR",
+    "exit_code": 1,
+    "class": "Metadata path lookup only; no native or scientific rerun/source change",
+    "command": "python3 /tmp/e02-F-continuation-20261006/api/publish_final_assembly_receipt.py",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/publish-final-assembly.stderr",
+    "cause": "Historical initial setup profile was nested inside installed-final-d5ae, not top-level scratch; corrected locator only."
+  },
+  "authority_purpose": "Generic consumer ABI/implementation numerical fixtures only; no source/admission/governance issuer or realdata scientific validity grant.",
+  "limitations_and_next_owner": [
+    "Root/G adjudicate original LA007/019/020 finite internal criterion using full currenttrackedcensus+bothinstalled199case windows. Unknown external/private/plugin/configuration callers remain excluded, never proven absent.",
+    "All38canonicalstaticentrypoint completeness fails under conservative passive finite parser; analytics280/world41 are unproved candidates, null totals andknown0do notmean emptyruntime namespaces.",
+    "AppPython3.14 markers exclude DoWhy/EconML; appabsence isnotbackendPASS. GenuineDoWhy0.14/GCM executed selected standalone3.12 profile; no shim/appdowngrade/EconMLnativewitness invented.",
+    "90 unsuppressed LightGBMfeature-name warnings each =30classifier+60regressor. Historical14 runtimefalsemonitor warnings have0memberships. Fiveexplicitstatic/source-census selectors deselected, never PASS; no skip/error in199selectedcases.",
+    "Rootreported exact8236 Ruff92PASS,format3outsideFFAIL,CoreFeedbackschema2propsFAIL,fullinvocation26regressions78newUNRESOLVED current5949/base5915/src2699. These globalaxes are separate root-owned outputs/receipt; no P41 inherited attribution assumed here.",
+    "Initiald5setup completedbutnativeUNRUN; allinitialarchives/records retained, not relabelled final8236. No inactiveenvironment/archive/cache deletion performed; cleanup candidates are exact scratch setupdirs only.",
+    "G must supply real owner-issued observational/admission/context/runtime-verifier/registry/revision/freshchallenge refs for productiondata-dependent claims; no fabricated refs, copiedseal/selfissuer, or placeholder productioncommands. See committed finalsource recipe alignment."
+  ],
+  "cleanup_candidates": {
+    "performed": false,
+    "root_directory": "/tmp/e02-F-continuation-20261006/api",
+    "historical_stage": "installed-final-d5ae",
+    "current_stage": "installed-final-8236",
+    "paths": [
+      "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/wheel-env",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/sdist-env",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/sdist-extracted",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/dist-source",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/dist-rebuilt",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/uv-cache",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-extracted",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-source",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-rebuilt",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/uv-cache"
+    ],
+    "instruction": "Informational exact scratch candidates only; preserve active profiles/evidence until owner retires them, no permanentdelete authorized."
+  },
+  "transport_model": "G fetches exact APIordinarytopichead and separately immutableFoundrya2d55 Gitreceipt/full53companions. All own moderate outputs committed losslessly, externalfullbody hashes verified; no assumed chat access. Archive/env binaries remain reproducible scratch artifacts at exacthash with fullsource bindings/buildcommands.",
+  "patterns": [
+    "P01",
+    "P10",
+    "P27",
+    "P31",
+    "P32",
+    "P33",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ]
+}

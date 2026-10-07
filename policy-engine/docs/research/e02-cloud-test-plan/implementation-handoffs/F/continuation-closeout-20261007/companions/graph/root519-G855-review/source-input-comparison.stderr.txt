@@ -1,0 +1,17 @@
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/capture_renderer_inputs.py' exists on disk, but not in '519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82'
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/compare_inputs.py", line 39, in <module>
+    p=f['path']; x=blob(OWN,p); y=blob(ROOT,p)
+                                  ^^^^^^^^^^^^
+  File "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/compare_inputs.py", line 6, in blob
+    def blob(s,p):return git('show',s+':'+p)
+                         ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/compare_inputs.py", line 5, in git
+    def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'show', '519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/api-review/capture_renderer_inputs.py']' returned non-zero exit status 128.

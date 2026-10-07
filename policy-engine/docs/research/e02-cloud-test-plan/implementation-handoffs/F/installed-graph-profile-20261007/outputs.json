@@ -1,0 +1,1486 @@
+{
+  "schema": "policyos.e02.narrow_installed_graph_transport.v1",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/review.json",
+      "encoding": "identity",
+      "bytes": 18112,
+      "sha256": "2293bf75df18e6098d643fa36a2972db5066bce34c089ffaf8341163e6e5d08f",
+      "decoded_bytes": 18112,
+      "decoded_sha256": "2293bf75df18e6098d643fa36a2972db5066bce34c089ffaf8341163e6e5d08f",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/review.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/verify_packet.py",
+      "encoding": "identity",
+      "bytes": 11285,
+      "sha256": "2fa1a8b37778d1c4ac8475977a5e092843d737a802387858ed5fa90c5a3f28b8",
+      "decoded_bytes": 11285,
+      "decoded_sha256": "2fa1a8b37778d1c4ac8475977a5e092843d737a802387858ed5fa90c5a3f28b8",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/verify_packet.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stdout.json",
+      "encoding": "identity",
+      "bytes": 568,
+      "sha256": "65d9c0758dc7192a4a4411c8668c8bc76c339189429bb93b42a84df77c6c3c96",
+      "decoded_bytes": 568,
+      "decoded_sha256": "65d9c0758dc7192a4a4411c8668c8bc76c339189429bb93b42a84df77c6c3c96",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.stdout.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "encoding": "identity",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/prepare_narrow_wheel.py",
+      "encoding": "identity",
+      "bytes": 6601,
+      "sha256": "b2bca9c9ce45139f014b05c5c69044a61a70cdf2b330992685a4a8537f1fa081",
+      "decoded_bytes": 6601,
+      "decoded_sha256": "b2bca9c9ce45139f014b05c5c69044a61a70cdf2b330992685a4a8537f1fa081",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/prepare_narrow_wheel.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/launch_narrow_installed.py",
+      "encoding": "identity",
+      "bytes": 3079,
+      "sha256": "bc8032e5509af23918cae9d6f2cbaf184b9a2eb5f2d90dd0ed2081982445fbce",
+      "decoded_bytes": 3079,
+      "decoded_sha256": "bc8032e5509af23918cae9d6f2cbaf184b9a2eb5f2d90dd0ed2081982445fbce",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/launch_narrow_installed.initial.py",
+      "encoding": "identity",
+      "bytes": 3014,
+      "sha256": "f2153d74ac638981a7459db39a4dc40b8b21c0b512b32fb25a1d01ef06f2a2bf",
+      "decoded_bytes": 3014,
+      "decoded_sha256": "f2153d74ac638981a7459db39a4dc40b8b21c0b512b32fb25a1d01ef06f2a2bf",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.initial.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/fresh_admg_bridge.py",
+      "encoding": "identity",
+      "bytes": 6885,
+      "sha256": "346df97af176aa575ae600f2667fbcc9d20e126553ac26f57fb0158b31e99a5e",
+      "decoded_bytes": 6885,
+      "decoded_sha256": "346df97af176aa575ae600f2667fbcc9d20e126553ac26f57fb0158b31e99a5e",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/fresh_admg_bridge.initial.py",
+      "encoding": "identity",
+      "bytes": 6881,
+      "sha256": "f2723990abcae6caca1ea25967f6626e8a21a798509b9c4c8ff964ca1cfacbb5",
+      "decoded_bytes": 6881,
+      "decoded_sha256": "f2723990abcae6caca1ea25967f6626e8a21a798509b9c4c8ff964ca1cfacbb5",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.initial.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/remove_installed_profile_guard.py",
+      "encoding": "identity",
+      "bytes": 2918,
+      "sha256": "89b353fe38ad4376e0b3e760e6d810bf83a3a96e027f0103d51908a43516c307",
+      "decoded_bytes": 2918,
+      "decoded_sha256": "89b353fe38ad4376e0b3e760e6d810bf83a3a96e027f0103d51908a43516c307",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/remove_installed_profile_guard.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/check_narrow_custody.py",
+      "encoding": "identity",
+      "bytes": 4029,
+      "sha256": "619c905f13a2ba10920a002b82e586be028f909166fb272cfe03bdd08768768b",
+      "decoded_bytes": 4029,
+      "decoded_sha256": "619c905f13a2ba10920a002b82e586be028f909166fb272cfe03bdd08768768b",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/check_narrow_custody.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/capture_narrow.py",
+      "encoding": "identity",
+      "bytes": 1565,
+      "sha256": "eb7436251e362b7928a8ed1d60e0e4f7377200bd8dd0d2c17656822cc3131a54",
+      "decoded_bytes": 1565,
+      "decoded_sha256": "eb7436251e362b7928a8ed1d60e0e4f7377200bd8dd0d2c17656822cc3131a54",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/capture_narrow.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/capture_installed_environment.py",
+      "encoding": "identity",
+      "bytes": 1542,
+      "sha256": "3014d0f38a6e3a7bc131eb7128cc61d1b8f4d9b2255f0b8fc590b8ce8691afe2",
+      "decoded_bytes": 1542,
+      "decoded_sha256": "3014d0f38a6e3a7bc131eb7128cc61d1b8f4d9b2255f0b8fc590b8ce8691afe2",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/capture_installed_environment.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/narrow-installed-plan.json",
+      "encoding": "identity",
+      "bytes": 5795,
+      "sha256": "47e4148949be7fb70e5bb1a8198ec8c4776c6797b2e2d241ccfa92c65c9f5cac",
+      "decoded_bytes": 5795,
+      "decoded_sha256": "47e4148949be7fb70e5bb1a8198ec8c4776c6797b2e2d241ccfa92c65c9f5cac",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/narrow-installed-plan.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/build-wheel.execution.json",
+      "encoding": "identity",
+      "bytes": 1060,
+      "sha256": "2327649c3c92dfdaff36aa6207bcd9a50d2956281b0e9e589f99c14af62d1f80",
+      "decoded_bytes": 1060,
+      "decoded_sha256": "2327649c3c92dfdaff36aa6207bcd9a50d2956281b0e9e589f99c14af62d1f80",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/build-wheel.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/build-wheel.stderr.txt",
+      "encoding": "identity",
+      "bytes": 135,
+      "sha256": "720345f8508cc05beb2dae0ec70025e57c26939d5f649ced61433b0622448222",
+      "decoded_bytes": 135,
+      "decoded_sha256": "720345f8508cc05beb2dae0ec70025e57c26939d5f649ced61433b0622448222",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/build-wheel.stderr.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/carrier-manifest.json",
+      "encoding": "identity",
+      "bytes": 10388,
+      "sha256": "e93bf0996c8ea8dcc563770fe2d100f74c9edc4a76ab2341f43d52530ddac400",
+      "decoded_bytes": 10388,
+      "decoded_sha256": "e93bf0996c8ea8dcc563770fe2d100f74c9edc4a76ab2341f43d52530ddac400",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/carrier-manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collect-proof.json.gz",
+      "encoding": "gzip",
+      "bytes": 13341,
+      "sha256": "bb517aa37284d15168a4239ce1de7b8407510a63bef8b2d33810e644a108165c",
+      "decoded_bytes": 192289,
+      "decoded_sha256": "69ad994e899de245a29f83aa07496d840f661dd12eb0c9408842bd82aa02c43e",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collect-proof.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection-corrected.execution.json",
+      "encoding": "identity",
+      "bytes": 1141,
+      "sha256": "867a7dbda8c12ce85a1f4106d39f1423e9bd285f9495bab02e8e13beac8762ef",
+      "decoded_bytes": 1141,
+      "decoded_sha256": "867a7dbda8c12ce85a1f4106d39f1423e9bd285f9495bab02e8e13beac8762ef",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection-corrected.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection-corrected.stdout.txt",
+      "encoding": "identity",
+      "bytes": 3069,
+      "sha256": "ad4d375a28a83f1dec2afee6c1a3d0bb5077fec01d62f84634a3804c4a81b424",
+      "decoded_bytes": 3069,
+      "decoded_sha256": "ad4d375a28a83f1dec2afee6c1a3d0bb5077fec01d62f84634a3804c4a81b424",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection-corrected.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection.execution.json",
+      "encoding": "identity",
+      "bytes": 1111,
+      "sha256": "70428a72a3809787e3523730831439c16be86c082061aa81caa128e44d8026d4",
+      "decoded_bytes": 1111,
+      "decoded_sha256": "70428a72a3809787e3523730831439c16be86c082061aa81caa128e44d8026d4",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection.stderr.txt",
+      "encoding": "identity",
+      "bytes": 339,
+      "sha256": "8696a79f0a6f6d46e37c24ba7d3dec773b2cc6c0fc79724b988b504f96a410b1",
+      "decoded_bytes": 339,
+      "decoded_sha256": "8696a79f0a6f6d46e37c24ba7d3dec773b2cc6c0fc79724b988b504f96a410b1",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection.stderr.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/create-env.execution.json",
+      "encoding": "identity",
+      "bytes": 1040,
+      "sha256": "64bdb6ccd3d6b8be117c74432d5e5f78926d7dcfe498c44921e66be1ebf9e413",
+      "decoded_bytes": 1040,
+      "decoded_sha256": "64bdb6ccd3d6b8be117c74432d5e5f78926d7dcfe498c44921e66be1ebf9e413",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/create-env.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/create-env.stderr.txt",
+      "encoding": "identity",
+      "bytes": 191,
+      "sha256": "cbd98d3d14f46acad73704f80af24471300b321357ddecdc9469c841b88bfd67",
+      "decoded_bytes": 191,
+      "decoded_sha256": "cbd98d3d14f46acad73704f80af24471300b321357ddecdc9469c841b88bfd67",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/create-env.stderr.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/environment.execution.json",
+      "encoding": "identity",
+      "bytes": 1021,
+      "sha256": "221c2abd3798e8468992f8124fb2c4769c31bdc436803ca6be7e0a1312a4956c",
+      "decoded_bytes": 1021,
+      "decoded_sha256": "221c2abd3798e8468992f8124fb2c4769c31bdc436803ca6be7e0a1312a4956c",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/environment.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/environment.stdout.txt",
+      "encoding": "identity",
+      "bytes": 3347,
+      "sha256": "b93be66436e9b07e8c95d0c1d43aa094d5131b15c61da965d07e7eaa2ede540b",
+      "decoded_bytes": 3347,
+      "decoded_sha256": "b93be66436e9b07e8c95d0c1d43aa094d5131b15c61da965d07e7eaa2ede540b",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/environment.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg-corrected.execution.json",
+      "encoding": "identity",
+      "bytes": 1034,
+      "sha256": "6bdbd435d1e68d7b77bc46789846a932ff7f10d736864ae0a7ffd3058096a5eb",
+      "decoded_bytes": 1034,
+      "decoded_sha256": "6bdbd435d1e68d7b77bc46789846a932ff7f10d736864ae0a7ffd3058096a5eb",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg-corrected.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg-corrected.stdout.txt",
+      "encoding": "identity",
+      "bytes": 903,
+      "sha256": "f053792917546d621e359bd8a4f9f82206184bcba8015ea45c8ba82f305cdfaf",
+      "decoded_bytes": 903,
+      "decoded_sha256": "f053792917546d621e359bd8a4f9f82206184bcba8015ea45c8ba82f305cdfaf",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg-corrected.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg.execution.json",
+      "encoding": "identity",
+      "bytes": 1003,
+      "sha256": "be3479f170c882261fc5fb8e8cf76ebd38ab844f5e46c0246fcaad9bef38a7ac",
+      "decoded_bytes": 1003,
+      "decoded_sha256": "be3479f170c882261fc5fb8e8cf76ebd38ab844f5e46c0246fcaad9bef38a7ac",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg.stderr.txt",
+      "encoding": "identity",
+      "bytes": 257,
+      "sha256": "71d6774653aa42ecf553cf2db59e3156ed65738fafa3327157398425d981d5e5",
+      "decoded_bytes": 257,
+      "decoded_sha256": "71d6774653aa42ecf553cf2db59e3156ed65738fafa3327157398425d981d5e5",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg.stderr.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/install-wheel.execution.json",
+      "encoding": "identity",
+      "bytes": 1119,
+      "sha256": "4a76a01db5a646036420e0795b6a1675d157ad2ce06ce0089e8b59ddb52a8d5c",
+      "decoded_bytes": 1119,
+      "decoded_sha256": "4a76a01db5a646036420e0795b6a1675d157ad2ce06ce0089e8b59ddb52a8d5c",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/install-wheel.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/install-wheel.stderr.txt",
+      "encoding": "identity",
+      "bytes": 264,
+      "sha256": "839e3cbe19b6a897d30d25cebd77e10231f35b4d3d0db2321d25a86078a0221f",
+      "decoded_bytes": 264,
+      "decoded_sha256": "839e3cbe19b6a897d30d25cebd77e10231f35b4d3d0db2321d25a86078a0221f",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/install-wheel.stderr.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/installed-config.json",
+      "encoding": "identity",
+      "bytes": 2099,
+      "sha256": "166c7c7d45eae4dae3fc6c80781a98ae50508c0dba6135bdea1e6bfb4888cdfd",
+      "decoded_bytes": 2099,
+      "decoded_sha256": "166c7c7d45eae4dae3fc6c80781a98ae50508c0dba6135bdea1e6bfb4888cdfd",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/installed-config.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native-junit.xml",
+      "encoding": "identity",
+      "bytes": 3245,
+      "sha256": "0b4f374d64ca226712bb479577bede7bc1e6901377750a4302a8c121f65c1756",
+      "decoded_bytes": 3245,
+      "decoded_sha256": "0b4f374d64ca226712bb479577bede7bc1e6901377750a4302a8c121f65c1756",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native-junit.xml",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native-proof.json.gz",
+      "encoding": "gzip",
+      "bytes": 13352,
+      "sha256": "d240c98a6db8f829e0d699f644630f99dbf5276e059b78673215d519937f3f19",
+      "decoded_bytes": 192356,
+      "decoded_sha256": "954b5ae5f0efd29df42ed774029fd6270e0d679c92cdcad26398a5edcf8028ff",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native-proof.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native.execution.json",
+      "encoding": "identity",
+      "bytes": 1099,
+      "sha256": "22348993256c265876a338f98102948848e33ee6f44a02d13c53ed13bb6ab39f",
+      "decoded_bytes": 1099,
+      "decoded_sha256": "22348993256c265876a338f98102948848e33ee6f44a02d13c53ed13bb6ab39f",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native.stdout.txt",
+      "encoding": "identity",
+      "bytes": 13554,
+      "sha256": "2f31a920fdc5001abe734c08974e8ab0cef6f26bf93354274f29cc29d64cb19c",
+      "decoded_bytes": 13554,
+      "decoded_sha256": "2f31a920fdc5001abe734c08974e8ab0cef6f26bf93354274f29cc29d64cb19c",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/post-custody.execution.json",
+      "encoding": "identity",
+      "bytes": 1013,
+      "sha256": "d52156c508466cdccb907b40e645af72a5de2b402ec78465642f4e039c972efa",
+      "decoded_bytes": 1013,
+      "decoded_sha256": "d52156c508466cdccb907b40e645af72a5de2b402ec78465642f4e039c972efa",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/post-custody.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/post-custody.stdout.txt",
+      "encoding": "identity",
+      "bytes": 255,
+      "sha256": "a903885d120360ebc6c6aed0a79e736ca9d732e091cd612d0b3ca8574312b468",
+      "decoded_bytes": 255,
+      "decoded_sha256": "a903885d120360ebc6c6aed0a79e736ca9d732e091cd612d0b3ca8574312b468",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/post-custody.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/post-native-custody.json",
+      "encoding": "identity",
+      "bytes": 18555,
+      "sha256": "c73398ad7ed975e21b0683c3e27e5266004a2e827c7da006f6bd565343d7c42b",
+      "decoded_bytes": 18555,
+      "decoded_sha256": "c73398ad7ed975e21b0683c3e27e5266004a2e827c7da006f6bd565343d7c42b",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/post-native-custody.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/pre-native-custody.json.gz",
+      "encoding": "gzip",
+      "bytes": 301307,
+      "sha256": "a462f18c075c7fa7e640e7d4cb07c5a7d2178329f6430d7cdd02f09a0eab6687",
+      "decoded_bytes": 1280059,
+      "decoded_sha256": "4d58587ba7f0264832e47380b4dba8ce7be26d61672a8caa4526c4f51a537776",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/pre-native-custody.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal-junit.xml",
+      "encoding": "identity",
+      "bytes": 1761,
+      "sha256": "0cfc62b7ca5d12929e55b550257d3074e057c8147f740821b2b24ffd7a64f8bf",
+      "decoded_bytes": 1761,
+      "decoded_sha256": "0cfc62b7ca5d12929e55b550257d3074e057c8147f740821b2b24ffd7a64f8bf",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal-junit.xml",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal-proof.json.gz",
+      "encoding": "gzip",
+      "bytes": 13117,
+      "sha256": "00818afb1e95f8a3e9dc4617246126b0a912ca73e89ddfdcb30336eed6ce0963",
+      "decoded_bytes": 188114,
+      "decoded_sha256": "1e7a075b6bfc543d94f06e0028d012a0f6214fcc69a2a59d289c94c0baaaf721",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal-proof.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal.execution.json",
+      "encoding": "identity",
+      "bytes": 1009,
+      "sha256": "fa709ddb1c096b0a10e620c6e65b67bd5df0ab9b16c1604bd5ce5c5c64be6fd6",
+      "decoded_bytes": 1009,
+      "decoded_sha256": "fa709ddb1c096b0a10e620c6e65b67bd5df0ab9b16c1604bd5ce5c5c64be6fd6",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal.stdout.txt",
+      "encoding": "identity",
+      "bytes": 2887,
+      "sha256": "ca7c1dbde787c490da5f4483a97a1204746e190f37e00896e267f3396c4c1e0d",
+      "decoded_bytes": 2887,
+      "decoded_sha256": "ca7c1dbde787c490da5f4483a97a1204746e190f37e00896e267f3396c4c1e0d",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/uv-version.execution.json",
+      "encoding": "identity",
+      "bytes": 883,
+      "sha256": "dd173db6fcf2b9f8e2b343ce2b32e822bf3a89ab28c0f07bf3b44214d32bb09e",
+      "decoded_bytes": 883,
+      "decoded_sha256": "dd173db6fcf2b9f8e2b343ce2b32e822bf3a89ab28c0f07bf3b44214d32bb09e",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/uv-version.execution.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/uv-version.stdout.txt",
+      "encoding": "identity",
+      "bytes": 38,
+      "sha256": "d27c5539d426b7ed041c1d392e585a95dc9090b740d43a659fc38e4e48adadf6",
+      "decoded_bytes": 38,
+      "decoded_sha256": "d27c5539d426b7ed041c1d392e585a95dc9090b740d43a659fc38e4e48adadf6",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/uv-version.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/fresh-bridge-proof.json.gz",
+      "encoding": "gzip",
+      "bytes": 13907,
+      "sha256": "e29a34a385c3c16390f61518ac725f9276a910c6049e72a13f64261d48572f15",
+      "decoded_bytes": 190404,
+      "decoded_sha256": "2344762a53f8fec91790976fd4ce6e3275e6042b277d30ffc15d48dfe7d1e32c",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-bridge-proof.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/fresh-reader-proof.json",
+      "encoding": "identity",
+      "bytes": 16687,
+      "sha256": "2f9476641e41b0e1525011ca2f65f01e1da7bb99d74443028c20148449e192aa",
+      "decoded_bytes": 16687,
+      "decoded_sha256": "2f9476641e41b0e1525011ca2f65f01e1da7bb99d74443028c20148449e192aa",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader-proof.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/fresh-reader.command.json",
+      "encoding": "identity",
+      "bytes": 918,
+      "sha256": "1a79e688c8584cbb51f16e931875ef56b107b772bfcdf97ba5f8a3517aee308b",
+      "decoded_bytes": 918,
+      "decoded_sha256": "1a79e688c8584cbb51f16e931875ef56b107b772bfcdf97ba5f8a3517aee308b",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader.command.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/fresh-reader.stdout.txt",
+      "encoding": "identity",
+      "bytes": 102,
+      "sha256": "e341ab21db58e49958d5d56f826aecf313673d8fd30ee6aa61c683769697e847",
+      "decoded_bytes": 102,
+      "decoded_sha256": "e341ab21db58e49958d5d56f826aecf313673d8fd30ee6aa61c683769697e847",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/reader-input.json",
+      "encoding": "identity",
+      "bytes": 3666,
+      "sha256": "398f82cf7c4574c96d4847eb4dd2e3fec5ca7dced49aec1d7ba52cb8ebcca041",
+      "decoded_bytes": 3666,
+      "decoded_sha256": "398f82cf7c4574c96d4847eb4dd2e3fec5ca7dced49aec1d7ba52cb8ebcca041",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/reader-input.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.json.lossless.gz",
+      "encoding": "gzip",
+      "bytes": 305816,
+      "sha256": "3fd20cded377d553256014a25fc540547ab3222ca15770711c7e8a712eb85bd2",
+      "decoded_bytes": 1375205,
+      "decoded_sha256": "9e4114c1737b117e1086ff8bed5346438c4d1ee437a4977aacf43023a523f9b8",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.json.lossless.gz",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "input_binding": {
+        "bytes": 305816,
+        "sha256": "3fd20cded377d553256014a25fc540547ab3222ca15770711c7e8a712eb85bd2"
+      },
+      "input_encoding": "gzip",
+      "transport_policy": {
+        "gzip_required": true,
+        "reasons": [
+          "binary_control_byte",
+          "binary_nul",
+          "non_utf8",
+          "space_before_tab",
+          "trailing_ascii_whitespace"
+        ],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "original_raw_path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/transfer-selection.json",
+      "encoding": "identity",
+      "bytes": 15220,
+      "sha256": "ef14412803862660ca8c1c9b7fffd250daec5a068c146a8cbf38eb0abe0918ef",
+      "decoded_bytes": 15220,
+      "decoded_sha256": "ef14412803862660ca8c1c9b7fffd250daec5a068c146a8cbf38eb0abe0918ef",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/transfer-selection.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/publish_narrow_installed_handoff.py",
+      "encoding": "identity",
+      "bytes": 12334,
+      "sha256": "73962855c6ecb535721a9a815a220c5616cad20ee469cf9690e19385e183a98c",
+      "decoded_bytes": 12334,
+      "decoded_sha256": "73962855c6ecb535721a9a815a220c5616cad20ee469cf9690e19385e183a98c",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/publish_narrow_installed_handoff.py",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/prepare-narrow-wheel.stdout.txt",
+      "encoding": "identity",
+      "bytes": 499,
+      "sha256": "783cecba356bcb393fc6ca3b08743715217154079214ff61ec63596b374c3342",
+      "decoded_bytes": 499,
+      "decoded_sha256": "783cecba356bcb393fc6ca3b08743715217154079214ff61ec63596b374c3342",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/prepare-narrow-wheel.stdout.txt",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/layout-docs-publication.json",
+      "encoding": "identity",
+      "bytes": 1535,
+      "sha256": "079d14a6ff1bc684497b551c31e54463e24010842fc8f660120c5310fe06a646",
+      "decoded_bytes": 1535,
+      "decoded_sha256": "079d14a6ff1bc684497b551c31e54463e24010842fc8f660120c5310fe06a646",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-publication.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/runs/graph-content/trace.jsonl",
+      "encoding": "identity",
+      "bytes": 198,
+      "sha256": "360f01426b2eea5ad4077a1a864d05c4340cd2b586cbf87948c29ae315a6a162",
+      "decoded_bytes": 198,
+      "decoded_sha256": "360f01426b2eea5ad4077a1a864d05c4340cd2b586cbf87948c29ae315a6a162",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/runs/graph-content/trace.jsonl",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.view.cc5073f96988e2dce3768719aab010bc9e1ee26a7955076d419939965910e3e6.manifest.json",
+      "encoding": "identity",
+      "bytes": 717,
+      "sha256": "b23ea8bb3c337ea66d97eb773bf93fc1a83363753d32b84605217f126b9bc865",
+      "decoded_bytes": 717,
+      "decoded_sha256": "b23ea8bb3c337ea66d97eb773bf93fc1a83363753d32b84605217f126b9bc865",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.view.cc5073f96988e2dce3768719aab010bc9e1ee26a7955076d419939965910e3e6.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.blob",
+      "encoding": "identity",
+      "bytes": 2233,
+      "sha256": "bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc",
+      "decoded_bytes": 2233,
+      "decoded_sha256": "bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/51/a5/51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38.view.82cd835420325b46824363e17e66b2bc77a9dd19638e4344a9c83864ac3e118d.manifest.json",
+      "encoding": "identity",
+      "bytes": 747,
+      "sha256": "61ed0f7f12c8fb1e18a59ef70e157b206beecb6aa3afb2d3e9a4f5f711fa97d3",
+      "decoded_bytes": 747,
+      "decoded_sha256": "61ed0f7f12c8fb1e18a59ef70e157b206beecb6aa3afb2d3e9a4f5f711fa97d3",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/51/a5/51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38.view.82cd835420325b46824363e17e66b2bc77a9dd19638e4344a9c83864ac3e118d.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/51/a5/51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38.blob",
+      "encoding": "identity",
+      "bytes": 7728,
+      "sha256": "51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38",
+      "decoded_bytes": 7728,
+      "decoded_sha256": "51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/51/a5/51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.view.6739cba2ecb6127612866009cb58bb7634907d91a399be32550fd448dc77ccfe.manifest.json",
+      "encoding": "identity",
+      "bytes": 765,
+      "sha256": "d2a9a9284f23289c0903b89c3102a8c03dd2879546168cfc9dfeac6e23159128",
+      "decoded_bytes": 765,
+      "decoded_sha256": "d2a9a9284f23289c0903b89c3102a8c03dd2879546168cfc9dfeac6e23159128",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.view.6739cba2ecb6127612866009cb58bb7634907d91a399be32550fd448dc77ccfe.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.blob",
+      "encoding": "identity",
+      "bytes": 3004,
+      "sha256": "031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8",
+      "decoded_bytes": 3004,
+      "decoded_sha256": "031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "encoding": "identity",
+      "bytes": 631,
+      "sha256": "537396b7bb998b842dc3052c73fc516d6b95ca353be21d51390081b39a0f6294",
+      "decoded_bytes": 631,
+      "decoded_sha256": "537396b7bb998b842dc3052c73fc516d6b95ca353be21d51390081b39a0f6294",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.blob",
+      "encoding": "identity",
+      "bytes": 354,
+      "sha256": "c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771",
+      "decoded_bytes": 354,
+      "decoded_sha256": "c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "encoding": "identity",
+      "bytes": 637,
+      "sha256": "faee66783e243d1e02bfd1578ffad0001e99da53c48ee7007db1851796ff8d78",
+      "decoded_bytes": 637,
+      "decoded_sha256": "faee66783e243d1e02bfd1578ffad0001e99da53c48ee7007db1851796ff8d78",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.blob",
+      "encoding": "identity",
+      "bytes": 1224,
+      "sha256": "dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad",
+      "decoded_bytes": 1224,
+      "decoded_sha256": "dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "encoding": "identity",
+      "bytes": 1363,
+      "sha256": "29872b6af35d1962454db664c96fb300ac3b680feb38874c3c44543b5f7c023f",
+      "decoded_bytes": 1363,
+      "decoded_sha256": "29872b6af35d1962454db664c96fb300ac3b680feb38874c3c44543b5f7c023f",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "encoding": "identity",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "decoded_bytes": 1204,
+      "decoded_sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "encoding": "identity",
+      "bytes": 613,
+      "sha256": "6ca5039be7d47614ef23565e748e58d521c01e91e74a5b681abf2c9216b336c6",
+      "decoded_bytes": 613,
+      "decoded_sha256": "6ca5039be7d47614ef23565e748e58d521c01e91e74a5b681abf2c9216b336c6",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "encoding": "identity",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "decoded_bytes": 464,
+      "decoded_sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "encoding": "identity",
+      "bytes": 616,
+      "sha256": "0dd760217c396e82ea2249dbfae9b4056d20f843f35c9bcd685f2232c96dd3c7",
+      "decoded_bytes": 616,
+      "decoded_sha256": "0dd760217c396e82ea2249dbfae9b4056d20f843f35c9bcd685f2232c96dd3c7",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "encoding": "identity",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "decoded_bytes": 2423,
+      "decoded_sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "encoding": "identity",
+      "bytes": 631,
+      "sha256": "3d3c534ba6388d58d1e2494c52632c03d5957ac37dfa0d1062fd71ad7d3f6bfc",
+      "decoded_bytes": 631,
+      "decoded_sha256": "3d3c534ba6388d58d1e2494c52632c03d5957ac37dfa0d1062fd71ad7d3f6bfc",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "encoding": "identity",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "decoded_bytes": 1477,
+      "decoded_sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "encoding": "identity",
+      "bytes": 623,
+      "sha256": "b709f0b490c83201c3d2a90627e262a220bc32e376fd5f998b5417f42ad9f1aa",
+      "decoded_bytes": 623,
+      "decoded_sha256": "b709f0b490c83201c3d2a90627e262a220bc32e376fd5f998b5417f42ad9f1aa",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "encoding": "identity",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "decoded_bytes": 523,
+      "decoded_sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "encoding": "identity",
+      "bytes": 626,
+      "sha256": "a11e79d944f49f3eb2c6507fae1b1b6b68977e4322d852c8ddaa62316b84f9e3",
+      "decoded_bytes": 626,
+      "decoded_sha256": "a11e79d944f49f3eb2c6507fae1b1b6b68977e4322d852c8ddaa62316b84f9e3",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "encoding": "identity",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "decoded_bytes": 3235,
+      "decoded_sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "encoding": "identity",
+      "bytes": 623,
+      "sha256": "c99bad4b23bd4905149769b7c8304f0ec31fd7b3497e4512360327a7028a25c3",
+      "decoded_bytes": 623,
+      "decoded_sha256": "c99bad4b23bd4905149769b7c8304f0ec31fd7b3497e4512360327a7028a25c3",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "encoding": "identity",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "decoded_bytes": 1086,
+      "decoded_sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "encoding": "identity",
+      "bytes": 612,
+      "sha256": "dad790d3cc88699756dbd81b05980531c1e1d3d4819798cb57625b1a84d7c3e0",
+      "decoded_bytes": 612,
+      "decoded_sha256": "dad790d3cc88699756dbd81b05980531c1e1d3d4819798cb57625b1a84d7c3e0",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "encoding": "identity",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "decoded_bytes": 7840,
+      "decoded_sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+      "transport_policy": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      }
+    }
+  ],
+  "logical_byte_aliases": [
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/build-wheel.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/create-env.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/environment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/install-wheel.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/installed-environment.json",
+      "bytes": 3347,
+      "sha256": "b93be66436e9b07e8c95d0c1d43aa094d5131b15c61da965d07e7eaa2ede540b",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/environment.stdout.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/post-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/uv-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/prepare-narrow-wheel.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.manifest.json",
+      "bytes": 717,
+      "sha256": "b23ea8bb3c337ea66d97eb773bf93fc1a83363753d32b84605217f126b9bc865",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.view.cc5073f96988e2dce3768719aab010bc9e1ee26a7955076d419939965910e3e6.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/51/a5/51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38.manifest.json",
+      "bytes": 747,
+      "sha256": "61ed0f7f12c8fb1e18a59ef70e157b206beecb6aa3afb2d3e9a4f5f711fa97d3",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/51/a5/51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38.view.82cd835420325b46824363e17e66b2bc77a9dd19638e4344a9c83864ac3e118d.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.manifest.json",
+      "bytes": 765,
+      "sha256": "d2a9a9284f23289c0903b89c3102a8c03dd2879546168cfc9dfeac6e23159128",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.view.6739cba2ecb6127612866009cb58bb7634907d91a399be32550fd448dc77ccfe.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.manifest.json",
+      "bytes": 631,
+      "sha256": "537396b7bb998b842dc3052c73fc516d6b95ca353be21d51390081b39a0f6294",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.manifest.json",
+      "bytes": 637,
+      "sha256": "faee66783e243d1e02bfd1578ffad0001e99da53c48ee7007db1851796ff8d78",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "29872b6af35d1962454db664c96fb300ac3b680feb38874c3c44543b5f7c023f",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "6ca5039be7d47614ef23565e748e58d521c01e91e74a5b681abf2c9216b336c6",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "0dd760217c396e82ea2249dbfae9b4056d20f843f35c9bcd685f2232c96dd3c7",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "3d3c534ba6388d58d1e2494c52632c03d5957ac37dfa0d1062fd71ad7d3f6bfc",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "b709f0b490c83201c3d2a90627e262a220bc32e376fd5f998b5417f42ad9f1aa",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "a11e79d944f49f3eb2c6507fae1b1b6b68977e4322d852c8ddaa62316b84f9e3",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "c99bad4b23bd4905149769b7c8304f0ec31fd7b3497e4512360327a7028a25c3",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    },
+    {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "dad790d3cc88699756dbd81b05980531c1e1d3d4819798cb57625b1a84d7c3e0",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "role": "Actual observed byte-identical input/output/CAS view alias; no copied duplicate body."
+    }
+  ],
+  "counts": {
+    "logical_files": 112,
+    "unique_files": 84,
+    "byte_aliases": 28,
+    "stored_bytes": 900092,
+    "decoded_bytes": 3657679
+  },
+  "commit_reason": "User-required complete source-bound observed deciding outputs/inputs, including real selectedCAS bodies; exact byte-identical aliases emitted once.",
+  "sanitation": "none, exact identity/losslessgzip, existing independently-reviewed V5 writer with this invocation fixed authorizedPREFIX."
+}

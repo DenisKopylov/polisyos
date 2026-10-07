@@ -1,0 +1,1888 @@
+{
+  "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "operations": [
+    {
+      "entrypoint": "polisyos.common",
+      "path": "src/polisyos/common.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.common",
+      "path": "src/polisyos/common/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.common",
+      "path": "src/polisyos/common/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1336,
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+    },
+    {
+      "entrypoint": "polisyos.common",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.common",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.common.config",
+      "path": "src/polisyos/common/config.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.common.config",
+      "path": "src/polisyos/common/config/__init__.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.common.config",
+      "path": "src/polisyos/common/config.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 14879,
+      "sha256": "126ca3bc685dbe60ad46f803090fca815c8ec520b5d3c3d8f34f18e62c98ef61"
+    },
+    {
+      "entrypoint": "polisyos.common.config",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.common.config",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.common.config",
+      "path": "src/polisyos/common/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.common.config",
+      "path": "src/polisyos/common/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1336,
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+    },
+    {
+      "entrypoint": "polisyos.core",
+      "path": "src/polisyos/core.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.core",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+    },
+    {
+      "entrypoint": "polisyos.core",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.core.contracts",
+      "path": "src/polisyos/core/contracts.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.core.contracts",
+      "path": "src/polisyos/core/contracts/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.contracts",
+      "path": "src/polisyos/core/contracts/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 60159,
+      "sha256": "9b711f5139397946be246aca817aacfb31c7637385cac570cff71872470e7d4e"
+    },
+    {
+      "entrypoint": "polisyos.core.contracts",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.contracts",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.core.contracts",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.contracts",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+    },
+    {
+      "entrypoint": "polisyos.core.observability",
+      "path": "src/polisyos/core/observability.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.core.observability",
+      "path": "src/polisyos/core/observability/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.observability",
+      "path": "src/polisyos/core/observability/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 21332,
+      "sha256": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377"
+    },
+    {
+      "entrypoint": "polisyos.core.observability",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.observability",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.core.observability",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.observability",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+    },
+    {
+      "entrypoint": "polisyos.core.security",
+      "path": "src/polisyos/core/security.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.core.security",
+      "path": "src/polisyos/core/security/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.security",
+      "path": "src/polisyos/core/security/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 18510,
+      "sha256": "eaf1cfb96501a334d6f4f164bec3921fb209e2b28fd764eb448a52617cd96564"
+    },
+    {
+      "entrypoint": "polisyos.core.security",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.security",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.core.security",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.security",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+    },
+    {
+      "entrypoint": "polisyos.core.trace",
+      "path": "src/polisyos/core/trace.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.core.trace",
+      "path": "src/polisyos/core/trace/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.trace",
+      "path": "src/polisyos/core/trace/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 319,
+      "sha256": "da9e8b72508ee15502f8bb13b4b46da89cf5b67384059d5f377d254e9e9d10dc"
+    },
+    {
+      "entrypoint": "polisyos.core.trace",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.trace",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.core.trace",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.core.trace",
+      "path": "src/polisyos/core/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+    },
+    {
+      "entrypoint": "polisyos.ir",
+      "path": "src/polisyos/ir.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.ir",
+      "path": "src/polisyos/ir/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir",
+      "path": "src/polisyos/ir/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 39303,
+      "sha256": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954"
+    },
+    {
+      "entrypoint": "polisyos.ir",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/ir/analytics.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/ir/analytics/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/ir/analytics/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1152,
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174"
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/ir/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/ir/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 39303,
+      "sha256": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954"
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/ir/api.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/ir/api/__init__.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "path": "src/polisyos/ir/api.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 48048,
+      "sha256": "5330aa6b4da8b3f61df54006e193b879c0acb2d52a1f19e779ddf3332a788372"
+    },
+    {
+      "entrypoint": "polisyos.ir.api",
+      "path": "src/polisyos/ir/api.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir.api",
+      "path": "src/polisyos/ir/api/__init__.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.ir.api",
+      "path": "src/polisyos/ir/api.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 48048,
+      "sha256": "5330aa6b4da8b3f61df54006e193b879c0acb2d52a1f19e779ddf3332a788372"
+    },
+    {
+      "entrypoint": "polisyos.ir.api",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir.api",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.ir.api",
+      "path": "src/polisyos/ir/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ir.api",
+      "path": "src/polisyos/ir/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 39303,
+      "sha256": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954"
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/obligation_rules.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/obligation_rules/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/obligation_rules/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1565,
+      "sha256": "ca34bad60569b768b1bec775e640916412a464f89209b2cf41e478f61ca3464c"
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/obligation_rules/catalog.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/obligation_rules/catalog/__init__.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/obligation_rules/catalog.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 72261,
+      "sha256": "8d20bb3b0b86a24a0c99587e6c00ccd024ff7c9efca0e2c8e176028daf1bb5c9"
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.obligation_rules",
+      "path": "src/polisyos/obligation_rules/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.obligation_graph",
+      "path": "src/polisyos/obligation_graph.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.obligation_graph",
+      "path": "src/polisyos/obligation_graph/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.obligation_graph",
+      "path": "src/polisyos/obligation_graph/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1475,
+      "sha256": "99436dbcb2eabe412a578cdd6e5997d64db838a65cb18e97e11f3aee4c1cc359"
+    },
+    {
+      "entrypoint": "polisyos.obligation_graph",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.obligation_graph",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1200,
+      "sha256": "de563b37b0453ea01ba713d45e529d2d1857de216d1d3f4e724087547e399f4b"
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement/_impl/compiler.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement/_impl/compiler/__init__.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement/_impl/compiler.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 19025,
+      "sha256": "75abdae9e49fe81b3f446d4f93dc08a705609cb00538234a70f452f5dbac2c03"
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement/_impl/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.method_requirement",
+      "path": "src/polisyos/method_requirement/_impl/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "entrypoint": "polisyos.participation_requirement",
+      "path": "src/polisyos/participation_requirement.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.participation_requirement",
+      "path": "src/polisyos/participation_requirement/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.participation_requirement",
+      "path": "src/polisyos/participation_requirement/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 51216,
+      "sha256": "7fbdba3bdff0923e2f4699c3b79a14efc2f93d6087ab9135c81f9c06f4df6e3d"
+    },
+    {
+      "entrypoint": "polisyos.participation_requirement",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.participation_requirement",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.fabric",
+      "path": "src/polisyos/fabric.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.fabric",
+      "path": "src/polisyos/fabric/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric",
+      "path": "src/polisyos/fabric/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 12109,
+      "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3"
+    },
+    {
+      "entrypoint": "polisyos.fabric",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/fabric/api.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/fabric/api/__init__.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/fabric/api.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 8020,
+      "sha256": "87efa1dbc0d11569bc8238228cdbb29dab037a2283a6f6124f298f8dbe8f214a"
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/fabric/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/fabric/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 12109,
+      "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3"
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/fabric.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.fabric.api",
+      "path": "src/polisyos/fabric/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric.world",
+      "path": "src/polisyos/fabric/world.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.fabric.world",
+      "path": "src/polisyos/fabric/world/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric.world",
+      "path": "src/polisyos/fabric/world/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 4178,
+      "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e"
+    },
+    {
+      "entrypoint": "polisyos.fabric.world",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric.world",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.fabric.world",
+      "path": "src/polisyos/fabric/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.fabric.world",
+      "path": "src/polisyos/fabric/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 12109,
+      "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3"
+    },
+    {
+      "entrypoint": "polisyos.foundry",
+      "path": "src/polisyos/foundry.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.foundry",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 9930,
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6"
+    },
+    {
+      "entrypoint": "polisyos.foundry",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.foundry.api",
+      "path": "src/polisyos/foundry/api.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.api",
+      "path": "src/polisyos/foundry/api/__init__.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.foundry.api",
+      "path": "src/polisyos/foundry/api.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 287,
+      "sha256": "e0b6d24717028a59ff53a184e064e0f53b5eb726f3e868deec67aed006e6e35a"
+    },
+    {
+      "entrypoint": "polisyos.foundry.api",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.api",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.foundry.api",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.api",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 9930,
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6"
+    },
+    {
+      "entrypoint": "polisyos.foundry.compile",
+      "path": "src/polisyos/foundry/compile.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.foundry.compile",
+      "path": "src/polisyos/foundry/compile/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.compile",
+      "path": "src/polisyos/foundry/compile/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1641,
+      "sha256": "c4d0aab98b83d67d2685b73307bfb71d33d059582b2c67d9b774308992b7d55f"
+    },
+    {
+      "entrypoint": "polisyos.foundry.compile",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.compile",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.foundry.compile",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.compile",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 9930,
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6"
+    },
+    {
+      "entrypoint": "polisyos.foundry.execute",
+      "path": "src/polisyos/foundry/execute.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.foundry.execute",
+      "path": "src/polisyos/foundry/execute/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.execute",
+      "path": "src/polisyos/foundry/execute/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1561,
+      "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1"
+    },
+    {
+      "entrypoint": "polisyos.foundry.execute",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.execute",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.foundry.execute",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.execute",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 9930,
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6"
+    },
+    {
+      "entrypoint": "polisyos.foundry.uncertainty",
+      "path": "src/polisyos/foundry/uncertainty.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.foundry.uncertainty",
+      "path": "src/polisyos/foundry/uncertainty/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.uncertainty",
+      "path": "src/polisyos/foundry/uncertainty/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1617,
+      "sha256": "d255be704dee62743c27f2f3c3a0995f1b4accd25d47ffd638b8fe4aad680b85"
+    },
+    {
+      "entrypoint": "polisyos.foundry.uncertainty",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.uncertainty",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.foundry.uncertainty",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.uncertainty",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 9930,
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6"
+    },
+    {
+      "entrypoint": "polisyos.scientist",
+      "path": "src/polisyos/scientist.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.scientist",
+      "path": "src/polisyos/scientist/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist",
+      "path": "src/polisyos/scientist/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "entrypoint": "polisyos.scientist",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/scientist/governance/continuous.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/scientist/governance/continuous/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/scientist/governance/continuous/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 16544,
+      "sha256": "849b99d17d1e6c4dbefcd6fc242c3f50c8156557eaf45bd3f7e1c03802f81780"
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/scientist/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/scientist/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/scientist/governance/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "path": "src/polisyos/scientist/governance/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 9949,
+      "sha256": "e42f439cadd945ab06ceb5a347de54e0485c0a626fa120d2c22a3ca1788e8854"
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/scientist/methods/research_dag.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/scientist/methods/research_dag/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/scientist/methods/research_dag/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 3481,
+      "sha256": "e8538d3760da4eed58db9838d71c1bffa26e78e2bfadaf4287f33a044af801ba"
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/scientist/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/scientist/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/scientist/methods/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.methods.research_dag",
+      "path": "src/polisyos/scientist/methods/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 257,
+      "sha256": "5c61c468891b681961b791f6d27210dffe754df23a378b8f22d75e0c17abf85b"
+    },
+    {
+      "entrypoint": "polisyos.scientist.replay",
+      "path": "src/polisyos/scientist/replay.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.scientist.replay",
+      "path": "src/polisyos/scientist/replay/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.replay",
+      "path": "src/polisyos/scientist/replay/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 3878,
+      "sha256": "d6b704ba979e7db4ca7936831e2a7fcff6677b177232b20d3b2bac45391f1c61"
+    },
+    {
+      "entrypoint": "polisyos.scientist.replay",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.replay",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.scientist.replay",
+      "path": "src/polisyos/scientist/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scientist.replay",
+      "path": "src/polisyos/scientist/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "entrypoint": "polisyos.evidence",
+      "path": "src/polisyos/evidence.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.evidence",
+      "path": "src/polisyos/evidence/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.evidence",
+      "path": "src/polisyos/evidence/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1719,
+      "sha256": "8dc258d916dc282b347437f825b83d45157d6f6e741bcdc44e4ce503956b2ea2"
+    },
+    {
+      "entrypoint": "polisyos.evidence",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.evidence",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.runtime",
+      "path": "src/polisyos/runtime.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.runtime",
+      "path": "src/polisyos/runtime/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.runtime",
+      "path": "src/polisyos/runtime/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 2878,
+      "sha256": "9a186c21390e1c1282659a4afea846e49a1d53f6602789fa5004def977142287"
+    },
+    {
+      "entrypoint": "polisyos.runtime",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.runtime",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.runtime.quality",
+      "path": "src/polisyos/runtime/quality.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.runtime.quality",
+      "path": "src/polisyos/runtime/quality/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.runtime.quality",
+      "path": "src/polisyos/runtime/quality/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 73335,
+      "sha256": "9f57d2822cde6b0227ef9677cd4651f019b9e204fb7a071ce6dfff055319581f"
+    },
+    {
+      "entrypoint": "polisyos.runtime.quality",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.runtime.quality",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.runtime.quality",
+      "path": "src/polisyos/runtime/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.runtime.quality",
+      "path": "src/polisyos/runtime/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 2878,
+      "sha256": "9a186c21390e1c1282659a4afea846e49a1d53f6602789fa5004def977142287"
+    },
+    {
+      "entrypoint": "polisyos.lex",
+      "path": "src/polisyos/lex.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.lex",
+      "path": "src/polisyos/lex/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.lex",
+      "path": "src/polisyos/lex/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 7462,
+      "sha256": "73f3d3ea0212b273c1d715f99e009a74d64ae452616e62532db10728e97dc439"
+    },
+    {
+      "entrypoint": "polisyos.lex",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.lex",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.lex.knowledge",
+      "path": "src/polisyos/lex/knowledge.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.lex.knowledge",
+      "path": "src/polisyos/lex/knowledge/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.lex.knowledge",
+      "path": "src/polisyos/lex/knowledge/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1859,
+      "sha256": "ff80168dfa0547e02712ae6ffff029f9d80a797be42d0d0a1dd1024a69360010"
+    },
+    {
+      "entrypoint": "polisyos.lex.knowledge",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.lex.knowledge",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.lex.knowledge",
+      "path": "src/polisyos/lex/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.lex.knowledge",
+      "path": "src/polisyos/lex/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 7462,
+      "sha256": "73f3d3ea0212b273c1d715f99e009a74d64ae452616e62532db10728e97dc439"
+    },
+    {
+      "entrypoint": "polisyos.scholar",
+      "path": "src/polisyos/scholar.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.scholar",
+      "path": "src/polisyos/scholar/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scholar",
+      "path": "src/polisyos/scholar/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 4578,
+      "sha256": "dfbfec2e4f6b3926b40b1533aebf88a47b663ac0dfed710cbbf00415873ed1c3"
+    },
+    {
+      "entrypoint": "polisyos.scholar",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.scholar",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.data_forge",
+      "path": "src/polisyos/data_forge.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.data_forge",
+      "path": "src/polisyos/data_forge/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.data_forge",
+      "path": "src/polisyos/data_forge/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 7232,
+      "sha256": "468fb2656309e00210089ba25f34c84b393f9d25e23f081e188ecc8f8d64160a"
+    },
+    {
+      "entrypoint": "polisyos.data_forge",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.data_forge",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.data_forge.read_api",
+      "path": "src/polisyos/data_forge/read_api.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.data_forge.read_api",
+      "path": "src/polisyos/data_forge/read_api/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.data_forge.read_api",
+      "path": "src/polisyos/data_forge/read_api/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1860,
+      "sha256": "0c7aa7d42b0569a4e99c9542dab7aaef4f1cd6afc2cae1b31cf186e63a3a7e8e"
+    },
+    {
+      "entrypoint": "polisyos.data_forge.read_api",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.data_forge.read_api",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.data_forge.read_api",
+      "path": "src/polisyos/data_forge/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.data_forge.read_api",
+      "path": "src/polisyos/data_forge/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 7232,
+      "sha256": "468fb2656309e00210089ba25f34c84b393f9d25e23f081e188ecc8f8d64160a"
+    },
+    {
+      "entrypoint": "polisyos.berl",
+      "path": "src/polisyos/berl.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.berl",
+      "path": "src/polisyos/berl/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.berl",
+      "path": "src/polisyos/berl/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1007,
+      "sha256": "b3aa418869b3a4523088770fda6b1e622842f8d4059c85b4ef1a132c8fcfb1b0"
+    },
+    {
+      "entrypoint": "polisyos.berl",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.berl",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.calibration",
+      "path": "src/polisyos/calibration.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.calibration",
+      "path": "src/polisyos/calibration/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.calibration",
+      "path": "src/polisyos/calibration/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 851,
+      "sha256": "2a4a6888990dc62d9e92b5f87898e7d2e3abe605ec9001377f4de07d1ad1e70b"
+    },
+    {
+      "entrypoint": "polisyos.calibration",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.calibration",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.ddm",
+      "path": "src/polisyos/ddm.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.ddm",
+      "path": "src/polisyos/ddm/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ddm",
+      "path": "src/polisyos/ddm/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 2235,
+      "sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc"
+    },
+    {
+      "entrypoint": "polisyos.ddm",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.ddm",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/foundry/agent_sim/world.py",
+      "operation": "is_file",
+      "status": "absent",
+      "result": false
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/foundry/agent_sim/world/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/foundry/agent_sim/world/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 1203,
+      "sha256": "814d2f546e8b61ef1f2424121b24fe3629394505bb1937d7c0143d97955d2aa2"
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/foundry/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 9930,
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6"
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/foundry/agent_sim/__init__.py",
+      "operation": "is_file",
+      "status": "present",
+      "result": true
+    },
+    {
+      "entrypoint": "polisyos.foundry.agent_sim.world",
+      "path": "src/polisyos/foundry/agent_sim/__init__.py",
+      "operation": "read_bytes",
+      "status": "read",
+      "bytes": 11751,
+      "sha256": "db0bda879876646882a7272e08c7b573bd956b4f033edf601b3795471c83a260"
+    }
+  ],
+  "operation_denominator": 253,
+  "read_bytes": 103,
+  "is_file": 150,
+  "input_measurement_profile": "Full actual bounded AST renderer trace; does not enumerate runtime imports absent from this declared generator profile.",
+  "source_output_same_bytes": true,
+  "canonical_unknowns": 38,
+  "canonical_incomplete_violations": 38,
+  "json_sha256": "93a37fc07dd2c58c8bb76c268718790e476290e70ca3f6181cdf1ddad0fe9a84",
+  "markdown_sha256": "928f050cf4b43bd8b0af692ce9895869710c2cbe25f0c93fb77a6c537d7a61a0"
+}

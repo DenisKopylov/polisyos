@@ -1,0 +1,27 @@
+{"independent_frozen_owner": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624", "source_sha256": "164d0c6d960a9ec12b9afb18cb5dcc2d1a1dbc2479d40f847b7fc7335c2ca656", "pid": 667035, "origin": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"}
+{
+  "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+  "source_sha256": "164d0c6d960a9ec12b9afb18cb5dcc2d1a1dbc2479d40f847b7fc7335c2ca656",
+  "independent_definition": "group-mean pretrend difference intercept+slope OLS; HC1 n/(n-k); Normal two-sided erfc",
+  "hand_expected": {
+    "slope": -0.15,
+    "variance": 0.07041666666666667,
+    "se": 0.26536138880151094,
+    "p": 0.5718922635979182
+  },
+  "actual_typed_diagnostic": {
+    "test_name": "pre_trend_parallelism",
+    "statistic": -0.15000000000000005,
+    "p_value": 0.5718922635979181,
+    "passed": true,
+    "details": {
+      "identification_authority": false,
+      "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+      "status": "no_detected_pretrend",
+      "slope_se": 0.265361388801511,
+      "z_score": -0.5652668637191951
+    }
+  },
+  "consumer": "PASS",
+  "scope": "known finite synthetic diagnostic; no identification/evaluation authority"
+}

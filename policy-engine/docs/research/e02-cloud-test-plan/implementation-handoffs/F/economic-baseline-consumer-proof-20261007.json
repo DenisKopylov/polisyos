@@ -1,0 +1,1902 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "economic-baseline-consumer-proof-20261007",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA035",
+    "LA004"
+  ],
+  "bundle_ids": [
+    "ECO-01"
+  ],
+  "slice_base_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+  "implementation_commits": [
+    "193b3582a72c640c1d06a131f93502654a77a36a",
+    "c0084cd530c1dbe01eedfb9b5c24f055954a97be"
+  ],
+  "candidate_sha": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+  "candidate_tree_sha": "9bbaa69dc195dd38adb04c9d52fc4cd700824bc7",
+  "branch": "codex/e02-F-economics-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+    "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+    "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py"
+  ],
+  "source_bindings": [
+    {
+      "git_ref": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+      "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "bytes": 3819,
+      "sha256": "15adc343cc2f252c82d94bd026d5a6fa0384af0c597fb19698b3c5722fd12922",
+      "git_blob": "781e8d960361e0e06d95d1533f91502c8d7cbd87"
+    },
+    {
+      "git_ref": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+      "bytes": 1453,
+      "sha256": "6032dc792dbafa93d538ca74db4d29f36969cf02c6fb6da6b1bb83b40cd6b0a6",
+      "git_blob": "c411fcd3f1e8001175ec5a4e755fa7394ed58b64"
+    },
+    {
+      "git_ref": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+      "bytes": 7881,
+      "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c",
+      "git_blob": "837ecded46cf58203b7aca69c684139170c59e98"
+    },
+    {
+      "git_ref": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+      "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "bytes": 4971,
+      "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+      "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7"
+    }
+  ],
+  "baseline_cells": [
+    {
+      "id": "F03-P095",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+      "state": "PASS",
+      "collected": "14",
+      "calls": "14",
+      "call_pass": "14",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.22",
+      "rss_kib": "733552.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "225",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F04-P040",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_fiscal.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.397",
+      "rss_kib": "610360",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "250",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F04-P049",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_labor.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.666",
+      "rss_kib": "704336",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "259",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F04-P067",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/analysis/test_loss_numeric.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.721",
+      "rss_kib": "583844",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "277",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F09-P097",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+      "state": "PASS",
+      "collected": "14",
+      "calls": "14",
+      "call_pass": "14",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "34.73",
+      "rss_kib": "890384",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "213",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P110",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+      "state": "PASS",
+      "collected": "14",
+      "calls": "14",
+      "call_pass": "14",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "13.57",
+      "rss_kib": "868336",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "265",
+      "extra_json": "{\"reason\":\"null\"}"
+    }
+  ],
+  "baseline_scope": "Historical candidate navigation only; source-reported PASS and summary-only receipts do not establish present product closure. Full native83 supplies current deciding finite evidence.",
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "origin_plugin",
+        "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+        "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+        "tests/unit/foundry/plugins/test_economic_profiles.py",
+        "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+        "tests/unit/foundry/analysis/test_loss_numeric.py",
+        "tests/unit/remediation/test_eco_01.py",
+        "-v",
+        "--tb=short",
+        "--junitxml=/tmp/e02-F-continuation-20261007/economics/native.xml"
+      ],
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "target_tree_sha": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": [
+        {
+          "path": "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf"
+        },
+        {
+          "path": "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c"
+        },
+        {
+          "path": "tests/unit/foundry/plugins/test_economic_profiles.py",
+          "bytes": 16074,
+          "sha256": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+        },
+        {
+          "path": "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+          "bytes": 10844,
+          "sha256": "0d9fa74a4e4fa35946a4a36d11541fc48d14edc121b3652b29a7e162745abed4"
+        },
+        {
+          "path": "tests/unit/foundry/analysis/test_loss_numeric.py",
+          "bytes": 955,
+          "sha256": "01201c97ad33b594d97149502a8936a07d6f3a3982cc0baebe2b8c3c4c713aa2"
+        },
+        {
+          "path": "tests/unit/remediation/test_eco_01.py",
+          "bytes": 5593,
+          "sha256": "f0dd85cfd6f0f2c2a92c643b3cf3fb73ab708e984a54d5510fd375f6235b44ad"
+        }
+      ],
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 78.67781910899794,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.stdout.txt.xz",
+        "bytes": 1088,
+        "sha256": "dc8570affcb9d66de8ad96028938b3da4942c3c9958e7255e16854da740d1bdb",
+        "raw_bytes": 2368,
+        "raw_sha256": "b9c46ed31b9664e95f437a83dceb460d6891e7d7cdfea1fe65cef733fc45edb2",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native.stderr.txt"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.receipt.json",
+        "bytes": 3464,
+        "sha256": "7fd78b3d703920b06f0403f4f4369e00a86eb3b38d07e747fe0cae0aa6b1fa38",
+        "raw_bytes": 3464,
+        "raw_sha256": "7fd78b3d703920b06f0403f4f4369e00a86eb3b38d07e747fe0cae0aa6b1fa38",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native.receipt.json"
+      },
+      "counts": {
+        "tests": 83,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.xml.xz",
+        "bytes": 1892,
+        "sha256": "5ccba6500823512e6116e652ad8c11c6cc11b8269fbecafc426002be1899f024",
+        "raw_bytes": 15081,
+        "raw_sha256": "e008d8810f6d54211800a8fedc58929de7d091c993c19296db12c175837006e9",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native.xml"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/economics/removal.py",
+        "baseline-sign"
+      ],
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "target_tree_sha": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Exact native defining test definitions at frozen193; canonical function mutated only in memory, source paths/names/aliases/backend/state/producer/law retained. Complete mutation script and module-source bindings in full output.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 60.01819193401025,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.stdout.txt.xz",
+        "bytes": 1800,
+        "sha256": "e794d1e66780154d2cc158be1236d4156f05d595bfa5e439587d139e72ac53d4",
+        "raw_bytes": 11862,
+        "raw_sha256": "cfdd1e97b03966d64a602fbe7d469381a58b3f4cbf659eda68a21800b2ea1952",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign.stderr.txt"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.receipt.json",
+        "bytes": 1803,
+        "sha256": "a9e3533b4f4d40ec2c8f2a28d22f8a3751cf3b492abbbf1f1a3043d8fd93c107",
+        "raw_bytes": 1803,
+        "raw_sha256": "a9e3533b4f4d40ec2c8f2a28d22f8a3751cf3b492abbbf1f1a3043d8fd93c107",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign.receipt.json"
+      },
+      "counts": {
+        "tests": 21,
+        "failures": 13,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.xml.xz",
+        "bytes": 1188,
+        "sha256": "3f0ce57b0f5ef4f0700b38c0ffb6f6ff83512bd73d6dd91a7d50c06f28dbd95f",
+        "raw_bytes": 14224,
+        "raw_sha256": "4ff22b45caf5fa7d02a941046d5aae084cec31b7024ab1692d8def17dea0c05a",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign.xml"
+      },
+      "expected_outcome": "FAIL"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/economics/removal.py",
+        "baseline-guard"
+      ],
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "target_tree_sha": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Exact native defining test definitions at frozen193; canonical function mutated only in memory, source paths/names/aliases/backend/state/producer/law retained. Complete mutation script and module-source bindings in full output.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 45.515455371001735,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.stdout.txt.xz",
+        "bytes": 1544,
+        "sha256": "7daa396ca1ed0f835afce49854ab645ad071f47455425bb1383defb04913f11f",
+        "raw_bytes": 3701,
+        "raw_sha256": "b55e87cba956b6f3767f79e3ef2e2e9b8475e1925832430995d845521fcd7987",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.stderr.txt"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.receipt.json",
+        "bytes": 1807,
+        "sha256": "4144db6b9521195975c9fe084bc7c5dbfb59d88b4884c92ccf7ad58cc92e57f0",
+        "raw_bytes": 1807,
+        "raw_sha256": "4144db6b9521195975c9fe084bc7c5dbfb59d88b4884c92ccf7ad58cc92e57f0",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.receipt.json"
+      },
+      "counts": {
+        "tests": 21,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.xml.xz",
+        "bytes": 1020,
+        "sha256": "727304c1820ec8c4465b31dd0376161f911f4cc5f56c4fac30ce5beec232fb08",
+        "raw_bytes": 5999,
+        "raw_sha256": "358d08c8e1fdcfc031cf39aceb2af3b6fb558957a18d6f1e6f3cc4169a06b792",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.xml"
+      },
+      "expected_outcome": "FAIL"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/economics/removal.py",
+        "gini-domain"
+      ],
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "target_tree_sha": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Exact native defining test definitions at frozen193; canonical function mutated only in memory, source paths/names/aliases/backend/state/producer/law retained. Complete mutation script and module-source bindings in full output.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 46.68509467699914,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.stdout.txt.xz",
+        "bytes": 1604,
+        "sha256": "2067754ac6030175bddccfe7b05f92f83331a57d517593d5827639461fd42c17",
+        "raw_bytes": 5190,
+        "raw_sha256": "db8c1000ce6a3654da537df196507b96ac18c9cb0f30a5b0486b4a404be93882",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain.stderr.txt"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.receipt.json",
+        "bytes": 1791,
+        "sha256": "e08069e8310d6fc482c823b329bda55797936aef948ad7f621327b7e9de932a3",
+        "raw_bytes": 1791,
+        "raw_sha256": "e08069e8310d6fc482c823b329bda55797936aef948ad7f621327b7e9de932a3",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain.receipt.json"
+      },
+      "counts": {
+        "tests": 7,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.xml.xz",
+        "bytes": 708,
+        "sha256": "7f85486467d9492fd7088ab23ab5efbad3e7b06d6b19942d8fbf5127837312d4",
+        "raw_bytes": 3190,
+        "raw_sha256": "3fc547f3fb29c416c94d4e557ea71c0de63b003b82db5f9c0bc51b993ae65ea7",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain.xml"
+      },
+      "expected_outcome": "FAIL"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+        "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py"
+      ],
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "target_tree_sha": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": [],
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.2379732520203106,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.stdout.txt.xz",
+        "bytes": 76,
+        "sha256": "76746c316d09ceba3ee70f618ecbaa3740cee45a2173af3c3e7eb3a11ef73eea",
+        "raw_bytes": 19,
+        "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/ruff.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/ruff.stderr.txt"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.receipt.json",
+        "bytes": 1417,
+        "sha256": "84fd2f8579191944d943a9d0b1b928e17ac4a26eb95609f772223d1f4cc8405d",
+        "raw_bytes": 1417,
+        "raw_sha256": "84fd2f8579191944d943a9d0b1b928e17ac4a26eb95609f772223d1f4cc8405d",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/ruff.receipt.json"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+        "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py"
+      ],
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "target_tree_sha": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": [],
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.17417859099805355,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.stdout.txt.xz",
+        "bytes": 84,
+        "sha256": "f592a43bf99d43881d01d0dfd51eaba9f52f009365e417e66c35e11f97109620",
+        "raw_bytes": 26,
+        "raw_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/format.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/format.stderr.txt"
+      },
+      "measurement_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.receipt.json",
+        "bytes": 1438,
+        "sha256": "832a61777f8693d9e62d8253c77d921d272f4884e81dcc644dd811d40a539e5e",
+        "raw_bytes": 1438,
+        "raw_sha256": "832a61777f8693d9e62d8253c77d921d272f4884e81dcc644dd811d40a539e5e",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/format.receipt.json"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/economics/check_fragment.py"
+      ],
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "environment": "Readonly Python3.14.7; native canonical validator, PYTHONPATH=src:tools:.",
+      "input_closure": "Complete single internal fragment and actual full compatibility policy bound in output; not full release/architecture gate.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/fragment.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/fragment.stdout.txt.xz",
+        "bytes": 620,
+        "sha256": "1a55c664dedfab24e10fec51b5816d4796535085f77a77b425b9e1fcda674a24",
+        "raw_bytes": 995,
+        "raw_sha256": "b0c2396f55b1825962958fcba471fc8ffcbba4e86d06400b46b9ea96de5bc5f4",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/fragment.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/fragment.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/fragment.stderr.txt"
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+        "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+        "-v",
+        "--tb=short",
+        "--junitxml=/tmp/e02-F-continuation-20261007/economics/defining-prefreeze.xml"
+      ],
+      "target_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "environment": "Readonly Python3.14.7/JAX0.8.2; uncommitted test definitions, not frozen193.",
+      "input_closure": "Collection harness used nonexistent default_metrics; no deciding product tests executed.",
+      "outcome": "ERROR",
+      "exit_code": 2,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.stdout.txt.xz",
+        "bytes": 1092,
+        "sha256": "32a78964f7953956aa79fb3f036d8d2a80bc378ba7b847c4696601e0ced2fab5",
+        "raw_bytes": 2391,
+        "raw_sha256": "e16ab51a48c1e472d88814a07e19c16351249a93817642f571a3933438ca44a2",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-prefreeze.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-prefreeze.stderr.txt"
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.xml.xz",
+        "bytes": 572,
+        "sha256": "6928fe8c311335cfa84e163e76d092253cbedba15cd2d8514ab7454f2b83f591",
+        "raw_bytes": 1003,
+        "raw_sha256": "ef0f4a2b05568230192c2f27e8526390a25b74b27b4887cd201729889fea0a9d",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-prefreeze.xml"
+      },
+      "product_attribution": "not_established; own harness failure retained"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+        "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+        "-v",
+        "--tb=short",
+        "--junitxml=/tmp/e02-F-continuation-20261007/economics/defining-v2.xml"
+      ],
+      "target_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "environment": "Readonly Python3.14.7/JAX0.8.2; uncommitted test definitions, not frozen193.",
+      "input_closure": "27PASS1FAIL: ordinary jax.jit returned static MetricDefinition; harness corrected to eqx.filter_jit. Test source got finite-guard extension during this prefreeze run; not deciding frozen source evidence.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.stdout.txt.xz",
+        "bytes": 1504,
+        "sha256": "5c19920e71ebdc2d2d0a75e1f6fa597d20eda5e78918f7d95c18938838242cf6",
+        "raw_bytes": 3907,
+        "raw_sha256": "b49e71e41ab902a6f591610a4adc615fce1c71ddb30a8a58a5f118c4097c8bf5",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-v2.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-v2.stderr.txt"
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.xml.xz",
+        "bytes": 1368,
+        "sha256": "95ab553383c5aeb895ca89c876a31dfdb8167ef656eedf29e252a59dc08d4960",
+        "raw_bytes": 7675,
+        "raw_sha256": "6bda46c673022a9c7905f512934ade088aefc58cbbf90381fdd44082f36b1484",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-v2.xml"
+      },
+      "product_attribution": "not_established; own harness failure retained"
+    },
+    {
+      "command": "Initial scratch signed-route-probe.py (exact initial-harness script transported)",
+      "target_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "environment": "Readonly Python3.14.7/JAX0.8.2; source8236 is unchanged runtime, scratch harness only.",
+      "input_closure": "Own FidelityLevel.HARD enum typo before producer invocation; no deciding route result.",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.stdout.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-signed-route-probe.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.stderr.txt.xz",
+        "bytes": 476,
+        "sha256": "6d0b016cd05302343b505e297fd9a54a3233b166ce3305c8ed6137e898fee536",
+        "raw_bytes": 1150,
+        "raw_sha256": "b8f4a30aceda92f2576f4e646bb5ac6c3791493e9fe2ad3d25fab90074e9de08",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-signed-route-probe.stderr.txt"
+      }
+    },
+    {
+      "command": "Initial removal helper script at initial-harness-removal.py (exact bytes transported)",
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "environment": "Readonly Python3.14.7; no product writes.",
+      "input_closure": "Wrong guessed private helper name; AttributeError before pytest. Initial generic runner labeled FAIL for positive exit1, corrected here to ERROR; no negative property witness inherited.",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.stdout.txt.xz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.stdout.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-removal-gini-domain.stdout.txt"
+      },
+      "stderr_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.stderr.txt.xz",
+        "bytes": 292,
+        "sha256": "b2c64ec66fa43d4668e1c7c7cd10e2a5291888ea5bfe05aa0178a8e3872e6152",
+        "raw_bytes": 343,
+        "raw_sha256": "ffc9965c83fca047b114c06204041759518de697c57c24d345d010f3a4506ec8",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-removal-gini-domain.stderr.txt"
+      }
+    },
+    {
+      "command": "Independent commands/configs/execution receipts are complete under independent-cau; exact command and source guard records retained",
+      "target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "environment": "Readonly native Python3.14.7/JAX0.8.2; no production/backend writes",
+      "input_closure": "Independent new28PASS/sibling55PASS separate runs;64Fraction eager/JIT panels+2analyticgradients; real canonical sameobject code-body removals; full9007Git inputcensus and publishedC3byteidentity",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+        "bytes": 40561,
+        "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+        "raw_bytes": 40561,
+        "raw_sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/independent-review.json"
+      }
+    },
+    {
+      "command": "Independent Git-only single nine-line leased profile doc delta review193→c008; complete record transported",
+      "target_sha": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+      "environment": "Read-only Git; no new numerical run claimed",
+      "input_closure": "One current profile doc only; runtime/tests/releasefragment blobs unchanged193; original current recommendation and dated historical hold separate",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+        "bytes": 688,
+        "sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+        "raw_bytes": 688,
+        "raw_sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/doc-delta-review.json"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Original LA035 equivalent relocation preserves historical float32 native income/budget formula, sign/scales/population, realguard, aliases, JIT/grad and import behavior. Actual C/PPO tax producer reaches existing canonical current-Gini domain refusal before requested metric publication; signed simulation without Gini and inactive padding retain their contracts.",
+    "runtime_path": [
+      "EconomicsTrainingAdapter.make_executor",
+      "real ActorCritic/TemporalConsumptionMechanism",
+      "registered plugin labor_market/taxation/transfers/savings",
+      "real CompositeExecutor distribution refresh / metrics.standard_training_metrics / create_jit_trainer_with_metrics"
+    ],
+    "proxy_divergence": "Literal callable identity is insufficient: sign13fail, guard1fail and admission5fail removals retain names/aliases/source markers and real producers, while restored frozen native83 passes.",
+    "negative_controls": [
+      "canonical baseline sign removal:13FAIL8PASS",
+      "canonical baseline numeric guard removal:1FAIL20PASS",
+      "canonical Gini admission removal:5FAIL2PASS"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Original technical recommendations LA035closed and LA004closed; ROOT current35 adjudication and G acceptance remain separate. No original-ID promotion is made by closure_ids in this companion until ROOT updates its current record.",
+  "per_id_recommendations": [
+    {
+      "finding_id": "LA-035",
+      "bundle_id": "ECO-01",
+      "check": "PASS",
+      "outcome": "closed",
+      "role": "original_technical_recommendation; ROOT-current-decision pending",
+      "original_criterion_ref": {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          2066,
+          2102
+        ],
+        "block_bytes": 7176,
+        "block_sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69"
+      },
+      "full_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/original-criterion-adjudication.json",
+        "bytes": 53242,
+        "sha256": "a9fabb5e1a209ed5bbe04a6d99fc543debc1b9069f9004fdded7271337eb3b5c",
+        "raw_bytes": 53242,
+        "raw_sha256": "a9fabb5e1a209ed5bbe04a6d99fc543debc1b9069f9004fdded7271337eb3b5c",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/original-criterion-adjudication.json"
+      },
+      "old_hold_reason_obsolete": true
+    },
+    {
+      "finding_id": "LA-004",
+      "bundle_id": "ECO-01",
+      "check": "PASS",
+      "outcome": "closed",
+      "role": "original_technical_recommendation; ROOT-current-decision pending",
+      "original_criterion_ref": {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          167,
+          197
+        ],
+        "block_bytes": 3498,
+        "block_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a"
+      },
+      "full_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/original-criterion-adjudication.json",
+        "bytes": 53242,
+        "sha256": "a9fabb5e1a209ed5bbe04a6d99fc543debc1b9069f9004fdded7271337eb3b5c",
+        "raw_bytes": 53242,
+        "raw_sha256": "a9fabb5e1a209ed5bbe04a6d99fc543debc1b9069f9004fdded7271337eb3b5c",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/original-criterion-adjudication.json"
+      },
+      "old_hold_reason_obsolete": false
+    }
+  ],
+  "controlling_common": {
+    "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+    "local_exact_input": "/tmp/e02-F-continuation-20261007/intake/COMMON.md",
+    "bytes": 8565,
+    "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79"
+  },
+  "runtime_source_identity": "Product8236 runtime bytes unchanged in candidate193 and final doc-onlyc008; publishedG9a C producer/bridge bytes independently compared complete against candidate. Full actual3869module origins transported.",
+  "evidence_transfer": {
+    "manifest": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/F-failures-query.json",
+        "bytes": 19253,
+        "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+        "raw_bytes": 19253,
+        "raw_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/F-failures-query.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/F-failures-query.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/F-failures-query.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/LA004-query.json",
+        "bytes": 7855,
+        "sha256": "32b276ec2102ecfe9dd004ea69c58464d87a4c24d69d92016621edb8770ff4be",
+        "raw_bytes": 7855,
+        "raw_sha256": "32b276ec2102ecfe9dd004ea69c58464d87a4c24d69d92016621edb8770ff4be",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/LA004-query.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/LA004-query.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/LA004-query.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/LA035-query.json",
+        "bytes": 7855,
+        "sha256": "13695d227995583379ff42701f1873f3f1de8ecc743c108c4cd30b3147efc09a",
+        "raw_bytes": 7855,
+        "raw_sha256": "13695d227995583379ff42701f1873f3f1de8ecc743c108c4cd30b3147efc09a",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/LA035-query.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/LA035-query.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/LA035-query.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/baseline-consumer-census.json.xz",
+        "bytes": 613216,
+        "sha256": "71e1e9a8e2a3019f239b675ea0b5316d57b6ddfe33902007921285dfe23663c2",
+        "raw_bytes": 2426625,
+        "raw_sha256": "e2031e62e2b978c72a2093f2907a430d2ddc5e41b152560caf9ad61bb29b2f1c",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/baseline-consumer-census.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/build_adjudication.py",
+        "bytes": 9505,
+        "sha256": "0f050d277a2181c94e268319aed8d2e0e9e448da5fe8d1e718dbcda71926f95e",
+        "raw_bytes": 9505,
+        "raw_sha256": "0f050d277a2181c94e268319aed8d2e0e9e448da5fe8d1e718dbcda71926f95e",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/build_adjudication.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/build_census.py",
+        "bytes": 3391,
+        "sha256": "f38052f5b2b1bd8a8311e83511f00b27fc7bcc5e3506725675d2461a0816704a",
+        "raw_bytes": 3391,
+        "raw_sha256": "f38052f5b2b1bd8a8311e83511f00b27fc7bcc5e3506725675d2461a0816704a",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/build_census.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/bundle-owners-F.json",
+        "bytes": 3108,
+        "sha256": "f97a2b8dca0a765abe3f3a59ad12548094b6215f2cd2128ebb82efc10c6b2164",
+        "raw_bytes": 3108,
+        "raw_sha256": "f97a2b8dca0a765abe3f3a59ad12548094b6215f2cd2128ebb82efc10c6b2164",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/bundle-owners-F.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/check_fragment.py",
+        "bytes": 1015,
+        "sha256": "d2c1d1e312e3c3e3b9538c8c3c303753ce5abb84919bd71736bb13056443c9d7",
+        "raw_bytes": 1015,
+        "raw_sha256": "d2c1d1e312e3c3e3b9538c8c3c303753ce5abb84919bd71736bb13056443c9d7",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/check_fragment.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/classify_references.py",
+        "bytes": 5351,
+        "sha256": "1ff84f1bc8ced73f467d3602c655740f2d2f407adf70b86e28a55d291527d908",
+        "raw_bytes": 5351,
+        "raw_sha256": "1ff84f1bc8ced73f467d3602c655740f2d2f407adf70b86e28a55d291527d908",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/classify_references.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/current-caption-role-classification.json",
+        "bytes": 60099,
+        "sha256": "b07d5e20d32701b4e969a3f6bf9e96080a68c8d8fda36f2e180b26c70753af6b",
+        "raw_bytes": 60099,
+        "raw_sha256": "b07d5e20d32701b4e969a3f6bf9e96080a68c8d8fda36f2e180b26c70753af6b",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/current-caption-role-classification.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-prefreeze.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.stdout.txt.xz",
+        "bytes": 1092,
+        "sha256": "32a78964f7953956aa79fb3f036d8d2a80bc378ba7b847c4696601e0ced2fab5",
+        "raw_bytes": 2391,
+        "raw_sha256": "e16ab51a48c1e472d88814a07e19c16351249a93817642f571a3933438ca44a2",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-prefreeze.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.xml.xz",
+        "bytes": 572,
+        "sha256": "6928fe8c311335cfa84e163e76d092253cbedba15cd2d8514ab7454f2b83f591",
+        "raw_bytes": 1003,
+        "raw_sha256": "ef0f4a2b05568230192c2f27e8526390a25b74b27b4887cd201729889fea0a9d",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-prefreeze.xml"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-v2.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.stdout.txt.xz",
+        "bytes": 1504,
+        "sha256": "5c19920e71ebdc2d2d0a75e1f6fa597d20eda5e78918f7d95c18938838242cf6",
+        "raw_bytes": 3907,
+        "raw_sha256": "b49e71e41ab902a6f591610a4adc615fce1c71ddb30a8a58a5f118c4097c8bf5",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-v2.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.xml.xz",
+        "bytes": 1368,
+        "sha256": "95ab553383c5aeb895ca89c876a31dfdb8167ef656eedf29e252a59dc08d4960",
+        "raw_bytes": 7675,
+        "raw_sha256": "6bda46c673022a9c7905f512934ade088aefc58cbbf90381fdd44082f36b1484",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/defining-v2.xml"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/dependent-reference-locators.json",
+        "bytes": 319922,
+        "sha256": "a01cd05457e933840aa5335fa6586d363a6ee2ce37e4eb73e0786c38166b20ff",
+        "raw_bytes": 319922,
+        "raw_sha256": "a01cd05457e933840aa5335fa6586d363a6ee2ce37e4eb73e0786c38166b20ff",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/dependent-reference-locators.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/doc-delta.diff.xz",
+        "bytes": 804,
+        "sha256": "62ca679a95016b7bca106bb2aad63ee8647c7e056a556dfdcc3f9eb8b8873bd3",
+        "raw_bytes": 1377,
+        "raw_sha256": "e6810be8edd0380d3b8b53d18e821cfb0576c1948bbd0066f6c6f3e8b2df49b7",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/doc-delta.diff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/doc-fidelity.json",
+        "bytes": 491,
+        "sha256": "7490a729bb201e99ef5971275c7043fc68b6f2294252f2ef93c6cc1ff4fdd573",
+        "raw_bytes": 491,
+        "raw_sha256": "7490a729bb201e99ef5971275c7043fc68b6f2294252f2ef93c6cc1ff4fdd573",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/doc-fidelity.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/doc-runtime-test-identical.diff.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/doc-runtime-test-identical.diff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/environment.json",
+        "bytes": 189,
+        "sha256": "c39fb9ad4c9303170f40d32b6f822fbb2adcb2c9366143e54531579663917a03",
+        "raw_bytes": 189,
+        "raw_sha256": "c39fb9ad4c9303170f40d32b6f822fbb2adcb2c9366143e54531579663917a03",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/environment.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/finding-owners-F.json",
+        "bytes": 6817,
+        "sha256": "4f091887124a4d7dc35e19c8305be9d6e81c9d6d16f701f9c2d9b0c80cc82e08",
+        "raw_bytes": 6817,
+        "raw_sha256": "4f091887124a4d7dc35e19c8305be9d6e81c9d6d16f701f9c2d9b0c80cc82e08",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/finding-owners-F.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.receipt.json",
+        "bytes": 1438,
+        "sha256": "832a61777f8693d9e62d8253c77d921d272f4884e81dcc644dd811d40a539e5e",
+        "raw_bytes": 1438,
+        "raw_sha256": "832a61777f8693d9e62d8253c77d921d272f4884e81dcc644dd811d40a539e5e",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/format.receipt.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/format.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.stdout.txt.xz",
+        "bytes": 84,
+        "sha256": "f592a43bf99d43881d01d0dfd51eaba9f52f009365e417e66c35e11f97109620",
+        "raw_bytes": 26,
+        "raw_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/format.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/fragment.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/fragment.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/fragment.stdout.txt.xz",
+        "bytes": 620,
+        "sha256": "1a55c664dedfab24e10fec51b5816d4796535085f77a77b425b9e1fcda674a24",
+        "raw_bytes": 995,
+        "raw_sha256": "b0c2396f55b1825962958fcba471fc8ffcbba4e86d06400b46b9ea96de5bc5f4",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/fragment.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/implementation.diff.xz",
+        "bytes": 5996,
+        "sha256": "324b61b6959d49cc649c7d7e82b15e416ed8c6f1e1ecfa823084c932d3bc25c9",
+        "raw_bytes": 19826,
+        "raw_sha256": "b1593bdf40ccb9a8e6c235d493d486d2c904a864cface975b4b47870adfd2f19",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/implementation.diff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.receipt.json",
+        "bytes": 1377,
+        "sha256": "d4617e27eadc3b9d6788648dce503788c225e3c23ddbb7adb1fe935722004e94",
+        "raw_bytes": 1377,
+        "raw_sha256": "d4617e27eadc3b9d6788648dce503788c225e3c23ddbb7adb1fe935722004e94",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-removal-gini-domain.receipt.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.stderr.txt.xz",
+        "bytes": 292,
+        "sha256": "b2c64ec66fa43d4668e1c7c7cd10e2a5291888ea5bfe05aa0178a8e3872e6152",
+        "raw_bytes": 343,
+        "raw_sha256": "ffc9965c83fca047b114c06204041759518de697c57c24d345d010f3a4506ec8",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-removal-gini-domain.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.stdout.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-removal-gini-domain.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal.py",
+        "bytes": 1773,
+        "sha256": "1dff478b7fb1247c056c5421c772627b8179787709f9352510cd04029e484995",
+        "raw_bytes": 1773,
+        "raw_sha256": "1dff478b7fb1247c056c5421c772627b8179787709f9352510cd04029e484995",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-removal.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.py",
+        "bytes": 2972,
+        "sha256": "050e01446c1c416fb12f9abd4385656ff01a4a5c0754ee71e080d272d699c412",
+        "raw_bytes": 2972,
+        "raw_sha256": "050e01446c1c416fb12f9abd4385656ff01a4a5c0754ee71e080d272d699c412",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-signed-route-probe.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.stderr.txt.xz",
+        "bytes": 476,
+        "sha256": "6d0b016cd05302343b505e297fd9a54a3233b166ce3305c8ed6137e898fee536",
+        "raw_bytes": 1150,
+        "raw_sha256": "b8f4a30aceda92f2576f4e646bb5ac6c3791493e9fe2ad3d25fab90074e9de08",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-signed-route-probe.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.stdout.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/initial-harness-signed-route-probe.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native-origins.json.xz",
+        "bytes": 189784,
+        "sha256": "0ffff206c4e80670d06305567302e0e289cffc261701e9f8a295e45bcb750775",
+        "raw_bytes": 1128047,
+        "raw_sha256": "b38801ebe36152ce1a32d20aa861a49d97e93cf0638f3a68578012a9eb2c28ec",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native-origins.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.receipt.json",
+        "bytes": 3464,
+        "sha256": "7fd78b3d703920b06f0403f4f4369e00a86eb3b38d07e747fe0cae0aa6b1fa38",
+        "raw_bytes": 3464,
+        "raw_sha256": "7fd78b3d703920b06f0403f4f4369e00a86eb3b38d07e747fe0cae0aa6b1fa38",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native.receipt.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.stdout.txt.xz",
+        "bytes": 1088,
+        "sha256": "dc8570affcb9d66de8ad96028938b3da4942c3c9958e7255e16854da740d1bdb",
+        "raw_bytes": 2368,
+        "raw_sha256": "b9c46ed31b9664e95f437a83dceb460d6891e7d7cdfea1fe65cef733fc45edb2",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.xml.xz",
+        "bytes": 1892,
+        "sha256": "5ccba6500823512e6116e652ad8c11c6cc11b8269fbecafc426002be1899f024",
+        "raw_bytes": 15081,
+        "raw_sha256": "e008d8810f6d54211800a8fedc58929de7d091c993c19296db12c175837006e9",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/native.xml"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/old-held-literal.diff.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/old-held-literal.diff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/origin_plugin.py",
+        "bytes": 458,
+        "sha256": "6dd3dbe6e0dcd7616f4f01e9e1a99d07cd78e5fb079a057a6c01064be7dd645e",
+        "raw_bytes": 458,
+        "raw_sha256": "6dd3dbe6e0dcd7616f4f01e9e1a99d07cd78e5fb079a057a6c01064be7dd645e",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/origin_plugin.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/original-criterion-adjudication.json",
+        "bytes": 53242,
+        "sha256": "a9fabb5e1a209ed5bbe04a6d99fc543debc1b9069f9004fdded7271337eb3b5c",
+        "raw_bytes": 53242,
+        "raw_sha256": "a9fabb5e1a209ed5bbe04a6d99fc543debc1b9069f9004fdded7271337eb3b5c",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/original-criterion-adjudication.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/receipt-diff-check.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/receipt-diff-check.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/receipt-diff-check.stdout.txt.xz",
+        "bytes": 588,
+        "sha256": "6e1c0fdc988c5d1275540eb32d85632a7f62bfcfa1f5154b0496dca5a2a6344e",
+        "raw_bytes": 11149,
+        "raw_sha256": "f56f9c4a362624d1e086ee048d1f4d53e745fbecd03eb57b249f13a54cb6840d",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/receipt-diff-check.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard-origins.json.xz",
+        "bytes": 188416,
+        "sha256": "33a79e942a8a7f2cb2bdb8490b08e08c8f4a11bc1aa6aa962a033808b23e7f19",
+        "raw_bytes": 1120264,
+        "raw_sha256": "6cd3226f2f7f877821d2bfd6bb7f115a2852cca855bf4a49355e2343f5be7fb3",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard-origins.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.receipt.json",
+        "bytes": 1807,
+        "sha256": "4144db6b9521195975c9fe084bc7c5dbfb59d88b4884c92ccf7ad58cc92e57f0",
+        "raw_bytes": 1807,
+        "raw_sha256": "4144db6b9521195975c9fe084bc7c5dbfb59d88b4884c92ccf7ad58cc92e57f0",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.receipt.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.stdout.txt.xz",
+        "bytes": 1544,
+        "sha256": "7daa396ca1ed0f835afce49854ab645ad071f47455425bb1383defb04913f11f",
+        "raw_bytes": 3701,
+        "raw_sha256": "b55e87cba956b6f3767f79e3ef2e2e9b8475e1925832430995d845521fcd7987",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.xml.xz",
+        "bytes": 1020,
+        "sha256": "727304c1820ec8c4465b31dd0376161f911f4cc5f56c4fac30ce5beec232fb08",
+        "raw_bytes": 5999,
+        "raw_sha256": "358d08c8e1fdcfc031cf39aceb2af3b6fb558957a18d6f1e6f3cc4169a06b792",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-guard.xml"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign-origins.json.xz",
+        "bytes": 188416,
+        "sha256": "33a79e942a8a7f2cb2bdb8490b08e08c8f4a11bc1aa6aa962a033808b23e7f19",
+        "raw_bytes": 1120264,
+        "raw_sha256": "6cd3226f2f7f877821d2bfd6bb7f115a2852cca855bf4a49355e2343f5be7fb3",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign-origins.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.receipt.json",
+        "bytes": 1803,
+        "sha256": "a9e3533b4f4d40ec2c8f2a28d22f8a3751cf3b492abbbf1f1a3043d8fd93c107",
+        "raw_bytes": 1803,
+        "raw_sha256": "a9e3533b4f4d40ec2c8f2a28d22f8a3751cf3b492abbbf1f1a3043d8fd93c107",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign.receipt.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.stdout.txt.xz",
+        "bytes": 1800,
+        "sha256": "e794d1e66780154d2cc158be1236d4156f05d595bfa5e439587d139e72ac53d4",
+        "raw_bytes": 11862,
+        "raw_sha256": "cfdd1e97b03966d64a602fbe7d469381a58b3f4cbf659eda68a21800b2ea1952",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.xml.xz",
+        "bytes": 1188,
+        "sha256": "3f0ce57b0f5ef4f0700b38c0ffb6f6ff83512bd73d6dd91a7d50c06f28dbd95f",
+        "raw_bytes": 14224,
+        "raw_sha256": "4ff22b45caf5fa7d02a941046d5aae084cec31b7024ab1692d8def17dea0c05a",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-baseline-sign.xml"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain-origins.json.xz",
+        "bytes": 188392,
+        "sha256": "90abd1f282aa7092abe0b4e13269fe8c49a45d88aa692638b7d922801043491f",
+        "raw_bytes": 1120275,
+        "raw_sha256": "ad8fc88e8501d931267d76be769fbc8f9529216b717c56503288b782eaad0c08",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain-origins.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.receipt.json",
+        "bytes": 1791,
+        "sha256": "e08069e8310d6fc482c823b329bda55797936aef948ad7f621327b7e9de932a3",
+        "raw_bytes": 1791,
+        "raw_sha256": "e08069e8310d6fc482c823b329bda55797936aef948ad7f621327b7e9de932a3",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain.receipt.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.stdout.txt.xz",
+        "bytes": 1604,
+        "sha256": "2067754ac6030175bddccfe7b05f92f83331a57d517593d5827639461fd42c17",
+        "raw_bytes": 5190,
+        "raw_sha256": "db8c1000ce6a3654da537df196507b96ac18c9cb0f30a5b0486b4a404be93882",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.xml.xz",
+        "bytes": 708,
+        "sha256": "7f85486467d9492fd7088ab23ab5efbad3e7b06d6b19942d8fbf5127837312d4",
+        "raw_bytes": 3190,
+        "raw_sha256": "3fc547f3fb29c416c94d4e557ea71c0de63b003b82db5f9c0bc51b993ae65ea7",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal-gini-domain.xml"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal.py",
+        "bytes": 1753,
+        "sha256": "7bb2e39da3bd66611f506e91a6aa59d93dc620d596d7faed577411d381a6abb1",
+        "raw_bytes": 1753,
+        "raw_sha256": "7bb2e39da3bd66611f506e91a6aa59d93dc620d596d7faed577411d381a6abb1",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/removal.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.receipt.json",
+        "bytes": 1417,
+        "sha256": "84fd2f8579191944d943a9d0b1b928e17ac4a26eb95609f772223d1f4cc8405d",
+        "raw_bytes": 1417,
+        "raw_sha256": "84fd2f8579191944d943a9d0b1b928e17ac4a26eb95609f772223d1f4cc8405d",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/ruff.receipt.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.stderr.txt.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/ruff.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.stdout.txt.xz",
+        "bytes": 76,
+        "sha256": "76746c316d09ceba3ee70f618ecbaa3740cee45a2173af3c3e7eb3a11ef73eea",
+        "raw_bytes": 19,
+        "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/ruff.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/run_check.py",
+        "bytes": 3099,
+        "sha256": "c92c81d76bda1a60d1d93b2384a5356e21b965ef0885773f23b16f3e53ac5adc",
+        "raw_bytes": 3099,
+        "raw_sha256": "c92c81d76bda1a60d1d93b2384a5356e21b965ef0885773f23b16f3e53ac5adc",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/run_check.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/runtime-same.diff.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/runtime-same.diff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/signed-route-probe.py",
+        "bytes": 2990,
+        "sha256": "3f1176d807004663a2dfd7b253860fcd3f3ee28253e9356a301aba28172904a8",
+        "raw_bytes": 2990,
+        "raw_sha256": "3f1176d807004663a2dfd7b253860fcd3f3ee28253e9356a301aba28172904a8",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/signed-route-probe.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/signed-route-probe.stderr.txt.xz",
+        "bytes": 272,
+        "sha256": "3aab219f4642c23bc9c2418196863eb5d5fb9a3cf9e20e90e60aa44655d820db",
+        "raw_bytes": 786,
+        "raw_sha256": "a35f200f4ce93ca576ccac060f044116220b0d68d244fc2df08d3a024966d92c",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/signed-route-probe.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/signed-route-probe.stdout.txt.xz",
+        "bytes": 1148,
+        "sha256": "6667e459306fa2140b881778540225fa67611efe90bdbb2e36bc189d9bee956b",
+        "raw_bytes": 4590,
+        "raw_sha256": "1ac75a979c2ca7a474abace76c1d053f4dd44cba2ae9cacdd2649b98ab5246c4",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/signed-route-probe.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/source-fidelity-checks.json",
+        "bytes": 983,
+        "sha256": "61ede70a7e3b59e6502db01f4de2c567a67c942fa3bdf53112f27291943f6f09",
+        "raw_bytes": 983,
+        "raw_sha256": "61ede70a7e3b59e6502db01f4de2c567a67c942fa3bdf53112f27291943f6f09",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/economics/source-fidelity-checks.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/COMMON.md",
+        "bytes": 8565,
+        "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+        "raw_bytes": 8565,
+        "raw_sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/intake/COMMON.md"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/admission.json",
+        "bytes": 147980,
+        "sha256": "8d307ffb667739d362fd053f65c1a88a43d6cf6ba42f3dd505d4a135e9c7da8f",
+        "raw_bytes": 147980,
+        "raw_sha256": "8d307ffb667739d362fd053f65c1a88a43d6cf6ba42f3dd505d4a135e9c7da8f",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/intake/admission/e02-F-economics-20261006.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/assemble_review.py",
+        "bytes": 6217,
+        "sha256": "2fa278759b76928d893f0e7b3a2b448c21868b8ee8cb728c0f5cefe9bbf09956",
+        "raw_bytes": 6217,
+        "raw_sha256": "2fa278759b76928d893f0e7b3a2b448c21868b8ee8cb728c0f5cefe9bbf09956",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/assemble_review.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/census-review.json",
+        "bytes": 3011,
+        "sha256": "96b0278e6421c2795ea6f07a36709aaeb64b8adf90da8c21b0360808141fbb44",
+        "raw_bytes": 3011,
+        "raw_sha256": "96b0278e6421c2795ea6f07a36709aaeb64b8adf90da8c21b0360808141fbb44",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/census-review.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/census.stderr.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/census.stderr"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/census.stdout.xz",
+        "bytes": 1304,
+        "sha256": "5ca92ee5637eff4a9c2f17c4eb55baa47e65742d23ddbbc172db01cff9d6ca8d",
+        "raw_bytes": 2697,
+        "raw_sha256": "82d3bc03712e6c55b5a395a1bf8ae1f03124962be37463b1923cc4e63d20c046",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/census.stdout"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal-config.json",
+        "bytes": 1222,
+        "sha256": "167ce59a23ca48edf3a7992b46baba627a3f6a2e62a5d4cbf6d9221aab89b06f",
+        "raw_bytes": 1222,
+        "raw_sha256": "167ce59a23ca48edf3a7992b46baba627a3f6a2e62a5d4cbf6d9221aab89b06f",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal-config.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal.execution.json",
+        "bytes": 6034,
+        "sha256": "79ec18886a0fecb6feb8bf0ecf5ac2e369b90d09ab7d058b155d77b644df59e8",
+        "raw_bytes": 6034,
+        "raw_sha256": "79ec18886a0fecb6feb8bf0ecf5ac2e369b90d09ab7d058b155d77b644df59e8",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal.execution.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal.stderr.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal.stderr"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal.stdout.xz",
+        "bytes": 1380,
+        "sha256": "23def617ddd09d5a2f65d82ebe28e389755ea825fcafbd064419d9799fa4df9e",
+        "raw_bytes": 5125,
+        "raw_sha256": "46400fa678dd3fb340f39e7de208c7fe94ea74e07316ffde5bbe2a0ab3a60e05",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/gini-removal.stdout"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+        "bytes": 40561,
+        "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+        "raw_bytes": 40561,
+        "raw_sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/independent-review.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent_economic_oracle.py",
+        "bytes": 3188,
+        "sha256": "7f0133b9503df7cdb7c9c30e3bd50ef6e66591b8f4990c7db0a8e09e6dac848b",
+        "raw_bytes": 3188,
+        "raw_sha256": "7f0133b9503df7cdb7c9c30e3bd50ef6e66591b8f4990c7db0a8e09e6dac848b",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/independent_economic_oracle.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/native-config.json",
+        "bytes": 1306,
+        "sha256": "46fc2751442ff1c6bdab2dd8434255612eecd9e5e13f85d01598da46fde9c4d1",
+        "raw_bytes": 1306,
+        "raw_sha256": "46fc2751442ff1c6bdab2dd8434255612eecd9e5e13f85d01598da46fde9c4d1",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native-config.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/native.execution.json",
+        "bytes": 5656,
+        "sha256": "5a136d629699766e32460e3212eb82506e827a2f02843cdec8534559a78d94a0",
+        "raw_bytes": 5656,
+        "raw_sha256": "5a136d629699766e32460e3212eb82506e827a2f02843cdec8534559a78d94a0",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native.execution.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/native.stderr.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native.stderr"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/native.stdout.xz",
+        "bytes": 528,
+        "sha256": "8b70f7cddb81948b27c394f2695e215638594aa2c5805e675135bf0be35408fe",
+        "raw_bytes": 966,
+        "raw_sha256": "a7ffc168a24e1b6ea1457d68c509ee11dd7dd86d69e04b6cbc50b8d6a05ffdf5",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/native.stdout"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-config.json",
+        "bytes": 1153,
+        "sha256": "5b9c0b6ddebd905aacf45b7b7e63a8073903128c7019631f3326d9850314511d",
+        "raw_bytes": 1153,
+        "raw_sha256": "5b9c0b6ddebd905aacf45b7b7e63a8073903128c7019631f3326d9850314511d",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-config.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal-config.json",
+        "bytes": 1191,
+        "sha256": "a82358f39be1c4efbf4af051ddc1ff5b921bb7f4170ad47d24062c07d1f0097c",
+        "raw_bytes": 1191,
+        "raw_sha256": "a82358f39be1c4efbf4af051ddc1ff5b921bb7f4170ad47d24062c07d1f0097c",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal-config.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal.execution.json",
+        "bytes": 5560,
+        "sha256": "601dd15f76e269d037429ea17bc076c6bca2da25c240b14a615f7fbe0ebecf26",
+        "raw_bytes": 5560,
+        "raw_sha256": "601dd15f76e269d037429ea17bc076c6bca2da25c240b14a615f7fbe0ebecf26",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal.execution.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal.stderr.xz",
+        "bytes": 616,
+        "sha256": "aaac6cb656289b3f7959cbd54618ad1bc5bb2585925ce60c022e1492597bd297",
+        "raw_bytes": 1278,
+        "raw_sha256": "a4d029e568a31d199669248953d2bacd2e472784426869ffa078ffc44aeed15e",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal.stderr"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal.stdout.xz",
+        "bytes": 180,
+        "sha256": "e210de8806b286aa6bcd7441f074efcbd2b6ac809133bcae5657f9f17422ed9d",
+        "raw_bytes": 149,
+        "raw_sha256": "91e1c57be5811989ea7f729232d687acadcddb3940c291185ab4ef704b7f0f77",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle-removal.stdout"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle.execution.json",
+        "bytes": 5504,
+        "sha256": "29ded1b22c618dc41f310cf5f0c06f54cd7382ad5202cf55dc686bbb495f9597",
+        "raw_bytes": 5504,
+        "raw_sha256": "29ded1b22c618dc41f310cf5f0c06f54cd7382ad5202cf55dc686bbb495f9597",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.execution.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle.stderr.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.stderr"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle.stdout.xz",
+        "bytes": 2096,
+        "sha256": "1fa515a11a836c66dbc3a60154c7241f3ced06bafaf3dddce9df0a0c190bfec5",
+        "raw_bytes": 8957,
+        "raw_sha256": "b1045d3e15fcea8bb82fda15cfa224be1b11253323edcd01b8475e755a487b09",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/oracle.stdout"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/remove_gini_admission.py",
+        "bytes": 919,
+        "sha256": "d0c539892e0092c6bb766caad89829ca4c973e7fb5ced1cd1c2b068ce307a767",
+        "raw_bytes": 919,
+        "raw_sha256": "d0c539892e0092c6bb766caad89829ca4c973e7fb5ced1cd1c2b068ce307a767",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/remove_gini_admission.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/review.stderr.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/review.stderr"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/review.stdout.xz",
+        "bytes": 416,
+        "sha256": "7e730f9605ded59c5f241c75e9032329750f47d4fe6f50d57adbd51b563294fb",
+        "raw_bytes": 478,
+        "raw_sha256": "f4b9d77057d23ea161e68b64d425b8db480f78f0940ef8af46fb3d168e5113b7",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/review.stdout"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings-config.json",
+        "bytes": 1398,
+        "sha256": "1db1daebd166a4cbeea8bed94af07bca67b388bb0d2a58e17ad14a2cb3726e7e",
+        "raw_bytes": 1398,
+        "raw_sha256": "1db1daebd166a4cbeea8bed94af07bca67b388bb0d2a58e17ad14a2cb3726e7e",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings-config.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings.execution.json",
+        "bytes": 5752,
+        "sha256": "5a9f9eede31fde1f2e038ed7fcec1f9a783f2fd9e0c9e7921f80e746f3ed521c",
+        "raw_bytes": 5752,
+        "raw_sha256": "5a9f9eede31fde1f2e038ed7fcec1f9a783f2fd9e0c9e7921f80e746f3ed521c",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings.execution.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings.stderr.xz",
+        "bytes": 32,
+        "sha256": "0040f94d11d0039505328a90b2ff48968db873e9e7967307631bf40ef5679275",
+        "raw_bytes": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings.stderr"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings.stdout.xz",
+        "bytes": 376,
+        "sha256": "69a711124d84832f8663ab075da18f33202e1e2eb58db91a21ab96da66e553b6",
+        "raw_bytes": 620,
+        "raw_sha256": "a1c05439082ac7f33c4095d91ab82a64763364e449a16e749aca87cb8ace77d6",
+        "encoding": "xz",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/siblings.stdout"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/verify_census.py",
+        "bytes": 3393,
+        "sha256": "f07877904cc4adab5c029cf4fb39df0b533141bc791db8dc0410e42ea797b94e",
+        "raw_bytes": 3393,
+        "raw_sha256": "f07877904cc4adab5c029cf4fb39df0b533141bc791db8dc0410e42ea797b94e",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/verify_census.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/run_review_check.py",
+        "bytes": 1921,
+        "sha256": "963247de5c28f0cb38071e4ec0744ca565cc7ea8a944742ff8b453cba9a7017f",
+        "raw_bytes": 1921,
+        "raw_sha256": "963247de5c28f0cb38071e4ec0744ca565cc7ea8a944742ff8b453cba9a7017f",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/run_review_check.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/transfer-selection.json",
+        "bytes": 10290,
+        "sha256": "0db495c574d491e5edd210789e8ac6e1eb04bdffbb9411be589f5e222d413d1b",
+        "raw_bytes": 10290,
+        "raw_sha256": "0db495c574d491e5edd210789e8ac6e1eb04bdffbb9411be589f5e222d413d1b",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/transfer-selection.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+        "bytes": 688,
+        "sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+        "raw_bytes": 688,
+        "raw_sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+        "encoding": "raw",
+        "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/doc-delta-review.json"
+      }
+    ],
+    "all_selected_bytes_complete": true,
+    "normalization": "none; raw exact. Complete diagnostic stdout/stderr/diffs/JUnit preserve raw whitespace losslessly via xz to satisfy source whitespace checks; xz artifacts decode to raw_bytes/raw_sha256. Raw local replicas remain preserved, ignored, not deleted.",
+    "large_raw_not_transferred": []
+  },
+  "limitations_and_next_owner": [
+    "ROOT alone adjudicates current35/closure captions; previous frozen held receipts remain literal. The old production optimizer/norm prerequisite for unchanged LA035 relocation is obsolete underCOMMON9a.",
+    "G independently accepts exact candidate and affected installed consumer wave; this author result is not G acceptance.",
+    "Synthetic consumer profiles do not establish real economic data admission/calibration/new welfare intent. Full tracked literal9007-file census does not prove dynamic/untracked/external callers absent.",
+    "The initial probe guessed plainPPO must refuse; complete output shows no-Gini trajectory succeeds. This is explicitly preserved and current native controls distinguish requested metric refusal from supported signed simulation.",
+    "Initial own collection/static-return/helper/enum harness errors and prefreeze failures preserved in full; no P41 inherited baseline label or whole-suite PASS claim.",
+    "No C source/schema/registry/lock/simulation law/RNG/metric equation change."
+  ],
+  "independent_review": {
+    "status": "GO_BOUNDED",
+    "reviewer": "independent F CAU author; no product/environment writes",
+    "science_target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+    "science_target_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+    "output_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+      "bytes": 40561,
+      "sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+      "raw_bytes": 40561,
+      "raw_sha256": "4369e1936d4a6cd83b0394f15eb667ff3c9fb061eea7186cff2b78d7b1bd50bf",
+      "encoding": "raw",
+      "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/independent-review.json"
+    },
+    "doc_delta_target_sha": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+    "doc_delta_target_tree": "9bbaa69dc195dd38adb04c9d52fc4cd700824bc7",
+    "doc_output_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json",
+      "bytes": 688,
+      "sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+      "raw_bytes": 688,
+      "raw_sha256": "3ee314c49175fa3f9afcc21acc9cc3d5765b5c2606a5c3633a57c47b1e95ab0c",
+      "encoding": "raw",
+      "local_source_path": "/tmp/e02-F-continuation-20261007/cau/economics-review/doc-delta-review.json"
+    },
+    "science_summary": "Independent28PASS +55PASS separately, zeroSKIP/ERROR; own64Fraction eager/JIT panels and2analyticgradientsPASS; baseline numeric removalFAIL and canonical Gini sameobject code-body removal2FAIL;9007fullGitbyte/hash/blobinputs verified."
+  }
+}

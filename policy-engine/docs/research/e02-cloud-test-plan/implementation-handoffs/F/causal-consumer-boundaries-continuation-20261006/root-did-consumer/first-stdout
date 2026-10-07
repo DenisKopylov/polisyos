@@ -1,0 +1,46 @@
+F........                                                                [100%]
+=================================== FAILURES ===================================
+_ test_real_method_job_and_fresh_reader_validate_complete_diagnostic[StandardDifferenceInDifferences] _
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7fb4157ac050>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+method = <class 'polisyos.foundry.methods.catalog.causal.did.StandardDifferenceInDifferences'>
+
+    @pytest.mark.parametrize(
+        "method", [StandardDifferenceInDifferences, StaggeredDifferenceInDifferences]
+    )
+    def test_real_method_job_and_fresh_reader_validate_complete_diagnostic(
+        execution_context, minimal_state, method
+    ):
+        data = _panel()
+        state, source = _source(execution_context, minimal_state, data, method)
+        result = _run_primary_causal_job(
+            ctx=execution_context,
+            state=state,
+            observational_data=data,
+            spec=JobSpec(
+                job_kind="method",
+                method_fqn=method.signature.fqn,
+                method_params={"n_bootstrap": 99},
+                seed=13,
+            ),
+        )
+>       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:9044943e0bb8a3e9203bf3aec4e38eef27385d93435ddded19945b85e84ac1c7'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py:77: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 15:20:47 [info     ] method_registered              backend=numpy fqn=causal.inference.did.standard@1.0.0 lazy=False namespace=causal.inference.did override=True tags=['causal', 'cross-section', 'difference-in-differences', 'estimation', 'panel', 'uncertainty'] version=1.0.0
+2026-10-06 15:20:47 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.did.standard@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:20:47 [error    ] method_dispatch_error          attempts=[('numpy', 'ValueError')] backend=numpy elapsed_ms=0.08 exc=ValueError fqn=causal.inference.did.standard@1.0.0 requested_backend=numpy
+=============================== warnings summary ===============================
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_real_method_job_and_fresh_reader_validate_complete_diagnostic[StaggeredDifferenceInDifferences]
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_changed_only_diagnostic_window_refuses_in_actual_primary_job
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_real_method_job_and_fresh_reader_validate_complete_diagnostic[StandardDifferenceInDifferences]
+1 failed, 8 passed, 2 warnings in 19.92s

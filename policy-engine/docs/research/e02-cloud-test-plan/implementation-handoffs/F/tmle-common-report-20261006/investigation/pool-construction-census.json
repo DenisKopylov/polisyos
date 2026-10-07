@@ -1,0 +1,32 @@
+{
+  "command": [
+    "git",
+    "grep",
+    "-n",
+    "-E",
+    "LocalWorkerPool\\(|TaskRouter\\(",
+    "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+    "--",
+    "policy-engine/src/polisyos"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "source_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+  "exit_code": 1,
+  "search_completed": true,
+  "outcome": "PASS",
+  "interpretation": "Zero literal direct LocalWorkerPool( or TaskRouter( construction sites across all tracked product paths at exactsource; not a proof excluding dynamic imports/indirect constructors or external composition",
+  "tracked_product_paths": 2911,
+  "tracked_product_python_files": 2699,
+  "python_path_denominator_sha256": "8b73c0c9501d999e5003b6ba7228feb97ce2e8b910a997596be20c57865886e1",
+  "output": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-construction-census.stdout.txt",
+  "output_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-construction-census.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/pool-construction-census.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

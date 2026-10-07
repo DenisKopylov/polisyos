@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import sys,json,importlib.metadata as m,importlib.util as u;names=[\"pytest\",\"numpy\",\"pydantic\",\"networkx\",\"hatchling\",\"PyYAML\",\"dowhy\",\"econml\"];r={};\nfor n in names:\n try:r[n]={\"version\":m.version(n),\"origin\":str(u.find_spec(\"yaml\" if n==\"PyYAML\" else n).origin)}\n except m.PackageNotFoundError:r[n]={\"absent\":True}\nprint(json.dumps({\"python\":sys.version,\"executable\":sys.executable,\"packages\":r},indent=2))"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0
+}

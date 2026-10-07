@@ -1,0 +1,29 @@
+{
+  "name": "fresh-profile-corrected",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "argv": [
+    "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-env/bin/python",
+    "-I",
+    "/dev/shm/e02-F-profile-consistency-installed/fresh_profile_bridge.py"
+  ],
+  "cwd": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-consumer",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9476"
+  },
+  "PYTHONPATH": "absent",
+  "exit_code": 0,
+  "seconds": 10.126600062998477,
+  "maxrss_kib": 1192880,
+  "stdout": {
+    "path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected.stdout.txt",
+    "bytes": 1308,
+    "sha256": "3b9da8334088b63d4402ca0a4ac84eb8fe62f93980719d3f9d9a40092cb05c6d"
+  },
+  "stderr": {
+    "path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

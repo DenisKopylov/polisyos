@@ -1,0 +1,49 @@
+{
+  "check": "PASS",
+  "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+  "source_tree": "1481e08664a271f12e77807f2468906efd7e40c5",
+  "source_paths": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "bytes": 32094,
+      "sha256": "cb6dfd9197b0f93fde517e96b6dcaf6eda1a2bcba82b83c3be7f43a6d3773568"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "bytes": 74551,
+      "sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "bytes": 26474,
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "bytes": 14630,
+      "sha256": "a235e72714e9c6709c63ff12cce64251293f63d44be171d55672d693db5502d0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+      "bytes": 29803,
+      "sha256": "704676490c54d5ce21f03d93f8273940b8145c9595cd8ab8b3fa651f53aa7f59"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+      "bytes": 11571,
+      "sha256": "3dda67abbeca3e6180e8215fe1e55e0699ba3084ee0521ea37ed63a447ab6189"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+      "bytes": 11972,
+      "sha256": "2cb74ac448680872e0c67d45b5aaee685b7c332d2e617c8426c7dfc7120fd5ff"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+      "bytes": 13073,
+      "sha256": "540cea3d50bae0d1fed9126800e6142c73cc312f05357c591d8e9876173fb7ce"
+    }
+  ],
+  "all8_actual_source_hashes_unchanged": true,
+  "status": " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/current-runtime-identity.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/current-runtime-identity.stderr.txt\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/current-runtime-identity.stdout.txt\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/probe-readonly-runtime.py\n?? policy-engine/tests/unit/ir/test_structural_causal_model_versions.py\n"
+}

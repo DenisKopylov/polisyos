@@ -1,0 +1,1395 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "tmle-report-schema-20261006",
+  "closure_ids": [],
+  "finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "related_finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "bundle_ids": [
+    "FIT-01"
+  ],
+  "slice_base_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+  "implementation_commits": [
+    "27f28925d8ecaa674ae7b553faa262b1cb624903"
+  ],
+  "candidate_tree_sha": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+  "branch": "codex/e02-F-tmle-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/50",
+  "changed_paths": [
+    "policy-engine/docs/reference/ir/schema-catalog.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-tmle-report-schema.toml",
+    "policy-engine/schemas/snapshots/ir/_manifest.json",
+    "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+    "policy-engine/schemas/snapshots/ir/hte_result.schema.json"
+  ],
+  "source_identity": {
+    "candidate_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+    "candidate_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+    "pinned_root_dependency": "a58d36299b35b6865d7640e09d7e0e3ee7e248bf",
+    "numerical_producer_sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+    "provider_git_bindings": [
+      {
+        "bytes": 42619,
+        "git_blob": "af9c90d7558721b126d374b5ab7526888d523865",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+        "sha256": "7c00c1717ce59f0c4d6d05fafca99e853c4c8bf83fb21136382a79c070e29b72"
+      },
+      {
+        "bytes": 8819,
+        "git_blob": "88e230f0e4fe6297f4ca4fbd3fbfc7e4620a1c0e",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/schemas/snapshots/ir/hte_result.schema.json",
+        "sha256": "d18e513fce7540ee8c2e768a4c3f535cf5b31d880678357884acc41062f53575"
+      },
+      {
+        "bytes": 52447,
+        "git_blob": "5d2e6053b928c3e239abf0e35869c8e542f015ad",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "sha256": "a2491b99771ccd92ceb2e90a38445375fc615f4ae3507c887c7a2d9d6e0d222e"
+      },
+      {
+        "bytes": 1641854,
+        "git_blob": "e9333ab3f9ce6c7d51b72cc18989a7134de9d085",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+        "sha256": "ba12e275c5c2d8c7698a47eeda37e355f0a8ebba851682a5a7535049865ccdc4"
+      },
+      {
+        "bytes": 29376,
+        "git_blob": "0672571cca924b7aed4906f5a7690a3ac0d23040",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/docs/reference/schemas.md",
+        "sha256": "914dc3f70a4044ac4a70b7859270ca9b4d6e5247cb0603320b3c957ef586bc22"
+      },
+      {
+        "bytes": 2331,
+        "git_blob": "7609fdeb1750a3480646e7940d38779945278c17",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-tmle-report-schema.toml",
+        "sha256": "36ee55ae22e549a41c494db4fbe2ef6130bcb260351edaf292b990e64da193c3"
+      },
+      {
+        "bytes": 76429,
+        "git_blob": "9a0447fa7a66b45e045352377abe8e2855268781",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7"
+      },
+      {
+        "bytes": 15286,
+        "git_blob": "e28883702f8f4390b57a53223371b0cf8ab84703",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/ir/analytics/hte.py",
+        "sha256": "7d1fa09696f57c790df0b8297317e383154e46e514995503a014bd2e926e5efa"
+      },
+      {
+        "bytes": 14857,
+        "git_blob": "cd6a59856b9bcc5e06446283b5287c4ba0f66a15",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+        "sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa"
+      },
+      {
+        "bytes": 15243,
+        "git_blob": "f73b16e5a7b50d318ec527fe9c8a1ae6b1971d54",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+        "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4"
+      },
+      {
+        "bytes": 31756,
+        "git_blob": "06fa2013eae4b8232ba0680da2fabdadd6a8a962",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331"
+      },
+      {
+        "bytes": 59964,
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+      },
+      {
+        "bytes": 1857,
+        "git_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3"
+      },
+      {
+        "bytes": 2555,
+        "git_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+      },
+      {
+        "bytes": 39552,
+        "git_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+        "sha256": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19"
+      },
+      {
+        "bytes": 173575,
+        "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+      },
+      {
+        "bytes": 23635,
+        "git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+      },
+      {
+        "bytes": 10707,
+        "git_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+        "git_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+        "path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+        "sha256": "f4b8184a1052a76f7d54a6e729757478eced3c8213b88326ca652f604a213c27"
+      }
+    ],
+    "runtime_provider_equality": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 31756,
+        "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331",
+        "same_as_numerical_producer": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76429,
+        "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7",
+        "same_as_numerical_producer": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "bytes": 59964,
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "same_as_numerical_producer": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+        "bytes": 22295,
+        "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d",
+        "same_as_numerical_producer": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+      }
+    ]
+  },
+  "criterion_inputs": [
+    {
+      "git_ref": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FIT-01.md",
+      "git_blob": "9a7c550c56937430370253621bbd0a84c2fea3ec",
+      "bytes": 14761,
+      "sha256": "af58e73e27d8417f9744dbf93a8adb8bb3badaf979d70c16ab924d76a4358075"
+    },
+    {
+      "git_ref": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+      "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c",
+      "bytes": 602186,
+      "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87"
+    },
+    {
+      "git_ref": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    }
+  ],
+  "environment": {
+    "python": "3.14.7",
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "profile": "Native NumPy synthetic TMLE and typed IR/CAS; baseline DoWhy/EconML excluded by markers, no absence witness or shim.",
+    "artificial_cloud_quota": false,
+    "shared_environment_mutated": false,
+    "corrected_tools_source_origin": "/workspace/e02-F-tmle-20261006/policy-engine/tools"
+  },
+  "checks": [
+    {
+      "name": "generator",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/tmle-generated/generate_scratch.py"
+      ],
+      "target_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+      "source_tree": "f51724d489fcb09ee75cb2fe7c1a92c2f00210d5",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "inherited_environment": true,
+        "artificial_cloud_quota": false
+      },
+      "input_closure": "Pinned candidate Git source/snapshots and complete declared schema/canonical-consumer fixtures; no production data.",
+      "outcome": "ERROR",
+      "exit_code": 0,
+      "wall_seconds": 7.82816553900193,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator.json",
+      "interpretation": "Initial process exited0 but actual tools source resolved readonly closeout; not admitted candidate generation."
+    },
+    {
+      "name": "generator-candidate",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/tmle-generated/generate_scratch_candidate.py"
+      ],
+      "target_sha": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+      "source_tree": "f51724d489fcb09ee75cb2fe7c1a92c2f00210d5",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine:/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp",
+        "inherited_environment": true,
+        "artificial_cloud_quota": false
+      },
+      "input_closure": "Pinned candidate Git source/snapshots and complete declared schema/canonical-consumer fixtures; no production data.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 7.898313646001043,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator-candidate.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator-candidate.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator-candidate.json",
+      "interpretation": "Corrected explicit candidate product-root module origin: canonical complete99-model IR generator generated into scratch; two owned outputs adopted, unowned Feedback drift preserved."
+    },
+    {
+      "name": "selected-first-debug",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/tmle-generated/check_selected_debug.py",
+        "positive"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "origin_admission": "ERROR; complete stdout records readonly closeout tools source",
+        "inherited_environment": true,
+        "artificial_cloud_quota": false
+      },
+      "input_closure": "Pinned candidate Git source/snapshots and complete declared schema/canonical-consumer fixtures; no production data.",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "wall_seconds": 3.717482063002535,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/selected-first-debug.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/selected-first-debug.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/selected-first-debug.json",
+      "interpretation": "Original selected canonical schemas/hash checks completed, but docs assertion addressed readonly closeout due wrong tools origin. Full AssertionError retained, not candidate PASS."
+    },
+    {
+      "name": "positive",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/tmle-generated/check_selected_origin.py",
+        "positive"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine:/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp",
+        "inherited_environment": true,
+        "artificial_cloud_quota": false
+      },
+      "input_closure": "Pinned candidate Git source/snapshots and complete declared schema/canonical-consumer fixtures; no production data.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 3.7673406429967145,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/positive.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/positive.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/positive.json",
+      "interpretation": "Exact two canonical schemas and their full/semantic hashes, derived99-entry manifest digest, unchanged SCM1.1, canonical generated catalog, and structured fragment pass."
+    },
+    {
+      "name": "enum",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/tmle-generated/check_selected_origin.py",
+        "enum"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine:/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp",
+        "inherited_environment": true,
+        "artificial_cloud_quota": false
+      },
+      "input_closure": "Pinned candidate Git source/snapshots and complete declared schema/canonical-consumer fixtures; no production data.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 2.397781073988881,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/enum.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/enum.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/enum.json",
+      "interpretation": "Memory-only removal of TMLE enum retains model/schema names and schema_version; real canonical snapshot checker refuses stale enum.",
+      "expected_negative": true
+    },
+    {
+      "name": "hash",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/tmle-generated/check_selected_origin.py",
+        "hash"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine:/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp",
+        "inherited_environment": true,
+        "artificial_cloud_quota": false
+      },
+      "input_closure": "Pinned candidate Git source/snapshots and complete declared schema/canonical-consumer fixtures; no production data.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 2.4097290200006682,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/hash.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/hash.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/hash.json",
+      "interpretation": "Memory-only corrupt manifest content_hash retains model rows and schema markers; real canonical manifest checker refuses drift.",
+      "expected_negative": true
+    },
+    {
+      "name": "full",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.quality.diagnostics.gen_schema",
+        "--check",
+        "--cache-dir",
+        "/tmp/e02-F-continuation-20261006/tmle-generated/full-check-cache"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine:/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp",
+        "inherited_environment": true,
+        "artificial_cloud_quota": false
+      },
+      "input_closure": "Pinned candidate Git source/snapshots and complete declared schema/canonical-consumer fixtures; no production data.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 8.011164910989464,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/full.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/full.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/full.json",
+      "interpretation": "Whole actual generator observes FeedbackSolveResult snapshot and dependent manifest out of date; five nested optional Core ArtifactRef properties remain unowned. No inherited attribution/P41/global PASS."
+    },
+    {
+      "name": "independent-native",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/test_tmle_generated_consumer.py",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/pytest-tmp"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "input_closure": "One independently seeded bounded360-row synthetic DGP native TMLE call verifies real report serialization and regular-IID interval preservation, not population coverage. HTEResult is a supported typed wire fixture, not a new native heterogeneous TMLE producer.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 18.69176509900717,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-harness-first.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-harness-first.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-harness-first.json",
+      "interpretation": "Reviewer stdout logging TypeError after native CAS/fresh-reader/schema assertions; no product defect. Original output refs retained verbatim and raw files renamed with historical suffix."
+    },
+    {
+      "name": "independent-native-corrected",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/test_tmle_generated_consumer.py",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/pytest-corrected-tmp"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "input_closure": "One independently seeded bounded360-row synthetic DGP native TMLE call verifies real report serialization and regular-IID interval preservation, not population coverage. HTEResult is a supported typed wire fixture, not a new native heterogeneous TMLE producer.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 19.144311312993523,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-corrected.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-corrected.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-corrected.json",
+      "interpretation": "Actual native TMLE report and explicitly synthetic HTE typed-wire fixtures through real CAS and fresh process readers; old1.0 readers and generated schema checks.",
+      "pytest_census": {
+        "passed": 17,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 0
+      }
+    },
+    {
+      "name": "independent-removal-enum-causal_effect_report",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+        "enum",
+        "causal_effect_report"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "input_closure": "One independently seeded bounded360-row synthetic DGP native TMLE call verifies real report serialization and regular-IID interval preservation, not population coverage. HTEResult is a supported typed wire fixture, not a new native heterogeneous TMLE producer.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 10.790272196012666,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-causal_effect_report.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-causal_effect_report.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-causal_effect_report.json",
+      "interpretation": "Actual criterion assertion failed for removed companion property with native provider/markers retained; not counted as PASS.",
+      "expected_negative": true,
+      "property_detected": true
+    },
+    {
+      "name": "independent-removal-enum-hte_result",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+        "enum",
+        "hte_result"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "input_closure": "One independently seeded bounded360-row synthetic DGP native TMLE call verifies real report serialization and regular-IID interval preservation, not population coverage. HTEResult is a supported typed wire fixture, not a new native heterogeneous TMLE producer.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 10.7925206660002,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-hte_result.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-hte_result.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-hte_result.json",
+      "interpretation": "Actual criterion assertion failed for removed companion property with native provider/markers retained; not counted as PASS.",
+      "expected_negative": true,
+      "property_detected": true
+    },
+    {
+      "name": "independent-removal-hash-causal_effect_report",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+        "hash",
+        "causal_effect_report"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "input_closure": "One independently seeded bounded360-row synthetic DGP native TMLE call verifies real report serialization and regular-IID interval preservation, not population coverage. HTEResult is a supported typed wire fixture, not a new native heterogeneous TMLE producer.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 11.003221054997994,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-causal_effect_report.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-causal_effect_report.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-causal_effect_report.json",
+      "interpretation": "Actual criterion assertion failed for removed companion property with native provider/markers retained; not counted as PASS.",
+      "expected_negative": true,
+      "property_detected": true
+    },
+    {
+      "name": "independent-removal-hash-hte_result",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+        "hash",
+        "hte_result"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "resource_quota_added": false
+      },
+      "input_closure": "One independently seeded bounded360-row synthetic DGP native TMLE call verifies real report serialization and regular-IID interval preservation, not population coverage. HTEResult is a supported typed wire fixture, not a new native heterogeneous TMLE producer.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 10.630947323996224,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-hte_result.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-hte_result.stderr.txt.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-hte_result.json",
+      "interpretation": "Actual criterion assertion failed for removed companion property with native provider/markers retained; not counted as PASS.",
+      "expected_negative": true,
+      "property_detected": true
+    },
+    {
+      "name": "independent-source-audit",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/audit_companion.py"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "environment": "Exact native3.14.7 with admitted source origins; full source/environment in complete output.",
+      "input_closure": "Exact18-path Git/provider guards; full canonical catalogs and fragment;99 manifest models with97 unchanged entries.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/source-audit.stdout.txt.json",
+      "criterion": "Exact5path scope; native two complete snapshots; CausalMethod37; existing description only; exact99-entry digest with97unowned rows/provenance unchanged; full canonical catalogue; old SCM1.1 retained; public stable release classification."
+    },
+    {
+      "name": "independent-packaging-harness-first",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish_review.py"
+      ],
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "environment": "Reviewer metadata assembly; source unchanged.",
+      "input_closure": "Complete first reviewer metadata traceback; expected ValidationError initially mistaken for pytest ERROR by broad string matcher.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/finish-first.stderr.txt.json",
+      "interpretation": "Metadata-only observer ERROR preserved separately; runtime17PASS and actual4removalFAIL outcomes unchanged."
+    },
+    {
+      "name": "production-common-study-budget-and-authority",
+      "command": "UNRUN: canonical Runtime/C/G admitted common-study workload/budget/identification owner packet not supplied",
+      "target_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+      "environment": "G local production inputs remain local/read-only.",
+      "input_closure": "See exact five owner-packet items and falsifier in published producer primary@3ae04e86cc6d22a10d28abb163c1078a0bea6ba4.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json@3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+      "interpretation": "Native candidate numerical SUCCESS+CI and typed wire persistence confer no identification or common production budget admission."
+    }
+  ],
+  "property": {
+    "statement": "Canonical generated CausalEffectReport and HTEResult accept the existing native scientific TMLE enum with exact schema/manifest/catalog correspondence, preserve old1.0 non-TMLE typed readers and SCM1.1, and detect removed enum/hash companions.",
+    "runtime_path": [
+      "Existing TMLEEstimator native bounded regular-IID result→CausalEffectReport",
+      "Canonical schema/model manifest→actual ArtifactStore CAS",
+      "Fresh subprocess native IR/CAS reader→canonical JSON schema validator",
+      "HTEResult supported typed-wire fixture→CAS→fresh reader (not native heterogeneous producer)"
+    ],
+    "proxy_divergence": "Retaining SUCCESS/model names/schema_version and provider identity while removing enum or corrupting model/hash bindings causes real typed-wire/canonical checker refusal.",
+    "negative_controls": [
+      "Author removed TMLE enum FAIL",
+      "Author corrupt manifest digest FAIL",
+      "Independent report/HTE removed-enum wire validation eachFAIL",
+      "Independent report/HTE stale model-hash checker eachFAIL"
+    ],
+    "synthetic_oracle_limit": "One independently seeded bounded360-row synthetic DGP native TMLE call verifies real report serialization and regular-IID interval preservation, not population coverage. HTEResult is a supported typed wire fixture, not a new native heterogeneous TMLE producer."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded generated companion accepted; B56 limited",
+  "per_id": [
+    {
+      "finding_id": "B54",
+      "criterion": "Content/data/config/fold/model/seed/split fit-cache identity plus immutable current-reader materialization.",
+      "state": "previous bounded technical closure preserved; no new closure claim",
+      "checks": [
+        "positive",
+        "independent-native-corrected",
+        "independent-source-audit"
+      ],
+      "source_equality": "Numerical/cache providers match6c and original accepted B54 source exactly."
+    },
+    {
+      "finding_id": "B56",
+      "criterion": "Methodological native TMLE and existing actual admitted common orchestration workload/resource-budget contract.",
+      "state": "limited",
+      "checks": [
+        "independent-native-corrected",
+        "production-common-study-budget-and-authority"
+      ],
+      "limitation": "Typed producer/persistence is established; actual admitted Runtime common-study/budget/identification bridge remains UNRUN."
+    }
+  ],
+  "independent_review": {
+    "decision": "GO_BOUNDED",
+    "reviewer": "F/foundry",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/review.json",
+    "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+    "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+    "passed": 17,
+    "skipped": 0,
+    "errors": 0,
+    "warnings": 0,
+    "removals": {
+      "executions": 4,
+      "actual_outcome_each": "FAIL"
+    },
+    "initial_harness_history": "4FAIL13PASS ArtifactID stdout logger and separate metadata-only ERROR retained complete."
+  },
+  "dependency_receipts": [
+    {
+      "git_ref": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json",
+      "bytes": 125989,
+      "sha256": "53688e8d8ea8bc96ecdcf52a6e6d57bd0f4203ca6d23dca276cd45753f299056",
+      "purpose": "Native producer law, exact full methodological tests/controls, minimum actual production owner packet and falsifier."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Canonical whole generator actualFAIL only FeedbackSolveResult snapshot/dependent manifest. Five nested optional manifest_profile_sha256 properties are unowned; Core/Feedback canonical owner must reconcile, no inherited/P41 attribution established.",
+    "Only37-value enum and existing report description changed; schema_version1.0 and fields unchanged, SCM1.1 preserved. Old36-enum reader must upgrade before reading tmle; two minor reader window stated in structured fragment.",
+    "HTEResult is a supported serialization fixture, not a newly implemented native heterogeneous TMLE producer.",
+    "Accepted causal identification issuer/verification/context bridge and actual admitted common-study CPU/workload/budget remainUNRUN: use exact Runtime/C/G owner packet/falsifier from prior published primary.",
+    "No global architecture/docs/full-generator PASS or production effect/coverage claim; absence of DoWhy/EconML on Python3.14 is not positive backend evidence."
+  ],
+  "baseline_cells": [
+    {
+      "finding_id": "B54",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/B54-baseline-query.json",
+      "all_routed_cell_ids": [
+        "F01-P016",
+        "F01-P109",
+        "F06-P031",
+        "F09-P024",
+        "F09-P111",
+        "F12-P023",
+        "F14-P128",
+        "F15-P021"
+      ],
+      "source_grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "semantic_adequacy": "not_established; baseline route navigation only"
+    },
+    {
+      "finding_id": "B56",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/B56-baseline-query.json",
+      "all_routed_cell_ids": [
+        "F01-P016",
+        "F01-P109",
+        "F06-P031",
+        "F09-P024",
+        "F09-P111",
+        "F12-P023",
+        "F14-P128",
+        "F15-P021"
+      ],
+      "source_grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "semantic_adequacy": "not_established; baseline route navigation only"
+    }
+  ],
+  "baseline_source_grade": "Navigation-only compact source; raw archives absent, routes not candidate PASS. Original source SHA/backendmarkers preserved in prior query artifacts.",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/admission.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/admission.json",
+      "encoding": "identity",
+      "bytes": 393,
+      "sha256": "197d52fe3b984c49f3810d2d1f68285fae08a764454de4b9f0f1a4ad7867afa3",
+      "decoded_bytes": 393,
+      "decoded_sha256": "197d52fe3b984c49f3810d2d1f68285fae08a764454de4b9f0f1a4ad7867afa3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/admission.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/admission.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/admission.stdout.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/admission.stdout.json",
+      "encoding": "identity",
+      "bytes": 147911,
+      "sha256": "bb016ac848eeb192691489bc8540fa311c1ae9d9cdaab329638517c07cab9fa4",
+      "decoded_bytes": 147911,
+      "decoded_sha256": "bb016ac848eeb192691489bc8540fa311c1ae9d9cdaab329638517c07cab9fa4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/capture_checks.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/capture_checks.py",
+      "encoding": "identity",
+      "bytes": 1695,
+      "sha256": "93138bb9ff505e017686057925ff3dc34adbf6f3159bdeea2cc000a540b02ad3",
+      "decoded_bytes": 1695,
+      "decoded_sha256": "93138bb9ff505e017686057925ff3dc34adbf6f3159bdeea2cc000a540b02ad3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/check_selected.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/check_selected.py",
+      "encoding": "identity",
+      "bytes": 3614,
+      "sha256": "a27c0c36382a6c2a002bad8867e74c958118b0be33988d7b93ebea009db621d0",
+      "decoded_bytes": 3614,
+      "decoded_sha256": "a27c0c36382a6c2a002bad8867e74c958118b0be33988d7b93ebea009db621d0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/check_selected_debug.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/check_selected_debug.py",
+      "encoding": "identity",
+      "bytes": 3738,
+      "sha256": "b16ef7d18559f9d1e33a105d8dccfd375bbc6e7546e8f345eba64cb06ad057fc",
+      "decoded_bytes": 3738,
+      "decoded_sha256": "b16ef7d18559f9d1e33a105d8dccfd375bbc6e7546e8f345eba64cb06ad057fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/check_selected_origin.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/check_selected_origin.py",
+      "encoding": "identity",
+      "bytes": 3753,
+      "sha256": "4b9dd93f621a16d68cd3f182c33174ce5ea175fc20f2bf8d53095f29462b2b86",
+      "decoded_bytes": 3753,
+      "decoded_sha256": "4b9dd93f621a16d68cd3f182c33174ce5ea175fc20f2bf8d53095f29462b2b86"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/enum.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.json",
+      "encoding": "identity",
+      "bytes": 983,
+      "sha256": "abaffd35b20aae4122932403ee17d2f7786aa6a4c0e4cee2b720006a99c0f363",
+      "decoded_bytes": 983,
+      "decoded_sha256": "abaffd35b20aae4122932403ee17d2f7786aa6a4c0e4cee2b720006a99c0f363"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/enum.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/enum.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 612,
+      "sha256": "ef8439bdce9d534c452ecf20be851df823bb3b6a51fd80a3fad6f5d5c0088d3e",
+      "decoded_bytes": 429,
+      "decoded_sha256": "833fb1e3e37eee709ec60ab4cc9c2c2f9bdfbf5015c49240aadeea39a7d9bc1e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/full.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.json",
+      "encoding": "identity",
+      "bytes": 1051,
+      "sha256": "608c24f9fda22d55507d3cc8d827c1ebb647a88a2cb3b2d0018528e971641386",
+      "decoded_bytes": 1051,
+      "decoded_sha256": "608c24f9fda22d55507d3cc8d827c1ebb647a88a2cb3b2d0018528e971641386"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/full.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/full.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 424,
+      "sha256": "ecb23185e1395c56a10746490e629e67a52f9d5cb546890a92edd7d446b1076b",
+      "decoded_bytes": 263,
+      "decoded_sha256": "e00f927927d3cfc6c761f0e3a5ebd13e4f8007fdb55aeacd4821f3bf5fbd9db2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generate_scratch.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/generate_scratch.py",
+      "encoding": "identity",
+      "bytes": 921,
+      "sha256": "0351359aedfe7deb754899923a0c3af9933031d702ebab31cabe6d1e5f62b40b",
+      "decoded_bytes": 921,
+      "decoded_sha256": "0351359aedfe7deb754899923a0c3af9933031d702ebab31cabe6d1e5f62b40b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generate_scratch_candidate.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/generate_scratch_candidate.py",
+      "encoding": "identity",
+      "bytes": 1158,
+      "sha256": "6e81655787ef825055fcad218e49f166465772dfad98e39d86883f193094a718",
+      "decoded_bytes": 1158,
+      "decoded_sha256": "6e81655787ef825055fcad218e49f166465772dfad98e39d86883f193094a718"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator-candidate.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/generator-candidate.json",
+      "encoding": "identity",
+      "bytes": 1055,
+      "sha256": "e5410478fe77392cd262fb400180182d39bdc5b5ebae26006e91b578b2f94f7f",
+      "decoded_bytes": 1055,
+      "decoded_sha256": "e5410478fe77392cd262fb400180182d39bdc5b5ebae26006e91b578b2f94f7f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator-candidate.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/generator-candidate.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator-candidate.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/generator-candidate.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 946,
+      "sha256": "56faaefa56cd4d0bfbcfbdc8992499002513743fdde1f9fbc46b6b02fd137313",
+      "decoded_bytes": 762,
+      "decoded_sha256": "37e2ab9e0c80523bfc1001f5985abb77ad015e5ed7fe49a4a9300a353ea247d3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/generator.json",
+      "encoding": "identity",
+      "bytes": 929,
+      "sha256": "fa762cd8f3b4c824d5c0bf2551c361a25526f402dee40222962cc756c2d610d1",
+      "decoded_bytes": 929,
+      "decoded_sha256": "fa762cd8f3b4c824d5c0bf2551c361a25526f402dee40222962cc756c2d610d1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/generator.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/generator.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/generator.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 942,
+      "sha256": "6008b9a91b0d74dbfe3c656872213c1b946104ad1f99fb09be5285d8f01a8bc4",
+      "decoded_bytes": 758,
+      "decoded_sha256": "f6853e09159080e942f2aaa48bf223b592aa6c74350b2760c96e514b23776534"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/hash.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.json",
+      "encoding": "identity",
+      "bytes": 984,
+      "sha256": "d9de2bc8a1b4ba1f4d1ab3259a079a0376391a7fafe999bd9603132ead3d1ed1",
+      "decoded_bytes": 984,
+      "decoded_sha256": "d9de2bc8a1b4ba1f4d1ab3259a079a0376391a7fafe999bd9603132ead3d1ed1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/hash.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/hash.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 576,
+      "sha256": "4888ae764e8435890e458dcbb5cfeda766174598fd559b1735c2fe0e10c1a48a",
+      "decoded_bytes": 393,
+      "decoded_sha256": "10ad93906be8a8e2eaec4f9dbd7cfd08a7de0a51101e2ebc15e231e4a39586b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/implementation-diff.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/implementation-diff.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/implementation.diff.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/implementation.diff",
+      "encoding": "lossless_utf8_json",
+      "bytes": 7291,
+      "sha256": "8ecdf4907a964f62459b8cab3d54b4f39f63fc2f1ad21b941d50dadbe57ce164",
+      "decoded_bytes": 6824,
+      "decoded_sha256": "3aa5d1cd22625678fc1f1372f86393342e19ec16cbdd11a47e345d394673d9bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/positive.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.json",
+      "encoding": "identity",
+      "bytes": 996,
+      "sha256": "5e3d8dcc51cd092e34161fce9cb97a6ff792825a9e163d3f749d00372938e2f6",
+      "decoded_bytes": 996,
+      "decoded_sha256": "5e3d8dcc51cd092e34161fce9cb97a6ff792825a9e163d3f749d00372938e2f6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/positive.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/positive.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 622,
+      "sha256": "d34452117b6f3f32a57145d387b186b504c24e5a4748e903a278a85198236e85",
+      "decoded_bytes": 431,
+      "decoded_sha256": "e4d5e74bc99998295d344b970782e98d717f186f31ffd9d0ab2af20d4f5d9142"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/root-merge.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/root-merge.json",
+      "encoding": "identity",
+      "bytes": 440,
+      "sha256": "ba66e453d06dc9d9f2903327c2e6b874980f142987cb37bc628632de695716cd",
+      "decoded_bytes": 440,
+      "decoded_sha256": "ba66e453d06dc9d9f2903327c2e6b874980f142987cb37bc628632de695716cd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/root-merge.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/root-merge.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/root-merge.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/root-merge.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 61787,
+      "sha256": "5d66825c5b9531377af9b308b8b7949e8acac2df26b5dde5430191054ce7746c",
+      "decoded_bytes": 61051,
+      "decoded_sha256": "3106463452158d61432e833f50fccc890fb6159ab4d2351ab3596820bcfc9e22"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/scope-proof.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/scope-proof.json",
+      "encoding": "identity",
+      "bytes": 19025,
+      "sha256": "61e4d0ab9477631239494e43b616c50742a0a0dc26546ac15e55b4e507e7a92b",
+      "decoded_bytes": 19025,
+      "decoded_sha256": "61e4d0ab9477631239494e43b616c50742a0a0dc26546ac15e55b4e507e7a92b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/selected-first-debug.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.json",
+      "encoding": "identity",
+      "bytes": 299,
+      "sha256": "c6b7164ed91f8170c54551435ea4d3b667d614670f3bc754bba698864774d5af",
+      "decoded_bytes": 299,
+      "decoded_sha256": "c6b7164ed91f8170c54551435ea4d3b667d614670f3bc754bba698864774d5af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/selected-first-debug.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 1409,
+      "sha256": "3ace6f32c648b6ca9dde57d481176fcae92095b85bdaf1e4172acfd5eae4dbc3",
+      "decoded_bytes": 1233,
+      "decoded_sha256": "4fd3cf80982cbc1d60cd8b0b2e2ef4ad8e625e5e13f5c468f6718fca3a34bca9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/selected-first-debug.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 338,
+      "sha256": "4a5d55a91bfbb5f39aa2ec757896625a9f082be47ddd557949948f2745c45536",
+      "decoded_bytes": 173,
+      "decoded_sha256": "879415970b795fd1708da13c2742bc06aeebef6d06907393e7a2a642c4252497"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/unowned-feedback-diagnostic.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/unowned-feedback-diagnostic.json",
+      "encoding": "identity",
+      "bytes": 2504,
+      "sha256": "bb4cee44f0ae8ed318c033f811407ea39d726aab2ecc7477377ba7e15d79d714",
+      "decoded_bytes": 2504,
+      "decoded_sha256": "bb4cee44f0ae8ed318c033f811407ea39d726aab2ecc7477377ba7e15d79d714"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/unowned-feedback.diff.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/tmle-generated/unowned-feedback.diff",
+      "encoding": "lossless_utf8_json",
+      "bytes": 3325,
+      "sha256": "ad017a36827d484eb80d501d4a7bbf967f5b8395244faabf54d33d1ad0167de6",
+      "decoded_bytes": 2864,
+      "decoded_sha256": "ec0dabf6c7b7989555822cd8484da1d21b5e89aa18f3b3e6e65feeacb52d6c59"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/review.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/review.json",
+      "encoding": "identity",
+      "bytes": 35022,
+      "sha256": "b68f68004b308cd5c3ff89945a9166a4457802e19787bc6d8026f8736358fb11",
+      "decoded_bytes": 35022,
+      "decoded_sha256": "b68f68004b308cd5c3ff89945a9166a4457802e19787bc6d8026f8736358fb11"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/test_tmle_generated_consumer.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/test_tmle_generated_consumer.py",
+      "encoding": "identity",
+      "bytes": 11246,
+      "sha256": "c0d747992c167f8c817b3b22add43060d79ca7e131027102f2c1870cb6219ad1",
+      "decoded_bytes": 11246,
+      "decoded_sha256": "c0d747992c167f8c817b3b22add43060d79ca7e131027102f2c1870cb6219ad1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/remove_enum_or_hash.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+      "encoding": "identity",
+      "bytes": 1650,
+      "sha256": "1b2610475115244e3689f3f509fe2f436bd2b602ce5526ffa8a37746e19ef41a",
+      "decoded_bytes": 1650,
+      "decoded_sha256": "1b2610475115244e3689f3f509fe2f436bd2b602ce5526ffa8a37746e19ef41a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/run_review.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/run_review.py",
+      "encoding": "identity",
+      "bytes": 3443,
+      "sha256": "d13df7137aba97f16c6b877cd0be7849974773615c6f8f1b63665517881217e9",
+      "decoded_bytes": 3443,
+      "decoded_sha256": "d13df7137aba97f16c6b877cd0be7849974773615c6f8f1b63665517881217e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/audit_companion.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/audit_companion.py",
+      "encoding": "identity",
+      "bytes": 6077,
+      "sha256": "4cae764fc0160b43e0f440c1baff8705aac8e0c7dcc17649d6c00bc8e9433ac2",
+      "decoded_bytes": 6077,
+      "decoded_sha256": "4cae764fc0160b43e0f440c1baff8705aac8e0c7dcc17649d6c00bc8e9433ac2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/finish_review.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish_review.py",
+      "encoding": "identity",
+      "bytes": 7310,
+      "sha256": "6653a2f1322bc4570e23b683fdc4fc6a573cf8287319502b6cfcc2d410a885e0",
+      "decoded_bytes": 7310,
+      "decoded_sha256": "6653a2f1322bc4570e23b683fdc4fc6a573cf8287319502b6cfcc2d410a885e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/source-paths.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-paths.json",
+      "encoding": "identity",
+      "bytes": 1149,
+      "sha256": "f9f46a561aa2372e4b034b1888d67ed753b41817b903676d57e01561860cc7b8",
+      "decoded_bytes": 1149,
+      "decoded_sha256": "f9f46a561aa2372e4b034b1888d67ed753b41817b903676d57e01561860cc7b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/harness-correction.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/harness-correction.json",
+      "encoding": "identity",
+      "bytes": 251,
+      "sha256": "03996994c9116d989d31e4ea3165a0c8a8e39eb958b18d744c4507671133ab71",
+      "decoded_bytes": 251,
+      "decoded_sha256": "03996994c9116d989d31e4ea3165a0c8a8e39eb958b18d744c4507671133ab71"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/source-audit.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 17798,
+      "sha256": "2937a58184b458b174415d67ddb0f346106219d5df7de43873abdf4b63983eeb",
+      "decoded_bytes": 15811,
+      "decoded_sha256": "0c77e239db07daa95c9df79a34607d63a9276c85e991374a618acbe87d66c302"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/source-audit.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/finish-first.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish-first.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/finish-first.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish-first.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 506,
+      "sha256": "173e9aec4ae7358bf66ac19c3170501bd0dbec6c4c5d2de2ac53b6cce8d465a7",
+      "decoded_bytes": 341,
+      "decoded_sha256": "9b6a792b3cd2de648502f7362db10e80fb67177ce5eed8a5f88e9901863b4320"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-harness-first.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.json",
+      "encoding": "identity",
+      "bytes": 1290,
+      "sha256": "f7e2b0a25045e069d5f553bbed942d4430b756c2ec0d9df7f5abb73cef49a05e",
+      "decoded_bytes": 1290,
+      "decoded_sha256": "f7e2b0a25045e069d5f553bbed942d4430b756c2ec0d9df7f5abb73cef49a05e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-harness-first.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 10094,
+      "sha256": "cb0724c40c4550384561679fd7bb921bf22ec37a80958c7bce5e8b6bacfd0c6c",
+      "decoded_bytes": 9745,
+      "decoded_sha256": "08821562f4c9f476a3e5be5db137db1652300eb74419f5de314873aa4b8e7fd6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-harness-first.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-corrected.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.json",
+      "encoding": "identity",
+      "bytes": 1331,
+      "sha256": "5ed3d903199c67a0160c37811696a1b97d544df478466511a4c0dba80bed256d",
+      "decoded_bytes": 1331,
+      "decoded_sha256": "5ed3d903199c67a0160c37811696a1b97d544df478466511a4c0dba80bed256d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-corrected.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 4579,
+      "sha256": "0855211634e9df58342f7dba4adb10f6339c904c9b2a54349ce2a379c4692720",
+      "decoded_bytes": 4226,
+      "decoded_sha256": "6bb6f2bafaa8ec6853aa1ebefe5946e889c215d59b2ed8ed17f54b17e80e76e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/native-corrected.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-causal_effect_report.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.json",
+      "encoding": "identity",
+      "bytes": 1189,
+      "sha256": "7d340e6014b03b9c6730fe3fd144f1b767b13d452e34d4d3c01aaf075c49d2ae",
+      "decoded_bytes": 1189,
+      "decoded_sha256": "7d340e6014b03b9c6730fe3fd144f1b767b13d452e34d4d3c01aaf075c49d2ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-causal_effect_report.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 6916,
+      "sha256": "2a321e3fe07160c69906c690f72fc70ae57f9129105561b6b2523bbc562eabf5",
+      "decoded_bytes": 6560,
+      "decoded_sha256": "6502d84fa1eb63e34bed81742596861b584786d2e8119edf90bdf8c9b6e2bc7f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-causal_effect_report.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-hte_result.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.json",
+      "encoding": "identity",
+      "bytes": 1147,
+      "sha256": "c0bad35e776a596fe7bff7c83bf043ea5230c0cafde5bb17e43ecf0a4967d614",
+      "decoded_bytes": 1147,
+      "decoded_sha256": "c0bad35e776a596fe7bff7c83bf043ea5230c0cafde5bb17e43ecf0a4967d614"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-hte_result.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 6682,
+      "sha256": "e057612359cefffb51ec03337c509951a27a87e9832aa62e70637acbbe74060a",
+      "decoded_bytes": 6347,
+      "decoded_sha256": "75f621b9c58deaff06a13c4f57976d3bd2cf0c79ca1d229b1e18e9a5d542e3df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-enum-hte_result.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-causal_effect_report.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.json",
+      "encoding": "identity",
+      "bytes": 1189,
+      "sha256": "32bd19252ddc184522ad262eb36394e2455807b56ab9269ca8870fcc41b347df",
+      "decoded_bytes": 1189,
+      "decoded_sha256": "32bd19252ddc184522ad262eb36394e2455807b56ab9269ca8870fcc41b347df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-causal_effect_report.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 3886,
+      "sha256": "617f052305c19e177e6d9de4a518bc270704fb98cd2eb0be8e09d6c4264d10a1",
+      "decoded_bytes": 3605,
+      "decoded_sha256": "1beae527f1dd28a055856f5c404f88415b2cbd3b5e9bb21b2f9b6d6e66b3c3bb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-causal_effect_report.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-hte_result.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.json",
+      "encoding": "identity",
+      "bytes": 1149,
+      "sha256": "e55fd818f6bd6d8c4b4373bd74eb942d18d1f30447fd985b638ac4cb31cc9bf9",
+      "decoded_bytes": 1149,
+      "decoded_sha256": "e55fd818f6bd6d8c4b4373bd74eb942d18d1f30447fd985b638ac4cb31cc9bf9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-hte_result.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.stdout.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 3866,
+      "sha256": "b43fb9179a4744f6e65602c1b229d38db81de08c8cbce826e64383b6d4a9f7ad",
+      "decoded_bytes": 3585,
+      "decoded_sha256": "1af07f439bc73a05f8b5336119829b971c237af60c2aebe1a976dd3ef3d6ba89"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/removal-hash-hte_result.stderr.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.stderr.txt",
+      "encoding": "lossless_utf8_json",
+      "bytes": 156,
+      "sha256": "7a8eb02b914e348822fd57c3391a1b584ebf06bbb7ad96c165413768ee9616aa",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/independent/transfer-selection.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/transfer-selection.json",
+      "encoding": "identity",
+      "bytes": 11369,
+      "sha256": "f08448ab31fbb58787210aea111e065b97f416a7469deb38ff323e60f450af8a",
+      "decoded_bytes": 11369,
+      "decoded_sha256": "f08448ab31fbb58787210aea111e065b97f416a7469deb38ff323e60f450af8a"
+    }
+  ],
+  "artifact_policy": {
+    "complete_unique_deciding_bytes": true,
+    "moderate_logs_losslessly_committed": true,
+    "tracked_source_and_full_derived_views_not_copied": true,
+    "excluded_reconstructible_views": [
+      "generator-diff-denominator.json",
+      "schemas.md.diff",
+      "schema-catalog.md.diff",
+      "whole generated99-snapshot scratch trees"
+    ],
+    "text_encoding": "lossless_utf8_json; decode text then UTF-8, verify decoded_bytes/decoded_sha256",
+    "no_production_data": true,
+    "sanitation": "No original deciding bytes altered; literal text losslessly encoded only.",
+    "credential_signed_query_scan": "0 matches for selected complete artifact bytes; only synthetic fixtures and public source locators."
+  },
+  "manifest_scope": {
+    "models": 99,
+    "owned_model_entries": [
+      "causal_effect_report",
+      "hte_result"
+    ],
+    "unchanged_model_entries": 97,
+    "provenance_headers_unchanged": true,
+    "dependent_content_hash": {
+      "old": "5011cb1a2c9ca6e6b9dbcf4325d0854219b3a1b8d46fb975406488ff237b94d3",
+      "current": "f0fb5b7e7fd92570cf46fa834835702ff9b36e8954ced8adab1e84ffd8e769bc",
+      "derived_model_count": 99
+    },
+    "source_binding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006/author/scope-proof.json"
+  },
+  "closure_id_semantics": "No finding is newly closed by this generated companion; unrelated method/resource/authority residuals remain explicit."
+}

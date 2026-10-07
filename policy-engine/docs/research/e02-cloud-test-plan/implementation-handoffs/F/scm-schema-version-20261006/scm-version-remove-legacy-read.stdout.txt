@@ -1,0 +1,20 @@
+{"mode": "legacy_read", "source_path": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/ir/analytics/structural_causal_model.py", "source_sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa", "markers_retained": "schema names, field names, registry/readable versions; original legacy injection AST remains in unreachable arm", "source_file_mutated": false}
+.F
+=================================== FAILURES ===================================
+_ test_actual_legacy_manifest_preserves_version_without_worker_authority[False] _
+tests/unit/ir/test_structural_causal_model_versions.py:74: in test_actual_legacy_manifest_preserves_version_without_worker_authority
+    assert loaded.schema_version == "1.0"
+E   AssertionError: assert '1.1' == '1.0'
+E     
+E     - 1.0
+E     + 1.1
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_actual_legacy_manifest_preserves_version_without_worker_authority[False]
+1 failed, 1 passed, 1 warning in 6.65s

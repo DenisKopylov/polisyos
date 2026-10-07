@@ -1,0 +1,10 @@
+{
+  "check": "PASS",
+  "carrier": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+  "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/full-output-manifest.json",
+  "records": 120,
+  "stored_bytes": 442406,
+  "decoded_bytes": 3587110,
+  "issues": [],
+  "own20_companions_and_selection_transported": true
+}

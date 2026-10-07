@@ -1,0 +1,4 @@
+2026-10-07 16:57:54 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=False namespace=causal.prior override=True tags=['causal', 'estimation', 'prior', 'reconciliation', 'structural'] version=1.0.0
+2026-10-07 16:57:54 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 16:57:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.66 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"outcome": "PASS", "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d", "parent_isolated": 1, "child_isolated": 1, "owned_parent_origins": 970, "owned_child_origins": 83, "child_seconds": 0.5199673309980426}

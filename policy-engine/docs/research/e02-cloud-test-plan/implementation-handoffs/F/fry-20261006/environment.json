@@ -1,0 +1,25 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "backend": "cpu",
+  "devices": [
+    "TFRT_CPU_0"
+  ],
+  "jax_enable_x64": false,
+  "versions": {
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "equinox": "0.13.2",
+    "optax": "0.2.6",
+    "pytest": "9.0.2"
+  },
+  "candidate_imports": {
+    "polisyos.foundry.compile.randomization": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/compile/randomization.py",
+    "polisyos.foundry.compile.trinity_compiler": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+    "polisyos.foundry.execute._internal.graph": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py"
+  },
+  "optional_dowhy_econml": "not_exercised_no_positive_backend_claim"
+}

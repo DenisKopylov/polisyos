@@ -1,0 +1,98 @@
+{
+  "role": "independent_metadata_custody_only",
+  "packet_sha": "f17b9a52784d9484ef65563dc6695240629bdfc6",
+  "packet_tree": "5f99683e2e623dceb68591607000f422ebc08bee",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/final35-validator/validate_packet.py",
+    "--repo",
+    "/workspace/e02-F-closeout-20261006",
+    "--manifest",
+    "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.json",
+    "--index",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/immutable-index.json",
+    "--output",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/final-validation.json",
+    "--transports",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/immutable-transports.json",
+    "--packet-sha",
+    "f17b9a52784d9484ef65563dc6695240629bdfc6",
+    "--report",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/immutable-report.md",
+    "--source-order",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/immutable-source-order.json",
+    "--required-registry",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/required-registry-final.json"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6",
+  "exit_code": 0,
+  "wall_seconds": 12.76547513800324,
+  "immutable_inputs": {
+    "index": {
+      "git_ref": "f17b9a52784d9484ef65563dc6695240629bdfc6",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/index.json",
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/immutable-index.json",
+      "bytes": 692685,
+      "sha256": "11149eb72865a357b379b988f9986fc9349af6ed6fcaa33619a87f9a5d733773"
+    },
+    "report": {
+      "git_ref": "f17b9a52784d9484ef65563dc6695240629bdfc6",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/REPORT.md",
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/immutable-report.md",
+      "bytes": 21419,
+      "sha256": "042f0b14d68c3a2119a5b33506b2c5307474e54898d282d713e007a3e82b283f"
+    },
+    "source_order": {
+      "git_ref": "f17b9a52784d9484ef65563dc6695240629bdfc6",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/source-order.json",
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/immutable-source-order.json",
+      "bytes": 854036,
+      "sha256": "2b41a9bf114c123e8176b2cf66bd5093c712220b44d66c05dad20f58e6fd7ea8"
+    },
+    "transports": {
+      "git_ref": "f17b9a52784d9484ef65563dc6695240629bdfc6",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/artifact-transports.json",
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/immutable-transports.json",
+      "bytes": 2411177,
+      "sha256": "6fd15c82e7f4db43ae72da15ffe0a0ae224f0b10ee28760c556c51ebe9421562"
+    }
+  },
+  "frozen_input_bindings": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/final35-validator/validate_packet.py",
+      "bytes": 26477,
+      "sha256": "51a95464831e426050bc9aac6abc0ed094a871c01d5634a8a021972acf0d9e1f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/required-registry-final.json",
+      "bytes": 20278,
+      "sha256": "e108437f8bb439d85fdb00016c9c2164d14af5a22768f542013df7eeef7b6d95"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.json",
+      "bytes": 235804,
+      "sha256": "95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7"
+    }
+  ],
+  "frozen_inputs_unchanged_after": true,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/final-validation.stdout.txt",
+    "bytes": 166,
+    "sha256": "26c4e4c321faea12a9f0f5e4e1c8e05ecfda65417f1e773d945d8533712bea92"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/final-validation.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "validator_output": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/f17b9a52784d9484ef65563dc6695240629bdfc6/final-validation.json",
+    "bytes": 1509949,
+    "sha256": "2d8dd6c9dc5c9d58605abb7f166b7b70e845104106f75c1ad08e894c3c9ca2d2"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/execute_final_validator.py",
+    "bytes": 4344,
+    "sha256": "5b112ce7d834f7a6799bbea63a8769ad10d0aae1acb622db900c47c9d89019e8"
+  }
+}

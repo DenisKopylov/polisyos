@@ -1,0 +1,27 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh_graph_bridge.py"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "seconds": 16.185847136977827,
+  "scope": "One missing registered MethodJob->Node->selectedCAS->fresh-I child proof on wheel only.",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh-bridge.stdout.txt",
+    "bytes": 973,
+    "sha256": "c309bc77ee92f1d06976bdc5649f26ebb375cd10fb8ab4fc077c19a839e9cdba"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh-bridge.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "runtime_source_identity_check": "PASS",
+  "root_contains_complete_resource_handoff": "FAIL",
+  "published_component_custody_check": "PASS",
+  "root_missing_resource_material": 173,
+  "published_material": 396,
+  "gzip": 124,
+  "pairs": [
+    {
+      "label": "own published→root519",
+      "selected_path_denominator": 4359,
+      "runtime_code_data_config_denominator": 4098,
+      "runtime_code_data_config_changed_paths": [],
+      "documentation_changed_paths": []
+    },
+    {
+      "label": "root519→virtualmerge",
+      "selected_path_denominator": 4359,
+      "runtime_code_data_config_denominator": 4098,
+      "runtime_code_data_config_changed_paths": [],
+      "documentation_changed_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/README.md"
+      ]
+    },
+    {
+      "label": "mergebase→G855",
+      "selected_path_denominator": 4348,
+      "runtime_code_data_config_denominator": 4090,
+      "runtime_code_data_config_changed_paths": [],
+      "documentation_changed_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/README.md"
+      ]
+    }
+  ]
+}

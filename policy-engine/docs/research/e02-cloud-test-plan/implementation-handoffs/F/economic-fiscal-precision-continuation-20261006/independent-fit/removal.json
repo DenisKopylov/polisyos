@@ -1,0 +1,36 @@
+{
+  "name": "removal",
+  "source_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "source_tree": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301",
+  "baseline_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/fit-fiscal-review/remove_early_precision.py"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine:/workspace/e02-F-economics-20261006/policy-engine/tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "FISCAL_REVIEW_SHA": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+    "FISCAL_REVIEW_BASE_SHA": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+    "FISCAL_REVIEW_PATHS": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/source-paths.json"
+  },
+  "inherited_environment": true,
+  "artificial_cloud_quota": false,
+  "exit_code": 1,
+  "wall_seconds": 12.159736454996164,
+  "peak_child_rss_kib_cumulative": 894916,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal.stdout.txt",
+    "bytes": 217139,
+    "sha256": "740aef5d19722da6bb64566d3ef65a514b2fa31a8706ab9a03c5071f572361d7"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "canonical_outcome": "FAIL",
+  "interpretation": "Initial negative reaches same reviewer harness assertion, not deciding precision removal."
+}

@@ -1,0 +1,55 @@
+{
+  "files": [
+    {
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007.json",
+      "bytes": 102004,
+      "sha256": "8b7754451abfbfe2c78fcd261de84ebe8b3de1c373a8f23d7561c8b9c71b75af",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-graph-20261006",
+      "remote_head": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "extension_id": "packaged-resource-owner-receipt",
+      "role": "Published canonical Graph resource owner complete receipt and existing FIT proposal/review locators; no duplicate owner evidence/source."
+    },
+    {
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/outputs.json",
+      "bytes": 104943,
+      "sha256": "1435329de7dede38088bbad0aebc1bd041c8043efab32e907e435143db648d18",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-graph-20261006",
+      "remote_head": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "extension_id": "packaged-resource-owner-receipt",
+      "role": "Published canonical Graph resource owner complete receipt and existing FIT proposal/review locators; no duplicate owner evidence/source."
+    },
+    {
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/execution-to-git-locators.json",
+      "bytes": 117946,
+      "sha256": "f35961307d2130ba572768297957decaf87977cdafed43b073102f788a214bd1",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-graph-20261006",
+      "remote_head": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "extension_id": "packaged-resource-owner-receipt",
+      "role": "Published canonical Graph resource owner complete receipt and existing FIT proposal/review locators; no duplicate owner evidence/source."
+    },
+    {
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/review.json",
+      "bytes": 15140,
+      "sha256": "ee1f456035b4a01689708b1ab0b29d388e97673dadf084c71bcc156c191cf922",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-graph-20261006",
+      "remote_head": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "extension_id": "packaged-resource-owner-receipt",
+      "role": "Published canonical Graph resource owner complete receipt and existing FIT proposal/review locators; no duplicate owner evidence/source."
+    },
+    {
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/fit-design/transfer-selection.json",
+      "bytes": 5304,
+      "sha256": "3c455f4693f0d645acf2bf2803abd0c5794c77227e3ce5d863a15fb78f4aebd3",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-graph-20261006",
+      "remote_head": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "extension_id": "packaged-resource-owner-receipt",
+      "role": "Published canonical Graph resource owner complete receipt and existing FIT proposal/review locators; no duplicate owner evidence/source."
+    }
+  ],
+  "network_readback_scope": "Existing origin-tracking ref plus ROOT fetch-exact-refs outputs; no fresh network probe by leaf."
+}

@@ -1,0 +1,11 @@
+{
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity.txt",
+      "bytes": 15,
+      "sha256": "30f8c589a5fd32a1b081cbeb75e4579120b39cebd3dd61af958e36cd104a68ee",
+      "encoding": "identity",
+      "decoded_bytes": 15
+    }
+  ]
+}

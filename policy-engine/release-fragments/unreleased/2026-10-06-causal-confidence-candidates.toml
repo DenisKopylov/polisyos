@@ -1,0 +1,26 @@
+id = "2026-10-06-causal-confidence-candidates"
+title = "Keep causal estimation success separate from identification admission"
+type = "fixed"
+component = "ir-causal-scientist-governance"
+owner = "team-ir"
+summary = "Successful causal reports retain their numerical interval as non-gating candidates, and the confidence pass rejects unadmitted causal-purpose refs independently of producer labels or aggregate thresholds."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.ir.CausalEffectReport; internal: Scientist confidence pass"
+compatibility = "CausalEffectReport fields, canonical class identity, pickle identity, SUCCESS status and numerical confidence semantics remain available; its uncertainty projection no longer implies identification admission. Noncausal simulation confidence profiles retain their thresholds."
+migration = "Preserve candidate statistics and handle the existing CONFIDENCE_GATE_ELIGIBILITY_LOW blocker. Do not treat SUCCESS, CI, gate_eligible, a proof ref or verifier-role label as causal identification permission. A positive path remains unavailable until the accepted existing identification owner/verifier packet is supplied."
+api = "No new enum, issuer, seal, facade, or Runtime import into IR is introduced."
+limitations = "Positive causal identification authority and the common admitted TMLE study resource workload remain UNRUN/limited pending the responsible owner packet. The confidence intake contract applies when that pass executes and a causal-purpose ref is offered."
+evidence = ["tests/unit/ir/analytics/test_causal_identification_candidate.py", "tests/unit/scientist/governance/test_causal_confidence_candidate.py"]
+migration_docs = ["docs/reference/ir/causal-identification-candidates.md"]
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "causal-confidence-requires-identification-admission"
+change_class = "python-public-api"
+impact = "consumer_input_update"
+surface = "public_stable: polisyos.ir.CausalEffectReport.to_uncertainty_envelope"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Successful causal estimates project a non-gating candidate interval. Consumers must preserve candidate status until an accepted current source/graph/estimand/target identification owner and verifier bridge is supplied. The existing confidence blocker cannot be bypassed by source relabeling, a zero gate ratio, or healthy simulation metrics."

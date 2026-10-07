@@ -1,0 +1,38 @@
+{
+  "source": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+  "tree": "1f288ae61c12a3b8d13578d9d69f0fd8ec68346a",
+  "reviewer": "root independent of fit author",
+  "cmd": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/root-review-confidence/cache",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261006/root-review-confidence/tmp",
+    "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+    "tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+    "tests/unit/scientist/governance/test_confidence_pass.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 16.93538689801062,
+  "outputs": {
+    "stdout": {
+      "bytes": 615,
+      "sha256": "0ad2dfe29d9cadbf91ab448c3896b4b52eeeb76f0e7aa9fdcf2586ca08436e55"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp"
+  },
+  "quota_introduced": false
+}

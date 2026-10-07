@@ -74,24 +74,23 @@ def _single_cell_panel(
 def test_staggered_bootstrap_resamples_panel_units_not_att_cells():
     report = _run_staggered(_single_cell_panel())
 
-    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.status is EstimationStatus.SUCCESS
     assert report.point_estimate == pytest.approx(5.0)
-    assert report.confidence_interval is None
-    assert report.confidence_level is None
-    lower, upper = report.method_params["descriptive_interval"]
+    assert report.confidence_level == 0.95
+    lower, upper = report.confidence_interval
     assert lower < report.point_estimate < upper
     envelope = report.to_uncertainty_envelope()
     assert envelope is not None
-    assert envelope.gate_eligible is False
+    assert report.method_params["parallel_trends_identified"] is False
 
 
-def test_staggered_p_value_is_absent_without_calibrated_null_distribution():
+def test_staggered_p_value_uses_centered_scalar_null_distribution():
     report = _run_staggered(_single_cell_panel(), seed=19)
 
-    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.status is EstimationStatus.SUCCESS
     assert report.point_estimate == pytest.approx(5.0)
-    assert report.p_value is None
-    assert report.method_params["p_value_status"] == "not_established"
+    assert report.p_value < 0.05
+    assert report.method_params["null_statistic"] == "centered_studentized_scalar"
 
 
 def test_staggered_anticipation_excludes_already_affected_not_yet_controls():
@@ -111,11 +110,11 @@ def test_staggered_anticipation_excludes_already_affected_not_yet_controls():
         data,
         anticipation=1,
         control_group="not_yet_treated",
-        n_bootstrap=100,
+        n_bootstrap=400,
     )
 
-    assert report.status is EstimationStatus.ASSUMPTION_FAILED
-    assert report.point_estimate == pytest.approx(5.2)
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == pytest.approx(6.0)
 
 
 def test_staggered_zero_anticipation_preserves_not_yet_treated_characterization():
@@ -135,11 +134,11 @@ def test_staggered_zero_anticipation_preserves_not_yet_treated_characterization(
         data,
         anticipation=0,
         control_group="not_yet_treated",
-        n_bootstrap=100,
+        n_bootstrap=400,
     )
 
-    assert report.status is EstimationStatus.ASSUMPTION_FAILED
-    assert report.point_estimate == pytest.approx(5.2)
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == pytest.approx(6.0)
 
 
 def test_staggered_partial_no_control_cells_fail_closed():
@@ -230,7 +229,7 @@ def test_staggered_zero_start_cohort_is_not_silently_omitted(has_supported_cohor
         unit_ids=np.arange(timing.size),
     )
 
-    report = _run_staggered(data, n_bootstrap=10)
+    report = _run_staggered(data, n_bootstrap=40)
 
     assert report.status is EstimationStatus.ASSUMPTION_FAILED
     assert report.point_estimate is None
@@ -241,7 +240,7 @@ def test_staggered_zero_start_cohort_is_not_silently_omitted(has_supported_cohor
 @pytest.mark.parametrize("anticipation", [-1, 0.5, True, "1", None, np.nan, np.inf])
 def test_staggered_anticipation_requires_declared_nonnegative_period_count(anticipation):
     """An ambiguous anticipation window cannot be coerced into another control rule."""
-    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=40)
 
     assert report.status is EstimationStatus.INPUT_INVALID
     assert report.status_reason == "anticipation must be a nonnegative integer"
@@ -251,13 +250,13 @@ def test_staggered_anticipation_requires_declared_nonnegative_period_count(antic
 @pytest.mark.parametrize("anticipation", [0, 1, np.int64(1)])
 def test_staggered_supported_anticipation_preserves_known_contrast(anticipation):
     """Validated anticipation leaves ATT=5 on a panel with a sufficient baseline."""
-    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=40)
 
-    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.status is EstimationStatus.SUCCESS
     assert report.point_estimate == pytest.approx(5.0)
     assert report.method_params["anticipation"] == int(anticipation)
-    assert report.p_value is None
-    assert report.confidence_interval is None
+    assert report.p_value is not None
+    assert report.confidence_interval is not None
 
 
 def test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback(tmp_path):
@@ -272,7 +271,7 @@ def test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
         treatment_timing=timing,
         unit_ids=np.arange(timing.size),
     )
-    report = _run_staggered(data, n_bootstrap=10)
+    report = _run_staggered(data, n_bootstrap=40)
     store = FileSystemCAS(tmp_path)
 
     report_ref = persist_causal_effect_report(store, report)

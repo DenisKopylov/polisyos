@@ -1,0 +1,12 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/foundry/methods/backends/test_dispatch_output_contract.py _
+tests/unit/foundry/methods/backends/test_dispatch_output_contract.py:28: in <module>
+    class _AliasedVector:
+tests/unit/foundry/methods/backends/test_dispatch_output_contract.py:29: in _AliasedVector
+    signature: ClassVar[MethodSignature] = MethodSignature(
+E   TypeError: MethodSignature.__init__() missing 4 required positional arguments: 'input_slots', 'parameters', 'fidelity', and 'complexity'
+=========================== short test summary info ============================
+ERROR tests/unit/foundry/methods/backends/test_dispatch_output_contract.py - ...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 5.33s

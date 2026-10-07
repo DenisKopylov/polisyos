@@ -1,0 +1,16 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "cwd": "/tmp/e02-F-continuation-20261006/api/wheel-consumer-5484",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/api/wheel-env-retry-5484/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261006/api/literal_runtime_imports.py",
+    "wheel"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/runtime-literal-bindings-corrected",
+  "artifact_paths": []
+}

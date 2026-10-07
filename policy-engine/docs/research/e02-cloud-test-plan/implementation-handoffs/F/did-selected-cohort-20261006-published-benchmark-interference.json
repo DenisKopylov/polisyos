@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "benchmarks/interference/policy_did_interference.py",
+    "--quiet",
+    "--json",
+    "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference-report.json"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_before": {
+    "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+    "tree": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit": 0,
+  "duration_seconds": 7.2631120681762695,
+  "maxrss_kib": 558784,
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.stdout.txt",
+      "bytes": 2046,
+      "sha256": "7a96b7d4853154684151e57d1b448936f387fc4295c383d8d714a814f198fb53"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

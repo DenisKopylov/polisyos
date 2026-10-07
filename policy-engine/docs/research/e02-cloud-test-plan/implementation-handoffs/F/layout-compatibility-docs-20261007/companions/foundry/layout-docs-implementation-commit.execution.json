@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "/workspace/e02-F-fry-20261006",
+    "commit",
+    "-m",
+    "docs(foundry): clarify IR layout ownership and compatibility lifecycle"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 0.03544085699832067,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-implementation-commit.stdout.txt",
+    "bytes": 159,
+    "sha256": "ade0c350d23ad7e39775297dae36cb7f59200a534650e575e1145e7cabaec1a4"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-implementation-commit.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sha": "6beacc8b42dacabff214901919203323f07d1fef",
+  "tree": "64dc785b6bf29659e94acdd7cf3100c02179e2c0",
+  "parent": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "actual_changed_paths": [
+    "policy-engine/docs/reference/foundry/state.md",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/compiler/README.md"
+  ],
+  "status": "## codex/e02-F-fry-20261006"
+}

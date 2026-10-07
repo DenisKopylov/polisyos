@@ -1,0 +1,42 @@
+{
+  "schema": "policyos.e02.independent_execution.v1",
+  "target_sha": "0c2086d6a31dcef1b5b201861b11639a226c2a70",
+  "target_tree": "7396f18dbccff87e83adf281a243d2627cbed47a",
+  "head_before_after": "0c2086d6a31dcef1b5b201861b11639a226c2a70",
+  "source_hashes": {
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "2112d657c88350686bd5e8a472925030ccc2d86e4e2ebf71710ecee9260fd6b2",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "9d3bd865aa835c0069be3df9e138d910e5b50956c5f8795f4c9f7e0f67ee0db2",
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py": "bc0389a3c825b46d0315e12f26c968fbd997fd829741bc0b1611cb5070eb6045",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py": "eb550486eebae50a0a0262c1909bc495354ba560c017ad2f1dc4448c028963d7",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py": "6997519aa5aa17c8273786955c67d53dc3941eec9e1e999203f866736a72a647",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py": "cbd03718398d14217ad1f5592fbe35b8cab089076a29f01653185afc7c6e3484",
+    "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py": "190bbb495f923e9e3cab420e89781d393b0ed60c5b53a69c4585fad7495d8e89"
+  },
+  "source_unchanged": true,
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-probe.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "exit": 0,
+  "wall_seconds": 11.004579544067383,
+  "maxrss_kib": 1182672,
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-native-control.stdout.txt",
+      "bytes": 6979,
+      "sha256": "956855be311d7022671b7b7deeee30b191fd03b46ae184df1f0da230489bd919"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-native-control.stderr.txt",
+      "bytes": 857,
+      "sha256": "cefbc1d6b133d4a28a80a105e163ec341b797572821e4ed3fd08a8e0be09dc42"
+    }
+  }
+}

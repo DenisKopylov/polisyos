@@ -1,0 +1,47 @@
+{
+  "records": [
+    {
+      "id": "causal-neighbor-fixtures",
+      "change_class": "internal",
+      "impact": "compatible",
+      "surface": "internal: graph consumer tests",
+      "owner": "team-foundry",
+      "version_owner": "team-foundry",
+      "deprecation_window": "not_applicable: test fixture correction",
+      "release_note": "Graph consumer tests distinguish a latent bow from an observed collider, use disjoint AMN queries, and assert real compiler rewriting and proof transfer.",
+      "generated_client_compatibility": "not_applicable",
+      "migration_docs": [
+        "docs/reference/foundry/causal-neighbor-fixtures.md"
+      ],
+      "runbook_docs": [
+        "docs/reference/foundry/causal-neighbor-fixtures.md"
+      ],
+      "fragment": "/workspace/e02-F-graph-20261006/policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml"
+    }
+  ],
+  "errors": [],
+  "findings": []
+}
+## [unreleased-causal-neighbor-fixtures] - 2026-10-06
+
+### Fixed
+- `foundry`: Exercise supported graph consumers with intended typed fixtures: Replace malformed bow and endpoint-conditioning fixtures, and execute the compiler's real Rule 1 pre-pass instead of skipping invalid graph construction.
+
+## Compatibility Notes
+- Production graph algorithms, public exports, IR schemas and persisted formats are unchanged.
+
+## Change Classes
+- internal
+
+## Supported Surface Classification
+- internal: causal consumer regression fixtures
+
+## Migration Notes
+- Use a two-observed-node bow for latent confounding, disjoint separation query sets and typed CausalEdge construction in tests.
+
+## Known Limitations
+- Finite native consumer checks do not establish general ID/PAG completeness or identified real-data effects; historical FAIL/SKIP outputs remain preserved.
+
+## Structured Compatibility Changes
+- `internal` / `compatible` / internal: graph consumer tests: Graph consumer tests distinguish a latent bow from an observed collider, use disjoint AMN queries, and assert real compiler rewriting and proof transfer. (owner: team-foundry; version owner: team-foundry; deprecation: not_applicable: test fixture correction)
+

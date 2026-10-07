@@ -1,0 +1,197 @@
+{
+  "schema": "e02-independent-installed-recovery-addendum/v1",
+  "role": "F-API independent installed evidence reviewer",
+  "decision": "GO",
+  "decision_scope": "Recovered immutable519 bytes and ONE actual wheel registeredMethodJob/Node persistedGraph fresh-I reader; original29 and b5NO-GO preserved.",
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "closure_ids": [],
+  "predicate_basis": "independently_reconciled",
+  "original_frozen_review": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/review.json",
+    "bytes": 20652,
+    "sha256": "e315caff26b9efbf86bb1122b8e789f2eb8344521c3c1790c37b7ea149010937",
+    "complete": true
+  },
+  "original_frozen_selection": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/transfer-selection.json",
+    "bytes": 8108,
+    "sha256": "aaf0e955e75ec0a7c83c8cfc2a6cfd0cdc9d5a2afb8990dbb1ded154f020ebb7",
+    "complete": true
+  },
+  "original_published_receipt": {
+    "carrier_sha": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007.json",
+    "bytes": 47204,
+    "sha256": "d4cef17e72100250f5162b3642654882f1864c576e895ca8903b7b4f24e66f05",
+    "scope": "Independent local Git readback of original saved29 primary publication; fresh-child addendum remains separate."
+  },
+  "preflight": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/preflight.json",
+    "bytes": 8274,
+    "sha256": "f9826d77e92f73a0e2709f493c6f26193b27d5ef5cb6b67a1ce79ac174d56b85",
+    "complete": true
+  },
+  "custody": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/custody-review.json",
+    "bytes": 7155,
+    "sha256": "0fcc484ffca12c7d28d3d307ef96139c0ef81a1a948f223a032c868ccb05366e",
+    "complete": true
+  },
+  "saved_native_output_review": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/native-output-review.json",
+    "bytes": 21686,
+    "sha256": "d591489ba2e06efb26c6425f69f6aae518e38d08116a82ee131f31886bfa506c",
+    "complete": true
+  },
+  "fresh_parent": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh-bridge-proof.json",
+    "bytes": 209859,
+    "sha256": "3fee1a591e6cd3680417eabdab2ea14760f17b552a83d9cbbb2b10c2fd7087d9",
+    "complete": true
+  },
+  "fresh_child": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh-reader-proof.json",
+    "bytes": 18276,
+    "sha256": "b3b17cc655ac9362d378271683ea823cb9e215b8ba4e57221242e1db1a72b4a6",
+    "complete": true
+  },
+  "observed_synthetic_CAS_records": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/observed-cas-payloads.json",
+    "bytes": 5745,
+    "sha256": "d98c9b2cdef1215459fbc94669d5d9637239860214e777f036ef86757c401ba9",
+    "complete": true
+  },
+  "post_additive": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/post-own-probe-guard.json",
+    "bytes": 405,
+    "sha256": "ea7eead4ca66360dea955be15700cd43ce7720115908ad20bd7c26dfdd092fba",
+    "complete": true
+  },
+  "checks": [
+    {
+      "id": "immutable-original29-recovery-readback",
+      "target_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "target_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "outcome": "PASS",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/finish_recovered_review.py",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/preflight.json",
+      "scope": "Original29 byte-identical; primary published separately at de197, no retrospective fresh-child claim."
+    },
+    {
+      "id": "recovered-complete-archive-source-site-custody",
+      "target_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "target_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "outcome": "PASS",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_custody.py",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_custody.stdout.txt",
+      "scope": "Read every18301Git/snapshot payload, all12981actualsdist/rebuild members,3archives,3464files/site,3147Python/site,36carriers; no builder/site mutation."
+    },
+    {
+      "id": "recovered-complete-native91-and-six-controls-read",
+      "target_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "target_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "outcome": "PASS",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_native_outputs.py",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_native_outputs.stdout.txt",
+      "scope": "Read existing complete XML/raw/commands/origins:91PASS each,0FAIL/ERROR/SKIP;6actualexpectedFAIL property controls. No suite replay."
+    },
+    {
+      "id": "unknown-pre-outage-extra-result",
+      "target_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "target_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "outcome": "UNRUN",
+      "command": "Pre-outage tool result unavailable; saved directory inspected on recovery",
+      "output": "No saved pre-outage execution output exists on recovered filesystem.",
+      "scope": "Completion not_established: directory absent. No assertion prior process never started; no fabricated PASS/FAIL from transport outage."
+    },
+    {
+      "id": "one-real-wheel-job-node-selected-CAS-fresh-child",
+      "target_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "target_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "outcome": "PASS",
+      "command": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh_graph_bridge.py",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh-bridge.stdout.txt",
+      "scope": "Actual registered causal.prior.reconcile_causal_graph@1.0.0 MethodJob/run_job -> actualNode persistedselectedGraph -> separatePID ownwheel-I reader. LiteralX->Y/fullmodel/manifest producerlineage/detached-row property; ONEprofile, no79/TMLE/buildrepeat."
+    },
+    {
+      "id": "fresh-child-reader-own-neutral-I-command",
+      "target_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "target_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "outcome": "PASS",
+      "command": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh_graph_bridge.py --reader",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/fresh-reader.stdout.txt",
+      "scope": "DifferentPID fromproducer;83actualproductmodule origins ownsite0escapes; no parent-memory substitute. Source fixture copied from exact519Gitcarrier, no product sourcepath."
+    },
+    {
+      "id": "complete-post-additive-site-archive-custody",
+      "target_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "target_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "outcome": "PASS",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/post_own_probe_guard.py",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/post-recovered-fresh-bridge.stdout.txt",
+      "scope": "All6928actualsite product/resources plus3currentarchives unchanged afteradditive. Copied replayer historical caption retained; actual current invocation scope recorded separately."
+    },
+    {
+      "id": "production-identifier-Runtime-authority",
+      "target_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "target_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "outcome": "UNRUN",
+      "command": "No real admitted authority input/verifier issued for this synthetic graph fixture",
+      "output": "UNRUN: no admitted Runtime authority input/verifier issued for this synthetic candidate.",
+      "scope": "Synthetic candidate only: no causalidentification/statistical/value/productionauthority closure, no fakeissuer oradmissionseal."
+    }
+  ],
+  "current_native_run_counts": {
+    "new_registered_method_jobs": 1,
+    "new_Node_executions": 1,
+    "new_fresh_I_children": 1,
+    "wheel_only": true,
+    "expensive_suites_repeated": 0,
+    "parent_owned_module_origins": 970,
+    "child_owned_module_origins": 83,
+    "origin_escapes": 0,
+    "stderr_bytes": 0,
+    "unexpected_warning_memberships": 0
+  },
+  "historical_case_scope": {
+    "author_wheel": {
+      "PASS": 91,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "author_sdist": {
+      "PASS": 91,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "six_expected_negative_controls": "6 actualFAIL, notunexpectedproductfailures",
+    "old_b5": "Each130PASS32FAIL retains c227 evidence; no relabeling.",
+    "old_8236": "199each/90LGBM are different source/profile, not replayed here."
+  },
+  "limits": [
+    "Original29 freshGraph() means sameprocess reopenedCAS. New wheel-only fresh child is separate current additive proof, not retrospective original91 subprocess assertion.",
+    "38static public entrypointUNKNOWN/null totals andcanonicalFAIL remain; no parser/global scientific closure.",
+    "No transfer to freshG855 orlater ordinary-merge product candidate; changed IR/worker/consumer equality requires separate review.",
+    "No DoWhy/EconML backend execution inferred from this actualnumpy Graph producer or app3.14 imports.",
+    "No raw productiondata,authorityissuer,challenge/verifier positive,sharedB56studies or valueobjective authority supplied.",
+    "No cleanup/deletion/source/site/resource mutation; full registry/setup syntheticCAS stayslocal andreplayer reconstructs it. Three unique actualsyntheticartifact roles retained as fullbyte records."
+  ],
+  "complete_CAS_byte_aliases": {
+    "df61cd4f97b8694ab1a8c389bd2fc3c7ce77636d45c95cbecec3644b7561da74": [
+      "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/synthetic-context/cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.manifest.json",
+      "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/synthetic-context/cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json"
+    ],
+    "0fce40347610f961fd9602e1b0a97dc7f5fc68c0a36f57cf370c25ab14f3d3cd": [
+      "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/synthetic-context/cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.manifest.json",
+      "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/synthetic-context/cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.view.8f9a9a580bb821f06ed14dfb4a465762878c9154f2f6f1698642c1e54803a7e0.manifest.json"
+    ],
+    "9224029ecc4f61d5dabc597b294c5047e1564875f3bfbcf6b203a2c495f2ecff": [
+      "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/synthetic-context/cas/artifacts/sha256/e8/8b/e88b7f3bfbb8ccb56f01f4c0a42b0aceedd734fe4cce745f4c08c9b7fe07e10e.manifest.json",
+      "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/synthetic-context/cas/artifacts/sha256/e8/8b/e88b7f3bfbb8ccb56f01f4c0a42b0aceedd734fe4cce745f4c08c9b7fe07e10e.view.ff006259511cdb915c32db2b709bce5000d4bc4fa88d764c4c1aa9dd2887fec0.manifest.json"
+    ]
+  },
+  "no_original_review_mutation": true
+}

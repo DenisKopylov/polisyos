@@ -1,0 +1,140 @@
+[
+  {
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-F-cau-20261006",
+      "--path",
+      "/workspace/e02-F-cau-20261006"
+    ],
+    "path": "/workspace/e02-F-cau-20261006",
+    "branch": "codex/e02-F-cau-20261006",
+    "exit_code": 2,
+    "started_epoch": 1791374911.9771714,
+    "finished_epoch": 1791374912.007729,
+    "status": "## codex/e02-F-cau-20261006\n",
+    "identity": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9\nd24808dc3eeed4881256f2a70cdeb02357c425c7\nf3d4dad8dfa0980763d87050418c902908af25d2\nHEAD -> codex/e02-F-cau-20261006, origin/codex/e02-F-cau-20261006\n"
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-F-api-20261006",
+      "--path",
+      "/workspace/e02-F-api-20261006"
+    ],
+    "path": "/workspace/e02-F-api-20261006",
+    "branch": "codex/e02-F-api-20261006",
+    "exit_code": 2,
+    "started_epoch": 1791374911.9773197,
+    "finished_epoch": 1791374912.0162404,
+    "status": "## codex/e02-F-api-20261006\n",
+    "identity": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f\nc7c71a12bc04238dce414455a06849a9f49a824f\n6f39b0edc48ec59db3731fa917c615b9f97e4dc0\nHEAD -> codex/e02-F-api-20261006, origin/codex/e02-F-api-20261006\n"
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-F-economics-20261006",
+      "--path",
+      "/workspace/e02-F-economics-20261006"
+    ],
+    "path": "/workspace/e02-F-economics-20261006",
+    "branch": "codex/e02-F-economics-20261006",
+    "exit_code": 2,
+    "started_epoch": 1791374911.9780262,
+    "finished_epoch": 1791374912.1001306,
+    "status": "## codex/e02-F-economics-20261006\n",
+    "identity": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d\n334f80bc471c2a686ab4f7a5101c44d0cb4c6b90\nc0084cd530c1dbe01eedfb9b5c24f055954a97be\nHEAD -> codex/e02-F-economics-20261006, origin/codex/e02-F-economics-20261006\n"
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-F-tmle-20261006",
+      "--path",
+      "/workspace/e02-F-tmle-20261006"
+    ],
+    "path": "/workspace/e02-F-tmle-20261006",
+    "branch": "codex/e02-F-tmle-20261006",
+    "exit_code": 2,
+    "started_epoch": 1791374911.9781494,
+    "finished_epoch": 1791374912.098015,
+    "status": "## codex/e02-F-tmle-20261006\n",
+    "identity": "e04ddf884071b17ffb1d021c9a6b23f826d76774\n13736344f761ab911a1607fc2ebb9d722395ec68\n8d94a937ca6e3f886ada9ad5c1f76dadb049da84\nHEAD -> codex/e02-F-tmle-20261006, origin/codex/e02-F-tmle-20261006\n"
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-F-fry-20261006",
+      "--path",
+      "/workspace/e02-F-fry-20261006"
+    ],
+    "path": "/workspace/e02-F-fry-20261006",
+    "branch": "codex/e02-F-fry-20261006",
+    "exit_code": 2,
+    "started_epoch": 1791374911.9783485,
+    "finished_epoch": 1791374912.1316574,
+    "status": "## codex/e02-F-fry-20261006\n",
+    "identity": "c22786dfce8308bb7d48a177ccb1b109843262b5\n2a13485d2b198b51643f78929a15d920b58e8e86\n40e58209f34921d20218c6c5af3a2820db732d22\nHEAD -> codex/e02-F-fry-20261006, origin/codex/e02-F-fry-20261006\n"
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-F-graph-20261006",
+      "--path",
+      "/workspace/e02-F-graph-20261006"
+    ],
+    "path": "/workspace/e02-F-graph-20261006",
+    "branch": "codex/e02-F-graph-20261006",
+    "exit_code": 2,
+    "started_epoch": 1791374911.9787507,
+    "finished_epoch": 1791374912.1222887,
+    "status": "## codex/e02-F-graph-20261006\n",
+    "identity": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634\naa83a73a8b27785adc761898aa23d3ec85e83078\n81f482e04bd8a2c85f894d425847c6e8657b6ea6\nHEAD -> codex/e02-F-graph-20261006, origin/codex/e02-F-graph-20261006\n"
+  }
+]

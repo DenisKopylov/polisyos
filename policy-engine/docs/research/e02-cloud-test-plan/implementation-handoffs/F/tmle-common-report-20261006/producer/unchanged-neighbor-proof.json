@@ -1,0 +1,62 @@
+{
+  "base": "66588374da9f407a870880be675b5c751aef44da",
+  "unchanged_provider_classes_and_functions": [
+    {
+      "name": "_result_slot",
+      "bytes": 127,
+      "sha256": "fbd05dcbe42e54e6165c8d821e66b4087a7e79b8edde548bd15d8da9c9883976"
+    },
+    {
+      "name": "_treatment_slots",
+      "bytes": 421,
+      "sha256": "94e2ae163b0fece17c8b43607133637c9b5f0a8f3e6f7ee93b047c1609afe5b2"
+    },
+    {
+      "name": "_logistic_propensity",
+      "bytes": 787,
+      "sha256": "b214025196cf39c876a6eb3f760721eb5c9b931ac174e90ad8c41e8076d06a12"
+    },
+    {
+      "name": "AIPWEstimator",
+      "bytes": 3428,
+      "sha256": "509829cef257e0b1e048a957f73096e694b3adaf55b6ebf699cdaef1808eb4e9"
+    },
+    {
+      "name": "IPWEstimator",
+      "bytes": 4236,
+      "sha256": "d94cee11042f2de14bfb17ed2ffc1cd5c2752e8ae1084725c2ee536ba4716878"
+    },
+    {
+      "name": "PropensityScoreMatchingEstimator",
+      "bytes": 3865,
+      "sha256": "d04adfac667fb27ecbbee18e95dd529f007edacb9ef988c15cd36cbeb169085a"
+    },
+    {
+      "name": "EntropyBalancingEstimator",
+      "bytes": 4061,
+      "sha256": "d7b9bdc638d220bc45227db0e60de43c728d1c3a881423c803208aee2bcfc6e5"
+    },
+    {
+      "name": "CBPSEstimator",
+      "bytes": 4380,
+      "sha256": "17fe1ba61f2c9f57798d3504da7f9ac49d36c2c803bc7ea27ed7e00481bdfda3"
+    }
+  ],
+  "tmle_core_and_nuisance_layer_unchanged": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "bytes": 59964,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+      "bytes": 22295,
+      "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1"
+    }
+  ]
+}

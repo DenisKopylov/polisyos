@@ -1,0 +1,40 @@
+{
+  "outcome": "ERROR",
+  "kind": "mandatory_deciding_artifact_ignored_during_initial_receipt_stage",
+  "first_receipt_commit": "4ef4e00571a9b66ae353f20fd56e5ff56c9c31c6",
+  "source_candidate": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "argv": [
+    "git",
+    "show",
+    "4ef4e00571a9b66ae353f20fd56e5ff56c9c31c6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/runs/graph-content/trace.jsonl"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006",
+  "environment": "NativeGittransport check; no scientific execution or source mutation.",
+  "raw_exit_code": 128,
+  "missing_exact_manifest_row": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/runs/graph-content/trace.jsonl",
+    "encoding": "identity",
+    "bytes": 198,
+    "sha256": "360f01426b2eea5ad4077a1a864d05c4340cd2b586cbf87948c29ae315a6a162",
+    "decoded_bytes": 198,
+    "decoded_sha256": "360f01426b2eea5ad4077a1a864d05c4340cd2b586cbf87948c29ae315a6a162",
+    "original_path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/synthetic-context/cas/runs/graph-content/trace.jsonl",
+    "role": "Complete actual4ee build/installed/custody/native/reader/removal/reviewer output or exact script/config input; no copied tracked product bodies.",
+    "transport_policy": {
+      "gzip_required": false,
+      "reasons": [],
+      "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+    }
+  },
+  "corrective_action": "Append exact existing observed trace.jsonl with explicit force-add; initial history retained, no source/test/numeric rerun.",
+  "stdout": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/transport-guard-correction/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/transport-guard-correction/stderr.txt",
+    "bytes": 288,
+    "sha256": "6f339be9cb1f91cb807497ffefa81125783836ca072570ef8c6aac41ebafb653"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.execution.v1",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+    "--selection",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-final-cdf-v5-completed.json",
+    "--repository",
+    "/workspace/e02-F-closeout-20261006",
+    "--materialize",
+    "--destination",
+    "/workspace/e02-F-closeout-20261006",
+    "--primary-template",
+    "/tmp/e02-F-continuation-20261007/root-recovery/final-primary-template-ready.json"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "environment_overrides": {},
+  "source_sha": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+  "source_tree": "a08083a193d4621a5d5c59bf31a94916e8323a0a",
+  "product_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "elapsed_s": 4.655762434005737,
+  "returncode": 0,
+  "outcome": "PASS",
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/root-final-publication/materialize.stdout.txt",
+      "bytes": 686,
+      "sha256": "795e5fb23b68ce76be599f23b7394778a47940a6a3d3ad14f0ddbf35a7acc55a"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/root-final-publication/materialize.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "science_tests_run": false
+}

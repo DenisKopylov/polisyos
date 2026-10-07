@@ -1,0 +1,16 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "outcome": "PASS",
+  "source_root": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/source",
+  "complete_original_Git_files": 18301,
+  "complete_original_Git_bytes": 555792112,
+  "old_b5_original_files": 17843,
+  "hardlinked_old_unchanged_Git_payloads": 17830,
+  "independent_changed_new_Git_payloads": 471,
+  "ordered_path_hash_size_aggregate": "260beb1b8323158a7286835f56fb83f96bcc65258bc8a014effa381b654a2bcc",
+  "wall_seconds": 4.052053244988201,
+  "shared_inode_policy": "Never open linked source paths for write/chmod/unlink; only separate newlycreated changed/new payloads written. PYTHONDONTWRITEBYTECODE=1. Full old/candidate guards again after all builds/native.",
+  "old_reference_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "old_custody_output": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/old-custody.json"
+}

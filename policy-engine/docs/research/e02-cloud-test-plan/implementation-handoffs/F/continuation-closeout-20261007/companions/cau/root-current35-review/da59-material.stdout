@@ -1,0 +1,19 @@
+{
+  "check": "FAIL",
+  "target": {
+    "sha": "da59adf7cb2ae781f162f060d8c7424060c21306",
+    "tree": "5f8a047da1ad7341d64efd82eeb668aa2885a7c3"
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36
+  },
+  "issues": [
+    "unsupported explicit encoding: lossless_utf8_json"
+  ],
+  "negative_controls": [],
+  "complete_deciding_check_pointer_count": 446,
+  "elapsed_s": 2.9742138939909637
+}
+{"verified_artifacts": 368, "decoded_artifacts": 260, "historical_output_custody_UNRUN": 0, "output": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-review.json"}

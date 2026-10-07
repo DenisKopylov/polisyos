@@ -1,0 +1,42 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+    "tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+    "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-k",
+    "public_surface or supported_import_loader or real_registry or computed_import or case_insensitive or audit or conditional_all"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/consumer-final-frozen",
+  "tree_sha": "0406094722182749d3f7b9a64fa00c5337a9b391",
+  "source_status_before": "",
+  "elapsed_seconds": 37.28663682937622,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/consumer-final-frozen.stdout",
+    "bytes": 635,
+    "sha256": "c99e1a3dcb8da4580123aac0bef089220f8d965fd26b5275bbc2666dda86e277"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/consumer-final-frozen.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": ""
+}

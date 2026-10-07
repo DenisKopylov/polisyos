@@ -1,0 +1,19 @@
+{
+  "command": [
+    "python3",
+    "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.replayer.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "exit": 0,
+  "seconds": 1.1489145755767822,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.initial.stdout.txt",
+    "bytes": 1483,
+    "sha256": "746818b7e81c5516942cdefc04d52ef399024a948f2ca104a6ec647d1a13664d"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.initial.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

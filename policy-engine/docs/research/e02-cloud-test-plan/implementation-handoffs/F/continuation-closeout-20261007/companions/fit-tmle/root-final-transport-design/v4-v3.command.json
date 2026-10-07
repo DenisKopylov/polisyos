@@ -1,0 +1,14 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--no-index",
+    "--",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v3.py",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py"
+  ],
+  "cwd": "/workspace",
+  "exit_code": 1,
+  "outcome": "PASS_DELTA_CAPTURE",
+  "meaning": "Git --no-index exit1 indicates actual expected helper diff; not a scientific gate."
+}

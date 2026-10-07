@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "c225e0d125ab9978ccf7b54022564811dfd0e293",
+  "source_tree_sha": "30e2027e8ed258013bf5fdb6125d0f8294e08d06",
+  "exit_code": 1,
+  "wall_s": 24.292871471014223,
+  "rss_kib": 591956,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/b222-development-2.stdout.txt",
+      "bytes": 7044,
+      "sha256": "fda3e84285bd5e871680bddf5ed90e24e8f6c79792e608b4aef62d4ba1d9b540"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/b222-development-2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "FAIL"
+}

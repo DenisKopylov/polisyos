@@ -1,0 +1,275 @@
+{
+  "schema": "e02-independent-resource-review/v1",
+  "role": "F-API independent read-only reviewer",
+  "decision": "GO",
+  "decision_scope": "Finite curateddefault resource source/ABI/packageprojection contract at089 plus exactdoc/compatibility successor81. Notwholeinstalled/scientific/authority/Gfindingclosure.",
+  "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "source_tree": "120103b1a375b5d405632936b2934f2b36a320f7",
+  "runtime_proof_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "runtime_proof_tree": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+  "slice_base_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "G_comparison_sha": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+  "source_diff_denominator": 14,
+  "companion_delta_denominator": 3,
+  "unchanged_runtime_test_Hatch_YAML_inputs": 15,
+  "closure_ids": [],
+  "pattern_buckets": {
+    "packaged-default-selection": "NEW concrete missinginstalled defaultresource class fromactualb5 wave;finite4resource resolver+exactbyteprojections+consumerprofile address class.",
+    "new-nested-facade-classification": "Companion correction ofactualpublic_experimental Pathwindow; providerimplementationinternal. No new registry/rootfacade/shim.",
+    "static-unknown-completeness": "Declared finiteparser residual38UNKNOWN/canonical38FAIL unchanged; workedexample,not new class/codefix.",
+    "red-provenance": "Author loaderRuff103 red retainednot_established P41; independent doesnotclaim inherited/globalgreen."
+  },
+  "source_review": {
+    "full14diff_read": {
+      "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/full-diff.patch",
+      "bytes": 34551,
+      "sha256": "0d12a1fe47d78a7b68ec71244c2ef88a2dddedbc4619a55c481103200f180519",
+      "complete": true
+    },
+    "G_boundary_table": {
+      "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/inspection.json",
+      "bytes": 42833,
+      "sha256": "9394e6bfc154e1870638360444f9fa5f82575c14582b048d18c2e345b7e9742f",
+      "complete": true
+    },
+    "AST_fullfunction_delta": {
+      "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/owner-ast-delta.json",
+      "bytes": 2294,
+      "sha256": "52d0aed9d1f98b29116050fc70aa5c6a9ab7693c68bfd5e13c8ba7672c7ef1dd",
+      "complete": true
+    },
+    "final3companion_diff": {
+      "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/final-companion-diff.patch",
+      "bytes": 5866,
+      "sha256": "f7ec9aeadb823c8ceb07024c743b395d94bc9a1e137af9d7b12a511fbdca87b1",
+      "complete": true
+    },
+    "finalbindings": {
+      "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/final-companion.json",
+      "bytes": 4412,
+      "sha256": "7e43116e8027f01da65c8b25056bd096be48a0e1cc8944479cc6768ca0133f3a",
+      "complete": true
+    }
+  },
+  "ABI": {
+    "classification": "public_experimental nestedcatalogPath helper; canonicalprivateproviderFQN",
+    "new_alias": "polisyos.data_forge.read_api.catalog.catalog_default_resource_path",
+    "FQN": "polisyos.data_forge.domains.catalog._resources.catalog_default_resource_path",
+    "canonical_identity_pickle_pydoc": true,
+    "signature": "(name: Literal['seed_variable_alignments.yaml', 'proxy_metric_alignments.yaml', 'wvs_indicator_registry.yaml', 'metrics_map.yaml']) -> pathlib.Path",
+    "root_exports_unchanged": true,
+    "explicit_path_and_imported_binding_overrides_actual": {
+      "seed_real_score_seed_support": 0.0,
+      "proxy_real_penalty": 0.37,
+      "Fabric_real_custom_indicator": {
+        "custom": "custom_title"
+      }
+    },
+    "supported_profile": "Sourceexactanchor+manifest, or unpackedfilesystem package-privatePath;finite4filenames;unsupportedValueError. No CWD/neighborsearch/temporaryresourcecontext/zipimportclaim."
+  },
+  "scientific_authority_boundaries": [
+    "CuratedYAMLbytes/configparsing/resourcecustody, notobservationalproductiondata admission or source-lawvalidation.",
+    "Numpy/nativeGraphsynthetic fixture properties do notgrant real-dataauthority.",
+    "App3.14DoWhy/EconMLabsent, notpositivebackendwitness;genuineHatch1.32.4 boundedbuild fixture distinct.",
+    "No scientificcatalog/YAML/IR/Node/issuer/runtimeauthority edits;rawobservations/mutableoutputs remainexternal.",
+    "Existingproxy/WVS optionalabsence/parsefallbacks retained;fallbackSUCCESS isnotpackagedresource-readPASS. Seed+metricsmissingrequiredreads stilltypederrors."
+  ],
+  "generator_measurement": {
+    "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+    "full_operations_ref": {
+      "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/final-renderer-inputs.json",
+      "bytes": 56317,
+      "sha256": "ae0cad8c8af329aa8fb6f42ec58232d8d15f0cfa5b1000b7ad75826fee74bab8",
+      "complete": true
+    },
+    "operations": 253,
+    "read_bytes": 103,
+    "is_file": 150,
+    "changed_source_read_intersection": [],
+    "json_drift": false,
+    "markdown_drift": false,
+    "UNKNOWN": 38,
+    "canonical_incomplete_exports": 38,
+    "nested_alias_outside_current_manifest_entrypoint_selector": true,
+    "public_surface_inventory_reviewed_flag": "Supportedby actualnativeclosure+ABIreview;notstaticcompleteness claim."
+  },
+  "checks": [
+    {
+      "id": "frozen-resource41",
+      "source_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/resource41.stdout.txt",
+      "execution": {
+        "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+        "tree": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+          "tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_variable_alignment.py",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py",
+          "-q",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "/tmp/e02-F-continuation-20261007/api/resource-review-089/resource41-temp",
+          "--junitxml",
+          "/tmp/e02-F-continuation-20261007/api/resource-review-089/resource41.xml"
+        ],
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "env": {
+          "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "exit_code": 0,
+        "seconds": 5.1222965930064674,
+        "stdout_sha256": "1dad520a05c8fbe2d1cd9d17f15877877bc4d60df9aa2a3398b86b123c7868df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "frozen_source_unchanged": true,
+        "source_spec_qualification": "Author precommit command copied; independent execution target is immutable089 above."
+      },
+      "scope": "41native resource/helper/currentHatch/existingseed+proxy cases;1cache_dir configwarning;0skip/error. GenuineHatch boundedfixture, not wholeproductinstalledPASS."
+    },
+    {
+      "id": "frozen-graph79",
+      "source_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/graph79.stdout.txt",
+      "execution": {
+        "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+        "tree": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+        "argv": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+          "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+          "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+          "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+          "-q",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "/tmp/e02-F-continuation-20261007/api/resource-review-089/graph79-temp",
+          "--junitxml",
+          "/tmp/e02-F-continuation-20261007/api/resource-review-089/graph79.xml"
+        ],
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "env": {
+          "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "exit_code": 0,
+        "seconds": 31.21908634400461,
+        "stdout_sha256": "cdd1786bb84344e1caa6a83ca1b98f230741198372d1de9ebd335f0c82243846",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "frozen_source_unchanged": true,
+        "source_spec_qualification": "Author precommit command copied; independent execution target is immutable089 above."
+      },
+      "scope": "79actual canonicalGraph/CAS source consumer cases;1configwarning;0skip/error. Numpy/nativeGraph property profile, no DoWhy/EconMLauthority."
+    },
+    {
+      "id": "six-owner-facade-ABI-G-parity",
+      "source_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/inspection.stdout.txt",
+      "replayer": "/tmp/e02-F-continuation-20261007/api/resource-review-089/inspect_contract.py",
+      "scope": "Full14diff/6existingdefaultowners/readAPI/Hatch+4unchangedYAML. ActualfiniteLiteral4\u2192durablePath,canonicalfunction/FQN/pickle/pydoc and existingoverrides reaching realseedscore/proxypenalty/FabricYAML. G6owners/readAPI==370; HatchpriorF7mappings separatelybound,new4 total11."
+    },
+    {
+      "id": "native-imported-function-overrides",
+      "source_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/inspection.stdout.txt",
+      "scope": "Existing variable_alignment.default_seed_alignments_path replacement consumed by real score;existing proxy default consumed by realpenalty;Fabric imported binding consumed actualcustomYAML. Does not claim patches propagate to unrelated already-imported function references."
+    },
+    {
+      "id": "whole-function-AST-scope",
+      "source_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/owner-ast-delta.stdout.txt",
+      "scope": "Actual207functions across6owners+nestedfacade;7functionASTs changed(all defaultselection),200remainingASTequal. Top-levelimports/map separatelyfull-diffread. No globalP41disjointclaim."
+    },
+    {
+      "id": "canonical-relocated-gate-removal",
+      "source_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/independent-removal.stdout.txt",
+      "scope": "4current canonical installedprofile fixture calls PASS; replaced source-onlyselection leads4actualAssertionError FAIL at canonicalPath/byteassertions whileLiteral/name/FQN/annotationsremain. Scratchimportedmodule only; no product/site mutation."
+    },
+    {
+      "id": "final-companion-canonical-predicate",
+      "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/final-companion.stdout.txt",
+      "scope": "Independent canonical oneownedfragment validator+renderer:python-public-api compatible,0errors/findings. Actual3docs/README/fragment delta and15unchangedruntime/test/Hatch/YAML inputbindings. No runtime repeat."
+    },
+    {
+      "id": "full-maintained-renderer-closure",
+      "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/final-renderer-inputs.stdout.txt",
+      "scope": "Actual253operations103read_bytes150is_file, allmeasuredreadbytesGit-bound. JSON+Markdown unchanged exact;changed14path/readintersection0. Nestedcatalogalias outside existingstandalonemanifest denominator; nativeABI separate. No canonicalderivedwrite."
+    },
+    {
+      "id": "canonical-public-surface-completeness",
+      "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "outcome": "FAIL",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/final-renderer-inputs.stdout.txt",
+      "scope": "Actual maintained _check_public_surface_contracts returns38incomplete_exports;all38totalsnull,known0,completefalse. Representation/freshnessPASS does notpromotecompleteness."
+    },
+    {
+      "id": "fresh-full-installed-profile",
+      "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "outcome": "UNRUN",
+      "output": "/tmp/e02-F-continuation-20261007/api/resource-review-089/final-companion.json",
+      "scope": "Newrootassembledwheel/sdistGraph79+resource consumerwave pending. Historicalb5 fullinstalledconsumer130PASS32FAIL each retainedimmutableNO-GO; no exactnewwholeinstalledPASS inferred."
+    }
+  ],
+  "observer_errors": [
+    {
+      "outcome": "ERROR",
+      "scope": "Reviewmetadataonly firsthatch equalityassumption: G lacks priorF7mappingsexactbase370; correctedtable distinguishesexistingFdelta/new4. No native/source change.",
+      "actual_original_invoked_script": "/tmp/e02-F-continuation-20261007/api/resource-review-089/inspect_contract.py",
+      "preserved_original_script": {
+        "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/inspect_contract_first_hatch_observer_error.py",
+        "bytes": 11184,
+        "sha256": "d7fef7792038ae49c7f2b14c725753214c8b52fa5c220bf1d0e01f1943f3dc3d",
+        "complete": true
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/first-hatch-observer-error.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "complete": true
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/api/resource-review-089/first-hatch-observer-error.stderr.txt",
+        "bytes": 222,
+        "sha256": "240a47e8b2cd79c9a20294ac480026884c321be0a54577eee3350606f7f6e3b5",
+        "complete": true
+      }
+    },
+    {
+      "outcome": "ERROR",
+      "scope": "Authorfinalfragment copiedcaption6ba9 despitecorrectactualtarget81; author additivecaptioncorrection preservesprior6ba9FAIL. Independentfinal81 fragment execution separate; no retargetingnative/precommit outputs.",
+      "ownership": "author; exactoutputtransport in authorresourcehandoff"
+    }
+  ],
+  "preserved_prior_evidence": {
+    "b5_installed_NO_GO_carrier": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+    "b5_primary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007.json",
+    "b5_receipt_sha256": "f4cd659e42b8db8000a918f528d231cab1e8e70f95dd598d645e45acdc2d6fc5",
+    "b5_actual_each_profile": "130PASS32FAIL0ERROR0SKIP",
+    "warning_and_failure_attribution": "26directXMLseedabsence+6canonicalsourcepathinference;fullfailedbytesimmutable. Currentresource sourceGO doesnotrewritefailedwave."
+  },
+  "execution_economics": "Readonly shared3.14env+existinggenuineHatchcache;41+79parallel;no artificialquota/no workerinstall/fullproductbuild/162TMLEwave/sourceorarchivesite mutations."
+}

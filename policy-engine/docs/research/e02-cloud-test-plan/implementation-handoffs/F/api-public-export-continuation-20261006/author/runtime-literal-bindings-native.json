@@ -1,0 +1,32 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "cwd": "/tmp/e02-F-continuation-20261006/api/wheel-consumer-5484",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/api/wheel-env-retry-5484/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261006/api/literal_runtime_imports.py",
+    "wheel"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/runtime-literal-bindings-native",
+  "artifact_paths": [],
+  "tree_sha": "0406094722182749d3f7b9a64fa00c5337a9b391",
+  "source_status_before": "",
+  "elapsed_seconds": 7.396967649459839,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/runtime-literal-bindings-native.stdout",
+    "bytes": 168402,
+    "sha256": "79c416161e17fe6033b3f8b2b66c29748d61c4d75721c127e900294eda12ba25"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/runtime-literal-bindings-native.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": []
+}

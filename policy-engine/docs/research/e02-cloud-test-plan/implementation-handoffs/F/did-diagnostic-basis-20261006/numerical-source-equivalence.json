@@ -1,0 +1,46 @@
+{
+  "base": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+  "candidate": "0b522ed173730b4ec744253bb75b6ee260bfcebb",
+  "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+  "base_blob_sha256": "5b35566ab38d121c43146edf809b9f3194030db950e953b660e0715450538f20",
+  "candidate_blob_sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+  "unchanged_definitions": {
+    "_normal_critical_value": {
+      "ast_sha256": "3117212054084342a766c3ba04565462bed3cdd1f96a827406fc13a5c1736d61",
+      "unchanged": true
+    },
+    "_normal_two_sided_pvalue": {
+      "ast_sha256": "bfb2ca67ef80d6a3266ccb22b373d5118f909f412e812f1878662d8e657bb125",
+      "unchanged": true
+    },
+    "_ols_hc1": {
+      "ast_sha256": "bc1c555f893980a2a1d011377f18d6ed7ddb6fd5d49ab2758da4ac9e9ac7573a",
+      "unchanged": true
+    },
+    "_ols_cluster_cr0": {
+      "ast_sha256": "ae499d1e70d625946cdf123521b29fd6971289e924fe044154abef7c0228e605",
+      "unchanged": true
+    },
+    "_unit_cluster_ids": {
+      "ast_sha256": "904a49d7cf333fcceb0b28012c1fad03fdfacc9e300b6d3e784eaa5510c48153",
+      "unchanged": true
+    },
+    "_parallel_trend_diagnostic": {
+      "ast_sha256": "070aaed5e743e2f77e64c6d6a8992ab1887923ba1f586f6359580257e7238101",
+      "unchanged": true
+    },
+    "_staggered_target_contract": {
+      "ast_sha256": "fa78df92cd57e25f1ba778b3fd7a39d82896c1aa8c7b1d628284b4c194df5b65",
+      "unchanged": true
+    },
+    "_cohort_time_cells": {
+      "ast_sha256": "ffad4f5dde94c980a134aefd900f963e8efd3995ddb1f7f892f72d1762801f1c",
+      "unchanged": true
+    },
+    "_selected_participation_influence": {
+      "ast_sha256": "1c367189f76f24008e843326e598ee63077a312edf86bfc74b9ca3b82db6c727",
+      "unchanged": true
+    }
+  },
+  "limits": "This byte/AST comparison does not relabel old numerical tests as current source executions. Native79cases run759, current producer byteidentical; no160panel/4000RDD rerun. _run_* changes only diagnostic assembly and metadata insertion as full diff shows."
+}

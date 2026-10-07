@@ -1,0 +1,84 @@
+{
+  "schema": "e02.transfer.selection.v1",
+  "outcome": "PASS",
+  "primary_review": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/la037-independent-review.json",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "scope": "LA0373-doc component source review plus complete inspected author native/render evidence; root joint review transports general replayer and other controls",
+  "files": [
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/la037-independent-review.json",
+      "bytes": 13642,
+      "sha256": "95c88c2d73d97c7abefec19d67727635d981858322f5611bf9f3eccc2c85f34e"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/source-audit.json",
+      "bytes": 37449,
+      "sha256": "cdaa5b52a594ed51ab389104bef6afee62a1f77a2a783609db4c0e3be5e99d43"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.json",
+      "bytes": 4716,
+      "sha256": "15c688101fe56732005594318ccad7a38563245fff64145d42bd300326547d32"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.yml",
+      "bytes": 309,
+      "sha256": "6e6396b01a501f06746e9256a33b44f59dd50a5c5bda1596145e1b9bda091933"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs.stderr.txt",
+      "bytes": 1579,
+      "sha256": "949582608c8f1462589b237eb9c6a93d8e0e84dab9c02078b9bc8e57ea713caa"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-site/reference/foundry/state/index.html",
+      "bytes": 423355,
+      "sha256": "33286ff53aa7888e2f7ba21a679ecb1087e3b9945e70f3c78ee3b7ff7f899396"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.execution.json",
+      "bytes": 1151,
+      "sha256": "652137e9f1afab10e28cbc355fe9816260aaafad4dc301daaffdc63f41cd67d7"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.stdout.txt",
+      "bytes": 618,
+      "sha256": "0bf0715dcf8ac214360fed8fd18c610723e809192836c45bc65239b264825d4e"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-native.xml",
+      "bytes": 1207,
+      "sha256": "5d69f1a7bef79b57efac262b347022f97f69bac9a944ef9bc124fb387a654a09"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/build_layout_docs.py",
+      "bytes": 4480,
+      "sha256": "43a3aa9e44c84a2711b24e2ffa5f88ba90d6c0d0fc0376f9ef9d9c4effcb3711"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-run.execution.json",
+      "bytes": 857,
+      "sha256": "84e9445e7df0858a15264c39db24d92e875cd54c9492175f379889f368996c9d"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-run.stdout.txt",
+      "bytes": 4716,
+      "sha256": "15c688101fe56732005594318ccad7a38563245fff64145d42bd300326547d32"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-run.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

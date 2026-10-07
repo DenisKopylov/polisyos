@@ -1,0 +1,2321 @@
+{
+  "schema": "policyos.e02.output_transport.v1",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "scope": "Complete moderate installed deciding outputs and synthetic CAS; no product source copies, environments or wheel archive copies.",
+  "files": [
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/check_installed_custody.initial.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-harness/check_installed_custody.initial.py",
+      "bytes": 3334,
+      "sha256": "36a13a58869b67f348aa66da606806f29dc508a4fff5dd364deafbdd03de35b8",
+      "encoding": "identity",
+      "decoded_bytes": 3334,
+      "decoded_sha256": "36a13a58869b67f348aa66da606806f29dc508a4fff5dd364deafbdd03de35b8"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/remove_installed_consistency_guard.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-harness/remove_installed_consistency_guard.py",
+      "bytes": 3080,
+      "sha256": "490c4d282d7ae2863c2f7bd1e9511cb29f3f92c09ac54c74d8b2b427c3132996",
+      "encoding": "identity",
+      "decoded_bytes": 3080,
+      "decoded_sha256": "490c4d282d7ae2863c2f7bd1e9511cb29f3f92c09ac54c74d8b2b427c3132996"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/capture_environment.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-harness/capture_environment.py",
+      "bytes": 1544,
+      "sha256": "918fcdb646e9de0c42e9997416fb440f9d97820283adc90061a5346f840331b8",
+      "encoding": "identity",
+      "decoded_bytes": 1544,
+      "decoded_sha256": "918fcdb646e9de0c42e9997416fb440f9d97820283adc90061a5346f840331b8"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/check_installed_custody.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-harness/check_installed_custody.py",
+      "bytes": 3372,
+      "sha256": "0989c120fa09fcca50566e92dfd70afbcd1fc889c5e556facd1554507e20b831",
+      "encoding": "identity",
+      "decoded_bytes": 3372,
+      "decoded_sha256": "0989c120fa09fcca50566e92dfd70afbcd1fc889c5e556facd1554507e20b831"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/fresh_profile_bridge.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-harness/fresh_profile_bridge.py",
+      "bytes": 9133,
+      "sha256": "beafa7e7b2c705b27b58052434d29cb0d84afab7011fe68f8999fa93cdb8d1ac",
+      "encoding": "identity",
+      "decoded_bytes": 9133,
+      "decoded_sha256": "beafa7e7b2c705b27b58052434d29cb0d84afab7011fe68f8999fa93cdb8d1ac"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/capture_installed.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-harness/capture_installed.py",
+      "bytes": 1567,
+      "sha256": "26445fa858b115d11de05bb323014e0ddb2a6ce4063f693f17f38c11f002c7c5",
+      "encoding": "identity",
+      "decoded_bytes": 1567,
+      "decoded_sha256": "26445fa858b115d11de05bb323014e0ddb2a6ce4063f693f17f38c11f002c7c5"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/launch_affected_installed.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-harness/launch_affected_installed.py",
+      "bytes": 3080,
+      "sha256": "c7b2435e462a36aa09726569052703132dd4f76440a85584a40290a1261b79b2",
+      "encoding": "identity",
+      "decoded_bytes": 3080,
+      "decoded_sha256": "c7b2435e462a36aa09726569052703132dd4f76440a85584a40290a1261b79b2"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/prepare_candidate_wheel.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-harness/prepare_candidate_wheel.py",
+      "bytes": 6554,
+      "sha256": "a8f7be04df964d79bad28caba490b68a14b9966d869c527f4a9cd8de8bd62dcf",
+      "encoding": "identity",
+      "decoded_bytes": 6554,
+      "decoded_sha256": "a8f7be04df964d79bad28caba490b68a14b9966d869c527f4a9cd8de8bd62dcf"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/installed-plan.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/installed-plan.json",
+      "bytes": 3048,
+      "sha256": "d2ebcfb705171dffb788eaafe87361b75fcc6214354efabfd363dfd2570a93af",
+      "encoding": "identity",
+      "decoded_bytes": 3048,
+      "decoded_sha256": "d2ebcfb705171dffb788eaafe87361b75fcc6214354efabfd363dfd2570a93af"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/importer.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/importer.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "encoding": "identity",
+      "decoded_bytes": 112,
+      "decoded_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/importer.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/importer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/admission-resume-root-tool.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/admission-resume-root-tool.json.lossless.gz",
+      "bytes": 11986,
+      "sha256": "36cccb90f3be966b203a7cd71671f955efb82d83b3e443ce0b325bf2d17c52f8",
+      "encoding": "gzip",
+      "decoded_bytes": 147928,
+      "decoded_sha256": "46c505f302c07c5d3ce343defbd3c63fc46e61b55fe21b8d3df0d34895529939"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/admission-resume-root-tool.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/admission-resume-root-tool.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/admission-ownlane.initial-tool-output.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/admission-ownlane.initial-tool-output.txt",
+      "bytes": 199,
+      "sha256": "2458a625bdbf6270ed0d6f2bf48dc8f316808e11c408664c3d628be226070016",
+      "encoding": "identity",
+      "decoded_bytes": 199,
+      "decoded_sha256": "2458a625bdbf6270ed0d6f2bf48dc8f316808e11c408664c3d628be226070016"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/admission-ownlane.initial-attempt.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/admission-ownlane.initial-attempt.json",
+      "bytes": 452,
+      "sha256": "2e6881d36b4af9e825c1790999c242332e25eefb7c7d36b53ad4db5993264e8e",
+      "encoding": "identity",
+      "decoded_bytes": 452,
+      "decoded_sha256": "2e6881d36b4af9e825c1790999c242332e25eefb7c7d36b53ad4db5993264e8e"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/prepare.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/prepare.stdout.txt",
+      "bytes": 529,
+      "sha256": "3176a00936e573ea7a6455f86f0a3d330eb972917d07d7eb8b712ac6c39f75ca",
+      "encoding": "identity",
+      "decoded_bytes": 529,
+      "decoded_sha256": "3176a00936e573ea7a6455f86f0a3d330eb972917d07d7eb8b712ac6c39f75ca"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/prepare.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-setup/prepare.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/native.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/native.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/native-junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/native-junit.xml",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/pre-custody.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/pre-custody.execution.json",
+      "bytes": 1062,
+      "sha256": "30be97e4c2dfadf0d008690f8932fded311b8a20ad072ba3f134e036b938e195",
+      "encoding": "identity",
+      "decoded_bytes": 1062,
+      "decoded_sha256": "30be97e4c2dfadf0d008690f8932fded311b8a20ad072ba3f134e036b938e195"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/pre-custody.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/pre-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/pre-custody.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/pre-custody.stdout.txt",
+      "bytes": 4068,
+      "sha256": "0b845d6a8582b7b184cc08981f23fb2e9d8c97d39bd79fcab34512663eb6ff6a",
+      "encoding": "identity",
+      "decoded_bytes": 4068,
+      "decoded_sha256": "0b845d6a8582b7b184cc08981f23fb2e9d8c97d39bd79fcab34512663eb6ff6a"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/post-native-custody.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/post-native-custody.json",
+      "bytes": 4584,
+      "sha256": "052b652e91dfff86485ef32141c288f1f82d8e23b3dfcde53fe23e0adde77f32",
+      "encoding": "identity",
+      "decoded_bytes": 4584,
+      "decoded_sha256": "052b652e91dfff86485ef32141c288f1f82d8e23b3dfcde53fe23e0adde77f32"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/environment.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/environment.execution.json",
+      "bytes": 1059,
+      "sha256": "33373a98e998fbdfda37d0d8b0f52495bff11a3694758c164882147af2fc3f67",
+      "encoding": "identity",
+      "decoded_bytes": 1059,
+      "decoded_sha256": "33373a98e998fbdfda37d0d8b0f52495bff11a3694758c164882147af2fc3f67"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/environment.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/environment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/environment.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/environment.stdout.txt",
+      "bytes": 3387,
+      "sha256": "4d506af211acb0924c169c7912f41e5daab64b5b5c3235566f403fcc0cc91219",
+      "encoding": "identity",
+      "decoded_bytes": 3387,
+      "decoded_sha256": "4d506af211acb0924c169c7912f41e5daab64b5b5c3235566f403fcc0cc91219"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/installed-environment.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/installed-environment.json",
+      "bytes": 3387,
+      "sha256": "4d506af211acb0924c169c7912f41e5daab64b5b5c3235566f403fcc0cc91219",
+      "encoding": "identity",
+      "decoded_bytes": 3387,
+      "decoded_sha256": "4d506af211acb0924c169c7912f41e5daab64b5b5c3235566f403fcc0cc91219"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/collection.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/collection.execution.json",
+      "bytes": 1171,
+      "sha256": "fb86d1dcf793504308ec6abc2319237f953e2231be5f5e7e1eb08ceaaa27dba0",
+      "encoding": "identity",
+      "decoded_bytes": 1171,
+      "decoded_sha256": "fb86d1dcf793504308ec6abc2319237f953e2231be5f5e7e1eb08ceaaa27dba0"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/collection.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/collection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/collection.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/collection.stdout.txt",
+      "bytes": 3168,
+      "sha256": "172f85d4964ded758559dfc78dd49b64abbf0c742ab17e2e9bfcad6a60308c77",
+      "encoding": "identity",
+      "decoded_bytes": 3168,
+      "decoded_sha256": "172f85d4964ded758559dfc78dd49b64abbf0c742ab17e2e9bfcad6a60308c77"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/collect-proof.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/collect-proof.json.lossless.gz",
+      "bytes": 13105,
+      "sha256": "4fdadcc0b8ec9a6b728c828158daf5c77fc447a0029b651d0d642598a2d839f7",
+      "encoding": "gzip",
+      "decoded_bytes": 203425,
+      "decoded_sha256": "8703acb9b3ed144f650aa0f61990bdbf176b5f398e01fe948fad6113867ede2e"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/installed-config.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/installed-config.json",
+      "bytes": 2077,
+      "sha256": "30648277b6ea47cfc48ca7bf73fad571394095df8e9fa7a20468a5edb57e4401",
+      "encoding": "identity",
+      "decoded_bytes": 2077,
+      "decoded_sha256": "30648277b6ea47cfc48ca7bf73fad571394095df8e9fa7a20468a5edb57e4401"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/carrier-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/carrier-manifest.json",
+      "bytes": 20801,
+      "sha256": "4674e58be5d6443d5e04589fb10942eeb5d09fb0a64037a9ac1a2927a1e1eb55",
+      "encoding": "identity",
+      "decoded_bytes": 20801,
+      "decoded_sha256": "4674e58be5d6443d5e04589fb10942eeb5d09fb0a64037a9ac1a2927a1e1eb55"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/pre-native-custody.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/pre-native-custody.json.lossless.gz",
+      "bytes": 297263,
+      "sha256": "6e62c05c6835af1794854d08385851fb5f12e35fe58335361148abe410a3ec6c",
+      "encoding": "gzip",
+      "decoded_bytes": 1280079,
+      "decoded_sha256": "6e58b1463c504f867505583e6a5b09fad22749c81989dd2fbf8df85790b3aa90"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/install-wheel.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/install-wheel.execution.json",
+      "bytes": 1177,
+      "sha256": "fb0bc370f6a9a6237798a96d3cbb29205afae707000b65e171fb31e7739bd48c",
+      "encoding": "identity",
+      "decoded_bytes": 1177,
+      "decoded_sha256": "fb0bc370f6a9a6237798a96d3cbb29205afae707000b65e171fb31e7739bd48c"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/install-wheel.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/install-wheel.stderr.txt",
+      "bytes": 274,
+      "sha256": "6a03681b371cb29cbf175e36398f52f38729c2ae4e6de70ae5c3703e073ebd78",
+      "encoding": "identity",
+      "decoded_bytes": 274,
+      "decoded_sha256": "6a03681b371cb29cbf175e36398f52f38729c2ae4e6de70ae5c3703e073ebd78"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/install-wheel.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/install-wheel.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/create-env.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/create-env.execution.json",
+      "bytes": 1088,
+      "sha256": "63e4698861bee0589adf1e878b7e09db0c86c4cc8e0d866b3ab90b7bc47b64c3",
+      "encoding": "identity",
+      "decoded_bytes": 1088,
+      "decoded_sha256": "63e4698861bee0589adf1e878b7e09db0c86c4cc8e0d866b3ab90b7bc47b64c3"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/create-env.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/create-env.stderr.txt",
+      "bytes": 191,
+      "sha256": "cbd98d3d14f46acad73704f80af24471300b321357ddecdc9469c841b88bfd67",
+      "encoding": "identity",
+      "decoded_bytes": 191,
+      "decoded_sha256": "cbd98d3d14f46acad73704f80af24471300b321357ddecdc9469c841b88bfd67"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/create-env.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/create-env.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/build-wheel.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/build-wheel.execution.json",
+      "bytes": 1100,
+      "sha256": "8de278287e7add9d73748e619ef1d74cc1806bf8b4b21147aa3e519c319cf2a8",
+      "encoding": "identity",
+      "decoded_bytes": 1100,
+      "decoded_sha256": "8de278287e7add9d73748e619ef1d74cc1806bf8b4b21147aa3e519c319cf2a8"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/build-wheel.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/build-wheel.stderr.txt",
+      "bytes": 145,
+      "sha256": "ced270df17ae07968400faa098552afb97ddc2f6b3e4d31f32e92a653f68aa75",
+      "encoding": "identity",
+      "decoded_bytes": 145,
+      "decoded_sha256": "ced270df17ae07968400faa098552afb97ddc2f6b3e4d31f32e92a653f68aa75"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/build-wheel.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/build-wheel.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/uv-version.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/uv-version.execution.json",
+      "bytes": 921,
+      "sha256": "49826f02cd517efc8de9d6b8a583ae9719c3cea649079391355b41fe4d707ee7",
+      "encoding": "identity",
+      "decoded_bytes": 921,
+      "decoded_sha256": "49826f02cd517efc8de9d6b8a583ae9719c3cea649079391355b41fe4d707ee7"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/uv-version.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/uv-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/uv-version.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/original-wheel/uv-version.stdout.txt",
+      "bytes": 38,
+      "sha256": "d27c5539d426b7ed041c1d392e585a95dc9090b740d43a659fc38e4e48adadf6",
+      "encoding": "identity",
+      "decoded_bytes": 38,
+      "decoded_sha256": "d27c5539d426b7ed041c1d392e585a95dc9090b740d43a659fc38e4e48adadf6"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/publish_receipt.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/publish_receipt.py",
+      "bytes": 15202,
+      "sha256": "2f020f8a92f0f7d9b98a2bbf5adab6cd0ccf9df8009de76b3077671afd8b1cc6",
+      "encoding": "identity",
+      "decoded_bytes": 15202,
+      "decoded_sha256": "2f020f8a92f0f7d9b98a2bbf5adab6cd0ccf9df8009de76b3077671afd8b1cc6"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/fresh_profile_bridge.initial.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/fresh_profile_bridge.initial.py",
+      "bytes": 9133,
+      "sha256": "beafa7e7b2c705b27b58052434d29cb0d84afab7011fe68f8999fa93cdb8d1ac",
+      "encoding": "identity",
+      "decoded_bytes": 9133,
+      "decoded_sha256": "beafa7e7b2c705b27b58052434d29cb0d84afab7011fe68f8999fa93cdb8d1ac"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/capture_installed.before-rss.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/capture_installed.before-rss.py",
+      "bytes": 1567,
+      "sha256": "26445fa858b115d11de05bb323014e0ddb2a6ce4063f693f17f38c11f002c7c5",
+      "encoding": "identity",
+      "decoded_bytes": 1567,
+      "decoded_sha256": "26445fa858b115d11de05bb323014e0ddb2a6ce4063f693f17f38c11f002c7c5"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/storage-relocation-and-incomplete-attempt.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/storage-relocation-and-incomplete-attempt.json",
+      "bytes": 2264,
+      "sha256": "2c33a6a0df269355a471e76e863f2c48f018d639392b03695f46840fcc8a2317",
+      "encoding": "identity",
+      "decoded_bytes": 2264,
+      "decoded_sha256": "2c33a6a0df269355a471e76e863f2c48f018d639392b03695f46840fcc8a2317"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/initial-ENOSPC.tool-output.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/initial-ENOSPC.tool-output.txt",
+      "bytes": 629,
+      "sha256": "2c429359d899d353f23410fbecb3a0b1e95e4c00f13956cec1b81b48ed6a01c6",
+      "encoding": "identity",
+      "decoded_bytes": 629,
+      "decoded_sha256": "2c429359d899d353f23410fbecb3a0b1e95e4c00f13956cec1b81b48ed6a01c6"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/installed-plan.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/installed-plan.json",
+      "bytes": 3048,
+      "sha256": "d2ebcfb705171dffb788eaafe87361b75fcc6214354efabfd363dfd2570a93af",
+      "encoding": "identity",
+      "decoded_bytes": 3048,
+      "decoded_sha256": "d2ebcfb705171dffb788eaafe87361b75fcc6214354efabfd363dfd2570a93af"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/prepare_candidate_wheel.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/prepare_candidate_wheel.py",
+      "bytes": 6554,
+      "sha256": "a8f7be04df964d79bad28caba490b68a14b9966d869c527f4a9cd8de8bd62dcf",
+      "encoding": "identity",
+      "decoded_bytes": 6554,
+      "decoded_sha256": "a8f7be04df964d79bad28caba490b68a14b9966d869c527f4a9cd8de8bd62dcf"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/launch_affected_installed.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/launch_affected_installed.py",
+      "bytes": 3080,
+      "sha256": "c7b2435e462a36aa09726569052703132dd4f76440a85584a40290a1261b79b2",
+      "encoding": "identity",
+      "decoded_bytes": 3080,
+      "decoded_sha256": "c7b2435e462a36aa09726569052703132dd4f76440a85584a40290a1261b79b2"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/capture_installed.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/capture_installed.py",
+      "bytes": 1644,
+      "sha256": "f2c20883c2ad1e04cd570c183ce4ed1e17ecfb9770e4d300476a988bca1be33c",
+      "encoding": "identity",
+      "decoded_bytes": 1644,
+      "decoded_sha256": "f2c20883c2ad1e04cd570c183ce4ed1e17ecfb9770e4d300476a988bca1be33c"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/fresh_profile_bridge.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/fresh_profile_bridge.py",
+      "bytes": 9177,
+      "sha256": "a0790b9b5e59acd7685eaf16948378cf7e12583c79cda1df96af956206fada69",
+      "encoding": "identity",
+      "decoded_bytes": 9177,
+      "decoded_sha256": "a0790b9b5e59acd7685eaf16948378cf7e12583c79cda1df96af956206fada69"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/check_installed_custody.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/check_installed_custody.py",
+      "bytes": 3372,
+      "sha256": "0989c120fa09fcca50566e92dfd70afbcd1fc889c5e556facd1554507e20b831",
+      "encoding": "identity",
+      "decoded_bytes": 3372,
+      "decoded_sha256": "0989c120fa09fcca50566e92dfd70afbcd1fc889c5e556facd1554507e20b831"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/capture_environment.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/capture_environment.py",
+      "bytes": 1544,
+      "sha256": "918fcdb646e9de0c42e9997416fb440f9d97820283adc90061a5346f840331b8",
+      "encoding": "identity",
+      "decoded_bytes": 1544,
+      "decoded_sha256": "918fcdb646e9de0c42e9997416fb440f9d97820283adc90061a5346f840331b8"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/remove_installed_consistency_guard.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/remove_installed_consistency_guard.py",
+      "bytes": 3080,
+      "sha256": "490c4d282d7ae2863c2f7bd1e9511cb29f3f92c09ac54c74d8b2b427c3132996",
+      "encoding": "identity",
+      "decoded_bytes": 3080,
+      "decoded_sha256": "490c4d282d7ae2863c2f7bd1e9511cb29f3f92c09ac54c74d8b2b427c3132996"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/check_installed_custody.initial.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-harness/check_installed_custody.initial.py",
+      "bytes": 3334,
+      "sha256": "36a13a58869b67f348aa66da606806f29dc508a4fff5dd364deafbdd03de35b8",
+      "encoding": "identity",
+      "decoded_bytes": 3334,
+      "decoded_sha256": "36a13a58869b67f348aa66da606806f29dc508a4fff5dd364deafbdd03de35b8"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/post-custody.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/post-custody.execution.json",
+      "bytes": 1092,
+      "sha256": "86be69085ad26541f5420f587aa47034358f681049e114c8804120370082e082",
+      "encoding": "identity",
+      "decoded_bytes": 1092,
+      "decoded_sha256": "86be69085ad26541f5420f587aa47034358f681049e114c8804120370082e082"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/post-custody.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/post-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/post-custody.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/post-custody.stdout.txt",
+      "bytes": 4068,
+      "sha256": "0b845d6a8582b7b184cc08981f23fb2e9d8c97d39bd79fcab34512663eb6ff6a",
+      "encoding": "identity",
+      "decoded_bytes": 4068,
+      "decoded_sha256": "0b845d6a8582b7b184cc08981f23fb2e9d8c97d39bd79fcab34512663eb6ff6a"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/post-run-custody.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/post-run-custody.json",
+      "bytes": 4584,
+      "sha256": "052b652e91dfff86485ef32141c288f1f82d8e23b3dfcde53fe23e0adde77f32",
+      "encoding": "identity",
+      "decoded_bytes": 4584,
+      "decoded_sha256": "052b652e91dfff86485ef32141c288f1f82d8e23b3dfcde53fe23e0adde77f32"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/removal.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/removal.execution.json",
+      "bytes": 1061,
+      "sha256": "53e661c3007515078a5688d0bccc09fbc857725a0c8c4097fa883a84d17041ad",
+      "encoding": "identity",
+      "decoded_bytes": 1061,
+      "decoded_sha256": "53e661c3007515078a5688d0bccc09fbc857725a0c8c4097fa883a84d17041ad"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/removal.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/removal.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/removal.stdout.txt",
+      "bytes": 2900,
+      "sha256": "68bdea5c0527b1a70d0881291bc0872cbc21fa557eb8c73ee6c0ead9eb32221a",
+      "encoding": "identity",
+      "decoded_bytes": 2900,
+      "decoded_sha256": "68bdea5c0527b1a70d0881291bc0872cbc21fa557eb8c73ee6c0ead9eb32221a"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/removal-proof.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/removal-proof.json.lossless.gz",
+      "bytes": 12815,
+      "sha256": "608f2a286abc5cc8ec5bb639e35f3a7bdc764b1494f72f2209deb2c13c0514cf",
+      "encoding": "gzip",
+      "decoded_bytes": 193065,
+      "decoded_sha256": "770b386967fd7101c458509e9aa28c2616150b2b4e310233cf9aae651a6ca32b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/removal-junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/removal-junit.xml",
+      "bytes": 1769,
+      "sha256": "1d4b580d026f705c04102db3b9468fe8f118f42e6e4c06759afe6101c2f148db",
+      "encoding": "identity",
+      "decoded_bytes": 1769,
+      "decoded_sha256": "1d4b580d026f705c04102db3b9468fe8f118f42e6e4c06759afe6101c2f148db"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected.execution.json",
+      "bytes": 1095,
+      "sha256": "9a52b4a9ed758b05c82d82111252f917f34cb255a0d8cc5ed6e57a7a6fb6e633",
+      "encoding": "identity",
+      "decoded_bytes": 1095,
+      "decoded_sha256": "9a52b4a9ed758b05c82d82111252f917f34cb255a0d8cc5ed6e57a7a6fb6e633"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected.stdout.txt",
+      "bytes": 1308,
+      "sha256": "3b9da8334088b63d4402ca0a4ac84eb8fe62f93980719d3f9d9a40092cb05c6d",
+      "encoding": "identity",
+      "decoded_bytes": 1308,
+      "decoded_sha256": "3b9da8334088b63d4402ca0a4ac84eb8fe62f93980719d3f9d9a40092cb05c6d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile.execution.json",
+      "bytes": 1066,
+      "sha256": "5c8ec58f7d865fef9e3124c408915e0c151b5fe368a5881c67780bb83b69b8e9",
+      "encoding": "identity",
+      "decoded_bytes": 1066,
+      "decoded_sha256": "5c8ec58f7d865fef9e3124c408915e0c151b5fe368a5881c67780bb83b69b8e9"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile.stderr.txt",
+      "bytes": 578,
+      "sha256": "b688c51c541ac0d5f272bf0239d50ff30bd7d320423d7d007d7b50f1d7900a78",
+      "encoding": "identity",
+      "decoded_bytes": 578,
+      "decoded_sha256": "b688c51c541ac0d5f272bf0239d50ff30bd7d320423d7d007d7b50f1d7900a78"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile.stdout.txt",
+      "bytes": 661,
+      "sha256": "e3d03a188d2724a0505c81e39bc019411e712e8e9a56afb23e540c8899372df5",
+      "encoding": "identity",
+      "decoded_bytes": 661,
+      "decoded_sha256": "e3d03a188d2724a0505c81e39bc019411e712e8e9a56afb23e540c8899372df5"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-retry.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/native-retry.execution.json",
+      "bytes": 1171,
+      "sha256": "4568f69ff380a50ca107d68f398f77017219f6a51d555e1492768edc26059333",
+      "encoding": "identity",
+      "decoded_bytes": 1171,
+      "decoded_sha256": "4568f69ff380a50ca107d68f398f77017219f6a51d555e1492768edc26059333"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-retry.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/native-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-retry.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/native-retry.stdout.txt",
+      "bytes": 7448,
+      "sha256": "b31b333c53cb140273acb79b515bbd1ed9f5fee79014b56aad47da50bf8dbb01",
+      "encoding": "identity",
+      "decoded_bytes": 7448,
+      "decoded_sha256": "b31b333c53cb140273acb79b515bbd1ed9f5fee79014b56aad47da50bf8dbb01"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-proof.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/native-proof.json.lossless.gz",
+      "bytes": 13105,
+      "sha256": "2620377d298da95031ff818ddb2abb2ce00e530aadf6f95c8f3ec630f9d976a7",
+      "encoding": "gzip",
+      "decoded_bytes": 198770,
+      "decoded_sha256": "d4914e0d9995789b9b7f276bdabc3564d19a993363209fb9f4597aebc25c291a"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-junit.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/native-junit.xml",
+      "bytes": 3373,
+      "sha256": "0371c98291b3ce449477d53c879f2d0b744ffbbaed3153aacd125f7a239ef5dc",
+      "encoding": "identity",
+      "decoded_bytes": 3373,
+      "decoded_sha256": "0371c98291b3ce449477d53c879f2d0b744ffbbaed3153aacd125f7a239ef5dc"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/collection-retry.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/collection-retry.execution.json",
+      "bytes": 1159,
+      "sha256": "0568ef8a32171e932bedd4ebadbc1666cc2d1b20ddeb02066dbd5186a417133a",
+      "encoding": "identity",
+      "decoded_bytes": 1159,
+      "decoded_sha256": "0568ef8a32171e932bedd4ebadbc1666cc2d1b20ddeb02066dbd5186a417133a"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/collection-retry.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/collection-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/collection-retry.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/collection-retry.stdout.txt",
+      "bytes": 3162,
+      "sha256": "f8d8043e528eaa6dee52b01c011a5f2e37b3e73dab55f1e9aad581bb2f970978",
+      "encoding": "identity",
+      "decoded_bytes": 3162,
+      "decoded_sha256": "f8d8043e528eaa6dee52b01c011a5f2e37b3e73dab55f1e9aad581bb2f970978"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/collect-proof.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/collect-proof.json.lossless.gz",
+      "bytes": 13066,
+      "sha256": "dc29a3f9fc84ea46e3e369b26d9707aa7f4eff271f3ee3bdde0620b042835f2d",
+      "encoding": "gzip",
+      "decoded_bytes": 198475,
+      "decoded_sha256": "70dec8f3295b470bb39ab511633b4169a5b218ca677dca3869ececdeb45dacde"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/pre-custody-retry.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/pre-custody-retry.execution.json",
+      "bytes": 1085,
+      "sha256": "889d73254eca3b54f370db8b1a59fd8ddbfb9473d375ee7db3210457277353f7",
+      "encoding": "identity",
+      "decoded_bytes": 1085,
+      "decoded_sha256": "889d73254eca3b54f370db8b1a59fd8ddbfb9473d375ee7db3210457277353f7"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/pre-custody-retry.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/pre-custody-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/pre-custody-retry.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/pre-custody-retry.stdout.txt",
+      "bytes": 4068,
+      "sha256": "0b845d6a8582b7b184cc08981f23fb2e9d8c97d39bd79fcab34512663eb6ff6a",
+      "encoding": "identity",
+      "decoded_bytes": 4068,
+      "decoded_sha256": "0b845d6a8582b7b184cc08981f23fb2e9d8c97d39bd79fcab34512663eb6ff6a"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/pre-retry-custody.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/pre-retry-custody.json",
+      "bytes": 4584,
+      "sha256": "052b652e91dfff86485ef32141c288f1f82d8e23b3dfcde53fe23e0adde77f32",
+      "encoding": "identity",
+      "decoded_bytes": 4584,
+      "decoded_sha256": "052b652e91dfff86485ef32141c288f1f82d8e23b3dfcde53fe23e0adde77f32"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/environment-retry.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/environment-retry.execution.json",
+      "bytes": 1052,
+      "sha256": "513721818af6696ce41cfb0e641c0e41b7da40ee339eba01a2f7b4f356a633ec",
+      "encoding": "identity",
+      "decoded_bytes": 1052,
+      "decoded_sha256": "513721818af6696ce41cfb0e641c0e41b7da40ee339eba01a2f7b4f356a633ec"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/environment-retry.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/environment-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/environment-retry.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/environment-retry.stdout.txt",
+      "bytes": 3367,
+      "sha256": "d29511a6a74810c50e4052c2adf49940ab70e261ada85b1facc2a8be5c52ea4d",
+      "encoding": "identity",
+      "decoded_bytes": 3367,
+      "decoded_sha256": "d29511a6a74810c50e4052c2adf49940ab70e261ada85b1facc2a8be5c52ea4d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/installed-environment.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/installed-environment.json",
+      "bytes": 3367,
+      "sha256": "d29511a6a74810c50e4052c2adf49940ab70e261ada85b1facc2a8be5c52ea4d",
+      "encoding": "identity",
+      "decoded_bytes": 3367,
+      "decoded_sha256": "d29511a6a74810c50e4052c2adf49940ab70e261ada85b1facc2a8be5c52ea4d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/carrier-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/carrier-manifest.json",
+      "bytes": 20526,
+      "sha256": "8a2a025f35516ee3c1e1e850d5d2676d2ccd2145eba03c40e63d92ae09ae1a1f",
+      "encoding": "identity",
+      "decoded_bytes": 20526,
+      "decoded_sha256": "8a2a025f35516ee3c1e1e850d5d2676d2ccd2145eba03c40e63d92ae09ae1a1f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/installed-config.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/installed-config.json",
+      "bytes": 2052,
+      "sha256": "c8c11389f79ab411af943daa0d194e6732ee7bf361b60637d7f8d8f9c958e151",
+      "encoding": "identity",
+      "decoded_bytes": 2052,
+      "decoded_sha256": "c8c11389f79ab411af943daa0d194e6732ee7bf361b60637d7f8d8f9c958e151"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/pre-native-custody.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/pre-native-custody.json.lossless.gz",
+      "bytes": 297263,
+      "sha256": "6e62c05c6835af1794854d08385851fb5f12e35fe58335361148abe410a3ec6c",
+      "encoding": "gzip",
+      "decoded_bytes": 1280079,
+      "decoded_sha256": "6e58b1463c504f867505583e6a5b09fad22749c81989dd2fbf8df85790b3aa90"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/runs/graph-content/trace.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/runs/graph-content/trace.jsonl",
+      "bytes": 198,
+      "sha256": "c02f96732195ba38342cbd9c1ffbb58028436e85cbd22d2d430b7cb3d95d03d5",
+      "encoding": "identity",
+      "decoded_bytes": 198,
+      "decoded_sha256": "c02f96732195ba38342cbd9c1ffbb58028436e85cbd22d2d430b7cb3d95d03d5"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "bytes": 631,
+      "sha256": "ff8385853b6c742d634c1933aba3bcd86f61e41fd3796f76bdcc2b05b9a1b202",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "ff8385853b6c742d634c1933aba3bcd86f61e41fd3796f76bdcc2b05b9a1b202"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.manifest.json",
+      "bytes": 631,
+      "sha256": "ff8385853b6c742d634c1933aba3bcd86f61e41fd3796f76bdcc2b05b9a1b202",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "ff8385853b6c742d634c1933aba3bcd86f61e41fd3796f76bdcc2b05b9a1b202"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.blob.lossless.gz",
+      "bytes": 201,
+      "sha256": "77d288ca754778774800a288d6b28432cda013abe9b889103be35be76fc247c5",
+      "encoding": "gzip",
+      "decoded_bytes": 354,
+      "decoded_sha256": "c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "bytes": 637,
+      "sha256": "185fcce965fc3d4b4bb75571a7c0765de108dd3dba5415599612db8a58efceaf",
+      "encoding": "identity",
+      "decoded_bytes": 637,
+      "decoded_sha256": "185fcce965fc3d4b4bb75571a7c0765de108dd3dba5415599612db8a58efceaf"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.manifest.json",
+      "bytes": 637,
+      "sha256": "185fcce965fc3d4b4bb75571a7c0765de108dd3dba5415599612db8a58efceaf",
+      "encoding": "identity",
+      "decoded_bytes": 637,
+      "decoded_sha256": "185fcce965fc3d4b4bb75571a7c0765de108dd3dba5415599612db8a58efceaf"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.blob.lossless.gz",
+      "bytes": 507,
+      "sha256": "f8d6123557b04e2d31342ccc4871320455b04bc7094c569b2dc400241b650779",
+      "encoding": "gzip",
+      "decoded_bytes": 1904,
+      "decoded_sha256": "bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "bytes": 608,
+      "sha256": "354c47fed638bb7bd588ab4620444daba98e5e05156180af921ef9d2129cab1f",
+      "encoding": "identity",
+      "decoded_bytes": 608,
+      "decoded_sha256": "354c47fed638bb7bd588ab4620444daba98e5e05156180af921ef9d2129cab1f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.manifest.json",
+      "bytes": 608,
+      "sha256": "354c47fed638bb7bd588ab4620444daba98e5e05156180af921ef9d2129cab1f",
+      "encoding": "identity",
+      "decoded_bytes": 608,
+      "decoded_sha256": "354c47fed638bb7bd588ab4620444daba98e5e05156180af921ef9d2129cab1f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.blob.lossless.gz",
+      "bytes": 435,
+      "sha256": "4d01038f472003d30139872da651c8b9cbbb45ad2a6000584fd7db04f3e336ef",
+      "encoding": "gzip",
+      "decoded_bytes": 1703,
+      "decoded_sha256": "669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "265c577e8df9555c904200889c383a699e6415e2fca60e0cbffd622cc9c6f735",
+      "encoding": "identity",
+      "decoded_bytes": 1363,
+      "decoded_sha256": "265c577e8df9555c904200889c383a699e6415e2fca60e0cbffd622cc9c6f735"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "265c577e8df9555c904200889c383a699e6415e2fca60e0cbffd622cc9c6f735",
+      "encoding": "identity",
+      "decoded_bytes": 1363,
+      "decoded_sha256": "265c577e8df9555c904200889c383a699e6415e2fca60e0cbffd622cc9c6f735"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob.lossless.gz",
+      "bytes": 469,
+      "sha256": "67ac7ceb9c0162403f46b0099f8cca99055bcb7174b39bd646bcf356e93c8a18",
+      "encoding": "gzip",
+      "decoded_bytes": 1204,
+      "decoded_sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "b7a411baf0242be1380c256f7d160976ae1a4f943889e90ce4171b5192700f45",
+      "encoding": "identity",
+      "decoded_bytes": 613,
+      "decoded_sha256": "b7a411baf0242be1380c256f7d160976ae1a4f943889e90ce4171b5192700f45"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "b7a411baf0242be1380c256f7d160976ae1a4f943889e90ce4171b5192700f45",
+      "encoding": "identity",
+      "decoded_bytes": 613,
+      "decoded_sha256": "b7a411baf0242be1380c256f7d160976ae1a4f943889e90ce4171b5192700f45"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob.lossless.gz",
+      "bytes": 228,
+      "sha256": "8b6a7fe9e240bd1189951abd5a6059e6e5c5feb9fa1dc4cdc5a8c4c3c9f6847f",
+      "encoding": "gzip",
+      "decoded_bytes": 464,
+      "decoded_sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "3f98ff9b6ccb0be4abbe4b23ccff41bc393c213881fd988f9744732910115cb6",
+      "encoding": "identity",
+      "decoded_bytes": 616,
+      "decoded_sha256": "3f98ff9b6ccb0be4abbe4b23ccff41bc393c213881fd988f9744732910115cb6"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "3f98ff9b6ccb0be4abbe4b23ccff41bc393c213881fd988f9744732910115cb6",
+      "encoding": "identity",
+      "decoded_bytes": 616,
+      "decoded_sha256": "3f98ff9b6ccb0be4abbe4b23ccff41bc393c213881fd988f9744732910115cb6"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob.lossless.gz",
+      "bytes": 688,
+      "sha256": "1fe56f48d070ff8fef4361c4dbc41ce5b2e72af29efebc44599d85de3c55abe7",
+      "encoding": "gzip",
+      "decoded_bytes": 2423,
+      "decoded_sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "b41f03e0510b3727ec3c2213316849298990f2bfbcb24942613da32530741992",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "b41f03e0510b3727ec3c2213316849298990f2bfbcb24942613da32530741992"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "b41f03e0510b3727ec3c2213316849298990f2bfbcb24942613da32530741992",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "b41f03e0510b3727ec3c2213316849298990f2bfbcb24942613da32530741992"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob.lossless.gz",
+      "bytes": 381,
+      "sha256": "8078e1f7211e5f8665b7cdc82ddcb17c92867a2a273cf8c4a79179eab4ba7424",
+      "encoding": "gzip",
+      "decoded_bytes": 1477,
+      "decoded_sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "907b56b78b7285d3ee40bbe8931ac7d0bbce24d27391477b12a5872b73c00e5d",
+      "encoding": "identity",
+      "decoded_bytes": 623,
+      "decoded_sha256": "907b56b78b7285d3ee40bbe8931ac7d0bbce24d27391477b12a5872b73c00e5d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "907b56b78b7285d3ee40bbe8931ac7d0bbce24d27391477b12a5872b73c00e5d",
+      "encoding": "identity",
+      "decoded_bytes": 623,
+      "decoded_sha256": "907b56b78b7285d3ee40bbe8931ac7d0bbce24d27391477b12a5872b73c00e5d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob.lossless.gz",
+      "bytes": 290,
+      "sha256": "560cb3a56757c52e07f4f44e901b8577f67d1782df2bb9c8e572d0726d12715f",
+      "encoding": "gzip",
+      "decoded_bytes": 523,
+      "decoded_sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "03289884451f096b51281cdbfc80e33cf7289ed8112c1c00a040410d59dc4121",
+      "encoding": "identity",
+      "decoded_bytes": 626,
+      "decoded_sha256": "03289884451f096b51281cdbfc80e33cf7289ed8112c1c00a040410d59dc4121"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "03289884451f096b51281cdbfc80e33cf7289ed8112c1c00a040410d59dc4121",
+      "encoding": "identity",
+      "decoded_bytes": 626,
+      "decoded_sha256": "03289884451f096b51281cdbfc80e33cf7289ed8112c1c00a040410d59dc4121"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob.lossless.gz",
+      "bytes": 722,
+      "sha256": "2fcd47dc1f12caa4984a83dbad7a0ff9b1b5ea1d09f6d07b3bdcf78e8d4aaf58",
+      "encoding": "gzip",
+      "decoded_bytes": 3235,
+      "decoded_sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "a433ccde1627fffe7c15aa7a269915044ecf75599c09d49c5389b1cc7241cb53",
+      "encoding": "identity",
+      "decoded_bytes": 623,
+      "decoded_sha256": "a433ccde1627fffe7c15aa7a269915044ecf75599c09d49c5389b1cc7241cb53"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "a433ccde1627fffe7c15aa7a269915044ecf75599c09d49c5389b1cc7241cb53",
+      "encoding": "identity",
+      "decoded_bytes": 623,
+      "decoded_sha256": "a433ccde1627fffe7c15aa7a269915044ecf75599c09d49c5389b1cc7241cb53"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob.lossless.gz",
+      "bytes": 435,
+      "sha256": "1d5f38326812732c1f7c4730e5943ddb0ddb44da5b24a401f46c93671446c38a",
+      "encoding": "gzip",
+      "decoded_bytes": 1086,
+      "decoded_sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "8a68682616446ab20e473d433dd18d13a88e1aa96df91845e501fb6afbfa32f7",
+      "encoding": "identity",
+      "decoded_bytes": 612,
+      "decoded_sha256": "8a68682616446ab20e473d433dd18d13a88e1aa96df91845e501fb6afbfa32f7"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "8a68682616446ab20e473d433dd18d13a88e1aa96df91845e501fb6afbfa32f7",
+      "encoding": "identity",
+      "decoded_bytes": 612,
+      "decoded_sha256": "8a68682616446ab20e473d433dd18d13a88e1aa96df91845e501fb6afbfa32f7"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob.lossless.gz",
+      "bytes": 1078,
+      "sha256": "660251af4c2f81d799926cdc1da255d0f1885290e5fa3ec60b6c6ef188450937",
+      "encoding": "gzip",
+      "decoded_bytes": 7840,
+      "decoded_sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-31.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-31.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/fresh-bridge-proof.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/fresh-bridge-proof.json.lossless.gz",
+      "bytes": 14019,
+      "sha256": "6d5d57d278731ae1f0616bab1435bdb7df1d122700f609af9f508d1734f88d02",
+      "encoding": "gzip",
+      "decoded_bytes": 196566,
+      "decoded_sha256": "1b1e7d704dc9cb1de8f2909fd5e01aa643df08c5de31bd620de575dd31ca07ba"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/fresh-reader.command.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/fresh-reader.command.json",
+      "bytes": 983,
+      "sha256": "51f6cffccb5ece659b88e88fd3a7078f684af43ac9477b8240a1c2dfef05c6d9",
+      "encoding": "identity",
+      "decoded_bytes": 983,
+      "decoded_sha256": "51f6cffccb5ece659b88e88fd3a7078f684af43ac9477b8240a1c2dfef05c6d9"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/fresh-reader.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/fresh-reader.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/fresh-reader.stdout.txt",
+      "bytes": 102,
+      "sha256": "d4b623c91f38c0176106def74bd447f08d7eb5330454e0684587d6de24aabda2",
+      "encoding": "identity",
+      "decoded_bytes": 102,
+      "decoded_sha256": "d4b623c91f38c0176106def74bd447f08d7eb5330454e0684587d6de24aabda2"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/fresh-reader-proof.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/fresh-reader-proof.json",
+      "bytes": 17296,
+      "sha256": "730acf1652160294bdfefa9be2dddffae4a8ec0136897373327362de1fed070e",
+      "encoding": "identity",
+      "decoded_bytes": 17296,
+      "decoded_sha256": "730acf1652160294bdfefa9be2dddffae4a8ec0136897373327362de1fed070e"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/reader-input.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/reader-input.json",
+      "bytes": 7601,
+      "sha256": "0983cc10242b4d1257a9228b805ef7548f8690c3009cb9411664fed713c2ec8a",
+      "encoding": "identity",
+      "decoded_bytes": 7601,
+      "decoded_sha256": "0983cc10242b4d1257a9228b805ef7548f8690c3009cb9411664fed713c2ec8a"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/runs/graph-content/trace.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/runs/graph-content/trace.jsonl",
+      "bytes": 198,
+      "sha256": "59975872acf1e989f5e4911df770c8f1645fef40417a0803e4103cba33637d1f",
+      "encoding": "identity",
+      "decoded_bytes": 198,
+      "decoded_sha256": "59975872acf1e989f5e4911df770c8f1645fef40417a0803e4103cba33637d1f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.view.cc5073f96988e2dce3768719aab010bc9e1ee26a7955076d419939965910e3e6.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.view.cc5073f96988e2dce3768719aab010bc9e1ee26a7955076d419939965910e3e6.manifest.json",
+      "bytes": 717,
+      "sha256": "81ee90f1d8f99e3510cabbbf8d66d16b8b6f3ce8c3bb0ffd585d5a6e605473ac",
+      "encoding": "identity",
+      "decoded_bytes": 717,
+      "decoded_sha256": "81ee90f1d8f99e3510cabbbf8d66d16b8b6f3ce8c3bb0ffd585d5a6e605473ac"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.manifest.json",
+      "bytes": 717,
+      "sha256": "81ee90f1d8f99e3510cabbbf8d66d16b8b6f3ce8c3bb0ffd585d5a6e605473ac",
+      "encoding": "identity",
+      "decoded_bytes": 717,
+      "decoded_sha256": "81ee90f1d8f99e3510cabbbf8d66d16b8b6f3ce8c3bb0ffd585d5a6e605473ac"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.blob.lossless.gz",
+      "bytes": 744,
+      "sha256": "d31a1b119f8f7cb5d6683daf04f0467c3263d0389151b51390e4cfc367b2018d",
+      "encoding": "gzip",
+      "decoded_bytes": 2233,
+      "decoded_sha256": "bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c7/dc/c7dc30e13dffb2c5e45372fdf6192c8b7bd6fd965841096ee99b14dafeb6ff7e.view.82cd835420325b46824363e17e66b2bc77a9dd19638e4344a9c83864ac3e118d.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c7/dc/c7dc30e13dffb2c5e45372fdf6192c8b7bd6fd965841096ee99b14dafeb6ff7e.view.82cd835420325b46824363e17e66b2bc77a9dd19638e4344a9c83864ac3e118d.manifest.json",
+      "bytes": 747,
+      "sha256": "863f5d55515751dc529a66f8beb59aa1c74bd1cc9b5b91b16360bbbc695d1e5c",
+      "encoding": "identity",
+      "decoded_bytes": 747,
+      "decoded_sha256": "863f5d55515751dc529a66f8beb59aa1c74bd1cc9b5b91b16360bbbc695d1e5c"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c7/dc/c7dc30e13dffb2c5e45372fdf6192c8b7bd6fd965841096ee99b14dafeb6ff7e.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c7/dc/c7dc30e13dffb2c5e45372fdf6192c8b7bd6fd965841096ee99b14dafeb6ff7e.manifest.json",
+      "bytes": 747,
+      "sha256": "863f5d55515751dc529a66f8beb59aa1c74bd1cc9b5b91b16360bbbc695d1e5c",
+      "encoding": "identity",
+      "decoded_bytes": 747,
+      "decoded_sha256": "863f5d55515751dc529a66f8beb59aa1c74bd1cc9b5b91b16360bbbc695d1e5c"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c7/dc/c7dc30e13dffb2c5e45372fdf6192c8b7bd6fd965841096ee99b14dafeb6ff7e.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c7/dc/c7dc30e13dffb2c5e45372fdf6192c8b7bd6fd965841096ee99b14dafeb6ff7e.blob.lossless.gz",
+      "bytes": 1441,
+      "sha256": "5521f2766a1ce79ed2598af340c8837b30663f0ed9604102f5e688346e36731d",
+      "encoding": "gzip",
+      "decoded_bytes": 7728,
+      "decoded_sha256": "c7dc30e13dffb2c5e45372fdf6192c8b7bd6fd965841096ee99b14dafeb6ff7e"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.view.6739cba2ecb6127612866009cb58bb7634907d91a399be32550fd448dc77ccfe.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.view.6739cba2ecb6127612866009cb58bb7634907d91a399be32550fd448dc77ccfe.manifest.json",
+      "bytes": 765,
+      "sha256": "be167917acf8bd84e98b2004930109dfb7dfd016ff3d359d30fab63153bfd249",
+      "encoding": "identity",
+      "decoded_bytes": 765,
+      "decoded_sha256": "be167917acf8bd84e98b2004930109dfb7dfd016ff3d359d30fab63153bfd249"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.manifest.json",
+      "bytes": 765,
+      "sha256": "be167917acf8bd84e98b2004930109dfb7dfd016ff3d359d30fab63153bfd249",
+      "encoding": "identity",
+      "decoded_bytes": 765,
+      "decoded_sha256": "be167917acf8bd84e98b2004930109dfb7dfd016ff3d359d30fab63153bfd249"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.blob.lossless.gz",
+      "bytes": 707,
+      "sha256": "b859d10941e8e3058f563fb3fc2107c23f21b2d00c51de681e4271993442f908",
+      "encoding": "gzip",
+      "decoded_bytes": 3004,
+      "decoded_sha256": "031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "bytes": 637,
+      "sha256": "ec50e1a0330c4a8756fb1c980cb145158af8e1693a6918b45a705aee826cc4ad",
+      "encoding": "identity",
+      "decoded_bytes": 637,
+      "decoded_sha256": "ec50e1a0330c4a8756fb1c980cb145158af8e1693a6918b45a705aee826cc4ad"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.manifest.json",
+      "bytes": 637,
+      "sha256": "ec50e1a0330c4a8756fb1c980cb145158af8e1693a6918b45a705aee826cc4ad",
+      "encoding": "identity",
+      "decoded_bytes": 637,
+      "decoded_sha256": "ec50e1a0330c4a8756fb1c980cb145158af8e1693a6918b45a705aee826cc4ad"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.blob.lossless.gz",
+      "bytes": 394,
+      "sha256": "e12ef61ee2ddc298b51a237494af9fea1de99f70182693abc8caed67a5b95f9f",
+      "encoding": "gzip",
+      "decoded_bytes": 1224,
+      "decoded_sha256": "dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "bytes": 631,
+      "sha256": "e2c935a960cc4ae9813aecb6008a61a8bfcafd58fb6e8cb4145f6ce7a1a88e18",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "e2c935a960cc4ae9813aecb6008a61a8bfcafd58fb6e8cb4145f6ce7a1a88e18"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.manifest.json",
+      "bytes": 631,
+      "sha256": "e2c935a960cc4ae9813aecb6008a61a8bfcafd58fb6e8cb4145f6ce7a1a88e18",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "e2c935a960cc4ae9813aecb6008a61a8bfcafd58fb6e8cb4145f6ce7a1a88e18"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.blob.lossless.gz",
+      "bytes": 201,
+      "sha256": "77d288ca754778774800a288d6b28432cda013abe9b889103be35be76fc247c5",
+      "encoding": "gzip",
+      "decoded_bytes": 354,
+      "decoded_sha256": "c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+      "bytes": 637,
+      "sha256": "d794cb06874e1b8ad549c6b2fa769acdeebeb0bbcc9a03ac53a6084f1695a7d5",
+      "encoding": "identity",
+      "decoded_bytes": 637,
+      "decoded_sha256": "d794cb06874e1b8ad549c6b2fa769acdeebeb0bbcc9a03ac53a6084f1695a7d5"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.manifest.json",
+      "bytes": 637,
+      "sha256": "d794cb06874e1b8ad549c6b2fa769acdeebeb0bbcc9a03ac53a6084f1695a7d5",
+      "encoding": "identity",
+      "decoded_bytes": 637,
+      "decoded_sha256": "d794cb06874e1b8ad549c6b2fa769acdeebeb0bbcc9a03ac53a6084f1695a7d5"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/bd/f9/bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203.blob.lossless.gz",
+      "bytes": 507,
+      "sha256": "f8d6123557b04e2d31342ccc4871320455b04bc7094c569b2dc400241b650779",
+      "encoding": "gzip",
+      "decoded_bytes": 1904,
+      "decoded_sha256": "bdf9314ba1505e5680a7f4ff6054247e45a6859b7dde7650dbcccfcd64062203"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json",
+      "bytes": 608,
+      "sha256": "9f32c436877e464b12f8bfb33eb0d2b1b0bbd1636ecaf4a582e0e68518a1b4aa",
+      "encoding": "identity",
+      "decoded_bytes": 608,
+      "decoded_sha256": "9f32c436877e464b12f8bfb33eb0d2b1b0bbd1636ecaf4a582e0e68518a1b4aa"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.manifest.json",
+      "bytes": 608,
+      "sha256": "9f32c436877e464b12f8bfb33eb0d2b1b0bbd1636ecaf4a582e0e68518a1b4aa",
+      "encoding": "identity",
+      "decoded_bytes": 608,
+      "decoded_sha256": "9f32c436877e464b12f8bfb33eb0d2b1b0bbd1636ecaf4a582e0e68518a1b4aa"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/66/9d/669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f.blob.lossless.gz",
+      "bytes": 435,
+      "sha256": "4d01038f472003d30139872da651c8b9cbbb45ad2a6000584fd7db04f3e336ef",
+      "encoding": "gzip",
+      "decoded_bytes": 1703,
+      "decoded_sha256": "669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "5909e480c5c885f40b7b897a30b1080476d3c6d6e9276e096de02e381b7ca6f3",
+      "encoding": "identity",
+      "decoded_bytes": 1363,
+      "decoded_sha256": "5909e480c5c885f40b7b897a30b1080476d3c6d6e9276e096de02e381b7ca6f3"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "5909e480c5c885f40b7b897a30b1080476d3c6d6e9276e096de02e381b7ca6f3",
+      "encoding": "identity",
+      "decoded_bytes": 1363,
+      "decoded_sha256": "5909e480c5c885f40b7b897a30b1080476d3c6d6e9276e096de02e381b7ca6f3"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob.lossless.gz",
+      "bytes": 469,
+      "sha256": "67ac7ceb9c0162403f46b0099f8cca99055bcb7174b39bd646bcf356e93c8a18",
+      "encoding": "gzip",
+      "decoded_bytes": 1204,
+      "decoded_sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "28b6a2db5582739e2841c6f7265b5b7c633801abc7025a2a524d47fa7fa9aa23",
+      "encoding": "identity",
+      "decoded_bytes": 613,
+      "decoded_sha256": "28b6a2db5582739e2841c6f7265b5b7c633801abc7025a2a524d47fa7fa9aa23"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "28b6a2db5582739e2841c6f7265b5b7c633801abc7025a2a524d47fa7fa9aa23",
+      "encoding": "identity",
+      "decoded_bytes": 613,
+      "decoded_sha256": "28b6a2db5582739e2841c6f7265b5b7c633801abc7025a2a524d47fa7fa9aa23"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob.lossless.gz",
+      "bytes": 228,
+      "sha256": "8b6a7fe9e240bd1189951abd5a6059e6e5c5feb9fa1dc4cdc5a8c4c3c9f6847f",
+      "encoding": "gzip",
+      "decoded_bytes": 464,
+      "decoded_sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "5cfa14bf3da1d80438410d11b40b69d3e668941a133fbdd3e79a6b43d098369f",
+      "encoding": "identity",
+      "decoded_bytes": 616,
+      "decoded_sha256": "5cfa14bf3da1d80438410d11b40b69d3e668941a133fbdd3e79a6b43d098369f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "5cfa14bf3da1d80438410d11b40b69d3e668941a133fbdd3e79a6b43d098369f",
+      "encoding": "identity",
+      "decoded_bytes": 616,
+      "decoded_sha256": "5cfa14bf3da1d80438410d11b40b69d3e668941a133fbdd3e79a6b43d098369f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob.lossless.gz",
+      "bytes": 688,
+      "sha256": "1fe56f48d070ff8fef4361c4dbc41ce5b2e72af29efebc44599d85de3c55abe7",
+      "encoding": "gzip",
+      "decoded_bytes": 2423,
+      "decoded_sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "81c713c4e735fe1e6eb762052995bf642e3d8a140a6028ad71e5c31d4e8bf089",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "81c713c4e735fe1e6eb762052995bf642e3d8a140a6028ad71e5c31d4e8bf089"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "81c713c4e735fe1e6eb762052995bf642e3d8a140a6028ad71e5c31d4e8bf089",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "81c713c4e735fe1e6eb762052995bf642e3d8a140a6028ad71e5c31d4e8bf089"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob.lossless.gz",
+      "bytes": 381,
+      "sha256": "8078e1f7211e5f8665b7cdc82ddcb17c92867a2a273cf8c4a79179eab4ba7424",
+      "encoding": "gzip",
+      "decoded_bytes": 1477,
+      "decoded_sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "a61a8b64ab609c39e9e4f32fc54365d4ce4873152337c0288f12f3960768c06b",
+      "encoding": "identity",
+      "decoded_bytes": 623,
+      "decoded_sha256": "a61a8b64ab609c39e9e4f32fc54365d4ce4873152337c0288f12f3960768c06b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "a61a8b64ab609c39e9e4f32fc54365d4ce4873152337c0288f12f3960768c06b",
+      "encoding": "identity",
+      "decoded_bytes": 623,
+      "decoded_sha256": "a61a8b64ab609c39e9e4f32fc54365d4ce4873152337c0288f12f3960768c06b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob.lossless.gz",
+      "bytes": 290,
+      "sha256": "560cb3a56757c52e07f4f44e901b8577f67d1782df2bb9c8e572d0726d12715f",
+      "encoding": "gzip",
+      "decoded_bytes": 523,
+      "decoded_sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "fa7a5dde7f5ce576b81eef29ae40e9fa86d2ce047785673d54534693af252e10",
+      "encoding": "identity",
+      "decoded_bytes": 626,
+      "decoded_sha256": "fa7a5dde7f5ce576b81eef29ae40e9fa86d2ce047785673d54534693af252e10"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "fa7a5dde7f5ce576b81eef29ae40e9fa86d2ce047785673d54534693af252e10",
+      "encoding": "identity",
+      "decoded_bytes": 626,
+      "decoded_sha256": "fa7a5dde7f5ce576b81eef29ae40e9fa86d2ce047785673d54534693af252e10"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob.lossless.gz",
+      "bytes": 722,
+      "sha256": "2fcd47dc1f12caa4984a83dbad7a0ff9b1b5ea1d09f6d07b3bdcf78e8d4aaf58",
+      "encoding": "gzip",
+      "decoded_bytes": 3235,
+      "decoded_sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "65b8eb51a904099366a535af45ea687444866f52e3f84614860a61fb637fd259",
+      "encoding": "identity",
+      "decoded_bytes": 623,
+      "decoded_sha256": "65b8eb51a904099366a535af45ea687444866f52e3f84614860a61fb637fd259"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "65b8eb51a904099366a535af45ea687444866f52e3f84614860a61fb637fd259",
+      "encoding": "identity",
+      "decoded_bytes": 623,
+      "decoded_sha256": "65b8eb51a904099366a535af45ea687444866f52e3f84614860a61fb637fd259"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob.lossless.gz",
+      "bytes": 435,
+      "sha256": "1d5f38326812732c1f7c4730e5943ddb0ddb44da5b24a401f46c93671446c38a",
+      "encoding": "gzip",
+      "decoded_bytes": 1086,
+      "decoded_sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "6790425f84da4356c87ccd424b0e62e6d42a30dbcdde6c0ab24d98ddd2c27570",
+      "encoding": "identity",
+      "decoded_bytes": 612,
+      "decoded_sha256": "6790425f84da4356c87ccd424b0e62e6d42a30dbcdde6c0ab24d98ddd2c27570"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "6790425f84da4356c87ccd424b0e62e6d42a30dbcdde6c0ab24d98ddd2c27570",
+      "encoding": "identity",
+      "decoded_bytes": 612,
+      "decoded_sha256": "6790425f84da4356c87ccd424b0e62e6d42a30dbcdde6c0ab24d98ddd2c27570"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob.lossless.gz",
+      "bytes": 1078,
+      "sha256": "660251af4c2f81d799926cdc1da255d0f1885290e5fa3ec60b6c6ef188450937",
+      "encoding": "gzip",
+      "decoded_bytes": 7840,
+      "decoded_sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-60.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-60.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-40.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-40.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-31.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-31.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected/synthetic-context/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/01/e0/01e0ee01db5a3966f6ae8bf3261b077c14bbb57fbd0c240ad9386b0a0a6250ac.view.66aeb84969fe247703b143a849ed59fecd5a7052418673eb0dfb2a42c4315e17.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/01/e0/01e0ee01db5a3966f6ae8bf3261b077c14bbb57fbd0c240ad9386b0a0a6250ac.view.66aeb84969fe247703b143a849ed59fecd5a7052418673eb0dfb2a42c4315e17.manifest.json",
+      "bytes": 747,
+      "sha256": "78f52ef521d883703ca7f2808232cd5e0855759a3351cd97a86bd85d156b8b5b",
+      "encoding": "identity",
+      "decoded_bytes": 747,
+      "decoded_sha256": "78f52ef521d883703ca7f2808232cd5e0855759a3351cd97a86bd85d156b8b5b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/01/e0/01e0ee01db5a3966f6ae8bf3261b077c14bbb57fbd0c240ad9386b0a0a6250ac.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/01/e0/01e0ee01db5a3966f6ae8bf3261b077c14bbb57fbd0c240ad9386b0a0a6250ac.manifest.json",
+      "bytes": 747,
+      "sha256": "78f52ef521d883703ca7f2808232cd5e0855759a3351cd97a86bd85d156b8b5b",
+      "encoding": "identity",
+      "decoded_bytes": 747,
+      "decoded_sha256": "78f52ef521d883703ca7f2808232cd5e0855759a3351cd97a86bd85d156b8b5b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/01/e0/01e0ee01db5a3966f6ae8bf3261b077c14bbb57fbd0c240ad9386b0a0a6250ac.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/01/e0/01e0ee01db5a3966f6ae8bf3261b077c14bbb57fbd0c240ad9386b0a0a6250ac.blob.lossless.gz",
+      "bytes": 1473,
+      "sha256": "485ba24697a06665114aeb552689b2f6c921349a2f6eed1445efff82af43f57c",
+      "encoding": "gzip",
+      "decoded_bytes": 7724,
+      "decoded_sha256": "01e0ee01db5a3966f6ae8bf3261b077c14bbb57fbd0c240ad9386b0a0a6250ac"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/72/47/72476478d5275b9df704b5b27556fc4240deb7a8ef66cc91a39a3d8d56163209.view.1322424f815f4075c6972ddf3ad08b07c61f7f2b93b1056f4618899cbb7f8a9d.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/72/47/72476478d5275b9df704b5b27556fc4240deb7a8ef66cc91a39a3d8d56163209.view.1322424f815f4075c6972ddf3ad08b07c61f7f2b93b1056f4618899cbb7f8a9d.manifest.json",
+      "bytes": 758,
+      "sha256": "f6cee99355b2af8eca2fd194dcbbb72a5bd6989f8899508fed88bcf10488c02b",
+      "encoding": "identity",
+      "decoded_bytes": 758,
+      "decoded_sha256": "f6cee99355b2af8eca2fd194dcbbb72a5bd6989f8899508fed88bcf10488c02b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/72/47/72476478d5275b9df704b5b27556fc4240deb7a8ef66cc91a39a3d8d56163209.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/72/47/72476478d5275b9df704b5b27556fc4240deb7a8ef66cc91a39a3d8d56163209.manifest.json",
+      "bytes": 758,
+      "sha256": "f6cee99355b2af8eca2fd194dcbbb72a5bd6989f8899508fed88bcf10488c02b",
+      "encoding": "identity",
+      "decoded_bytes": 758,
+      "decoded_sha256": "f6cee99355b2af8eca2fd194dcbbb72a5bd6989f8899508fed88bcf10488c02b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/72/47/72476478d5275b9df704b5b27556fc4240deb7a8ef66cc91a39a3d8d56163209.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/72/47/72476478d5275b9df704b5b27556fc4240deb7a8ef66cc91a39a3d8d56163209.blob.lossless.gz",
+      "bytes": 1392,
+      "sha256": "cbafaf494b63c13735cb1e9b24bf11af2fa12fdc3c8943c4ac6d512a0b454f80",
+      "encoding": "gzip",
+      "decoded_bytes": 9474,
+      "decoded_sha256": "72476478d5275b9df704b5b27556fc4240deb7a8ef66cc91a39a3d8d56163209"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "bytes": 631,
+      "sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.manifest.json",
+      "bytes": 631,
+      "sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.blob.lossless.gz",
+      "bytes": 234,
+      "sha256": "288394e7a64a847b6846eadced52d4caf76a38e845f3d2693930dc4bc5c61a2b",
+      "encoding": "gzip",
+      "decoded_bytes": 424,
+      "decoded_sha256": "35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/16/ce/16ceb7b61c85dd6b3708310cfe44daef0aba7e77bdb7e08ccd6eb0bec785eb50.view.08b3bb1cbe15bbc0b483d4f09df9a0373c17f3279f695159f412cbd67e902b0f.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/16/ce/16ceb7b61c85dd6b3708310cfe44daef0aba7e77bdb7e08ccd6eb0bec785eb50.view.08b3bb1cbe15bbc0b483d4f09df9a0373c17f3279f695159f412cbd67e902b0f.manifest.json",
+      "bytes": 631,
+      "sha256": "3d459eb8281d8951b87845d62328f608a52f31750de78d27b3e80b33041f2732",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "3d459eb8281d8951b87845d62328f608a52f31750de78d27b3e80b33041f2732"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/16/ce/16ceb7b61c85dd6b3708310cfe44daef0aba7e77bdb7e08ccd6eb0bec785eb50.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/16/ce/16ceb7b61c85dd6b3708310cfe44daef0aba7e77bdb7e08ccd6eb0bec785eb50.manifest.json",
+      "bytes": 631,
+      "sha256": "3d459eb8281d8951b87845d62328f608a52f31750de78d27b3e80b33041f2732",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "3d459eb8281d8951b87845d62328f608a52f31750de78d27b3e80b33041f2732"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/sha256/16/ce/16ceb7b61c85dd6b3708310cfe44daef0aba7e77bdb7e08ccd6eb0bec785eb50.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/sha256/16/ce/16ceb7b61c85dd6b3708310cfe44daef0aba7e77bdb7e08ccd6eb0bec785eb50.blob.lossless.gz",
+      "bytes": 3878,
+      "sha256": "7e94d480dddd637897db2508ba84b9eb3f95a3b3f74cbd12bc8f370c21c459f8",
+      "encoding": "gzip",
+      "decoded_bytes": 15575,
+      "decoded_sha256": "16ceb7b61c85dd6b3708310cfe44daef0aba7e77bdb7e08ccd6eb0bec785eb50"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/locks/stripe-09.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/locks/stripe-09.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/locks/stripe-16.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat0/cas/artifacts/ownership/transactions/locks/stripe-16.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/31/d7/31d7a0a9882c7411d1c27fac89f95620e91e2dd983fac60fdcd83b2e6c4eecfa.view.4c619500ad20919292b233200093e850769e0469bfb731e9e68d461ac6e83ea1.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/31/d7/31d7a0a9882c7411d1c27fac89f95620e91e2dd983fac60fdcd83b2e6c4eecfa.view.4c619500ad20919292b233200093e850769e0469bfb731e9e68d461ac6e83ea1.manifest.json",
+      "bytes": 747,
+      "sha256": "ec36b95c04a8422ba9ba769ad967fa540c0463112d2c257209ade968bc18886c",
+      "encoding": "identity",
+      "decoded_bytes": 747,
+      "decoded_sha256": "ec36b95c04a8422ba9ba769ad967fa540c0463112d2c257209ade968bc18886c"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/31/d7/31d7a0a9882c7411d1c27fac89f95620e91e2dd983fac60fdcd83b2e6c4eecfa.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/31/d7/31d7a0a9882c7411d1c27fac89f95620e91e2dd983fac60fdcd83b2e6c4eecfa.manifest.json",
+      "bytes": 747,
+      "sha256": "ec36b95c04a8422ba9ba769ad967fa540c0463112d2c257209ade968bc18886c",
+      "encoding": "identity",
+      "decoded_bytes": 747,
+      "decoded_sha256": "ec36b95c04a8422ba9ba769ad967fa540c0463112d2c257209ade968bc18886c"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/31/d7/31d7a0a9882c7411d1c27fac89f95620e91e2dd983fac60fdcd83b2e6c4eecfa.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/31/d7/31d7a0a9882c7411d1c27fac89f95620e91e2dd983fac60fdcd83b2e6c4eecfa.blob.lossless.gz",
+      "bytes": 1471,
+      "sha256": "cc6b81a6b56310b4653bf7de4a579853b1f0e10d14a3e0480a881788e3f3c8ba",
+      "encoding": "gzip",
+      "decoded_bytes": 7725,
+      "decoded_sha256": "31d7a0a9882c7411d1c27fac89f95620e91e2dd983fac60fdcd83b2e6c4eecfa"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/54/28/5428a30bba6931bf97b7a81e28e3d705e47e0f4af45b9d12b85b18334c3674ec.view.3add0f955c1d358287c842eaa5de0e1fd5cb29f35eb64440839f3f23c428b9dc.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/54/28/5428a30bba6931bf97b7a81e28e3d705e47e0f4af45b9d12b85b18334c3674ec.view.3add0f955c1d358287c842eaa5de0e1fd5cb29f35eb64440839f3f23c428b9dc.manifest.json",
+      "bytes": 758,
+      "sha256": "3ac16ad56436af6ef74ff80ab91bc63613c4431b6110fb2411596ebb3793f87f",
+      "encoding": "identity",
+      "decoded_bytes": 758,
+      "decoded_sha256": "3ac16ad56436af6ef74ff80ab91bc63613c4431b6110fb2411596ebb3793f87f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/54/28/5428a30bba6931bf97b7a81e28e3d705e47e0f4af45b9d12b85b18334c3674ec.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/54/28/5428a30bba6931bf97b7a81e28e3d705e47e0f4af45b9d12b85b18334c3674ec.manifest.json",
+      "bytes": 758,
+      "sha256": "3ac16ad56436af6ef74ff80ab91bc63613c4431b6110fb2411596ebb3793f87f",
+      "encoding": "identity",
+      "decoded_bytes": 758,
+      "decoded_sha256": "3ac16ad56436af6ef74ff80ab91bc63613c4431b6110fb2411596ebb3793f87f"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/54/28/5428a30bba6931bf97b7a81e28e3d705e47e0f4af45b9d12b85b18334c3674ec.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/54/28/5428a30bba6931bf97b7a81e28e3d705e47e0f4af45b9d12b85b18334c3674ec.blob.lossless.gz",
+      "bytes": 1396,
+      "sha256": "90f2c670d572446aca7b26b126ace4aca2ad191af8831d9689fee8c5c5f2b2eb",
+      "encoding": "gzip",
+      "decoded_bytes": 9482,
+      "decoded_sha256": "5428a30bba6931bf97b7a81e28e3d705e47e0f4af45b9d12b85b18334c3674ec"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "bytes": 631,
+      "sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.manifest.json",
+      "bytes": 631,
+      "sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.blob.lossless.gz",
+      "bytes": 234,
+      "sha256": "288394e7a64a847b6846eadced52d4caf76a38e845f3d2693930dc4bc5c61a2b",
+      "encoding": "gzip",
+      "decoded_bytes": 424,
+      "decoded_sha256": "35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/ae/30/ae305bb4ad42894ae87cf6720dbc3f9e7451701b626171da6965716f473ce22d.view.08b3bb1cbe15bbc0b483d4f09df9a0373c17f3279f695159f412cbd67e902b0f.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/ae/30/ae305bb4ad42894ae87cf6720dbc3f9e7451701b626171da6965716f473ce22d.view.08b3bb1cbe15bbc0b483d4f09df9a0373c17f3279f695159f412cbd67e902b0f.manifest.json",
+      "bytes": 631,
+      "sha256": "33fdbfd982d26b2b33949f0c1d574d8bbf977ce8811913903ae25b9fadb09dac",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "33fdbfd982d26b2b33949f0c1d574d8bbf977ce8811913903ae25b9fadb09dac"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/ae/30/ae305bb4ad42894ae87cf6720dbc3f9e7451701b626171da6965716f473ce22d.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/ae/30/ae305bb4ad42894ae87cf6720dbc3f9e7451701b626171da6965716f473ce22d.manifest.json",
+      "bytes": 631,
+      "sha256": "33fdbfd982d26b2b33949f0c1d574d8bbf977ce8811913903ae25b9fadb09dac",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "33fdbfd982d26b2b33949f0c1d574d8bbf977ce8811913903ae25b9fadb09dac"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/sha256/ae/30/ae305bb4ad42894ae87cf6720dbc3f9e7451701b626171da6965716f473ce22d.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/sha256/ae/30/ae305bb4ad42894ae87cf6720dbc3f9e7451701b626171da6965716f473ce22d.blob.lossless.gz",
+      "bytes": 3862,
+      "sha256": "b12b88fd730033935bfeed55ae75b38d4f586f298f989f29b82f2a78693b16c0",
+      "encoding": "gzip",
+      "decoded_bytes": 15595,
+      "decoded_sha256": "ae305bb4ad42894ae87cf6720dbc3f9e7451701b626171da6965716f473ce22d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/locks/stripe-58.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/locks/stripe-58.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_requested_pag_reconciliat1/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/40/7f/407fd0f0b6447307cdcd617cf061c77b6c13ce9527ccd12f60da79ecb57e0436.view.237dbcd47a89c2a1f1e663183fa56b8fa99efaf6663aa428a995de3f3ef332de.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/40/7f/407fd0f0b6447307cdcd617cf061c77b6c13ce9527ccd12f60da79ecb57e0436.view.237dbcd47a89c2a1f1e663183fa56b8fa99efaf6663aa428a995de3f3ef332de.manifest.json",
+      "bytes": 747,
+      "sha256": "2846477a7f2393e3de46497788af4e86dd526cf0f832bac6964dc2ffcfc0b010",
+      "encoding": "identity",
+      "decoded_bytes": 747,
+      "decoded_sha256": "2846477a7f2393e3de46497788af4e86dd526cf0f832bac6964dc2ffcfc0b010"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/40/7f/407fd0f0b6447307cdcd617cf061c77b6c13ce9527ccd12f60da79ecb57e0436.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/40/7f/407fd0f0b6447307cdcd617cf061c77b6c13ce9527ccd12f60da79ecb57e0436.manifest.json",
+      "bytes": 747,
+      "sha256": "2846477a7f2393e3de46497788af4e86dd526cf0f832bac6964dc2ffcfc0b010",
+      "encoding": "identity",
+      "decoded_bytes": 747,
+      "decoded_sha256": "2846477a7f2393e3de46497788af4e86dd526cf0f832bac6964dc2ffcfc0b010"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/40/7f/407fd0f0b6447307cdcd617cf061c77b6c13ce9527ccd12f60da79ecb57e0436.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/40/7f/407fd0f0b6447307cdcd617cf061c77b6c13ce9527ccd12f60da79ecb57e0436.blob.lossless.gz",
+      "bytes": 1467,
+      "sha256": "b758b30d35c338ba3a03a9f646d87bc9163e808785a8b709be80811c5d12d373",
+      "encoding": "gzip",
+      "decoded_bytes": 7725,
+      "decoded_sha256": "407fd0f0b6447307cdcd617cf061c77b6c13ce9527ccd12f60da79ecb57e0436"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/82/cd/82cd05ff005ac9d2d123341609f3daf7678f7aeb2ac00f401267d3eb9ba696be.view.bb7a30125c9055796f9c9560b8bb2d508854491a8c1ea228af5ec6096b206934.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/82/cd/82cd05ff005ac9d2d123341609f3daf7678f7aeb2ac00f401267d3eb9ba696be.view.bb7a30125c9055796f9c9560b8bb2d508854491a8c1ea228af5ec6096b206934.manifest.json",
+      "bytes": 758,
+      "sha256": "1bd9504bc08db5f5b82c0de2afbafd02de346fefa4cd7703591b4e4921f689b3",
+      "encoding": "identity",
+      "decoded_bytes": 758,
+      "decoded_sha256": "1bd9504bc08db5f5b82c0de2afbafd02de346fefa4cd7703591b4e4921f689b3"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/82/cd/82cd05ff005ac9d2d123341609f3daf7678f7aeb2ac00f401267d3eb9ba696be.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/82/cd/82cd05ff005ac9d2d123341609f3daf7678f7aeb2ac00f401267d3eb9ba696be.manifest.json",
+      "bytes": 758,
+      "sha256": "1bd9504bc08db5f5b82c0de2afbafd02de346fefa4cd7703591b4e4921f689b3",
+      "encoding": "identity",
+      "decoded_bytes": 758,
+      "decoded_sha256": "1bd9504bc08db5f5b82c0de2afbafd02de346fefa4cd7703591b4e4921f689b3"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/82/cd/82cd05ff005ac9d2d123341609f3daf7678f7aeb2ac00f401267d3eb9ba696be.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/82/cd/82cd05ff005ac9d2d123341609f3daf7678f7aeb2ac00f401267d3eb9ba696be.blob.lossless.gz",
+      "bytes": 1254,
+      "sha256": "673609b158ab005ca1ddd886d52aac82fc6adfce8b9ec8137b75478035836d9f",
+      "encoding": "gzip",
+      "decoded_bytes": 8844,
+      "decoded_sha256": "82cd05ff005ac9d2d123341609f3daf7678f7aeb2ac00f401267d3eb9ba696be"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "bytes": 631,
+      "sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.manifest.json",
+      "bytes": 631,
+      "sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "bc7a0944fcd262b835066aff401651ff23a1b5db32ed068cf8319d4f99e9b79d"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/35/f7/35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e.blob.lossless.gz",
+      "bytes": 234,
+      "sha256": "288394e7a64a847b6846eadced52d4caf76a38e845f3d2693930dc4bc5c61a2b",
+      "encoding": "gzip",
+      "decoded_bytes": 424,
+      "decoded_sha256": "35f791fca902cef6c267d18b8d640be600b9916f1fc8f3fdbfac788a3825f42e"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/79/7c/797cb67bfbe4e90450b35905e05c8fa33c4ec30c72a814a78a7bd80be0473bb5.view.08b3bb1cbe15bbc0b483d4f09df9a0373c17f3279f695159f412cbd67e902b0f.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/79/7c/797cb67bfbe4e90450b35905e05c8fa33c4ec30c72a814a78a7bd80be0473bb5.view.08b3bb1cbe15bbc0b483d4f09df9a0373c17f3279f695159f412cbd67e902b0f.manifest.json",
+      "bytes": 631,
+      "sha256": "6d2415b7de2278bb92ed24d091b0eb60a9cacb6a3d790bae5d5cbe9a033c052b",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "6d2415b7de2278bb92ed24d091b0eb60a9cacb6a3d790bae5d5cbe9a033c052b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/79/7c/797cb67bfbe4e90450b35905e05c8fa33c4ec30c72a814a78a7bd80be0473bb5.manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/79/7c/797cb67bfbe4e90450b35905e05c8fa33c4ec30c72a814a78a7bd80be0473bb5.manifest.json",
+      "bytes": 631,
+      "sha256": "6d2415b7de2278bb92ed24d091b0eb60a9cacb6a3d790bae5d5cbe9a033c052b",
+      "encoding": "identity",
+      "decoded_bytes": 631,
+      "decoded_sha256": "6d2415b7de2278bb92ed24d091b0eb60a9cacb6a3d790bae5d5cbe9a033c052b"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/sha256/79/7c/797cb67bfbe4e90450b35905e05c8fa33c4ec30c72a814a78a7bd80be0473bb5.blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/sha256/79/7c/797cb67bfbe4e90450b35905e05c8fa33c4ec30c72a814a78a7bd80be0473bb5.blob.lossless.gz",
+      "bytes": 3790,
+      "sha256": "600b9a4706598147a87330100ae492d80e405426f89aadc730f332726cb3b05c",
+      "encoding": "gzip",
+      "decoded_bytes": 15459,
+      "decoded_sha256": "797cb67bfbe4e90450b35905e05c8fa33c4ec30c72a814a78a7bd80be0473bb5"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/root.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/locks/stripe-54.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/locks/stripe-54.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-pytest-tmp/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/native-report-CAS/test_no_reconciliation_request0/cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "files_count": 256,
+  "stored_bytes": 1012431,
+  "decoded_bytes": 4160847,
+  "unavailable_initial_native": "Original /tmp native stdout and JUnit0B after capture ENOSPC; actual native exit and complete streams unknown, ERROR/incomplete.",
+  "retained_external_archive": {
+    "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "bytes": 15148329,
+    "sha256": "529ef8c597d18d75641d50e462bd6e8f59f10e77fd9695b47dcfc0114f43a3f2"
+  }
+}

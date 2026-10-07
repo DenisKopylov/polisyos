@@ -1,0 +1,112 @@
+{
+  "schema": "e02.F.independent.transport.metadata_inspection.v1",
+  "outcome": "PASS",
+  "candidate_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+  "candidate_tree": "37e88297463ae4084c5812ba20fddfc65d373d3d",
+  "scope": "Additional frozen metadata inspection only; no verifier or scientific rerun.",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "show",
+        "cbfc2647b63b7b43e608532abb2159d3785bab42:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007.json"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 114742,
+      "stdout_sha256": "e004afa943fede1ad6b21f515156a037c8c3170a07d5c09a1b0f67fbe9d290fb",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "show",
+        "cbfc2647b63b7b43e608532abb2159d3785bab42:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1455204,
+      "stdout_sha256": "1834969a52cefc86bbc08de65206a1425dcd9b325ba02b8855fc610dc9384f48",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "show",
+        "cbfc2647b63b7b43e608532abb2159d3785bab42:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 279750,
+      "stdout_sha256": "73ce66a1284f71d6d9f873a5455cdcf1a422aaac2846c58211c4ed49a0da833b",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "show",
+        "cbfc2647b63b7b43e608532abb2159d3785bab42:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/cau/root-current35-review/transfer-selection.json"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 14194,
+      "stdout_sha256": "43062579642103b223a6e71d0589079aa6e8d99539230cef18b6d123884a2194",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-F-closeout-20261006",
+        "show",
+        "cbfc2647b63b7b43e608532abb2159d3785bab42:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/cau/ledger-recovery-review/final-review-transfer-selection.json"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 164923,
+      "stdout_sha256": "58885bdbb9bd1c366dedf1b1cce0695e4505ee3f07f6e53bbc9405a09d747ee7",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "F_finding_outcomes": {
+    "closed": 33,
+    "limited": 2
+  },
+  "F_technical_recommendations": {
+    "closed": 33,
+    "limited": 2
+  },
+  "actual_19_command_types": {
+    "argv_or_recorded_command_sequence": 11,
+    "pinned_or_prose_string": 4,
+    "bounded_UNRUN_null": 4
+  },
+  "CAU_owner_selection_adapters": [
+    {
+      "git_ref": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/cau/root-current35-review/transfer-selection.json",
+      "bytes": 14194,
+      "sha256": "43062579642103b223a6e71d0589079aa6e8d99539230cef18b6d123884a2194",
+      "declared_files_scalar_count": 38,
+      "actual_items_list_count": 38,
+      "adapter": "Read exact items list only when files is an integer equal to its length; do not coerce or alter owner selection."
+    },
+    {
+      "git_ref": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/cau/ledger-recovery-review/final-review-transfer-selection.json",
+      "bytes": 164923,
+      "sha256": "58885bdbb9bd1c366dedf1b1cce0695e4505ee3f07f6e53bbc9405a09d747ee7",
+      "declared_files_scalar_count": 563,
+      "actual_items_list_count": 563,
+      "adapter": "Read exact items list only when files is an integer equal to its length; do not coerce or alter owner selection."
+    }
+  ]
+}

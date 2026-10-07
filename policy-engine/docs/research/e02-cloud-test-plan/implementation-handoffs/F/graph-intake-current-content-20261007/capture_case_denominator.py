@@ -1,0 +1,6 @@
+import collections,json,pathlib,xml.etree.ElementTree as ET
+root=pathlib.Path('/tmp/e02-F-continuation-20261007/graph');tree=ET.parse(root/'frozen-native.xml');cases=tree.findall('.//testcase');groups=collections.defaultdict(list)
+for c in cases:groups[c.attrib['classname']].append({'name':c.attrib['name'],'time_s':c.attrib.get('time'),'failures':len(c.findall('failure')),'errors':len(c.findall('error')),'skips':len(c.findall('skipped'))})
+r={'candidate_sha':'3e6b47e88e0f25474df8cffa213a5e09e7b7affa','check':'PASS','total_cases':len(cases),'counts':{k:len(v) for k,v in groups.items()},'cases':dict(groups),'scope':'all cases from exact four-module native command; no selector omission','warning_count':1,'warning_kind':'PytestConfigWarning unknown cache_dir with disabled cacheprovider','earlier_harness_error':'first XML aggregator indexed an Element as a dict; correction only metadata aggregation; pytest XML source unchanged; original tool transcript preserved separately'}
+assert len(cases)==69 and all(not (c.findall('failure') or c.findall('error') or c.findall('skipped')) for c in cases)
+(root/'native-case-denominator.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'cases':len(cases),'groups':r['counts']},indent=2))

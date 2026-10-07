@@ -1,0 +1,6 @@
+{
+  "encoding": "lossless_utf8",
+  "text": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}\n",
+  "decoded_bytes": 112,
+  "decoded_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+}

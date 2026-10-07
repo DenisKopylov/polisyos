@@ -1,0 +1,29 @@
+id = "2026-10-06-did-diagnostic-consumer"
+title = "Recompute DiD diagnostic basis at the causal job consumer"
+type = "fixed"
+component = "scientist"
+owner = "team-policyos-scientist"
+summary = "Dedicated Standard and Staggered DiD consumers reconcile diagnostic input and result separately from scalar target identity."
+evidence = ["tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py", "docs/reference/scientist/causal-selected-consumers.md"]
+change_class = "internal-only"
+surface_classification = "internal: selected causal job report reconciliation"
+compatibility = "Dedicated method identities, targets and inference laws remain unchanged. Historical numerical reports remain readable; diagnostic claims require current-input recomputation."
+migration = "Use the canonical dedicated producer's complete diagnostic contract and result; missing or stale claims refuse at the selected reader."
+limitations = "Pretrend evidence is descriptive. It does not identify parallel trends on real data or grant evaluation authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/scientist/causal-selected-consumers.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "did-diagnostic-consumer"
+change_class = "internal-only"
+impact = "compatible"
+surface = "internal: selected causal job report reconciliation"
+owner = "team-policyos-scientist"
+version_owner = "team-policyos-scientist"
+deprecation_window = "not_applicable"
+release_note = "Diagnostic claims are reconciled against actual inputs and the complete recomputed typed result."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/scientist/causal-selected-consumers.md"]
+runbook_docs = []

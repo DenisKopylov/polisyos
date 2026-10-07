@@ -1,0 +1,22 @@
+{
+  "output": {
+    "path": "/workspace/e02-F-20261006-receipts/final-root/selector-equivalence-audit.json",
+    "sha256": "4df85b238a606271bd6caca21e6a169902b2efb5478f28ee7edcb1724ff8ba28",
+    "bytes": 1834986
+  },
+  "bundles": 17,
+  "test_file_bindings": 205,
+  "recorded_checks": 158,
+  "equivalent_properties": 10,
+  "denominator": {
+    "expected_bundles": 17,
+    "finding_unique": 35,
+    "original_source_card_blocks": 36,
+    "blocks_unique": 35,
+    "declared_manifest_selectors": 17,
+    "present_candidate_selectors": 14,
+    "missing_proposed_candidate_selectors": 3,
+    "declared_path_recorded_PASS": 13,
+    "declared_path_recorded_UNRUN": 4
+  }
+}

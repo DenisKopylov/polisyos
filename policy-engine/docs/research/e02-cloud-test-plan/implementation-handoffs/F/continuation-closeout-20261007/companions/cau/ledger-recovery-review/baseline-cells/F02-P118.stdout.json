@@ -1,0 +1,135 @@
+{
+  "grade": "source_reported_compact_text_only; candidate_routes",
+  "matching_cells": 1,
+  "displayed_cells": 1,
+  "states": {
+    "PASS": 1
+  },
+  "cells": [
+    {
+      "id": "F02-P118",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.85",
+      "rss_kib": "480020",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "246",
+      "extra_json": "{}"
+    }
+  ],
+  "finding_routes": [
+    {
+      "finding_id": "B221",
+      "unit": "F",
+      "cell_id": "F02-P118",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B221"
+    },
+    {
+      "finding_id": "B222",
+      "unit": "F",
+      "cell_id": "F02-P118",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B222"
+    }
+  ],
+  "finding_basis": [
+    {
+      "finding_id": "B221",
+      "bundle_ids": [
+        "SCM-01"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#scm-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B221",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B221",
+      "assigned_routes": [
+        {
+          "job": "F02",
+          "ref": "research_main",
+          "cell_ids": [
+            "F02-P118"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P110"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P137"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B222",
+      "bundle_ids": [
+        "SCM-01"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#scm-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B222",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B222",
+      "assigned_routes": [
+        {
+          "job": "F02",
+          "ref": "research_main",
+          "cell_ids": [
+            "F02-P118"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P110"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P137"
+          ]
+        }
+      ]
+    }
+  ],
+  "unrouted_findings": [],
+  "matching_source_blocks": 0,
+  "source_blocks": [],
+  "referenced_messages": [],
+  "available_job_context_blocks": 1,
+  "job_dictionary_or_context_blocks": [],
+  "matching_route_cells": 1,
+  "raw_archives_received": 0,
+  "limitations": "Locators are structured source blocks, not a normalized event census. PASS does not establish semantic adequacy or finding closure."
+}

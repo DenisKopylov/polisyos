@@ -1,0 +1,31 @@
+{
+  "name": "native-retry",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "argv": [
+    "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-env/bin/python",
+    "-I",
+    "/dev/shm/e02-F-profile-consistency-installed/launch_affected_installed.py",
+    "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/installed-config.json",
+    "native"
+  ],
+  "cwd": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-consumer",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9476"
+  },
+  "PYTHONPATH": "absent",
+  "exit_code": 0,
+  "seconds": 15.910061900998699,
+  "maxrss_kib": 1266032,
+  "stdout": {
+    "path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-retry.stdout.txt",
+    "bytes": 7448,
+    "sha256": "b31b333c53cb140273acb79b515bbd1ed9f5fee79014b56aad47da50bf8dbb01"
+  },
+  "stderr": {
+    "path": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/native-retry.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

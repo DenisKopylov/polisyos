@@ -1,0 +1,35 @@
+{
+  "candidate_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+  "candidate_tree": "9898e7ae4b7ec3a403b9a2e91cbcc7dcc475537c",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-first-wave/b37-oracle.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine",
+  "environment": {
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/src",
+    "numeric_threads": 1
+  },
+  "input_closure": "Retained standalone prior G discriminator; isolated exact candidate, real FileBudgetLedger/BudgetMiddleware and temporary filesystem only. No production data.",
+  "process_exit": 0,
+  "wall_seconds": 0.22123095794813707,
+  "property_verdict": "PASS",
+  "unsupported_version_observation": {
+    "probe": "unsupported_schema_version",
+    "load_accepted": false,
+    "error_type": "ValueError",
+    "bytes_rewritten": false
+  },
+  "source_sha256_before_after": {
+    "src/polisyos/scientist/orchestration/engine/budget_ledger.py": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+    "src/polisyos/scientist/orchestration/engine/budget_middleware.py": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+  },
+  "script_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-first-wave/b37-oracle.py@0905081be26d115848d4f322aa9098210b5fc701",
+  "script_sha256": "a551a1b2d79051b64b59db5ccddcb50e03dd1b4eb5b40613298dabb6a7fcd057",
+  "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/b37-repaired.stdout.txt",
+  "stdout_sha256": "a12f4bc561434d531e4cd47f3b73899f4599f2c5d48fababaa7ae7eafa83ffd4",
+  "complete_stdout_bytes": 725,
+  "finding_closure": false,
+  "limitation": "Resolves previous unknown-version/contract refusal only; no whole B37/durable settlement closure or merged D/B consumer proof."
+}

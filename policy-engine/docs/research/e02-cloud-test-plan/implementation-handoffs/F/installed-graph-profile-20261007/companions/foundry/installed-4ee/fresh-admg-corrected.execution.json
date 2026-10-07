@@ -1,0 +1,28 @@
+{
+  "name": "fresh-admg-corrected",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "argv": [
+    "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py"
+  ],
+  "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9466"
+  },
+  "PYTHONPATH": "absent",
+  "exit_code": 0,
+  "seconds": 12.717963652976323,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg-corrected.stdout.txt",
+    "bytes": 903,
+    "sha256": "f053792917546d621e359bd8a4f9f82206184bcba8015ea45c8ba82f305cdfaf"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg-corrected.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

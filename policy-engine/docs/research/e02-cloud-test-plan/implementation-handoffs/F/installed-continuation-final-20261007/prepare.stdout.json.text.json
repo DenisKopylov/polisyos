@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 201,
+  "decoded_sha256": "4ba0829b596c31fdc8f11e36d1d27778fc232750adfdeb0379622314a04b76a5",
+  "text": "{\"outcome\": \"PASS\", \"source_sha\": \"b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a\", \"archive_bytes\": 153663487, \"source_files\": 17843, \"carrier_files\": 41, \"selectors\": 8, \"expected_cases_per_profile\": 162}\n"
+}

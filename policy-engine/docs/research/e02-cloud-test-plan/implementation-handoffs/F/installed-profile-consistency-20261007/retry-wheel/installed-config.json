@@ -1,0 +1,23 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "git_root": "/workspace/e02-F-closeout-20261006",
+  "source_root": "/workspace/e02-F-closeout-20261006",
+  "scratch": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel",
+  "site": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-env/lib/python3.14/site-packages",
+  "python": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-env/bin/python",
+  "wheel": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/dist/policy_engine-0.1.0-py3-none-any.whl",
+  "dependency_site": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+  "carrier": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-consumer",
+  "carrier_manifest": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/carrier-manifest.json",
+  "metrics_port": "9476",
+  "selectors": [
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_retagged_mgraph_refuses_all_current_intakes_without_publication",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_retagged_known_profile",
+    "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader",
+    "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_no_reconciliation_request_does_not_invent_limitation"
+  ],
+  "removal_selector": "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_retagged_mgraph_refuses_all_current_intakes_without_publication[dict]"
+}

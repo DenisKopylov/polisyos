@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py", line 41, in <module>
+    row=next(r for r in json.loads(Path(CONFIG['carrier_manifest']).read_text())['files'] if r['path']==relative)
+StopIteration

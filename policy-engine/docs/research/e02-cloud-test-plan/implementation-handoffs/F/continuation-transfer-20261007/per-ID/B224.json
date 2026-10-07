@@ -1,0 +1,210 @@
+{
+  "finding_id": "B224",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B224",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-03",
+    "source_bundle_ids": "SCM-03",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "SCM-03",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Активный query-plan и сохранённый stochastic law"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B224",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5445,
+        5458
+      ],
+      "bytes": 3959,
+      "sha256": "854f9eab140c71438e188c91ef3d9792895b0402ab22c5866de3584683596ca1",
+      "title": "## B224. Идеальное do сначала выполняет заменяемый механизм; нерелевантные узлы расходуют работу и память",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B224. Идеальное do сначала выполняет заменяемый механизм; нерелевантные узлы расходуют работу и память\n\n**Происхождение и приоритет:** C21-09. Высокий для проходимости atomic-запроса; оптимизация после проверки графового смысла. Основание: `_simulate_samples` и контраст с twin-path. [C21.R05, C21.R07]\n\n**Проблема.** В каждом прогоне сначала собираются родители и вычисляется естественное значение узла; затем для treatment применяется intervention. Даже идеальное do, полностью заменяющее механизм, поэтому зависит от исправности и стоимости старого механизма. Кроме того, цикл проходит весь граф и сохраняет массивы всех вершин, хотя обычному запросу часто нужен только заданный исход.\n\n**EXEC01–EXEC03.** При do(X=2), Y=1+3X и некорректном старом intercept X sampler поднимает ValueError до применения действия. Вычисление Y с уже заданным X правильно даёт 7. Для X,Y и двадцати независимых посторонних корней на десяти реализациях выполняется 220 вызовов node-sampler и сохраняется 220 значений. Для известного ограниченного запроса достаточно десяти вычислений Y; результат тот же 7. Это число вызовов и удерживаемых значений, не измеренное ускорение большого приложения.\n\n**Исправление.** На основе правильной graph-surgery заранее подготовить активный план конкретного запроса. Для perfect intervention подставлять действие до вызова заменённого механизма. Обрабатывать необходимые предковые зависимости и фактические условия, сохранять full-trace только при действительной потребности. Кэшировать план по неизменяемому графу и семантике запроса, а не по имени outcome без контекста.\n\nОбычный сдвиг требует естественного значения: контроль current5+shift2 даёт7. Поэтому перенос treatment-ветви должен учитывать тип операции. Для counterfactual нельзя отсечь нужных предков factual-evidence, а для зависимых U — скрытые общие причины. Уплотнение плана не должно менять поток случайности незаметно: полезны логические под-потоки по узлу и реплике.\n\n**Положительная граница.** Twin-loop уже не вызывает естественный механизм treatment при явном действии, то есть соседний подход существует. Единичная ошибка старого механизма в опыте допустима в generic fixture; проверка более строгого producer может предотвратить её раньше. Она всё равно показывает ненужную зависимость perfect do от заменяемого вычисления.\n\n",
+  "primary_acceptance_scope": "Perfect surgery precedes natural evaluation; active-ancestor/factual/shared-noise pruning preserves logical RNG and full-trace option, shift still needs natural mechanism.",
+  "source_chain": {
+    "producer": "GCMQuery intervention planner/sampler",
+    "artifact": "typed stochastic outcome/query result",
+    "bridge": "method output/CAS/ref reconciliation",
+    "consumer": "fresh reader and declared static-law consumers"
+  },
+  "actual_recorded_consumer": "GCMQuery surgical planning/sampler → CAS result reader",
+  "surface": "Declared SCM model/query/result DTOs, GCM/Twin method outputs and generated canonical CAS/fresh-reader consumer seam",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B224"
+      ]
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B224"
+      ],
+      "json_pointer": "/per_id/9"
+    },
+    {
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+      "bytes": 131648,
+      "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+      "git_blob": "0b1ef4b091d7898a7b37c52cb6c38b6aa7d66861",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B224"
+      ],
+      "json_pointer": "/per_id/B224"
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B224.json",
+    "bytes": 31695,
+    "sha256": "a5a3e4f1e4c5b76ed2899db4509396620c65f54371bb983363e4b964f03d0aaf",
+    "git_blob": "b03a08a114e8f87d89e68382b52933104ada006a"
+  },
+  "scientific_implementation": {
+    "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots",
+  "complete_raw_receipt_checks_refs": [
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/0",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/1",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/2",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/3",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/4",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/5",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/6",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/7",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/8",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/9",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/10",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/11",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/12",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/13",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/14",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/15",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/16",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/17",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/18",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/19",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/20",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/21",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/22",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/23",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/24",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/25",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/26",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/27",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/28",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/29",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/30",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/31",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/32",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/33",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/34",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/35",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/36",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/0",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/1",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/2",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/3",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/4",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/5",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/6",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/7",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/8",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/9",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/10",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/11",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/12",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/13",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/14",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/15",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/16",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/17",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/18",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/19",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/20",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/21",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/22",
+    "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json#/checks/23"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "Static declared law/planning only.",
+    "actual_consumer": "GCMQuery surgical planning/sampler → CAS result reader",
+    "oracle_and_negative": "Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots",
+    "separate_unavailable_inputs_or_authority": "Temporal mismatch refuses; no unsupported law authority."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Temporal mismatch refuses; no unsupported law authority.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "SCM-03",
+  "criterion_short": "Perfect surgery precedes natural evaluation; active-ancestor/factual/shared-noise pruning preserves logical RNG and full-trace option, shift still needs natural mechanism.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "code_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "consumer": "GCMQuery surgical planning/sampler → CAS result reader",
+  "oracle_and_negative": "Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

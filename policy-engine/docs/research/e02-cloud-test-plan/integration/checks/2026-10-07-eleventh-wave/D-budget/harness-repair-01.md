@@ -1,0 +1,7 @@
+# Harness input repair 01
+
+The exact-680 local test attempt collected 10 cases; four passed and six errored along the same fresh restore/resume path when `dependency_authority.py` loaded `policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml`. The JUnit reports six errors as failures because the path is missing; none is an assertion failure. The first attempt’s complete stdout, stderr, JUnit, and origin inventory are retained and hash-bound in `harness-repair-01.json`.
+
+I added only this tracked configuration file to the isolated closure, read from exact candidate `68070854bddba2593efaef59a107a3cbe3b08d4d`: mode `100644`, Git blob `caf4fa98a0669f6d81bd8b5db0014cb015b9492f`, SHA-256 `186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b`, 38632 bytes. The original candidate source and tests are unchanged. The repaired closure has 2926 tracked files and is recorded at `source-manifest-repaired.json`. This is a harness input-closure correction, not a product fix. One rerun of the same single test file is authorized.
+
+A source-hash preflight caught the first staging attempt at the wrong archive-relative location before rerunning tests. That copy was preserved under `results/repair-01-misplaced-config-copy.toml`; the exact Git blob was placed at the correct candidate product path. No test ran against the misplaced file. The repaired 2,926-file manifest now passes its source check.

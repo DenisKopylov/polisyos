@@ -1,0 +1,34 @@
+usage: refresh_selection.py [-h] --seed-selection SEED_SELECTION
+                            --prior-manifest PRIOR_MANIFEST
+                            --prior-staging-root PRIOR_STAGING_ROOT
+                            --repository REPOSITORY --final-source-sha
+                            FINAL_SOURCE_SHA --output OUTPUT
+                            [--refresh-directory REFRESH_DIRECTORY]
+                            [--include-directory ID=PATH]
+                            [--include-selection ID=PATH]
+                            [--include-file INCLUDE_FILE]
+                            [--existing-git-spec EXISTING_GIT_SPEC]
+                            [--resolve-pending RESOLVE_PENDING]
+                            [--publisher PUBLISHER]
+
+Refresh explicitly named final ROOT transport inputs without source/Git
+writes. Changed prior bytes remain in the immutable staged draft or immutable
+Git; their old proof scope is historical. No aliases/old Git references
+survive a byte change by inference. Explicit extra paths and actual published
+refs are the only inputs.
+
+options:
+  -h, --help            show this help message and exit
+  --seed-selection SEED_SELECTION
+  --prior-manifest PRIOR_MANIFEST
+  --prior-staging-root PRIOR_STAGING_ROOT
+  --repository REPOSITORY
+  --final-source-sha FINAL_SOURCE_SHA
+  --output OUTPUT
+  --refresh-directory REFRESH_DIRECTORY
+  --include-directory ID=PATH
+  --include-selection ID=PATH
+  --include-file INCLUDE_FILE
+  --existing-git-spec EXISTING_GIT_SPEC
+  --resolve-pending RESOLVE_PENDING
+  --publisher PUBLISHER

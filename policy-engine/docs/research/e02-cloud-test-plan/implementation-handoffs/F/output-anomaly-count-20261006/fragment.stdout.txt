@@ -1,0 +1,5 @@
+{
+  "scope": "Owned fragment only, not global compatibility policy PASS",
+  "errors": [],
+  "findings": []
+}

@@ -1,0 +1,9 @@
+import hashlib,json,os,pathlib,subprocess,time,sys
+root=pathlib.Path('/workspace/e02-F-graph-20261006'); out=pathlib.Path('/tmp/e02-F-continuation-20261007/api/graph-intake-review-647'); sha='647f5d35362c2a5d7ad32283b804a5b03ea56e83'; tree='6b699cac11fb1fe5b317ed0ccfc76940e5958906'
+def guard():
+ assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=root).decode().strip()==sha
+ assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=root).decode().strip()==tree
+ assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=root)
+ return {'head':sha,'tree':tree,'tracked_clean':True}
+name=sys.argv[1]; files=sys.argv[2:]; before=guard(); env=os.environ.copy();env['PYTHONDONTWRITEBYTECODE']='1';env['PYTHONPATH']=str(root/'policy-engine/src')+':'+str(root/'policy-engine')
+argv=['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python','-m','pytest',*files,'-q','-s','-o','addopts=','--import-mode=importlib','-p','no:cacheprovider','--basetemp='+str(out/(name+'-temp'))];start=time.monotonic(); result=subprocess.run(argv,cwd=root/'policy-engine',env=env,capture_output=True);(out/(name+'.stdout')).write_bytes(result.stdout);(out/(name+'.stderr')).write_bytes(result.stderr);after=guard();(out/(name+'.json')).write_text(json.dumps({'target_sha':sha,'tree':tree,'argv':argv,'cwd':str(root/'policy-engine'),'env':{'PYTHONPATH':env['PYTHONPATH'],'PYTHONDONTWRITEBYTECODE':'1'},'exit_code':result.returncode,'seconds':time.monotonic()-start,'stdout_sha256':hashlib.sha256(result.stdout).hexdigest(),'stderr_sha256':hashlib.sha256(result.stderr).hexdigest(),'source_guard_before':before,'source_guard_after':after},indent=2)+'\n');print(result.stdout.decode()[-2000:]);print(result.stderr.decode()[-800:]);raise SystemExit(result.returncode)

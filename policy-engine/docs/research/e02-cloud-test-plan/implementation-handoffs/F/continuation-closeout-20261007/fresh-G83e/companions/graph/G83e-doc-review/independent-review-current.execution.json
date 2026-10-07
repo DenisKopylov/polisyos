@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/review_actual_G83e.py",
+    "--outdir",
+    "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "returncode": 0,
+  "elapsed_s": 0.8805451393127441,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review-current.stdout",
+    "bytes": 595,
+    "sha256": "1b6c6dc2d624aa1509615eb2c632c37a25d45f0f05b6194a0723831539826196"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review-current.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

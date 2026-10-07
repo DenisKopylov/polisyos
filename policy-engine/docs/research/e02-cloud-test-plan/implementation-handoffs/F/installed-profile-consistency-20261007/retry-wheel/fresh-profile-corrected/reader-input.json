@@ -1,0 +1,293 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "cas_root": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/fresh-profile-corrected/synthetic-context/cas",
+  "parent_pid": 1017218,
+  "source_input_ref": {
+    "artifact_id": "sha256:dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad",
+    "kind": "tests.synthetic.graph_reconciliation_input",
+    "media_type": "application/json"
+  },
+  "method_result_ref": {
+    "artifact_id": "sha256:031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8",
+    "kind": "scientist.method_result.causal.prior",
+    "media_type": "application/json"
+  },
+  "selected_graph_ref": {
+    "artifact_id": "sha256:bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc",
+    "kind": "ir.causal_graph_model",
+    "media_type": "application/json"
+  },
+  "expected_model": {
+    "schema_version": "1.0",
+    "graph_type": "admg",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      {
+        "src": "X",
+        "dst": "Y",
+        "mark_src": "arrow",
+        "mark_dst": "arrow",
+        "lag": null,
+        "sources": [
+          "data"
+        ],
+        "data_confidence": 0.9,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "expert_confidence": null,
+        "simulation_confidence": null,
+        "combined_confidence": 0.9,
+        "unsupported_by_evidence": false,
+        "evidence_refs": [],
+        "p_value": null,
+        "metadata": {}
+      },
+      {
+        "src": "Y",
+        "dst": "X",
+        "mark_src": "tail",
+        "mark_dst": "arrow",
+        "lag": null,
+        "sources": [
+          "data"
+        ],
+        "data_confidence": 0.9,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "expert_confidence": null,
+        "simulation_confidence": null,
+        "combined_confidence": 0.9,
+        "unsupported_by_evidence": false,
+        "evidence_refs": [],
+        "p_value": null,
+        "metadata": {}
+      }
+    ],
+    "discovery_method": "reconciled_prior_graph",
+    "skg_version_id": null,
+    "pag_identification_policy": "conservative",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "llm_prior_constants": {
+        "LLM_OVERLAP_DISCOUNT": 0.5,
+        "LLM_PRIOR_CEILING": 0.3,
+        "LLM_REPLICATION_BONUS": 0.05
+      },
+      "needs_expert_review": true,
+      "reconciliation_diagnostics": {
+        "curl_norm": 0.0,
+        "cyclic_inconsistency_norm": 0.0,
+        "d0_shape": [
+          2,
+          2
+        ],
+        "d1_shape": [
+          0,
+          2
+        ],
+        "delta0_shape": [
+          2,
+          2
+        ],
+        "delta1_shape": [
+          2,
+          0
+        ],
+        "diagnostics_truncated": false,
+        "gradient_norm": 9.064933036736787e-17,
+        "harmonic_norm": 0.8999999999999999,
+        "irreducible_conflict_norm": 0.8999999999999999,
+        "n_components": 1,
+        "n_edges": 2,
+        "n_sources": 1,
+        "n_triangles": 0,
+        "operators": {
+          "D0": [
+            [
+              -1.0,
+              1.0
+            ],
+            [
+              1.0,
+              -1.0
+            ]
+          ],
+          "D1": [],
+          "delta^0": [
+            [
+              -1.0,
+              1.0
+            ],
+            [
+              1.0,
+              -1.0
+            ]
+          ],
+          "delta^1": []
+        },
+        "truncation_reason": null
+      },
+      "reconciliation_input_sha256": "92be0aebea9e280121ca79c431a288d739398a0a0631aab7f72031d88b91cf99",
+      "reconciliation_warnings": []
+    }
+  },
+  "original_mgraph_ref": {
+    "artifact_id": "sha256:669de58bfbbe7dc08e6a3c22ae10c30da95b905c451bbb77859b26593739851f",
+    "kind": "ir.causal_graph_model",
+    "media_type": "application/json"
+  },
+  "original_mgraph_model": {
+    "schema_version": "1.0",
+    "graph_type": "mgraph",
+    "nodes": [
+      "X",
+      "Y",
+      "R_X",
+      "X_star"
+    ],
+    "edges": [
+      {
+        "src": "X",
+        "dst": "Y",
+        "mark_src": "tail",
+        "mark_dst": "arrow",
+        "lag": null,
+        "sources": [
+          "data"
+        ],
+        "data_confidence": 0.9,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "expert_confidence": null,
+        "simulation_confidence": null,
+        "combined_confidence": 0.9,
+        "unsupported_by_evidence": false,
+        "evidence_refs": [],
+        "p_value": null,
+        "metadata": {}
+      },
+      {
+        "src": "X",
+        "dst": "Y",
+        "mark_src": "arrow",
+        "mark_dst": "arrow",
+        "lag": null,
+        "sources": [
+          "data"
+        ],
+        "data_confidence": 0.9,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "expert_confidence": null,
+        "simulation_confidence": null,
+        "combined_confidence": 0.9,
+        "unsupported_by_evidence": false,
+        "evidence_refs": [],
+        "p_value": null,
+        "metadata": {}
+      },
+      {
+        "src": "R_X",
+        "dst": "X_star",
+        "mark_src": "tail",
+        "mark_dst": "arrow",
+        "lag": null,
+        "sources": [
+          "data"
+        ],
+        "data_confidence": 0.9,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "expert_confidence": null,
+        "simulation_confidence": null,
+        "combined_confidence": 0.9,
+        "unsupported_by_evidence": false,
+        "evidence_refs": [],
+        "p_value": null,
+        "metadata": {}
+      }
+    ],
+    "discovery_method": "native-probe-mgraph",
+    "skg_version_id": null,
+    "pag_identification_policy": "conservative",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "mgraph": {
+        "schema_version": "1.0",
+        "r_nodes": [
+          {
+            "target_variable": "X",
+            "missingness_kind": "mcar",
+            "description": ""
+          }
+        ],
+        "proxy_nodes": [
+          {
+            "target_variable": "X",
+            "proxy_name": "X_star"
+          }
+        ],
+        "substantive_vars": [
+          "X",
+          "Y"
+        ],
+        "fully_observed_vars": [
+          "Y"
+        ]
+      }
+    }
+  },
+  "original_mgraph_metadata": {
+    "schema_version": "1.0",
+    "r_nodes": [
+      {
+        "target_variable": "X",
+        "missingness_kind": "mcar",
+        "description": ""
+      }
+    ],
+    "proxy_nodes": [
+      {
+        "target_variable": "X",
+        "proxy_name": "X_star"
+      }
+    ],
+    "substantive_vars": [
+      "X",
+      "Y"
+    ],
+    "fully_observed_vars": [
+      "Y"
+    ]
+  },
+  "retagged_rejection": {
+    "job_issues": [
+      {
+        "loc": [
+          "method_runner"
+        ],
+        "message": "Unsupported graph reconciliation profile: graph_type=admg contradicts reserved MGraph metadata; requires static DAG/ADMG without a supplied MGraph contract",
+        "error_type": "runtime",
+        "input_value": null,
+        "path": null,
+        "code": null,
+        "expected": null,
+        "actual": null,
+        "severity": null
+      }
+    ],
+    "method_result_ref": null,
+    "node_status": "fail",
+    "node_artifacts": [],
+    "has_reconciled_ref": false,
+    "node_error": {
+      "code": "foundry.execute_failed",
+      "message": "reconcile_causal_graph execution failed: Unsupported graph reconciliation profile: graph_type=admg contradicts reserved MGraph metadata; requires static DAG/ADMG without a supplied MGraph contract",
+      "details": {}
+    }
+  }
+}

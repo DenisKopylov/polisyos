@@ -1,0 +1,137 @@
+{
+  "finding_id": "LA-002",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "LA-002",
+    "unit": "F",
+    "docx_analytical_package": "P36",
+    "source_closure_owner": "FRY-01",
+    "source_bundle_ids": "FRY-01",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "FRY-01",
+    "unit": "F",
+    "initial_writer_family": "F-W05",
+    "title": "Foundry compile/catalog: randomization, families и прямой IR layout"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "LA-002",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        109,
+        135
+      ],
+      "bytes": 2982,
+      "sha256": "3acebb36bff2fda1f1ec71e0afc3f42f8aa1b2c160bc41ab564f03004893a336",
+      "title": "## LA-002. Design: каталог семейств рядом с исполняемыми механизмами",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## LA-002. Design: каталог семейств рядом с исполняемыми механизмами\n\n**Перемещение по смысловой роли**\n\n**Статус.** Разнородность ролей подтверждена.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/design.py`\n\n**Что установлено и почему это legacy-кандидат.** В одном namespace с state-transition kernels находятся четыре декларации семейств, параметры, assumptions и solver hints. Сами certify_* уже импортируются из IR. Следовательно, здесь не отдельный полноценный solver, а предметный каталог плюс промежуточный путь доступа к сертификатам.\n\n**Что сохранить.** Идентификаторы четырёх семейств, их параметризацию, предпосылки, catalog view и существующие certificate implementations. get_mechanism_family_spec используется IC-service.\n\n**Куда перенести / с чем объединить.** Предлагаемый src/polisyos/foundry/methods/catalog/mechanism/families.py; родительский каталог существует. Для сертификатов сохранить нынешнего владельца polisyos.ir.analytics.mechanism_design: их копирование в Foundry не является частью этого переноса.\n\n**Порядок миграции.** Свести семейства и методовые descriptors в связанное представление, но не склеивать их идентичности: спецификация семейства не обязательно исполняемый метод. Переключить IC-service, tests и публичные reexports; оставить узкий alias при необходимости.\n\n**Приёмочная проверка.** Сверить catalog IDs, все assumptions и параметры, поведение неизвестного ID; проверить загрузку зарегистрированных runtime-методов и вызовы сертификатов. Факт присутствия в каталоге не должен превращаться в доказательство IC.\n\n**Приоритет.** Высокая семантическая отдача при небольшом объёме.\n\n**Граница вывода.** Наличие четырёх деклараций не доказывает, что они исчерпывают будущие семейства. Не следует считать этот файл дубликатом всех методов каталога.\n\n**Основания:** E03, E40, E06.\n\n<!-- PAGEBREAK -->\n",
+  "primary_acceptance_scope": "Preserve four catalog family IDs/params/assumptions and IC-service lookup/unknown ID, actual registered runtime loading and existing IR certificates; family declarations are not new solver claims.",
+  "source_chain": {
+    "producer": "compile randomization/IR slot builders/catalog family owner",
+    "artifact": "TreasuryPlan/SlotLayout/IR certificate refs",
+    "bridge": "compile.api.compile → compile_trinity / ICVerificationRequest → CAS",
+    "consumer": "execute.api.execute → execute_program_graph → adaptive_agent / fresh IR reader"
+  },
+  "actual_recorded_consumer": "Catalog → real ICVerificationRequest → IR certificate CAS/fresh reader; actual native runtime descriptor",
+  "surface": "Four family catalog descriptors, IC-service lookup/runtime method registration and canonical IR certificate calls",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+      "bytes": 77903,
+      "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+      "git_blob": "12937d746fc2a65adfb6022e24ec00f61083f492",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-002"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-002.json",
+    "bytes": 16977,
+    "sha256": "f64ff86d0572750e34301dd3f7f274e9f86751c9e826b992c8857ea1e409099e",
+    "git_blob": "de98f62afdc8dd60ebfe9ff5daf40cbbdfd2cd45"
+  },
+  "scientific_implementation": {
+    "sha": "63425f734946979cfc990e9cb91b00163f051898",
+    "tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "All4 concretepositive certificates + wrong-payment negative; family-owner/catalog-as-IC removals FAIL; actual native income_tax",
+  "complete_raw_receipt_checks_refs": [
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/0",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/1",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/2",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/3",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/4",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/5",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/6",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/7",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/8",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/9",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/10",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/11",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/12",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/13"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None in original supported finite catalog/IC/native IR/direct caller/docs/install migration; optional new family state kernels and full compatibility retirement are not original acceptance prerequisites.",
+    "actual_consumer": "Catalog → real ICVerificationRequest → IR certificate CAS/fresh reader; actual native runtime descriptor",
+    "oracle_and_negative": "All4 concretepositive certificates + wrong-payment negative; family-owner/catalog-as-IC removals FAIL; actual native income_tax",
+    "separate_unavailable_inputs_or_authority": "Four new optional family execution mappings and real-world IC are outside criterion."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Actual catalog lookup/registered runtime loading/certificate calls are required; implementing all optional family kernels or real-world IC is not.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Four new optional family execution mappings and real-world IC are outside criterion.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "FRY-01",
+  "criterion_short": "Preserve four catalog family IDs/params/assumptions and IC-service lookup/unknown ID, actual registered runtime loading and existing IR certificates; family declarations are not new solver claims.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Actual catalog lookup/registered runtime loading/certificate calls are required; implementing all optional family kernels or real-world IC is not.",
+  "code_sha": "63425f734946979cfc990e9cb91b00163f051898",
+  "code_tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+  "consumer": "Catalog → real ICVerificationRequest → IR certificate CAS/fresh reader; actual native runtime descriptor",
+  "oracle_and_negative": "All4 concretepositive certificates + wrong-payment negative; family-owner/catalog-as-IC removals FAIL; actual native income_tax",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

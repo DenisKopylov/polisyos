@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py", line 205, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py", line 118, in main
+    if not isinstance(row['codec'],str) or row['codec'] not in codecs:raise ValueError('unknown declared selection codec')
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: unknown declared selection codec

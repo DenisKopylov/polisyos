@@ -309,8 +309,8 @@ def test_twin_to_uncertainty_envelope() -> None:
     # CI matches
     assert envelope.confidence_interval[0] == pytest.approx(result.ite_ci[0], abs=1e-9)
     assert envelope.confidence_interval[1] == pytest.approx(result.ite_ci[1], abs=1e-9)
-    assert envelope.confidence_level == pytest.approx(0.95, abs=1e-9)
-    assert envelope.gate_eligible is True
+    assert envelope.confidence_level is None
+    assert envelope.gate_eligible is False
 
 
 # ── Test 8: registration ──────────────────────────────────────────────────────

@@ -1,0 +1,293 @@
+{
+  "actual_pytest_child_identity_from_captured_test_stdout": {
+    "interpretation": "The pytest stdout directly records Python 3.14.3, pytest 9.0.2, and Hypothesis plugin 6.151.2 for the executed test process.",
+    "lines": [
+      "platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0"
+    ],
+    "stdout_sha256": "d65802914dfe996043dfd6feda396892b19cd631d5ca277ea105bd9fe3bb54ea"
+  },
+  "ambient_driver_vs_venv_metadata_differences": {
+    "hypothesis": {
+      "postrun_venv_metadata": "6.151.2",
+      "run_before_ambient_metadata": "6.151.9"
+    },
+    "opentelemetry-api": {
+      "postrun_venv_metadata": "1.39.1",
+      "run_before_ambient_metadata": "1.40.0"
+    },
+    "opentelemetry-sdk": {
+      "postrun_venv_metadata": "1.39.1",
+      "run_before_ambient_metadata": "1.40.0"
+    },
+    "ruff": {
+      "postrun_venv_metadata": "0.14.10",
+      "run_before_ambient_metadata": "0.15.0"
+    }
+  },
+  "candidate_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+  "candidate_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+  "no_pytest_rerun": true,
+  "original_1434_polisyos_origins_checked_against_git_content": {
+    "all_file_origins_map_to_exact_candidate_git_input_and_sha256": true,
+    "all_manifest_inputs_unchanged_after": true,
+    "all_manifest_source_inputs_unchanged_before": true,
+    "file_origin_rows": 1434,
+    "git_manifest_input_count": 2925,
+    "mismatches": [],
+    "origin_git_join_sha256": "6f205e476e031b9e90fd65cbc7ded479915502d378b3ab2734a4b4993625a491",
+    "origin_rows_with_exact_git_path_and_sha256": 1434,
+    "unique_candidate_source_files": 1434
+  },
+  "probe1_reporting_script_error": {
+    "cause": "The first profile probe used the wrong schema key for the already-generated before-input hash rows and stopped with KeyError before emitting a report.",
+    "classification": "profile-audit script error; no tests were run",
+    "preserved_command": "runtime-profile-clarification-probe1.command.json",
+    "preserved_probe_source": "runtime-profile-clarification-probe1.py",
+    "preserved_stderr": "runtime-profile-clarification-probe1.stderr.txt",
+    "preserved_stdout": "runtime-profile-clarification-probe1.stdout.txt"
+  },
+  "run_before_file_was_not_modified": true,
+  "run_before_record_role_correction": {
+    "ambient_driver_postrun_observation_receipt": "runtime-profile-clarification-driver.command.json",
+    "ambient_driver_postrun_raw_output": "runtime-profile-clarification-driver.stdout.txt",
+    "ambient_driver_profile": {
+      "executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "observation_kind": "post-run ambient-driver profile; no tests are run and this does not claim to recreate an earlier process in time",
+      "observed_at_utc": "2026-10-06T18:51:45.158196+00:00",
+      "packages": {
+        "cryptography": {
+          "metadata_version": "46.0.4",
+          "module": "cryptography",
+          "module_search_locations": [
+            "/Users/deniskopylov/Library/Python/3.14/lib/python/site-packages/cryptography"
+          ],
+          "module_spec_origin": "/Users/deniskopylov/Library/Python/3.14/lib/python/site-packages/cryptography/__init__.py"
+        },
+        "hypothesis": {
+          "metadata_version": "6.151.9",
+          "module": "hypothesis",
+          "module_search_locations": [
+            "/opt/homebrew/lib/python3.14/site-packages/hypothesis"
+          ],
+          "module_spec_origin": "/opt/homebrew/lib/python3.14/site-packages/hypothesis/__init__.py"
+        },
+        "loguru": {
+          "metadata_version": "0.7.3",
+          "module": "loguru",
+          "module_search_locations": [
+            "/Users/deniskopylov/Library/Python/3.14/lib/python/site-packages/loguru"
+          ],
+          "module_spec_origin": "/Users/deniskopylov/Library/Python/3.14/lib/python/site-packages/loguru/__init__.py"
+        },
+        "mypy": {
+          "metadata_version": "1.19.1",
+          "module": "mypy",
+          "module_search_locations": [
+            "/opt/homebrew/lib/python3.14/site-packages/mypy"
+          ],
+          "module_spec_origin": "/opt/homebrew/lib/python3.14/site-packages/mypy/__init__.cpython-314-darwin.so"
+        },
+        "numpy": {
+          "metadata_version": "2.3.5",
+          "module": "numpy",
+          "module_search_locations": [
+            "/opt/homebrew/lib/python3.14/site-packages/numpy"
+          ],
+          "module_spec_origin": "/opt/homebrew/lib/python3.14/site-packages/numpy/__init__.py"
+        },
+        "opentelemetry-api": {
+          "metadata_version": "1.40.0",
+          "module": "opentelemetry",
+          "module_search_locations": [
+            "/Users/deniskopylov/Library/Python/3.14/lib/python/site-packages/opentelemetry",
+            "/opt/homebrew/lib/python3.14/site-packages/opentelemetry"
+          ],
+          "module_spec_origin": null
+        },
+        "opentelemetry-sdk": {
+          "metadata_version": "1.40.0",
+          "module": "opentelemetry.sdk",
+          "module_search_locations": [
+            "/opt/homebrew/lib/python3.14/site-packages/opentelemetry/sdk"
+          ],
+          "module_spec_origin": null
+        },
+        "pydantic": {
+          "metadata_version": "2.12.5",
+          "module": "pydantic",
+          "module_search_locations": [
+            "/opt/homebrew/lib/python3.14/site-packages/pydantic"
+          ],
+          "module_spec_origin": "/opt/homebrew/lib/python3.14/site-packages/pydantic/__init__.py"
+        },
+        "pytest": {
+          "metadata_version": "9.0.2",
+          "module": "pytest",
+          "module_search_locations": [
+            "/opt/homebrew/lib/python3.14/site-packages/pytest"
+          ],
+          "module_spec_origin": "/opt/homebrew/lib/python3.14/site-packages/pytest/__init__.py"
+        },
+        "pytest-benchmark": {
+          "metadata_version": "5.2.3",
+          "module": "pytest_benchmark",
+          "module_search_locations": [
+            "/opt/homebrew/lib/python3.14/site-packages/pytest_benchmark"
+          ],
+          "module_spec_origin": "/opt/homebrew/lib/python3.14/site-packages/pytest_benchmark/__init__.py"
+        },
+        "ruff": {
+          "metadata_version": "0.15.0",
+          "module": "ruff",
+          "module_search_locations": [
+            "/Users/deniskopylov/Library/Python/3.14/lib/python/site-packages/ruff"
+          ],
+          "module_spec_origin": "/Users/deniskopylov/Library/Python/3.14/lib/python/site-packages/ruff/__init__.py"
+        }
+      },
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+      "which_python3": "/opt/homebrew/bin/python3"
+    },
+    "invocation_used_for_run_driver": "python3 policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/runtime/run_check_attempt2.py from GROOT",
+    "run_before_executable_field": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "run_before_packages_field": "ambient driver importlib.metadata, not the pytest child distributions",
+    "run_before_python_field": "ambient driver sys.version, not the pytest child version",
+    "temporal_limit": "The post-run ambient-driver profile corroborates the same python3 command resolution and package metadata now; the original driver executable path was not separately serialized by run-before, so this is not described as a time-travel measurement."
+  },
+  "run_before_sha256_unchanged": "bd8080a830591ee9ab159fa4cd650d6dfbc390ee84a40b89deebf817b8711d3a",
+  "same_venv_postrun_no_tests_observation": {
+    "candidate_store_module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/checkout-attempt2/policy-engine/src/polisyos/core/artifacts/store.py",
+    "candidate_store_under_expected_src": true,
+    "command_receipt": "runtime-profile-clarification.command.json",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "kind": "post-run runtime profile query using the same .venv/bin/python; no tests were invoked and this does not claim to recreate the earlier process in time",
+    "packages": {
+      "cryptography": {
+        "import_error": null,
+        "metadata_version": "46.0.4",
+        "module": "cryptography",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/cryptography/__init__.py",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/cryptography"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/cryptography/__init__.py",
+        "module_version": "46.0.4"
+      },
+      "hypothesis": {
+        "import_error": null,
+        "metadata_version": "6.151.2",
+        "module": "hypothesis",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hypothesis/__init__.py",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hypothesis"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hypothesis/__init__.py",
+        "module_version": "6.151.2"
+      },
+      "loguru": {
+        "import_error": null,
+        "metadata_version": "0.7.3",
+        "module": "loguru",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/loguru/__init__.py",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/loguru"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/loguru/__init__.py",
+        "module_version": "0.7.3"
+      },
+      "mypy": {
+        "import_error": null,
+        "metadata_version": "1.19.1",
+        "module": "mypy",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy/__init__.cpython-314-darwin.so",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy/__init__.cpython-314-darwin.so",
+        "module_version": null
+      },
+      "numpy": {
+        "import_error": null,
+        "metadata_version": "2.3.5",
+        "module": "numpy",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+        "module_version": "2.3.5"
+      },
+      "opentelemetry-api": {
+        "import_error": null,
+        "metadata_version": "1.39.1",
+        "module": "opentelemetry",
+        "module_file": null,
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry"
+        ],
+        "module_spec_origin": null,
+        "module_version": null
+      },
+      "opentelemetry-sdk": {
+        "import_error": null,
+        "metadata_version": "1.39.1",
+        "module": "opentelemetry.sdk",
+        "module_file": null,
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry/sdk"
+        ],
+        "module_spec_origin": null,
+        "module_version": null
+      },
+      "pydantic": {
+        "import_error": null,
+        "metadata_version": "2.12.5",
+        "module": "pydantic",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+        "module_version": "2.12.5"
+      },
+      "pytest": {
+        "import_error": null,
+        "metadata_version": "9.0.2",
+        "module": "pytest",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+        "module_version": "9.0.2"
+      },
+      "pytest-benchmark": {
+        "import_error": null,
+        "metadata_version": "5.2.3",
+        "module": "pytest_benchmark",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_benchmark/__init__.py",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_benchmark"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_benchmark/__init__.py",
+        "module_version": "5.2.3"
+      },
+      "ruff": {
+        "import_error": null,
+        "metadata_version": "0.14.10",
+        "module": "ruff",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff/__init__.py",
+        "module_search_locations": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff"
+        ],
+        "module_spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff/__init__.py",
+        "module_version": null
+      }
+    },
+    "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "raw_stderr": "runtime-profile-clarification.stderr.txt",
+    "raw_stdout": "runtime-profile-clarification.stdout.txt"
+  }
+}

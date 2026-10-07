@@ -1,0 +1,50 @@
+{
+  "source_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "runtime_source_hash": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+  "test_source_hash": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89",
+  "current": 4,
+  "removed_selection_actual_behavioral_failures": 4,
+  "marker_preservation": "Original Literal profile/function name/FQN/annotations retained in scratch imported module; actual installed selection replaced by old source-relative lookup; product files untouched.",
+  "rows": [
+    {
+      "mode": "current",
+      "name": "metrics_map.yaml",
+      "actual_assertion_outcome": "PASS"
+    },
+    {
+      "mode": "current",
+      "name": "proxy_metric_alignments.yaml",
+      "actual_assertion_outcome": "PASS"
+    },
+    {
+      "mode": "current",
+      "name": "seed_variable_alignments.yaml",
+      "actual_assertion_outcome": "PASS"
+    },
+    {
+      "mode": "current",
+      "name": "wvs_indicator_registry.yaml",
+      "actual_assertion_outcome": "PASS"
+    },
+    {
+      "mode": "removed_installed_selection",
+      "name": "metrics_map.yaml",
+      "actual_assertion_outcome": "FAIL"
+    },
+    {
+      "mode": "removed_installed_selection",
+      "name": "proxy_metric_alignments.yaml",
+      "actual_assertion_outcome": "FAIL"
+    },
+    {
+      "mode": "removed_installed_selection",
+      "name": "seed_variable_alignments.yaml",
+      "actual_assertion_outcome": "FAIL"
+    },
+    {
+      "mode": "removed_installed_selection",
+      "name": "wvs_indicator_registry.yaml",
+      "actual_assertion_outcome": "FAIL"
+    }
+  ]
+}

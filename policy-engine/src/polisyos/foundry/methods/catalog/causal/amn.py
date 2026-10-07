@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from polisyos.foundry.methods.catalog.causal.admg_ops import m_separation
+from polisyos.foundry.methods.catalog.causal.admg_ops import _validate_static_admg, m_separation
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
@@ -56,6 +56,7 @@ def build_amn(
     interventions: dict[str, dict[str, float]],
 ) -> tuple[CausalGraphModel, AMNMetadata]:
     """Build a derived AMN graph and metadata for multi-world counterfactuals."""
+    _validate_static_admg(graph)
     if interventions:
         worlds = sorted(interventions)
     else:
@@ -165,6 +166,7 @@ def amn_d_separation(
     The AMN is an ADMG (may contain bidirected bridge edges), so the actual
     oracle is m-separation.
     """
+    _validate_static_admg(graph)
     _ = meta
     node_set = set(graph.nodes)
     missing = (x_set | y_set | z_set) - node_set
@@ -186,6 +188,7 @@ def amn_ctf_independence(
     (without requiring explicit ``AMNMetadata``).  The AMN is an ADMG, so the
     oracle is m-separation.
     """
+    _validate_static_admg(amn)
     node_set = set(amn.nodes)
     missing = (x_vars | y_vars | z_vars) - node_set
     if missing:
@@ -204,6 +207,7 @@ def amn_ancestral_projection(
     *target_vars* themselves), preserving all independences relevant to those
     variables while reducing graph size.
     """
+    _validate_static_admg(amn)
     from polisyos.foundry.methods.catalog.causal.admg_ops import (
         ancestors,
         induced_subgraph,
@@ -251,6 +255,7 @@ def verify_ctf_faithfulness(
     rng : optional
         Numpy random generator.
     """
+    _validate_static_admg(amn)
     import numpy as _np
 
     if rng is None:

@@ -1,0 +1,93 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "origin_plugin",
+    "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+    "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+    "tests/unit/foundry/plugins/test_economic_profiles.py",
+    "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+    "tests/unit/foundry/analysis/test_loss_numeric.py",
+    "tests/unit/remediation/test_eco_01.py",
+    "-v",
+    "--tb=short",
+    "--junitxml=/tmp/e02-F-continuation-20261007/economics/native.xml"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "source_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "source_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+  "runtime_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "published_C_G_source_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+  "exit_code": 0,
+  "wall_seconds": 78.67781910899794,
+  "check": "PASS",
+  "environment": {
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine/tools:/workspace/e02-F-economics-20261006/policy-engine:/tmp/e02-F-continuation-20261007/economics",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/native.stdout.txt",
+      "bytes": 2368,
+      "sha256": "b9c46ed31b9664e95f437a83dceb460d6891e7d7cdfea1fe65cef733fc45edb2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/native.xml",
+      "bytes": 15081,
+      "sha256": "e008d8810f6d54211800a8fedc58929de7d091c993c19296db12c175837006e9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/native-origins.json",
+      "bytes": 1128047,
+      "sha256": "b38801ebe36152ce1a32d20aa861a49d97e93cf0638f3a68578012a9eb2c28ec"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "bytes": 4971,
+      "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf"
+    },
+    {
+      "path": "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+      "bytes": 7881,
+      "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c"
+    },
+    {
+      "path": "tests/unit/foundry/plugins/test_economic_profiles.py",
+      "bytes": 16074,
+      "sha256": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+    },
+    {
+      "path": "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+      "bytes": 10844,
+      "sha256": "0d9fa74a4e4fa35946a4a36d11541fc48d14edc121b3652b29a7e162745abed4"
+    },
+    {
+      "path": "tests/unit/foundry/analysis/test_loss_numeric.py",
+      "bytes": 955,
+      "sha256": "01201c97ad33b594d97149502a8936a07d6f3a3982cc0baebe2b8c3c4c713aa2"
+    },
+    {
+      "path": "tests/unit/remediation/test_eco_01.py",
+      "bytes": 5593,
+      "sha256": "f0dd85cfd6f0f2c2a92c643b3cf3fb73ab708e984a54d5510fd375f6235b44ad"
+    }
+  ],
+  "test_counts": {
+    "tests": 83,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

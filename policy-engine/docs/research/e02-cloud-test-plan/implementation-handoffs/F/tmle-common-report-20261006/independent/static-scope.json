@@ -1,0 +1,25 @@
+{
+  "sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+  "tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+  "parent": "66588374da9f407a870880be675b5c751aef44da",
+  "other_method_classes": {
+    "AIPWEstimator": {
+      "ast_unchanged": true
+    },
+    "IPWEstimator": {
+      "ast_unchanged": true
+    },
+    "PropensityScoreMatchingEstimator": {
+      "ast_unchanged": true
+    },
+    "EntropyBalancingEstimator": {
+      "ast_unchanged": true
+    },
+    "CBPSEstimator": {
+      "ast_unchanged": true
+    }
+  },
+  "core_byte_unchanged": true,
+  "core_sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+  "check": "PASS"
+}

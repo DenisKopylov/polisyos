@@ -1,0 +1,364 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "installed-graph-profile-20261007",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B214",
+    "B218"
+  ],
+  "bundle_ids": [
+    "GRF-03"
+  ],
+  "slice_base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "implementation_commits": [],
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree_sha": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "branch": "codex/e02-F-fry-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/60",
+  "changed_paths": [],
+  "implementation_role": "Receipt-only qualification of ROOT external composedproduct4ee; ownlane b634 has not carried cumulative4ee product delta.",
+  "external_implementation_commits": [
+    "36b18cc142aff77a5825126b4f07bafec09a5180"
+  ],
+  "external_runtime_changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py",
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/installed-config.json",
+        "collect"
+      ],
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": {
+        "Python": "3.14.7",
+        "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466",
+        "PYTHONPATH": "absent"
+      },
+      "input_closure": "Historical first source-path exclusion harness attempt before test collection",
+      "outcome": "ERROR",
+      "raw_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection.execution.json"
+    },
+    {
+      "command": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py",
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/installed-config.json",
+        "collect"
+      ],
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": {
+        "Python": "3.14.7",
+        "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466",
+        "PYTHONPATH": "absent"
+      },
+      "input_closure": "Actual exact frozen Git carrier collection, deriving16ids and970owned candidate origins",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection-corrected.execution.json"
+    },
+    {
+      "command": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py",
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/installed-config.json",
+        "native"
+      ],
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": {
+        "Python": "3.14.7",
+        "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466",
+        "PYTHONPATH": "absent"
+      },
+      "input_closure": "Same16exactIds: realMethodJob/Node/CAS MGraph andCPDAG/PAG refusals plusADMG/reversed/bidirected/current-content/certificate consumers",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native.execution.json"
+    },
+    {
+      "command": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py"
+      ],
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": {
+        "Python": "3.14.7",
+        "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466",
+        "PYTHONPATH": "absent"
+      },
+      "input_closure": "Historical initial child-launch harness attempt failed resolving logical path against absolute carrier binding; no producer executed",
+      "outcome": "ERROR",
+      "raw_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg.execution.json"
+    },
+    {
+      "command": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py"
+      ],
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": {
+        "Python": "3.14.7",
+        "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466",
+        "PYTHONPATH": "absent"
+      },
+      "input_closure": "ONEregisteredMethodJob\u2192actualNode\u2192selectedADMGref\u2192differentPIDcandidatePython-Ireader, literalreverse+bidirected relation oracle/fulltypedmodel/lineage/rowisolation",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg-corrected.execution.json"
+    },
+    {
+      "command": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/remove_installed_profile_guard.py"
+      ],
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": {
+        "Python": "3.14.7",
+        "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466",
+        "PYTHONPATH": "absent"
+      },
+      "input_closure": "Memory-only removal of declared-family check at actualproducer+Node alias; staticendpoint/lag check andnames/markers/sourcebytes retained",
+      "outcome": "FAIL",
+      "raw_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal.execution.json"
+    },
+    {
+      "command": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/check_narrow_custody.py"
+      ],
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": {
+        "Python": "3.14.7",
+        "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466",
+        "PYTHONPATH": "absent"
+      },
+      "input_closure": "All3464candidateGit/worktree/wheel/sitebytes+3147Python files+all11forcedresources and old5193archives+both3464file sites",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/post-custody.execution.json"
+    },
+    {
+      "command": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/capture_installed_environment.py"
+      ],
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": {
+        "Python": "3.14.7",
+        "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466",
+        "PYTHONPATH": "absent"
+      },
+      "input_closure": "Actualcandidate Python-I/startup/literaldependency .pth/package metadata; absent externalestimators not accepted as witnesses",
+      "outcome": "PASS",
+      "raw_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/environment.execution.json"
+    },
+    {
+      "command": "Actualuv/Hatch sourcewheel build, freshuvvenv and no-deps wheel install; everyliteralcommand/stdout/stderr preserved in command-specific records",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": "uv measuredversion, readonlyPython3.14.7, freshUV_CACHE_DIR, absentproductPYTHONPATH, immutable source4ee packaging inputs",
+      "input_closure": "Alltrackedpolisyos/tools+actualHatch11force-includes+packaging/uvlock exactGit/worktree guard before/afterbuild",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/pre-native-custody.json.gz"
+    },
+    {
+      "command": "Independent API complete installedpacket source/archive/site/raw/control review and bounded byte validation; no duplicate16/nativechild",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": "Independent leaf API readonly review; actual interpreter/profile/origin conditions retained",
+      "input_closure": "Complete candidate build/custody/fullstreams/XML/selectedCAS/reader/removal/scripts/inputs",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/review.json"
+    },
+    {
+      "command": null,
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": "Newcandidate sdist profile not built or installed",
+      "input_closure": "No new sdist archive/rebuildwheel/site; one sourcewheel profile explicitly authorized",
+      "outcome": "UNRUN",
+      "output": "Newcandidate sdist installed qualification UNRUN; old519original91each is historical scoped evidence only."
+    }
+  ],
+  "property": {
+    "statement": "The actual installed registered static graph reconciliation producer andNode refuse declaredMGraph/CPDAG/PAG before static projection, while realADMG/reversed/bidirected/current-content consumers preserve typedmodel/selectedCAS lineage. A differentPIDinstalled-Ireader consumes a realselectedADMGref; actualfamily-guard removal breaks the maintained refusalassertion.",
+    "runtime_path": [
+      "Frozen4ee actualuv/Hatch sourcewheel",
+      "FreshPython3.14installed site with literaldependency-only.pth",
+      "ActualregisteredReconcileCausalGraph MethodJob/run_job",
+      "ActualReconcileCausalGraphNode selectedCASref",
+      "FreshseparatePIDcandidatePython-Ireader load_causal_graph_model"
+    ],
+    "proxy_divergence": "Same visibleendpoints andmgraphmetadata alone are insufficient: actualdeclaredfamily is checked, marker-onlypresence doesnotproveproperty. The removal retains source/names/markers while yielding a realMGraph job withnoissues, which triggers nativeassertionFAIL.",
+    "negative_controls": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal.stdout.txt"
+    ],
+    "scientific_scope": "Known synthetic graph oracle only; no inference from admitted realdata or identifiedestimand/authority positive."
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Bounded one-sourcewheel installedproperty PASS; closure_ids empty andGacceptance notissued.",
+  "profile": {
+    "wheel": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15147133,
+      "sha256": "1c912ce057fcdd3f91201979025867f9df1f2dc9041020877e2476cd7d396159"
+    },
+    "site": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/lib/python3.14/site-packages",
+    "product_resource_files": 3464,
+    "forced_resources": 11,
+    "actualPythonfiles": 3147,
+    "native_census": {
+      "passed": 16,
+      "failed": 0,
+      "skip": 0,
+      "error": 0,
+      "pytest_warnings": 1
+    },
+    "differentPIDreader": {
+      "parent_isolated": 1,
+      "child_isolated": 1,
+      "parent_origins": 970,
+      "child_seconds": 0.5199673309980426,
+      "relation_oracle": [
+        "Y\u2192X",
+        "X\u2194Y"
+      ],
+      "same_process_vs_child": "Nativefixture fresh() sameprocess; thisONEadditionalADMGreader differentPID."
+    },
+    "removal_census": {
+      "failed": 1,
+      "raw_cli_exit": 1,
+      "pytest_warnings": 2,
+      "detection": "PASS"
+    },
+    "metrics": "POLISYOS_METRICS_PORT9466 actualexporterresource isolation; no CPU/process/threadquota.",
+    "warning_scope": "Native1UnknownMarkWarning; removal2instrumentationwarnings(UnknownMark+assertrewriterjaxtyping); fullstreams retained, no warning suppression. JobResult legacy_method_adapter_ref warning is preserved in removalraw; no blanketzeroallwarningsclaim. Historical14runtime/90LGBM broaddenominator is not rerun by this narrowprofile."
+  },
+  "output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/outputs.json",
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/verify_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/prepare_narrow_wheel.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/launch_narrow_installed.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/launch_narrow_installed.initial.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/fresh_admg_bridge.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/fresh_admg_bridge.initial.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/remove_installed_profile_guard.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/check_narrow_custody.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/capture_narrow.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/capture_installed_environment.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/narrow-installed-plan.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/build-wheel.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/build-wheel.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/carrier-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collect-proof.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection-corrected.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection-corrected.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/collection.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/create-env.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/create-env.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/environment.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/environment.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg-corrected.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg-corrected.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/install-wheel.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/install-wheel.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/installed-config.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native-proof.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/native.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/post-custody.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/post-custody.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/post-native-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/pre-native-custody.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal-proof.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/removal.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/uv-version.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/uv-version.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/fresh-bridge-proof.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/fresh-reader-proof.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/fresh-reader.command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/fresh-reader.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/reader-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/packet-audit.json.lossless.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/api-review/installed4ee/transfer-selection.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/publish_narrow_installed_handoff.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/prepare-narrow-wheel.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/layout-docs-publication.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/runs/graph-content/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.view.cc5073f96988e2dce3768719aab010bc9e1ee26a7955076d419939965910e3e6.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/bf/a2/bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/51/a5/51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38.view.82cd835420325b46824363e17e66b2bc77a9dd19638e4344a9c83864ac3e118d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/51/a5/51a5c4ac6864e6e21de8557d4090e0c01579cf69b664830955b5731253327e38.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.view.6739cba2ecb6127612866009cb58bb7634907d91a399be32550fd448dc77ccfe.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/03/1b/031b79834b960dc15ac78b4992d5efee67097d89b4d24c100d89ac3eebc8b2e8.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/dd/24/dd2445421dfb64eefa67bf4c011e1e6f72d3395c239a9b52610034b8457fe0ad.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/companions/foundry/installed-4ee/fresh-admg/synthetic-context/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007/outputs.json"
+  ],
+  "limitations_and_next_owner": [
+    "Newsdist qualification UNRUN; old519sourcewheel/sdist91each not promoted tonewcandidate.",
+    "Source4ee remains ROOT externalfrozenGit source; receipt-onlyownbranch doesnotintegratecumulativeproduct.",
+    "Old519archives/sites all declaredbytes verified unchanged; packaging/uvlock/all11resources identicalGitoids across519/4ee.",
+    "Two initialharnessERRORattempts retain completeexactinitialscripts/argv/streams; correctedactual outcomes separate.",
+    "Archive/site large generatedbodies remain exactcloud locators with hashes andcompletefullproductbyteproof; G canfetchROOTpublishedsource andrun exact commands, receiptdoesnotclaim G hasconsumedlocalwheel.",
+    "No wholeRuntime/EvalSafety/currentchallenge/statisticalidentification/valueadmission/B56productionbudgetpositive; these remain separatelyUNRUN.",
+    "No graphfamily retyping, extraauthority issuer, scheduler, IR/schema change, optionalbackendabsencePASS or inventednewfinding."
+  ]
+}

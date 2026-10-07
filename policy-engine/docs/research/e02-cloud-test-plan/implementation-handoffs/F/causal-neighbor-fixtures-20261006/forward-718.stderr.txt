@@ -1,0 +1,1 @@
+fatal: cannot create directory at 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/source-integration': No space left on device

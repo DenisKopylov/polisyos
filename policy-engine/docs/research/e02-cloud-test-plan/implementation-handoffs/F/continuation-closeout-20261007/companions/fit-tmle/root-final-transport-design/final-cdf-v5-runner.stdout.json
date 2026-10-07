@@ -1,0 +1,11 @@
+{
+  "outcome": "ERROR",
+  "completed": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/final-cdf-v5-refresh.execution.json",
+      "bytes": 4914,
+      "sha256": "d04ba9b05a10ffbbd9abeb84b5bff9292555145065a11ce1a91e2099ebb7240b",
+      "exit_code": 1
+    }
+  ]
+}

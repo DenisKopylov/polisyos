@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/prepare_required_registry.py",
+    "--extra-specs",
+    "/tmp/e02-F-continuation-20261006/graph/final-packet-review/final-owner-specifications.json"
+  ],
+  "cwd": "/workspace",
+  "exit_code": 1,
+  "wall_seconds": 0.3111163639987353,
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/final-footprint.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/final-footprint.stderr.txt",
+      "bytes": 744,
+      "sha256": "1c992bb8de3ae6535399e500cee53df3af395350641449b34253a89ec4e5f52c"
+    }
+  ]
+}

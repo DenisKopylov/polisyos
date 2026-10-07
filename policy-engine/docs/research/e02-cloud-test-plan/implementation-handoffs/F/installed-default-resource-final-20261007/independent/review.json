@@ -1,0 +1,379 @@
+{
+  "schema": "e02-independent-installed-resource-review/v1",
+  "role": "F-API sole independent final installedobserver",
+  "decision": "GO",
+  "decision_scope": "Bounded installeddefaultresource/Graph consumer profile at immutable519 producttree. No whole35scientific/authorityclosure or new199/TMLE/backendwidepass.",
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "closure_ids": [],
+  "source_binding_ref": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/source-bindings.json",
+    "bytes": 10978,
+    "sha256": "0565cec4541bddd813db85d0ef3475eaa7a8fd8c7c3b1fb3c2423c94eff1a974",
+    "complete": true
+  },
+  "full_runtime_tool_worker_union_ref": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/full-runtime-tool-worker-blob-comparison.json.gz",
+    "bytes": 136568,
+    "sha256": "2a611cc0bb0c232592e595bbd9062c048582e623e9f8f50737ffc6a036ae3ef7",
+    "complete": true,
+    "decoded_bytes": 1235490,
+    "decoded_sha256": "bbdef14e8325e165c60e93e90294feb332ed68ea51fc9a57d8775e7a23304edc",
+    "codec": "gzip lossless"
+  },
+  "custody_ref": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/custody-review.json",
+    "bytes": 7155,
+    "sha256": "001a1052b69035ee59190dee71337c92503a86ada88745f8c8a4158c297c2a64",
+    "complete": true
+  },
+  "native_output_ref": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/native-output-review.json",
+    "bytes": 21686,
+    "sha256": "d591489ba2e06efb26c6425f69f6aae518e38d08116a82ee131f31886bfa506c",
+    "complete": true
+  },
+  "post_own_ref": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/post-own-probe-guard.json",
+    "bytes": 405,
+    "sha256": "ea7eead4ca66360dea955be15700cd43ce7720115908ad20bd7c26dfdd092fba",
+    "complete": true
+  },
+  "script_input_review": {
+    "all_12_author_input_replayers_read": [
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/prepare_forward.py",
+        "bytes": 4985,
+        "sha256": "831c0fc81150d7b72751550b27e9dbf8c98b427a7a4b9267d92a45b22a9f084e",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/materialize_actual_sdist.py",
+        "bytes": 3018,
+        "sha256": "7b17a7523c8c823612f06dfe6aea6556b7d73f61ae43b0fb737c87f78bba830c",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/setup_optimized.py",
+        "bytes": 6678,
+        "sha256": "4b81ca1a83afa50ecc07c263536612897afcf2be3144e43e48ef2b45087973d3",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/prepare_carriers.py",
+        "bytes": 3882,
+        "sha256": "c30d2be972243390fc7f455d223f4c3ad3e6672d4709507facc4391e08c0df57",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/bind.py",
+        "bytes": 4736,
+        "sha256": "49f7d0b65bca07d768635baa2022208abe3a16507fb33c10a6a2893b85b8dfef",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/launch.py",
+        "bytes": 2774,
+        "sha256": "6496f1c6c95c377df5dc1307fdd31d3a5ffa32cb7bb36e560092decfb0d28f96",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/capture_native.py",
+        "bytes": 3350,
+        "sha256": "5c87e6d32e74234888a55f67a2d3cfef8deee7829fe50be774500b5e770856cc",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/removal_replay.py",
+        "bytes": 1845,
+        "sha256": "867e3ff1976e81974bc6e94e9867cb2249286d8c5b54222b566b31b5a72e7ec7",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/capture_controls.py",
+        "bytes": 3573,
+        "sha256": "83aea5c407acdb2b175e78e81526f0be5f99715777c89495b0c6c3201ced121a",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/postguard.py",
+        "bytes": 3972,
+        "sha256": "bd4b49cc939f700c8a65870a9c8cb4bcd91ed9bf7279b2c6e7f2c67cf2071910",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/census.py",
+        "bytes": 4970,
+        "sha256": "72d8aa84b683a25ff5c604bac27f8d380d6372677192f5aec5d8a27e5b58cd3d",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/test_installed_catalog_defaults.py",
+        "bytes": 8056,
+        "sha256": "668d45112a45648f89a548746688b24f54ffe8513f5dd48d136d7cd72b0fb9cb",
+        "complete": true
+      }
+    ],
+    "complete_packet_refs": [
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/installed-config.json",
+        "bytes": 3194,
+        "sha256": "9ce3b2efb477cfcdc667b1e86f7e4356dbc51de73c2d6c5cfb70a526f640b826",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/source-snapshot-proof.json",
+        "bytes": 1017,
+        "sha256": "18fce0fe44c87d4637f5960c34eb2ee1387132209bb6505935137afd9724c7c7",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/carrier-manifest.json",
+        "bytes": 13789,
+        "sha256": "7ebf54b7a6c3580f3e306ae0c6f53d809ad67bb95d27f91dd5f0fe6c6dae9072",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/archive-installed-source-bindings.json",
+        "bytes": 1281294,
+        "sha256": "dd87ab8a28ef2db0dc89e73f337f55451bc187127c787949ca28f7a678953c63",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/setup-command-records.json",
+        "bytes": 14822,
+        "sha256": "c3ed84ece51016126481dbeb52f4efbaa30f14395ec7f6d8a7a3fc165e74738a",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/actual-sdist-decoded-payloads.json",
+        "bytes": 6445964,
+        "sha256": "ca375b26910acb7bbb1f9e11de6cfdac56e10137ca09768243a86dcd0c89b863",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/catalog-expected.json",
+        "bytes": 1706,
+        "sha256": "8305e02ed555e4b93f3c643742e731a5c4bc0094153233179f47faa8ff360aee",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/profile-expected.json",
+        "bytes": 923,
+        "sha256": "02af4cf2151950164bbcdd4d49207d127eb8e9a77acee05594d31daead6a3f69",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/native-wave-v2.json",
+        "bytes": 5580,
+        "sha256": "f194cc87abc226bccb676e2877f8f3b415bd1ed91a60c20c359609e9152d7820",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/native-census.json",
+        "bytes": 46879,
+        "sha256": "c3bccba7c05d9ff2c3cfd6550493365e17026141508866aa5923f2ae13766da4",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/negative-controls.json",
+        "bytes": 11704,
+        "sha256": "2cca9b35e170df9d6ac2a1e020b7673869ab22b05745a43c2b21fedd506b5ced",
+        "complete": true
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/post-native-custody.json",
+        "bytes": 1249,
+        "sha256": "69ad00be86c2b5af85a940b61c0be4b3973d46f9d5d6138d739d76bf0c48bee0",
+        "complete": true
+      }
+    ],
+    "optimized_source_policy": "17830oldunchangedhardlinks+471newindependentpayloads eachactualGitbyteverified;no linkedfilewrite/chmod/delete. Actualsdistall12981payloads independentlydecoded/rechecked,12980exactGit+1PKG-INFO,rebuildinputsmatchactualtar.",
+    "no_resource_injection": "4originalimmutableYAMLsource\u2192packageprojections;all11Hatchresources fullGit/archive/sitebytebound. Source-only22globcases excluded;actualinstalled12 derive4resources from frozenHatch manifest,notemptyparamSKIP.",
+    "paths": "No productPYTHONPATH/editable/pth/fallback;eachneutralparent-I and ownsiteorigins. Literalsharedreadonlydependency.pth only,fullcontentsrecorded.",
+    "serialization": "ActualexistingPrometheus9464fixedportprocesslifetime windows serialized byauthor;rootreleasedsafewindowbeforeown2cheapconsumers. No artificialcompute/process/threadquota."
+  },
+  "counts": {
+    "independent_complete_Git_snapshot_files": 18301,
+    "snapshot_bytes": 555792112,
+    "actual_sdist_regular_files": 12981,
+    "actual_sdist_regular_bytes": 433252798,
+    "tracked_product_files": 3453,
+    "forced_resources": 11,
+    "complete_product_resource_files_each_site": 3464,
+    "actual_python_files_each_site": 3147,
+    "carrier_files_each_profile": 36,
+    "author_cases_each_profile": 91,
+    "author_graph_cases": 79,
+    "author_resource_cases": 12,
+    "author_ownsite_origins_each": 990,
+    "own_extra_selected_consumer_cases_each": 1,
+    "own_extra_selected_consumer_origins_each": 366,
+    "actual_expected_negative_failures_total": 6
+  },
+  "checks": [
+    {
+      "id": "frozen-root-source-reconciliation",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/source-bindings.stdout.txt",
+      "evidence": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/source-bindings.json",
+        "bytes": 10978,
+        "sha256": "0565cec4541bddd813db85d0ef3475eaa7a8fd8c7c3b1fb3c2423c94eff1a974",
+        "complete": true
+      },
+      "scope": "Complete3464src/tools/workers/appmanifest-lock-Hatch union vs8236:3452same/12expectedchanges. All18resources/companions exact089/81 and2Graph exact647;251scientificprefixrows only2Graphchanged,5lock/manifest/versionrows unchanged. Notwholecurrent-headscientificPASS."
+    },
+    {
+      "id": "complete-independent-custody",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/custody-review.stdout.txt",
+      "evidence": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/custody-review.json",
+        "bytes": 7155,
+        "sha256": "001a1052b69035ee59190dee71337c92503a86ada88745f8c8a4158c297c2a64",
+        "complete": true
+      },
+      "scope": "Every frozenGit18301snapshotpayload555792112B,allactualsdist12981payloads433252798B andrebuiltsourcepayloads;all3archives,3453product+11resources=3464/site,3147actualPython/site,36carrierinputs/profile. OnegeneratedPKG-INFO identified,separatelybytebound. No build/installmutation."
+    },
+    {
+      "id": "author-native91-complete-output-review",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/native-output-review.stdout.txt",
+      "evidence": {
+        "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/native-output-review.json",
+        "bytes": 21686,
+        "sha256": "d591489ba2e06efb26c6425f69f6aae518e38d08116a82ee131f31886bfa506c",
+        "complete": true
+      },
+      "scope": "Read allcompleteactualXML/raw/command/origins forauthor91PASS/profile,0FAIL/SKIP/ERROR,Graph79+12curatedresources. 990ownsiteorigins0escapes each;unitmark1only. Onlyauthor executes79suite; no reviewerrepeat."
+    },
+    {
+      "id": "six-actual-installed-negative-controls-review",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/native-output-review.stdout.txt",
+      "scope": "Eachsite actualfunction __code__ lawremoval keepsidentity/annotations/docs/imports andfailsrealrequiredseedread;actualprivateprojectionmissingfailsphysicalread;valid-schema/commentbyte-substitutionfails1309-vs1355size/hashassertion.6actualFAIL1/noERROR/SKIP expected;fullrawbytesreviewed,allbytesrestored."
+    },
+    {
+      "id": "independent-selected-six-owner-consumer-wheel",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/wheel-consumer.stdout.txt",
+      "execution": {
+        "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+        "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+        "profile": "wheel",
+        "argv": [
+          "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+          "-I",
+          "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/launch_one_consumer.py",
+          "wheel"
+        ],
+        "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer",
+        "env": {
+          "PYTHONPATH": "absent",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "exit_code": 0,
+        "seconds": 4.492038591997698,
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/wheel-consumer.stdout.txt",
+          "bytes": 105,
+          "sha256": "116b204ff1e1676fd7502f7e86faab3c4c4151b6e3db8bc8ec45b612b9456909"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/wheel-consumer.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "scope": "Exactly1real six-default-owner nativeconsumer underneutralowninstalled3.14-I;366productorigins0escapes,seedpair+proxycountrypenalties/WVS400/nativebatchmetrics14;0warnings/errors/skip."
+    },
+    {
+      "id": "independent-selected-six-owner-consumer-sdist",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/sdist-consumer.stdout.txt",
+      "execution": {
+        "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+        "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+        "profile": "sdist",
+        "argv": [
+          "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-env/bin/python",
+          "-I",
+          "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/launch_one_consumer.py",
+          "sdist"
+        ],
+        "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-consumer",
+        "env": {
+          "PYTHONPATH": "absent",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "exit_code": 0,
+        "seconds": 4.372199290024582,
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/sdist-consumer.stdout.txt",
+          "bytes": 105,
+          "sha256": "deb8f49c8e18d22848e6f1564bbe3a49a91bf381096dac5f770814450f860137"
+        },
+        "stderr": {
+          "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/sdist-consumer.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "scope": "Exactly1real six-default-owner nativeconsumer underneutralownrebuilt-sdist-installed3.14-I;366productorigins0escapes;0warnings/errors/skip."
+    },
+    {
+      "id": "post-independent-active-site-archive-guard",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/post-own-probe-guard.stdout.txt",
+      "scope": "All6928activesiteproduct/resourcepayloads+3currentarchives unchanged afterown2totalcheapconsumerprocesses;noextra/missingproductPython."
+    },
+    {
+      "id": "current-static-public-completeness",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "FAIL",
+      "output": "resource81 independent actualrenderer closure linked below",
+      "scope": "Exactresource81review253operations/103reads/38UNKNOWNnulltotal/known0 and38canonicalincompleteviolations;519hasexactsamegeneratedinput/outputbytes bysourceassembly. Notnewstaticgateexecution orcompletenesspromotion."
+    },
+    {
+      "id": "production-operational-statistical-value-authority",
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "outcome": "UNRUN",
+      "output": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/native-output-review.json",
+      "scope": "SyntheticGraphproperties+curatedconfiguration custody only. No admittedrealdata/Runtimeissuer/challenge authoritypositive,DoWhy/EconMLnewbackendfit orB56aggregate competingstudybudget."
+    }
+  ],
+  "warning_and_membership_boundaries": {
+    "current91_each": "Exactly1PytestUnknownMarkWarning unitmark;actualAnomalyFlagformat0,LightGBM0,Prometheusbootstrap0,load_simulation_resultdegraded0;fullstdout+stderrretained.",
+    "current79graph_membership": "Exactactualb5same79XMLIDs:47PASS32FAIL\u219279PASS. Thisexplainsboundedpackagingconsumer repair,notwholeb5headPASS.",
+    "fresh_reader_meaning": "Graphfresh() opens a newFileSystemCAS object in sameprocess. No newGraphsubprocess-I assertion; bothinstalledparentprofiles-I. HistoricalAPI/FITfresh-I readers aredifferentprofiles/source-specificevidence.",
+    "historical": "Prior15=14runtime+instrumentation andold8236 correctedprofile90LightGBM warnings citedimmutablea2dreceipt;not freshly remeasuredbythis resource-onlywave."
+  },
+  "prior_NO_GO": {
+    "carrier_sha": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007.json",
+    "receipt_sha256": "f4cd659e42b8db8000a918f528d231cab1e8e70f95dd598d645e45acdc2d6fc5",
+    "actual_each_profile": "130PASS32FAIL0ERROR0SKIP",
+    "attribution": "26directmissingseedXML+6source-pathinference;fulloldraw remainimmutable. Current519GO doesnotreplace/relabeloldb5NO-GO."
+  },
+  "cleanup_boundary": {
+    "root_permission": "Root reported explicituserauthorization forpermanentgenerated-outputretirement. Reviewerconfirmednoactive/readdependency onOLD b5sdist-extracted/dist-source/dist-rebuilt only;no deletionsperformedbyreviewer.",
+    "retired_scope": "Onlyoldgeneratedreproducible3dirs;oldsource/hardlinkowners,oldsites/envs/CAS/rawlogs/scripts/Git preserved.",
+    "historical_custody": "Author completeOLD17843/550021601B snapshot+6918sitechecks/3archives verified before retirement;rawpostguard captured. Do notclaim retiredoldarchivescurrentlyavailable."
+  },
+  "resource_source_review": {
+    "final81_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007.json",
+    "carrier_sha": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+    "runtime_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+    "metadata_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+    "scope": "Ownprior41+79runtime andABI/finiteLiteral4\u2192durablePath/FQN/pickle/pydoc/overrides sourcebound;finalpublic_experimentalmetadataactual1fragmentPASS. New519archive/corecustody andactual91profile closeinstalledresourceclass;stillno staticsurface/scientificauthoritypromotion."
+  },
+  "verification_economics": "SoleFoundrybuilder/source snapshot+actualsdist+twoinstalledprofilewaves. Reviewerreadallraw/byteinputs andruns exactly2totalcheap1caseprocesses,never79/199/TMLE4000/DiD160/backendrefits. Sharedappenv/worker/version/locks unchanged."
+}

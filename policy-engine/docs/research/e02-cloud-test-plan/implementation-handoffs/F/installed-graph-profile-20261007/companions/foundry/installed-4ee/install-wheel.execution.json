@@ -1,0 +1,31 @@
+{
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "argv": [
+    "uv",
+    "pip",
+    "install",
+    "--python",
+    "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+    "--no-deps",
+    "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/dist/policy_engine-0.1.0-py3-none-any.whl"
+  ],
+  "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee",
+  "exit_code": 0,
+  "seconds": 0.20074115000898018,
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "UV_CACHE_DIR": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/uv-cache"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/install-wheel.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/install-wheel.stderr.txt",
+    "bytes": 264,
+    "sha256": "839e3cbe19b6a897d30d25cebd77e10231f35b4d3d0db2321d25a86078a0221f"
+  }
+}

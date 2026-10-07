@@ -1,0 +1,21 @@
+{
+  "commit": "5650b7aed7991606d62cd8510b377698a778ce39",
+  "branch": "codex/e02-A-compiler-full",
+  "test_blob_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+  "test_command": "uvx --offline uv==0.9.21 run --no-project --python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers -vv --basetemp=<raw>/pytest-basetemp --junitxml=<raw>/wheel-smoke-junit.xml",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine",
+  "pytest_python": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python (CPython 3.14.0)",
+  "pytest_environment_borrow": "root-owned frozen project venv at /Users/deniskopylov/polisyos/policy-engine/.venv; no leaf venv present",
+  "uv_invoked_by_test": "/Users/deniskopylov/.cache/uv/archive-v0/2UG5BarSiqbpuGK1KXvbb/bin/uv, uv 0.9.21",
+  "uv_selected_by": "/opt/homebrew/bin/uvx --offline uv==0.9.21",
+  "test_build_flags": "UV_OFFLINE=1, UV_PYTHON_DOWNLOADS=never, uv build --offline",
+  "build_cache": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/_cache/uv (product-root uv cache)",
+  "build_backend": "hatchling>=1.27.0 / hatchling.build; provisioned by online uv 0.9.21 build prewarm after initial offline-cache failure",
+  "runtime_dependency_profile": "fresh uv venv installs wheel with --no-deps; test child adds root .venv purelib/platlib as dependency paths, while asserting every imported .py polisyos module originates in installed wheel package",
+  "host_pythonpath": null,
+  "test_child_import_policy": "clears PYTHONPATH/PYTHONHOME, then explicitly sets installed wheel purelib before root dependency purelib/platlib; disables user site and bytecode writes; runs -S outside checkout",
+  "result": "1 passed in 4.07s; one PytestWarning: record_property incompatible with junit_family xunit2",
+  "stdout": "wheel-smoke.stdout.log",
+  "junit": "wheel-smoke-junit.xml",
+  "origin_receipt": "wheel-origin-and-report.json"
+}

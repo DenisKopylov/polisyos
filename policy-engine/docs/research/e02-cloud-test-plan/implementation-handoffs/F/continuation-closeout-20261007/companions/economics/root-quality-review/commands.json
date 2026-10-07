@@ -1,0 +1,316 @@
+[
+  {
+    "name": "full-path-list-b5a421d8",
+    "argv": [
+      "git",
+      "ls-tree",
+      "-rz",
+      "--name-only",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "full-path-list-b5a421d8.stdout",
+      "bytes": 1642911,
+      "sha256": "b2325f5396d80fd52a34fa3af0831e4d4416479c8941d4a29b53389fbd24d105"
+    },
+    "stderr": {
+      "path": "full-path-list-b5a421d8.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "complete-read-tree-b5a421d8",
+    "argv": [
+      "git",
+      "cat-file",
+      "--batch"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "stdin_queries": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a:{each complete Python path plus pyproject.toml}",
+    "stdin_bytes": 652897,
+    "stdin_sha256": "f179ff0122e8178b1e5ebce54f5b7f74783a3bed086eb2f8378b31be36f892f7",
+    "exit_code": 0,
+    "stdout_bytes": 96428608,
+    "stdout_sha256": "d7806edad1a0a8724bb32ba916f3bf66d6cb7aa02d6c913c2dcf12b5d10099aa",
+    "output_policy": "Read complete source blobs in memory; original immutable Git bytes are not copied into reviewer evidence. Complete path/blob/size/SHA manifests and exact hash protocol retained.",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "full-path-list-072d45a5",
+    "argv": [
+      "git",
+      "ls-tree",
+      "-rz",
+      "--name-only",
+      "072d45a56d1119fe3e7665cec2cbbdca015d2934"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "full-path-list-072d45a5.stdout",
+      "bytes": 1574609,
+      "sha256": "26f4ec04ac46bbf536736810032e58be250449b2af46c31ce982f82951088f0b"
+    },
+    "stderr": {
+      "path": "full-path-list-072d45a5.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "complete-read-tree-072d45a5",
+    "argv": [
+      "git",
+      "cat-file",
+      "--batch"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "stdin_queries": "072d45a56d1119fe3e7665cec2cbbdca015d2934:{each complete Python path plus pyproject.toml}",
+    "stdin_bytes": 652259,
+    "stdin_sha256": "ceef64fec39d5789e14d361852b924f264e2683fa63ac28d8d22b46a6685b494",
+    "exit_code": 0,
+    "stdout_bytes": 96360044,
+    "stdout_sha256": "c59ebad2826833edc06602f9b0307ad79e7935fb1758cf1b3765b7a18f2f67fa",
+    "output_policy": "Read complete source blobs in memory; original immutable Git bytes are not copied into reviewer evidence. Complete path/blob/size/SHA manifests and exact hash protocol retained.",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "full-072-to-b5-delta",
+    "argv": [
+      "git",
+      "diff",
+      "--name-status",
+      "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "full-072-to-b5-delta.stdout",
+      "bytes": 69618,
+      "sha256": "8d720543cd365285deb8ddfbf202d3ab3a92287938241cdb64edec3321bb172d"
+    },
+    "stderr": {
+      "path": "full-072-to-b5-delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "delta-python",
+    "argv": [
+      "git",
+      "diff",
+      "--binary",
+      "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "--",
+      "policy-engine/src"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "delta-python.stdout",
+      "bytes": 38663,
+      "sha256": "afc8f40f67c4cbabec4ab7f9ecd4276705a2ed19d2b18f9d16a7a1dadd1b203c"
+    },
+    "stderr": {
+      "path": "delta-python.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "delta-schema",
+    "argv": [
+      "git",
+      "diff",
+      "--binary",
+      "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "--",
+      "policy-engine/schemas"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "delta-schema.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "delta-schema.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "delta-manifest",
+    "argv": [
+      "git",
+      "diff",
+      "--binary",
+      "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "--",
+      "policy-engine/pyproject.toml"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "delta-manifest.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "delta-manifest.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "graph-owner-receipt",
+    "argv": [
+      "git",
+      "show",
+      "370cac5c342bbc5b206331f93776505e0cffe3a6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "graph-owner-receipt.stdout",
+      "bytes": 89153,
+      "sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b"
+    },
+    "stderr": {
+      "path": "graph-owner-receipt.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "EMP-card",
+    "argv": [
+      "git",
+      "show",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMP-01.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "EMP-card.stdout",
+      "bytes": 13972,
+      "sha256": "d04e4270ef56371ce614ab7b6f2fbe85c84a9121c1cce77b9b2c2212e97bc3b5"
+    },
+    "stderr": {
+      "path": "EMP-card.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "A-coverage",
+    "argv": [
+      "git",
+      "show",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "A-coverage.stdout",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+    },
+    "stderr": {
+      "path": "A-coverage.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "A-decisions",
+    "argv": [
+      "git",
+      "show",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "A-decisions.stdout",
+      "bytes": 37473,
+      "sha256": "4905f83387849811bcea2410ce98b769aeed141ae9efe453b11aef55f556a1e3"
+    },
+    "stderr": {
+      "path": "A-decisions.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "EMP-native-test",
+    "argv": [
+      "git",
+      "show",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a:policy-engine/tests/unit/remediation/test_emp_01.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "EMP-native-test.stdout",
+      "bytes": 20102,
+      "sha256": "ce85c78a031b4e61bc6ff75081d9d343793b8ca8666f5116bd526cab8f148ee6"
+    },
+    "stderr": {
+      "path": "EMP-native-test.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "scanner-full-source",
+    "argv": [
+      "git",
+      "show",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a:policy-engine/src/polisyos/runtime/quality/production_invocation.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "scanner-full-source.stdout",
+      "bytes": 27007,
+      "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286"
+    },
+    "stderr": {
+      "path": "scanner-full-source.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "generation-cycle-full-source",
+    "argv": [
+      "git",
+      "show",
+      "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a:policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout": {
+      "path": "generation-cycle-full-source.stdout",
+      "bytes": 578822,
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+    },
+    "stderr": {
+      "path": "generation-cycle-full-source.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

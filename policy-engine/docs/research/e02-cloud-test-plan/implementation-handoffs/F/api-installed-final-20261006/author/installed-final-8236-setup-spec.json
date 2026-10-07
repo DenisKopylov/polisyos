@@ -1,0 +1,15 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "cwd": "/workspace",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "python3",
+    "/tmp/e02-F-continuation-20261006/api/setup_installed_final_wave_v2.py",
+    "/tmp/e02-F-continuation-20261006/api/installed-final-8236-config-input.json"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/installed-final-8236-setup",
+  "scope": "Reviewed final source8236 distribution setup before one deciding native wave; prior d5 setup preserved nondeciding."
+}

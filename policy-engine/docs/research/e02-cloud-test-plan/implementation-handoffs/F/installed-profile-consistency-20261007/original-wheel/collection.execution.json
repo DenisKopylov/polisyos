@@ -1,0 +1,30 @@
+{
+  "name": "collection",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "argv": [
+    "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-profile-consistency-20261007/installed/launch_affected_installed.py",
+    "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/installed-config.json",
+    "collect"
+  ],
+  "cwd": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9476"
+  },
+  "PYTHONPATH": "absent",
+  "exit_code": 0,
+  "seconds": 17.091752906999318,
+  "stdout": {
+    "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/collection.stdout.txt",
+    "bytes": 3168,
+    "sha256": "172f85d4964ded758559dfc78dd49b64abbf0c742ab17e2e9bfcad6a60308c77"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/collection.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

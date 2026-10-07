@@ -1,0 +1,19 @@
+{
+  "check": "FAIL",
+  "target": {
+    "sha": "6a39465ee29bb50efcd431089deb8f043e26d762",
+    "tree": "25fbb0accb6c05a7426a7f7b02c112439b026821"
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36
+  },
+  "issues": [
+    "decoded bytes/hash: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/independent/api-review-f909/review.json.gz"
+  ],
+  "negative_controls": [],
+  "complete_deciding_check_pointer_count": 446,
+  "elapsed_s": 7.007992381986696
+}
+{"verified_artifacts": 1204, "decoded_artifacts": 344, "historical_output_custody_UNRUN": 17, "output": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material-review.json"}

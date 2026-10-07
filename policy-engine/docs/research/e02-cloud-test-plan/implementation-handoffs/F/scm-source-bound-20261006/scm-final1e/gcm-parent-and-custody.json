@@ -1,0 +1,36 @@
+{
+  "source_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+  "source_tree": "1a078f2fd38602dd0f885f77be1f3fa7585852ad",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "tests/unit/remediation/test_scm_02.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+    "-k",
+    "not true_refit_sampling_interval"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:."
+  },
+  "started_utc": "2026-10-06T10:56:10.119911+00:00",
+  "wall_s": 133.64748097899428,
+  "exit": 0,
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/gcm-parent-and-custody.stdout.txt",
+      "bytes": 5720,
+      "sha256": "2870159d3b84c7cb5dabf5887c731ae66523ee6754f0c820b0d9c031fdd2e741"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/gcm-parent-and-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "logical_files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/a.gz",
+      "bytes": 15,
+      "sha256": "30f8c589a5fd32a1b081cbeb75e4579120b39cebd3dd61af958e36cd104a68ee",
+      "input_encoding": "gzip",
+      "input_binding": {
+        "bytes": 35,
+        "sha256": "02dc5d5c9c26f2885574f19adfe8fcf7ae1a9dc7aa2b2fc0b113f29d2d87ce71"
+      },
+      "role": "Complete declared precompressed owner output; same compressed bytes reused, no double gzip.",
+      "transport_format_check": {
+        "gzip_required": true,
+        "reasons": [
+          "already_lossless_gzip_prior_snapshot"
+        ]
+      },
+      "disposition": "transport",
+      "encoding": "gzip",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v4-independent/a.gz"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items.input.json",
+      "bytes": 364,
+      "sha256": "f372187205c01035bee3c89a01b23bbaa65c1462b28d64ab0abf995539ef9270",
+      "role": "Exact explicit complete final reviewer selection input",
+      "transport_format_check": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v4-independent/valid-items.input.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py",
+      "bytes": 15451,
+      "sha256": "3df0d51dffda5c4ad5f6232c759d830efd23bd5c5ce3b43cf6a56050fb8d63a7",
+      "role": "Exact final selection refresher source",
+      "transport_format_check": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v4.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "bytes": 11196,
+      "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4",
+      "role": "Exact final additive streaming publisher source",
+      "transport_format_check": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v3.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a",
+      "role": "Exact complete transport-format classifier source",
+      "transport_format_check": {
+        "gzip_required": false,
+        "reasons": [],
+        "scope": "Complete byte stream UTF8/control and ASCII line-whitespace transport check; not a source/scientific quality gate."
+      },
+      "disposition": "transport",
+      "encoding": "identity",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py"
+    }
+  ],
+  "pending_extensions": [],
+  "existing_declared_git_references": [],
+  "source_window": {
+    "actual_final_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "actual_final_source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "historical_seed_source_window": {
+      "scope": "Small standalone transport fixture, not scientific evidence"
+    },
+    "meaning": "Actual explicit final source window; historical b5 quality and d833 original35 GO retain their old source scopes, not current final scientific PASS."
+  },
+  "selection_inputs": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items.input.json",
+      "bytes": 364,
+      "sha256": "f372187205c01035bee3c89a01b23bbaa65c1462b28d64ab0abf995539ef9270"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/seed.json",
+      "bytes": 285,
+      "sha256": "14ad086a1084dd57163edd0364559f0336e1bb4b7e25a48fc53a84eb304868d6"
+    }
+  ],
+  "policy": {
+    "sanitation": "none"
+  },
+  "draft": false,
+  "transport_input_selection": true,
+  "refresh": {
+    "changed_prior_inputs": [],
+    "retained_prior_custody": [],
+    "explicit_extension_inputs": {
+      "valid-items": {
+        "kind": "explicit_hashchecked_selection",
+        "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/valid-items.input.json",
+        "file_count": 1
+      }
+    },
+    "new_published_git_files": [],
+    "old_aliases_recomputed_from_actual_complete_bytes": true,
+    "old_existing_refs_kept_only_exact_bytes": true,
+    "old_quality_raw_outputs_not_modified": true,
+    "ROOT_decides_final_semantic_adoption": true
+  },
+  "counts": {
+    "logical_files": 5,
+    "unique_transport_files": 5,
+    "aliases": 0,
+    "existing_git_files": 0,
+    "changed_prior_inputs": 0,
+    "unique_raw_transport_bytes": 28401
+  }
+}

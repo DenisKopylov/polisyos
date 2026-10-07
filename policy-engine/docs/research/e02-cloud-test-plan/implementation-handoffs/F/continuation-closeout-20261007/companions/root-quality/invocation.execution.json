@@ -1,0 +1,23 @@
+{
+  "check_id": "invocation",
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/workspace/e02-F-closeout-20261006/policy-engine",
+    "--base",
+    "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "--receipt",
+    "/tmp/e02-F-continuation-20261007/root-quality/invocation-full.json"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "exit_code": 3,
+  "check": "FAIL",
+  "wall_s": 237.62907314300537,
+  "input_closure": "Complete current maintained production-invocation scanner denominator, exact072 comparison; output preserves all unresolved/regressions; no P41 claim",
+  "stdout": "/tmp/e02-F-continuation-20261007/root-quality/invocation.stdout",
+  "stderr": "/tmp/e02-F-continuation-20261007/root-quality/invocation.stderr"
+}

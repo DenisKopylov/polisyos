@@ -1,0 +1,19 @@
+{
+  "check": "FAIL",
+  "target": {
+    "sha": "da59adf7cb2ae781f162f060d8c7424060c21306",
+    "tree": "5f8a047da1ad7341d64efd82eeb668aa2885a7c3"
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36
+  },
+  "issues": [
+    "'zero_finding_deciding_dependence_on_missing_historical175c_and_lint_raw'"
+  ],
+  "negative_controls": [],
+  "complete_deciding_check_pointer_count": 446,
+  "elapsed_s": 2.9731372150126845
+}
+{"verified_artifacts": 395, "decoded_artifacts": 287, "historical_output_custody_UNRUN": 0, "output": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-v2-review.json"}

@@ -1,0 +1,28 @@
+{
+  "name": "pre-custody",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "argv": [
+    "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-profile-consistency-20261007/installed/check_installed_custody.py"
+  ],
+  "cwd": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9476"
+  },
+  "PYTHONPATH": "absent",
+  "exit_code": 0,
+  "seconds": 1.0381569629826117,
+  "stdout": {
+    "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/pre-custody.stdout.txt",
+    "bytes": 4068,
+    "sha256": "0b845d6a8582b7b184cc08981f23fb2e9d8c97d39bd79fcab34512663eb6ff6a"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/pre-custody.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

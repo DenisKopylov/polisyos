@@ -1,0 +1,213 @@
+{
+  "grade": "source_reported_compact_text_only; candidate_routes",
+  "matching_cells": 1,
+  "displayed_cells": 1,
+  "states": {
+    "PASS": 1
+  },
+  "cells": [
+    {
+      "id": "F02-P050",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "5",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "19.2",
+      "rss_kib": "503132",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "178",
+      "extra_json": "{}"
+    }
+  ],
+  "finding_routes": [
+    {
+      "finding_id": "B212",
+      "unit": "F",
+      "cell_id": "F02-P050",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B212"
+    },
+    {
+      "finding_id": "B213",
+      "unit": "F",
+      "cell_id": "F02-P050",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B213"
+    }
+  ],
+  "finding_basis": [
+    {
+      "finding_id": "B212",
+      "bundle_ids": [
+        "CAU-04"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#cau-04; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B212",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B212",
+      "assigned_routes": [
+        {
+          "job": "F02",
+          "ref": "research_main",
+          "cell_ids": [
+            "F02-P050"
+          ]
+        },
+        {
+          "job": "F04",
+          "ref": "research_main",
+          "cell_ids": [
+            "F04-P108"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P110"
+          ]
+        },
+        {
+          "job": "F15",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F15-P127"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B213",
+      "bundle_ids": [
+        "CAU-04"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#cau-04; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B213",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B213",
+      "assigned_routes": [
+        {
+          "job": "F02",
+          "ref": "research_main",
+          "cell_ids": [
+            "F02-P050"
+          ]
+        },
+        {
+          "job": "F04",
+          "ref": "research_main",
+          "cell_ids": [
+            "F04-P108"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P110"
+          ]
+        },
+        {
+          "job": "F15",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F15-P127"
+          ]
+        }
+      ]
+    }
+  ],
+  "unrouted_findings": [],
+  "matching_source_blocks": 3,
+  "source_blocks": [
+    {
+      "job": "F02",
+      "source_file": "received/F02.txt",
+      "line_start": 335,
+      "line_end": 335,
+      "kind": "json_block",
+      "cell_ids": [
+        "F02-P050"
+      ],
+      "keys": [
+        "cell",
+        "phase",
+        "outcome",
+        "actual",
+        "report_line",
+        "missing_inputs",
+        "nodeids"
+      ],
+      "grade": "source_locator_not_normalized_failure_event",
+      "source_text": "{\"cell\":\"F02-P050\",\"phase\":\"call\",\"outcome\":\"skipped\",\"actual\":\"Skipped: could not import 'dowhy': No module named 'dowhy'\",\"report_line\":130,\"missing_inputs\":[{\"kind\":\"module\",\"name\":\"dowhy\"}],\"nodeids\":[\"tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py::test_dowhy_v2_linear_confounding_matches_ground_truth\"]}"
+    },
+    {
+      "job": "F02",
+      "source_file": "received/F02.txt",
+      "line_start": 336,
+      "line_end": 336,
+      "kind": "json_block",
+      "cell_ids": [
+        "F02-P050"
+      ],
+      "keys": [
+        "cell",
+        "phase",
+        "outcome",
+        "actual",
+        "report_line",
+        "missing_inputs",
+        "nodeids"
+      ],
+      "grade": "source_locator_not_normalized_failure_event",
+      "source_text": "{\"cell\":\"F02-P050\",\"phase\":\"call\",\"outcome\":\"skipped\",\"actual\":\"Skipped: could not import 'dowhy': No module named 'dowhy'\",\"report_line\":157,\"missing_inputs\":[{\"kind\":\"module\",\"name\":\"dowhy\"}],\"nodeids\":[\"tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py::test_dowhy_v2_smoke_on_phase2_fixtures[_fork_fixture_v2-0.1]\",\"tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py::test_dowhy_v2_smoke_on_phase2_fixtures[_chain_fixture_v2-0.2]\",\"tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py::test_dowhy_v2_smoke_on_phase2_fixtures[_diamond_fixture_v2-0.2]\"]}"
+    },
+    {
+      "job": "F02",
+      "source_file": "received/F02.txt",
+      "line_start": 337,
+      "line_end": 337,
+      "kind": "json_block",
+      "cell_ids": [
+        "F02-P050"
+      ],
+      "keys": [
+        "cell",
+        "phase",
+        "outcome",
+        "actual",
+        "report_line",
+        "missing_inputs",
+        "nodeids"
+      ],
+      "grade": "source_locator_not_normalized_failure_event",
+      "source_text": "{\"cell\":\"F02-P050\",\"phase\":\"call\",\"outcome\":\"skipped\",\"actual\":\"Skipped: could not import 'dowhy': No module named 'dowhy'\",\"report_line\":169,\"missing_inputs\":[{\"kind\":\"module\",\"name\":\"dowhy\"}],\"nodeids\":[\"tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py::test_dowhy_v1_legacy_contract_still_works\"]}"
+    }
+  ],
+  "referenced_messages": [],
+  "available_job_context_blocks": 1,
+  "job_dictionary_or_context_blocks": [],
+  "matching_route_cells": 1,
+  "raw_archives_received": 0,
+  "limitations": "Locators are structured source blocks, not a normalized event census. PASS does not establish semantic adequacy or finding closure."
+}

@@ -1,0 +1,40 @@
+{
+  "command": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/validate_final_ledger_delta.py",
+    "--repo",
+    "/workspace/e02-F-closeout-20261006",
+    "--target",
+    "46cc03546f2572986962555ddf04d858163c1cf6",
+    "--output",
+    "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/final-ledger-positive.json"
+  ],
+  "cwd": "/workspace",
+  "exit": 0,
+  "elapsed_s": 2.7173922061920166,
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "purpose": "stdlib immutable Git metadata verification only"
+  },
+  "target": {
+    "sha": "46cc03546f2572986962555ddf04d858163c1cf6",
+    "tree": "bb2ceacff846b68466a03fce767f7d300b18240e"
+  },
+  "capture_replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/capture_metadata_check.py",
+    "bytes": 1628,
+    "sha256": "0eb3653d46c5587432f882ca1ef8d6c6e91102e0d50e081a11512cd2a1864a11"
+  },
+  "scope_guard": "All deciding reads immutable target Gitshow; no repo writes",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/final-ledger-positive.stdout",
+    "bytes": 576,
+    "sha256": "0131fbadef4c14ac607bf2a9d3aa300e7697ee68de58f08382f954ec4793623e"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/final-ledger-positive.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

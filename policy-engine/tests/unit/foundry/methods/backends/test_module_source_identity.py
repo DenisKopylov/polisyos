@@ -7,7 +7,7 @@ import math
 import sys
 from dataclasses import replace
 from types import ModuleType
-from typing import ClassVar
+from typing import ClassVar, NamedTuple
 
 import pytest
 
@@ -18,7 +18,7 @@ from polisyos.foundry.methods.backends.checkpointing import (
     CheckpointIdentityError,
     CheckpointingChainExecutor,
 )
-from polisyos.foundry.methods.base import ParameterSpec
+from polisyos.foundry.methods.base import ComputeBackend, ParameterSpec
 from polisyos.foundry.methods.components.composer import MethodComposer
 
 from .test_checkpoint_identity import (
@@ -30,6 +30,213 @@ from .test_checkpoint_identity import (
     _RecordingDispatcher,
     _strict_context,
 )
+
+_DATA_GETTER = getattr
+_DATA_FIELDS = ("product",)
+params = "product"
+field_names = ("product",)
+field_name = "product"
+reader = abs
+
+
+class _DataFieldState(NamedTuple):
+    operand: object
+    product: object
+
+
+class _DataFieldMethod:
+    signature: ClassVar = replace(
+        _PRODUCER_SIGNATURE,
+        name="data_field",
+        backend=ComputeBackend.JAX,
+        input_slots=_CONSUMER_SIGNATURE.input_slots,
+        parameters=(ParameterSpec("factor", default=2, is_static=False),),
+        supports_jit=True,
+    )
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return state._replace(product=state.operand * params["factor"])
+
+    @staticmethod
+    def dematerialize_output(output):
+        return {field: _DATA_GETTER(output, field, output) for field in _DATA_FIELDS}
+
+
+@pytest.mark.parametrize("jit", [False, True])
+def test_finite_aliased_data_getter_keeps_real_numeric_warm_handles(jit):
+    import jax.numpy as jnp
+
+    from polisyos.foundry.methods.compiler import CompilationCache, MethodCompiler
+
+    _, registry = _chain()
+    registry.register(_DataFieldMethod)
+    compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+    state = _DataFieldState(jnp.asarray(10.0), jnp.asarray(0.0))
+    cold = compiler.compile(
+        method_name=_DataFieldMethod.signature.fqn,
+        params={"factor": 2},
+        sample_inputs={"operand": state.operand},
+        jit=jit,
+    )
+    warm = compiler.compile(
+        method_name=_DataFieldMethod.signature.fqn,
+        params={"factor": 3},
+        sample_inputs={"operand": state.operand},
+        jit=jit,
+    )
+    assert cold._kernel is warm._kernel
+    assert float(_DataFieldMethod.dematerialize_output(cold.step_fn(state, {}))["product"]) == 20
+    assert float(_DataFieldMethod.dematerialize_output(warm.step_fn(state, {}))["product"]) == 30
+
+
+class _DynamicFieldSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {"product": _DATA_GETTER(state, params["field"], state)}
+
+
+class _ReboundFieldSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        try:
+            raise ValueError("replacement input")
+        except ValueError as state:
+            return {"product": len(_DATA_GETTER(state, "args", state))}
+
+
+class _GenericFieldSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step[T](state, params):
+        return {"product": _DATA_GETTER(state, "product", state)}
+
+
+@pytest.mark.parametrize("source", [_DynamicFieldSource, _ReboundFieldSource, _GenericFieldSource])
+def test_runtime_selector_or_rebinding_does_not_gain_data_field_identity(tmp_path, source):
+    chain, registry = _chain()
+    registry.register(source, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    dispatcher = _RecordingDispatcher()
+    with pytest.raises(CheckpointIdentityError):
+        CheckpointingChainExecutor(
+            registry=registry, dispatcher=dispatcher, artifact_store=store
+        ).execute(chain, initial_state={"x": 3}, artifact_context=_strict_context(store, chain))
+    assert dispatcher.calls == []
+
+
+class _ShadowedSelectorSource:
+    signature: ClassVar = replace(
+        _PRODUCER_SIGNATURE,
+        parameters=(ParameterSpec("effect_path", default=""),),
+    )
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        def unused():
+            global params
+            return params
+
+        with open(params["effect_path"], "a", encoding="utf-8") as output:
+            output.write("body\n")
+        return {"product": _DATA_GETTER(state, params, state)}
+
+
+class _ShadowedIteratorSource:
+    signature: ClassVar = _ShadowedSelectorSource.signature
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, field_names):
+        def unused():
+            global field_names
+            return field_names
+
+        with open(field_names["effect_path"], "a", encoding="utf-8") as output:
+            output.write("body\n")
+        return {"product": {name: _DATA_GETTER(state, name, state) for name in field_names}}
+
+
+def _closure_collision_source(field_name):
+    class ClosureCollisionSource:
+        signature: ClassVar = _ShadowedSelectorSource.signature
+        metadata: ClassVar = _METADATA
+
+        @staticmethod
+        def pure_step(state, params):
+            def unused():
+                global field_name
+                return field_name
+
+            with open(params["effect_path"], "a", encoding="utf-8") as output:
+                output.write("body\n")
+            return {"product": _DATA_GETTER(state, field_name, state)}
+
+    return ClosureCollisionSource
+
+
+def _getter_collision_source(reader):
+    class GetterCollisionSource:
+        signature: ClassVar = _ShadowedSelectorSource.signature
+        metadata: ClassVar = _METADATA
+
+        @staticmethod
+        def pure_step(state, params):
+            def unused():
+                global reader
+                return reader
+
+            with open(params["effect_path"], "a", encoding="utf-8") as output:
+                output.write("body\n")
+            return {"product": reader(state, params, state)}
+
+    return GetterCollisionSource
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        _ShadowedSelectorSource,
+        _ShadowedIteratorSource,
+        _closure_collision_source("other"),
+        _getter_collision_source(getattr),
+    ],
+)
+def test_recursive_global_capture_cannot_authorize_other_root_bindings(tmp_path, source):
+    _, registry = _chain()
+    registry.register(source, override=True)
+    composer = MethodComposer(registry=registry)
+    node = composer.add(source.signature.fqn)
+    chain = composer.build(validate_semantics=False)
+    store = FileSystemCAS(tmp_path / "cas")
+    effects = tmp_path / "effects.txt"
+    observed = {"refusal": None}
+    try:
+        CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain,
+            initial_state={"x": 3},
+            params_per_node={node.id: {"effect_path": str(effects)}},
+            artifact_context=_strict_context(store, chain),
+        )
+    except Exception as error:  # preserve the actual before-body/after-body distinction
+        observed.update({"error": type(error).__name__, "message": str(error)})
+        if isinstance(error, CheckpointIdentityError):
+            observed["refusal"] = type(error).__name__
+    observed["actual_effects"] = effects.read_text().splitlines() if effects.exists() else []
+    (tmp_path / "measurement.json").write_text(json.dumps(observed, indent=2) + "\n")
+    print("ROOT_CAPTURE_OBSERVATION", json.dumps(observed, sort_keys=True))  # noqa: T201
+    assert observed["refusal"] == "CheckpointIdentityError"
+    assert observed["actual_effects"] == []
 
 
 def _frame_original_increment(value, effect_path):

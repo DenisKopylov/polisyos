@@ -1,0 +1,14 @@
+{
+  "count": 1,
+  "pass": 0,
+  "nonpass": [
+    {
+      "classname": "tests.unit.foundry.methods.backends.test_module_source_identity",
+      "name": "test_runtime_selector_or_rebinding_does_not_gain_data_field_identity[_GenericFieldSource]",
+      "tags": [
+        "failure"
+      ]
+    }
+  ],
+  "origins": 166
+}

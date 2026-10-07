@@ -1,0 +1,8 @@
+from pathlib import Path
+import hashlib,json,os,subprocess,time
+root=Path('/workspace/e02-B-current-composition');cwd=root/'policy-engine';out=Path('/tmp/e02-B-jit-data-getattr-20261007');python='/workspace/polisyos/policy-engine/.venv/bin/python';identity='src/polisyos/foundry/methods/artifacts/_implementation_identity.py';tests='tests/unit/foundry/methods/backends/test_module_source_identity.py'
+for name,argv in [('ruff',[python,'-m','ruff','check','--no-cache',identity,tests]),('format',[python,'-m','ruff','format','--no-cache','--check',identity,tests]),('mypy',[python,'-m','mypy','--cache-dir',str(out/'mypy-cache'),identity])]:
+ start=time.monotonic();before=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+ with (out/(name+'.txt')).open('xb') as log:
+  child=subprocess.Popen(argv,cwd=cwd,stdout=log,stderr=subprocess.STDOUT);_,status,usage=os.wait4(child.pid,0);child.returncode=os.waitstatus_to_exitcode(status)
+ b=(out/(name+'.txt')).read_bytes();j={'argv':argv,'cwd':str(cwd),'source_sha':before,'source_after':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'source_status':subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True),'wall_seconds':time.monotonic()-start,'max_rss_kib':usage.ru_maxrss,'actual_exit_code':child.returncode,'output':{'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()},'environment':{k:os.environ.get(k) for k in ('PYTHONDONTWRITEBYTECODE','GIT_OBJECT_DIRECTORY','GIT_ALTERNATE_OBJECT_DIRECTORIES','GIT_INDEX_FILE')}};(out/(name+'.json')).write_text(json.dumps(j,indent=2)+'\n');print(name,child.returncode,b.decode().strip(),flush=True)

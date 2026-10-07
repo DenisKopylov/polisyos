@@ -34,11 +34,36 @@ same-version member replacement therefore invalidates checkpoint reuse and
 compiler specialization. Unused module members are outside the selected graph.
 Module transport/aliasing, dynamic imports, class-held modules and paths through
 non-module objects are outside the supported static member graph. Nested Python
-code uses the same referenced-global census. Local import bytecodes, directly
+code uses the same referenced-global census. Except for the finite `getattr`
+data-field profile below, local import bytecodes, directly
 captured `__import__`, `compile`, `delattr`, `dir`, `eval`, `exec`, `getattr`,
 `globals`, `locals`, `setattr` and `vars` builtins (including aliases), and the
 checked function/class namespace attributes refuse strict admission. These
 checks do not establish universal reflection refusal.
+
+The actual `getattr` builtin has one finite data-field profile: every use must
+select public fields on an unrebound runtime parameter, directly or in one
+comprehension over a captured immutable tuple/frozenset of field names. Literal
+or captured immutable string selectors are also bound. An optional default
+must be that same runtime parameter. The projection binds the actual builtin,
+source, complete selectors and existing captured values; it never infers a
+runtime type or descriptor identity from a list of declared output names.
+Captured module reflection, dynamic field-name inputs, private namespace
+selectors, rebinding and getter transport retain strict refusal. This permits
+ordinary scientific output dematerialization while explicitly leaving arbitrary
+runtime targets, descriptors and returned context capabilities unproved.
+Python's function symbol table binds the no-rebinding premise, including
+exception names, definitions, imports and pattern captures. Generic functions
+with a separate type-parameter scope are outside this getter profile and refuse
+through the existing typed identity boundary.
+Getter aliases and captured selector/iterator names must resolve to this
+function's actual global/free bindings, with nonlocals taking precedence.
+Runtime parameters, local/comprehension shadows and ambiguous same-name
+recursive captures cannot supply the asserted immutable selector or builtin.
+Those profiles refuse before a scientific body runs.
+The getter family is selected from both actual root bindings and recursive
+captures. Replacing a flattened capture with another builtin cannot skip the
+actual root getter's admission checks.
 
 An opaque builtin can return a runtime namespace without exposing its selected
 members to this graph. The real `sys._getframe().f_globals["math"]` checkpoint

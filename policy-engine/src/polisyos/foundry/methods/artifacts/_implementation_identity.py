@@ -7,10 +7,13 @@ executes a helper or descriptor to discover its implementation.
 
 from __future__ import annotations
 
+import ast
 import builtins
 import dis
 import inspect
+import symtable
 import sys
+import textwrap
 from collections.abc import Callable, Iterator
 from dataclasses import fields, is_dataclass
 from enum import Enum
@@ -73,6 +76,12 @@ def _instructions(code: CodeType) -> Iterator[dis.Instruction]:
     for constant in code.co_consts:
         if isinstance(constant, CodeType):
             yield from _instructions(constant)
+
+
+def _root_function_captures(function: FunctionType) -> dict[str, Any]:
+    """Resolve the actual root namespace, preserving nonlocal precedence."""
+    captures = inspect.getclosurevars(function)
+    return {**captures.builtins, **captures.globals, **captures.nonlocals}
 
 
 def _function_captures(function: FunctionType) -> dict[str, Any]:
@@ -223,6 +232,164 @@ def _module_capture(
     return {"module": module.__name__, "version": version, "selected_members": members}
 
 
+def _data_field_getattr(
+    function: FunctionType, name: str, captures: dict[str, Any]
+) -> dict[str, Any] | None:
+    """Bind finite public field selection on an unrebound runtime parameter.
+
+    This binds code, the actual builtin and complete immutable field selectors.
+    It does not infer the runtime target's type or descriptor/context identity.
+    Captured module reflection still has no static member paths and is refused.
+    """
+    try:
+        source = textwrap.dedent(inspect.getsource(function))
+        tree = ast.parse(source)
+        symbols = symtable.symtable(source, function.__code__.co_filename, "exec")
+    except (OSError, TypeError, SyntaxError):
+        return None
+    definitions = [
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == function.__name__
+    ]
+    if len(definitions) != 1:
+        return None
+    definition = definitions[0]
+    scopes = [
+        scope
+        for scope in symbols.get_children()
+        if scope.get_type() == symtable.SymbolTableType.FUNCTION
+        and scope.get_name() == definition.name
+        and scope.get_lineno() == definition.lineno
+    ]
+    if len(scopes) != 1:
+        return None
+    parameters = {
+        arg.arg
+        for arg in (definition.args.posonlyargs + definition.args.args + definition.args.kwonlyargs)
+    }
+    nodes = list(ast.walk(definition))
+    parents = {child: parent for parent in nodes for child in ast.iter_child_nodes(parent)}
+    rebound = {
+        node.id
+        for node in nodes
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
+    }
+    # Python's own binding census includes exception names, nested definitions,
+    # imports and match captures, whose AST names are strings rather than
+    # Name(Store). Keep explicit deletion/comprehension checks as well.
+    rebound.update(
+        parameter
+        for parameter in parameters
+        if scopes[0].lookup(parameter).is_assigned() or scopes[0].lookup(parameter).is_imported()
+    )
+    root_bindings = _root_function_captures(function)
+    missing = object()
+
+    def root_capture(identifier: str) -> Any:
+        if identifier in rebound:
+            return missing
+        try:
+            symbol = scopes[0].lookup(identifier)
+        except KeyError:
+            return missing
+        if (
+            symbol.is_parameter()
+            or symbol.is_local()
+            or symbol.is_assigned()
+            or symbol.is_imported()
+            or not (symbol.is_global() or symbol.is_free())
+        ):
+            return missing
+        value = root_bindings.get(identifier, missing)
+        # Recursive globals cannot stand in for a parameter/local or overwrite
+        # this function's actual nonlocal binding. Ambiguous captures refuse.
+        if value is missing or captures.get(identifier, missing) is not value:
+            return missing
+        return value
+
+    if root_capture(name) is not builtins.getattr:
+        return None
+    fields: set[str] = set()
+    targets: set[str] = set()
+    uses = [
+        node
+        for node in nodes
+        if isinstance(node, ast.Name) and node.id == name and isinstance(node.ctx, ast.Load)
+    ]
+    for use in uses:
+        ancestor = parents.get(use)
+        while ancestor is not None and ancestor is not definition:
+            if isinstance(
+                ancestor, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)
+            ):
+                return None
+            ancestor = parents.get(ancestor)
+        call = parents.get(use)
+        if not (
+            isinstance(call, ast.Call)
+            and call.func is use
+            and len(call.args) in {2, 3}
+            and not call.keywords
+            and isinstance(call.args[0], ast.Name)
+            and call.args[0].id in parameters - rebound
+        ):
+            return None
+        target = call.args[0].id
+        if len(call.args) == 3 and not (
+            isinstance(call.args[2], ast.Name) and call.args[2].id == target
+        ):
+            return None
+        selector = call.args[1]
+        selected: Any = None
+        if isinstance(selector, ast.Constant):
+            selected = (selector.value,)
+        elif isinstance(selector, ast.Name):
+            captured = root_capture(selector.id)
+            if isinstance(captured, str):
+                selected = (captured,)
+            else:
+                for comprehension in nodes:
+                    if not isinstance(
+                        comprehension, (ast.DictComp, ast.ListComp, ast.SetComp, ast.GeneratorExp)
+                    ):
+                        continue
+                    if call not in ast.walk(comprehension):
+                        continue
+                    if len(comprehension.generators) != 1:
+                        return None
+                    for generator in comprehension.generators:
+                        if (
+                            not generator.is_async
+                            and isinstance(generator.target, ast.Name)
+                            and generator.target.id == selector.id
+                            and isinstance(generator.iter, ast.Name)
+                            and generator.iter.id not in rebound
+                        ):
+                            selected = root_capture(generator.iter.id)
+        if (
+            not isinstance(selected, (tuple, frozenset))
+            or not selected
+            or not all(
+                isinstance(field, str) and field.isidentifier() and not field.startswith("_")
+                for field in selected
+            )
+        ):
+            return None
+        fields.update(selected)
+        targets.add(target)
+    if not uses:
+        return None
+    return {
+        "symbol": "builtins.getattr",
+        "distribution_version": sys.version,
+        "selected_data_fields": sorted(fields),
+        "runtime_parameters": sorted(targets),
+        "runtime_target_type_and_internals": "not_bound",
+    }
+
+
 def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
     if isinstance(value, Enum):
         return {
@@ -330,13 +497,23 @@ def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
                     if name not in _CLASS_STRUCTURE
                 }
             else:
+                captures = _function_captures(value)
+                root_getters = {
+                    name
+                    for name, item in _root_function_captures(value).items()
+                    if item is builtins.getattr
+                }
                 result["captures"] = {
                     name: (
                         _module_capture(value, name, item, strict=strict, visiting=visiting)
                         if isinstance(item, ModuleType)
+                        else (
+                            _data_field_getattr(value, name, captures) or _unavailable(item, strict)
+                        )
+                        if item is builtins.getattr or name in root_getters
                         else _project(item, strict=strict, visiting=visiting)
                     )
-                    for name, item in sorted(_function_captures(value).items())
+                    for name, item in sorted(captures.items())
                 }
                 result["defaults"] = _project(value.__defaults__, strict=strict, visiting=visiting)
                 result["keyword_defaults"] = {

@@ -96,6 +96,8 @@ def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):
 
 @pytest.mark.parametrize("mutation", ["mean", "profile", "carrier", "rows", "required", "context"])
 def test_integrity_valid_forged_profile_refuses_fresh_named_computation(tmp_path, mutation):
+    from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+
     env = summarize_bayesian_calibration_posterior({"x": [0, 0, 100]}).parameter_envelopes["x"]
     payload = deepcopy(env.model_dump(mode="python"))
     if mutation == "mean":
@@ -110,13 +112,26 @@ def test_integrity_valid_forged_profile_refuses_fresh_named_computation(tmp_path
         payload["metadata"]["posterior_summary_profile"]["context"]["purpose"] = "forged"
     else:
         del payload["metadata"]["posterior_summary_profile"]
-    forged = UncertaintyEnvelope.model_validate(payload)
+    # Persist the deliberately invalid raw input without first coercing or
+    # constructing its DTO. Admission may reject at the fresh raw inlet.
     store = core_artifacts.FileSystemCAS(tmp_path)
-    ref = persist_uncertainty_envelope(store, forged)
-    assert store.verify(ref.artifact_id).ok
-    fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+    record = store.put_json(
+        payload,
+        core_artifacts.PutOptions(
+            kind="ir.uncertainty_envelope",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
+        ),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
+    )
+    ref = UncertaintyEnvelopeRef.model_validate(
+        record.model_dump(include={"artifact_id", "kind", "media_type"})
+    )
+    assert store.verify(record).ok
     with pytest.raises(ValueError):
-        posterior_nominal_mean(fresh)
+        posterior_nominal_mean(
+            load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+        )
 
 
 def test_v11_unprofiled_inline_carrier_replay_is_unchanged(tmp_path):

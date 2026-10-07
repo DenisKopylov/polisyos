@@ -7,7 +7,7 @@ import numbers
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from statistics import NormalDist
-from typing import Any
+from typing import Any, SupportsFloat, SupportsIndex
 
 import numpy as np
 
@@ -156,6 +156,7 @@ def envelope_from_calibration_param(
                 break
 
     return UncertaintyEnvelope(
+        schema_version="1.1",
         point_estimate=float(point),
         confidence_interval=(ci_lower, ci_upper),
         confidence_level=None,
@@ -276,7 +277,8 @@ def summarize_bayesian_calibration_posterior(
         or any(not isinstance(value, str) or not value.strip() for value in ids)
     ):
         raise ValueError("posterior draw IDs must be unique aligned non-empty strings")
-    context = context or PosteriorSummaryContext()
+    if context is None:
+        context = PosteriorSummaryContext()
     if set(context.parameters) - set(names):
         raise ValueError("posterior context contains an unmatched parameter binding")
 
@@ -296,6 +298,7 @@ def summarize_bayesian_calibration_posterior(
         posterior_means[param_name] = point
         credible_intervals[param_name] = interval
         parameter_envelopes[param_name] = UncertaintyEnvelope(
+            schema_version="1.1",
             point_estimate=median,
             confidence_interval=interval,
             confidence_level=float(credible_mass),
@@ -327,6 +330,8 @@ def summarize_bayesian_calibration_posterior(
         if isinstance(noise_map, Mapping) and param_name in noise_map:
             aleatoric_std = max(float(noise_map[param_name]), 0.0)
         elif np.isscalar(noise_map):
+            if not isinstance(noise_map, (str, bytes, SupportsFloat, SupportsIndex)):
+                raise TypeError("scalar emulator noise requires a supported float conversion")
             aleatoric_std = max(float(noise_map), 0.0)
         decomposition = UncertaintyDecomposition.from_gaussian_components(
             metric_id=param_name,
@@ -363,6 +368,9 @@ def summarize_bayesian_calibration_posterior(
 
     joint_digest = joint_carrier_digest(names, parameter_envelopes, ids)
     for name, envelope in parameter_envelopes.items():
+        carrier = envelope.distribution_payload
+        if not isinstance(carrier, PosteriorSamplesCarrier):
+            raise ValueError("posterior summary requires its actual posterior samples carrier")
         profile = PosteriorSummaryProfileV2(
             parameter_name=name,
             parameter_order=tuple(names),
@@ -374,7 +382,7 @@ def summarize_bayesian_calibration_posterior(
             probabilities=probabilities,
             posterior_mean=posterior_means[name],
             credible_mass=float(credible_mass),
-            carrier_content_hash=posterior_carrier_content_hash(envelope.distribution_payload),
+            carrier_content_hash=posterior_carrier_content_hash(carrier),
             joint_law_sha256=joint_digest,
             binding=context.parameters.get(name),
             context=context,

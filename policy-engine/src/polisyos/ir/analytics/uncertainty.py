@@ -1388,12 +1388,11 @@ class UncertaintyEnvelope(BaseModel):
         from .posterior_summary import (
             PROFILE_ID,
             PROFILE_KEY,
-            _profile_declared,
             validate_raw_posterior_summary_envelope,
         )
 
         metadata = value.get("metadata")
-        if isinstance(metadata, dict) and _profile_declared(metadata):
+        if isinstance(metadata, dict):
             declaration = metadata.get(PROFILE_KEY)
             literal_profile1 = (
                 isinstance(declaration, dict)

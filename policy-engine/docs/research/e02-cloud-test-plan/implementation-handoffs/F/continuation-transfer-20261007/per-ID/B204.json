@@ -1,0 +1,670 @@
+{
+  "finding_id": "B204",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B204",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-01",
+    "source_bundle_ids": "CAU-01",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "CAU-01",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "Standard DiD: допустимый дизайн, covariance и уровни CI"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B204",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5094,
+        5105
+      ],
+      "bytes": 3579,
+      "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+      "title": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн\n\n**Приоритет:** высокий на стандартном DiD-маршруте; небольшой адресный ремонт. **Основание:** PanelObservationalData, _run_standard_did и _parallel_trend_diagnostic; ID01–ID04. [C20.R02, R04]\n\n**Проблема.** Общий panel-контракт допускает time_treatment=0. Стандартный оцениватель не добавляет требование ненулевого pre-периода. Все значения Post равны единице, а столбцы Post×Treat и Treat совпадают. np.linalg.lstsq возвращает решение недоопределённой регрессии, и вызывается build_success_report. При t0<3 диагностика параллельности возвращает passed=True с причиной insufficient_pre_periods. Это полезное указание причины, но не проведённая проверка предпосылки.\n\n**Воспроизведение.** Четыре единицы с рядами [10,12], [14,16], [2,4], [6,8]; первые две treated, t0=0. Настоящий перенесённый panel-валидатор принимает вход. Ранг матрицы равен 2 при четырёх столбцах; численно возвращается ATT=4 и запрашивается SUCCESS-report, pre_periods=0. Это лишь часть межгруппового различия, а не идентифицированная разность изменений. ReportFixture регистрирует конструирование; нативные IR-сертификаты и downstream-gates не исполнялись.\n\n**Рекомендуемое исправление.** На входе именно standard-DiD проверить наличие пригодных pre/post наблюдений и обоих сравниваемых режимов, затем определить оценимый контраст. При отсутствии pre сохранить описательные межгрупповые различия либо маршрутизировать на другой обоснованный дизайн. Не запрещать t0=0 в общей модели PanelObservationalData, если такой объект нужен другим методам. Для pre-trend различать невычислимость, неотвержение и найденное нарушение; не назначать «доказано» на основании одного p-value.\n\n**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.\n\n",
+  "primary_acceptance_scope": "Estimable standard pre/post contrast; zero-pre refusal, hand ATT3, numeric/control validation, not_testable/nonrejection/violation dispositions without identification authority.",
+  "source_chain": {
+    "producer": "StandardDifferenceInDifferences.pure_step",
+    "artifact": "CausalEffectReport + uncertainty_envelope",
+    "bridge": "canonical method-output dematerializer/MethodJob CAS",
+    "consumer": "fresh report reader and root diagnostic projection"
+  },
+  "actual_recorded_consumer": "StandardDifferenceInDifferences.pure_step → canonical report; root diagnostic reader is a separate bound consumer",
+  "surface": "Declared Standard/Staggered DiD or RDD method parameters and typed CausalEffectReport/envelope consumer ABI",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B204"
+      ]
+    },
+    {
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B204"
+      ],
+      "json_pointer": "/per_finding/B204"
+    },
+    {
+      "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+      "bytes": 162688,
+      "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+      "git_blob": "52e8ce5c1ad6f4fc5d43f01d47f46f48ca4890f9",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B204"
+      ],
+      "json_pointer": "/per_finding/B204"
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B204.json",
+    "bytes": 44361,
+    "sha256": "fecf8a88cd9bd29bc895c07906d7bc329be3b2796c0aebcf174105668e6e819a",
+    "git_blob": "d86606af71f367e79b8f8ff479f821608d637fdc"
+  },
+  "scientific_implementation": {
+    "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack",
+  "complete_raw_receipt_checks_refs": [
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/0",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/1",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/2",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/3",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/4",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/5",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/6",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/7",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/8",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/9",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/10",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/11",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/12",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/13",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/14",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/15",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/16",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/17",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/18",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/19",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json#/checks/20",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/0",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/1",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/2",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/3",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/4",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/5",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/6",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/7",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/8",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/9",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/10",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/11",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/12",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/13",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/14",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/15",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/16",
+    "f88c98a190c336ef414361a236276ed7ea6d3d62:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json#/checks/17"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None for this original finite design predicate.",
+    "actual_consumer": "StandardDifferenceInDifferences.pure_step → canonical report; root diagnostic reader is a separate bound consumer",
+    "oracle_and_negative": "Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack",
+    "separate_unavailable_inputs_or_authority": "Untreated real parallel trends and causal identification are not established by pretrend nonsignificance."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Untreated real parallel trends and causal identification are not established by pretrend nonsignificance.",
+  "existing_author_or_reviewer_conflict": "Reviewer previously authored CAU and graph-intake provider; current independent role is ROOT original-criterion reconciliation. Prior scientific validation uses source-bound independent economics/graph/API receipts, not self-claimed fresh independent math.",
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "CAU-01",
+  "criterion_short": "Estimable standard pre/post contrast; zero-pre refusal, hand ATT3, numeric/control validation, not_testable/nonrejection/violation dispositions without identification authority.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+  "code_tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+  "consumer": "StandardDifferenceInDifferences.pure_step → canonical report; root diagnostic reader is a separate bound consumer",
+  "oracle_and_negative": "Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "historical_ROOT072_original_bound_row": {
+    "finding_id": "B204",
+    "primary_bundle": "CAU-01",
+    "primary_tsv_owner": {
+      "finding_id": "B204",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-01",
+      "source_bundle_ids": "CAU-01",
+      "source_status": "partial"
+    },
+    "original_source_criterion_refs": [
+      {
+        "criterion_id": "B204",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5094,
+          5105
+        ],
+        "bytes": 3579,
+        "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+        "title": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн",
+        "byte_binding_check": "PASS",
+        "complete_original_block": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн\n\n**Приоритет:** высокий на стандартном DiD-маршруте; небольшой адресный ремонт. **Основание:** PanelObservationalData, _run_standard_did и _parallel_trend_diagnostic; ID01–ID04. [C20.R02, R04]\n\n**Проблема.** Общий panel-контракт допускает time_treatment=0. Стандартный оцениватель не добавляет требование ненулевого pre-периода. Все значения Post равны единице, а столбцы Post×Treat и Treat совпадают. np.linalg.lstsq возвращает решение недоопределённой регрессии, и вызывается build_success_report. При t0<3 диагностика параллельности возвращает passed=True с причиной insufficient_pre_periods. Это полезное указание причины, но не проведённая проверка предпосылки.\n\n**Воспроизведение.** Четыре единицы с рядами [10,12], [14,16], [2,4], [6,8]; первые две treated, t0=0. Настоящий перенесённый panel-валидатор принимает вход. Ранг матрицы равен 2 при четырёх столбцах; численно возвращается ATT=4 и запрашивается SUCCESS-report, pre_periods=0. Это лишь часть межгруппового различия, а не идентифицированная разность изменений. ReportFixture регистрирует конструирование; нативные IR-сертификаты и downstream-gates не исполнялись.\n\n**Рекомендуемое исправление.** На входе именно standard-DiD проверить наличие пригодных pre/post наблюдений и обоих сравниваемых режимов, затем определить оценимый контраст. При отсутствии pre сохранить описательные межгрупповые различия либо маршрутизировать на другой обоснованный дизайн. Не запрещать t0=0 в общей модели PanelObservationalData, если такой объект нужен другим методам. Для pre-trend различать невычислимость, неотвержение и найденное нарушение; не назначать «доказано» на основании одного p-value.\n\n**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.\n\n"
+      }
+    ],
+    "criterion_short_ru": "Standard DiD: estimable pre/post contrast, ATT3, truthful pretrend states; no identification proof",
+    "actual_consumer": "StandardDifferenceInDifferences.pure_step → canonical report; root diagnostic reader is a separate bound consumer",
+    "source_scope": "Standard estimability and honest pretrend disposition, hand ATT3",
+    "oracle_and_negative": "Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Standard estimability and honest pretrend disposition, hand ATT3. Independent oracle/retained-marker negative: Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check": "PASS",
+    "outcome": "closed",
+    "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
+    "technical_original_criterion_recommendation": "closed",
+    "technical_historical_baseline_profile_outcome": null,
+    "technical_check": "PASS",
+    "current_continuation_outcome_recommendation": "closed",
+    "check_interpretation": "Proposed original/current criterion measurement disposition. Component-native PASSs remain on their exact source; pending owner/authority measurements are not PASS.",
+    "original_criterion_remainder": "None for this original finite design predicate.",
+    "separate_unavailable_inputs_or_authority": "Untreated real parallel trends and causal identification are not established by pretrend nonsignificance.",
+    "limit_next_owner_short_ru": "None for this original finite design predicate.",
+    "authority_check": "UNRUN",
+    "formal_G_accepted": false,
+    "formal_ledger_acceptance": "not_issued",
+    "receipt_ref": {
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "branch": "refs/heads/codex/e02-F-cau-20261006",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "table": "per_finding",
+      "per_id": "B204"
+    },
+    "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+    "historical_421_per_id_deciding_refs": [
+      {
+        "index": 1,
+        "check_id": "published-native",
+        "outcome": "PASS",
+        "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json"
+      },
+      {
+        "index": 7,
+        "check_id": "final-removal-no-pre",
+        "outcome": "FAIL",
+        "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stdout.txt.json"
+      }
+    ],
+    "historical_421_owner_decision": {
+      "property": "Native standard contrast refuses zero-pre and preserves hand ATT3; inadequate pretrend is not_testable, nonrejection has no identification authority.",
+      "selectors": [
+        "test_cau_01_standard_did_rejects_zero_pre_period",
+        "test_insufficient_pretrend_is_not_testable_never_passed",
+        "test_zero_pretrend_nonrejection_does_not_identify_parallel_trends",
+        "test_differential_pretrend_is_evidence_of_violation",
+        "test_did_standard_known_att"
+      ],
+      "checks": [
+        "published-native",
+        "final-removal-no-pre"
+      ],
+      "negative": "Actual zero-pre guard removal rejected; differential pretrend status violation, insufficient periods never passed.",
+      "limits": "Real untreated parallel trends not established by data or pretrend p.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B204",
+          "document": "B_r19",
+          "lines": [
+            5094,
+            5105
+          ],
+          "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+          "card": "CAU-01"
+        }
+      ],
+      "method_decision": "F-M3",
+      "native_outcome": "PASS",
+      "finding_state": "closed",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+      "prior_publication_classification": {
+        "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+        "native_outcome": "PASS_BOUNDED",
+        "finding_state": "limited_pending_G_replay_and_real_input_authority",
+        "superseded": true
+      },
+      "original_criterion": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          5094,
+          5105
+        ],
+        "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+        "exact_acceptance_text": "**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.",
+        "full_card_text": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн\n\n**Приоритет:** высокий на стандартном DiD-маршруте; небольшой адресный ремонт. **Основание:** PanelObservationalData, _run_standard_did и _parallel_trend_diagnostic; ID01–ID04. [C20.R02, R04]\n\n**Проблема.** Общий panel-контракт допускает time_treatment=0. Стандартный оцениватель не добавляет требование ненулевого pre-периода. Все значения Post равны единице, а столбцы Post×Treat и Treat совпадают. np.linalg.lstsq возвращает решение недоопределённой регрессии, и вызывается build_success_report. При t0<3 диагностика параллельности возвращает passed=True с причиной insufficient_pre_periods. Это полезное указание причины, но не проведённая проверка предпосылки.\n\n**Воспроизведение.** Четыре единицы с рядами [10,12], [14,16], [2,4], [6,8]; первые две treated, t0=0. Настоящий перенесённый panel-валидатор принимает вход. Ранг матрицы равен 2 при четырёх столбцах; численно возвращается ATT=4 и запрашивается SUCCESS-report, pre_periods=0. Это лишь часть межгруппового различия, а не идентифицированная разность изменений. ReportFixture регистрирует конструирование; нативные IR-сертификаты и downstream-gates не исполнялись.\n\n**Рекомендуемое исправление.** На входе именно standard-DiD проверить наличие пригодных pre/post наблюдений и обоих сравниваемых режимов, затем определить оценимый контраст. При отсутствии pre сохранить описательные межгрупповые различия либо маршрутизировать на другой обоснованный дизайн. Не запрещать t0=0 в общей модели PanelObservationalData, если такой объект нужен другим методам. Для pre-trend различать невычислимость, неотвержение и найденное нарушение; не назначать «доказано» на основании одного p-value.\n\n**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.\n\n",
+        "source_is_original_card": true
+      },
+      "check": "PASS",
+      "outcome": "closed",
+      "source_criterion_outcome": "closed",
+      "decision_reason": "Closed for the original standard-DiD estimability/diagnostic predicate: zero-pre is refused only at the estimator boundary; native known ATT3 survives; insufficient pretrend is not_testable and nonrejection has no identification authority. Real parallel trends are an identifying assumption, not a missing test of this generic criterion.",
+      "canonical_checks": [
+        {
+          "check_id": "published-native",
+          "check": "PASS",
+          "exit": 0,
+          "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "role": "native_property_measurement"
+        },
+        {
+          "check_id": "final-removal-no-pre",
+          "check": "FAIL",
+          "exit": 1,
+          "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "role": "property_removal_expected_rejection"
+        }
+      ],
+      "required_remaining_checks": [],
+      "closure_is_product_approval": false
+    },
+    "owner_proposals_complete": [
+      {
+        "registry_index": 1,
+        "receipt_ref": {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        "json_pointer": "/per_finding/B204",
+        "complete_owner_entry": {
+          "property": "Native standard contrast refuses zero-pre and preserves hand ATT3; inadequate pretrend is not_testable, nonrejection has no identification authority.",
+          "selectors": [
+            "test_cau_01_standard_did_rejects_zero_pre_period",
+            "test_insufficient_pretrend_is_not_testable_never_passed",
+            "test_zero_pretrend_nonrejection_does_not_identify_parallel_trends",
+            "test_differential_pretrend_is_evidence_of_violation",
+            "test_did_standard_known_att"
+          ],
+          "checks": [
+            "published-native",
+            "final-removal-no-pre"
+          ],
+          "negative": "Actual zero-pre guard removal rejected; differential pretrend status violation, insufficient periods never passed.",
+          "limits": "Real untreated parallel trends not established by data or pretrend p.",
+          "criterion_refs": [
+            {
+              "criterion_id": "B204",
+              "document": "B_r19",
+              "lines": [
+                5094,
+                5105
+              ],
+              "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+              "card": "CAU-01"
+            }
+          ],
+          "method_decision": "F-M3",
+          "native_outcome": "PASS",
+          "finding_state": "closed",
+          "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+          "prior_publication_classification": {
+            "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+            "native_outcome": "PASS_BOUNDED",
+            "finding_state": "limited_pending_G_replay_and_real_input_authority",
+            "superseded": true
+          },
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5094,
+              5105
+            ],
+            "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+            "exact_acceptance_text": "**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.",
+            "full_card_text": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн\n\n**Приоритет:** высокий на стандартном DiD-маршруте; небольшой адресный ремонт. **Основание:** PanelObservationalData, _run_standard_did и _parallel_trend_diagnostic; ID01–ID04. [C20.R02, R04]\n\n**Проблема.** Общий panel-контракт допускает time_treatment=0. Стандартный оцениватель не добавляет требование ненулевого pre-периода. Все значения Post равны единице, а столбцы Post×Treat и Treat совпадают. np.linalg.lstsq возвращает решение недоопределённой регрессии, и вызывается build_success_report. При t0<3 диагностика параллельности возвращает passed=True с причиной insufficient_pre_periods. Это полезное указание причины, но не проведённая проверка предпосылки.\n\n**Воспроизведение.** Четыре единицы с рядами [10,12], [14,16], [2,4], [6,8]; первые две treated, t0=0. Настоящий перенесённый panel-валидатор принимает вход. Ранг матрицы равен 2 при четырёх столбцах; численно возвращается ATT=4 и запрашивается SUCCESS-report, pre_periods=0. Это лишь часть межгруппового различия, а не идентифицированная разность изменений. ReportFixture регистрирует конструирование; нативные IR-сертификаты и downstream-gates не исполнялись.\n\n**Рекомендуемое исправление.** На входе именно standard-DiD проверить наличие пригодных pre/post наблюдений и обоих сравниваемых режимов, затем определить оценимый контраст. При отсутствии pre сохранить описательные межгрупповые различия либо маршрутизировать на другой обоснованный дизайн. Не запрещать t0=0 в общей модели PanelObservationalData, если такой объект нужен другим методам. Для pre-trend различать невычислимость, неотвержение и найденное нарушение; не назначать «доказано» на основании одного p-value.\n\n**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.\n\n",
+            "source_is_original_card": true
+          },
+          "check": "PASS",
+          "outcome": "closed",
+          "source_criterion_outcome": "closed",
+          "decision_reason": "Closed for the original standard-DiD estimability/diagnostic predicate: zero-pre is refused only at the estimator boundary; native known ATT3 survives; insufficient pretrend is not_testable and nonrejection has no identification authority. Real parallel trends are an identifying assumption, not a missing test of this generic criterion.",
+          "canonical_checks": [
+            {
+              "check_id": "published-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "final-removal-no-pre",
+              "check": "FAIL",
+              "exit": 1,
+              "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+              "role": "property_removal_expected_rejection"
+            }
+          ],
+          "required_remaining_checks": [],
+          "closure_is_product_approval": false
+        }
+      },
+      {
+        "registry_index": 21,
+        "receipt_ref": {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc"
+        },
+        "json_pointer": "/per_finding/B204",
+        "complete_owner_entry": {
+          "check": "PASS",
+          "outcome": "closed",
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5094,
+              5105
+            ],
+            "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+            "exact_acceptance_text": "**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.",
+            "source_is_original_card": true
+          },
+          "original_criterion_source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "original_card_binding_check": "PASS",
+          "prior_per_id_receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+            "pointer": "/per_finding/B204"
+          },
+          "method_decision": "F-M3",
+          "decision_basis": "Original generic scientific predicate retained on its exact prior source; focused current native sibling tests cover modifiedproducer. No oldMC receipt relabelled current.",
+          "negative": "diagnostic input digest removal4FAIL; stale/forged/coherent diagnostic claims refused in portable rootproposal",
+          "limits": "Real untreated parallel trends not established by data or pretrend p.",
+          "new_whole_diagnostic_consumer_check": "UNRUN",
+          "new_whole_diagnostic_consumer_owner": "root Scientist canonical projection; G assembles/fresh verifier Runtime admission on actuallocal inputs, not scientific authority owner."
+        }
+      }
+    ],
+    "supplemental_receipt_registry_indices": [
+      1,
+      21,
+      22,
+      26
+    ],
+    "current_exact_consumer_receipts": [
+      {
+        "key": "cau_science",
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "implementation_commits": [
+          "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+          "c7d33a223e467964c589f61c8b097eb9175335c5",
+          "0a25f3afee4c12ba8079c781618229589ef8af75",
+          "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+        ],
+        "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9"
+      },
+      {
+        "key": "cau",
+        "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+        "bytes": 162688,
+        "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+        "implementation_commits": [
+          "759c984f475d07c982c0f22f747588706ac752e8",
+          "856caddfa71423a439b1257d947d9657b6a29ff3",
+          "0b522ed173730b4ec744253bb75b6ee260bfcebb"
+        ],
+        "candidate_tree_sha": "a402720194c41d0b6c5bb93cceb326cd4699df72"
+      },
+      {
+        "key": "root",
+        "git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006.json",
+        "bytes": 13477,
+        "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927",
+        "implementation_commits": [
+          "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+          "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+          "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77"
+        ],
+        "candidate_tree_sha": "508884be8ea79e5b87844030ea4122c8e74d610a"
+      }
+    ],
+    "canonical_owner_re_adjudication_required": "For unavailable semantic/institutional inputs only; source-bound ROOT decisions and independent reviews are carried separately.",
+    "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+    "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+    "historical_proposal_before_ROOT_adjudication": {
+      "original_criterion_remainder": "None for this original finite design predicate.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "outcome": "closed",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "oracle_and_negative": "Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack",
+      "source_scope": "Standard estimability and honest pretrend disposition, hand ATT3",
+      "actual_consumer": "StandardDifferenceInDifferences.pure_step → canonical report; root diagnostic reader is a separate bound consumer",
+      "check": "PASS",
+      "decision_basis": null,
+      "separate_unavailable_inputs_or_authority": "Untreated real parallel trends and causal identification are not established by pretrend nonsignificance.",
+      "criterion_short_ru": "Standard DiD: estimable pre/post contrast, ATT3, truthful pretrend states; no identification proof",
+      "technical_original_criterion_recommendation": "closed",
+      "deciding_receipt_refs": null
+    },
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Standard estimability and honest pretrend disposition, hand ATT3. Independent oracle/retained-marker negative: Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
+    "ROOT_deciding_refs": [
+      {
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B204"
+        ]
+      },
+      {
+        "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+        "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B204"
+        ],
+        "json_pointer": "/per_finding/B204",
+        "complete_deciding_entry": {
+          "property": "Native standard contrast refuses zero-pre and preserves hand ATT3; inadequate pretrend is not_testable, nonrejection has no identification authority.",
+          "selectors": [
+            "test_cau_01_standard_did_rejects_zero_pre_period",
+            "test_insufficient_pretrend_is_not_testable_never_passed",
+            "test_zero_pretrend_nonrejection_does_not_identify_parallel_trends",
+            "test_differential_pretrend_is_evidence_of_violation",
+            "test_did_standard_known_att"
+          ],
+          "checks": [
+            "published-native",
+            "final-removal-no-pre"
+          ],
+          "negative": "Actual zero-pre guard removal rejected; differential pretrend status violation, insufficient periods never passed.",
+          "limits": "Real untreated parallel trends not established by data or pretrend p.",
+          "criterion_refs": [
+            {
+              "criterion_id": "B204",
+              "document": "B_r19",
+              "lines": [
+                5094,
+                5105
+              ],
+              "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+              "card": "CAU-01"
+            }
+          ],
+          "method_decision": "F-M3",
+          "native_outcome": "PASS",
+          "finding_state": "closed",
+          "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator.",
+          "prior_publication_classification": {
+            "receipt_commit": "67b2adb96afa878a00ea1f818840ad2738d9e3b4",
+            "native_outcome": "PASS_BOUNDED",
+            "finding_state": "limited_pending_G_replay_and_real_input_authority",
+            "superseded": true
+          },
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5094,
+              5105
+            ],
+            "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+            "exact_acceptance_text": "**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.",
+            "full_card_text": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн\n\n**Приоритет:** высокий на стандартном DiD-маршруте; небольшой адресный ремонт. **Основание:** PanelObservationalData, _run_standard_did и _parallel_trend_diagnostic; ID01–ID04. [C20.R02, R04]\n\n**Проблема.** Общий panel-контракт допускает time_treatment=0. Стандартный оцениватель не добавляет требование ненулевого pre-периода. Все значения Post равны единице, а столбцы Post×Treat и Treat совпадают. np.linalg.lstsq возвращает решение недоопределённой регрессии, и вызывается build_success_report. При t0<3 диагностика параллельности возвращает passed=True с причиной insufficient_pre_periods. Это полезное указание причины, но не проведённая проверка предпосылки.\n\n**Воспроизведение.** Четыре единицы с рядами [10,12], [14,16], [2,4], [6,8]; первые две treated, t0=0. Настоящий перенесённый panel-валидатор принимает вход. Ранг матрицы равен 2 при четырёх столбцах; численно возвращается ATT=4 и запрашивается SUCCESS-report, pre_periods=0. Это лишь часть межгруппового различия, а не идентифицированная разность изменений. ReportFixture регистрирует конструирование; нативные IR-сертификаты и downstream-gates не исполнялись.\n\n**Рекомендуемое исправление.** На входе именно standard-DiD проверить наличие пригодных pre/post наблюдений и обоих сравниваемых режимов, затем определить оценимый контраст. При отсутствии pre сохранить описательные межгрупповые различия либо маршрутизировать на другой обоснованный дизайн. Не запрещать t0=0 в общей модели PanelObservationalData, если такой объект нужен другим методам. Для pre-trend различать невычислимость, неотвержение и найденное нарушение; не назначать «доказано» на основании одного p-value.\n\n**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.\n\n",
+            "source_is_original_card": true
+          },
+          "check": "PASS",
+          "outcome": "closed",
+          "source_criterion_outcome": "closed",
+          "decision_reason": "Closed for the original standard-DiD estimability/diagnostic predicate: zero-pre is refused only at the estimator boundary; native known ATT3 survives; insufficient pretrend is not_testable and nonrejection has no identification authority. Real parallel trends are an identifying assumption, not a missing test of this generic criterion.",
+          "canonical_checks": [
+            {
+              "check_id": "published-native",
+              "check": "PASS",
+              "exit": 0,
+              "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+              "role": "native_property_measurement"
+            },
+            {
+              "check_id": "final-removal-no-pre",
+              "check": "FAIL",
+              "exit": 1,
+              "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+              "role": "property_removal_expected_rejection"
+            }
+          ],
+          "required_remaining_checks": [],
+          "closure_is_product_approval": false
+        }
+      },
+      {
+        "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+        "bytes": 162688,
+        "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+        "git_blob": "52e8ce5c1ad6f4fc5d43f01d47f46f48ca4890f9",
+        "check": "PASS",
+        "origins": [
+          "ROOT_adjudication/B204"
+        ],
+        "json_pointer": "/per_finding/B204",
+        "complete_deciding_entry": {
+          "check": "PASS",
+          "outcome": "closed",
+          "original_criterion": {
+            "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "lines": [
+              5094,
+              5105
+            ],
+            "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+            "exact_acceptance_text": "**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.",
+            "source_is_original_card": true
+          },
+          "original_criterion_source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "original_card_binding_check": "PASS",
+          "prior_per_id_receipt": {
+            "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+            "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+            "pointer": "/per_finding/B204"
+          },
+          "method_decision": "F-M3",
+          "decision_basis": "Original generic scientific predicate retained on its exact prior source; focused current native sibling tests cover modifiedproducer. No oldMC receipt relabelled current.",
+          "negative": "diagnostic input digest removal4FAIL; stale/forged/coherent diagnostic claims refused in portable rootproposal",
+          "limits": "Real untreated parallel trends not established by data or pretrend p.",
+          "new_whole_diagnostic_consumer_check": "UNRUN",
+          "new_whole_diagnostic_consumer_owner": "root Scientist canonical projection; G assembles/fresh verifier Runtime admission on actuallocal inputs, not scientific authority owner."
+        }
+      }
+    ],
+    "ROOT_adjudication_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/0"
+    }
+  },
+  "root_assembled_source": {
+    "sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

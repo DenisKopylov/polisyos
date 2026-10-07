@@ -463,7 +463,7 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 **IDs / current evidence.** B54 original fit-cache criterion closed на TMLE55d2: explicit key остаётся namespace поверх content identity, immutable issued numeric fit cores отделены от current diagnostic reports. Real sklearn fits/folds/data axes, reader mutation и native DGP/removal controls измерены в `F/tmle-20261006.json`.
 
-**Distinct B56 remainder.** Local fold execution/metadata не доказывают общий admitted study/process resource cap. Latest broker/study и native report-consumer continuation packets pending; не выдавать новую функцию или unreviewed receipt за accepted closure. Все folds/repeats/seeds/results должны сохраняться, resource gate не может выиграть omission.
+**Distinct B56 remainder.** Local fold execution/metadata не доказывают общий admitted study/process resource cap. Actual native TMLE persisted report → fresh ConfidencePass/value consumer выполнен на source0c/8d: 53 cases плюс independent mixed-reference controls. SUCCESS/CI сохраняются, causal blocker остаётся при missing/corrupt sibling simulation CAS. Genuine admitted shared-study workload/budget всё ещё UNRUN; consumer proof его не заменяет. Все folds/repeats/seeds/results должны сохраняться, resource gate не может выиграть omission.
 
 **Method profile.** Native targeting owner сохраняется; binary/bounded outcome fluctuation и continuous identity-link профили нельзя смешивать. EIF normal inference — declared iid/regularity/positivity asymptotic profile, не universal finite coverage. zEpid отсутствующий/import-only reference не PASS.
 
@@ -503,7 +503,7 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 **Actual oracle/evidence.** DIDcebe check3 complete `test_did_selected_participation.py::test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds`: **160** known serial-panel datasets per arm; true0CI154/160, true1.5CI154/160, null6/160reject, alternative160/160reject under declared binomial bounds. Hand cohort-time oracle differs from θ_W; share/uncentered/eligibility removals FAIL. DIAGNOSTICS0b changes diagnostic ownership and callers; it does **not** rerun or relabel this160-DGP wave.
 
-**Limits.** Original finite iid/large-independent-unit scientific discriminator established; current continuation remains limited for admitted production assumptions/authority. No official external `did` witness, small-G/simultaneous bands or real-panel coverage. Fixed support failure refuses the whole requested target rather than silently changing it.
+**Limits.** Original finite iid/large-independent-unit scientific discriminator recommended closed. Admitted production assumptions/authority остаются отдельным downstream contract, не новым исходным criterion. No official external `did` witness, small-G/simultaneous bands or real-panel coverage. Fixed support failure refuses the whole requested target rather than silently changing it.
 
 <a id="f-m6"></a>
 
@@ -525,11 +525,11 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 **IDs.** B212 point-only/no manufactured CI; B213 actual estimand/contrast/target binding. The criteria are distinct and must not swap labels.
 
-**Current evidence.** Source423 actual configured Python3.12 worker executes `CausalModel→identify_effect(proceed_when_unidentifiable=False)→estimate_effect` selected linear ATE. Python3.14 parent validates bounded versioned JSON/request/source/graph/target and persists typed report/CAS; historical installed5cd wheel/sdist consumers are real, source-specific. Missing worker/timeout/malformed version/hash/interval refuses; legitimate point-only remains no CI. ROOT3afb current typed-view/diagnostic boundary adds its own receipt; latest assembled confidence/native TMLE report continuation pending, not a new423 backend run.
+**Current evidence.** Source423 actual configured Python3.12 worker executes `CausalModel→identify_effect(proceed_when_unidentifiable=False)→estimate_effect` selected linear ATE. Python3.14 parent validates bounded versioned JSON/request/source/graph/target and persists typed report/CAS; historical installed5cd wheel/sdist consumers are real, source-specific. Missing worker/timeout/malformed version/hash/interval refuses; legitimate point-only remains no CI. ROOT3afb current typed-view/diagnostic boundary adds its own receipt; source8236 wheel/rebuilt-sdist consumers реально исполнены; new0c/8d TMLE persisted ConfidencePass witness выполнен отдельно, не новый423 backend run.
 
 **Profile/negative.** Selected control0/treatment1/ATE/no modifiers/backdoor.linear_regression; effective confidence level and one finite ordered interval exact shape(2,) or(1,2). Multirow/reversed/nonfinite/mismatched level refuses, never flatten/swap/fabricate. Real Statsmodels independent OLS interval and known confounded linear DGP; changed adjustment/target cannot pass merely on estimand type string. Mediation profiles unsupported absent actual method-specific input/oracle.
 
-**Runtime/authority.** DoWhy0.14 excludes Python3.14; application markers remain excluded and are not positive witnesses. Explicit locked3.12 computation profile is not whole-app downgrade or parallel fake backend. Source423 finite original scientific criterion measured; current whole consumer/real identification/Runtime evaluator/appointment/fresh challenge remains limited/UNRUN separately.
+**Runtime/authority.** DoWhy0.14 excludes Python3.14; application markers remain excluded and are not positive witnesses. Explicit locked3.12 computation profile is not whole-app downgrade or parallel fake backend. Source423 finite original criteria B212/B213 recommended closed. Whole Runtime-admitted Node и real identification/evaluator/appointment/fresh challenge остаются отдельными UNRUN contracts.
 
 <a id="f-m8"></a>
 
@@ -539,7 +539,7 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 **Complete finite denominator.** 8 providers,62 graph-taking entries/builders =57 static causal entries +5 raw endpoint/orientation utilities; actual source census2699Python files/179 resolved absolute-import/FQN callers.634 defining/cache checks and independent559 unique consumer cases PASS; 133PASS/3FAIL/2SKIP affected neighbors retained. Three malformed AMN/SID fixtures reproduce on exactbase provider; no P41 inherited label without full disjoint denominator. Actual Rule1/IDC/IDC*/CTF consumers +latent-DAG moralization oracle, not only importability.
 
-**Negative/limits.** CPDAG Y—Z original real rewrite FAIL retained; shared admission removal no-opRule1 FAIL and reverse normalization removal directed-law FAIL. Finite static ADMG only, not arbitrary PAG completion/ID completeness. LA-007/019 exact empty files already absent base198; nonempty packages preserved, no new deletion. Latest supported filename/loader/docs/installed API packet pending separately, no invented all-external-user prerequisite.
+**Negative/limits.** CPDAG Y—Z original real rewrite FAIL retained; shared admission removal no-opRule1 FAIL and reverse normalization removal directed-law FAIL. Finite static ADMG only, not arbitrary PAG completion/ID completeness. LA-007/019 exact empty files already absent base198; nonempty packages preserved, no new deletion. API90c supported filename/loader/docs/installed packet на source8236 исполнен. API605 reconciles nine later carrier commits: causal_graph.py AST equivalent, canonical internal contract retained; new2case consumer and2removal controls выполнены. Unknown computed/external callers не actual clients и не invented closure prerequisite.
 
 <a id="f-m9"></a>
 
@@ -549,7 +549,7 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 **Cache property.** CACHE213/e2c stores deeply immutable JSON tuples and returns fresh plain tuple/dict rows; native75PASS/independent23PASS, nested/weakref/warm-copy controls, three retained-marker removals FAIL. Preceding mutable-row FAIL is preserved, not overridden by old6d overclaim; Kuzu row/CSV ABI values unchanged, no liveKuzu run.
 
-**Profiles.** Known reverse default normalizes correctly; canonical DAG Scientist Node profile does not admit every known PAG/CPDAG type. Lag1/2/self-lag remain representation/export facts; STATIC518 refuses compact temporal inference. B214/B218 current limited; no invented dynamic estimator prerequisite to the original storage property, no identification from serialization.
+**Profiles.** Known reverse default normalizes correctly; canonical DAG Scientist Node profile does not admit every known PAG/CPDAG type. Lag1/2/self-lag remain representation/export facts; STATIC518 refuses compact temporal inference. B218 original lag/self-lag representation/export/static-refusal criterion recommended closed. B214 remains limited for explicit sound partial/conditional extension capability. Intake647 validates current selected CAS/composition bodies and preserves known endpoints; unresolved marks/compact lag typed-refuse before static persistence. Serialization не identification.
 
 <a id="f-m10"></a>
 
@@ -591,25 +591,25 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 **Original criterion.** Registration/spec, string class paths, PatchMap/active-target masks/fiscal balance/employer IDs/firm labor counts/PRNG progression/compiler/replay and existing fiscal/labor/gradient tests. Relocation preserves old ID/fingerprint; changed economic law needs its own version.
 
-**Current evidence.** ECO412 actual registry→compile→CAS→execute→apply_patch_map/load snapshot and adapter→native consumers compare complete patches/masks/accounting/count/key under finite equivalent fixtures; deliberate plugin-law divergences are LA-004, not relocation failure. Fiscal debit removal5FAIL/2outsidecontrolsPASS. Original whole LA-003 remains **limited** because actual decimal .10 fiscal budget precision gives1000.0000149011612 vs1000 in broader97; tolerance/law not altered to hide it.
+**Current evidence.** ECO412 actual registry→compile→CAS→execute→apply_patch_map/load snapshot and adapter→native consumers compare complete patches/masks/accounting/count/key under finite equivalent fixtures; deliberate plugin-law divergences are LA-004, not relocation failure. Fiscal debit removal5FAIL/2outsidecontrolsPASS. Historical decimal .10 escape1000.0000149011612 vs1000 corrected FISCAL132 by incoming-state dtype at actual ParamDecimal/compiler/CAS consumer. Original bounded relocation recommended closed; 24defaultfloat32 profiles byte-identical, separate40lower/int/x64 profiles disclose dtype/reduction differences. ABM diagnostic FAIL и P41 not_established сохраняются, law/tolerance не изменены для сокрытия результата.
 
 **Separate numeric companion.** CARRYc003 temporal output cast to incoming state dtype, actual abstract PPO-loss promoted carries and declared MetricsBuffer storage casts fixes two real train/ES dtype failures; own37PASS +independent37PASS. It does not decide fiscal decimal arithmetic, production calibration or universal migration equivalence. P41 remains not_established for overlapping broader gate.
 
 <a id="f-m14"></a>
 
-### F-M14 — LA-004 distinct models; LA-035 historical baseline and intent
+### F-M14 — LA-004 distinct models; LA-035 equivalent historical baseline
 
 **LA-004 original acceptance, closed finite profile.** Native reported-income flat tax updates income/government.balance and threshold labor/employer/count/key; EconomicsPlugin progressive wealth tax and find/separation/wage dynamics operate on EconomicState. ECO412 full state/units/time-step/taxbase/RNG/budget mapping, deliberately equal regimes **and** deliberate divergence, accounting/seed/observables actual producer→consumer proofs satisfy this criterion. Richer plugin is not drop-in replacement; no welfare normative choice is needed to establish inequivalence.
 
-**LA-035 remains held.** Original `-mean(income)/max(mean(abs(income)),1)+10·budget_penalty`, min_balance−1000, all population entries, aliases/nativeGlobalState/JIT/grad/numeric guards preserved. Nonnegative mean≥1 remains exactly−1 at every scale; not silently income maximization. Named optimizer/source-config/FQN caller and semantic units/population/time/sign intent are not established. Minimum owner packet in ECO check15 `author/economic-owner-packet.json`; no new welfare convention or interpretation is invented.
+**LA-035 original equivalent relocation, recommended closed.** Original `-mean(income)/max(mean(abs(income)),1)+10·budget_penalty`, min_balance−1000, all population entries, aliases/nativeGlobalState/JIT/grad/numeric guards preserved. Positive income≥1 remains exactly−1 at every scale; это normalized historical baseline, не raw-income maximization. ECO193 actual state/guard/JIT/gradient/literal caller tests: author83PASS, independent28+55PASS, 64Fraction evaluations/2analytic gradients and actual sign/guard removals FAIL. Existing formula unchanged; new optimizer or normative welfare packet не требуется исходной карточкой. New ranking/objective intent, если будет запрошен, требует отдельного owner decision/version. ROOT072 hold сохранён исторически.
 
-**Separate Gini property, no new ID.** Existing @foundry-owners numeric-guardrails decision admits classical Gini only on finite nonnegative active resources. Current canonical hard calculator/admission used by aggregate/PureExecutor, objectives, plugin/report API and enumerated live readers; signed simulations remain allowed with Gini disabled. Stale finite cache does not license current[-2,1]/[-1,2]. Dated DistributionAwareExecutor snapshot retains last_update_step and historical meaning. Current dtype metadata/float32storage precision preserved, equations/norm/weights/RNG unchanged. Known pairwise scale/zero-resource/JIT/registeredconsumer/removal proofs do not close LA-035 intent or LA-003 fiscal precision.
+**Separate Gini property, no new ID.** Existing @foundry-owners numeric-guardrails decision admits classical Gini only on finite nonnegative active resources. Current canonical hard calculator/admission used by aggregate/PureExecutor, objectives, plugin/report API and enumerated live readers; signed simulations remain allowed with Gini disabled. Stale finite cache does not license current[-2,1]/[-1,2]. Dated DistributionAwareExecutor snapshot retains last_update_step and historical meaning. Current dtype metadata/float32storage precision preserved, equations/norm/weights/RNG unchanged. New193 actual EconomicsTrainingAdapter→actor/temporal consumption→registered labor/tax/transfers/savings→active signed wealth проверен: eager bridge и requested JIT PPO metrics refuse classical Gini before aggregate/API; nonnegative active population positive. Plain trajectory without requested Gini may retain signed wealth. Это отдельная property, не новый ID, welfare convention или замена historical LA-035.
 
 <a id="f-m15"></a>
 
 ### F-M15 — Lex norm diff and topic hypotheses without effect/authority promotion
 
-**ID.** LA-017 finite pass-plan dedupe/source binding,CAS/CLI witnesses on Lex00a6 retained. Actual ExprAST, config/report identity and duplicate first occurrence property measured; full supported caller/config/corpus migration reconciliation remains limited, not completed by dedupe alone.
+**ID.** LA-017 finite pass-plan dedupe/source binding,CAS/CLI witnesses on Lex00a6 retained. Actual ExprAST, config/report identity, all four native norm-diff states, issue keys/pass configuration, persisted reports/refs and supported CLI/CAS relocation measured; original bounded migration recommended closed. Dedupe alone не является основанием этого решения; current-law authoritative conclusion остаётся отдельным local-only packet.
 
 **Interpretation.** Source/effective-date/legal authority, textual obligation diff, candidate topic similarity and causal effects are distinct. Synthetic NormPack/StubBackend transport does not prove current-law authority; missing institutional authority is not by itself a prerequisite to a generic synthetic migration test. No current law/real effect claimed; real-data-dependent packet stays local G.
 
@@ -619,6 +619,6 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 **ID.** LA-020; LA-007/019 supported package consumers separately. Historical API729 actual49native, wheel/sdist48PASS/1Git-censusdeselection each, complete literal/computed-input denominator and exact package byte identity remain source-specific. Object/FQN/pickle/docs/monkeypatch consumers require canonical identity, not no-reflection count.
 
-**Current pending.** New API generic supported-export/annotation guard and source/loader/docs/install owner packets require their own frozen review/receipt. Do not adopt an uncommitted source or an independent BLOCK as current PASS; 182 computed candidates are inputs to classify, not proof that every expression or hypothetical external client is supported.
+**Current measured.** API90c/source8236 actual wheel and rebuilt-sdist consumers each199PASS, full3459files/site and seven resources bound, no missing/extra sources. API605 reconciliation of3dde vs8236 selects identical producer/reader AST with two formatting-only hunks, test-only property2PASS and2removalFAIL per retained installed profile. New assembled source has its own affected installed wave. 225dynamic candidates/38UNKNOWN static exports remain classification limits, not actual client counts or universal external zero.
 
 **Negative/limits.** Clone/export/bridge removals with identical labels must fail actual consumer calls. Exact empty siblings already absent198; preserve nonempty packages. No blanket arbitrary third-party private ABI guarantee, full hosted docs/authority acceptance or P41 inheritance from overlapping failures.

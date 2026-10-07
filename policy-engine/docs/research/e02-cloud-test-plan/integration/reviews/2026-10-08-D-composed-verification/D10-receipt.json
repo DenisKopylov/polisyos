@@ -1,0 +1,374 @@
+{
+  "G_checkout_readback": {
+    "branch": "codex/e02-integration",
+    "expected_head": "83a1d894bfffab4127eb921625602ceaf72c69b6",
+    "head": "83a1d894bfffab4127eb921625602ceaf72c69b6",
+    "status": "## codex/e02-integration...origin/codex/e02-integration"
+  },
+  "candidate": {
+    "not_integrated_or_formal_closure": true,
+    "parents": [
+      "83a1d894bfffab4127eb921625602ceaf72c69b6",
+      "64355beb636c20c2eb8b586af18a51b503fe40f8"
+    ],
+    "pin_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/frozen-candidate.json",
+    "pin_sha256": "f4c2c3898dc454fecf2c44160a6d362cc665b2fe5df1a35a11b1cf46b515520d",
+    "private_ref": "refs/e02-g/candidate-D-composed-556329c9cdd1",
+    "sha": "556329c9cdd183197e644299381550f81f061620",
+    "tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5"
+  },
+  "candidate_extras": {
+    "after": [
+      {
+        "bytes": 191,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/CACHEDIR.TAG",
+        "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+      },
+      {
+        "bytes": 302,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/README.md",
+        "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+      },
+      {
+        "bytes": 37,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/.gitignore",
+        "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+      },
+      {
+        "bytes": 1578,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/v/cache/nodeids",
+        "sha256": "4148e844fe1a782187cb0b7be79ecf8c3725b95ea43955bd9ea768bddfbc4cbd"
+      },
+      {
+        "bytes": 267092,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "sha256": "6f9afe13f3b7f06df95df8ab4f07b23443838f177b5ab4873603231d3ecf304f"
+      },
+      {
+        "bytes": 305408,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/inventory-drift.json",
+        "sha256": "e4ca65cfc4248efc3a696857f9558ff30c2ac4853454023053c051cb9fb8c755"
+      }
+    ],
+    "before": [
+      {
+        "bytes": 267092,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "sha256": "6f9afe13f3b7f06df95df8ab4f07b23443838f177b5ab4873603231d3ecf304f"
+      },
+      {
+        "bytes": 305408,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/inventory-drift.json",
+        "sha256": "e4ca65cfc4248efc3a696857f9558ff30c2ac4853454023053c051cb9fb8c755"
+      }
+    ],
+    "classification": "Two pre-existing D _build outputs remained unchanged. Four pytest cache files were added inside isolated candidate; no tracked Git entry changed."
+  },
+  "execution": {
+    "actual": {
+      "collected_and_run": 10,
+      "errors": 0,
+      "failures": 0,
+      "passed": 10,
+      "skipped": 0,
+      "status": "PASS"
+    },
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/junit.xml",
+      "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine",
+    "expected_cases": 10,
+    "installed_versions_read_only_preflight": {
+      "PyYAML": "6.0.3",
+      "hypothesis": "6.151.2",
+      "loguru": "0.7.3",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "pytest-asyncio": "1.3.0",
+      "pytest-benchmark": "5.2.3"
+    },
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "peak_sampled_rss_kib": 592464,
+    "production_data_and_credentials_scrubbed": true,
+    "python_version": "Python 3.14.3",
+    "selector": "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+    "started_utc": "2026-10-07T22:00:35Z",
+    "thread_limits": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "timeout_seconds": 180,
+    "wall_seconds": 10.858
+  },
+  "harness_attempts": [
+    {
+      "attempt": "service-owner-budget",
+      "cases": null,
+      "classification": "HARNESS_ERROR",
+      "errors": null,
+      "failures": null,
+      "full_runner_receipt": {
+        "bytes": 7034,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/receipt.json",
+        "sha256": "2ba13b9fbab15cd9d184ea87d9becbaf867cf8116e2e942195c593c696eaab43"
+      },
+      "junit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/junit.xml",
+        "present": false
+      },
+      "launcher_exit": {
+        "bytes": 16,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/launcher-exit.txt",
+        "sha256": "b289d34c7f688b6c66843a1da65752d3e9223e9746cb00e76e938c601ec1d3ba"
+      },
+      "launcher_stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/launcher.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "launcher_stdout": {
+        "bytes": 348,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/launcher.stdout",
+        "sha256": "7e2fc8d742c58ad0318cbc669a237eee009bdbe29fb74f2aa85ff6119ac8bf07"
+      },
+      "note": "First origin-guard setup blocked the candidate `tests` namespace because the requested path was rooted at the candidate product directory; no tests collected and no product code executed.",
+      "origin_audit": {
+        "bytes": 394,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/origin-audit.json",
+        "sha256": "5e84cd860e99d3238ba1e67b38300e05579e6886fb66d1a11946ee60073def67"
+      },
+      "returncode": 4,
+      "runner_status": "ERROR",
+      "skipped": null,
+      "stderr": {
+        "bytes": 621,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/stderr.txt",
+        "sha256": "0953aa9d22b45ec7aa675efc3087baba7c33343084b6b6cad30f647f927ef7b8"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "wall_seconds": 0.86
+    },
+    {
+      "attempt": "service-owner-budget-attempt-2",
+      "cases": null,
+      "classification": "HARNESS_ERROR",
+      "errors": null,
+      "failures": null,
+      "full_runner_receipt": {
+        "bytes": 7085,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/receipt.json",
+        "sha256": "a2a5e0e743d5b89bb2294918e76898b8d64188cc87c85f83a2947f5a66525a3a"
+      },
+      "junit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/junit.xml",
+        "present": false
+      },
+      "launcher_exit": {
+        "bytes": 16,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/launcher-exit.txt",
+        "sha256": "b289d34c7f688b6c66843a1da65752d3e9223e9746cb00e76e938c601ec1d3ba"
+      },
+      "launcher_stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/launcher.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "launcher_stdout": {
+        "bytes": 359,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/launcher.stdout",
+        "sha256": "9d5d979440c16ed4cb7e7553d74fd657e34c759097e97799aeebba40a80f50c9"
+      },
+      "note": "Second origin-guard setup searched for `tests` inside the tests directory itself and reported `tests` absent; no tests collected and no product code executed.",
+      "origin_audit": {
+        "bytes": 394,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/origin-audit.json",
+        "sha256": "5e84cd860e99d3238ba1e67b38300e05579e6886fb66d1a11946ee60073def67"
+      },
+      "returncode": 4,
+      "runner_status": "ERROR",
+      "skipped": null,
+      "stderr": {
+        "bytes": 445,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/stderr.txt",
+        "sha256": "ccb54216b1b31e653b3e5b28f4860ca9d8bdd744c13e4fa6b673c87d665964d2"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "wall_seconds": 0.642
+    },
+    {
+      "attempt": "service-owner-budget-attempt-3",
+      "cases": 10,
+      "classification": "PASS",
+      "errors": 0,
+      "failures": 0,
+      "full_runner_receipt": {
+        "bytes": 10774,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/receipt.json",
+        "sha256": "ca638d590a8dfeb6385871e2be05c8746655fd7461ae366eb37ad061d8c98142"
+      },
+      "junit": {
+        "bytes": 2186,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/junit.xml",
+        "sha256": "2d2b0207e4f893abeb4fdc8553055b8c74aaf9c513a99519963f833861a11701"
+      },
+      "launcher_exit": {
+        "bytes": 16,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/launcher-exit.txt",
+        "sha256": "2be80f38652d956efb719bca616bba2884e76d3c7c32a7e59eef1885442aafea"
+      },
+      "launcher_stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/launcher.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "launcher_stdout": {
+        "bytes": 349,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/launcher.stdout",
+        "sha256": "f1390294b2059cf2f9f0aeaee76befb3083d7d5dad445f66ea33e9dafbc20308"
+      },
+      "note": "Corrected generic candidate-derived namespace path handling; exact authorized selector collected and ran.",
+      "origin_audit": {
+        "bytes": 178307,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/origin-audit.json",
+        "sha256": "5fbd140f45a5dfa6cc52165eb2eee82196e50fd75d00c762e48570a95937df4d"
+      },
+      "returncode": 0,
+      "runner_status": "PASS",
+      "skipped": 0,
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 80,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/stdout.txt",
+        "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+      },
+      "wall_seconds": 10.858
+    }
+  ],
+  "inputs": {
+    "complete_tracked_blob_and_mode_verification": {
+      "after": true,
+      "before": true,
+      "errors_after": [],
+      "errors_before": [],
+      "missing_after": 0,
+      "missing_before": 0,
+      "precheck": true,
+      "precheck_receipt": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/candidate-export-precheck.json",
+      "precheck_sha256": "7d7de2305e744d41dc36fbd7f5f9f873f2c31c07be64344f585b58864aa72c79"
+    },
+    "runpy_helper_resolved_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+    "source_export": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate",
+    "tracked_bytes": 717190096,
+    "tracked_entry_count": 25237,
+    "tracked_input_blobs": {
+      "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": "759bb74100da7ba5be5e217eb6fbba923679962c",
+      "policy-engine/src/polisyos/scientist/methods/search/service.py": "2ddf3636cc56058febebf7599fe87b5fc2d8184c",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py": "fe0aadf975873aa54d35008d5020b66c6c6778fa",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py": "7105b2b3992f140570a1eee5d17b6bd67b3d3022",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+      "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py": "56f6349dc0482df07498425e663e9947cd753b76",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py": "a0aea243679bf00941607134cc21990b4e2d5e0f",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py": "4a59ace1d3d5c445a736675d4938f732349f0e36"
+    },
+    "tree_listing_sha256": "50f9b790182aa67568bfdfb3779ac83986f2f2ad0ada400a9a8e14ba28f20595"
+  },
+  "origin_audit": {
+    "errors": [],
+    "loaded_polysis_tools_tool_modules": 0,
+    "module_count_by_top_level": {
+      "_helpers": 3,
+      "polisyos": 834,
+      "test_service_persistence": 1,
+      "tests": 8
+    },
+    "modules_checked": 846,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/origin-audit.json",
+    "sha256": "5fbd140f45a5dfa6cc52165eb2eee82196e50fd75d00c762e48570a95937df4d",
+    "test_service_persistence_origin": [
+      {
+        "blob": "4a59ace1d3d5c445a736675d4938f732349f0e36",
+        "name": "test_service_persistence",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+      }
+    ]
+  },
+  "outputs": {
+    "junit": {
+      "errors": 0,
+      "failures": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/junit.xml",
+      "present": true,
+      "sha256": "2d2b0207e4f893abeb4fdc8553055b8c74aaf9c513a99519963f833861a11701",
+      "skipped": 0,
+      "tests": 10
+    },
+    "launcher_exit": "launcher_exit=0",
+    "launcher_stderr": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/launcher.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "launcher_stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/launcher.stdout",
+      "sha256": "f1390294b2059cf2f9f0aeaee76befb3083d7d5dad445f66ea33e9dafbc20308"
+    },
+    "origin_audit": {
+      "errors": [],
+      "module_count": 846,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/origin-audit.json",
+      "removed_live_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+      ],
+      "sha256": "5fbd140f45a5dfa6cc52165eb2eee82196e50fd75d00c762e48570a95937df4d"
+    },
+    "runtime_receipt": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/receipt.json",
+      "sha256": "ca638d590a8dfeb6385871e2be05c8746655fd7461ae366eb37ad061d8c98142"
+    },
+    "stderr": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/stdout.txt",
+      "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+    }
+  },
+  "resource_readback": {
+    "after": "42 GiB free disk, 58% system-wide memory free; no pytest/ruff process observed in final snapshot",
+    "before_last_run": "42 GiB free disk, 62% system-wide memory free, parent confirmed only light logic tests active"
+  },
+  "scope_limit": "Focused synthetic consumer check only. It does not establish production spend-provider truth, public-surface guardrail closure, full D finding closure, or broad CI status.",
+  "task": "D composed-candidate, focused service owner budget consumer check"
+}

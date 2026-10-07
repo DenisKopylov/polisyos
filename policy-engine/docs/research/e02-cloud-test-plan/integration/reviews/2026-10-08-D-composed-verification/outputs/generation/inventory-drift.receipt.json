@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "tools/devx/architecture/guardrails.py",
+    "check",
+    "--skip-generated-checks",
+    "--generated-md",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/_build/e02-D-composition/generated-artifacts.md",
+    "--public-json",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/_build/e02-D-composition/inventory-drift.json"
+  ],
+  "exit": 1,
+  "wall_seconds": 14.837626875028946,
+  "stdout_sha256": "34ed1a00fbf3d86590b8ebeb55b8bb5e36f09e0a8f7b7cd3ca2d6dd3b9ff43d2",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "peak_child_RSS_platform_units": 119209984
+}

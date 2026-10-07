@@ -1,0 +1,11 @@
+# D composed candidate: service-owner budget check
+
+**Result: PASS, 10/10 cases** on frozen candidate `556329c9cdd183197e644299381550f81f061620` (tree `a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5`). Its parents are the recorded G checkpoint `83a1d894bfffab4127eb921625602ceaf72c69b6` and original D candidate `64355beb636c20c2eb8b586af18a51b503fe40f8`. This is a local code/consumer check, not formal finding closure.
+
+The only selector was `tests/unit/scientist/methods/search/test_service_owner_budget_factory.py`. All ten parametrized cases passed in 10.858 s (peak sampled RSS 592,464 KiB): true zero/paid owner snapshots, before-generator paid cutoff, pending completion across fresh CAS restore/resume, an owner-change race after ask preflight, and changed key/limit resume refusal. The inputs used the real SearchLoopRunner, CAS, budget middleware/ledger, and synthetic TextGateway fixtures; no production data or installs were used.
+
+Before and after the run, every one of the 25,237 tracked candidate entries (717,190,096 bytes; Git tree listing SHA-256 `50f9b790182aa67568bfdfb3779ac83986f2f2ad0ada400a9a8e14ba28f20595`) matched the pinned Git blob and mode, with no missing paths or source errors. The candidate-only origin audit checked 846 loaded project/test/helper modules with zero errors, including all 834 `polisyos` modules and the pinned `test_service_persistence.py` helper. The test’s `run_path` input resolved to the pinned candidate’s `test_gateway_response_text_cost.py` blob.
+
+Two earlier invocations are preserved as **HARNESS_ERROR**, not product failures: attempt 1 blocked the candidate `tests` namespace; attempt 2 searched the wrong candidate root and could not find `tests`. Both returned before test collection (no JUnit, zero tests). Attempt 3 fixed namespace resolution generically from candidate package roots and passed the same authorized selector.
+
+Full stdout/stderr, JUnit, origin audit and execution receipts are retained in `results/service-owner-budget-attempt-{1,2,3}/` (attempt 1 uses `service-owner-budget/`). Compact receipt: `service-owner-budget-final-receipt.json`. No tracked G files or refs changed; G remains at 83a1. No broader suite, production-provider check, or finding closure is claimed.

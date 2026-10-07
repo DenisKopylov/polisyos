@@ -1,0 +1,80 @@
+{
+  "G_branch_and_head_unchanged": true,
+  "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+  "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+  "cause": "The passive observer wrapper set sys.argv to [\"-m\", \"pytest\", ...] and then used runpy.run_module(\"pytest\", run_name=\"__main__\", alter_sys=True). runpy replaced argv[0] with pytest/__main__.py, leaving the literal \"pytest\" as a positional test path.",
+  "classification": "HARNESS_ERROR; target test did not collect or execute",
+  "exact_pytest_error": "ERROR: file or directory not found: pytest",
+  "origin_audit_errors": [],
+  "outputs": {
+    "candidate-integrity-after.json": {
+      "bytes": 24576,
+      "sha256": "88faa710e719149f0a24c0e632a5b695223288cd1c46b409dc56d2edaffa0226"
+    },
+    "candidate-integrity-before.json": {
+      "bytes": 24576,
+      "sha256": "88faa710e719149f0a24c0e632a5b695223288cd1c46b409dc56d2edaffa0226"
+    },
+    "exception-events.json": {
+      "bytes": 1166,
+      "sha256": "7b9512fef320ac64955ccf25567c71d82a0308c6dc65a7b8ebd96128b2d26a28"
+    },
+    "junit.xml": {
+      "bytes": 249,
+      "sha256": "02ec3202b2eb61050fef9e5e428d3b9cb94c541046bec7259c2275436d10de59"
+    },
+    "origin-audit.json": {
+      "bytes": 24656,
+      "sha256": "f8ed533e2b35c732348a419f5148ca684b150e9dc980fe40532cfbc09d012f28"
+    },
+    "pytest.stderr.txt": {
+      "bytes": 44,
+      "sha256": "613c52d93f4e98adc041b564cfd13fb8db809582a383a00925411599c9a4e94e"
+    },
+    "pytest.stdout.txt": {
+      "bytes": 538,
+      "sha256": "fa5a65d698223a5e481a4ba15053845f5323123431b413ddf41efe36e1ded793"
+    },
+    "receipt.json": {
+      "bytes": 67058,
+      "sha256": "60a57d28cdbe66c119b9a0b517b3284a5229bc343bf1cd06c8d7e363d841594d"
+    }
+  },
+  "protected_receipts_unchanged": true,
+  "pytest_counts": {
+    "cases": [],
+    "errors": 0,
+    "failures": 0,
+    "present": true,
+    "skipped": 0,
+    "tests": 0
+  },
+  "retry": "None; stopped per instruction when observer failed to capture the event.",
+  "schema": "policyos.e02.g-local-worker-exception-diagnostic-harness-error.v1",
+  "selector": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request",
+  "semantic_property_verdict": "UNRUN; no inference about the original WorkerUnavailableError branch or cause",
+  "source_integrity_after_ok": true,
+  "source_integrity_before_ok": true,
+  "worker_exception_events": {
+    "app_interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "app_python": "3.14.3",
+    "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+    "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+    "event_count": 0,
+    "events": [],
+    "observer": "sys.settrace exception-only; WorkerUnavailableError only",
+    "pytest_args": [
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "--tb=short",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/pytest-basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/junit.xml",
+      "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request"
+    ],
+    "pytest_exit_code": 4
+  }
+}

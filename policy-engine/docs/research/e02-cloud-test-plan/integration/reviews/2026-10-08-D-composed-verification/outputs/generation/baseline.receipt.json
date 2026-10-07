@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "tools/devx/architecture/guardrails.py",
+    "check",
+    "--skip-generated-checks",
+    "--generated-md",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/_build/e02-D-composition/generated-artifacts.md"
+  ],
+  "exit": 1,
+  "wall_seconds": 14.915831500024069,
+  "stdout_sha256": "632efa26654ddea6319b7276c221494d350a7b97e96b4a42b4bd59a3ed0f99a9",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "peak_child_RSS_platform_units": 119209984
+}

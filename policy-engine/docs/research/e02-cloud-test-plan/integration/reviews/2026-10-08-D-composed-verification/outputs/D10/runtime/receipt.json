@@ -1,0 +1,283 @@
+{
+  "D_original": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+  "base_G": "83a1d894bfffab4127eb921625602ceaf72c69b6",
+  "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+  "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/junit.xml",
+    "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine",
+  "environment_keys_present": [
+    "BROWSER_USE_ACCESS_VERIFYING_IDENTITY",
+    "CODEX_APP_TOOLS_PIPE_PATH",
+    "CODEX_CI",
+    "CODEX_CLI_PATH",
+    "CODEX_INTERNAL_ORIGINATOR_OVERRIDE",
+    "CODEX_MCP_NODE_PATH",
+    "CODEX_PERMISSION_PROFILE",
+    "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE",
+    "CODEX_SESSION_ID",
+    "CODEX_SHELL",
+    "CODEX_TASK_WORKSPACE_VERIFYING_IDENTITY",
+    "CODEX_TECTONIC_PATH",
+    "CODEX_THREAD_ID",
+    "CODEX_VERSION",
+    "COLORTERM",
+    "COMMAND_MODE",
+    "DISABLE_AUTO_UPDATE",
+    "E02_CANDIDATE_ROOT",
+    "E02_CANDIDATE_SHA",
+    "E02_CANDIDATE_TREE",
+    "E02_GIT_ROOT",
+    "E02_ORIGIN_AUDIT",
+    "FPATH",
+    "GH_PAGER",
+    "GIT_PAGER",
+    "HOME",
+    "HOMEBREW_CELLAR",
+    "HOMEBREW_PREFIX",
+    "HOMEBREW_REPOSITORY",
+    "INFOPATH",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "LOGNAME",
+    "LOG_FORMAT",
+    "MKL_NUM_THREADS",
+    "MallocNanoZone",
+    "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S",
+    "NO_COLOR",
+    "NUMEXPR_NUM_THREADS",
+    "OLDPWD",
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "OSLogRateLimit",
+    "PAGER",
+    "PATH",
+    "PWD",
+    "PYTHONDONTWRITEBYTECODE",
+    "PYTHONNOUSERSITE",
+    "PYTHONPATH",
+    "RUST_LOG",
+    "SHELL",
+    "SHLVL",
+    "SSH_AUTH_SOCK",
+    "TERM",
+    "TMPDIR",
+    "USER",
+    "VECLIB_MAXIMUM_THREADS",
+    "XPC_FLAGS",
+    "XPC_SERVICE_NAME",
+    "ZSH_TMUX_AUTOSTART",
+    "ZSH_TMUX_AUTOSTARTED",
+    "_",
+    "__CF_USER_TEXT_ENCODING"
+  ],
+  "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "junit": {
+    "cases": [
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot[run-0]",
+        "outcome": "passed",
+        "time": "5.959"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot[run-1]",
+        "outcome": "passed",
+        "time": "0.035"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot[native-resource-0]",
+        "outcome": "passed",
+        "time": "0.033"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_runner_consumes_true_zero_or_paid_fresh_owner_snapshot[native-resource-1]",
+        "outcome": "passed",
+        "time": "0.033"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_runner_paid_cutoff_refuses_before_actual_generator_and_evaluator",
+        "outcome": "passed",
+        "time": "0.028"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_factory_pending_owner_fence_survives_fresh_cas_restore_and_resume[1e-1000]",
+        "outcome": "passed",
+        "time": "0.059"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_factory_pending_owner_fence_survives_fresh_cas_restore_and_resume[-1e-1000]",
+        "outcome": "passed",
+        "time": "0.059"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero",
+        "outcome": "passed",
+        "time": "0.036"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_factory_resume_refuses_changed_cost_scope_or_rule[key]",
+        "outcome": "passed",
+        "time": "0.032"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.search.test_service_owner_budget_factory",
+        "name": "test_public_factory_resume_refuses_changed_cost_scope_or_rule[limit]",
+        "outcome": "passed",
+        "time": "0.032"
+      }
+    ],
+    "errors": 0,
+    "failures": 0,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/junit.xml",
+    "present": true,
+    "sha256": "2d2b0207e4f893abeb4fdc8553055b8c74aaf9c513a99519963f833861a11701",
+    "skipped": 0,
+    "tests": 10
+  },
+  "origin_audit": {
+    "errors": [],
+    "module_count": 846,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/origin-audit.json",
+    "removed_live_paths": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+    ],
+    "sha256": "5fbd140f45a5dfa6cc52165eb2eee82196e50fd75d00c762e48570a95937df4d"
+  },
+  "parents": [
+    "83a1d894bfffab4127eb921625602ceaf72c69b6",
+    "64355beb636c20c2eb8b586af18a51b503fe40f8"
+  ],
+  "peak_sampled_rss_kib": 592464,
+  "production_data_and_common_credentials_scrubbed": true,
+  "python_version": "Python 3.14.3",
+  "returncode": 0,
+  "source_export": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate",
+  "source_integrity_after": {
+    "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+    "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+    "error_count": 0,
+    "errors": [],
+    "expected_tree_verified": true,
+    "extra_count": 6,
+    "extra_details": [
+      {
+        "bytes": 191,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/CACHEDIR.TAG",
+        "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+      },
+      {
+        "bytes": 302,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/README.md",
+        "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+      },
+      {
+        "bytes": 37,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/.gitignore",
+        "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+      },
+      {
+        "bytes": 1578,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/v/cache/nodeids",
+        "sha256": "4148e844fe1a782187cb0b7be79ecf8c3725b95ea43955bd9ea768bddfbc4cbd"
+      },
+      {
+        "bytes": 267092,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "sha256": "6f9afe13f3b7f06df95df8ab4f07b23443838f177b5ab4873603231d3ecf304f"
+      },
+      {
+        "bytes": 305408,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/inventory-drift.json",
+        "sha256": "e4ca65cfc4248efc3a696857f9558ff30c2ac4853454023053c051cb9fb8c755"
+      }
+    ],
+    "extra_paths": [
+      "policy-engine/_cache/pytest/CACHEDIR.TAG",
+      "policy-engine/_cache/pytest/README.md",
+      "policy-engine/_cache/pytest/.gitignore",
+      "policy-engine/_cache/pytest/v/cache/nodeids",
+      "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+      "policy-engine/_build/e02-D-composition/inventory-drift.json"
+    ],
+    "missing_count": 0,
+    "ok": true,
+    "tracked_bytes_read": 717190096,
+    "tracked_entries": 25237,
+    "tree_listing_sha256": "50f9b790182aa67568bfdfb3779ac83986f2f2ad0ada400a9a8e14ba28f20595"
+  },
+  "source_integrity_before": {
+    "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+    "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+    "error_count": 0,
+    "errors": [],
+    "expected_tree_verified": true,
+    "extra_count": 2,
+    "extra_details": [
+      {
+        "bytes": 267092,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "sha256": "6f9afe13f3b7f06df95df8ab4f07b23443838f177b5ab4873603231d3ecf304f"
+      },
+      {
+        "bytes": 305408,
+        "mode": 420,
+        "path": "policy-engine/_build/e02-D-composition/inventory-drift.json",
+        "sha256": "e4ca65cfc4248efc3a696857f9558ff30c2ac4853454023053c051cb9fb8c755"
+      }
+    ],
+    "extra_paths": [
+      "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+      "policy-engine/_build/e02-D-composition/inventory-drift.json"
+    ],
+    "missing_count": 0,
+    "ok": true,
+    "tracked_bytes_read": 717190096,
+    "tracked_entries": 25237,
+    "tree_listing_sha256": "50f9b790182aa67568bfdfb3779ac83986f2f2ad0ada400a9a8e14ba28f20595"
+  },
+  "started_utc": "2026-10-07T22:00:35Z",
+  "status": "PASS",
+  "stderr": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/stdout.txt",
+    "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+  },
+  "thread_limits": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timed_out": false,
+  "timeout_seconds": 180,
+  "wall_seconds": 10.858
+}

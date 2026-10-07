@@ -1,0 +1,250 @@
+{
+  "G_checkout": {
+    "branch": "codex/e02-integration",
+    "clean": true,
+    "head": "83a1d894bfffab4127eb921625602ceaf72c69b6"
+  },
+  "backend_and_environment": {
+    "child_worker_observation": {
+      "count": 0,
+      "interpretation": "No candidate worker child identity was observed at 150 ms sampling. This does not prove no child started; the method-dispatch failure was recorded at ~72.6 ms.",
+      "sampled_matching_processes": []
+    },
+    "lock_inventory": {
+      "installed_distributions": 52,
+      "lock_entries": 55,
+      "lock_entries_not_installed": [
+        "colorama",
+        "polisyos-dowhy-worker",
+        "tzdata"
+      ],
+      "lock_version_consistency_ok": true,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/frozen-network-attempt/worker-inventory.json",
+      "sha256": "181775331ff273a7dcca6f917664fc2540fd0f621501d4f8185218ea3d3efd4b",
+      "unlocked_installed": [],
+      "version_mismatches": {}
+    },
+    "network_sync_status": "SYNC_OK",
+    "post_test_read_only_import_diagnostic": "A separate read-only import of DoWhy in the newly synced worker environment failed from SciPy native loader while importing scipy.sparse.linalg._propack._spropack: dyld reported a zero-fill __DATA/__thread_bss section with nonzero offset. The target pytest output itself exposes WorkerUnavailableError but not its child stderr; treat the SciPy loader trace as corroborating environment diagnosis, not a captured child traceback.",
+    "python": "{\"distribution_count\": 52, \"distributions\": [[\"Cython\", \"3.3.0\"], [\"Jinja2\", \"3.1.6\"], [\"MarkupSafe\", \"3.0.4\"], [\"Pygments\", \"2.21.0\"], [\"causal-learn\", \"0.1.4.8\"], [\"cffi\", \"2.1.1\"], [\"clarabel\", \"0.11.1\"], [\"cloudpickle\", \"3.1.2\"], [\"contourpy\", \"1.4.0\"], [\"cvxpy\", \"1.9.3\"], [\"cycler\", \"0.12.1\"], [\"dowhy\", \"0.14\"], [\"fonttools\", \"4.66.1\"], [\"formulaic\", \"1.2.2\"], [\"graphviz\", \"0.21\"], [\"highspy\", \"1.15.1\"], [\"iniconfig\", \"2.3.0\"], [\"interface_meta\", \"2.0.1\"], [\"joblib\", \"1.6.0\"], [\"kiwisolver\", \"1.5.1\"], [\"llvmlite\", \"0.50.0\"], [\"matplotlib\", \"3.11.2\"], [\"momentchi2\", \"0.1.8\"], [\"mpmath\", \"1.3.0\"], [\"narwhals\", \"2.26.0\"], [\"networkx\", \"3.7\"], [\"numba\", \"0.68.0\"], [\"numpy\", \"2.4.6\"], [\"osqp\", \"1.1.3\"], [\"packaging\", \"26.3\"], [\"pandas\", \"3.0.6\"], [\"patsy\", \"1.0.3\"], [\"pillow\", \"12.3.0\"], [\"pluggy\", \"1.6.0\"], [\"pycparser\", \"3.0\"], [\"pydot\", \"4.0.1\"], [\"pyparsing\", \"3.3.3\"], [\"pytest\", \"9.0.2\"], [\"python-dateutil\", \"2.9.0.post0\"], [\"qdldl\", \"0.1.9.post1\"], [\"scikit-learn\", \"1.9.1\"], [\"scipy\", \"1.15.3\"], [\"scs\", \"3.3.1\"], [\"setuptools\", \"84.0.0\"], [\"six\", \"1.17.0\"], [\"sparsediffpy\", \"0.6.1\"], [\"statsmodels\", \"0.15.0\"], [\"sympy\", \"1.14.0\"], [\"threadpoolctl\", \"3.7.0\"], [\"tqdm\", \"4.70.1\"], [\"typing_extensions\", \"4.16.0\"], [\"wrapt\", \"2.5.0\"]], \"dowhy\": \"0.14\", \"executable\": \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate/policy-engine/workers/dowhy-014/.venv/bin/python\", \"llvmlite\": \"0.50.0\", \"numba\": \"0.68.0\", \"pytest\": \"9.0.2\", \"python\": \"3.12.12\"}",
+    "sync_command": [
+      "/opt/homebrew/bin/uv",
+      "sync",
+      "--project",
+      "workers/dowhy-014",
+      "--python",
+      "3.12",
+      "--frozen"
+    ],
+    "sync_wall_seconds": 6.826
+  },
+  "candidate": {
+    "export": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate",
+    "private_ref": "refs/e02-g/candidate-D-composed-556329c9cdd1",
+    "sha": "556329c9cdd183197e644299381550f81f061620",
+    "tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5"
+  },
+  "candidate_extras": {
+    "after": {
+      "counts": {
+        "prior_D10_extras": 6,
+        "unexpected": 1,
+        "worker_runtime_bytecode": 1,
+        "worker_venv": 13721
+      },
+      "prior_D10_extra_paths": [
+        "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "policy-engine/_build/e02-D-composition/inventory-drift.json",
+        "policy-engine/_cache/pytest/.gitignore",
+        "policy-engine/_cache/pytest/CACHEDIR.TAG",
+        "policy-engine/_cache/pytest/README.md",
+        "policy-engine/_cache/pytest/v/cache/nodeids"
+      ],
+      "total": 13729,
+      "unexpected_paths": [
+        "policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl"
+      ],
+      "worker_venv_regular_file_bytes": 489789116,
+      "worker_venv_regular_files": 13718,
+      "worker_venv_symlinks": 3
+    },
+    "before": {
+      "counts": {
+        "prior_D10_extras": 6,
+        "worker_venv": 13721
+      },
+      "prior_D10_extra_paths": [
+        "policy-engine/_build/e02-D-composition/generated-artifacts.md",
+        "policy-engine/_build/e02-D-composition/inventory-drift.json",
+        "policy-engine/_cache/pytest/.gitignore",
+        "policy-engine/_cache/pytest/CACHEDIR.TAG",
+        "policy-engine/_cache/pytest/README.md",
+        "policy-engine/_cache/pytest/v/cache/nodeids"
+      ],
+      "total": 13727,
+      "unexpected_paths": [],
+      "worker_venv_regular_file_bytes": 489789116,
+      "worker_venv_regular_files": 13718,
+      "worker_venv_symlinks": 3
+    },
+    "new_runtime_output": {
+      "bytes": 605,
+      "classification": "Generated selection-history JSONL from the attempted test. This runtime-output class was previously identified by root as expected; its bytes/hash are preserved here, not treated as tracked source. The recorded row is a WorkerUnavailableError.",
+      "path": "policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl",
+      "sha256": "0c9cc832469fa948009f9243050f82fdfb194598aea101609a4c776e5e3819b7"
+    },
+    "reclassification_basis": "The sole runner-unclassified path is the generated selection-history executions.jsonl output, a known runtime artifact class. The prior D10 cache/generated docs, locked worker venv, and one worker-side pycache are separately classified.",
+    "unexpected_after_reclassification": []
+  },
+  "created_utc": "2026-10-07T22:20:56.263084+00:00",
+  "effective_property_verdict": "UNRUN",
+  "harness_attempts": {
+    "attempt1": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-1/attempt.json",
+      "pytest_launched": false,
+      "sha256": "a70688ee9d905a8678a897d708cd32a2b83a6134a455495949c8d9e3c6f64776",
+      "status": "HARNESS_ERROR_PRETEST"
+    },
+    "attempt2": {
+      "pytest_launched": true,
+      "runner_receipt": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/receipt.json",
+      "runner_receipt_sha256": "812af76856bc192e40aed86e5b86e1f244e0bf2504a5f81b495f10e89b7bfbc1",
+      "status_in_runner": "ERROR_UNCLASSIFIED_CANDIDATE_EXTRAS"
+    }
+  },
+  "no_product_failure_claimed": true,
+  "no_rerun_or_broadening": true,
+  "protected_receipts": {
+    "D10": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-final-receipt.json",
+      "sha256": "09fd530e8d123a86329c6b3f12d64a69ce88b492de4bc211912d1ffad4e2e155",
+      "unchanged": true
+    },
+    "offline_provision_attempt": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/offline-provision-attempt-1/attempt.json",
+      "sha256": "e5489edbe363d3640a73239169918d2c0192b9d55dddc9e19a3582ca5bbcdfa9",
+      "unchanged": true
+    },
+    "prior_F_UNRUN": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/preflight-receipt.json",
+      "sha256": "928b61f109fc57219266baf41c8e60696954d5eace616ca2ebd9138542620157",
+      "unchanged": true
+    }
+  },
+  "raw_pytest_result": {
+    "errors": 0,
+    "failures": 1,
+    "peak_sampled_pytest_rss_kib": 585232,
+    "pytest_wall_seconds": 10.623,
+    "reason_at_failure": "The target test failed during its initial _fit_real setup, before executing the RunCausalQueriesNode query consumer or any of the six CAS projection/request adversarial cases. The failing setup assertion sees one runtime issue; recorded failure_type is WorkerUnavailableError.",
+    "skipped": 0,
+    "status": "FAIL",
+    "tests": 1,
+    "time_seconds": "0.232"
+  },
+  "runtime_evidence": {
+    "junit": {
+      "cases": [
+        {
+          "classname": "tests.unit.foundry.methods.catalog.causal.test_gcm_backend_contract",
+          "name": "test_actual_query_consumer_binds_complete_cas_projection_and_original_request",
+          "outcome": "failure",
+          "time": "0.232"
+        }
+      ],
+      "errors": 0,
+      "failures": 1,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/junit.xml",
+      "present": true,
+      "sha256": "63aca57ec3ace805a5afa830a8a0f47694da2cb76c8f100285ebdd11dbc6d54f",
+      "skipped": 0,
+      "tests": 1
+    },
+    "loaded_candidate_module_count": 820,
+    "origin_audit": {
+      "errors": [],
+      "module_count": 820,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/origin-audit.json",
+      "removed_live_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+      ],
+      "sha256": "1fe67403222c942401480e4cb6ae90bcbb30de5511c4db59aee98c87a1bc1b0e"
+    },
+    "origin_errors": [],
+    "selected_blob_bindings": {
+      "policy-engine/src/polisyos/core/artifacts/store.py": {
+        "export_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "git_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "matches": true
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py": {
+        "export_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+        "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+        "matches": true
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py": {
+        "export_blob": "7536aba1de5b2019424afa52bdf0814a9bc85cfa",
+        "git_blob": "7536aba1de5b2019424afa52bdf0814a9bc85cfa",
+        "matches": true
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py": {
+        "export_blob": "31d3a9093cc5927d360f680da811e2a33b222239",
+        "git_blob": "31d3a9093cc5927d360f680da811e2a33b222239",
+        "matches": true
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py": {
+        "export_blob": "84d60e4ee6c17067b0df1e6b9f605cddb9e5ad8f",
+        "git_blob": "84d60e4ee6c17067b0df1e6b9f605cddb9e5ad8f",
+        "matches": true
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py": {
+        "export_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+        "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+        "matches": true
+      },
+      "policy-engine/workers/dowhy-014/protocol.py": {
+        "export_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+        "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+        "matches": true
+      },
+      "policy-engine/workers/dowhy-014/uv.lock": {
+        "export_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+        "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+        "matches": true
+      },
+      "policy-engine/workers/dowhy-014/worker.py": {
+        "export_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+        "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+        "matches": true
+      }
+    },
+    "selected_blobs_all_match": true,
+    "test_stderr": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test_stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/pytest.stdout.txt",
+      "sha256": "253627375b5c9837f2be28b4e0ba087f1d6b38c40dcfd9e1c63c12155d0a34ba"
+    },
+    "tracked_source_before_after": {
+      "bytes": [
+        717190096,
+        717190096
+      ],
+      "entries": [
+        25237,
+        25237
+      ],
+      "ok": true,
+      "tree_listing_sha256": [
+        "50f9b790182aa67568bfdfb3779ac83986f2f2ad0ada400a9a8e14ba28f20595",
+        "50f9b790182aa67568bfdfb3779ac83986f2f2ad0ada400a9a8e14ba28f20595"
+      ]
+    }
+  },
+  "schema": "policyos.e02.g-local-consumer-final-assessment.v1",
+  "target": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request"
+}

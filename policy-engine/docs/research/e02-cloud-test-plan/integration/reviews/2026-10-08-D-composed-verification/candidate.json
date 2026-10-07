@@ -1,0 +1,49 @@
+{
+  "G_base": "83a1d894bfffab4127eb921625602ceaf72c69b6",
+  "D_original_head": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+  "candidate_sha": "556329c9cdd183197e644299381550f81f061620",
+  "candidate_tree": "a7a581044ee5c9e91b8c514c9aad4ff3051ce6a5",
+  "private_ref": "refs/e02-g/candidate-D-composed-556329c9cdd1",
+  "purpose": "immutable isolated verification candidate; not yet G source acceptance",
+  "source_export": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/candidate",
+  "selected_B_pins": {
+    "gateway_decoder": {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2"
+    },
+    "g_v11_executor": {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "blob": "fe0aadf975873aa54d35008d5020b66c6c6778fa"
+    },
+    "cas_owner": {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606"
+    },
+    "enforcer": {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "blob": "7105b2b3992f140570a1eee5d17b6bd67b3d3022"
+    }
+  },
+  "canonical_writer": "857be8f06a84656c12fbcd8415eabfc6bf18ee10",
+  "generated_outputs": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "blob": "e9303868d6046cdc0101779744b235e2007b7eb1",
+      "sha256": "36e8368f9b69ebf06d449c897ba643afd01d2ff49ee0cdd6c31904f87442b2e7",
+      "bytes": 305408
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "blob": "af8f1423911ee1312fe5f979abcd7bf4a1663727",
+      "sha256": "893f95a52538adc7b25cba734e8f8f255b09d645596c67a7e7af874550e07312",
+      "bytes": 127785
+    }
+  ],
+  "Scientist_added_declarations_retained": [
+    "NativeSearchService",
+    "SearchServiceCheckpoint",
+    "SearchLoopRunner"
+  ],
+  "Scientist_exports_resolution": "incomplete; declared candidates only; no asserted resolved export total",
+  "formal_closure_ids": []
+}

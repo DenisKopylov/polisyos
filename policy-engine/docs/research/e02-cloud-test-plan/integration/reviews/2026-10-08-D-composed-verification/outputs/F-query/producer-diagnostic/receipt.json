@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/producer-diagnostic/diagnose.py"
+  ],
+  "exit": 0,
+  "wall_seconds": 8.612295290979091,
+  "stdout_sha256": "869d6c83e657664bfa6349283863adc942a53d7852e48f2607cbe2ef40d48845",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

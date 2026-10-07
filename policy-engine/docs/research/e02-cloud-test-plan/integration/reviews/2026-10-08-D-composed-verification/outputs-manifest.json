@@ -1,0 +1,266 @@
+[
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/stdout.txt",
+    "published_alias": "outputs/D10/harness-1/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/stderr.txt",
+    "published_alias": "outputs/D10/harness-1/stderr.txt",
+    "bytes": 621,
+    "sha256": "0953aa9d22b45ec7aa675efc3087baba7c33343084b6b6cad30f647f927ef7b8"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget/receipt.json",
+    "published_alias": "outputs/D10/harness-1/receipt.json",
+    "bytes": 7034,
+    "sha256": "2ba13b9fbab15cd9d184ea87d9becbaf867cf8116e2e942195c593c696eaab43"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/stdout.txt",
+    "published_alias": "outputs/D10/harness-2/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/stderr.txt",
+    "published_alias": "outputs/D10/harness-2/stderr.txt",
+    "bytes": 445,
+    "sha256": "ccb54216b1b31e653b3e5b28f4860ca9d8bdd744c13e4fa6b673c87d665964d2"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-2/receipt.json",
+    "published_alias": "outputs/D10/harness-2/receipt.json",
+    "bytes": 7085,
+    "sha256": "a2a5e0e743d5b89bb2294918e76898b8d64188cc87c85f83a2947f5a66525a3a"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/stdout.txt",
+    "published_alias": "outputs/D10/runtime/stdout.txt",
+    "bytes": 80,
+    "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/stderr.txt",
+    "published_alias": "outputs/D10/runtime/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/junit.xml",
+    "published_alias": "outputs/D10/runtime/junit.xml",
+    "bytes": 2186,
+    "sha256": "2d2b0207e4f893abeb4fdc8553055b8c74aaf9c513a99519963f833861a11701"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/service-owner-budget-attempt-3/receipt.json",
+    "published_alias": "outputs/D10/runtime/receipt.json",
+    "bytes": 10774,
+    "sha256": "ca638d590a8dfeb6385871e2be05c8746655fd7461ae366eb37ad061d8c98142"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/generation-check/baseline.stdout.txt",
+    "published_alias": "outputs/generation/baseline.stdout.txt",
+    "bytes": 162991,
+    "sha256": "632efa26654ddea6319b7276c221494d350a7b97e96b4a42b4bd59a3ed0f99a9"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/generation-check/baseline.stderr.txt",
+    "published_alias": "outputs/generation/baseline.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/generation-check/baseline.receipt.json",
+    "published_alias": "outputs/generation/baseline.receipt.json",
+    "bytes": 741,
+    "sha256": "8b4a193838c5f234d95347667b66c9726567cef3cc4975aff5c3fc1d5ac0b9dc"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/generation-check/inventory-drift.stdout.txt",
+    "published_alias": "outputs/generation/inventory-drift.stdout.txt",
+    "bytes": 163344,
+    "sha256": "34ed1a00fbf3d86590b8ebeb55b8bb5e36f09e0a8f7b7cd3ca2d6dd3b9ff43d2"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/generation-check/inventory-drift.stderr.txt",
+    "published_alias": "outputs/generation/inventory-drift.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/generation-check/inventory-drift.receipt.json",
+    "published_alias": "outputs/generation/inventory-drift.receipt.json",
+    "bytes": 992,
+    "sha256": "c837e2ea0af68574662e1cbf53424fc42c07cbe674f895c0281eccc72b981ac0"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/generation-check/summary.json",
+    "published_alias": "outputs/generation/summary.json",
+    "bytes": 2366,
+    "sha256": "9909cb8d597af51d90800eb14771e0387590c0f1012ca526242946c67720ccd7"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/generation-check/generated-md-comparison.json",
+    "published_alias": "outputs/generation/generated-md-comparison.json",
+    "bytes": 300,
+    "sha256": "5687cbb70d7fa1904acbffcfed87c265ed59d925dc6be6e85250a3fcb06275ae"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/offline-provision-attempt-1/stdout.txt",
+    "published_alias": "outputs/F-query/offline-provision/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/offline-provision-attempt-1/stderr.txt",
+    "published_alias": "outputs/F-query/offline-provision/stderr.txt",
+    "bytes": 582,
+    "sha256": "693a32703d9947170db96c0fac74f21f8e9450a6090cb3a1a123c2b2beda738c"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/offline-provision-attempt-1/attempt.json",
+    "published_alias": "outputs/F-query/offline-provision/attempt.json",
+    "bytes": 8803,
+    "sha256": "e5489edbe363d3640a73239169918d2c0192b9d55dddc9e19a3582ca5bbcdfa9"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/frozen-network-attempt/stdout.txt",
+    "published_alias": "outputs/F-query/frozen-install/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/frozen-network-attempt/stderr.txt",
+    "published_alias": "outputs/F-query/frozen-install/stderr.txt",
+    "bytes": 1859,
+    "sha256": "fb99305ee7e4876faf124e14e9069182b66f971d18396d37aafd336e125152b2"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/frozen-network-attempt/attempt.json",
+    "published_alias": "outputs/F-query/frozen-install/attempt.json",
+    "bytes": 7051,
+    "sha256": "21b6461486a8169c242bbe8fd7e06a6d2b1331e765ed260cda4b36dce580e008"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/frozen-network-attempt/worker-inventory.json",
+    "published_alias": "outputs/F-query/frozen-install/worker-inventory.json",
+    "bytes": 2221,
+    "sha256": "181775331ff273a7dcca6f917664fc2540fd0f621501d4f8185218ea3d3efd4b"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-1/runner.stdout.txt",
+    "published_alias": "outputs/F-query/harness-setup/runner.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-1/runner.stderr.txt",
+    "published_alias": "outputs/F-query/harness-setup/runner.stderr.txt",
+    "bytes": 238,
+    "sha256": "1e53a35ac673a353fa34295eefd2b44bde2b497f533858e8b5870d57a193cd69"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-1/attempt.json",
+    "published_alias": "outputs/F-query/harness-setup/attempt.json",
+    "bytes": 2199,
+    "sha256": "a70688ee9d905a8678a897d708cd32a2b83a6134a455495949c8d9e3c6f64776"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/pytest.stdout.txt",
+    "published_alias": "outputs/F-query/runtime/pytest.stdout.txt",
+    "bytes": 2730,
+    "sha256": "253627375b5c9837f2be28b4e0ba087f1d6b38c40dcfd9e1c63c12155d0a34ba"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/pytest.stderr.txt",
+    "published_alias": "outputs/F-query/runtime/pytest.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/junit.xml",
+    "published_alias": "outputs/F-query/runtime/junit.xml",
+    "bytes": 1994,
+    "sha256": "63aca57ec3ace805a5afa830a8a0f47694da2cb76c8f100285ebdd11dbc6d54f"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/receipt.json",
+    "published_alias": "outputs/F-query/runtime/receipt.json",
+    "bytes": 66693,
+    "sha256": "812af76856bc192e40aed86e5b86e1f244e0bf2504a5f81b495f10e89b7bfbc1"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/final-assessment.json",
+    "published_alias": "outputs/F-query/runtime/final-assessment.json",
+    "bytes": 14082,
+    "sha256": "2bf67091b336d7a1838e660ed3a39b721a33c98c6e2caa1f4ce084161d2b8acf"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/runtime-attempt-2/final-report.md",
+    "published_alias": "outputs/F-query/runtime/final-report.md",
+    "bytes": 2008,
+    "sha256": "ba96bf006c11d76991041774f327010e2392d77abddd27f112ebac8100d9bc60"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/pytest.stdout.txt",
+    "published_alias": "outputs/F-query/observer-harness-error/pytest.stdout.txt",
+    "bytes": 538,
+    "sha256": "fa5a65d698223a5e481a4ba15053845f5323123431b413ddf41efe36e1ded793"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/pytest.stderr.txt",
+    "published_alias": "outputs/F-query/observer-harness-error/pytest.stderr.txt",
+    "bytes": 44,
+    "sha256": "613c52d93f4e98adc041b564cfd13fb8db809582a383a00925411599c9a4e94e"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/exception-events.json",
+    "published_alias": "outputs/F-query/observer-harness-error/exception-events.json",
+    "bytes": 1166,
+    "sha256": "7b9512fef320ac64955ccf25567c71d82a0308c6dc65a7b8ebd96128b2d26a28"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/receipt.json",
+    "published_alias": "outputs/F-query/observer-harness-error/receipt.json",
+    "bytes": 67058,
+    "sha256": "60a57d28cdbe66c119b9a0b517b3284a5229bc343bf1cd06c8d7e363d841594d"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/observer-harness-error-assessment.md",
+    "published_alias": "outputs/F-query/observer-harness-error/observer-harness-error-assessment.md",
+    "bytes": 902,
+    "sha256": "cd7dfb33b3a0e3abd4ddeadc926c96e9ad801fcf7a452c3cb870b73aec67cbb7"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/F-query-CAS-verify/trace-attempt-1/observer-harness-error-assessment.json",
+    "published_alias": "outputs/F-query/observer-harness-error/observer-harness-error-assessment.json",
+    "bytes": 3693,
+    "sha256": "ac51a169ae8525d7a3257b184ab961eb376173d3fb05d3d5024fb838919e500a"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/producer-diagnostic/stdout.txt",
+    "published_alias": "outputs/F-query/producer-diagnostic/stdout.txt",
+    "bytes": 3074,
+    "sha256": "869d6c83e657664bfa6349283863adc942a53d7852e48f2607cbe2ef40d48845"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/producer-diagnostic/stderr.txt",
+    "published_alias": "outputs/F-query/producer-diagnostic/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/producer-diagnostic/receipt.json",
+    "published_alias": "outputs/F-query/producer-diagnostic/receipt.json",
+    "bytes": 561,
+    "sha256": "0d7598f0c98860716ef6e284621331de77eb72ecc39ae403d189ccbd3d65fefa"
+  },
+  {
+    "source_local_ignored": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-D/results/producer-diagnostic/assessment.json",
+    "published_alias": "outputs/F-query/producer-diagnostic/assessment.json",
+    "bytes": 2422,
+    "sha256": "d66fef24895deff32e621a15bc6b03e5387c2e3aa407ae6fee4be613511ff62f"
+  }
+]

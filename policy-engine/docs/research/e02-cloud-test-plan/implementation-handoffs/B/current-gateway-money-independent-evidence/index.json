@@ -3,8 +3,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt",
       "source_absolute": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/money-independent-baseline-384.txt",
-      "bytes": 459460,
-      "sha256": "0fe286e91faf755e3dbcbe99d541375f424755ac5641d1e12c74228897302690"
+      "bytes": 489472,
+      "sha256": "44efce2071cd0b35cc7514b04e1ee542d95eebc1f14ebe7b255865f61d95a963",
+      "raw_original": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt",
+        "bytes": 459460,
+        "sha256": "0fe286e91faf755e3dbcbe99d541375f424755ac5641d1e12c74228897302690"
+      },
+      "representation": "lossless_utf8_json_text",
+      "decoded_raw_bytes": 459460,
+      "decoded_raw_sha256": "0fe286e91faf755e3dbcbe99d541375f424755ac5641d1e12c74228897302690",
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/wrapper.json",
@@ -15,8 +25,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml",
       "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full.xml",
-      "bytes": 23450,
-      "sha256": "f01116f55b30dfa2011e7fa771197ed328bfed0c07ff153a61328fe3a5144bc8"
+      "bytes": 24543,
+      "sha256": "19af48575af32dd01d3c9334ef6a9888f7eb3add43a4cd9651f4f07ec8cb723b",
+      "raw_original": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml",
+        "bytes": 23450,
+        "sha256": "f01116f55b30dfa2011e7fa771197ed328bfed0c07ff153a61328fe3a5144bc8"
+      },
+      "representation": "lossless_utf8_json_text",
+      "decoded_raw_bytes": 23450,
+      "decoded_raw_sha256": "f01116f55b30dfa2011e7fa771197ed328bfed0c07ff153a61328fe3a5144bc8",
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/budget.json",
@@ -381,8 +401,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt",
       "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-e7.txt",
-      "bytes": 27614,
-      "sha256": "8059c7dbedf75a9a32d88ba46ff3f47eae314a4ca2ad33e5e0b04cd304483b87"
+      "bytes": 28640,
+      "sha256": "ff8470060b7462e40f5c8b55252cde77815c670f01ff03682511aec67a7cb4c0",
+      "raw_original": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt",
+        "bytes": 27614,
+        "sha256": "8059c7dbedf75a9a32d88ba46ff3f47eae314a4ca2ad33e5e0b04cd304483b87"
+      },
+      "representation": "lossless_utf8_json_text",
+      "decoded_raw_bytes": 27614,
+      "decoded_raw_sha256": "8059c7dbedf75a9a32d88ba46ff3f47eae314a4ca2ad33e5e0b04cd304483b87",
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/wrapper.json",
@@ -393,14 +423,34 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml",
       "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/full.xml",
-      "bytes": 28983,
-      "sha256": "80cfa1da0412b6486c209d750366d6d33363adb54032d70059b09aac279e5baa"
+      "bytes": 30087,
+      "sha256": "1e12a381db696ad64ac345edb052376f119b9992e64ff029c746cacf17067cfd",
+      "raw_original": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml",
+        "bytes": 28983,
+        "sha256": "80cfa1da0412b6486c209d750366d6d33363adb54032d70059b09aac279e5baa"
+      },
+      "representation": "lossless_utf8_json_text",
+      "decoded_raw_bytes": 28983,
+      "decoded_raw_sha256": "80cfa1da0412b6486c209d750366d6d33363adb54032d70059b09aac279e5baa",
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt",
       "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-qualified-e7.txt",
-      "bytes": 449015,
-      "sha256": "dc188b58f537b988d05ffb88714234cbc055a5e4e5f9fd3a8f74c6edea065a10"
+      "bytes": 478646,
+      "sha256": "c5fb7c7ba10eb7ec77c48ae2fd10ca6234e8bd6cbda6411d1f078e408cef7618",
+      "raw_original": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt",
+        "bytes": 449015,
+        "sha256": "dc188b58f537b988d05ffb88714234cbc055a5e4e5f9fd3a8f74c6edea065a10"
+      },
+      "representation": "lossless_utf8_json_text",
+      "decoded_raw_bytes": 449015,
+      "decoded_raw_sha256": "dc188b58f537b988d05ffb88714234cbc055a5e4e5f9fd3a8f74c6edea065a10",
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/wrapper.json",
@@ -411,8 +461,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml",
       "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full.xml",
-      "bytes": 25452,
-      "sha256": "bb61df9559a95a4db4b2f02aba69107082e7e04b33d692f8a8c0932fedb9a639"
+      "bytes": 26586,
+      "sha256": "2f667999a5924d3a669f59d5d68863f80aa7ac05969bcb8142f2dec7133b7003",
+      "raw_original": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml",
+        "bytes": 25452,
+        "sha256": "bb61df9559a95a4db4b2f02aba69107082e7e04b33d692f8a8c0932fedb9a639"
+      },
+      "representation": "lossless_utf8_json_text",
+      "decoded_raw_bytes": 25452,
+      "decoded_raw_sha256": "bb61df9559a95a4db4b2f02aba69107082e7e04b33d692f8a8c0932fedb9a639",
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/budget.json",
@@ -1623,8 +1683,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise.txt",
       "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/premise.txt",
-      "bytes": 2563,
-      "sha256": "41cebdda32f8b3b456b3ca321987e11c0a0630e53a713c42c6602c9018aca213"
+      "bytes": 3059,
+      "sha256": "587e3328c01f33949ad1887464ebf74fc31b36e705456b04e9cb4b69d84148e0",
+      "raw_original": {
+        "commit": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise.txt",
+        "bytes": 2563,
+        "sha256": "41cebdda32f8b3b456b3ca321987e11c0a0630e53a713c42c6602c9018aca213"
+      },
+      "representation": "lossless_utf8_json_text",
+      "decoded_raw_bytes": 2563,
+      "decoded_raw_sha256": "41cebdda32f8b3b456b3ca321987e11c0a0630e53a713c42c6602c9018aca213",
+      "decode": "json.loads(stored_bytes)[\"text\"].encode(\"utf-8\")"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise-qualified.txt",
@@ -1641,8 +1711,22 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json",
       "bytes": 943,
       "sha256": "b9de58213c6ab5424bf6081ece95c8ee249db8298873002a74cdd77157e7adf5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/lossless-representation.json",
+      "source_absolute": "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/lossless-representation.json",
+      "bytes": 6559,
+      "sha256": "4241149e4269198d7fddf8ec2b8870d6de333b6d8eb05d784b5ec9aee7baf3af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/representation.py.source.txt",
+      "source_absolute": "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/representation.py.source.txt",
+      "bytes": 3346,
+      "sha256": "336929403c22d8f65e2384a7a7ddb9db7dfd6eb25015a55edc7094730492d4b1"
     }
   ],
-  "artifact_count": 274,
-  "payload_bytes": 9336474
+  "artifact_count": 276,
+  "payload_bytes": 9410875,
+  "representation_count": 7,
+  "representation_instructions": "Seven flagged prior raw UTF-8 stdout/XML files now contain lossless JSON envelopes. For those entries decode top-level text and verify decoded_raw_sha256/bytes; original deciding objects remain exact raw at immutableb82. Other267 payloads remain byte-identical."
 }

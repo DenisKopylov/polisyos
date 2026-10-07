@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -3277,7 +3278,7 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
     assert variants[0]["cost_origin"] == "unknown"
     assert variants[1]["status"] == "skipped_budget_guard"
     assert variants[1]["notes"] == ["run_budget_guard_prevented_start"]
-    assert params["run_budget_usd"] == 0.10
+    assert params["run_budget_usd"] == Decimal("0.10")
     assert params["run_cost_usd"] is None
     assert params["run_cost_status"] == "missing"
     assert params["run_budget_status"] == "unknown"

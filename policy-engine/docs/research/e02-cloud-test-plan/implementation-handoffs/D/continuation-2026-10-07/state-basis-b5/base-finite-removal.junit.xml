@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="3.574" timestamp="2026-10-07T08:26:37.809464+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.strategies.test_strategy_state" name="test_unrepresentable_base_numeric_state_refuses_atomically[sobol_coordinate]" time="1.480"><failure message="OverflowError: int too large to convert to float">field = 'sobol_coordinate'
+
+    @pytest.mark.parametrize("field", ["sobol_coordinate", "python_gauss_next"])
+    def test_unrepresentable_base_numeric_state_refuses_atomically(field):
+        strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]), seed=31)
+        strategy._sobol_candidate(0)
+        before = strategy.get_state().to_artifact()
+        state = StrategyState.from_artifact(before)
+        if field == "sobol_coordinate":
+            state.rng_state["sobol"]["cache"][0][0] = 10**400
+        else:
+            state.rng_state["python"]["gauss_next"] = 10**400
+        with pytest.raises(ValueError):
+&gt;           strategy.set_state(state)
+
+tests/unit/scientist/methods/search/strategies/test_strategy_state.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/base.py:147: in set_state
+    decoded_sobol = self._validated_sobol_state(sobol_state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.scientist.methods.search.strategies.random.RandomSearchStrategy object at 0x7f0fd0a6b4d0&gt;
+value = {'algorithm': 'scrambled_sobol', 'algorithm_version': 1, 'cache': [[100000000000000000...0000000000000000000]], 'codec': 'sobol_prefix', ...}
+
+    def _validated_sobol_state(
+        self,
+        value: Any,
+    ) -&gt; tuple[int, int, list[tuple[float, ...]], str | None, str | None]:
+        if not isinstance(value, Mapping):
+            raise ValueError("Sobol checkpoint is incompatible: state must be an object")
+        expected_keys = {
+            "algorithm",
+            "algorithm_version",
+            "cache",
+            "codec",
+            "codec_version",
+            "cursor",
+            "dimension",
+            "fallback",
+            "sampler_identity",
+            "sampler_version",
+            "seed",
+            "scramble",
+            "space",
+        }
+        if set(value) != expected_keys:
+            raise ValueError("Sobol checkpoint is incompatible: state fields changed")
+        if value.get("codec") != _SOBOL_CODEC:
+            raise ValueError("Sobol checkpoint is incompatible: unknown codec")
+        if (
+            type(value.get("codec_version")) is not int
+            or value.get("codec_version") != _SOBOL_CODEC_VERSION
+        ):
+            raise ValueError("Sobol checkpoint is incompatible: unsupported codec version")
+        if value.get("algorithm") != _SOBOL_ALGORITHM:
+            raise ValueError("Sobol checkpoint is incompatible: unknown algorithm")
+        if (
+            type(value.get("algorithm_version")) is not int
+            or value.get("algorithm_version") != _SOBOL_ALGORITHM_VERSION
+        ):
+            raise ValueError("Sobol checkpoint is incompatible: unsupported algorithm version")
+    
+        seed = value.get("seed")
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise ValueError("Sobol checkpoint is incompatible: seed must be an integer")
+        if type(value.get("dimension")) is not int or value.get("dimension") != self._space.dim:
+            raise ValueError("Sobol checkpoint is incompatible: search-space dimension changed")
+        if value.get("space") != self._space.sobol_space_fingerprint():
+            raise ValueError("Sobol checkpoint is incompatible: search space changed")
+    
+        sampler_identity = value.get("sampler_identity")
+        sampler_version = value.get("sampler_version")
+        if sampler_identity is None:
+            if sampler_version is not None:
+                raise ValueError(
+                    "Sobol checkpoint is incompatible: sampler version without identity"
+                )
+            if value.get("fallback") is not False or value.get("scramble") is not None:
+                raise ValueError("Sobol checkpoint is incompatible: uninitialized sampler metadata")
+        else:
+            if (
+                not isinstance(sampler_identity, str)
+                or sampler_identity not in _SOBOL_SAMPLER_IDENTITIES
+            ):
+                raise ValueError(
+                    "Sobol checkpoint is incompatible: effective sampler identity is missing"
+                )
+            if (
+                not isinstance(sampler_version, str)
+                or not sampler_version
+                or sampler_version.lower() == "unknown"
+            ):
+                raise ValueError(
+                    "Sobol checkpoint is incompatible: sampler version is missing or unknown"
+                )
+            expected_fallback = sampler_identity == _SOBOL_FALLBACK_IDENTITY
+            if value.get("fallback") is not expected_fallback:
+                raise ValueError("Sobol checkpoint is incompatible: fallback mode changed")
+            expected_scramble = not expected_fallback
+            if value.get("scramble") is not expected_scramble:
+                raise ValueError("Sobol checkpoint is incompatible: scramble mode changed")
+    
+        cursor = value.get("cursor")
+        if isinstance(cursor, bool) or not isinstance(cursor, int) or cursor &lt; 0:
+            raise ValueError("Sobol checkpoint is incompatible: cursor must be non-negative")
+        cache_value = value.get("cache")
+        if not isinstance(cache_value, list):
+            raise ValueError("Sobol checkpoint is incompatible: cache must be a list")
+    
+        cache: list[tuple[float, ...]] = []
+        for vector in cache_value:
+            if not isinstance(vector, list):
+                raise ValueError("Sobol checkpoint is incompatible: cache vector must be a list")
+            if len(vector) != self._space.dim:
+                raise ValueError("Sobol checkpoint is incompatible: cache dimension changed")
+            normalized: list[float] = []
+            for coordinate in vector:
+                if isinstance(coordinate, bool) or not isinstance(coordinate, (int, float)):
+                    raise ValueError(
+                        "Sobol checkpoint is incompatible: cache coordinate must be numeric"
+                    )
+&gt;               coordinate_float = finite_real_scalar(coordinate)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/base.py:378: OverflowError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_strategy_state" name="test_unrepresentable_base_numeric_state_refuses_atomically[python_gauss_next]" time="0.002"><failure message="OverflowError: int too large to convert to float">field = 'python_gauss_next'
+
+    @pytest.mark.parametrize("field", ["sobol_coordinate", "python_gauss_next"])
+    def test_unrepresentable_base_numeric_state_refuses_atomically(field):
+        strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]), seed=31)
+        strategy._sobol_candidate(0)
+        before = strategy.get_state().to_artifact()
+        state = StrategyState.from_artifact(before)
+        if field == "sobol_coordinate":
+            state.rng_state["sobol"]["cache"][0][0] = 10**400
+        else:
+            state.rng_state["python"]["gauss_next"] = 10**400
+        with pytest.raises(ValueError):
+&gt;           strategy.set_state(state)
+
+tests/unit/scientist/methods/search/strategies/test_strategy_state.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/base.py:141: in set_state
+    decoded_python = _decode_python_random_state(rng_state)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/strategies/base.py:437: in _decode_python_random_state
+    return _validate_python_random_state((version, decoded, gauss_next))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = (3, (2147483648, 3985032520, 3340564696, 426612742, 358867817, 3551667717, ...), 100000000000000000...0000000000000000000)
+
+    def _validate_python_random_state(state: Any) -&gt; tuple[int, tuple[int, ...], float | None]:
+        if not isinstance(state, tuple) or len(state) != 3:
+            raise ValueError("Python random state must be a three-item tuple")
+        version, internal_state, gauss_next = state
+        if isinstance(version, bool) or not isinstance(version, int):
+            raise ValueError("Python random state version is missing or invalid")
+        if version != _PYTHON_RANDOM_STATE_VERSION:
+            raise ValueError(
+                "Python random state version "
+                f"{version} is unsupported; expected {_PYTHON_RANDOM_STATE_VERSION}"
+            )
+        if not isinstance(internal_state, tuple) or len(internal_state) != _PYTHON_RANDOM_STATE_LENGTH:
+            raise ValueError("Python random state vector has an incompatible shape")
+        if any(
+            isinstance(item, bool) or not isinstance(item, int) or not 0 &lt;= item &lt; 2**32
+            for item in internal_state
+        ):
+            raise ValueError("Python random state vector contains an invalid value")
+        if gauss_next is not None and (
+            isinstance(gauss_next, bool) or not isinstance(gauss_next, (int, float))
+        ):
+            raise ValueError("Python random gaussian state must be numeric or null")
+&gt;       if gauss_next is not None and finite_real_scalar(gauss_next) is None:
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/base.py:462: OverflowError</failure></testcase></testsuite></testsuites>

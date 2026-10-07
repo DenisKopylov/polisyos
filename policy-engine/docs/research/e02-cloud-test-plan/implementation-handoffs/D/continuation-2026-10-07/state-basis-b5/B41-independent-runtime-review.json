@@ -1,0 +1,1234 @@
+{
+  "schema": "e02.D.independent.runtime-review.v1",
+  "reviewer": "census_oct07",
+  "source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "production_author": "service_oct07",
+  "test_author": "math_oct07",
+  "status": "ORIGINAL_BOUNDED_DETECTOR_CRITERION_CLOSED_PROPOSAL_SUPPORTED",
+  "formal_G_acceptance": false,
+  "author_handoff": {
+    "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/B41-handoff.json",
+    "sha256": "aa21525912f7eda4b44c10b707aae1e672d79f0e51f59d2619be956583cfef11"
+  },
+  "original_criterion_binding": {
+    "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+    "criterion_occurrence_id": "B41@STP-01",
+    "canonical_card": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+      "bytes": 11176,
+      "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c"
+    }
+  },
+  "original_acceptance_text": "**Проверка:** отказ/отсутствие текущего embedding не создаёт semantic-convergence; корректные одинаковые текущие векторы дают соответствующий ограниченный результат; другая размерность/версия embedding не сравнивается без совместимости. Приоритет условный до подтверждения использования detector в нужном пользовательском пути.",
+  "source_and_test_review": "b5-final-reviewed-draft-source-reconciliation.json; prior independent final21 and positive metadata reviews",
+  "cohorts": [
+    {
+      "mode": "positive",
+      "process_exit": 0,
+      "source_before_after": {
+        "pins": [
+          "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "855ae45bd271d207ad3121276a5281454d1d38de"
+        ],
+        "status": "",
+        "branch": "codex/e02-D-oct07-continuation"
+      },
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "e02_math_capture",
+        "--basetemp=/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/fixtures",
+        "--junitxml=/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/junit.xml",
+        "-vv",
+        "-s",
+        "-rA",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py"
+      ],
+      "environment": {
+        "installed_versions": {
+          "torch": "2.10.0",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5"
+        },
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null
+        },
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "exitstatus": 0
+      },
+      "actual_loaded_module_count": 270,
+      "full_outputs_verified": [
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/origins.json",
+          "bytes": 69724,
+          "sha256": "40151c6cbffb6e065479f06c2e13f392b843965171a30c653c14af0c28f6fbe9"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/junit.xml",
+          "bytes": 18446,
+          "sha256": "02e8ec0cc5430b2ac248c6b92f07a0a6bd669894e2ed5a03c7179d58abce0bac"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/events.jsonl",
+          "bytes": 69704,
+          "sha256": "e1b8fd5a70c5590f2c0ff518d877ae944d9ec5c31b8b3282eac06cb3d647b2da"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/collected.json",
+          "bytes": 14605,
+          "sha256": "4ddc4fd545bea6832705bcf3fa879253a81538363cd08e7264e8ba986832c8ae"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/stdout.txt",
+          "bytes": 31684,
+          "sha256": "7257b6436165891f07719c771212f46fec1af02752ed298528be03789d7f698d"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/request.json",
+          "bytes": 2467,
+          "sha256": "7ef39321c65c941e631b59dda2040675fdb4333c1dc19306377fd754fb812c6e"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/before-inputs.json",
+          "bytes": 1992091,
+          "sha256": "12e8dead7ed904b8d6fb7c70cb632c297081193bddbd1cb99c6941e6167d3a77"
+        }
+      ],
+      "results": {
+        "bytes": 18446,
+        "sha256": "02e8ec0cc5430b2ac248c6b92f07a0a6bd669894e2ed5a03c7179d58abce0bac",
+        "case_counts": {
+          "PASS": 104,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "testcases": [
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_current_measurement_is_required_despite_two_equal_old_vectors[failure]",
+            "result": "PASS",
+            "time": "0.019",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_current_measurement_is_required_despite_two_equal_old_vectors[dimension]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_current_measurement_is_required_despite_two_equal_old_vectors[model]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_current_measurement_is_required_despite_two_equal_old_vectors[version]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_current_measurement_is_required_despite_two_equal_old_vectors[missing]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_two_current_compatible_vectors_have_analytic_cosine_one",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[missing-model_id]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[missing-model_version]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[empty-model_id]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[empty-model_version]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[whitespace-model_id]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[whitespace-model_version]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[unknown-model_id]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[unknown-model_version]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[bool-model_id]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[bool-model_version]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[non-string-model_id]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[non-string-model_version]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_declared_existing_embedding_owner_aliases_preserve_fresh_cosine[model_version-model_id]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_declared_existing_embedding_owner_aliases_preserve_fresh_cosine[model_version-model_name]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_declared_existing_embedding_owner_aliases_preserve_fresh_cosine[version-model_id]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_declared_existing_embedding_owner_aliases_preserve_fresh_cosine[version-model_name]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[bool]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[string]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[overflow]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[nan]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[infinity]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestConvergenceConfigModel",
+            "name": "test_defaults",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestConvergenceConfigModel",
+            "name": "test_extra_forbidden",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestConvergenceConfigModel",
+            "name": "test_roundtrip",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestConvergenceStateModel",
+            "name": "test_defaults",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestAbsoluteDelta",
+            "name": "test_converges_when_stable",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestAbsoluteDelta",
+            "name": "test_not_converged_when_delta_large",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestAbsoluteDelta",
+            "name": "test_min_iterations_respected",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestAbsoluteDelta",
+            "name": "test_max_iterations_hard_stop",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestAbsoluteDelta",
+            "name": "test_window_size_3",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestRelativeDelta",
+            "name": "test_converges_when_relative_change_small",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestRelativeDelta",
+            "name": "test_not_converged_when_relative_change_large",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestRelativeDelta",
+            "name": "test_near_zero_base_fallback",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestSemanticSimilarity",
+            "name": "test_converges_above_threshold",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestSemanticSimilarity",
+            "name": "test_not_converged_below_threshold",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestComposite",
+            "name": "test_converges_when_both_pass",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestComposite",
+            "name": "test_not_converged_when_only_abs_passes",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestBudgetPressure",
+            "name": "test_early_stop_on_budget_pressure",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestBudgetPressure",
+            "name": "test_no_early_stop_when_budget_ok",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestBudgetPressure",
+            "name": "test_no_budget_key_ignores_budget",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestBudgetPressure",
+            "name": "test_budget_key_requires_positive_limit",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestReset",
+            "name": "test_reset_clears_state",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence.TestHistoryTracking",
+            "name": "test_history_recorded",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence",
+            "name": "test_non_finite_metric_is_rejected",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestCosineSimilarity",
+            "name": "test_identical_vectors",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestCosineSimilarity",
+            "name": "test_orthogonal_vectors",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestCosineSimilarity",
+            "name": "test_opposite_vectors",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestCosineSimilarity",
+            "name": "test_zero_vector",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestLinearRegressionSlope",
+            "name": "test_increasing_sequence",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestLinearRegressionSlope",
+            "name": "test_flat_sequence",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestLinearRegressionSlope",
+            "name": "test_single_value",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestClassicStrategies",
+            "name": "test_absolute_delta_unchanged",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestClassicStrategies",
+            "name": "test_relative_delta_unchanged",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestEmbeddingCosine",
+            "name": "test_identical_texts_converge",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestEmbeddingCosine",
+            "name": "test_different_texts_no_convergence",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestEmbeddingCosine",
+            "name": "test_no_embedder_does_not_converge",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestEmbeddingCosine",
+            "name": "test_check_without_text_falls_back",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestEmbeddingCosine",
+            "name": "test_current_embedding_failure_does_not_reuse_previous_pair",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestEmbeddingCosine",
+            "name": "test_adjacent_embeddings_with_different_dimensions_do_not_converge",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestEmbeddingCosine",
+            "name": "test_model_version_change_does_not_compare_embeddings",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestEmbeddingCosine",
+            "name": "test_adjacent_compatible_embeddings_still_converge",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestStatisticalPlateau",
+            "name": "test_flat_series_converges",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestStatisticalPlateau",
+            "name": "test_improving_series_does_not_converge",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestBudgetProjection",
+            "name": "test_flat_trend_converges",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestBudgetProjection",
+            "name": "test_improving_trend_does_not_converge",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestMultiSignal",
+            "name": "test_all_signals_converged",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestMultiSignal",
+            "name": "test_only_numeric_not_enough",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_semantic.TestDetectorReset",
+            "name": "test_reset_clears_all_state",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0-1-True]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--1-False]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.01-True]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.0101-False]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-0.005--0.001-True]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-100-99-True]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[minimize-100-98-False]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0--1-True]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-1-False]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.01-True]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.0101-False]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--0.005-0.001-True]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--100--99-True]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_plateau_matches_declared_unit_decimal_oracle[maximize--100--98-False]",
+            "result": "PASS",
+            "time": "0.001",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_unit_conversion_also_scales_absolute_tolerance",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_custom_coefficients_use_their_declared_tolerance",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_present_invalid_observation_cannot_establish_plateau[None]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_present_invalid_observation_cannot_establish_plateau[1.0]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_present_invalid_observation_cannot_establish_plateau[True]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_present_invalid_observation_cannot_establish_plateau[nan]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_present_invalid_observation_cannot_establish_plateau[inf]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_absent_observation_does_not_shorten_plateau_basis",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_numerical_oracle",
+            "name": "test_declared_plateau_stops_native_controller_and_preserves_best",
+            "result": "PASS",
+            "time": "1.171",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+            "name": "test_missing_unit_cannot_claim_objective_convergence",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+            "name": "test_missing_profile_cannot_claim_objective_convergence",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+            "name": "test_standard_preset_still_honors_budget_without_objective_unit",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+            "name": "test_malformed_patience_is_rejected[True]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+            "name": "test_malformed_patience_is_rejected[False]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+            "name": "test_malformed_patience_is_rejected[1.5]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.test_stopping_limitations",
+            "name": "test_malformed_patience_is_rejected[2]",
+            "result": "PASS",
+            "time": "0.000",
+            "failure": null
+          }
+        ]
+      },
+      "mutation": null
+    },
+    {
+      "mode": "remove_metadata",
+      "process_exit": 1,
+      "source_before_after": {
+        "pins": [
+          "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "855ae45bd271d207ad3121276a5281454d1d38de"
+        ],
+        "status": "",
+        "branch": "codex/e02-D-oct07-continuation"
+      },
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "e02_math_capture",
+        "-p",
+        "e02_b41_remove_metadata",
+        "--basetemp=/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/fixtures",
+        "--junitxml=/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/junit.xml",
+        "-vv",
+        "-s",
+        "-rA",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_undeclared_embedding_basis_cannot_establish_semantic_convergence"
+      ],
+      "environment": {
+        "installed_versions": {
+          "torch": "2.10.0",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5"
+        },
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null
+        },
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "exitstatus": 1
+      },
+      "actual_loaded_module_count": 72,
+      "full_outputs_verified": [
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/origins.json",
+          "bytes": 18680,
+          "sha256": "ab4afd6b3f16a40f6282ac63d0d7e916b51d8bc5fc2da3dc29baadaa5aa9ac19"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/junit.xml",
+          "bytes": 23402,
+          "sha256": "772221d85ddde77044d679e96cfba7c018b07c3df746a1cbb4070143baf6d2d3"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/events.jsonl",
+          "bytes": 9315,
+          "sha256": "3f1232107b27d7cec716fe44b2ccca7d8059027fd2d4d38e86daf41074bb0652"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/collected.json",
+          "bytes": 2111,
+          "sha256": "3608513431d315a3237c9cf51d0e1c299813166f35f2f8aae1a1a534d85ea4ed"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/mutation.json",
+          "bytes": 568,
+          "sha256": "a671396d3c68eab24e7e5b59bae77ff8b0187fd361c72959e9a603883a0685b1"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/stdout.txt",
+          "bytes": 26782,
+          "sha256": "292771d8bac668e1a5617a69cea717194e6faeb1556b823a3e12d1182d75668e"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/request.json",
+          "bytes": 1743,
+          "sha256": "094ad9525c28b713255af8f907bfa4d83e006a44451ff952deece431d5112380"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/before-inputs.json",
+          "bytes": 1992091,
+          "sha256": "12e8dead7ed904b8d6fb7c70cb632c297081193bddbd1cb99c6941e6167d3a77"
+        }
+      ],
+      "results": {
+        "bytes": 23402,
+        "sha256": "772221d85ddde77044d679e96cfba7c018b07c3df746a1cbb4070143baf6d2d3",
+        "case_counts": {
+          "PASS": 0,
+          "FAIL": 12,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "testcases": [
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[missing-model_id]",
+            "result": "FAIL",
+            "time": "0.005",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba6a2e90>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[missing-model_version]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba502260>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[empty-model_id]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba5cd7d0>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[empty-model_version]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba500450>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[whitespace-model_id]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba6a2cf0>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[whitespace-model_version]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba6a1ff0>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[unknown-model_id]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba6a3780>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[unknown-model_version]",
+            "result": "FAIL",
+            "time": "0.000",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba5cbe00>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[bool-model_id]",
+            "result": "FAIL",
+            "time": "0.000",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba5c4860>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[bool-model_version]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba5c86c0>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[non-string-model_id]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba5cc930>)"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_undeclared_embedding_basis_cannot_establish_semantic_convergence[non-string-model_version]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "assert not True\n +  where True = any(<generator object test_undeclared_embedding_basis_cannot_establish_semantic_convergence.<locals>.<genexpr> at 0x7f03ba5d9150>)"
+          }
+        ]
+      },
+      "mutation": {
+        "mode": "remove_metadata_admission",
+        "source": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "source_sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+        "effective_changed_methods_sha256": "688ad5dd82b08137f0f62ab71853d9f0ff500562527afb94b2507b8c38642615",
+        "preserved": "Current iteration/input identity/dimension equality/actual fresh vectors and other intake guards preserved. Only explicit model/version admission removed, former class/blank coercion restored."
+      }
+    },
+    {
+      "mode": "remove_numeric",
+      "process_exit": 1,
+      "source_before_after": {
+        "pins": [
+          "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "855ae45bd271d207ad3121276a5281454d1d38de"
+        ],
+        "status": "",
+        "branch": "codex/e02-D-oct07-continuation"
+      },
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "e02_math_capture",
+        "-p",
+        "e02_b41_remove_numeric",
+        "--basetemp=/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/fixtures",
+        "--junitxml=/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/junit.xml",
+        "-vv",
+        "-s",
+        "-rA",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_invalid_current_embedding_remains_missing_until_two_fresh_records"
+      ],
+      "environment": {
+        "installed_versions": {
+          "torch": "2.10.0",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5"
+        },
+        "loaded_backend_versions": {
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null
+        },
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "exitstatus": 1
+      },
+      "actual_loaded_module_count": 74,
+      "full_outputs_verified": [
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/origins.json",
+          "bytes": 19207,
+          "sha256": "329f1c1d6b6a932e4cf7215019a895f8d43465f89b27efc86de8edfe6592a4b0"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/junit.xml",
+          "bytes": 11939,
+          "sha256": "d4c473ad24f00930894144532917bd46e30f02f7205d210b7a17d1d094caae75"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/events.jsonl",
+          "bytes": 3698,
+          "sha256": "c739a68ee87c9a37de3d19bd610cbba4f4154438592186bf5986099462325e05"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/collected.json",
+          "bytes": 822,
+          "sha256": "da4e2a93dcdd2ca565891d7d9ea9e72b44106497b004b3b82b85c4a00b8c9089"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/mutation.json",
+          "bytes": 604,
+          "sha256": "80185e4b0084eb22e41de7a0a28c1f20129bd12589e3af7637afb859f0dc7b0f"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/stdout.txt",
+          "bytes": 14274,
+          "sha256": "3fa815e5195c96daf777a875ac81305085c44d664c11d811daedab2331bc390a"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/request.json",
+          "bytes": 1739,
+          "sha256": "2e68020c42f191fa5042fcfdc8ed82e76eff1f91eb9e5308d6a3512235f345bc"
+        },
+        {
+          "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/before-inputs.json",
+          "bytes": 1992091,
+          "sha256": "12e8dead7ed904b8d6fb7c70cb632c297081193bddbd1cb99c6941e6167d3a77"
+        }
+      ],
+      "results": {
+        "bytes": 11939,
+        "sha256": "d4c473ad24f00930894144532917bd46e30f02f7205d210b7a17d1d094caae75",
+        "case_counts": {
+          "PASS": 1,
+          "FAIL": 4,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "testcases": [
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[bool]",
+            "result": "FAIL",
+            "time": "0.005",
+            "failure": "AssertionError: assert not True\n +  where True = ConvergenceState(iteration=3, history=[10.0, 20.0, 30.0], converged=True, reason='converged_embedding_cosine').converged"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[string]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "AssertionError: assert not True\n +  where True = ConvergenceState(iteration=3, history=[10.0, 20.0, 30.0], converged=True, reason='converged_embedding_cosine').converged"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[overflow]",
+            "result": "PASS",
+            "time": "0.016",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[nan]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "AssertionError: assert 3 == 2\n +  where 3 = len([_EmbeddingRecord(iteration=1, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(1.0, 0.0)), _EmbeddingRecord(iteration=2, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(1.0, 0.0)), _EmbeddingRecord(iteration=3, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(nan, 0.0))])\n +    where [_EmbeddingRecord(iteration=1, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(1.0, 0.0)), _EmbeddingRecord(iteration=2, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(1.0, 0.0)), _EmbeddingRecord(iteration=3, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(nan, 0.0))] = <polisyos.scientist.orchestration.engine.convergence.ConvergenceDetector object at 0x7fbfdaadbce0>._text_embeddings"
+          },
+          {
+            "class": "tests.unit.scientist.orchestration.engine.test_convergence_numerical_oracle",
+            "name": "test_invalid_current_embedding_remains_missing_until_two_fresh_records[infinity]",
+            "result": "FAIL",
+            "time": "0.001",
+            "failure": "AssertionError: assert 3 == 2\n +  where 3 = len([_EmbeddingRecord(iteration=1, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(1.0, 0.0)), _EmbeddingRecord(iteration=2, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(1.0, 0.0)), _EmbeddingRecord(iteration=3, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(inf, 0.0))])\n +    where [_EmbeddingRecord(iteration=1, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(1.0, 0.0)), _EmbeddingRecord(iteration=2, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(1.0, 0.0)), _EmbeddingRecord(iteration=3, input_ref='0967115f2813a3541eaef77de9d9d5773f1c0c04314b0bbfe4ff3b3b1c55b5d5', model_ref='known-embedding', model_version='1.0', dimension=2, vector=(inf, 0.0))] = <polisyos.scientist.orchestration.engine.convergence.ConvergenceDetector object at 0x7fbfd9ffc510>._text_embeddings"
+          }
+        ]
+      },
+      "mutation": {
+        "mode": "remove_finite_real_scalar_intake",
+        "source": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "source_sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+        "effective_changed_method_sha256": "1f2b41560a9988b74df74018a1ac3f80f5753c05ee6c47bae34b863a31461522",
+        "preserved": "Explicit model/version, currentiteration/input identity, positive length/dimension and expanded failure catches remain. Unsafe float bool/string/nan/inf admission removed guard; overflow catch may independently failclosed."
+      }
+    }
+  ],
+  "P37": "Current fresh embedding record has declared nonblank actual model/revision, strict finite real coordinates and compatible dimension/version; old vectors/current markers do not substitute for current observation. Two fresh admitted measurements required after failed or undeclared measurement. Public history/iteration is truthful despite unaccepted current vector.",
+  "P38": "Metadata guard removal yields 12 semantic false-convergence failures. Numeric helper removal yields bool/string false-convergence and NaN/Inf actual-record-admission failures. Independent overflow catch still refuses overflow: its 1 PASS is retained and not called removal failure.",
+  "bounded_original_proposal": "The original detector verification is met on declared supported public profile. Conditional priority and appointed production caller remain not_established; this is a separate usage/authority limit, not an own unresolved numerical defect.",
+  "remaining_inputs": [
+    "Appointed production embedding caller and actual owner model law only if deployment/scientific compatibility is claimed."
+  ],
+  "limitations": [
+    "No invented embedding model authority, cross-version scientific compatibility or default deployed caller.",
+    "Torch/BoTorch installed metadata is not loaded backend execution and is not needed for analytic current-vector property.",
+    "P41 not_established; no inherited-red waiver.",
+    "104 affected cases are not summed with older153/GP39 into whole-D PASS.",
+    "G acceptance=false; proposal only."
+  ]
+}

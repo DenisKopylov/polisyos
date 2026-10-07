@@ -1,0 +1,280 @@
+{
+  "schema": "e02.D.slice.handoff.v1",
+  "author": "math_oct07 (tests/runtime)",
+  "production_author": "service_oct07",
+  "independent_review": {
+    "production": "GP owner independent static review separate; root receipt expected",
+    "tests_and_runtime": "census_oct07 requested, pending independent receipt at author handoff time; author does not self-accept"
+  },
+  "topic": "codex/e02-D-oct07-continuation",
+  "slice_base": "d610095905262a9b5b05b60c894018a681119367",
+  "implementation_commit": "d88ad0d25e4635a9c9aa742f00d767b54cde7209",
+  "implementation_tree": "8d224d3f61c162af8fa377a675bac95ea7ca2848",
+  "complete_implementation_changed_pathset": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py"
+  ],
+  "tested_candidate": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "tested_tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "complete_combined_changed_pathset": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-calibration-report-state.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+    "policy-engine/tests/unit/remediation/test_fun_03.py",
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+    "policy-engine/tests/unit/scientist/search/test_calibration_report.py"
+  ],
+  "criteria": [
+    {
+      "id": "B41@STP-01",
+      "finding_id": "B41",
+      "criterion_card": "STP-01",
+      "canonical_closure_owner": "STP-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-stp-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          770,
+          783
+        ],
+        "byte_offset": 157036,
+        "bytes": 3079,
+        "sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a"
+      },
+      "canonical_content": {
+        "text": "**Проверка:** отказ/отсутствие текущего embedding не создаёт semantic-convergence; корректные одинаковые текущие векторы дают соответствующий ограниченный результат; другая размерность/версия embedding не сравнивается без совместимости. Приоритет условный до подтверждения использования detector в нужном пользовательском пути.",
+        "byte_offset": 159547,
+        "bytes": 566,
+        "sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B41@STP-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+          "bytes": 11176,
+          "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c"
+        }
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "exact_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "tested_tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+      "engineering_proposal": "closed proposal for original bounded public detector verification; conditional deployed priority remains not_established",
+      "formal_disposition": "G owner decision pending; no formal closure/acceptance claim",
+      "consumer": "Actual public ConvergenceDetector.check_with_text with fresh measured vectors, explicit owner model/version aliases, real state history/iteration; classic/stopping consumers separate affected modules.",
+      "oracle": "Analytic cosine([1,0],[1,0])=1 and stale/mismatched/null/nonfinite observations unavailable; independent original six numerical cells retained; native controller Decimal plateau oracle unrelated23 cells runs current.",
+      "negative": "Metadata admission removal actual_methods12expectedFAIL; numeric helper removal4expectedFAIL/overflow1PASS preserving independentcatch; baseline ownfinal21 all17negativeFAIL and4aliasesPASS on exactd610.",
+      "runtime_property": "Strict declared nonblank string model/version; absent, blank, unknown, bool/nonstring refuses with existing unavailable diagnostic. Numeric vector finite_real_scalar rejects bool/string/nan/inf/huge; failed current record not appended; history/iteration proceed truthfully; two fresh admitted rows required after failure or basis restoration.",
+      "residual": "No own corrected intake defect remains in tested supported profile. rg src/integration finds no appointed production check_with_text caller; conditional usage priority retained, no default embedding authority/model-law or deployment claim.",
+      "historical_prior_accounting": {
+        "receipt": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "fields": {
+          "disposition": "OPEN_VERIFICATION_PENDING",
+          "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+          "current_attempt_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+          },
+          "final_candidate_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+            "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+            "predicate_basis": "not_established"
+          },
+          "finding_row_pointer": "/findings/0",
+          "previous_c17_attempt_source": {
+            "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+            "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+          },
+          "final_environment_and_output_pointer": "/final_acceptance_wave"
+        }
+      },
+      "disposition": "CLOSED_PROPOSAL_G_DECISION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_original_detector_verification",
+      "current_attempt_source": {
+        "sha": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+        "tree": "855ae45bd271d207ad3121276a5281454d1d38de"
+      },
+      "final_candidate_source": {
+        "sha": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+        "tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+        "state": "COMPLETE_TARGETED_RUNTIME",
+        "predicate_basis": "established_bounded_current_detector"
+      },
+      "final_environment_and_output_pointer": "/checks/positive"
+    }
+  ],
+  "checks": {
+    "positive": {
+      "PASS": 104,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "UNRUN": 0,
+      "complete_cases": 104,
+      "result": {
+        "source_before": {
+          "pins": [
+            "b5cdb56ad3a67cef451157e816d9dc246d307681",
+            "855ae45bd271d207ad3121276a5281454d1d38de"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "b5cdb56ad3a67cef451157e816d9dc246d307681",
+            "855ae45bd271d207ad3121276a5281454d1d38de"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15436,
+        "changed_input_paths": {},
+        "exit_code": 0,
+        "wall_seconds": 3.543846027983818,
+        "ended_utc": "2026-10-07T08:26:50Z",
+        "output_sha256": {
+          "origins.json": "40151c6cbffb6e065479f06c2e13f392b843965171a30c653c14af0c28f6fbe9",
+          "junit.xml": "02e8ec0cc5430b2ac248c6b92f07a0a6bd669894e2ed5a03c7179d58abce0bac",
+          "events.jsonl": "e1b8fd5a70c5590f2c0ff518d877ae944d9ec5c31b8b3282eac06cb3d647b2da",
+          "collected.json": "4ddc4fd545bea6832705bcf3fa879253a81538363cd08e7264e8ba986832c8ae",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "7257b6436165891f07719c771212f46fec1af02752ed298528be03789d7f698d",
+          "request.json": "7ef39321c65c941e631b59dda2040675fdb4333c1dc19306377fd754fb812c6e",
+          "before-inputs.json": "12e8dead7ed904b8d6fb7c70cb632c297081193bddbd1cb99c6941e6167d3a77"
+        }
+      },
+      "junit_sha256": "02e8ec0cc5430b2ac248c6b92f07a0a6bd669894e2ed5a03c7179d58abce0bac"
+    },
+    "remove_metadata": {
+      "PASS": 0,
+      "FAIL": 12,
+      "ERROR": 0,
+      "SKIP": 0,
+      "UNRUN": 0,
+      "complete_cases": 12,
+      "result": {
+        "source_before": {
+          "pins": [
+            "b5cdb56ad3a67cef451157e816d9dc246d307681",
+            "855ae45bd271d207ad3121276a5281454d1d38de"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "b5cdb56ad3a67cef451157e816d9dc246d307681",
+            "855ae45bd271d207ad3121276a5281454d1d38de"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15436,
+        "changed_input_paths": {},
+        "exit_code": 1,
+        "wall_seconds": 1.755339997005649,
+        "ended_utc": "2026-10-07T08:26:48Z",
+        "output_sha256": {
+          "origins.json": "ab4afd6b3f16a40f6282ac63d0d7e916b51d8bc5fc2da3dc29baadaa5aa9ac19",
+          "junit.xml": "772221d85ddde77044d679e96cfba7c018b07c3df746a1cbb4070143baf6d2d3",
+          "events.jsonl": "3f1232107b27d7cec716fe44b2ccca7d8059027fd2d4d38e86daf41074bb0652",
+          "collected.json": "3608513431d315a3237c9cf51d0e1c299813166f35f2f8aae1a1a534d85ea4ed",
+          "mutation.json": "a671396d3c68eab24e7e5b59bae77ff8b0187fd361c72959e9a603883a0685b1",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "292771d8bac668e1a5617a69cea717194e6faeb1556b823a3e12d1182d75668e",
+          "request.json": "094ad9525c28b713255af8f907bfa4d83e006a44451ff952deece431d5112380",
+          "before-inputs.json": "12e8dead7ed904b8d6fb7c70cb632c297081193bddbd1cb99c6941e6167d3a77"
+        }
+      },
+      "junit_sha256": "772221d85ddde77044d679e96cfba7c018b07c3df746a1cbb4070143baf6d2d3"
+    },
+    "remove_numeric": {
+      "PASS": 1,
+      "FAIL": 4,
+      "ERROR": 0,
+      "SKIP": 0,
+      "UNRUN": 0,
+      "complete_cases": 5,
+      "result": {
+        "source_before": {
+          "pins": [
+            "b5cdb56ad3a67cef451157e816d9dc246d307681",
+            "855ae45bd271d207ad3121276a5281454d1d38de"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "b5cdb56ad3a67cef451157e816d9dc246d307681",
+            "855ae45bd271d207ad3121276a5281454d1d38de"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15436,
+        "changed_input_paths": {},
+        "exit_code": 1,
+        "wall_seconds": 1.8024001420126297,
+        "ended_utc": "2026-10-07T08:26:48Z",
+        "output_sha256": {
+          "origins.json": "329f1c1d6b6a932e4cf7215019a895f8d43465f89b27efc86de8edfe6592a4b0",
+          "junit.xml": "d4c473ad24f00930894144532917bd46e30f02f7205d210b7a17d1d094caae75",
+          "events.jsonl": "c739a68ee87c9a37de3d19bd610cbba4f4154438592186bf5986099462325e05",
+          "collected.json": "da4e2a93dcdd2ca565891d7d9ea9e72b44106497b004b3b82b85c4a00b8c9089",
+          "mutation.json": "80185e4b0084eb22e41de7a0a28c1f20129bd12589e3af7637afb859f0dc7b0f",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "3fa815e5195c96daf777a875ac81305085c44d664c11d811daedab2331bc390a",
+          "request.json": "2e68020c42f191fa5042fcfdc8ed82e76eff1f91eb9e5308d6a3512235f345bc",
+          "before-inputs.json": "12e8dead7ed904b8d6fb7c70cb632c297081193bddbd1cb99c6941e6167d3a77"
+        }
+      },
+      "junit_sha256": "d4c473ad24f00930894144532917bd46e30f02f7205d210b7a17d1d094caae75"
+    }
+  },
+  "full_input_denominator": {
+    "tracked_paths": 15436,
+    "materialized": 8393,
+    "sparse_unmaterialized": 7043,
+    "src_tests_config_lock_paths": 6301,
+    "missing_src_tests_config_lock": 0,
+    "before_after_changed_paths": 0
+  },
+  "profile": {
+    "actual_interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "basis": "Pure numerical convergence and actual native SearchController declared physical GDP fixture; model toy fixture metadata explicit actualimplementation labels, not appointed externalissuer/model scientificlaw.",
+    "backend_skip": 0,
+    "thread_limits": "none set; backend installation metadata/origins captured perprocess, numerical embedding property does not require GP/backend."
+  },
+  "P37_predicate_basis": "Current fresh record identity/positive vector length+finite numeric coordinates+declared model/version must substantively pass; labels/currentiteration alone not accepted.",
+  "P38_proxy_divergence": "class-name/blank-version coercion or float(True/string/nan/inf) preservesmarkers and fakes comparable vector; actual removal probes fail while truthful history/iteration and old vectors remain.",
+  "P41": "not_established; no inherited-red waiver. Direct exactd610 final17negativeFAIL baseline recorded with source beforeafterbindings, does not assert zero-overlap/inheritance.",
+  "baseline": "/tmp/e02-D-B41-final21-state-before-tkjf0uj8",
+  "limitations": [
+    "No formal G acceptance/finding closure claim.",
+    "No appointed production embedding caller found; exact owner/input conditional usage needs G disposition.",
+    "No cross-version model compatibility, invented embedding law, new dimension providerAPI, population probability or production data transferred."
+  ],
+  "cleanup_candidates": [
+    "/tmp/e02-D-B41-final-b5c-z2jhnwls/positive/fixtures",
+    "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_metadata/fixtures",
+    "/tmp/e02-D-B41-final-b5c-z2jhnwls/remove_numeric/fixtures"
+  ],
+  "cleanup": "Only root coordinated authorized cleanup; no subagent deletion/Trash action."
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "D.e02.independent-production-review.v1",
+  "author": "/root/service_oct07",
+  "reviewer": "/root/math_oct07",
+  "source": "d610095905262a9b5b05b60c894018a681119367",
+  "source_tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+  "patch_path": "/dev/shm/e02-D-oct07-service-start/base-state-finite-admission-d610.patch",
+  "patch_sha256": "ec5b5a94fd6eba72f52c2eab11e2710e7d98da32d1b71edf04735ab938578333",
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py"
+  ],
+  "source_blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+  "source_sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b",
+  "helper_blob": "d559d8182b5fc6b5deaafbb7dbcae8267cf2214b",
+  "static_review": "PASS",
+  "blocking_findings": [],
+  "inspection": [
+    "Both raw persisted coordinates and Python gauss_next retain explicit bool/type refusal before common finite_real_scalar; overflow/nonfinite is rejected as ValueError using existing messages instead of leaking OverflowError.",
+    "Sobol normalized cache still receives float values and strict0\u2264x\u22641 range; no arbitrary clipping/defaultzero/changed sampler markers.",
+    "Gaussian guard uses common function only as finite admission, preserves original raw int/float gauss_next type and native random.Random.setstate validation.",
+    "Existing all-field decode/space/seed/sampler validation remains before any live strategy RNG/iteration/cache mutation; this is boundary widening, not a second checkpoint codec.",
+    "Only import and two numeric boundary predicates change; unusedmath import removed. Common serializer has no new base-strategy dependency/cycle; supported public signatures/profile serialization unchanged."
+  ],
+  "required_post_apply_verification": [
+    "Exact2 publicset_state overflow negatives must pass with ValueError and unchanged live state.",
+    "Repeat affected actual GP39 and NNstate/checkpoint consumers because BaseStrategy dependency changes.",
+    "Relevant existing Sobol/RNG/type guards and original message/profile compatibility checks remain included."
+  ],
+  "runtime_check": "UNRUN for patched source at review time; existingd6102OverflowError failures are root-held exactbaseline evidence, no inherited-red waiver claimed.",
+  "limitations": [
+    "Static production patch review does not prove post-apply runtime or numerical posterior/state equivalence; freeze SHA and actual affected checks required."
+  ]
+}

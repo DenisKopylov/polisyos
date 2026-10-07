@@ -1,0 +1,6 @@
+{
+  "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+  "before_sha256": "1aec929a3264cdc69fd32670ec65ff56202e520df177557acafd41b88ccc28d8",
+  "after_sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+  "ast_equal": true
+}

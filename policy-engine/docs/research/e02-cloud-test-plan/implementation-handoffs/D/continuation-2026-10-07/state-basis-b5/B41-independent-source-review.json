@@ -1,0 +1,36 @@
+{
+  "schema": "e02.independent-source-review.v1",
+  "reviewer": "D gp_oct07",
+  "author": "D service_oct07",
+  "source_commit": "d610095905262a9b5b05b60c894018a681119367",
+  "source_tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+  "patch": {
+    "path": "/dev/shm/e02-D-oct07-service-start/convergence-provenance-and-numeric-admission-d610.patch",
+    "sha256": "9394a8bf5ef7ce95f299a9992042d50ee783c7dd4900996002c33a7e14af64f1"
+  },
+  "sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "sha256": "0d41b7dd0330b9d466a13d4091e042e223c129c1b3a6a9c4f90c7c593b9edfaf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852"
+    }
+  ],
+  "source_verdict": "PASS",
+  "runtime_verdict": "UNRUN",
+  "predicate": "B41 current embedding is numerically admitted and has explicit model/version before semantic convergence; absent/refused current observation cannot reuse previous pair",
+  "review": [
+    "Existing common finite_real_scalar admits finite float-representable numbers.Real and rejects bool/string/nonfinite/overflow before vector append, avoiding any duplicate numerical decoder.",
+    "Explicit nonempty string model/version and unknown-sentinel refusal remove fabricated class-name/blank provenance. No issuer or scientific validity authority is invented.",
+    "Actual nonempty measured dimension and defensive model/version/positive integer dimension checks preserve current-pair adjacency, input_ref and same-model/version rules.",
+    "Degraded intake returns no appended current embedding; existing iteration advance prevents stale pair from becoming the current pair.",
+    "Supported finite int/float/NumPy Real vector semantics retained. Arbitrary Tensor scalar is not numbers.Real and requires owner adapter to emit real coordinates; this is not claimed as a supported native scalar profile."
+  ],
+  "limitations": [
+    "Independent static source review only; author and reviewer differ. Actual affected detector/consumer tests must run on next immutable applied candidate.",
+    "No production embedding issuer/source/version authority proof; declared fixture models only support bounded contract controls."
+  ],
+  "supersedes_review": "convergence-provenance-independent-source-review.json"
+}

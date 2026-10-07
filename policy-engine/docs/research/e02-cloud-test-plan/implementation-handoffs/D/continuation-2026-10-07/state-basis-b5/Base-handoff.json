@@ -1,0 +1,69 @@
+{
+  "schema": "e02.D.numeric-state-component-handoff.v1",
+  "slice_base": "d610095905262a9b5b05b60c894018a681119367",
+  "implementation_commit": "d88ad0d25e4635a9c9aa742f00d767b54cde7209",
+  "implementation_tree": "8d224d3f61c162af8fa377a675bac95ea7ca2848",
+  "tested_candidate": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "tested_tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "canonical_production_author": "service_oct07",
+  "test_author": "gp_oct07",
+  "independent_production_reviewer": "math_oct07",
+  "independent_test_and_runtime_reviewer": "census_oct07",
+  "original_acceptance": {
+    "finding_id": "B125",
+    "bundle": "CTL-02",
+    "original_acceptance_text": "**Приёмка.** Полный persisted round-trip каждого поддерживаемого strategy-state, а не только `get_state/set_state` в одной памяти. Восстановленная следующая последовательность совпадает; повреждённое/чужое состояние не принимается; случайный поток независимой реплики остаётся независимым.",
+    "original_acceptance_binding": {
+      "byte_offset": 740880,
+      "bytes": 486,
+      "sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d"
+    },
+    "original_fragment": {
+      "document_key": "B_r19",
+      "lines": [
+        3264,
+        3277
+      ],
+      "byte_offset": 738182,
+      "bytes": 3186,
+      "sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b"
+    }
+  },
+  "component": "Existing Base public StrategyState intake rejects huge Sobol and Python Gaussian-cache integers through existing finite_real_scalar before mutation. Restored valid state remains supported.",
+  "consumer": "RandomSearchStrategy.set_state → actual Python RNG and SciPy Sobol state, compared before/after canonical StrategyState bytes.",
+  "checks": {
+    "positive": {
+      "result": "PASS",
+      "cases": 2,
+      "output": "base-finite-positive.receipt.json"
+    },
+    "common_finite_guard_removal": {
+      "result": "FAIL",
+      "expected": true,
+      "cases": 2,
+      "output": "base-finite-removal.receipt.json",
+      "actual_failure": "OverflowError through two ordinary state setters with retained checkpoint markers"
+    }
+  },
+  "P37": {
+    "basis": "bounded engineering primitive; complete B125 strategy denominator remains a separate verification task"
+  },
+  "P38": {
+    "basis": "existing common finite guard removed; same markers permit overflowing live intake instead of controlled atomic refusal"
+  },
+  "P41": "not_established; no inherited-red claim",
+  "limitations": [
+    "No GP posterior claim from minimal runtime state checks.",
+    "This component does not close full B125 across supported strategy inventory.",
+    "No public surface appointment or G integration acceptance."
+  ],
+  "formal_G_acceptance": false,
+  "complete_implementation_changed_pathset": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "e02.independent-review.addendum.v1",
+  "source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "handoff": {
+    "path": "/tmp/e02-D-B41-final-b5c-z2jhnwls/B41-handoff.json",
+    "sha256": "aa21525912f7eda4b44c10b707aae1e672d79f0e51f59d2619be956583cfef11"
+  },
+  "independent_runtime_and_tests": {
+    "path": "/dev/shm/e02-D-census-review-oct07/B41-b5-runtime-independent-review.json",
+    "sha256": "107d386627435b068eaa7a1bb57fb89dd41efeab2e35cf778053640e1f7e4904",
+    "verdict": "GO_ORIGINAL_BOUNDED_DETECTOR_CLOSED_PROPOSAL"
+  },
+  "independent_production_source": {
+    "path": "/dev/shm/e02-D-NN-state-finald610-mfgxf6wo/convergence-provenance-and-numeric-independent-source-review.json",
+    "sha256": "35486df8cdfb5e56043ee5011d7f3d954630b3896a1e8e63d484cc994828eefe",
+    "verdict": "PASS_SOURCE_REVIEW"
+  },
+  "author_not_reviewer": true,
+  "G_acceptance": false,
+  "runtime_author_handoff_pending_marker": "Historical snapshot before independent reviewer published; this append-only addendum records completed reviewer status without rewriting reviewed handoff."
+}

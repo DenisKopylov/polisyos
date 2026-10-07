@@ -1,0 +1,178 @@
+{
+  "schema": "e02.D.independent.runtime-review.v1",
+  "reviewer": "census_oct07",
+  "source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "status": "PASS_BOUND_NUMERIC_ADMISSION_AND_NEGATIVE_VERIFICATION",
+  "related_finding": "B125 component only; full supported-state inventory separate",
+  "source_review": "b5-final-reviewed-draft-source-reconciliation.json",
+  "cohorts": [
+    {
+      "receipt": "/dev/shm/e02-D-oct07-service-start/base-finite-positive.receipt.json",
+      "receipt_sha256": "e49ec7dbac7cf816b6deccb594ef524125f6dcbe8df922e0d108ecd6d8944397",
+      "actual_environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        }
+      },
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/base-finite-positive-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/base-finite-positive.junit.xml",
+        "tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_unrepresentable_base_numeric_state_refuses_atomically"
+      ],
+      "backend": "Actual convergence detector / public strategy state setter; numpy/scipy Sobol supported by recorded runtime; no GP posterior claim",
+      "verified_outputs": [
+        {
+          "path": "/dev/shm/e02-D-oct07-service-start/base-finite-positive.stdout.txt",
+          "available": true,
+          "bytes": 519,
+          "sha256": "c498f6b7c5ef5d14db339455a6c0360244a54a6bb2438cc28d5679566a055fcc"
+        },
+        {
+          "path": "/dev/shm/e02-D-oct07-service-start/base-finite-positive.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/dev/shm/e02-D-oct07-service-start/base-finite-positive.junit.xml",
+          "available": true,
+          "bytes": 625,
+          "sha256": "7691d0230e91730f9ea3e1323ab14c3a777837c2dc568a4f0eec6bfc2a8b55f5"
+        }
+      ],
+      "exact_source_input_binding_verified": true,
+      "results": {
+        "bytes": 625,
+        "sha256": "7691d0230e91730f9ea3e1323ab14c3a777837c2dc568a4f0eec6bfc2a8b55f5",
+        "case_counts": {
+          "PASS": 2,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "testcases": [
+          {
+            "class": "tests.unit.scientist.methods.search.strategies.test_strategy_state",
+            "name": "test_unrepresentable_base_numeric_state_refuses_atomically[sobol_coordinate]",
+            "result": "PASS",
+            "time": "1.489",
+            "failure": null
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.strategies.test_strategy_state",
+            "name": "test_unrepresentable_base_numeric_state_refuses_atomically[python_gauss_next]",
+            "result": "PASS",
+            "time": "0.002",
+            "failure": null
+          }
+        ]
+      }
+    },
+    {
+      "receipt": "/dev/shm/e02-D-oct07-service-start/base-finite-removal.receipt.json",
+      "receipt_sha256": "d0f9cda2d3fc08a2d7614cf892f575a876da55b9d44bf80597e85db2fab77d6d",
+      "actual_environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "packages": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        }
+      },
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/base-finite-removal-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/base-finite-removal.junit.xml",
+        "-p",
+        "base_finite_admission_removal",
+        "tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_unrepresentable_base_numeric_state_refuses_atomically"
+      ],
+      "backend": "Actual convergence detector / public strategy state setter; numpy/scipy Sobol supported by recorded runtime; no GP posterior claim",
+      "verified_outputs": [
+        {
+          "path": "/dev/shm/e02-D-oct07-service-start/base-finite-removal.stdout.txt",
+          "available": true,
+          "bytes": 10626,
+          "sha256": "41fe171d61742e7822ed11fca2cee8feeddb629a3d1fc18a52dc0406a2c83769"
+        },
+        {
+          "path": "/dev/shm/e02-D-oct07-service-start/base-finite-removal.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/dev/shm/e02-D-oct07-service-start/base-finite-removal.junit.xml",
+          "available": true,
+          "bytes": 10299,
+          "sha256": "3102ad547511ee7ed5b7bb81f4df41e3aaa77a73874207f7b8cb317b268b4c9e"
+        }
+      ],
+      "exact_source_input_binding_verified": true,
+      "results": {
+        "bytes": 10299,
+        "sha256": "3102ad547511ee7ed5b7bb81f4df41e3aaa77a73874207f7b8cb317b268b4c9e",
+        "case_counts": {
+          "PASS": 0,
+          "FAIL": 2,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "testcases": [
+          {
+            "class": "tests.unit.scientist.methods.search.strategies.test_strategy_state",
+            "name": "test_unrepresentable_base_numeric_state_refuses_atomically[sobol_coordinate]",
+            "result": "FAIL",
+            "time": "1.480",
+            "failure": "OverflowError: int too large to convert to float"
+          },
+          {
+            "class": "tests.unit.scientist.methods.search.strategies.test_strategy_state",
+            "name": "test_unrepresentable_base_numeric_state_refuses_atomically[python_gauss_next]",
+            "result": "FAIL",
+            "time": "0.002",
+            "failure": "OverflowError: int too large to convert to float"
+          }
+        ]
+      }
+    }
+  ],
+  "P37": "Actual public strategy setter converts/adopts Sobol/Python state only after strict finite-real admission. Both saved state mutations preserve schema/basis/cursor/version and caller catches ValueError; complete fresh strategy artifact unchanged.",
+  "P38": "Removed shared scalar guard restores OverflowError for real huge numeric Sobol/Python cache fields despite retained markers, so labels/shape alone do not pass.",
+  "limitations": [
+    "2 tests are actual public state numeric component, not full B125/Grid/MO/GP finding closure.",
+    "No P41 inherited-red claim; exact slice-base/full scientific denominator zero-overlap not established.",
+    "Compact receipt source inventory 15436 tracked/8393 available/7043 sparse-unmaterialized is correctly qualified, not a full scientific input census.",
+    "No GP numerical property claimed from this minimal runtime.",
+    "G acceptance=false."
+  ]
+}

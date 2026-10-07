@@ -1,0 +1,87 @@
+{
+  "schema": "policyos.e02.foreign_source_review.v1",
+  "reviewer": "B CAS leaf, independent of EXE mechanism author",
+  "reviewed_source": {
+    "sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+    "tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+    "base_sha": "2be5a49784403c875742588299d78639f5e8b6ef",
+    "first_source_sha": "3bd353d42e06c5c879c580b2a6c61a00226ee5a2"
+  },
+  "verdict": "NONBLOCKING source-only within the declared finite ordinary model graph profile",
+  "runtime_verdict": "UNRUN",
+  "closure_ids": [],
+  "mechanism_owner": "EXE state_branching.py; this reviewer makes no production/test edits and does not review its own former CAS implementation",
+  "source_scope": [
+    "Entire initial 3bd state_branching source and every successor source delta were read before the cloud outage; the current remotely fetched d18 full source is the same blob as that read.",
+    "Actual hook dispatcher boundaries: branch admission before isolation copying; generated tracked model type creation; canonical model_construct/copy/deepcopy; field assignment and validated stored child reconciliation; active root and nested model deletion.",
+    "Memoized supported model/container aliases, actual live parents and detached copy paths use the existing original grant, then produce replayable journal intents. Completion makes an executor-owned neutral detached state while the original producer view stays guarded.",
+    "Canonical source is B's declared producer grant. G merge/ancestry is transport context and supplies no alternative authorization law."
+  ],
+  "resolved_questions": [
+    {
+      "question": "Does ordinary model admission cover actual construction/copy lifecycle hooks before code can execute?",
+      "resolution": "86ae and d18 require the canonical BaseModel metaclass; getattr_static reads raw MRO descriptors, normalizing only actual classmethod/staticmethod before identity comparison with BaseModel/RootModel. The single predicate covers __new__, subclass/Pydantic class-init/on-complete/schema, set/del/get, copy/deepcopy, model_copy/model_construct and model_post_init before branch isolation and tracked class construction.",
+      "locations": [
+        "branch_state:220-278",
+        "_ordinary_model_type:1110-1147",
+        "_validate_mutation_attachment:1236-1262",
+        "_wrap_mutable_value:1302-1347"
+      ]
+    },
+    {
+      "question": "Can ordinary validate_assignment materialize an untracked child or discard tracking state?",
+      "resolution": "Tracking metadata uses slots. After canonical assignment, the actually stored validated field is checked, rewrapped and bound before the operation is journaled. Unsupported materialization restores declared field data, fields_set and extra snapshot before refusal. This does not roll back arbitrary side effects of custom validators.",
+      "locations": [
+        "_TrackedModelMixin.__setattr__:1012-1042",
+        "_TrackedModelMixin.__copy__/__deepcopy__:1085-1104"
+      ]
+    },
+    {
+      "question": "Does inherited root model deletion bypass the active original grant?",
+      "resolution": "d18 adds root __delattr__: undeclared active deletion refuses before effect and declared active deletion is typed refused as nonreplayable, matching the nested model boundary. Neutral delegation remains unchanged.",
+      "locations": [
+        "_JournaledExperimentState.__delattr__:140-147",
+        "_TrackedModelMixin.__delattr__:1044-1049"
+      ]
+    },
+    {
+      "question": "Do copied/aliased model children obtain an independent broader grant?",
+      "resolution": "Active model_copy preflights actual requested fields against the originating scope; copied children are rebound and detached copies do not contribute live-state effects until attachment. Mutation authorization resolves current live paths/all retained supported aliases, rather than trusting a previously recorded index or the DTO kind.",
+      "locations": [
+        "_TrackedModelMixin.model_copy:1051-1083",
+        "_bind_mutation_root/_bind_mutation_parent:1164-1198",
+        "_authorize_container_mutation:1265-1286",
+        "_record_container_mutation:1289-1299"
+      ]
+    }
+  ],
+  "consumer_trace": [
+    "Sequential and asynchronous executor producer entry -> branch_state(enforce_write_scope=True) -> ordinary model/container live graph -> journal -> exact cache/replay reconciliation -> executor-owned completed state.",
+    "Serialized activity worker enforces the same branch predicate; its initial wire isolation is distinct from permitting a producer to change public/published branch state.",
+    "Two unique engine test files and the existing artifact publication/cache consumers supply the planned adversarial/oracle inputs. Reading their source does not establish their candidate outcomes."
+  ],
+  "negative_control_requirements": [
+    "Same class: undeclared ordinary typed DTO field mutation and root model_copy(update) must refuse before changing producer/base/published bytes, with original grants/markers preserved.",
+    "Same class: custom creation/copy/schema/subclass hooks must be refused before their physical effect; ordinary validated descendant writes must retain live alias custody.",
+    "Same class: original-grant field deletion and detached-copy reattachment must preserve pre-effect refusal and exact replayable journal semantics.",
+    "An in-memory removal must cause the unchanged defining assertion to observe the actual mutation/body/publication effect, not only a marker/import failure. No such new candidate execution is claimed here."
+  ],
+  "finite_boundaries": [
+    "Supported ordinary declared BaseModel/RootModel fields with finite dict/list/tuple/model graphs, standard fields/config/validation, canonical hook implementations and current live aliases.",
+    "Custom metaclasses/hooks, nonempty private/extra runtime state, undeclared attributes, cyclic attachments and model-field deletion are refused at their declared intake boundary.",
+    "Explicit base-class mutation, __dict__/object reflection, arbitrary custom runtime objects or arbitrary validator side effects are outside this Python sandbox claim.",
+    "No arbitrary model-class reconstruction from cache JSON; no deployed Ray/Temporal process, global scientific, power-loss, multi-host or production dataset proof.",
+    "Legacy neutral/frozen model behavior is preserved in source; actual compatible consumer execution remains to be measured on the final integrated candidate."
+  ],
+  "evidence_availability": {
+    "remotely_readable": "Committed d18 source/companions/test, full six-commit ancestry and four-path compare revalidated through GitHub MCP.",
+    "local_raw": "not_established for receiver after official cloud connectivity outage; local pending metadata publisher completion is not established.",
+    "prior_snapshot": "ec898 archive/custody observations are historical navigation only in this compact packet, not delivery of deciding local bytes or proof of a later root source.",
+    "original_failures": "Original baseline 30-case/12-failure observation and metadata selector failure are preserved on their original owner/local paths; they are not replaced by this source review or claimed newly executed."
+  },
+  "next_owner": [
+    "ROOT/G reconstruct a fresh admitted final integrated candidate and run the actual author and independent defining/affected controls, preserving full source/input/profile/stdout/JUnit and negatives.",
+    "EXE owns any runtime failure in this generic producer model graph; CMP owns its independent ordinary model oracle.",
+    "All integrated code acceptance and finding closure remain HELD until actual deciding execution and downstream reconciliation; this receipt closes no finding."
+  ]
+}

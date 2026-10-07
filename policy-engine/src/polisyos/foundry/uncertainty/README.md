@@ -88,3 +88,10 @@ adding an eager covariance import; requesting them retains genuine missing
 numeric-dependency errors. Their
 existing covariance axes, calibrated projection and null-space semantics are
 unchanged; these entrypoints grant no source-law or calibration authority.
+
+`admit_empirical_weights` now returns canonical binary ratio weights (maximum
+in [0.5,1)), not floating probabilities summing to one. The shared IR-owned
+exact-ratio law preserves every admitted positive finite-U bucket or refuses
+before nominal/evaluator callbacks. Random, Sobol and Halton use the same
+uniform-to-bucket transform. This exact classification of supplied finite U
+is distinct from the finite uniform-mesh approximation to continuous masses.

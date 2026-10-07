@@ -10,6 +10,7 @@ import json
 import math
 import numbers
 from collections.abc import Mapping
+from fractions import Fraction
 from typing import Any, Literal
 
 import numpy as np
@@ -33,6 +34,7 @@ from .uncertainty import (
 
 PROFILE_KEY = "posterior_summary_profile"
 PROFILE_ID = "urn:policyos:ir:bayesian-posterior-summary-profile:1"
+PROFILE_V2_ID = "urn:policyos:ir:bayesian-posterior-summary-profile:2"
 
 
 def _profile_declared(metadata: dict[str, Any]) -> bool:
@@ -123,6 +125,223 @@ class PosteriorSummaryProfile(BaseModel):
         ):
             raise ValueError("posterior summary profile identity/probabilities are invalid")
         return self
+
+
+class PosteriorSummaryProfileV2(PosteriorSummaryProfile):
+    """Exact binary-weight ratios with explicit finite-grid sampling semantics."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra={"$id": PROFILE_V2_ID})
+    profile_id: Literal["urn:policyos:ir:bayesian-posterior-summary-profile:2"] = PROFILE_V2_ID
+    profile_version: Literal["2.0"] = "2.0"
+    probability_convention: Literal["exact_binary_weight_ratios"] = "exact_binary_weight_ratios"
+    probabilities: tuple[StrictFloat, ...] = Field(
+        min_length=1, description="Canonical binary ratio weights; need not sum to one."
+    )
+    sampling_approximation: Literal["finite_uniform_mesh_discretization"] = (
+        "finite_uniform_mesh_discretization"
+    )
+
+    @model_validator(mode="after")
+    def _validate_profile(self) -> PosteriorSummaryProfileV2:
+        if (
+            self.parameter_order != tuple(sorted(set(self.parameter_order)))
+            or self.parameter_name not in self.parameter_order
+            or len(set(self.draw_ids)) != len(self.draw_ids)
+            or any(not item.strip() for item in (*self.parameter_order, *self.draw_ids))
+            or not self.sample_axis.strip()
+            or len(self.draw_ids) != len(self.probabilities)
+            or not math.isfinite(self.posterior_mean)
+            or self.binding != self.context.parameters.get(self.parameter_name)
+            or set(self.context.parameters) - set(self.parameter_order)
+            or self.context.content_hash != self.context_content_hash
+            or (
+                len(self.parameter_order) > 1 and self.row_identity_basis != "producer_supplied_ids"
+            )
+        ):
+            raise ValueError("posterior ratio profile identity/paired premise is invalid")
+        canonical = canonicalize_posterior_weights(self.probabilities, len(self.draw_ids))
+        if tuple(canonical) != self.probabilities:
+            raise ValueError("posterior ratio profile weights are not canonical")
+        return self
+
+
+def _finite_weights(values: object) -> np.ndarray:
+    raw = np.asarray(values, dtype=object)
+    if (
+        raw.ndim != 1
+        or not raw.size
+        or any(
+            isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+            for value in raw
+        )
+    ):
+        raise ValueError("posterior weights require real numeric values (finite non-bool)")
+    array = np.asarray(raw, dtype=np.float64)
+    if np.any((raw != 0) & (array == 0)):
+        raise ValueError("nonzero sampling support collapses during float64 conversion")
+    if not np.all(np.isfinite(array)) or np.any(array < 0) or not np.any(array > 0):
+        raise ValueError("posterior weights exceed positive finite float64 support")
+    return np.where(array == 0, 0.0, array)
+
+
+def _weight_ratios(weights: np.ndarray) -> tuple[Fraction, ...]:
+    exact = tuple(Fraction(float(value)) for value in weights)
+    total = sum(exact, Fraction())
+    return tuple(value / total for value in exact)
+
+
+def _ratio_cdf(weights: np.ndarray, *, upward: bool) -> np.ndarray:
+    cumulative = Fraction()
+    cuts = []
+    for probability in _weight_ratios(weights):
+        cumulative += probability
+        cut = float(cumulative)
+        represented = Fraction(cut)
+        if (upward and represented < cumulative) or (not upward and represented > cumulative):
+            cut = float(np.nextafter(cut, np.inf if upward else -np.inf))
+        cuts.append(cut)
+    return np.asarray(cuts, dtype=np.float64)
+
+
+def posterior_sampling_cdf(weights: object) -> np.ndarray:
+    """Return exact finite-U bucket cuts for the normalized binary-weight law.
+
+    Args:
+        weights: Finite nonnegative binary64 ratio weights with positive total.
+
+    Returns:
+        Upward-rounded rational cuts for searchsorted with side="right".
+        Uniform finite-mesh randomness approximates the continuous mass law;
+        this guarantees bucket classification for supplied finite U only.
+
+    Raises:
+        ValueError: If a positive atom has no representable finite-U bucket.
+    """
+    array = _finite_weights(weights)
+    cumulative = _ratio_cdf(array, upward=True)
+    increments = np.diff(np.concatenate(([0.0], cumulative)))
+    if not np.array_equal(increments > 0, array > 0):
+        raise ValueError("positive posterior category has no finite-U bucket")
+    return cumulative
+
+
+def canonicalize_posterior_weights(weights: object, sample_count: int) -> np.ndarray:
+    """Admit an idempotent power-of-two representation without changing ratios.
+
+    Args:
+        weights: Actual finite input weights, including possible zero masses.
+        sample_count: Length of the admitted shared row axis.
+
+    Returns:
+        Binary64 ratio weights whose maximum is in [0.5, 1), not floating
+        normalized probabilities. Their exact Fraction ratios define the law.
+
+    Raises:
+        ValueError: If scaling changes a ratio, support, or finite-U bucket.
+    """
+    original = _finite_weights(weights)
+    if original.shape != (sample_count,):
+        raise ValueError("posterior weights do not match their row axis")
+    exponent = math.frexp(float(np.max(original)))[1]
+    with np.errstate(under="ignore"):
+        canonical = np.ldexp(original, -exponent)
+    if not np.array_equal(original > 0, canonical > 0) or (
+        _weight_ratios(original) != _weight_ratios(canonical)
+    ):
+        raise ValueError("power-of-two weight scaling changes the exact input law")
+    posterior_sampling_cdf(canonical)
+    return canonical
+
+
+def posterior_summary_functionals_v2(
+    samples: tuple[float, ...], weights: tuple[float, ...], credible_mass: float
+) -> tuple[float, float, tuple[float, float]]:
+    """Compute mean and quantiles from one exact normalized binary-weight law.
+
+    Args:
+        samples: Finite real observations in the shared sample axis.
+        weights: Canonical power-of-two ratio weights, not normalized floats.
+        credible_mass: Two-sided equal-tail mass in (0, 1).
+
+    Returns:
+        Correctly rounded exact-ratio mean, inverse-CDF median and interval.
+
+    Raises:
+        ValueError: If support, canonical weights or finite quantiles are invalid.
+    """
+    if (
+        len(samples) != len(weights)
+        or not samples
+        or isinstance(credible_mass, (bool, np.bool_))
+        or not isinstance(credible_mass, numbers.Real)
+        or not 0 < credible_mass < 1
+        or any(
+            isinstance(x, (bool, np.bool_))
+            or not isinstance(x, numbers.Real)
+            or not math.isfinite(x)
+            for x in samples
+        )
+    ):
+        raise ValueError("posterior ratio summary requires finite real axes/mass")
+    canonical = canonicalize_posterior_weights(weights, len(samples))
+    if tuple(canonical) != weights:
+        raise ValueError("posterior ratio summary requires canonical weights")
+    mean = float(
+        sum(
+            (
+                Fraction(float(x)) * p
+                for x, p in zip(samples, _weight_ratios(canonical), strict=True)
+            ),
+            Fraction(),
+        )
+    )
+    order = np.argsort(samples, kind="stable")
+    sorted_values = np.asarray(samples, dtype=np.float64)[order]
+    sorted_weights = canonical[order]
+    posterior_sampling_cdf(sorted_weights)
+    positive = sorted_weights > 0
+    sorted_values, sorted_weights = sorted_values[positive], sorted_weights[positive]
+    cuts = _ratio_cdf(sorted_weights, upward=False)
+    alpha = (1.0 - credible_mass) / 2.0
+    indices = np.searchsorted(cuts, [0.5, alpha, 1.0 - alpha], side="left")
+    median, lo, hi = (float(sorted_values[i]) for i in indices)
+    return mean, median, (lo, hi)
+
+
+def posterior_population_std_v2(samples: tuple[float, ...], weights: tuple[float, ...]) -> float:
+    """Compute diagnostic population spread from the same exact-ratio law.
+
+    Args:
+        samples: Finite real observations in the admitted shared row axis.
+        weights: Canonical finite binary ratio weights.
+
+    Returns:
+        Rounded population standard deviation, without covariance authority.
+
+    Raises:
+        ValueError: If axes or the law are unsupported.
+    """
+    posterior_summary_functionals_v2(samples, weights, 0.9)
+    ratios = _weight_ratios(np.asarray(weights, dtype=np.float64))
+    exact_mean = sum(
+        (Fraction(float(x)) * p for x, p in zip(samples, ratios, strict=True)), Fraction()
+    )
+    variance = sum(
+        ((Fraction(float(x)) - exact_mean) ** 2 * p for x, p in zip(samples, ratios, strict=True)),
+        Fraction(),
+    )
+    if variance == 0:
+        return 0.0
+    exponent = variance.numerator.bit_length() - variance.denominator.bit_length()
+    even_exponent = exponent - exponent % 2
+    scaled = variance / (Fraction(2) ** even_exponent)
+    return math.ldexp(math.sqrt(float(scaled)), even_exponent // 2)
+
+
+def _decode_profile(payload: Any) -> PosteriorSummaryProfile | PosteriorSummaryProfileV2:
+    if isinstance(payload, dict) and payload.get("profile_id") == PROFILE_V2_ID:
+        return PosteriorSummaryProfileV2.model_validate(payload)
+    return PosteriorSummaryProfile.model_validate(payload)
 
 
 def posterior_summary_functionals(
@@ -232,7 +451,7 @@ def posterior_joint_carrier_digest(
 
 def read_posterior_summary_profile(
     envelope: UncertaintyEnvelope,
-) -> PosteriorSummaryProfile | None:
+) -> PosteriorSummaryProfile | PosteriorSummaryProfileV2 | None:
     """Recompute a declared profile; refuse malformed named computations.
 
     Args:
@@ -248,7 +467,7 @@ def read_posterior_summary_profile(
         if _profile_declared(envelope.metadata):
             raise ValueError("posterior summary profile is missing")
         return None
-    profile = PosteriorSummaryProfile.model_validate(envelope.metadata[PROFILE_KEY])
+    profile = _decode_profile(envelope.metadata[PROFILE_KEY])
     carrier = envelope.distribution_payload
     if not isinstance(carrier, PosteriorSamplesCarrier):
         raise ValueError("posterior summary exact carrier is missing")
@@ -272,7 +491,12 @@ def read_posterior_summary_profile(
         or envelope.metadata.get("joint_sample_id") != profile.joint_law_sha256
     ):
         raise ValueError("posterior summary profile/carrier binding is invalid")
-    mean, median, interval = posterior_summary_functionals(
+    functionals = (
+        posterior_summary_functionals_v2
+        if isinstance(profile, PosteriorSummaryProfileV2)
+        else posterior_summary_functionals
+    )
+    mean, median, interval = functionals(
         carrier.samples, profile.probabilities, profile.credible_mass
     )
     if (
@@ -311,10 +535,16 @@ def admit_posterior_summary_profiles(envelopes: Mapping[str, UncertaintyEnvelope
             coordinate not in envelopes for coordinate in profile.parameter_order
         ):
             raise ValueError("posterior summary joint coordinate mapping is incomplete")
+        if (
+            len(profile.parameter_order) > 1
+            and profile.row_identity_basis != "producer_supplied_ids"
+        ):
+            raise ValueError("posterior joint law requires producer-supplied aligned row IDs")
         for coordinate in profile.parameter_order:
             sibling = profiles[coordinate]
             if (
                 sibling is None
+                or type(sibling) is not type(profile)
                 or sibling.parameter_name != coordinate
                 or sibling.parameter_order != profile.parameter_order
                 or sibling.draw_ids != profile.draw_ids
@@ -379,7 +609,7 @@ def validate_raw_posterior_summary_envelope(
         return
     if PROFILE_KEY not in metadata:
         raise ValueError("posterior summary profile is missing")
-    profile = PosteriorSummaryProfile.model_validate(metadata[PROFILE_KEY])
+    profile = _decode_profile(metadata[PROFILE_KEY])
     if parameter_name is not None and profile.parameter_name != parameter_name:
         raise ValueError("posterior profile coordinate does not match its enclosing mapping")
     carrier = payload.get("distribution_payload")
@@ -451,12 +681,17 @@ __all__ = [
     "PosteriorParameterBinding",
     "PosteriorSummaryContext",
     "PosteriorSummaryProfile",
+    "PosteriorSummaryProfileV2",
     "admit_posterior_summary_profiles",
+    "canonicalize_posterior_weights",
     "load_posterior_summary_envelope",
     "posterior_carrier_content_hash",
     "posterior_joint_carrier_digest",
     "posterior_nominal_mean",
+    "posterior_population_std_v2",
+    "posterior_sampling_cdf",
     "posterior_summary_functionals",
+    "posterior_summary_functionals_v2",
     "read_posterior_summary_profile",
     "validate_raw_posterior_summary_envelope",
 ]

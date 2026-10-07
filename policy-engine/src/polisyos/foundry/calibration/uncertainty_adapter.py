@@ -20,9 +20,10 @@ from polisyos.foundry.uncertainty.sampling_admission import (
 from polisyos.ir.analytics import (
     PosteriorSamplesCarrier,
     PosteriorSummaryContext,
-    PosteriorSummaryProfile,
+    PosteriorSummaryProfileV2,
     posterior_carrier_content_hash,
-    posterior_summary_functionals,
+    posterior_population_std_v2,
+    posterior_summary_functionals_v2,
 )
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -239,6 +240,8 @@ def summarize_bayesian_calibration_posterior(
     names = sorted(posterior_draws)
     if any(not isinstance(name, str) or not name.strip() for name in names):
         raise ValueError("posterior parameter names must be non-empty strings")
+    if len(names) > 1 and draw_ids is None:
+        raise ValueError("posterior joint law requires explicit producer-supplied aligned draw IDs")
     admitted_draws: dict[str, np.ndarray] = {}
     for name in names:
         raw = np.asarray(posterior_draws[name], dtype=object)
@@ -287,7 +290,7 @@ def summarize_bayesian_calibration_posterior(
     noise_map = emulator_info.get("emulator_noise_std", {})
     for param_name in names:
         draws = admitted_draws[param_name]
-        point, median, interval = posterior_summary_functionals(
+        point, median, interval = posterior_summary_functionals_v2(
             tuple(float(value) for value in draws), probabilities, credible_mass
         )
         posterior_means[param_name] = point
@@ -318,12 +321,8 @@ def summarize_bayesian_calibration_posterior(
                 "interval_functional": "equal_tail_inverse_cdf",
             },
         )
-        epistemic_std = math.hypot(
-            *(
-                math.sqrt(probability) * float(value) - math.sqrt(probability) * point
-                for value, probability in zip(draws, probabilities, strict=True)
-                if probability > 0
-            )
+        epistemic_std = posterior_population_std_v2(
+            tuple(float(value) for value in draws), probabilities
         )
         aleatoric_std = 0.0
         if isinstance(noise_map, Mapping) and param_name in noise_map:
@@ -365,7 +364,7 @@ def summarize_bayesian_calibration_posterior(
 
     joint_digest = joint_carrier_digest(names, parameter_envelopes, ids)
     for name, envelope in parameter_envelopes.items():
-        profile = PosteriorSummaryProfile(
+        profile = PosteriorSummaryProfileV2(
             parameter_name=name,
             parameter_order=tuple(names),
             draw_ids=tuple(ids),

@@ -232,6 +232,7 @@ def test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics(
             "node.transfer": [1.1, 1.0, 1.2, 1.05, 0.98],
         },
         credible_mass=0.9,
+        draw_ids=[f"joint:{i}" for i in range(5)],
         emulator_diagnostics={
             "emulator_name": "gp_surrogate",
             "emulator_noise_std": {"node.tax_rate": 0.01},

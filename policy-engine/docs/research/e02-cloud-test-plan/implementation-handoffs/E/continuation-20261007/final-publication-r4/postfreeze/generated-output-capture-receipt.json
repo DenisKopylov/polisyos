@@ -1,0 +1,218 @@
+{
+  "schema": "policyos.e02.generated_output_capture.v1",
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "completed_at": "2026-10-07T09:59:11.646229+00:00",
+  "canonical_full_gate_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/architecture/architecture.stdout.txt",
+    "bytes": 136159,
+    "sha256": "7e4b0d4c4115b56440e6498dae639fef1329b49960b38bc3371cf6e354b33682"
+  },
+  "capture_index": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/index.json",
+    "sha256": "288ad55ece85e895dcbddc953b13c796cd1c823e5a4726ce7ecfdd61aef393ee",
+    "bytes": 12016
+  },
+  "capture_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture.stdout",
+    "sha256": "12afabaf61e25bbde0f2158f7e7d7c7b305fbba929b1e742d4f77852531b81c2",
+    "bytes": 238
+  },
+  "capture_stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "executed_observer": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/capture_generated_outputs.py",
+    "sha256": "c2c94d377c2afcdbfda8921a7b83325d0e028e833156a7d6d909267ab69f2d88",
+    "bytes": 2209
+  },
+  "default_temporary_context_cleaned_itself": true,
+  "observer_cleanup_actions": [],
+  "environment_or_source_copies": [],
+  "captured_versions": 14,
+  "distinct_blobs": 9,
+  "declared_output_census": [
+    {
+      "family": "runtime-openapi-snapshot",
+      "declared_output": "schemas/runtime_api_v1.openapi.json",
+      "committed_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+        "bytes": 2812414
+      },
+      "captured": false,
+      "state": "UNRUN exporter; declared artifact never observed, internal CAS files do not substitute"
+    },
+    {
+      "family": "runtime-api-client",
+      "declared_output": "packages/runtime-api-client/types.ts",
+      "committed_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client/types.ts",
+        "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+        "bytes": 951543
+      },
+      "captured": true,
+      "last_observed": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+        "relative_output": "runtime-api-client/packages/runtime-api-client/types.ts",
+        "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+        "bytes": 951543,
+        "captured_at": "2026-10-07T09:47:50.993837+00:00",
+        "stat_stable_during_read": true,
+        "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+        "observation_only": true
+      },
+      "matches_committed_bytes": true
+    },
+    {
+      "family": "runtime-api-client",
+      "declared_output": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "committed_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+        "bytes": 108061
+      },
+      "captured": true,
+      "last_observed": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "relative_output": "runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+        "bytes": 108061,
+        "captured_at": "2026-10-07T09:47:54.008581+00:00",
+        "stat_stable_during_read": true,
+        "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+        "observation_only": true
+      },
+      "matches_committed_bytes": true
+    },
+    {
+      "family": "runtime-api-client",
+      "declared_output": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "committed_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+        "bytes": 31276
+      },
+      "captured": true,
+      "last_observed": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "relative_output": "runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+        "bytes": 31276,
+        "captured_at": "2026-10-07T09:47:54.007588+00:00",
+        "stat_stable_during_read": true,
+        "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+        "observation_only": true
+      },
+      "matches_committed_bytes": true
+    },
+    {
+      "family": "runtime-dashboard-api-types",
+      "declared_output": "apps/runtime-dashboard/src/api/types.ts",
+      "committed_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/api/types.ts",
+        "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+        "bytes": 791736
+      },
+      "captured": true,
+      "last_observed": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+        "relative_output": "runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+        "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+        "bytes": 791736,
+        "captured_at": "2026-10-07T09:49:12.305072+00:00",
+        "stat_stable_during_read": true,
+        "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+        "observation_only": true
+      },
+      "matches_committed_bytes": true
+    },
+    {
+      "family": "trust-claim-posture-register",
+      "declared_output": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "committed_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba",
+        "bytes": 2365635
+      },
+      "captured": true,
+      "last_observed": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "relative_output": "trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "sha256": "8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea",
+        "bytes": 2376644,
+        "captured_at": "2026-10-07T09:53:56.285542+00:00",
+        "stat_stable_during_read": true,
+        "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea",
+        "observation_only": true
+      },
+      "matches_committed_bytes": false
+    }
+  ],
+  "internal_non_declared_paths": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/ownership/transactions/root.lock",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "captured_at": "2026-10-07T09:20:32.454096+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "captured_at": "2026-10-07T09:24:06.465266+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+      "sha256": "6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0",
+      "bytes": 37,
+      "captured_at": "2026-10-07T09:24:06.550375+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+      "sha256": "06c52ecf0fd05725aa7252fe665485e7c2fcd97614da7987eda3c27ac9a339a6",
+      "bytes": 358,
+      "captured_at": "2026-10-07T09:24:06.590852+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/06c52ecf0fd05725aa7252fe665485e7c2fcd97614da7987eda3c27ac9a339a6",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+      "sha256": "06c52ecf0fd05725aa7252fe665485e7c2fcd97614da7987eda3c27ac9a339a6",
+      "bytes": 358,
+      "captured_at": "2026-10-07T09:24:06.600510+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/06c52ecf0fd05725aa7252fe665485e7c2fcd97614da7987eda3c27ac9a339a6",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/runtime/public-verification/cas/artifacts/ownership/transactions/root.lock",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/runtime/public-verification/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "captured_at": "2026-10-07T09:24:06.600801+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observation_only": true
+    }
+  ],
+  "limits": "Periodic read-only byte capture (3-second polling) of already-running generator outputs; stat-stable observation alone does not certify final producer provenance. Canonical full stdout supplies freshness PASS/mismatch/UNRUN outcomes. Five of six declared outputs observed; no runtime OpenAPI output, so no full generated chain PASS. Partial byte versions retained separately.",
+  "P41": "not_established; shared-worktree screenshot collision is an observed path delta, not causal source/generator attribution"
+}

@@ -1,0 +1,4 @@
+[codex/e02-E-frc-20261006 100aa7964] docs(e02-E): admit typed publication claims before custody writes
+ 4 files changed, 178 insertions(+), 5 deletions(-)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/correction/claim-admission-correction.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/correction/current-claim-counterexamples-72049.json

@@ -1,0 +1,23 @@
+{
+  "result": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/cleanup-result.json",
+  "exact_deleted_paths": [
+    "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/environment",
+    "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/environment"
+  ],
+  "candidate_package_counts": [
+    159,
+    159
+  ],
+  "candidate_unique_allocated_lowerbounds": [
+    2834432,
+    2834432
+  ],
+  "filesystem_after": {
+    "observed_unix": 1791370451.9984336,
+    "total_bytes": 33770192896,
+    "free_bytes": 1862901760,
+    "available_bytes": 128139264
+  },
+  "observed_free_delta_bytes": 20140032,
+  "observed_available_delta_bytes": 20140032
+}

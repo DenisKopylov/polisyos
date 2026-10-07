@@ -1,0 +1,94 @@
+{
+  "schema": "policyos.e02.independent_ir_historical_owner_packet_status.v1",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "historical_owner_packet_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "historical_packet": {
+    "path": "/workspace/e02-E-cal-review-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/owner-export-packet.json",
+    "bytes": 4522,
+    "sha256": "7531f33b5bf12a524a0f4d2f68b66a4b4b1864af90fcf286191300f2c13368e7"
+  },
+  "rows": [
+    {
+      "name": "PosteriorSamplesCarrier",
+      "native_definition": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier",
+      "entrypoint": "polisyos.ir.analytics",
+      "present_same_native_mapping": true,
+      "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+    },
+    {
+      "name": "ParametricFitCarrier",
+      "native_definition": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+      "entrypoint": "polisyos.ir.analytics",
+      "present_same_native_mapping": false,
+      "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+    },
+    {
+      "name": "load_uncertainty_envelope",
+      "native_definition": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+      "entrypoint": "polisyos.ir.analytics",
+      "present_same_native_mapping": false,
+      "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+    },
+    {
+      "name": "persist_uncertainty_envelope",
+      "native_definition": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+      "entrypoint": "polisyos.ir.analytics",
+      "present_same_native_mapping": false,
+      "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+    },
+    {
+      "name": "load_forecasting_uncertainty_bundle",
+      "native_definition": "polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle",
+      "entrypoint": "polisyos.ir.analytics",
+      "present_same_native_mapping": false,
+      "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+    },
+    {
+      "name": "persist_forecasting_uncertainty_bundle",
+      "native_definition": "polisyos.ir.analytics.forecasting_uncertainty.persist_forecasting_uncertainty_bundle",
+      "entrypoint": "polisyos.ir.analytics",
+      "present_same_native_mapping": false,
+      "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+    },
+    {
+      "name": "get_state_path",
+      "native_definition": "polisyos.foundry.execute.executor.get_state_path",
+      "entrypoint": "polisyos.foundry.execute",
+      "present_same_native_mapping": false,
+      "canonical_writer": "team-polisyos Foundry execute API, team-architecture public-surface inventory review"
+    },
+    {
+      "name": "load_state_snapshot",
+      "native_definition": "polisyos.foundry.execute.executor.load_state_snapshot",
+      "entrypoint": "polisyos.foundry.execute",
+      "present_same_native_mapping": false,
+      "canonical_writer": "team-polisyos Foundry execute API, team-architecture public-surface inventory review"
+    },
+    {
+      "name": "put_state_snapshot",
+      "native_definition": "polisyos.foundry.execute.executor.put_state_snapshot",
+      "entrypoint": "polisyos.foundry.execute",
+      "present_same_native_mapping": false,
+      "canonical_writer": "team-polisyos Foundry execute API, team-architecture public-surface inventory review"
+    }
+  ],
+  "Core_native_test_seam": {
+    "fresh_interpreter_command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-c",
+      "import sys,json; sys.path.insert(0,'/workspace/e02-E-frc-20261006/policy-engine/src'); from polisyos.core import artifacts as core_artifacts; print(json.dumps({\"fresh_root_only_ir_adapter_attribute\":hasattr(core_artifacts,\"ir_adapter\"),\"fresh_artifacts_definition\":core_artifacts.__file__}))"
+    ],
+    "stdout": "{\"fresh_root_only_ir_adapter_attribute\": false, \"fresh_artifacts_definition\": \"/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/core/artifacts/__init__.py\"}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "observations": {
+      "fresh_root_only_ir_adapter_attribute": false,
+      "fresh_artifacts_definition": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/core/artifacts/__init__.py"
+    },
+    "admission": "Root explicitly confirmed honest test-only native Core adapter seam plus Core owner packet. No public export or Core shared-file lease was granted.",
+    "canonical_writer": "Core/API owner @core-owners, @platform-owners; enforceable reviewer @DenisKopylov",
+    "minimal_input": "Choose native test-only seam admission or add typed ir_adapter module export through existing Core artifacts facade with its API/inventory companions.",
+    "next_verifiable_result": "Core owner disposition/export commit plus fresh-interpreter identity and actual IR-protocol CAS adapter roundtrip/refusal tests."
+  },
+  "limits": "Immutable mapping status and fresh module availability only. Scoped B201/B202 appointment does not admit the other legacy aliases or Core adapter. Runtime law/transport remain independent oracle/criteria scope."
+}

@@ -1,0 +1,59 @@
+"""Moderate closed custody summary; large inventories/archive remain on /tmp."""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import time
+
+BASE = Path('/tmp/e02-E-capacity-cleanup-20261007-doe')
+
+def identity(path):
+    digest = hashlib.sha256()
+    size = 0
+    with path.open('rb') as handle:
+        while data := handle.read(1024 * 1024):
+            digest.update(data)
+            size += len(data)
+    return {'path': str(path), 'bytes': size, 'sha256': digest.hexdigest()}
+
+environments = json.loads((BASE / 'cleanup-result.json').read_text())
+architectures = json.loads((BASE / 'closed-architecture/cleanup-result.json').read_text())
+fixtures = json.loads((BASE / 'closed-ci02-fixtures/cleanup-result.json').read_text())
+original_admission = json.loads((BASE / 'cleanup-admission.json').read_text())
+architecture_admission = json.loads((BASE / 'closed-architecture/cleanup-admission.json').read_text())
+fixture_admission = json.loads((BASE / 'closed-ci02-fixtures/cleanup-admission.json').read_text())
+paths = [BASE / 'cleanup-result.json', BASE / 'closed-architecture/cleanup-result.json', BASE / 'closed-ci02-fixtures/cleanup-result.json']
+large = [BASE / 'cleanup-admission.json', BASE / 'delete-preflight.json', BASE / 'closed-architecture/cleanup-admission.json', BASE / 'closed-ci02-fixtures/cleanup-admission.json', BASE / 'closed-ci02-fixtures/closed-ci02-pytest-base.tar.gz']
+moderate = [BASE / name for name in ('prepare_cleanup.py', 'execute_cleanup.py', 'closed_architecture_cleanup.py', 'closed_ci02_fixture_cleanup.py', 'build_cleanup_summary.py', 'prepare-cleanup.stdout.txt', 'prepare-cleanup.stderr.txt', 'execute-cleanup.stdout.txt', 'execute-cleanup.stderr.txt', 'closed-architecture-cleanup.stdout.txt', 'closed-architecture-cleanup.stderr.txt', 'closed-ci02-fixture-cleanup.stdout.txt', 'closed-ci02-fixture-cleanup.stderr.txt')] + paths
+moderate += sorted(BASE.glob('deletion-*.json')) + sorted(BASE.glob('immediate-*.json'))
+moderate += sorted((BASE / 'closed-architecture').glob('deletion-*.json')) + sorted((BASE / 'closed-architecture').glob('immediate-*.json'))
+moderate += [BASE / 'closed-ci02-fixtures/immediate-process-proof.json']
+result = {
+    'schema': 'policyos.e02.cloud_capacity_cleanup_summary.v1',
+    'created_unix': time.time(),
+    'authorization': 'User explicitly allows permanent deletion of unused repeatable cloud fixtures/environments after saving deciding evidence and no-active-user proof. Root assigned exact candidates; local native Trash-only rule does not apply to this cloud execution.',
+    'state': 'CLOSED',
+    'source_SHA': '64d7444a18c55df7b88b71b7699a2f1b25ca24bd',
+    'source_tree': 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d',
+    'source_remote_readback_at_CI02_admission': fixture_admission['source_refs'],
+    'removed_exact_children': [action['exact_deleted_path'] for action in environments['actions']] + [action['exact_deleted_path'] for action in architectures['actions']] + [fixtures['exact_original_removed']],
+    'old_environment_distributions_preserved_as_metadata': [{'path': row['candidate'], 'packages': row['package_count'], 'lock_and_pyproject_refs': row['reproduce_source_inputs']} for row in original_admission['candidates']],
+    'closed_architecture_environment_distributions_preserved_as_metadata': [{'path': row['candidate'], 'packages': row['package_count'], 'source_clone_preserved': row['source_clone_preserved'], 'outputs_preserved': row['outputs_preserved']} for row in architecture_admission['candidates']],
+    'full_deciding_results': [identity(path) for path in paths],
+    'large_complete_ignored_inputs_and_retained_fixture_archive': [identity(path) for path in large],
+    'CI02': {'native_outcome': 'FAIL', 'native_exit_code': 1, 'independent_JUnit_counts': fixture_admission['independently_recomputed_counts'], 'native_command_environment_inputs_retained_in_admission': True, 'three_original_deciding_outputs_preserved': fixture_admission['saved_three_closed_deciding_outputs'], 'verified_all_archive_members': fixtures['verified_archive_member_count'], 'archive': fixtures['all_fixture_bytes_preserved_in_archive'], 'unique_diagnostics_policy': 'All closed fixture bytes and links additionally retained in archive before original cleanup; no unique internal file discarded.'},
+    'actual_filesystem': {'first_admission': original_admission['filesystem_before'], 'last_closed': fixtures['filesystem_after'], 'old_environment_observed_free_delta_bytes': environments['observed_free_delta_bytes'], 'closed_architecture_observed_free_delta_bytes': architectures['observed_free_delta_bytes'], 'CI02_observed_free_delta_bytes': fixtures['observed_free_delta_bytes'], 'sum_observed_per_action_free_delta_bytes': environments['observed_free_delta_bytes'] + architectures['observed_free_delta_bytes'] + fixtures['observed_free_delta_bytes'], 'last_available_bytes': fixtures['filesystem_after']['available_bytes'], 'measurement_scope': 'Actual statvfs snapshots at each action; observed filesystem changes can include concurrent external writes. Apparent du/hardlink allocation is not claimed as recovered capacity.'},
+    'inactivity_scope': 'Fresh complete live agent UID /proc cwd/cmdline/selected env/maps/FD targets; zero candidate users/zero unreadable agent processes at each deletion. Privileged root infrastructure exclusions recorded; no host-wide visibility claim.',
+    'preserved': ['ROOT and DoE .venv byte-identical distribution metadata across cleanup actions (subsequent authorized installs are separate)', 'all code/docs/.git and worktree registrations', 'all production/user/unique inputs', 'all native deciding outputs', 'shared /workspace/.polisyos-environment uv/runtime cache and prefetched wheels', 'architecture source clones and generated outputs', 'current stage directories except exact closed CI02 basetemp', 'complete CI02 fixture archive on existing /tmp'],
+    'no_new_environment_or_checkout': True,
+    'no_source_or_dependency_or_entrypoint_change': True,
+    'no_gate_or_finding_outcome_reclassification': True,
+    'next_owner': 'Root may resume authorized existing-environment backend dependency installs/browser/current publication within measured capacity; native CI02 FAIL remains independently reported.',
+}
+with (BASE / 'cleanup-summary.json').open('x') as handle:
+    handle.write(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+moderate.append(BASE / 'cleanup-summary.json')
+rows = [identity(path) for path in moderate]
+with (BASE / 'publication-selection.json').open('x') as handle:
+    handle.write(json.dumps({'schema': 'policyos.e02.moderate_cleanup_publication_selection.v1', 'assets': rows, 'count': len(rows), 'total_bytes': sum(row['bytes'] for row in rows), 'large_inventory_and_archive_policy': 'Ignored /tmp full assets are hash/size/source bound by summary, not copied into Git; all byte-preserved and retained.'}, indent=2) + '\n')
+print(json.dumps({'summary': identity(BASE / 'cleanup-summary.json'), 'selection': identity(BASE / 'publication-selection.json'), 'moderate_assets': len(rows), 'moderate_bytes': sum(row['bytes'] for row in rows), 'last_available_bytes': result['actual_filesystem']['last_available_bytes']}, indent=2))

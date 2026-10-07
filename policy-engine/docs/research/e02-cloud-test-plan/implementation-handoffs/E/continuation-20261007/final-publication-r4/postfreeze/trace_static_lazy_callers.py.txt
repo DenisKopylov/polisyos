@@ -1,0 +1,50 @@
+from __future__ import annotations
+import ast
+from datetime import datetime,timezone
+import hashlib,json
+from pathlib import Path
+import subprocess
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+S=Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution')
+review=json.loads((S/'static-output-review-64d.json').read_text())
+API=ROOT/'policy-engine/src/polisyos/ir/api.py';tree=ast.parse(API.read_text())
+exports={}
+for node in tree.body:
+ if isinstance(node,ast.AnnAssign) and isinstance(node.target,ast.Name) and node.target.id=='ANALYTICS_FACADE_EXPORTS':exports=ast.literal_eval(node.value)
+ elif isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='ANALYTICS_FACADE_EXPORTS' for t in node.targets):exports=ast.literal_eval(node.value)
+assert exports
+functions=[r['symbol'].rsplit('.',1)[-1] for r in review['exceptional_rows'] if r['kind']=='regression' and r['exact_static_record']['path']=='src/polisyos/ir/analytics/posterior_summary.py']
+assert len(functions)==8
+paths=['src/polisyos/foundry/calibration/uncertainty_adapter.py','src/polisyos/foundry/uncertainty/sampling_admission.py','src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py','src/polisyos/ir/analytics/posterior_summary.py']
+rows=[];source_refs=[]
+for rel in paths:
+ p=ROOT/'policy-engine'/rel;b=p.read_bytes();parsed=ast.parse(b.decode())
+ # Confirm immutable source membership in final scoped700 and frozen64d separately.
+ old=subprocess.run(['git','show','700f9d5a5e2167787d7042ca11e1ef3bf80ced74:policy-engine/'+rel],cwd=ROOT,check=True,capture_output=True).stdout
+ assert old==b
+ source_refs.append({'path':rel,'sha256':hashlib.sha256(b).hexdigest(),'bytes':len(b),'matches_independently_reviewed_source700':True})
+ binding={}
+ for n in ast.walk(parsed):
+  if isinstance(n,ast.ImportFrom) and n.module=='polisyos.ir.analytics':
+   for item in n.names:
+    if item.name in functions:binding[item.asname or item.name]=item.name
+ if rel.endswith('/posterior_summary.py'):binding.update({name:name for name in functions})
+ class Visitor(ast.NodeVisitor):
+  def __init__(self):self.scope=[]
+  def visit_ClassDef(self,n):
+   self.scope.append(n.name);self.generic_visit(n);self.scope.pop()
+  def visit_FunctionDef(self,n):
+   self.scope.append(n.name);self.generic_visit(n);self.scope.pop()
+  visit_AsyncFunctionDef=visit_FunctionDef
+  def visit_Call(self,n):
+   if isinstance(n.func,ast.Name) and n.func.id in binding:
+    name=binding[n.func.id]
+    rows.append({'function':name,'source_path':rel,'line':n.lineno,'source_scope':'.'.join(self.scope),'actual_AST_call':ast.unparse(n),'curated_native_binding':exports[name],'canonical_static_model':'Uninvoked public-helper candidate despite explicit source call through curated lazy metadata; root reachability/runtime remains independently unmeasured'})
+   self.generic_visit(n)
+ Visitor().visit(parsed)
+
+source_go=Path('/workspace/e02-E-pr38-r3-receipts/ir-import-independent/independent-ir-review-700.json')
+result={'schema':'policyos.e02.static_lazy_facade_callsite_packet.v1','candidate':review['candidate'],'tree':review['tree'],'created_at':datetime.now(timezone.utc).isoformat(),'overall_static':'FAIL20changed/new uninvoked candidates +91new-unresolved; zero lost_path flags. Original full output retained.','complete_eight_IR_helper_facade_bindings':{n:exports[n] for n in functions},'complete_selected_producer_consumer_call_sites':rows,'source_refs':source_refs,'native_identity_review':{'path':str(source_go),'sha256':hashlib.sha256(source_go.read_bytes()).hexdigest(),'bytes':source_go.stat().st_size,'reuse_basis':'Exact source bytes identical700→64d. Prior independently executed identity + fake-name/property-removal controls remain a frozen observation, not new default/served evidence.'},'owner_queue':[{'symbols':['build_model_registry_record','evaluate_registry_gate','rebind_calibration_validity','DriftAndDegradationMonitor.evaluate_window'],'owner':'E DDM + real registry/monitor/feed/R2 deployment-purpose owners','remaining':'Library tests/reopen/veto are separate from live feed/purpose/signoff and default native monitoring call. No source caller is established for evaluate_registry_gate/rebind/evaluate_window by this instrument; retain exact unmeasured consumer boundary and original local recipes.'},{'symbols':['put_calibration_config','put_calibration_report','summarize_bayesian_calibration_posterior'],'owner':'E Calibration producer + configured actual source/fit/noise/target join and consumer owner forB197','remaining':'Fresh synthetic native configured CAS/adapter consumers may prove generic mechanism; actual B197 source fit/noise/target inputs still separately held until supplied. Lazy public producer API entries are not CLI roots.'},{'symbols':functions,'owner':'E scoped B201/B202 producer/reader + C/F actual consumers and IR/public generator companions throughG','remaining':'Source facade calls and prior native fresh reader witnesses are pinned here; source-law dependent computations require resolved bound law. No direct CLI path by this static proxy. Public generated inventory/ABI companions separately remain owner-ready.'},{'symbols':['SensitivityBridge.analyze_search_space'],'owner':'E existing DoE bridge + D default Search runtime consumer','remaining':'Native transform/analyzer and artifact/reader negatives already reviewed; actual default Search ranking/reopen consumer belongsD, notB100 gate.'},{'symbols':['bootstrap_metric','PredictionEvaluator.evaluate','TrustScorer.compute','persist_forecast_owner_request'],'owner':'E BKT/FRC native APIs + canonical workflow/default A verifier owners','remaining':'Bootstrap defined statistic and native replay/ETS scoped witnesses separate from production history/trust equivalence profiles. No fake caller or weakened binding; G read-only scoped factual recipes remain where original criteria need actual history.'}],'P41':'not_established; current full static delta is not exact prior-base full runtime or global gate replay','scope_limit':'Call-site source existence is not execution. Prior immutable runtime positive/negative receipts must be read individually; this AST packet does not confer authority or finding closure. E code acceptance and original owner finding decisions remain separate.'}
+(S/'static-actual-caller-owner-packet.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'functions':functions,'actual_source_calls':len(rows),'source_inputs':len(source_refs),'packet_bytes':(S/'static-actual-caller-owner-packet.json').stat().st_size,'packet_sha256':hashlib.sha256((S/'static-actual-caller-owner-packet.json').read_bytes()).hexdigest(),'rows':rows},indent=2))

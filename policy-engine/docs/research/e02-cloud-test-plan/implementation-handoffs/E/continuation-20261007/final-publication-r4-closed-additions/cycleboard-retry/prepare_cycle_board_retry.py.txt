@@ -1,0 +1,53 @@
+"""Bound one actual backend-affected HTTP selector; launch existing canonical runner."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+root=Path('/workspace/e02-E-continuation-20261006')
+product=root/'policy-engine'
+python=product/'.venv/bin/python'
+output=Path('/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110')
+output.mkdir(mode=0o700,exist_ok=False)
+name='cycle-board-owner-recompute-retry'
+check=output/'checks'/name
+check.mkdir(parents=True)
+temporary=output/'pytest-base'
+envtemp=output/'environment-tmp'
+envtemp.mkdir()
+runner=product/'docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py'
+selector='tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py::test_cycle_board_claims_equal_live_owner_recomputation_and_detect_corruption'
+sha='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+tree='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+head=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
+actualtree=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD^{tree}'],text=True).strip()
+if (head,actualtree)!=(sha,tree):raise ValueError('Actual frozen identity changed')
+plan=json.loads(Path('/workspace/e02-E-pr38-r3-receipts/frozen-wave-prepared-plan-64d7444a.json').read_text())
+environment=os.environ.copy()
+removed={}
+for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','XLA_FLAGS'):
+ if key in environment:removed[key]=environment.pop(key)
+for key,value in plan['environment'].items():
+ if value is None:environment.pop(key,None)
+ else:environment[key]=value
+environment.update(TMPDIR=str(envtemp),POLISYOS_METRICS_PORT='0')
+command=[str(python),'-m','pytest','-q',selector,'--basetemp',str(temporary),'-o','cache_dir='+str(output/'pytest-cache'),'--benchmark-storage=file://'+str(output/'benchmarks'),'--junitxml='+str(check/'pytest.xml')]
+argv=[str(python),str(runner),'--repo',str(root),'--candidate',sha,'--cwd',str(product),'--output',str(check),'--name',name,'--junit',str(check/'pytest.xml'),'--',*command]
+def identity(p):
+ data=p.read_bytes();return dict(path=str(p),bytes=len(data),sha256=hashlib.sha256(data).hexdigest())
+admission=dict(schema='policyos.e02.backend_affected_http_retry_admission.v1',source=sha,tree=tree,selector=selector,property='Same actual function recomputes live owner truth and asserts changed structural class / weakest-link corruption is detected; the neighboring historical DS4 selector is not backend-affected and is excluded.',original_native_receipt=identity(Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.json')),original_chain='ortools_cp_sat:ModuleNotFoundError -> CgSubstrateUnavailableError -> SystemExit1',runner=identity(runner),test_source=identity(product/selector.split('::')[0]),runner_argv=argv,test_command=command,cwd=str(product),selected_environment={k:environment.get(k) for k in tuple(plan['environment'])+('TMPDIR','POLISYOS_METRICS_PORT','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','XLA_FLAGS')},removed_inherited_caps=removed,source_mutation=False,package_mutation=False,shared_mutable_seams='No HTTP server/port/DB; this fixture constructs mocked projection service and reads frozen canonical owner source. Unique pytest/cache/benchmark/TMPDIR paths.',new_backend_authorization='Root installed four existing declared dependencies and independently checked strict native CP-SAT availability, explicitly requested only this affected native HTTP selector.',started_preparation_unix=time.time(),no_other_HTTP_rerun=True,finding_closure=False)
+(output/'retry-admission.json').write_text(json.dumps(admission,indent=2)+'\n')
+# Capture actual complete distribution METADATA identities on current root interpreter;
+# this is read-only and does not import polisyos or install packages.
+probe='''import hashlib,importlib.metadata,json,sys\nfrom pathlib import Path\nrows=[]\nfor d in importlib.metadata.distributions():\n p=Path(d._path)/"METADATA"\n b=p.read_bytes() if p.is_file() else b""\n rows.append(dict(name=d.metadata.get("Name"),version=d.version,path=str(p),bytes=len(b),sha256=hashlib.sha256(b).hexdigest()))\nrows.sort(key=lambda x:(x["name"].casefold(),x["path"]))\nprint(json.dumps(dict(interpreter=sys.executable,python=sys.version,distributions=len(rows),complete_metadata=rows,frame_sha256=hashlib.sha256(json.dumps(rows,sort_keys=True,separators=(",",":")).encode()).hexdigest()),indent=2))'''
+with (output/'actual-root-environment-before.json').open('wb') as handle:
+ subprocess.run([str(python),'-c',probe],cwd=product,env=environment,stdout=handle,check=True)
+with (output/'runner.stdout.txt').open('xb') as stdout,(output/'runner.stderr.txt').open('xb') as stderr:
+ completed=subprocess.run(argv,cwd=product,env=environment,stdout=stdout,stderr=stderr)
+# Preserve actual exit even for a new mechanism red; no command retry or rewriting.
+(output/'launch-result.json').write_text(json.dumps(dict(exit_code=completed.returncode,completed_unix=time.time(),canonical_check=str(check/(name+'.json')),source=sha,tree=tree),indent=2)+'\n')
+print(json.dumps(dict(output=str(output),exit_code=completed.returncode,selector=selector),indent=2))
+sys.exit(completed.returncode)

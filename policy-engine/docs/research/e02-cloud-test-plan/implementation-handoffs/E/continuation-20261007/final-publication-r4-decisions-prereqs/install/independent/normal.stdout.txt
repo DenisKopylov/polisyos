@@ -1,0 +1,11 @@
+{
+  "report": {
+    "path": "/tmp/e02-E-install-custody-independent-doe-20261007/normal/independent-review.json",
+    "bytes": 24076,
+    "sha256": "32222a644a1fac2a9c65b33f3bdc88ee56bbbec175d317ed860e143fc7584527"
+  },
+  "verdict": "GO bounded closed evidence utility/custody",
+  "controls": 14,
+  "claims": 194,
+  "native_repeated": false
+}

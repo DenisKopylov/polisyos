@@ -1,0 +1,47 @@
+{
+  "copied_files": 118,
+  "copied_bytes": 852066,
+  "handoff_paths": 123,
+  "full_paths": 283,
+  "corrected_empty_streams": [
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/attempt1-build-handoff.stdout.json",
+      "old_portable_path": "author/attempt1-build-handoff.stdout.json",
+      "new_portable_path": "author/attempt1-build-handoff.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/attempt2-build-handoff.stdout.json",
+      "old_portable_path": "author/attempt2-build-handoff.stdout.json",
+      "new_portable_path": "author/attempt2-build-handoff.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe-removed-helper-environment-ERROR.stdout.json",
+      "old_portable_path": "current-IR/probe-removed-helper-environment-ERROR.stdout.json",
+      "new_portable_path": "current-IR/probe-removed-helper-environment-ERROR.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "fixed_metadata": {
+    "copy-index.json": {
+      "bytes": 52062,
+      "sha256": "42716389c3d85420bb4120b9eec5ea7e46ef652f6b0b1627612930906636ec22"
+    },
+    "implementation-handoff.json": {
+      "bytes": 130598,
+      "sha256": "9872c8b28523cc0bc94377369f5b0215ba5eede07a0e979e59e8e10930657ca4"
+    },
+    "README.md": {
+      "bytes": 2326,
+      "sha256": "6e179dd393f5172ebec1f17a13ca8d22e3c1c022d48ef78cb25c92a85075feea"
+    },
+    "environment.json": {
+      "bytes": 923,
+      "sha256": "3575e1acb00990c67271a8a3ba94996525680055d021dc67b6a86cfba1ff0e61"
+    }
+  }
+}

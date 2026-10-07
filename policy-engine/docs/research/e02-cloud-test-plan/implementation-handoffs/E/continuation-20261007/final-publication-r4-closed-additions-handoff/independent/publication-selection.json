@@ -1,0 +1,412 @@
+{
+  "schema": "policyos.e02.independent_closed_additions_custody_publication_selection.v1",
+  "base": "2e28bed33d179d1d0f9db4b6cbb3837d809c42c0",
+  "candidate": "737ea6b8ec43f5dff64bd5ccbb3a357b4fb6c3d5",
+  "candidate_tree": "bc06dc4ef6ec474a68b9cff5b8d61ff2b13f2acc",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/review_closed_additions.py",
+      "portable_path": "review_closed_additions.py.txt",
+      "bytes": 19291,
+      "sha256": "3fefb846fde67ce96580f3c51ca7781bf6452fac5dc6b93264a09664bca40cd9",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal.stdout.txt",
+      "portable_path": "normal.stdout.txt",
+      "bytes": 416,
+      "sha256": "bb55df10cc9805ce851625f8415aa0288592d32eaec22a8cef43a004087eb3c4",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal.stderr.txt",
+      "portable_path": "normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized.stdout.txt",
+      "portable_path": "optimized.stdout.txt",
+      "bytes": 419,
+      "sha256": "f0e0e917d113bf4a1c751d6501a779b55872c01ff39f22c5bba1eb81dcf1a93c",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized.stderr.txt",
+      "portable_path": "optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/independent-review.json",
+      "portable_path": "normal/independent-review.json",
+      "bytes": 113191,
+      "sha256": "4183810db93f70b896a644602a37c13821df611b02083b1f8a20cec0d680e9e2",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/membership-removal.py.txt",
+      "portable_path": "normal/membership-removal.py.txt",
+      "bytes": 9264,
+      "sha256": "1491ca079bd402273c0207817afb4950ac9108fe7cd12b2aa53b64d2a955deed",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/alias-state-corruption/stdout.txt",
+      "portable_path": "normal/alias-state-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/alias-state-corruption/stderr.txt",
+      "portable_path": "normal/alias-state-corruption/stderr.txt",
+      "bytes": 658,
+      "sha256": "937d449f70966b9c013d33605e4771d8adeff4b68d91929a6a385741a6419139",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/catalog-alias-name-corruption/stdout.txt",
+      "portable_path": "normal/catalog-alias-name-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/catalog-alias-name-corruption/stderr.txt",
+      "portable_path": "normal/catalog-alias-name-corruption/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/effective-membership-removal-admits-omission/stdout.txt",
+      "portable_path": "normal/effective-membership-removal-admits-omission/stdout.txt",
+      "bytes": 607,
+      "sha256": "b518d6f3d05edd96bbb3bc1ac4107d3054540d1d72fae333568dff555b38c70d",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/effective-membership-removal-admits-omission/stderr.txt",
+      "portable_path": "normal/effective-membership-removal-admits-omission/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/frontend-alias-name-corruption/stdout.txt",
+      "portable_path": "normal/frontend-alias-name-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/frontend-alias-name-corruption/stderr.txt",
+      "portable_path": "normal/frontend-alias-name-corruption/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/healthy/stdout.txt",
+      "portable_path": "normal/healthy/stdout.txt",
+      "bytes": 570,
+      "sha256": "9ae541d5c1f329f76ec68fb836422a4697cec1214ef17e914c8e6e1ff963267b",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/healthy/stderr.txt",
+      "portable_path": "normal/healthy/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/omitted-mandatory-original-retotalled/stdout.txt",
+      "portable_path": "normal/omitted-mandatory-original-retotalled/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/omitted-mandatory-original-retotalled/stderr.txt",
+      "portable_path": "normal/omitted-mandatory-original-retotalled/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/omitted-shared-alias-retotalled/stdout.txt",
+      "portable_path": "normal/omitted-shared-alias-retotalled/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/omitted-shared-alias-retotalled/stderr.txt",
+      "portable_path": "normal/omitted-shared-alias-retotalled/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/payload-hash-corruption/stdout.txt",
+      "portable_path": "normal/payload-hash-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/payload-hash-corruption/stderr.txt",
+      "portable_path": "normal/payload-hash-corruption/stderr.txt",
+      "bytes": 695,
+      "sha256": "d4d1f3c3463df245ffa853fa8f7416cf7eab438f6b02f58c62afe2a4a7a5be34",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/payload-size-corruption/stdout.txt",
+      "portable_path": "normal/payload-size-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/payload-size-corruption/stderr.txt",
+      "portable_path": "normal/payload-size-corruption/stderr.txt",
+      "bytes": 695,
+      "sha256": "d4d1f3c3463df245ffa853fa8f7416cf7eab438f6b02f58c62afe2a4a7a5be34",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/role-corruption/stdout.txt",
+      "portable_path": "normal/role-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/role-corruption/stderr.txt",
+      "portable_path": "normal/role-corruption/stderr.txt",
+      "bytes": 708,
+      "sha256": "5353fa384c375bb43443d3ad8c8a355e06f0880bf8229a7cfc29561bd33ff1bb",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/selector-hash-corruption/stdout.txt",
+      "portable_path": "normal/selector-hash-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/selector-hash-corruption/stderr.txt",
+      "portable_path": "normal/selector-hash-corruption/stderr.txt",
+      "bytes": 736,
+      "sha256": "abd248ad6411906e19c3c9c6b24bac00cbe84ebdde7ff99ce33f6a77aa723b79",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/source-corruption/stdout.txt",
+      "portable_path": "normal/source-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/source-corruption/stderr.txt",
+      "portable_path": "normal/source-corruption/stderr.txt",
+      "bytes": 678,
+      "sha256": "3b26a25d97d70ca89133864e351a2086595aaab1afb2190cd8a887a293d0e737",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/independent-review.json",
+      "portable_path": "optimized/independent-review.json",
+      "bytes": 113614,
+      "sha256": "b2e91f62877286c0649d435a798a311b9d5b9453d2db5e0b01943933c4993b22",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/membership-removal.py.txt",
+      "portable_path": "optimized/membership-removal.py.txt",
+      "bytes": 9264,
+      "sha256": "1491ca079bd402273c0207817afb4950ac9108fe7cd12b2aa53b64d2a955deed",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/alias-state-corruption/stdout.txt",
+      "portable_path": "optimized/alias-state-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/alias-state-corruption/stderr.txt",
+      "portable_path": "optimized/alias-state-corruption/stderr.txt",
+      "bytes": 667,
+      "sha256": "6d8cdbc2966db5dbd2a69036386950b51942fbf5e6d1e9e6fb7a3bacd1445548",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/catalog-alias-name-corruption/stdout.txt",
+      "portable_path": "optimized/catalog-alias-name-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/catalog-alias-name-corruption/stderr.txt",
+      "portable_path": "optimized/catalog-alias-name-corruption/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/effective-membership-removal-admits-omission/stdout.txt",
+      "portable_path": "optimized/effective-membership-removal-admits-omission/stdout.txt",
+      "bytes": 610,
+      "sha256": "c92a6e88f9496b474871d500e7b8f1b9ccf35699db9e562e3243091eba1f8676",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/effective-membership-removal-admits-omission/stderr.txt",
+      "portable_path": "optimized/effective-membership-removal-admits-omission/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/frontend-alias-name-corruption/stdout.txt",
+      "portable_path": "optimized/frontend-alias-name-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/frontend-alias-name-corruption/stderr.txt",
+      "portable_path": "optimized/frontend-alias-name-corruption/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/healthy/stdout.txt",
+      "portable_path": "optimized/healthy/stdout.txt",
+      "bytes": 573,
+      "sha256": "8db321065d895e1abe9e15797d48a55547e174d2a419254d6249c3350a624ad1",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/healthy/stderr.txt",
+      "portable_path": "optimized/healthy/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/omitted-mandatory-original-retotalled/stdout.txt",
+      "portable_path": "optimized/omitted-mandatory-original-retotalled/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/omitted-mandatory-original-retotalled/stderr.txt",
+      "portable_path": "optimized/omitted-mandatory-original-retotalled/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/omitted-shared-alias-retotalled/stdout.txt",
+      "portable_path": "optimized/omitted-shared-alias-retotalled/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/omitted-shared-alias-retotalled/stderr.txt",
+      "portable_path": "optimized/omitted-shared-alias-retotalled/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/payload-hash-corruption/stdout.txt",
+      "portable_path": "optimized/payload-hash-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/payload-hash-corruption/stderr.txt",
+      "portable_path": "optimized/payload-hash-corruption/stderr.txt",
+      "bytes": 704,
+      "sha256": "d429fff26aab45272c0b19536bc880b6caa207f7d5ca8a29773b4c7a40590bd8",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/payload-size-corruption/stdout.txt",
+      "portable_path": "optimized/payload-size-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/payload-size-corruption/stderr.txt",
+      "portable_path": "optimized/payload-size-corruption/stderr.txt",
+      "bytes": 704,
+      "sha256": "d429fff26aab45272c0b19536bc880b6caa207f7d5ca8a29773b4c7a40590bd8",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/role-corruption/stdout.txt",
+      "portable_path": "optimized/role-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/role-corruption/stderr.txt",
+      "portable_path": "optimized/role-corruption/stderr.txt",
+      "bytes": 717,
+      "sha256": "f46d980c461621ea5534a808e9a3e19bfbba53766a5b1f98e5b89647cbce1926",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/selector-hash-corruption/stdout.txt",
+      "portable_path": "optimized/selector-hash-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/selector-hash-corruption/stderr.txt",
+      "portable_path": "optimized/selector-hash-corruption/stderr.txt",
+      "bytes": 745,
+      "sha256": "5013de63b32e9e57e9d126fc112b2892a7d4572073f81263b46e8346d8e03b51",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/source-corruption/stdout.txt",
+      "portable_path": "optimized/source-corruption/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/optimized/source-corruption/stderr.txt",
+      "portable_path": "optimized/source-corruption/stderr.txt",
+      "bytes": 687,
+      "sha256": "68a0f0dd97a53db986df51523547f295d29528480ea4129dac22ba1393227b9a",
+      "role": "independent-closed-custody-control-source-or-complete-output"
+    }
+  ],
+  "asset_count": 57,
+  "bytes": 281913,
+  "scope": "Independent immutable literal DOC custody + actual tiny stdlib copier controls only. Own cleanup semantics excluded. No native application/backend/gate repeated; no finding or source-owner acceptance. Large mutated-input manifests/duplicated fresh copier destinations stay ignored, exact reproduction observer + their pinned input/output refs retained."
+}

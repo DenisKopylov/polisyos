@@ -1,0 +1,18 @@
+{
+  "check_outcome": "PASS",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "summary_receipt": {
+    "structured_claims": 194,
+    "claim_sha256": "562be6bf77beb70460b1ef7c2f0471dc813839b93329b090f9fdee4e12644f77"
+  },
+  "input_denominator": {
+    "files": 32,
+    "bytes": 369304,
+    "source_paths": 6
+  },
+  "native_executed": false,
+  "environment_mutated": false,
+  "global_backend_result_established": false,
+  "finding_closure": false
+}

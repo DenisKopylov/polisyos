@@ -1,0 +1,14 @@
+{
+  "schema": "policyos.e02.operational_metadata_error.v1",
+  "operation": "Initial inline completion custody builder",
+  "command_interpreter": "python3 (system shell interpreter; not selected numerical backend)",
+  "observed_exit_code": 1,
+  "exception": "ModuleNotFoundError",
+  "message": "No module named 'defusedxml'",
+  "location": "Canonical run_check import at line17; suite had already completed separately in root .venv",
+  "source": "Exact functions.exec tool observation; no on-disk stderr stream was created for this initial inline metadata command",
+  "selected_check_attempt": false,
+  "selected_check_outcome": null,
+  "correction": "Final custody builder executed using same root .venv interpreter as canonical CAL runner; complete finalize.stdout/stderr preserved",
+  "product_or_numerical_failure": false
+}

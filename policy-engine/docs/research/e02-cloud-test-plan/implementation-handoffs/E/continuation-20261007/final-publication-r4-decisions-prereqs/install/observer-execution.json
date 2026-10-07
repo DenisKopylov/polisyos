@@ -1,0 +1,228 @@
+{
+  "schema": "policyos.e02.closed_dependency_observer_execution.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007/capture_closed_inputs.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/capture-tool.stdout.txt",
+        "bytes": 136,
+        "sha256": "8230f1c85606d22d642b91fdbd95770ca4cd7b03d64cdab04c6b34e8f1089768"
+      },
+      "capture_kind": "Literal stdout text returned by exec_command; timestamp not separately recorded"
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "--base",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--build"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder-v3.stdout.json",
+        "bytes": 509,
+        "sha256": "32ca54885e9311c90e54729f9f8af602fc5ac7d710de3d0307548c8ac5d7e6f5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder-v3.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_binding": "Historical builder-v3 before final scope checks; its source was not separately snapshotted. This is not the current validator source identity. Current healthy admission and36 controls were subsequently rerun on the pinned final source."
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007/check_closed_install_controls.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-normal.stdout.json",
+        "bytes": 7898,
+        "sha256": "f1146efe4568782e87dedaa9af252a68cbd4a8676c9aa948e4e8639a24901f20"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observer": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/check_closed_install_controls.py",
+        "bytes": 7033,
+        "sha256": "f8f6add995187aab0014f545c8c294494d0f62b35c7f75db017ce25ddd89bb45"
+      },
+      "validator": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "bytes": 24184,
+        "sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e"
+      }
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007/check_closed_install_controls.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-optimized.stdout.json",
+        "bytes": 7898,
+        "sha256": "f1146efe4568782e87dedaa9af252a68cbd4a8676c9aa948e4e8639a24901f20"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observer": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/check_closed_install_controls.py",
+        "bytes": 7033,
+        "sha256": "f8f6add995187aab0014f545c8c294494d0f62b35c7f75db017ce25ddd89bb45"
+      },
+      "validator": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "bytes": 24184,
+        "sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e"
+      }
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "--base",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/current-validator-normal.stdout.json",
+        "bytes": 509,
+        "sha256": "32ca54885e9311c90e54729f9f8af602fc5ac7d710de3d0307548c8ac5d7e6f5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/current-validator-normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observer": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "bytes": 24184,
+        "sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e"
+      },
+      "native_or_root_interpreter_executed": false
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "--base",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/current-validator-optimized.stdout.json",
+        "bytes": 509,
+        "sha256": "32ca54885e9311c90e54729f9f8af602fc5ac7d710de3d0307548c8ac5d7e6f5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/current-validator-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observer": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "bytes": 24184,
+        "sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e"
+      },
+      "native_or_root_interpreter_executed": false
+    }
+  ],
+  "historical_observer_errors": [
+    {
+      "classification": "Observer ERROR, not native/package/source regression",
+      "argv": [
+        "python3",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "--base",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--build"
+      ],
+      "exit_code": 1,
+      "observer": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.attempt1.py.txt",
+        "bytes": 23567,
+        "sha256": "47ff5faec0604e1ee00cd4c469291e1bab0d8a6d78d09e476e5702391e84be2c"
+      },
+      "stdout": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder.stdout.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder.stderr.txt",
+        "bytes": 2601,
+        "sha256": "e6ecf4cefa6b8af90b6e27479859ac7e226e99d048283dacfa1297f4d24c6f3d"
+      },
+      "cause": "Bytes input supplied with text=True to read-only git hash-object subprocess."
+    },
+    {
+      "classification": "Observer ERROR, not native/package/source regression",
+      "argv": [
+        "python3",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+        "--base",
+        "/tmp/e02-E-declared-prereq-custody-64d-20261007",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--build"
+      ],
+      "exit_code": 1,
+      "observer": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.attempt2.py.txt",
+        "bytes": 23565,
+        "sha256": "6a27d77988dc49c4b0efcf9cfc7d77cbf87fba05026e2a02684af761c589bb04"
+      },
+      "stdout": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder-v2.stdout.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder-v2.stderr.txt",
+        "bytes": 1231,
+        "sha256": "ea516e51873b2bccb159b58c5de631ab5024f7da4207959356fa67aaf1da9b67"
+      },
+      "cause": "Artifact API and actual wheel metadata use different whitespace, range order and marker quote spelling; exact wheel METADATA hashes agree with installed metadata. Current normalization handles only these recorded syntactic equivalents, not a new dependency solver."
+    }
+  ],
+  "native_commands_executed_by_this_observer": false,
+  "root_interpreter_executed": false,
+  "root_source_or_environment_mutated": false,
+  "global_gate_pass": false,
+  "finding_closure": false
+}

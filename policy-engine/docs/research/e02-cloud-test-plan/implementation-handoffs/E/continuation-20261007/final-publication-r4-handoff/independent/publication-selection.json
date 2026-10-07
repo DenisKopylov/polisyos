@@ -1,0 +1,190 @@
+{
+  "schema": "policyos.e02.independent_moderate_staging_custody_selection.v1",
+  "manifest_sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4",
+  "copier_v2_sha256": "ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-omitted-mandatory-probe.json",
+      "portable_path": "actual-copier-omitted-mandatory-probe.json",
+      "bytes": 2033,
+      "sha256": "32d9f2165adbd848b47e80c4eba703b0f6a59cc3ad8d0b483d1fe58bed66adc8"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-v2-healthy.stderr.txt",
+      "portable_path": "actual-copier-v2-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-copier-v2-healthy.stdout.txt",
+      "portable_path": "actual-copier-v2-healthy.stdout.txt",
+      "bytes": 557,
+      "sha256": "9a7718988bf10f4ed96178cf64cac4283e6b6cbec9aff7cded327e7d73a58263"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_digest.stderr.txt",
+      "portable_path": "actual-v2-corrupt_payload_digest.stderr.txt",
+      "bytes": 620,
+      "sha256": "d84c0b4cc3074cd6309fd02561e32f2197d1d494853f13f6fcd8b6b32d3a8045"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_digest.stdout.txt",
+      "portable_path": "actual-v2-corrupt_payload_digest.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_size.stderr.txt",
+      "portable_path": "actual-v2-corrupt_payload_size.stderr.txt",
+      "bytes": 620,
+      "sha256": "d84c0b4cc3074cd6309fd02561e32f2197d1d494853f13f6fcd8b6b32d3a8045"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-corrupt_payload_size.stdout.txt",
+      "portable_path": "actual-v2-corrupt_payload_size.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-drop_mandatory_selector.stderr.txt",
+      "portable_path": "actual-v2-drop_mandatory_selector.stderr.txt",
+      "bytes": 642,
+      "sha256": "4b69a4d13511c87c1211ce611dbc5590497e0d5c254c2257786ee8d8cc48139c"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-drop_mandatory_selector.stdout.txt",
+      "portable_path": "actual-v2-drop_mandatory_selector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-exactmember-removal.stderr.txt",
+      "portable_path": "actual-v2-exactmember-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-exactmember-removal.stdout.txt",
+      "portable_path": "actual-v2-exactmember-removal.stdout.txt",
+      "bytes": 562,
+      "sha256": "1e6da7e7c5d5a50f9e6d0b5a498f2ccc30023666e5ed74d2f32078549fe6822c"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-omitted_mandatory_member.stderr.txt",
+      "portable_path": "actual-v2-omitted_mandatory_member.stderr.txt",
+      "bytes": 634,
+      "sha256": "7a43174bd9bd194a14913fcdc079a92f821012954431bf3c5e00b526871a71a8"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-omitted_mandatory_member.stdout.txt",
+      "portable_path": "actual-v2-omitted_mandatory_member.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-substitute_selector_hash.stderr.txt",
+      "portable_path": "actual-v2-substitute_selector_hash.stderr.txt",
+      "bytes": 661,
+      "sha256": "78898a63e88aba9eb03fc2a742e1af80ded65b803283a2a7972d3c738d2e9b4b"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/actual-v2-substitute_selector_hash.stdout.txt",
+      "portable_path": "actual-v2-substitute_selector_hash.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/copy-proposed-publication-v2-exactmember-removal.py.txt",
+      "portable_path": "copy-proposed-publication-v2-exactmember-removal.py.txt",
+      "bytes": 9556,
+      "sha256": "5f8b30ce5c538b08c60c22229c6206bd522537a5419a3b65338f0c5c08c7923a"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/independent-actual-copier-v2-review.json",
+      "portable_path": "independent-actual-copier-v2-review.json",
+      "bytes": 13735,
+      "sha256": "8a7c717d69a394fb8de4def7c811954ea4c65c04cc83b2b162b3277c85bc3ebb"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/independent-staging-custody-normal.json",
+      "portable_path": "independent-staging-custody-normal.json",
+      "bytes": 3952,
+      "sha256": "428fabfe55dba4ce05a66dedd9e4d258935392cead50bde416876dd733b01c25"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/independent-staging-custody-optimized.json",
+      "portable_path": "independent-staging-custody-optimized.json",
+      "bytes": 3958,
+      "sha256": "8e42c7d7001d92c4d78a693ef083c27ec10df64ebab6277ccdd3db8cd8297423"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/omitted-mandatory-actual.stderr.txt",
+      "portable_path": "omitted-mandatory-actual.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/omitted-mandatory-actual.stdout.txt",
+      "portable_path": "omitted-mandatory-actual.stdout.txt",
+      "bytes": 560,
+      "sha256": "0626cbba413035949f746b5a3e31c9b3c841893d6420b3065ddfcf2e8cdd6f05"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/probe_actual_copier_membership.py",
+      "portable_path": "probe_actual_copier_membership.py.txt",
+      "bytes": 3343,
+      "sha256": "c27e0c4689cdc019255ddb0a301ed5c0323aa01cb8c51f6de569b115a5c3e07a"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review-copier-v2.stderr.txt",
+      "portable_path": "review-copier-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review-copier-v2.stdout.txt",
+      "portable_path": "review-copier-v2.stdout.txt",
+      "bytes": 471,
+      "sha256": "3095853403a9f638d1695f9fe7532aae73f35a692e85910640707734b5ae249e"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review-normal.stderr.txt",
+      "portable_path": "review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review-normal.stdout.txt",
+      "portable_path": "review-normal.stdout.txt",
+      "bytes": 1391,
+      "sha256": "a215b434617e9ed69ef4414f9b6bdcf08b9e4b3b134b80c2b51c4a1a3a0adf29"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review-optimized.stderr.txt",
+      "portable_path": "review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review-optimized.stdout.txt",
+      "portable_path": "review-optimized.stdout.txt",
+      "bytes": 1394,
+      "sha256": "39f96e64da22a75a20926f1751637dabd07ca05356bea9d52c5fd90e615e6c7a"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review_copier_v2.py",
+      "portable_path": "review_copier_v2.py.txt",
+      "bytes": 7691,
+      "sha256": "61bfab886d5843c2c25b0a53c312bbff1cea9cb8fc6d7c1601ed0c71b7b6fe8e"
+    },
+    {
+      "source_path": "/tmp/e02-E-publication-custody-independent-doe-20261007/review_staging.py",
+      "portable_path": "review_staging.py.txt",
+      "bytes": 15087,
+      "sha256": "507f6035ed5bcfc5fe5103ebe5d7390eaf33be3262f1464c708bcb7c662a24ea"
+    }
+  ],
+  "count": 30,
+  "total_bytes": 67467,
+  "scope": "Literal custody/copy admission independent GO only; original V1 actual omission FAIL and operational read observer TypeError/malformed owner argv are disclosed separately. No native scientific/gate reruns. Own prior DoE/cleanup mechanism/semantic review excluded. Fresh copied trees/shadows remain ignored and are reproduced by literal selected observers; no raw payload duplication."
+}

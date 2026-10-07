@@ -1,0 +1,346 @@
+{
+  "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+  "tree": "26a191ee37da336faf5f6f84f14bc54a883bb90b",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "scope": "public compatibility and actual consumer companions only; functional math/joint law oracle separate",
+  "cases": [
+    {
+      "property": "lazy facade identity and complete analytics count",
+      "actual": {
+        "before": false,
+        "after": true,
+        "same": true,
+        "root_exports": true,
+        "analytics_exports": 288
+      }
+    },
+    {
+      "property": "exact base oldwriter\u2192fresh newreader\u2192existing writer replay",
+      "artifact_id": "sha256:ac2b3663a5c7ef32630693b7c6498f144400b25e7ea7210bfbb9006ad9f8032e",
+      "canonical_bytes": 786,
+      "canonical_sha256": "ac2b3663a5c7ef32630693b7c6498f144400b25e7ea7210bfbb9006ad9f8032e",
+      "point": 0.0,
+      "profile": null
+    },
+    {
+      "property": "real newproducer\u2192configured CAS\u2192exactold1.1 reader/writer\u2192fresh newreader",
+      "artifact_id": "sha256:fecd9c18bd1e35eb22febfdeeb31c806cbf64bf95a403afd101d3c383a599ce7",
+      "canonical_bytes": 13563,
+      "canonical_sha256": "fecd9c18bd1e35eb22febfdeeb31c806cbf64bf95a403afd101d3c383a599ce7",
+      "old_generic_point": 0.0,
+      "new_named_mean": 1,
+      "gate_eligible": false
+    },
+    {
+      "property": "strict public DTO",
+      "type": "PosteriorParameterBinding",
+      "outcome": "REFUSED",
+      "error": "1 validation error for PosteriorParameterBinding\nforged_extra\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    {
+      "property": "strict public DTO",
+      "type": "PosteriorSummaryContext",
+      "outcome": "REFUSED",
+      "error": "1 validation error for PosteriorSummaryContext\nforged_extra\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    {
+      "property": "strict public DTO",
+      "type": "PosteriorSummaryProfile",
+      "outcome": "REFUSED",
+      "error": "1 validation error for PosteriorSummaryProfile\nforged_extra\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    {
+      "property": "preprofile shared joint markers retain legacy native consumer semantics",
+      "source_fixture": "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py@cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "nominal": [
+        {
+          "a": 2.25,
+          "b": 3.0
+        }
+      ],
+      "outcome": "PASS",
+      "native_persisted_output_ref": "sha256:2bf3aea4d2046bde8fb6572830f9a9f03d3b6b2dc722e7e61edd23df77fbcbf1",
+      "declaredprofile": null,
+      "joint_markers_preserved": [
+        "joint_sample_id",
+        "joint_draw_ids",
+        "joint_parameter_order",
+        "joint_law_sha256"
+      ]
+    },
+    {
+      "property": "actual fresh uncertainty nominal caller",
+      "removal": false,
+      "observed_nominal": [
+        {
+          "x": 1.0
+        }
+      ],
+      "persisted_output_ref": "sha256:29348088351f830186403bf2f8ac45eb28c36cac00d20c5fde597f9f34787074",
+      "outcome": "PASS"
+    },
+    {
+      "property": "actual fresh uncertainty nominal caller",
+      "removal": true,
+      "observed_nominal": [
+        {
+          "x": 0.0
+        }
+      ],
+      "persisted_output_ref": "sha256:00a4085fb064f268733768875d65554850e9f975b8c98efc545f93ad3994249e",
+      "outcome": "PROPERTY_REMOVAL_DETECTED"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "profile",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "1 validation error for PosteriorSummaryProfile\nprofile_id\n  Input should be 'urn:policyos:ir:bayesian-posterior-summary-profile:1' [type=literal_error, input_value='unknown', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "carrier",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier is missing"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "rename",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary parameter/estimand/unit binding does not match"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "raw_bool",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier requires finite real non-bool values"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "raw_string",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier requires finite real non-bool values"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "inline_bool",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier requires finite real non-bool values"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "inline_string",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier requires finite real non-bool values"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "profile_missing_required_false",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary profile is missing"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "profile_missing_required_string",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary profile is missing"
+    },
+    {
+      "property": "actual native uncertainty declaredprofile/target preflight",
+      "mutation": "profile_and_flag_removed",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary profile is missing"
+    },
+    {
+      "property": "actual fresh single-coordinate Welfare nominal caller",
+      "mode": "profile",
+      "observed_nominal": [
+        {
+          "A": 0.005
+        }
+      ],
+      "source_ref": "sha256:134e03d943ee619a4e39c5d2f5cc693384f6c4a596a14f1e97df6889eb640534",
+      "persisted_bundle_ref": "sha256:fe2df4bb1b48aecf32a66814c2c048ad0664c66da7b372b0b48ead6140509bc7",
+      "persisted_point": 2.0100502512562812,
+      "outcome": "PASS"
+    },
+    {
+      "property": "actual fresh single-coordinate Welfare nominal caller",
+      "mode": "direct_profile",
+      "observed_nominal": [
+        {
+          "A": 0.005
+        }
+      ],
+      "source_ref": "sha256:134e03d943ee619a4e39c5d2f5cc693384f6c4a596a14f1e97df6889eb640534",
+      "persisted_bundle_ref": "sha256:fe2df4bb1b48aecf32a66814c2c048ad0664c66da7b372b0b48ead6140509bc7",
+      "persisted_point": 2.0100502512562812,
+      "outcome": "PASS"
+    },
+    {
+      "property": "actual fresh single-coordinate Welfare nominal caller",
+      "mode": "legacy",
+      "observed_nominal": [
+        {
+          "A": 0.25
+        }
+      ],
+      "source_ref": "sha256:ba08433809de85da5860a4c7c9cc99d31da84ab75e6423eb2aef269c132bf056",
+      "persisted_bundle_ref": "sha256:38f67f84f4003581229dedb5d725e1716834aac200857740fcc104cb808ca12f",
+      "persisted_point": 2.6666666666666665,
+      "outcome": "PASS"
+    },
+    {
+      "property": "actual fresh single-coordinate Welfare nominal caller",
+      "mode": "removal",
+      "observed_nominal": [
+        {
+          "A": 0.0
+        }
+      ],
+      "source_ref": "sha256:134e03d943ee619a4e39c5d2f5cc693384f6c4a596a14f1e97df6889eb640534",
+      "persisted_bundle_ref": "sha256:fb0adf24dc0c1243a9bce391ca7569d99c72156bf5d97c0cf64559137abd61a8",
+      "persisted_point": 2.0,
+      "outcome": "PROPERTY_REMOVAL_DETECTED"
+    },
+    {
+      "property": "actual native Welfare declaredprofile/target preflight",
+      "mutation": "profile",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "1 validation error for PosteriorSummaryProfile\nprofile_version\n  Input should be '1.0' [type=literal_error, input_value='999.0', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+    },
+    {
+      "property": "actual native Welfare declaredprofile/target preflight",
+      "mutation": "carrier",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier is missing"
+    },
+    {
+      "property": "actual native Welfare declaredprofile/target preflight",
+      "mutation": "rename",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary parameter/estimand/unit binding does not match"
+    },
+    {
+      "property": "actual native Welfare declaredprofile/target preflight",
+      "mutation": "raw_bool",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier requires finite real non-bool values"
+    },
+    {
+      "property": "actual native Welfare declaredprofile/target preflight",
+      "mutation": "raw_string",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier requires finite real non-bool values"
+    },
+    {
+      "property": "actual native Welfare declaredprofile/target preflight",
+      "mutation": "state_bool",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier requires finite real non-bool values"
+    },
+    {
+      "property": "actual native Welfare declaredprofile/target preflight",
+      "mutation": "state_string",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "reason": "posterior summary raw carrier requires finite real non-bool values"
+    }
+  ],
+  "complete_footprint_bindings": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+      "bytes": 1712,
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "bytes": 16254,
+      "sha256": "96f1faeebd490ca28ee562e4b33e09fd5160832b76cb2d49b04276ceaf79df6c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 16684,
+      "sha256": "931e36225e64b5fd07cbddcc2697e36262170f8da56dbd9c17a0f3f2d3c117f0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "bytes": 7346,
+      "sha256": "7121736076b4f2cb4bc47d908ba617867bb2cd4582af467b5f45ffb69960f01f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 16412,
+      "sha256": "fd7242dce6aa8d78e9b7736999284ee01a078a002f2938e61a2903d7d187b65b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 49160,
+      "sha256": "43ea26727ee86c218fe3e101d0ede453ed2e9545b6f9f39a78ed1c934f4b5ca9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "bytes": 27404,
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20801,
+      "sha256": "bddb15f403e47e8caef8b4d1e698ae4d6cf65d1269619486e165a925f9037559"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193039,
+      "sha256": "0c699925060ce1fc102cd9e3c3062a33d785bf0920732b1b0a780e3527c8d270"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "bytes": 9658,
+      "sha256": "9bf97d4271cffd657408bfa0cd257442bf439ff939da5ce6f2530f34867b053f"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "bytes": 11344,
+      "sha256": "34a032bdca44f56af35d6d1f3d2c24a9fdb4957aae8cdc594f80ce5ec67061e9"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "bytes": 15574,
+      "sha256": "6e773e5e08c998d5348d08867d1a5bb4118fd7c228735562b908fcf5e092ff8e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "bytes": 14059,
+      "sha256": "f48552736cbbbaac37afb42206437a506d3d39db50d7a8bb304243ed80beaf52"
+    }
+  ],
+  "old_wire_source": {
+    "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "candidate_bytes_equal": true,
+    "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+  },
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "source_edit": false,
+  "broad_wave": false
+}

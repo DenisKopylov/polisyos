@@ -1,0 +1,16 @@
+{
+  "outcome": "GO literal custody with append-only selector correction",
+  "receipt": {
+    "path": "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/normal-v4-review.json",
+    "bytes": 10227,
+    "sha256": "72ff2b147aa07077ddf210283109a765b4c336a4a57251223e423b87b9d20b0f"
+  },
+  "controls": 8,
+  "actual_original_denominator": {
+    "logical": 10,
+    "unique": 8,
+    "logical_bytes": 61292,
+    "unique_bytes": 51496
+  },
+  "CAS_readbacks": 7
+}

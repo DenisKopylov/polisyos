@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-before-read-only.json",
+  "bytes": 84697,
+  "sha256": "c1173ca53947224fac54a1fdb8582cf4ed94b01e7f96a235c1a01babc94e3d0d"
+}

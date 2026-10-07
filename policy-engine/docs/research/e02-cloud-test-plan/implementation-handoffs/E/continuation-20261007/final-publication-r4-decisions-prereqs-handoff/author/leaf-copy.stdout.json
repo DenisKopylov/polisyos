@@ -1,0 +1,10 @@
+{
+  "outcome": "PASS literal custody",
+  "logical_count": 237,
+  "payload_files": 168,
+  "payload_bytes": 8218180,
+  "metadata_files": 9,
+  "total_files": 177,
+  "destination": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs",
+  "source_numeric_gate_execution": false
+}

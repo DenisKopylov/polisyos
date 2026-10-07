@@ -1,0 +1,10 @@
+{
+  "remote_E_head": "050ac746f8206b63071908ee83a52e5fd4d491d3",
+  "remote_leaf_head": "781acab7a66ac7bbbd40d5a007fae22379e32e85",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "checks_exit_codes": {
+    "64d_in_remote_E": 1,
+    "remote_E_in_64d": 0,
+    "781_in_remote_leaf": 0
+  }
+}

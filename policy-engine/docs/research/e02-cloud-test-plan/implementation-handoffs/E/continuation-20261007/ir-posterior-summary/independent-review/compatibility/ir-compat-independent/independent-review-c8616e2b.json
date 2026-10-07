@@ -1,0 +1,87 @@
+{
+  "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+  "tree": "135ab8cff4026f3fa366ce997e4aa9b181441218",
+  "decision": "NO_GO",
+  "scope": "public compatibility/native consumer only, not mathematical law oracle or full global gate",
+  "healthy_affected_properties": {
+    "native_controls": 32,
+    "transport_controls": 5,
+    "receipts": [
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/compat-c8616e2b/controls.json",
+        "bytes": 14483,
+        "sha256": "ec105e6507e619dccfa43299e579a929cd88c8ce37be70ad71c878c343417cd1"
+      },
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-c8616e2b-v2/transport-controls.json",
+        "bytes": 4841,
+        "sha256": "fe1a99caeed2665ca0fcf509562fb5bd31626acea90d5784eefda1551e928643"
+      }
+    ]
+  },
+  "blocking_compatibility_falsifier": {
+    "actual": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-profile/legacy-generic-labels-c861-probe.json",
+      "bytes": 6529,
+      "sha256": "0ead982347e990103c345409c7a75738a4ea77a768fd34938b728961294ffb04"
+    },
+    "criterion": "Legacy1.1 reader/replay must remain unchanged; generic point/interval labels do not declare a new strict profile. Existing actual old-model bytes matchc4. New producer needs explicit new profileID/version discriminator retained under profile+required flag removal."
+  },
+  "observer_correction": {
+    "first_command": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-c8616e2b-command.json",
+      "bytes": 1535,
+      "sha256": "4538d539aa48393b76ff89fa76bc0d325e17c8c2ba485b6f186364da02020274"
+    },
+    "first_stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-c8616e2b.stderr",
+      "bytes": 476,
+      "sha256": "b469f85f13f93bad4f534be49de3e5c05205a7659575fff07f52fc3cfb660b60"
+    },
+    "first_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport_controls.py",
+      "bytes": 6756,
+      "sha256": "4ab00ced0589ffeb0476fe47f436887e30e59c8ab26ee55858bc399306794177"
+    },
+    "classification": "ERROR in observer fixture: identical content bytes reused existing ir manifest, so fixture never created actual wrongkind artifact. Do not attribute as product CASkind defect.",
+    "corrected_command": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-c8616e2b-v2-command.json",
+      "bytes": 1548,
+      "sha256": "42b79b06717addb107707772008477b15be9a2b5f19eedd9effdc641311feafa"
+    },
+    "corrected_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport_controls-v2.py",
+      "bytes": 7022,
+      "sha256": "07f0ddf05ebd4bccedf641adba4b4c850e8e8ad98e412b89409a25eeb744e31c"
+    },
+    "corrected_stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/transport-c8616e2b-v2.stdout",
+      "bytes": 4841,
+      "sha256": "fe1a99caeed2665ca0fcf509562fb5bd31626acea90d5784eefda1551e928643"
+    },
+    "corrected_same_candidate": true
+  },
+  "canonical_generated_owner_packet": {
+    "receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-c8616e2b/generator-packet.json",
+      "bytes": 6750,
+      "sha256": "1c9564b91c6850273893d65fadadc01b1ceab515d51852c4fe7483f1ce8819c0"
+    },
+    "actual_complete_models": 102,
+    "full_oldIR99_retained_plus_newprofile": 100,
+    "actual_fabric_models": 2,
+    "full_public_packages": 20,
+    "full_public_generated_families": 13,
+    "patch": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-c8616e2b/canonical-generated-full.patch",
+      "bytes": 27313,
+      "sha256": "7e29205377263b7c69f91620170e36b10698227c7672625edc3da14ff1014251"
+    },
+    "shared_companions_state": "surface_missing",
+    "writer": "G/team-ir generator and team-architecture public inventory; no E shared writer edits",
+    "scope": "7 actual generated companion deltas inclfeedback_solve_result independently attributed by canonicalwriter; exactsource inputs+fullstdout remain bound."
+  },
+  "source_writes": false,
+  "broad_wave": false,
+  "new_environment": false
+}

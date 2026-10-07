@@ -1,0 +1,210 @@
+{
+  "schema": "policyos.e02.independent_final_ir_delta.v1",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "parent_candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+  "source_unchanged": true,
+  "footprint": {
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml": {
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7",
+      "bytes": 1712
+    },
+    "policy-engine/src/polisyos/foundry/calibration/report.py": {
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3",
+      "bytes": 16300
+    },
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": {
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "bytes": 17116
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/protocol.py": {
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3",
+      "bytes": 5742
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": {
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "bytes": 23932
+    },
+    "policy-engine/src/polisyos/ir/__init__.py": {
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    "policy-engine/src/polisyos/ir/analytics/README.md": {
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200",
+      "bytes": 7397
+    },
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py": {
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "bytes": 19970
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "bytes": 49444
+    },
+    "policy-engine/src/polisyos/schemas/abi_models.py": {
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": {
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "bytes": 20893
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": {
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "bytes": 193138
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e",
+      "bytes": 9674
+    },
+    "policy-engine/tests/unit/ir/test_posterior_summary.py": {
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a",
+      "bytes": 15782
+    },
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py": {
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+      "bytes": 15822
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py": {
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e",
+      "bytes": 16962
+    }
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "pytest": "9.0.2"
+  },
+  "cases": [
+    {
+      "id": "signedzero_freshCAS_native_None",
+      "check_status": "PASS",
+      "detail": {
+        "input_weights": null,
+        "fresh_mean": 0.5,
+        "source_and_fresh_zero_signs_canonical_positive": true,
+        "fresh_CAS_ref": {
+          "artifact_id": "sha256:2fe19a25b4766a8a7592ee06473691863412f8da1078be7e4dadc9cda997eac6",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "actual_native_callback_count": 257,
+        "actual_sample_counts": {
+          "0.0": 128,
+          "1.0": 128
+        },
+        "zero_mass_category_callback_count": null,
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "signedzero_freshCAS_native_[-0.0, 1.0]",
+      "check_status": "PASS",
+      "detail": {
+        "input_weights": [
+          -0.0,
+          1.0
+        ],
+        "fresh_mean": 1.0,
+        "source_and_fresh_zero_signs_canonical_positive": true,
+        "fresh_CAS_ref": {
+          "artifact_id": "sha256:b47f272fc57a674c193bf040017f711729fb1cdcf2502621c56e3acd968897f9",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "actual_native_callback_count": 257,
+        "actual_sample_counts": {
+          "1.0": 256
+        },
+        "zero_mass_category_callback_count": 0,
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "old_generic_labels_v1_1_replay",
+      "check_status": "PASS",
+      "detail": {
+        "legacy_generic_point": 0,
+        "separate_legacy_mean_metadata": 1,
+        "new_profile_interpretation": null,
+        "same_replayed_CAS_ref": {
+          "artifact_id": "sha256:de4d7957c033ba4eaac3be1d4e164b715ae617d7a8a39bf74cabbf02e5669222",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "old_wire_bytes_reused": true,
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "explicit_NEW_marker_remove_profile",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary profile is missing",
+        "actual_callbacks": 0,
+        "actual_builders": 0,
+        "explicit_NEW_profile_ID_version_markers_retained": true,
+        "fresh_integrity_valid": true
+      }
+    },
+    {
+      "id": "explicit_NEW_marker_wrong_id",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary profile/carrier binding is invalid",
+        "actual_callbacks": 0,
+        "actual_builders": 0,
+        "explicit_NEW_profile_ID_version_markers_retained": true,
+        "fresh_integrity_valid": true
+      }
+    },
+    {
+      "id": "explicit_NEW_marker_wrong_version",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary profile/carrier binding is invalid",
+        "actual_callbacks": 0,
+        "actual_builders": 0,
+        "explicit_NEW_profile_ID_version_markers_retained": true,
+        "fresh_integrity_valid": true
+      }
+    },
+    {
+      "id": "effective_NEW_marker_guard_removal",
+      "check_status": "PASS",
+      "detail": {
+        "effective_property_removal": true,
+        "required_negative_assertion_outcome": "FAIL",
+        "actual_callbacks": 257,
+        "actual_builders": 1,
+        "explicit_NEW_markers_retained": true,
+        "generic_point_fallback": {
+          "x": 0.0
+        }
+      }
+    }
+  ],
+  "counts": {
+    "PASS": 7
+  },
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/signedzero-2eyg2vsx",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/node-8k6g_k1l",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/signedzero-tlupgn12",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/node-cedmd025",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/legacy-labels-0740jxyg",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/new-marker-c3mbdkf5",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/new-marker-1rv8p3jj",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/new-marker-56ei721j",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/new-marker-iil8aw8h"
+  ],
+  "limits": [
+    "Seven narrow finaldelta controls; previous c87/c861 observations reused under exactsource and dependency delta review, not re-executed or represented as a broadwave.",
+    "Preserves logical real-zero canonical representation already used by IR CAS; no IEEE sign-bit identity promise.",
+    "Source acceptance separate from original finding closure, scientific posterior-quality authority and default production fit/served law."
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "mode": "optimized",
+  "case": "historical_closed_int_to_bool",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-O",
+    "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+    "--manifest",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-historical_closed_int_to_bool/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-historical_closed_int_to_bool/destination"
+  ],
+  "exit_code": 1,
+  "destination_created": false,
+  "stdout": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-historical_closed_int_to_bool/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/optimized-historical_closed_int_to_bool/stderr.txt",
+    "bytes": 866,
+    "sha256": "5df65ea00b6577adee1ed5e789a4a503aa38c4b54db27cac88d8a3ea892754e2"
+  }
+}

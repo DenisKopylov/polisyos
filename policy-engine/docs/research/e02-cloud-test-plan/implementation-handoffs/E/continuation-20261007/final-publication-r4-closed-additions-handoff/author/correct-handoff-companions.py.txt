@@ -1,0 +1,66 @@
+import collections,hashlib,json,os,subprocess
+from pathlib import Path
+STAGE=Path('/tmp/e02-E-closed-additions-publication-r4-stage')
+REPO=Path('/workspace/e02-E-frc-20261006')
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff'
+P=REPO/PREFIX
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd';TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+SEL=Path('/tmp/e02-E-ir-G855-custody-lint-64d-20261007/publication-selection.json')
+def info(b):return {'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def dump(p,d):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+expected={'copy-index.json':{'bytes':40209,'sha256':'c267d47e28876c7711ae127627e1e674ac366eb47c1d9bc89d0bcb5ee30b086e'},'implementation-handoff.json':{'bytes':115841,'sha256':'b47aae2933f87c99af5e8b354561c5fd412be6289cbcdd737092425bcee41fa7'},'README.md':{'bytes':1760,'sha256':'d63245bbe27adeb9198df07c67bc8871b9d49f2e102ab883ba599ca139449355'},'environment.json':{'bytes':923,'sha256':'3575e1acb00990c67271a8a3ba94996525680055d021dc67b6a86cfba1ff0e61'}}
+for n,v in expected.items():
+ if info((P/n).read_bytes())!=v:raise ValueError('historical metadata pin '+n)
+if info(SEL.read_bytes())!={'bytes':19554,'sha256':'cda5627a0dfc5d28bfd97a7ef3374c04feaba64b897ec56117fb2a5076b502e1'}:raise ValueError('qualified selector pin')
+s=json.loads(SEL.read_text());i=json.loads((P/'copy-index.json').read_text());h=json.loads((P/'implementation-handoff.json').read_text())
+# Admit the full new companion chain BEFORE writing; original implementation Counter remains independent.
+if s['logical_assets']!=41 or s['unique_assets']!=26 or s['unique_bytes']!=167802 or len(s['assets'])!=41:raise ValueError('qualified denominator')
+carriers={};members=[]
+for a in s['assets']:
+ src=Path(a['path']);b=src.read_bytes();v=info(b)
+ if v!={k:a[k] for k in ('bytes','sha256')}:raise ValueError('qualified original custody')
+ logical='current-IR/qualified-v2/'+a['logical_at'];stored='current-IR/qualified-v2/'+a['stored_at']
+ if not b and stored.endswith('.json'):raise ValueError('qualified zero JSON not normalized')
+ if stored.endswith('.py') or '..' in Path(stored).parts or Path(stored).is_absolute():raise ValueError('unsafe portable')
+ if stored in carriers and carriers[stored]['data']!=b:raise ValueError('stored carrier collision')
+ carriers.setdefault(stored,{'source_path':str(src),'data':b,'role':a['role'],**v})
+ members.append({'source_path':str(src),'logical_at':logical,'stored_at':stored,'role':a['role'],**v})
+if len(carriers)!=26 or sum(c['bytes'] for c in carriers.values())!=167802:raise ValueError('full stored carrier denominator')
+if len({(c['sha256'],c['bytes']) for c in carriers.values()})!=26:raise ValueError('content-unique denominator')
+renames=[]
+for r in i['copies']:
+ b=(P/r['portable_path']).read_bytes()
+ if info(b)!={k:r[k] for k in ('bytes','sha256')}:raise ValueError('existing handoff custody')
+ if not b and r['portable_path'].endswith('.json'):
+  old=r['portable_path'];new=old[:-5]+'.txt'
+  if (P/new).exists():raise ValueError('rename collision')
+  renames.append({'source_path':r['source_path'],'old_portable_path':old,'new_portable_path':new,'bytes':0,'sha256':r['sha256']})
+# Only now mutate the uncommitted DOC handoff; original bytes and selector declarations remain literal.
+for rename in renames:
+ (P/rename['old_portable_path']).rename(P/rename['new_portable_path'])
+ for r in i['copies']:
+  if r['portable_path']==rename['old_portable_path']:r['portable_path']=rename['new_portable_path'];r['role']+='; empty captured stream stored as passive .txt, original source name/bytes unchanged'
+for portable,c in carriers.items():
+ q=P/portable
+ if q.exists():raise ValueError('new carrier collision')
+ q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(c['data'])
+ i['copies'].append({k:v for k,v in c.items() if k!='data'}|{'portable_path':portable})
+for src,portable,role in [(SEL,'current-IR/qualified-v2/publication-selection.json','fixed corrected41-logical/26-unique companion selector; original b001 preserved'),(STAGE/'correct-handoff-companions.py.txt','author/correct-handoff-companions.py.txt','exact executed DOC-only portable role/denominator correction recipe')]:
+ b=src.read_bytes();q=P/portable;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b);i['copies'].append({'source_path':str(src),'portable_path':portable,'role':role,**info(b)})
+i['copied_files']=len(i['copies']);i['copied_bytes']=sum(r['bytes'] for r in i['copies']);i['empty_stream_portable_corrections']=renames
+dump(P/'copy-index.json',i)
+member_index={'schema':'policyos.e02.qualified_current_IR_companion_members.v1','selector':{'portable_path':'current-IR/qualified-v2/publication-selection.json',**info(SEL.read_bytes())},'logical_assets':41,'unique_assets':26,'unique_bytes':167802,'members':members,'separate_from_implementation_six_selector_counter':True,'finding_closure':False}
+dump(P/'current-IR/qualified-v2/member-index.json',member_index)
+h['copied_handoff_files']=i['copied_files'];h['copied_handoff_bytes']=i['copied_bytes'];h['handoff_copy_index']={'path':'copy-index.json',**info((P/'copy-index.json').read_bytes())}
+h['current_IR_qualification']['original_b001_denominator']={'source_metadata_retained':True,'logical_assets':10,'logical_bytes':61292,'actual_content_unique_assets':8,'actual_content_unique_bytes':51496,'correction':'Two repeated-byte source recipes/zero streams; old b001 numerical evidence and historical metadata unchanged.'}
+h['current_IR_qualification']['corrected_companion']={'selector':'current-IR/qualified-v2/publication-selection.json','member_index':'current-IR/qualified-v2/member-index.json','logical_assets':41,'unique_assets':26,'unique_bytes':167802,'gold':'current-IR/qualified-v2/gold/exact-finite-oracle.json','native_execution_by_this_carrier':False,'finding_closure':False,'scope':'Separate exact current64d/G855/gold/CAS-content index and independent custody companion; not a seventh selector of implementation737.'}
+h['publication_role_corrections']={'zero_streams':renames,'empty_JSON_paths_final':[],'historical_initial94_metadata':'Independent reviewer retained four initial fixed metadata bytes under handoff-initial94-observation; this correction is before handoff commit. Implementation737 and its six original selectors are untouched.'}
+h['current_IR_qualification']['root_next_technical_choice']='Root approved exact binary-ratio power-of-two representation with estimator-specific MC ceil cuts/quantile floor semantics and explicit multi-coordinate row IDs for a separate profile revision. No such source correction is delivered here.'
+h['handoff_footprint']=sorted(str(q.relative_to(REPO)) for q in P.rglob('*') if q.is_file())
+h['handoff_path_count']=len(h['handoff_footprint']);h['full_footprint']=sorted(h['implementation_footprint']+h['handoff_footprint']);h['full_path_count']=len(h['full_footprint'])
+dump(P/'implementation-handoff.json',h)
+readme=P/'README.md';readme.write_text(readme.read_text()+'''\nThe separate corrected current-IR companion binds all 41 logical members to 26 content-unique carriers (167,802 bytes), including the exact finite oracle, seven CAS fixture refs and independent custody controls. Original b001 metadata remains unchanged: its ten logical rows carry 61,292 bytes but only eight unique contents / 51,496 bytes. Three empty historical stdout streams use `.txt` portable destinations with original paths, bytes and hashes retained in the copy-index. This correction does not change implementation737 or confer source/finding acceptance.\n''')
+for q in P.rglob('*.json'):
+ if not q.stat().st_size:raise ValueError('empty JSON final')
+ json.loads(q.read_text())
+print(json.dumps({'copied_files':i['copied_files'],'copied_bytes':i['copied_bytes'],'handoff_paths':h['handoff_path_count'],'full_paths':h['full_path_count'],'corrected_empty_streams':renames,'fixed_metadata':{n:info((P/n).read_bytes()) for n in expected}},indent=2))

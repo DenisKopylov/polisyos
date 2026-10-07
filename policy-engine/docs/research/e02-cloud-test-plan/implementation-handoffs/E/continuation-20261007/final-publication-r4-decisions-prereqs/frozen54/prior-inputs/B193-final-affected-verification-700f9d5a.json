@@ -1,0 +1,93 @@
+{
+  "id": "B193",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "supplements": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-independent-original-disposition.json",
+    "bytes": 37973,
+    "sha256": "2384db375b90ed7dcd3ab6e88fefccd0f2cffbeacfe93e1356d178df0019abf5"
+  },
+  "independent_original_criterion_disposition": "accepted",
+  "E_root_accountable_acceptance": "Parent explicitly accepted bounded original criterion after independent review; final affected source dependency now checked",
+  "proposed_finding_outcome": "closed",
+  "historical_ledger_status_preserved": "partial",
+  "formal_ledger_change": false,
+  "new_affected_check_outcome": "PASS",
+  "exact_current_cases": [
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_pilot_budget_native_mean_and_fresh_cas_readback",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_opaque_evaluator_cannot_self_certify_bounded_iid_mean",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_rqmc_complete_nets_and_replica_estimator_error",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_legacy_predictive_spread_never_authorizes_optional_stopping",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[200]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[663]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[664]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_monte_carlo_b194",
+      "name": "test_real_node_persists_and_replays_independent_pilot_certificate",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_uqp_03",
+      "name": "test_legacy_adaptive_peeking_is_disabled_without_bounded_mean_profile",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.remediation.test_uqp_03",
+      "name": "test_adaptive_distribution_width_does_not_shrink_for_stable_wide_outputs",
+      "outcome": "PASS"
+    }
+  ],
+  "command": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/B193-700f9d5a/command.json",
+    "bytes": 5352,
+    "sha256": "d9405811cf307e2fa734272aeea91d7ec6374a29703e3f131f2e251d26d773a7"
+  },
+  "complete_deciding_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/B193-700f9d5a/stdout",
+      "bytes": 597,
+      "sha256": "62d65bb400a9e34a879bbe16cb3008485a5e3895947c265cb477f16ad0bb1fbf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/B193-700f9d5a/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/B193-700f9d5a/pytest.xml",
+      "bytes": 1845,
+      "sha256": "81114e7a67d598960efe266de3e601fe6ef8a5a74dcf6674121c1f84b3352eeb"
+    }
+  ],
+  "scope": "Actual configured bounded indicator U[0,1], independent pilot excluded, frozen main N408, fresh CAS verification and budget controls; full independent RQMC replica means error separate from predictive spread. No opaque production-law prerequisite was added to the original row.",
+  "retained_independent_negative_removal": "Original e9 native CAS-valid equal pilot/main stream refusal and no-op public verify removal remain pinned by prior immutable disposition. No unsupported quantile/CDF/interval/anytime or served source authority is claimed.",
+  "broad_wave": false
+}

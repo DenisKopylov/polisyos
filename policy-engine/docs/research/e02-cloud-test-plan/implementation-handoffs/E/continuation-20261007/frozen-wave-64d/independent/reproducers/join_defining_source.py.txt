@@ -1,0 +1,169 @@
+"""Join independently parsed actual JUnit cases to pinned defining test source."""
+
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+
+def identity(path: Path) -> dict:
+    raw = path.read_bytes()
+    return {
+        "path": str(path),
+        "bytes": len(raw),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--cases", type=Path, required=True)
+    parser.add_argument("--source-index", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    cases = json.loads(args.cases.read_text())
+    index = json.loads(args.source_index.read_text())
+    if (cases["source"], cases["tree"]) != (index["source"], index["tree"]):
+        raise ValueError(
+            "Actual cases and defining test index are different source identities"
+        )
+    actual_tree = (
+        subprocess.check_output(
+            ["git", "-C", str(args.repo), "rev-parse", cases["source"] + "^{tree}"]
+        )
+        .decode()
+        .strip()
+    )
+    if actual_tree != cases["tree"]:
+        raise ValueError("Actual cases source/tree mismatch")
+    rows = []
+    path_count = 0
+    observed = []
+    for family, source_files in index["families"].items():
+        for source in source_files:
+            path_count += 1
+            raw = subprocess.check_output(
+                [
+                    "git",
+                    "-C",
+                    str(args.repo),
+                    "show",
+                    f"{cases['source']}:{source['repository_path']}",
+                ]
+            )
+            if (len(raw), hashlib.sha256(raw).hexdigest()) != (
+                source["bytes"],
+                source["sha256"],
+            ):
+                raise ValueError(
+                    f"Defining source bytes changed: {source['repository_path']}"
+                )
+            module = (
+                source["repository_path"]
+                .removeprefix("policy-engine/")
+                .removesuffix(".py")
+                .replace("/", ".")
+            )
+            names = Counter(f["name"] for f in source["test_functions"])
+            if any(n != 1 for n in names.values()):
+                raise ValueError(
+                    "Ambiguous same-file test function names require qualified source identity"
+                )
+            for function in source["test_functions"]:
+                matches = [
+                    case
+                    for case in cases["cases"]
+                    if case["classname"] == module
+                    or case["classname"].startswith(module + ".")
+                    if case["name"].split("[", 1)[0] == function["name"]
+                ]
+                bindings = [
+                    {
+                        k: case[k]
+                        for k in [
+                            "job",
+                            "ordinal",
+                            "classname",
+                            "name",
+                            "outcome",
+                            "attempt",
+                            "retry_receipt",
+                        ]
+                        if k in case
+                    }
+                    for case in matches
+                ]
+                observed.extend(bindings)
+                rows.append(
+                    {
+                        "family": family,
+                        "repository_path": source["repository_path"],
+                        "source_sha256": source["sha256"],
+                        "source_bytes": source["bytes"],
+                        "test_function": function,
+                        "exact_current_case_bindings": bindings,
+                        "current_case_outcome_counts": dict(
+                            Counter(c["outcome"] for c in bindings)
+                        ),
+                        "actual_case_count": len(bindings),
+                        "observation_state": "actual_JUnit_case_binding"
+                        if bindings
+                        else "no_actual_JUnit_case_binding",
+                        "basis": "Exact pinned module and function identity; assertions/runtime calls are source navigation, not an independent numerical value observation or criterion acceptance.",
+                    }
+                )
+    result = {
+        "schema": "policyos.e02.independent_defining_current_case_navigation.v1",
+        "source": cases["source"],
+        "tree": cases["tree"],
+        "family_denominator": len(index["families"]),
+        "source_path_denominator": path_count,
+        "test_function_denominator": len(rows),
+        "functions_with_actual_cases": sum(
+            bool(r["exact_current_case_bindings"]) for r in rows
+        ),
+        "functions_without_actual_cases": sum(
+            not r["exact_current_case_bindings"] for r in rows
+        ),
+        "actual_case_binding_count": len(observed),
+        "actual_case_outcome_counts": dict(Counter(c["outcome"] for c in observed)),
+        "input_case_index": identity(args.cases),
+        "input_defining_source_index": identity(args.source_index),
+        "collector": identity(Path(__file__)),
+        "rows": rows,
+        "limits": [
+            "Bounded 30-path source navigation; not all E tests or a full independent review.",
+            "Same original test function matched across its actual parametrized case identities.",
+            "No numerical/test/gate command executed. Missing actual JUnit binding is not PASS or a finding verdict.",
+            "Owner criterion decisions and native independent oracle/removal receipts remain separate.",
+        ],
+    }
+    args.output.write_text(json.dumps(result, indent=2) + "\n")
+    print(
+        json.dumps(
+            {
+                k: result[k]
+                for k in [
+                    "source",
+                    "tree",
+                    "family_denominator",
+                    "source_path_denominator",
+                    "test_function_denominator",
+                    "functions_with_actual_cases",
+                    "functions_without_actual_cases",
+                    "actual_case_binding_count",
+                    "actual_case_outcome_counts",
+                ]
+            }
+        )
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

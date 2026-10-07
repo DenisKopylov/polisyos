@@ -1,0 +1,26 @@
+{
+  "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+  "tree": "26a191ee37da336faf5f6f84f14bc54a883bb90b",
+  "supplements": "independent-review-c87f532e.json",
+  "independent_review_unchanged": true,
+  "canonical_public_transport_red": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/canonical-adapter-probe.json",
+    "bytes": 582,
+    "sha256": "341a0d4d3e8223f9bc816fa29214a74fc2348b0a8c2a5b56f15e77cb98b9cb85",
+    "actual": {
+      "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "canonical_store": "CoreToIRArtifactStoreAdapter(FileSystemCAS)",
+      "legacy_typed_load_pass": true,
+      "ref": {
+        "artifact_id": "sha256:207c9ae2be1408e5a8c41ac5e8df1f7899657d9ef1b5b1c2c621f6401e59c3c7",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "scratch": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/canonical-adapter-ycdfc49q",
+      "exception_type": "AttributeError",
+      "exception": "'CoreToIRArtifactStoreAdapter' object has no attribute 'verify'"
+    }
+  },
+  "scope": "Cross-reference actual independent oracle transport falsifier only, no copy/re-derivation of mathematical oracle",
+  "original_review_preserved": true
+}

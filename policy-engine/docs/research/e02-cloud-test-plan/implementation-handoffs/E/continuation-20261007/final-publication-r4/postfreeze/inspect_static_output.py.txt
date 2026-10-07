@@ -1,0 +1,55 @@
+from __future__ import annotations
+from collections import Counter
+from datetime import datetime,timezone
+import hashlib,json
+from pathlib import Path
+import subprocess
+
+S=Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution')
+W=Path('/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+CAND='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+BASE='198076863e143dea9f89f02734b13d50dae3eed5'
+
+def reference(p):
+ b=p.read_bytes();return {'path':str(p),'sha256':hashlib.sha256(b).hexdigest(),'bytes':len(b)}
+
+stdout=W/'checks/static-invocation/static-invocation.stdout.txt'
+check=W/'checks/static-invocation/static-invocation.json'
+raw=W/'raw/production-invocation.raw.json'
+if not check.is_file():raise RuntimeError('canonical completed check receipt unavailable; no verdict')
+completed=json.loads(check.read_text());observed=json.loads(stdout.read_text())
+assert completed['candidate_sha']==CAND and completed['candidate_tree_sha']=='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+assert completed['source_immutable'] is True
+assert completed['head_at_end']==CAND
+if observed.get('status')=='UNRUN':
+ result={'canonical_outcome':'UNRUN','complete_verdict':False,'stdout':reference(stdout),'check_receipt':reference(check),'observed':observed,'candidate':CAND,'tree':completed['candidate_tree_sha'],'P41':'not_established'}
+else:
+ data=json.loads(raw.read_text());prep=json.loads((S/'static-input-census-64d.json').read_text())
+ assert data['base']==BASE
+ # Independent input census checked live bytes before/after, pinned current and base.
+ expected={'current_files':5938,'base_files':5904,'source_files':2702,'current_sha256':'4cdcc5a5af93541109f234f31a25d4eb21cdc7688a33e4578021c23e0e902ca2','base_sha256':'a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5'}
+ assert all(data['denominator'][k]==v for k,v in expected.items())
+ assert observed['regressions']==data['regressions']
+ assert observed['new_unresolved_by_construction']==data['new_unresolved_by_construction']
+ assert len(data['unresolved_by_construction'])==observed['unresolved_by_construction_count']
+ assert data['runtime_invocation_established'] is False
+ logical={'core':'@core-owners','common':'@core-owners','ir':'@ir-owners','fabric':'@fabric-owners','foundry':'@foundry-owners','scientist':'@scientist-owners','calibration':'@scientist-owners','ddm':'@scientist-owners','berl':'@scientist-owners','data_forge':'@data-forge-owners','runtime':'@runtime-owners','lex':'@lex-owners','scholar':'@scholar-owners'}
+ e_prefixes=('src/polisyos/calibration/','src/polisyos/ddm/','src/polisyos/foundry/uncertainty/','src/polisyos/foundry/calibration/','src/polisyos/scientist/methods/doe/','src/polisyos/scientist/methods/backtesting/')
+ e_exact={'src/polisyos/scientist/methods/autotune/sensitivity_bridge.py','src/polisyos/scientist/methods/search/sensitivity_adapter.py','src/polisyos/scientist/nodes/builtins/evaluate/welfare_score.py','src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','src/polisyos/foundry/methods/catalog/econometrics/advanced.py','src/polisyos/ir/analytics/posterior_summary.py','src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py'}
+ rows=[]
+ for typ,names in [('regression',data['regressions']),('new_unresolved_by_construction',data['new_unresolved_by_construction'])]:
+  for name in names:
+   record=data['mechanisms'][name];path=record['path'];root=path.split('/')[2] if path.startswith('src/polisyos/') else None
+   e=(path.startswith(e_prefixes) or path in e_exact)
+   writer='E family/consumer path; exact original slice footprint required for individual attribution' if e else 'No E writer attribution from module/path alone'
+   if path=='src/polisyos/ir/analytics/posterior_summary.py':writer='E scoped B201/B202 author lease a0ac10 + tracked ratification cdaea; general IR facade owner remains @ir-owners'
+   elif path=='src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py':writer='E scoped native posterior consumer companion in final700 full footprint'
+   if path=='src/polisyos/runtime/quality/generation_cycle.py' or path=='src/polisyos/runtime/http/services/control/run_lifecycle.py':writer='A canonical writer'
+   elif path.startswith('src/polisyos/fabric/data_plane/streaming'):writer='C canonical writer'
+   elif path.startswith('src/polisyos/scientist/methods/search/') and path not in e_exact:writer='D default Search canonical writer'
+   rows.append({'kind':typ,'symbol':name,'exact_static_record':record,'canonical_owner':logical.get(root,'@tools-owners' if path.startswith('tools/') else '@platform-owners'),'enforced_reviewer':'@DenisKopylov','E_related_path':e,'writer_assignment':writer,'P41':'not_established; direct AST delta is not exact full base command replay/runtime attribution','required_next_result':'Map actual source caller and persisted consumer witness on immutable candidate; direct-lambda/DI/reflection/lazy-facade boundaries remain explicitly unmeasured. No dummy calls, deferrals, or widened baselines.'})
+ result={'schema':'policyos.e02.static_invocation_frozen_output_review.v1','created_at':datetime.now(timezone.utc).isoformat(),'candidate':CAND,'tree':completed['candidate_tree_sha'],'comparison_base':BASE,'canonical_check_receipt':reference(check),'canonical_stdout':reference(stdout),'complete_raw_receipt':reference(raw),'raw_publication':'Complete raw graph remains ignored; commit moderate complete exceptional records and exact raw/input/source refs, not a repeated large dump','input_census':reference(S/'static-input-census-64d.json'),'denominator':data['denominator'],'input_reconciliation':'PASS exact complete current/base source mappings match independent pre-check census, including tests and script roots','canonical_outcome':'FAIL' if data['regressions'] else 'UNRESOLVED' if data['new_unresolved_by_construction'] else 'PASS bounded static selector','complete_verdict':True,'runtime_invocation_established':False,'exit_code':completed['exit_code'],'counts':{'mechanisms':len(data['mechanisms']),'static_regressions':len(data['regressions']),'new_unresolved':len(data['new_unresolved_by_construction']),'all_unresolved':len(data['unresolved_by_construction']),'unresolved_receiver_calls':len(data['unresolved_receiver_calls']),'roots':data['root_count'],'E_related_exceptional_rows':sum(r['E_related_path'] for r in rows)},'exceptional_rows':rows,'by_canonical_owner':dict(Counter(r['canonical_owner'] for r in rows)),'status_census':dict(Counter(r['status'] for r in data['mechanisms'].values())),'canonical_scope':{k:data[k] for k in ('coverage','measured','unmeasured','summary','uninvoked_meaning','predicate_provenance','limitations')},'additional_actual_facade_limit':'Canonical lazy API string maps are runtime bindings and not resolved as direct callable routes by this static instrument; identity/native CAS consumer witnesses remain separate. A static FAIL is not proof of no runtime execution; a static PASS does not establish persisted property or gate authority.','P41':'not_established: current instrument computes base AST graph, not exact slice-base CLI/environment/generator/complete-check replay. No inherited global gate waiver.','finding_outcome':'No finding closure from proxy rows; preserve owner accepted decisions and historical ledger separately.'}
+(S/'static-output-review-64d.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({k:v for k,v in result.items() if k!='exceptional_rows'},indent=2))
+print(json.dumps({'complete_moderate_review':reference(S/'static-output-review-64d.json')}))

@@ -1,0 +1,241 @@
+{
+  "schema": "policyos.e02.E.required_frontend_retry_preparation.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "original_interruption": {
+    "receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.json",
+      "bytes": 8224,
+      "sha256": "7aedac4f6cf783fda0f85134a9d988654c0e4ea8873193ba2bc87d7de1615dfe"
+    },
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.stdout.txt",
+      "bytes": 3873,
+      "sha256": "c60251d1c698135b290e92b1eda70cc8f66c36865285c50d231874d371997bdb"
+    },
+    "outcome": "FAIL",
+    "exit_code": 130,
+    "counts": null,
+    "interpretation": "Root SIGINT of owned stalled controller; no individual case FAIL/ERROR inferred"
+  },
+  "checks": [
+    {
+      "name": "original_storybook_native_interruption_preserved",
+      "passed": true
+    },
+    {
+      "name": "original_complete_stdout_binding",
+      "passed": true
+    },
+    {
+      "name": "root_exact_source_and_tree",
+      "passed": true
+    },
+    {
+      "name": "actual_original_full_storybook_body",
+      "passed": true
+    },
+    {
+      "name": "actual_full_a11y_body_preserved",
+      "passed": true
+    },
+    {
+      "name": "actual_native_parse_and_resolver_execute",
+      "passed": true
+    },
+    {
+      "name": "full_unfiltered_native_selector",
+      "passed": true
+    },
+    {
+      "name": "actual_native_external_screenshot_path",
+      "passed": true
+    },
+    {
+      "name": "unchanged_timeout_and_parallelism_options",
+      "passed": true
+    },
+    {
+      "name": "detailed_and_persisted_native_reporters",
+      "passed": true
+    }
+  ],
+  "native_support": {
+    "parsed": {
+      "filter": [],
+      "options": {
+        "--": [],
+        "color": true,
+        "config": "vitest.storybook.config.ts",
+        "browser": {
+          "screenshotDirectory": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/screenshots"
+        },
+        "reporter": [
+          "verbose",
+          "junit"
+        ],
+        "outputFile": {
+          "junit": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml"
+        },
+        "c": "vitest.storybook.config.ts",
+        "run": true
+      }
+    },
+    "native_resolver_literal": "function resolveScreenshotPath(testPath, name, config, customPath) {\n\tif (customPath) {\n\t\treturn resolve(dirname(testPath), customPath);\n\t}\n\tconst dir = dirname(testPath);\n\tconst base = basename(testPath);\n\tif (config.browser.screenshotDirectory) {\n\t\treturn resolve(config.browser.screenshotDirectory, relative(config.root, dir), base, name);\n\t}\n\treturn resolve(dir, \"__screenshots__\", base, name);\n}",
+    "external": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/screenshots/src/exact.test.ts/control.png",
+    "without_override": "/native/source/src/__screenshots__/exact.test.ts/control.png",
+    "external_expected": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/screenshots/src/exact.test.ts/control.png",
+    "effectively_removed_override_diverges": true
+  },
+  "jobs_in_serial_order": [
+    {
+      "name": "storybook-full-native-retry",
+      "command": [
+        "npm",
+        "exec",
+        "--",
+        "vitest",
+        "run",
+        "--config",
+        "vitest.storybook.config.ts",
+        "--browser.screenshotDirectory=/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/screenshots",
+        "--reporter=verbose",
+        "--reporter=junit",
+        "--outputFile.junit=/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml"
+      ],
+      "capture_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--candidate",
+        "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "--cwd",
+        "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/checks/storybook-full-native-retry",
+        "--name",
+        "storybook-full-native-retry",
+        "--junit",
+        "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml",
+        "--",
+        "npm",
+        "exec",
+        "--",
+        "vitest",
+        "run",
+        "--config",
+        "vitest.storybook.config.ts",
+        "--browser.screenshotDirectory=/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/screenshots",
+        "--reporter=verbose",
+        "--reporter=junit",
+        "--outputFile.junit=/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+      "environment_override": {
+        "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/environment-tmp"
+      },
+      "native_junit": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml",
+      "check_outcome": "UNRUN preparation only; launch after lease CLOSED",
+      "screenshot_directory": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/screenshots",
+      "cache_policy": "Existing source-configured distinct cache retained; no clearing/deletion or new runtime environment"
+    },
+    {
+      "name": "a11y-full-native-retry",
+      "command": [
+        "npm",
+        "run",
+        "test:a11y"
+      ],
+      "capture_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--candidate",
+        "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "--cwd",
+        "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/checks/a11y-full-native-retry",
+        "--name",
+        "a11y-full-native-retry",
+        "--",
+        "npm",
+        "run",
+        "test:a11y"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+      "environment_override": {
+        "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/environment-tmp"
+      },
+      "native_junit": null,
+      "check_outcome": "UNRUN preparation only; launch after lease CLOSED",
+      "screenshot_directory": "Existing configured native a11y output behavior; no source/config mutation",
+      "cache_policy": "Existing source-configured distinct cache retained; no clearing/deletion or new runtime environment"
+    }
+  ],
+  "source_inputs": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/package.json",
+      "bytes": 11599,
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/apps/runtime-dashboard/package.json"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/vitest.storybook.config.ts",
+      "bytes": 1325,
+      "sha256": "61e57d5c2097bcc9a1fb4dcd0df3ff067ef61ee4ad86d5a7a16d42ff3441a294",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/apps/runtime-dashboard/vitest.storybook.config.ts"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/vitest.a11y.config.ts",
+      "bytes": 243,
+      "sha256": "32522b0b53bcd76633c8429f3e6b35163aa6910e7d6939c3df05742375f9e392",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/apps/runtime-dashboard/vitest.a11y.config.ts"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/playwright.config.ts",
+      "bytes": 2819,
+      "sha256": "04e27f939d43268b2c678bc205c941c0cf1ef719e430bdb65ecf6d197d844927",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/apps/runtime-dashboard/playwright.config.ts"
+    }
+  ],
+  "installed_native_inputs": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/dist/chunks/cac.DJJmV0dT.js",
+      "bytes": 96006,
+      "sha256": "23d05ff50f3e0617575a8af46a9dd5ed106bbcd90109da702e3addc620b07ecd"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@vitest+browser@4.1.5_msw@2.14.2_@types+node@24.12.2_typescript@5.9.3__vite@7.3.2_@type_f5d5d2c263159c828c572e5c254b33ed/node_modules/@vitest/browser/dist/index.js",
+      "bytes": 271042,
+      "sha256": "6ded07bd8a69f9e923fe01982ba7452d14c7aa158dad31383ffc01f4af3b3c20"
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "node_version": "v24.19.0"
+  },
+  "admission": {
+    "shared_snapshot_lease": "imports_r4 ACTIVE at preparation; launch refused until explicit CLOSED",
+    "browser_prior_controller": "Original terminal and ps inspection shows no survivor; fresh pre-launch check required",
+    "a11y_cache_serialization": "After Storybook closes and no existing confidence/browser/base controller writer; exact full npm script preserves all five native stages",
+    "production_data_or_source_edits": false,
+    "worker_caps_timeout_changes_exclusions": false,
+    "cleanup": "No old cache/data deleted; isolated repeatable outputs remain listed for later Trash only"
+  },
+  "finding_closure": false
+}

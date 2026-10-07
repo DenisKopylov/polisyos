@@ -1,0 +1,2054 @@
+{
+  "schema": "policyos.e02.cloud-cleanup-admission.v1",
+  "authorization_verbatim": "Важное уточненние. Работая в облаке ти можешь если требуеться удалять уже не нужние результати тестов или созданние оркежунния. Деректива об работе через корзину отоситься лишь к локлаьной работе. В остальном продолжай работу",
+  "scope": "Cloud-only exact environment and uv-cache directories; no checkout/Git/source/outputs/root environment/current wave/successor removal",
+  "frozen_candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_inode_records": [
+    {
+      "path": "/tmp/polisyos_generated_freshness_2qqaelx2/environment",
+      "device": 33,
+      "inode": 525583,
+      "mtime": 1791292464.1445909
+    },
+    {
+      "path": "/tmp/polisyos_generated_freshness_2qqaelx2/uv-cache",
+      "device": 33,
+      "inode": 525564,
+      "mtime": 1791292481.7946956
+    },
+    {
+      "path": "/tmp/polisyos_generated_freshness__mxs8xu3/environment",
+      "device": 33,
+      "inode": 446273,
+      "mtime": 1791291990.4109807
+    },
+    {
+      "path": "/tmp/polisyos_generated_freshness__mxs8xu3/uv-cache",
+      "device": 33,
+      "inode": 446254,
+      "mtime": 1791292000.8926053
+    }
+  ],
+  "environment_identities": [
+    {
+      "root": "/tmp/polisyos_generated_freshness_2qqaelx2",
+      "pyvenv": {
+        "path": "/tmp/polisyos_generated_freshness_2qqaelx2/environment/pyvenv.cfg",
+        "bytes": 171,
+        "sha256": "0bcca50ddc9a1c2d4030a14260b87b767f200493e82280bafcacc58617784ece"
+      },
+      "pyvenv_text": "home = /home/agent/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin\nimplementation = CPython\nuv = 0.12.19\nversion_info = 3.14\ninclude-system-site-packages = false\n",
+      "preserved_input_files": [
+        {
+          "path": "/tmp/polisyos_generated_freshness_2qqaelx2/source/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "/tmp/polisyos_generated_freshness_2qqaelx2/source/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "preserved_source_directory": "/tmp/polisyos_generated_freshness_2qqaelx2/source",
+      "preserved_outputs_directory": "/tmp/polisyos_generated_freshness_2qqaelx2/outputs",
+      "packages": [
+        {
+          "dist_info": "about_time-4.2.1.dist-info",
+          "name": "about-time",
+          "version": "4.2.1",
+          "metadata_sha256": "8b55a1b84aee763d9df253a213bfb64f12698e89916faff2a92cf254f85be589"
+        },
+        {
+          "dist_info": "absl_py-2.3.1.dist-info",
+          "name": "absl-py",
+          "version": "2.3.1",
+          "metadata_sha256": "d87652db8be4987c3b190a9459c0c4fc57555e35b5760552ee958f75627962f8"
+        },
+        {
+          "dist_info": "aiohappyeyeballs-2.6.1.dist-info",
+          "name": "aiohappyeyeballs",
+          "version": "2.6.1",
+          "metadata_sha256": "3525e5849c007e2dfcd1e123028ec14383ff4d56a5f718b4aa4c995a26ccb153"
+        },
+        {
+          "dist_info": "aiohttp-3.13.3.dist-info",
+          "name": "aiohttp",
+          "version": "3.13.3",
+          "metadata_sha256": "09044e6424ad868f9e6fbc62148b80ce3df426eba9114fe31e96031621bf1e13"
+        },
+        {
+          "dist_info": "aiosignal-1.4.0.dist-info",
+          "name": "aiosignal",
+          "version": "1.4.0",
+          "metadata_sha256": "09247ef1da8bc696728d47130e702e4307f6f7d101d6c485bff9f3a71ce7008d"
+        },
+        {
+          "dist_info": "alive_progress-3.3.0.dist-info",
+          "name": "alive-progress",
+          "version": "3.3.0",
+          "metadata_sha256": "dbcfb98d0c5f4ead2c11595e89a3ca7bdd047a0dcd68f7aacccd35629bc2a3b6"
+        },
+        {
+          "dist_info": "annotated_doc-0.0.4.dist-info",
+          "name": "annotated-doc",
+          "version": "0.0.4",
+          "metadata_sha256": "22b9b9289b9adf7758daa28a02327e3a129a5415487f01467a3fdd49edd9d535"
+        },
+        {
+          "dist_info": "annotated_types-0.7.0.dist-info",
+          "name": "annotated-types",
+          "version": "0.7.0",
+          "metadata_sha256": "ee5b6ac64b09274c026051813484025939564067801f485115d9cadc207cf791"
+        },
+        {
+          "dist_info": "anyio-4.12.0.dist-info",
+          "name": "anyio",
+          "version": "4.12.0",
+          "metadata_sha256": "aed7b6fc2da160a3fdfe254c158a204b3071747073c18e394b54eb2e206cc5d9"
+        },
+        {
+          "dist_info": "arrow-1.4.0.dist-info",
+          "name": "arrow",
+          "version": "1.4.0",
+          "metadata_sha256": "36407a40cd6a7f3147f8c8ab802d516fb4c152d7e2aabab52718ff3407a1706d"
+        },
+        {
+          "dist_info": "attrs-25.4.0.dist-info",
+          "name": "attrs",
+          "version": "25.4.0",
+          "metadata_sha256": "d917abc63eda81c311c62c1d92dea50b682ea870269062821f5de75962bb6684"
+        },
+        {
+          "dist_info": "autograd-1.8.0.dist-info",
+          "name": "autograd",
+          "version": "1.8.0",
+          "metadata_sha256": "289596b340e398b7d30d3e8b6fa56212d1cc6657afc07986745ac5664398da50"
+        },
+        {
+          "dist_info": "autograd_gamma-0.5.0.dist-info",
+          "name": "autograd-gamma",
+          "version": "0.5.0",
+          "metadata_sha256": "8f347153fee4985c64350c43c93d2dbcf75c3b3679dc7c29219f2203cc2acc1c"
+        },
+        {
+          "dist_info": "certifi-2025.11.12.dist-info",
+          "name": "certifi",
+          "version": "2025.11.12",
+          "metadata_sha256": "fc9a6b1aeff595649d1e5aee44129ca2b5e7adfbc10e1bd7ffa291afc1d06cb7"
+        },
+        {
+          "dist_info": "cffi-2.0.0.dist-info",
+          "name": "cffi",
+          "version": "2.0.0",
+          "metadata_sha256": "b98ce7e3417af089bc12d5c73412d9b3b1683ccf8ec73c986c35ac8c9be1ba39"
+        },
+        {
+          "dist_info": "charset_normalizer-3.4.4.dist-info",
+          "name": "charset-normalizer",
+          "version": "3.4.4",
+          "metadata_sha256": "8d5b94141b62f1d6afd7d60bbd68acb138a155d176a33518e0a28cc3b8dd9014"
+        },
+        {
+          "dist_info": "chex-0.1.91.dist-info",
+          "name": "chex",
+          "version": "0.1.91",
+          "metadata_sha256": "e0cc8ff784ae62a2a18d0876bb0c3d1bdc21bb0726e001de644942f69b2eaabe"
+        },
+        {
+          "dist_info": "click-8.3.1.dist-info",
+          "name": "click",
+          "version": "8.3.1",
+          "metadata_sha256": "5d9781acc004d2085313cf128dfad20ee4b2342a413e9971251d6d6f00fda198"
+        },
+        {
+          "dist_info": "cma-4.4.1.dist-info",
+          "name": "cma",
+          "version": "4.4.1",
+          "metadata_sha256": "b8ba42358d472b22c9b5173cbaaa325b945b929cb1df852a74413c8c407a77ef"
+        },
+        {
+          "dist_info": "contourpy-1.3.3.dist-info",
+          "name": "contourpy",
+          "version": "1.3.3",
+          "metadata_sha256": "c43cef86baef09cff9c77975e578fa8cca0c9454df40dc176938b499a63de54a"
+        },
+        {
+          "dist_info": "cryptography-46.0.4.dist-info",
+          "name": "cryptography",
+          "version": "46.0.4",
+          "metadata_sha256": "23772263d659f0d86ba11a8de47e7e437df320dc4c531054aec18097f35cfc62"
+        },
+        {
+          "dist_info": "cycler-0.12.1.dist-info",
+          "name": "cycler",
+          "version": "0.12.1",
+          "metadata_sha256": "23289e19b76f1e01394227696e6af2b6cd1ce79e89731209bf9195148b18ed36"
+        },
+        {
+          "dist_info": "defusedxml-0.7.1.dist-info",
+          "name": "defusedxml",
+          "version": "0.7.1",
+          "metadata_sha256": "369d3cef64870daf849fba711cb8d05a7efe3c8d9ab0f763adc34079fe378bb1"
+        },
+        {
+          "dist_info": "deprecated-1.3.1.dist-info",
+          "name": "Deprecated",
+          "version": "1.3.1",
+          "metadata_sha256": "409767ac23878c1c694888ce4acc43dab6b37efa2b40499567fb5c7d9dce5852"
+        },
+        {
+          "dist_info": "diffrax-0.7.0.dist-info",
+          "name": "diffrax",
+          "version": "0.7.0",
+          "metadata_sha256": "0d64bea0fde348b60d5e116e49b1a362d57c7b3853e78f71b163991d88f44eff"
+        },
+        {
+          "dist_info": "distro-1.9.0.dist-info",
+          "name": "distro",
+          "version": "1.9.0",
+          "metadata_sha256": "31632ab2de5591131091b3397bdcdf797718579d85a75186f06839dd0c09e81d"
+        },
+        {
+          "dist_info": "duckdb-1.4.3.dist-info",
+          "name": "duckdb",
+          "version": "1.4.3",
+          "metadata_sha256": "341eb461699e7fee4d4e319d8d3912b2f080a32851bb60d4d31d3144e18e5e72"
+        },
+        {
+          "dist_info": "equinox-0.13.2.dist-info",
+          "name": "equinox",
+          "version": "0.13.2",
+          "metadata_sha256": "66340d7df80761d4e3d87dd595eb3e997ab2e36ab9de8a4a1042f85ba8a0f519"
+        },
+        {
+          "dist_info": "et_xmlfile-2.0.0.dist-info",
+          "name": "et_xmlfile",
+          "version": "2.0.0",
+          "metadata_sha256": "0e97d7ea909ed0fbe03d88bc8b6f58677cee1b07bd3353ce361cd2405915204e"
+        },
+        {
+          "dist_info": "execnet-2.1.2.dist-info",
+          "name": "execnet",
+          "version": "2.1.2",
+          "metadata_sha256": "7343015d62b2eaa1841ec06a7c7c132aeb482921f73ab6e0fd18331495684c61"
+        },
+        {
+          "dist_info": "fastapi-0.128.6.dist-info",
+          "name": "fastapi",
+          "version": "0.128.6",
+          "metadata_sha256": "b5a82d1fa8dac5bcbe37750e06d369f47bac813b2679a32ca5d040101b419507"
+        },
+        {
+          "dist_info": "fonttools-4.61.1.dist-info",
+          "name": "fonttools",
+          "version": "4.61.1",
+          "metadata_sha256": "b05d21d549792a841a9b870d8dc0ce5c9d43d99d67621ff1379b18be8a7c3940"
+        },
+        {
+          "dist_info": "formulaic-1.2.1.dist-info",
+          "name": "formulaic",
+          "version": "1.2.1",
+          "metadata_sha256": "b1d20a7d975579cf46455425c38696a3498db9a433dab1d0c13fcb1c970c2fab"
+        },
+        {
+          "dist_info": "fqdn-1.5.1.dist-info",
+          "name": "fqdn",
+          "version": "1.5.1",
+          "metadata_sha256": "b8f4f402018d1dc56fb20d41eb2c39b9f8faca17f6e8080fbe05abdd0be8b8fb"
+        },
+        {
+          "dist_info": "frozenlist-1.8.0.dist-info",
+          "name": "frozenlist",
+          "version": "1.8.0",
+          "metadata_sha256": "946c22dc9f7e2c76f2d698f00a4306dbe49a820e2b3f1a0e22fe5286cbec35f1"
+        },
+        {
+          "dist_info": "googleapis_common_protos-1.72.0.dist-info",
+          "name": "googleapis-common-protos",
+          "version": "1.72.0",
+          "metadata_sha256": "68cf81656989a003d414a29c77bcd190ce5fb76b34f5e39dd1b3cbb1b8f4a46d"
+        },
+        {
+          "dist_info": "graphemeu-0.7.2.dist-info",
+          "name": "graphemeu",
+          "version": "0.7.2",
+          "metadata_sha256": "a282764e80221fb3e11d74dd4de69e94bbf1bc647f7985fc44804b269f41c3ee"
+        },
+        {
+          "dist_info": "grpcio-1.78.0.dist-info",
+          "name": "grpcio",
+          "version": "1.78.0",
+          "metadata_sha256": "96c9450d16d5e0475287864889d8fb4c42374fdc1c99a77a8cd13c3ddca10db4"
+        },
+        {
+          "dist_info": "h11-0.16.0.dist-info",
+          "name": "h11",
+          "version": "0.16.0",
+          "metadata_sha256": "28f326098ac09fcba79b8f180f96087c841fe2456215cb7b872a9c7d5cd19d64"
+        },
+        {
+          "dist_info": "httpcore-1.0.9.dist-info",
+          "name": "httpcore",
+          "version": "1.0.9",
+          "metadata_sha256": "fe2d4fda6199128978779e0cf27f3c045c531863fcdd987eacc74f3a18d41c21"
+        },
+        {
+          "dist_info": "httptools-0.7.1.dist-info",
+          "name": "httptools",
+          "version": "0.7.1",
+          "metadata_sha256": "28203e137533b97c1ac002b264ebe2834c055a18af76e91fba0a5907a8ff3c21"
+        },
+        {
+          "dist_info": "httpx-0.28.1.dist-info",
+          "name": "httpx",
+          "version": "0.28.1",
+          "metadata_sha256": "febb9b0f8f3e80d57c8199c304f35c4336e8581d1d18d7983c92766b82793b25"
+        },
+        {
+          "dist_info": "hypothesis-6.151.2.dist-info",
+          "name": "hypothesis",
+          "version": "6.151.2",
+          "metadata_sha256": "b52c86be9d96a19da96f880d74c7518b2f68b54a49e68e4679fd7fe38162d780"
+        },
+        {
+          "dist_info": "idna-3.11.dist-info",
+          "name": "idna",
+          "version": "3.11",
+          "metadata_sha256": "7c2c12c30f52ba237c4c81e59454804944025b9e6102cf1dcca9ebf5168411b0"
+        },
+        {
+          "dist_info": "importlib_metadata-8.7.1.dist-info",
+          "name": "importlib_metadata",
+          "version": "8.7.1",
+          "metadata_sha256": "a3e38b9ee4326289d4864704f30e299ee769e2309ce9f4a75f0de1a50ad0a356"
+        },
+        {
+          "dist_info": "iniconfig-2.3.0.dist-info",
+          "name": "iniconfig",
+          "version": "2.3.0",
+          "metadata_sha256": "40d773f84e4e112f495bbf4f1be9cbd2d456c0aeb6ef5311f75d1bf322f2165b"
+        },
+        {
+          "dist_info": "interface_meta-1.3.0.dist-info",
+          "name": "interface-meta",
+          "version": "1.3.0",
+          "metadata_sha256": "7ad837c10d271ca54d58ff46b5038db1d75043f7a751743386afe59265316fb3"
+        },
+        {
+          "dist_info": "isoduration-20.11.0.dist-info",
+          "name": "isoduration",
+          "version": "20.11.0",
+          "metadata_sha256": "440045201154827793cad24bafbd54deca6800819259e3b17f6edbc06ca7b56b"
+        },
+        {
+          "dist_info": "jax-0.8.2.dist-info",
+          "name": "jax",
+          "version": "0.8.2",
+          "metadata_sha256": "814bff75113dc832e236125fd9ec53390fec2d6e4494c17cb92d69c1b9509f8c"
+        },
+        {
+          "dist_info": "jaxlib-0.8.2.dist-info",
+          "name": "jaxlib",
+          "version": "0.8.2",
+          "metadata_sha256": "83b52e6b98bb35a5dfb4a760174382eb7946bf67ec782f392d238aa034384960"
+        },
+        {
+          "dist_info": "jaxtyping-0.3.4.dist-info",
+          "name": "jaxtyping",
+          "version": "0.3.4",
+          "metadata_sha256": "ab20735002f63b12ea373154c296a6138b51656c0b962657f02604399d9abf39"
+        },
+        {
+          "dist_info": "jiter-0.13.0.dist-info",
+          "name": "jiter",
+          "version": "0.13.0",
+          "metadata_sha256": "0f158c4695a110f6fc14da364abccb42ff25160145b2e5b9fe35f9ae5aef9029"
+        },
+        {
+          "dist_info": "joblib-1.5.3.dist-info",
+          "name": "joblib",
+          "version": "1.5.3",
+          "metadata_sha256": "cee9c60896ae4e7a965a840fbde50d111d2f8018f61201d1ed2e9fc3dd4883e6"
+        },
+        {
+          "dist_info": "jsonpatch-1.33.dist-info",
+          "name": "jsonpatch",
+          "version": "1.33",
+          "metadata_sha256": "06f32bbb4669267d84a82bdaf5fc0dd4d861d0da006b2af5ef598259a66f7a29"
+        },
+        {
+          "dist_info": "jsonpointer-3.0.0.dist-info",
+          "name": "jsonpointer",
+          "version": "3.0.0",
+          "metadata_sha256": "9bc135c616e4a8076fb1930123abf2d3ad702d5e30a9c99b4ba8abc8509680b2"
+        },
+        {
+          "dist_info": "jsonschema-4.25.1.dist-info",
+          "name": "jsonschema",
+          "version": "4.25.1",
+          "metadata_sha256": "31f83c1579e46e1af62269cefa5d83534ef155f3ee21914f7881bbd544bc125c"
+        },
+        {
+          "dist_info": "jsonschema_specifications-2025.9.1.dist-info",
+          "name": "jsonschema-specifications",
+          "version": "2025.9.1",
+          "metadata_sha256": "35abd41757f32b4ea24756920ded47b70173d77cbc052a5a6d3ab583b2e8d89d"
+        },
+        {
+          "dist_info": "kiwisolver-1.4.9.dist-info",
+          "name": "kiwisolver",
+          "version": "1.4.9",
+          "metadata_sha256": "cad34a37b5cb66cfa1b9676f33721037ae2d850b9b0c71377478a1d6bf0c7d40"
+        },
+        {
+          "dist_info": "langchain-1.2.0.dist-info",
+          "name": "langchain",
+          "version": "1.2.0",
+          "metadata_sha256": "298bb89c64f53a5b7268bb1eaefcdbadf15d68806451cc423cee57308dc35e07"
+        },
+        {
+          "dist_info": "langchain_core-1.2.6.dist-info",
+          "name": "langchain-core",
+          "version": "1.2.6",
+          "metadata_sha256": "a4487544e79769da4e9a40983cdd5d0db0fa5eed8f0e4f7577f304c532cfee67"
+        },
+        {
+          "dist_info": "langgraph-1.0.5.dist-info",
+          "name": "langgraph",
+          "version": "1.0.5",
+          "metadata_sha256": "c3987d421a1ddaec1d5a13bf8f70911bbeebbc8b1e895d992651d501f5a138a5"
+        },
+        {
+          "dist_info": "langgraph_checkpoint-3.0.1.dist-info",
+          "name": "langgraph-checkpoint",
+          "version": "3.0.1",
+          "metadata_sha256": "a697b6e2bbdb8d9d49095beec4d27f3ee96672d08931ce0386656bfe41e066c3"
+        },
+        {
+          "dist_info": "langgraph_prebuilt-1.0.5.dist-info",
+          "name": "langgraph-prebuilt",
+          "version": "1.0.5",
+          "metadata_sha256": "f518f0aa3250dfaa0cc279417b30f5ecdd6062f5ca07a6c0d78d22e833611861"
+        },
+        {
+          "dist_info": "langgraph_sdk-0.3.1.dist-info",
+          "name": "langgraph-sdk",
+          "version": "0.3.1",
+          "metadata_sha256": "19fbb96757dae2a7a5ebdcd39227921d491392be2e8ce34e46ceb1351c041533"
+        },
+        {
+          "dist_info": "langsmith-0.6.0.dist-info",
+          "name": "langsmith",
+          "version": "0.6.0",
+          "metadata_sha256": "3057352849c71a1bbd56ac77b22e827fa27d8ea799fb4c4c2b296dac85aaa8bf"
+        },
+        {
+          "dist_info": "lark-1.3.1.dist-info",
+          "name": "lark",
+          "version": "1.3.1",
+          "metadata_sha256": "730d3f056045a9096bc0a65e4faccae53fe7f3634055174d4b8245cd19cb4cde"
+        },
+        {
+          "dist_info": "libcst-1.8.6.dist-info",
+          "name": "libcst",
+          "version": "1.8.6",
+          "metadata_sha256": "be37335c7a37a051a24badd91414c181be4d17dc47f1dd32341447d5ba0e10dc"
+        },
+        {
+          "dist_info": "lifelines-0.30.3.dist-info",
+          "name": "lifelines",
+          "version": "0.30.3",
+          "metadata_sha256": "e3af0ce586ff7419f98986dc63892e5d691a21b213359d0f07d05a6b1810cb1c"
+        },
+        {
+          "dist_info": "lineax-0.0.8.dist-info",
+          "name": "lineax",
+          "version": "0.0.8",
+          "metadata_sha256": "e8256a4ccbc161a1776dcced7a3973d2c2769e7b8bfebae87ef1622ab6a7dca2"
+        },
+        {
+          "dist_info": "loguru-0.7.3.dist-info",
+          "name": "loguru",
+          "version": "0.7.3",
+          "metadata_sha256": "3a371f8b089014fdaee055edc440d448242847926ad67613621af402f9975fd9"
+        },
+        {
+          "dist_info": "mapie-1.3.0.dist-info",
+          "name": "MAPIE",
+          "version": "1.3.0",
+          "metadata_sha256": "deaa12cdc160200ec0bb5be167fceb5b55f4b03f25d8810d4f809a333b170cce"
+        },
+        {
+          "dist_info": "matplotlib-3.10.8.dist-info",
+          "name": "matplotlib",
+          "version": "3.10.8",
+          "metadata_sha256": "271a91ad64b587781e3ccc76add7e042acb74e1ee94081decf4dc382be91fa06"
+        },
+        {
+          "dist_info": "ml_dtypes-0.5.4.dist-info",
+          "name": "ml_dtypes",
+          "version": "0.5.4",
+          "metadata_sha256": "51b5729b48ce71736748bbf43d4f355485f42b44977d6016717bbd6b11b7dfc0"
+        },
+        {
+          "dist_info": "moocore-0.1.10.dist-info",
+          "name": "moocore",
+          "version": "0.1.10",
+          "metadata_sha256": "f9bae398ea7feb7db43f30701554e20ad2484bc20e3699e2d12df0c4ff686c90"
+        },
+        {
+          "dist_info": "multidict-6.7.1.dist-info",
+          "name": "multidict",
+          "version": "6.7.1",
+          "metadata_sha256": "4913fdaae936a309c29b89b98c2dbebd237203fb27ab9e68ae5e4ec17ba3024f"
+        },
+        {
+          "dist_info": "narwhals-2.14.0.dist-info",
+          "name": "narwhals",
+          "version": "2.14.0",
+          "metadata_sha256": "bbce01083f185af1b4c5a371bd0c2676a126f0302715e2b214532f9ff9917c39"
+        },
+        {
+          "dist_info": "numpy-2.3.5.dist-info",
+          "name": "numpy",
+          "version": "2.3.5",
+          "metadata_sha256": "6002f29765e5bc1a3be4a1b92ed56b64968a0fecba73e7f81cd536d0c40f4fa3"
+        },
+        {
+          "dist_info": "odfpy-1.4.1.dist-info",
+          "name": "odfpy",
+          "version": "1.4.1",
+          "metadata_sha256": "ba4c334f0d133180f965dc41451edb1ee5f0ac901efe127e7a110dba09f29054",
+          "direct_url_sha256": "dfefaddbbf4f7a35c2b4dd920f6941ba68f22bac9448cfa889fe615b60ae9958",
+          "direct_url_scheme": "file"
+        },
+        {
+          "dist_info": "openai-1.109.1.dist-info",
+          "name": "openai",
+          "version": "1.109.1",
+          "metadata_sha256": "c5db6f639ae950c59cfdec2a60f75ec554d5d5e5846616c6403171b090fb0d29"
+        },
+        {
+          "dist_info": "openpyxl-3.1.5.dist-info",
+          "name": "openpyxl",
+          "version": "3.1.5",
+          "metadata_sha256": "23f80ca9830dd89435da1710f26deda8f81e5409287e74540210c72627a4ad96"
+        },
+        {
+          "dist_info": "opentelemetry_api-1.39.1.dist-info",
+          "name": "opentelemetry-api",
+          "version": "1.39.1",
+          "metadata_sha256": "fc8fe7937002f224391d2038aac9ef231720bc9355d2ff9e23c36022ceb490d0"
+        },
+        {
+          "dist_info": "opentelemetry_exporter_otlp_proto_common-1.39.1.dist-info",
+          "name": "opentelemetry-exporter-otlp-proto-common",
+          "version": "1.39.1",
+          "metadata_sha256": "ba853ce1af19c6c31c41ae3382b609c34931789da68dcb1f4a7bf3bb0811053f"
+        },
+        {
+          "dist_info": "opentelemetry_exporter_otlp_proto_grpc-1.39.1.dist-info",
+          "name": "opentelemetry-exporter-otlp-proto-grpc",
+          "version": "1.39.1",
+          "metadata_sha256": "b50281cb7041efa486ea012b2962fd862b9d8390accdf94fa9ee82e059ea2206"
+        },
+        {
+          "dist_info": "opentelemetry_exporter_prometheus-0.60b1.dist-info",
+          "name": "opentelemetry-exporter-prometheus",
+          "version": "0.60b1",
+          "metadata_sha256": "bc099cdf6ea59c2ecabd467b1ea8b9370faef7b46d452f7f7dfe68c7c800f94c"
+        },
+        {
+          "dist_info": "opentelemetry_proto-1.39.1.dist-info",
+          "name": "opentelemetry-proto",
+          "version": "1.39.1",
+          "metadata_sha256": "f32e9c6cf36b1abb90e665eb54f8380c91408ccf524acb0bdb86527fd8eac196"
+        },
+        {
+          "dist_info": "opentelemetry_sdk-1.39.1.dist-info",
+          "name": "opentelemetry-sdk",
+          "version": "1.39.1",
+          "metadata_sha256": "319e763ac2456dae69175cfe2d2dd4a52e08a39bb5a036c6d642ae68647a0528"
+        },
+        {
+          "dist_info": "opentelemetry_semantic_conventions-0.60b1.dist-info",
+          "name": "opentelemetry-semantic-conventions",
+          "version": "0.60b1",
+          "metadata_sha256": "1f9cfd05276f64a388f13e2da6d432ab842bcb842f00728bc6478fcbca4c8b40"
+        },
+        {
+          "dist_info": "opt_einsum-3.4.0.dist-info",
+          "name": "opt_einsum",
+          "version": "3.4.0",
+          "metadata_sha256": "9f6791140c5e1be4f1b189365e6312d711a1eaaeb399b5dd6741f7a4bd99d03b"
+        },
+        {
+          "dist_info": "optax-0.2.6.dist-info",
+          "name": "optax",
+          "version": "0.2.6",
+          "metadata_sha256": "8c6cbfd1a7b7fa83a3c65ecce1394b2775076b40c7f95c6be587b78925bda834"
+        },
+        {
+          "dist_info": "optimistix-0.0.11.dist-info",
+          "name": "optimistix",
+          "version": "0.0.11",
+          "metadata_sha256": "289ff7ea61fb4cf85b51c7230cf5a1f1a9a5aaa005a60677612b1ed3ee856f4d"
+        },
+        {
+          "dist_info": "orjson-3.11.5.dist-info",
+          "name": "orjson",
+          "version": "3.11.5",
+          "metadata_sha256": "ece789bf575ed5bd036bfb519c23ed54a758a8376877be9ba6ccf0cbafee3ad9"
+        },
+        {
+          "dist_info": "ormsgpack-1.12.1.dist-info",
+          "name": "ormsgpack",
+          "version": "1.12.1",
+          "metadata_sha256": "bd56a7ad4f117532b27d1372ab7641b1c46ee8233a26eff577ee9d940adc238a"
+        },
+        {
+          "dist_info": "packaging-25.0.dist-info",
+          "name": "packaging",
+          "version": "25.0",
+          "metadata_sha256": "5b611a609c38fefc3d616bf45d20aec98fb7d53f245daca9e2c30fc85c7ac282"
+        },
+        {
+          "dist_info": "pandas-2.3.3.dist-info",
+          "name": "pandas",
+          "version": "2.3.3",
+          "metadata_sha256": "40ee953dc7ca155840b639a1881ff84578075187fce0ac20eeda55a7fa0d9a90"
+        },
+        {
+          "dist_info": "pillow-12.3.0.dist-info",
+          "name": "pillow",
+          "version": "12.3.0",
+          "metadata_sha256": "8fc07146cab33ef7582361dab6eac596d340b03ec648f18217da7894f73838c8"
+        },
+        {
+          "dist_info": "platformdirs-4.5.1.dist-info",
+          "name": "platformdirs",
+          "version": "4.5.1",
+          "metadata_sha256": "3a7ef90c694e34649fece11d27e88621cd6bc1344497e3e31e56d46bd423e928"
+        },
+        {
+          "dist_info": "pluggy-1.6.0.dist-info",
+          "name": "pluggy",
+          "version": "1.6.0",
+          "metadata_sha256": "7438c35ee25a095eb7416f84b461c2d74425c5e734ad54c3912453c65244e01c"
+        },
+        {
+          "dist_info": "policy_engine-0.1.0.dist-info",
+          "name": "policy-engine",
+          "version": "0.1.0",
+          "metadata_sha256": "9c60525985478039e536eb224db24baf07b777496ede5b8bcfe260ea87346ae3",
+          "direct_url_sha256": "ceed79057fb518a63d3825ecaf62266a34ecf3623b8d34731a70a2e16d8a8a04",
+          "direct_url_scheme": "file"
+        },
+        {
+          "dist_info": "prometheus_client-0.23.1.dist-info",
+          "name": "prometheus_client",
+          "version": "0.23.1",
+          "metadata_sha256": "22c3a8dba8da39b7dd5adab472c120af773c27c2ce0f697e64915f1e4ed3368e"
+        },
+        {
+          "dist_info": "propcache-0.4.1.dist-info",
+          "name": "propcache",
+          "version": "0.4.1",
+          "metadata_sha256": "fc23f3c52b336d5335cd053f47d91ff6316949e65ad1f1e3dfccd5284f4d6ece"
+        },
+        {
+          "dist_info": "protobuf-6.33.2.dist-info",
+          "name": "protobuf",
+          "version": "6.33.2",
+          "metadata_sha256": "ad469488c5773500cc7545ee5b923acfe53abcc1935328729e74e42e783725bd"
+        },
+        {
+          "dist_info": "py_cpuinfo-9.0.0.dist-info",
+          "name": "py-cpuinfo",
+          "version": "9.0.0",
+          "metadata_sha256": "ad115e96f84576861c5e75d760301b81d23143cfe25546b99541e01265379dc1"
+        },
+        {
+          "dist_info": "pyarrow-22.0.0.dist-info",
+          "name": "pyarrow",
+          "version": "22.0.0",
+          "metadata_sha256": "26d9e7d42b760b1d20e715eba938823f74e228e5ed49a36610d14e9eb7fa9191"
+        },
+        {
+          "dist_info": "pycparser-2.23.dist-info",
+          "name": "pycparser",
+          "version": "2.23",
+          "metadata_sha256": "a2c9a11ccc5ade7e6c3f0bf959e529cb23e79bbe9ea215d8199c8a1a659b3c57"
+        },
+        {
+          "dist_info": "pydantic-2.12.5.dist-info",
+          "name": "pydantic",
+          "version": "2.12.5",
+          "metadata_sha256": "a3ba23e895191fed69b8323cbcbcdc82984ca0b6a3cdc62c48a2341886a9c08d"
+        },
+        {
+          "dist_info": "pydantic_core-2.41.5.dist-info",
+          "name": "pydantic_core",
+          "version": "2.41.5",
+          "metadata_sha256": "09f83baa3202ec3da98a284a56afdf1ba69976e4af7172488887e5b2b20591a9"
+        },
+        {
+          "dist_info": "pydantic_settings-2.12.0.dist-info",
+          "name": "pydantic-settings",
+          "version": "2.12.0",
+          "metadata_sha256": "67003b9f7edd71a70129f07a3bd50a3bc1909dd07e2a2c0d9cf8c388455f6b98"
+        },
+        {
+          "dist_info": "pygments-2.19.2.dist-info",
+          "name": "Pygments",
+          "version": "2.19.2",
+          "metadata_sha256": "7ae100d67d67006c6479803dd835fcf47a9b59fac794441ea8e66aa7f5984d82"
+        },
+        {
+          "dist_info": "pyjwt-2.11.0.dist-info",
+          "name": "PyJWT",
+          "version": "2.11.0",
+          "metadata_sha256": "63bfb762fb37bb51c1662bb7fe7b4afc05c3184a23821bafb561da94aba11166"
+        },
+        {
+          "dist_info": "pymoo-0.6.1.6.dist-info",
+          "name": "pymoo",
+          "version": "0.6.1.6",
+          "metadata_sha256": "b1f0ef30c49f0447f2eb32cb39268c38c51a38a38b0acaa03714f9b87aca19d3"
+        },
+        {
+          "dist_info": "pyparsing-3.3.1.dist-info",
+          "name": "pyparsing",
+          "version": "3.3.1",
+          "metadata_sha256": "840b0b7efab238c3eb10b39ec552e39a9b96aa238d9504e92f77fb66c871304e"
+        },
+        {
+          "dist_info": "pypdf-6.7.4.dist-info",
+          "name": "pypdf",
+          "version": "6.7.4",
+          "metadata_sha256": "3f1492149ecdceabe63710e47f0c4cc8f9b29d4c4d69c8d77af7b88cc598a035"
+        },
+        {
+          "dist_info": "pytest-9.0.2.dist-info",
+          "name": "pytest",
+          "version": "9.0.2",
+          "metadata_sha256": "14131718cc1f40cfecb5eac338037029a519b6392876100afec1e949f023d1ed"
+        },
+        {
+          "dist_info": "pytest_asyncio-1.3.0.dist-info",
+          "name": "pytest-asyncio",
+          "version": "1.3.0",
+          "metadata_sha256": "68d7250fb7d8f0cde8b57ed6797c4eb9de74325d80c362fccfe55e57966981b9"
+        },
+        {
+          "dist_info": "pytest_benchmark-5.2.3.dist-info",
+          "name": "pytest-benchmark",
+          "version": "5.2.3",
+          "metadata_sha256": "7e919f653f12b790e5d3099de1c7fcdbeeafdd9a6c950ab38850321e635ccd88"
+        },
+        {
+          "dist_info": "pytest_xdist-3.8.0.dist-info",
+          "name": "pytest-xdist",
+          "version": "3.8.0",
+          "metadata_sha256": "298f16af52794d340c358fc2eb20b054a29db2922f22fea90a35b459ecbcc18f"
+        },
+        {
+          "dist_info": "python_dateutil-2.9.0.post0.dist-info",
+          "name": "python-dateutil",
+          "version": "2.9.0.post0",
+          "metadata_sha256": "a9d436da322be808332f98d88325998e87cb693a678a9969feb4cfad729a6e93"
+        },
+        {
+          "dist_info": "python_dotenv-1.2.1.dist-info",
+          "name": "python-dotenv",
+          "version": "1.2.1",
+          "metadata_sha256": "4c8d8ed1c978b8f51a3d2edc7f38f19d41920169dd4bfa8a2e80533f76fd0aa0"
+        },
+        {
+          "dist_info": "pytz-2025.2.dist-info",
+          "name": "pytz",
+          "version": "2025.2",
+          "metadata_sha256": "e620e4e1f9f1c8019619388d4da496eb02119a13f35aaad55f022694a3c81f6c"
+        },
+        {
+          "dist_info": "pyyaml-6.0.3.dist-info",
+          "name": "PyYAML",
+          "version": "6.0.3",
+          "metadata_sha256": "03c3b415ed38d09faedc49360e930769b40c58f68585e6de00e2e4916a858d34"
+        },
+        {
+          "dist_info": "rdflib-7.6.0.dist-info",
+          "name": "rdflib",
+          "version": "7.6.0",
+          "metadata_sha256": "29c569443738a45bfd85dd37865a038d7e19e5cb282dd3bd5f80f149d8d1f552"
+        },
+        {
+          "dist_info": "referencing-0.37.0.dist-info",
+          "name": "referencing",
+          "version": "0.37.0",
+          "metadata_sha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a"
+        },
+        {
+          "dist_info": "regex-2026.9.3.dist-info",
+          "name": "regex",
+          "version": "2026.9.3",
+          "metadata_sha256": "0c8021f2d6df603d2f6b1ebe179f9903f985506a0a522750e1f7587573e80aa2"
+        },
+        {
+          "dist_info": "requests-2.32.5.dist-info",
+          "name": "requests",
+          "version": "2.32.5",
+          "metadata_sha256": "65b5a08da81f4915513e760965ff14b7518f65b7bb3efe0dab364bbcc4d40cb0"
+        },
+        {
+          "dist_info": "requests_toolbelt-1.0.0.dist-info",
+          "name": "requests-toolbelt",
+          "version": "1.0.0",
+          "metadata_sha256": "fa52f26237cc8d148d25c5746fdca499a56d0e765e69095cc3564a07cce23967"
+        },
+        {
+          "dist_info": "rfc3339_validator-0.1.4.dist-info",
+          "name": "rfc3339-validator",
+          "version": "0.1.4",
+          "metadata_sha256": "ac4dc2cdea6a8b61c16babbf35c0e9fa6e22e45f1c0338e66e089108dde872d2"
+        },
+        {
+          "dist_info": "rfc3986_validator-0.1.1.dist-info",
+          "name": "rfc3986-validator",
+          "version": "0.1.1",
+          "metadata_sha256": "feddd8265433ba7be465e1649b486ec83c4c78f593f36284e7ae6d655cae163c"
+        },
+        {
+          "dist_info": "rfc3987_syntax-1.1.0.dist-info",
+          "name": "rfc3987-syntax",
+          "version": "1.1.0",
+          "metadata_sha256": "7a518ae5bb5685568b537061e8207a4dbba766ae785b16ad26d930ad3853cb0d"
+        },
+        {
+          "dist_info": "rpds_py-0.30.0.dist-info",
+          "name": "rpds-py",
+          "version": "0.30.0",
+          "metadata_sha256": "cc01d097ddb9c7e07a29c9553ee8dd35cf920e85fb574f7b0c23d68138a716bf"
+        },
+        {
+          "dist_info": "scikit_learn-1.8.0.dist-info",
+          "name": "scikit-learn",
+          "version": "1.8.0",
+          "metadata_sha256": "95a8f42f4170fc940a71fedfed4fd9353723eb44126130a971a072fe5305d967"
+        },
+        {
+          "dist_info": "scipy-1.16.3.dist-info",
+          "name": "scipy",
+          "version": "1.16.3",
+          "metadata_sha256": "a54602d0aa61fb25ac030b1d7b0faf0c8cfec508290d4d824198d6b43647ec1b"
+        },
+        {
+          "dist_info": "six-1.17.0.dist-info",
+          "name": "six",
+          "version": "1.17.0",
+          "metadata_sha256": "562042078c2752549f6d8a7c86dbc5dd708088a7be6d80672ec7b07100b72468"
+        },
+        {
+          "dist_info": "sniffio-1.3.1.dist-info",
+          "name": "sniffio",
+          "version": "1.3.1",
+          "metadata_sha256": "0b318b57098edeccf585e60a889a6b6a7b5c4086f3a9aa62eff76a1d3cee12d9"
+        },
+        {
+          "dist_info": "sortedcontainers-2.4.0.dist-info",
+          "name": "sortedcontainers",
+          "version": "2.4.0",
+          "metadata_sha256": "eedf115109e215001e904da0882851beae50b03c0b0161a8b9e74b7cfd679473"
+        },
+        {
+          "dist_info": "starlette-0.52.1.dist-info",
+          "name": "starlette",
+          "version": "0.52.1",
+          "metadata_sha256": "c0ddc5837cca966a170fdeefb924a0dbd08f1cb1f310da1046a39faaeed0c535"
+        },
+        {
+          "dist_info": "structlog-25.5.0.dist-info",
+          "name": "structlog",
+          "version": "25.5.0",
+          "metadata_sha256": "bec5f360bcf0eb40e207e72b9ec2c86f2a8df54028603fba2f29a9c040df95e8"
+        },
+        {
+          "dist_info": "tenacity-9.1.2.dist-info",
+          "name": "tenacity",
+          "version": "9.1.2",
+          "metadata_sha256": "d6f3caf72fc1ee40caf9135adf7b5d44a45100115b4ea92b80f19ed183b157a5"
+        },
+        {
+          "dist_info": "threadpoolctl-3.6.0.dist-info",
+          "name": "threadpoolctl",
+          "version": "3.6.0",
+          "metadata_sha256": "a45df8d07ea1883d772183a501d7d526076aa70dfcfddb276a2cbdc04def5341"
+        },
+        {
+          "dist_info": "tiktoken-0.12.0.dist-info",
+          "name": "tiktoken",
+          "version": "0.12.0",
+          "metadata_sha256": "d3b28e6ec8f09c47cb4d0fa8443d2f86b137670fa834c26a4e505b11e271b59f"
+        },
+        {
+          "dist_info": "toolz-1.1.0.dist-info",
+          "name": "toolz",
+          "version": "1.1.0",
+          "metadata_sha256": "24b01cee796d9d1b679bda1b5edc8306148aa76681fafc2028fef054da29250a"
+        },
+        {
+          "dist_info": "tqdm-4.67.3.dist-info",
+          "name": "tqdm",
+          "version": "4.67.3",
+          "metadata_sha256": "7c0e9a662c19095f339a4b761201eb06cff9c61fb9581535b2f96f44e718ed29"
+        },
+        {
+          "dist_info": "typing_extensions-4.15.0.dist-info",
+          "name": "typing_extensions",
+          "version": "4.15.0",
+          "metadata_sha256": "c138378fe8f18934ac99de060535c53ec6c13aeed65e94c32641da7ee3192a72"
+        },
+        {
+          "dist_info": "typing_inspection-0.4.2.dist-info",
+          "name": "typing-inspection",
+          "version": "0.4.2",
+          "metadata_sha256": "61096cd0bfe3c7040b6f98c22b02d190fe01936d0ff7616c5134fed02891953a"
+        },
+        {
+          "dist_info": "tzdata-2025.3.dist-info",
+          "name": "tzdata",
+          "version": "2025.3",
+          "metadata_sha256": "4225d7bb5592b2007f665b38624e93dbadd36413fbfcf3c1fa7cd80ae7b087f8"
+        },
+        {
+          "dist_info": "uri_template-1.3.0.dist-info",
+          "name": "uri-template",
+          "version": "1.3.0",
+          "metadata_sha256": "3a8c53a915e5755c13b09faa29a4211fcff0c6ee188a169fc02cc092d89f46bc"
+        },
+        {
+          "dist_info": "urllib3-2.6.2.dist-info",
+          "name": "urllib3",
+          "version": "2.6.2",
+          "metadata_sha256": "532da8b2c7b39b017e837451b0d9c946061a2ec4a9e04d4161e487166a731a53"
+        },
+        {
+          "dist_info": "uuid_utils-0.12.0.dist-info",
+          "name": "uuid_utils",
+          "version": "0.12.0",
+          "metadata_sha256": "7eedc4ebe254a43aa4dc4ccefb6d75bf6528a13f74db7e060b1a4c887e55fee4"
+        },
+        {
+          "dist_info": "uvicorn-0.40.0.dist-info",
+          "name": "uvicorn",
+          "version": "0.40.0",
+          "metadata_sha256": "94178891ae340d1cfa61949e6a14645246282d27ecf3b4c2fc50d77bb2031be2"
+        },
+        {
+          "dist_info": "uvloop-0.22.1.dist-info",
+          "name": "uvloop",
+          "version": "0.22.1",
+          "metadata_sha256": "7106328da9670776c358802971b7dc41c0b86ed3673bf9cc4c0d5e11ff2f3583"
+        },
+        {
+          "dist_info": "wadler_lindig-0.1.7.dist-info",
+          "name": "wadler_lindig",
+          "version": "0.1.7",
+          "metadata_sha256": "83659a4fe5e6a3a96abda2af32163a27769bb6e807e8babcd1fe37c54b87fa16"
+        },
+        {
+          "dist_info": "watchfiles-1.1.1.dist-info",
+          "name": "watchfiles",
+          "version": "1.1.1",
+          "metadata_sha256": "877e3062d4327b3698127f4641683ccf877d24256214b4f8be629dfe2a7a585f"
+        },
+        {
+          "dist_info": "webcolors-25.10.0.dist-info",
+          "name": "webcolors",
+          "version": "25.10.0",
+          "metadata_sha256": "53b0da874b2e90dd8f1ccaa9c75c41e8db9107eb2568fc7a4e605b71c955d099"
+        },
+        {
+          "dist_info": "websockets-16.0.dist-info",
+          "name": "websockets",
+          "version": "16.0",
+          "metadata_sha256": "25c0ef5a8f03552c39ba80c015b93d37c7c95ee449be7adc2d7541172063c0df"
+        },
+        {
+          "dist_info": "wrapt-2.0.1.dist-info",
+          "name": "wrapt",
+          "version": "2.0.1",
+          "metadata_sha256": "9dbb3322325cd2fb21fc35628fb6fd72de91f46d950b35534cf4a47b98a696fb"
+        },
+        {
+          "dist_info": "xlrd-2.0.2.dist-info",
+          "name": "xlrd",
+          "version": "2.0.2",
+          "metadata_sha256": "ae263dba4d616210bb2d709cd091ba453984314f79f8f50f44af864352656dec"
+        },
+        {
+          "dist_info": "xxhash-3.6.0.dist-info",
+          "name": "xxhash",
+          "version": "3.6.0",
+          "metadata_sha256": "9dcdbae3ea685db00dc0691d6f90ec6c1d74349658f97e5a4f55f9bdf183db21"
+        },
+        {
+          "dist_info": "yarl-1.22.0.dist-info",
+          "name": "yarl",
+          "version": "1.22.0",
+          "metadata_sha256": "8004c398c5d50b9ded9c4143c0570e775b242b914cf2424d6d8f061640910cb8"
+        },
+        {
+          "dist_info": "zipp-3.23.0.dist-info",
+          "name": "zipp",
+          "version": "3.23.0",
+          "metadata_sha256": "bdd67d4d16cf0bf3b893e7d18cd3d2d774adb82f37ed985bc7770c607226b35b"
+        },
+        {
+          "dist_info": "zstandard-0.25.0.dist-info",
+          "name": "zstandard",
+          "version": "0.25.0",
+          "metadata_sha256": "03d37736b26b9ae48451dd17026d93dffbd252fb708c1a2a9ae1be0c0966de92"
+        }
+      ],
+      "reproduce": "Use the preserved source/pyproject.toml and source/uv.lock with the recorded CPython/uv versions and a fresh environment; the canonical generated-artifact freshness producer admits dependencies from that lock. No source or deciding outputs are removed."
+    },
+    {
+      "root": "/tmp/polisyos_generated_freshness__mxs8xu3",
+      "pyvenv": {
+        "path": "/tmp/polisyos_generated_freshness__mxs8xu3/environment/pyvenv.cfg",
+        "bytes": 172,
+        "sha256": "fa50d782f906e6c260094256978cf924fc7b451c6103834e8150d3921beaffb1"
+      },
+      "pyvenv_text": "home = /home/agent/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin\nimplementation = CPython\nuv = 0.9.21\nversion_info = 3.14.7\ninclude-system-site-packages = false\n",
+      "preserved_input_files": [
+        {
+          "path": "/tmp/polisyos_generated_freshness__mxs8xu3/source/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        {
+          "path": "/tmp/polisyos_generated_freshness__mxs8xu3/source/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+        }
+      ],
+      "preserved_source_directory": "/tmp/polisyos_generated_freshness__mxs8xu3/source",
+      "preserved_outputs_directory": "/tmp/polisyos_generated_freshness__mxs8xu3/outputs",
+      "packages": [
+        {
+          "dist_info": "about_time-4.2.1.dist-info",
+          "name": "about-time",
+          "version": "4.2.1",
+          "metadata_sha256": "8b55a1b84aee763d9df253a213bfb64f12698e89916faff2a92cf254f85be589"
+        },
+        {
+          "dist_info": "absl_py-2.3.1.dist-info",
+          "name": "absl-py",
+          "version": "2.3.1",
+          "metadata_sha256": "d87652db8be4987c3b190a9459c0c4fc57555e35b5760552ee958f75627962f8"
+        },
+        {
+          "dist_info": "aiohappyeyeballs-2.6.1.dist-info",
+          "name": "aiohappyeyeballs",
+          "version": "2.6.1",
+          "metadata_sha256": "3525e5849c007e2dfcd1e123028ec14383ff4d56a5f718b4aa4c995a26ccb153"
+        },
+        {
+          "dist_info": "aiohttp-3.13.3.dist-info",
+          "name": "aiohttp",
+          "version": "3.13.3",
+          "metadata_sha256": "09044e6424ad868f9e6fbc62148b80ce3df426eba9114fe31e96031621bf1e13"
+        },
+        {
+          "dist_info": "aiosignal-1.4.0.dist-info",
+          "name": "aiosignal",
+          "version": "1.4.0",
+          "metadata_sha256": "09247ef1da8bc696728d47130e702e4307f6f7d101d6c485bff9f3a71ce7008d"
+        },
+        {
+          "dist_info": "alive_progress-3.3.0.dist-info",
+          "name": "alive-progress",
+          "version": "3.3.0",
+          "metadata_sha256": "dbcfb98d0c5f4ead2c11595e89a3ca7bdd047a0dcd68f7aacccd35629bc2a3b6"
+        },
+        {
+          "dist_info": "annotated_doc-0.0.4.dist-info",
+          "name": "annotated-doc",
+          "version": "0.0.4",
+          "metadata_sha256": "22b9b9289b9adf7758daa28a02327e3a129a5415487f01467a3fdd49edd9d535"
+        },
+        {
+          "dist_info": "annotated_types-0.7.0.dist-info",
+          "name": "annotated-types",
+          "version": "0.7.0",
+          "metadata_sha256": "ee5b6ac64b09274c026051813484025939564067801f485115d9cadc207cf791"
+        },
+        {
+          "dist_info": "anyio-4.12.0.dist-info",
+          "name": "anyio",
+          "version": "4.12.0",
+          "metadata_sha256": "aed7b6fc2da160a3fdfe254c158a204b3071747073c18e394b54eb2e206cc5d9"
+        },
+        {
+          "dist_info": "arrow-1.4.0.dist-info",
+          "name": "arrow",
+          "version": "1.4.0",
+          "metadata_sha256": "36407a40cd6a7f3147f8c8ab802d516fb4c152d7e2aabab52718ff3407a1706d"
+        },
+        {
+          "dist_info": "attrs-25.4.0.dist-info",
+          "name": "attrs",
+          "version": "25.4.0",
+          "metadata_sha256": "d917abc63eda81c311c62c1d92dea50b682ea870269062821f5de75962bb6684"
+        },
+        {
+          "dist_info": "autograd-1.8.0.dist-info",
+          "name": "autograd",
+          "version": "1.8.0",
+          "metadata_sha256": "289596b340e398b7d30d3e8b6fa56212d1cc6657afc07986745ac5664398da50"
+        },
+        {
+          "dist_info": "autograd_gamma-0.5.0.dist-info",
+          "name": "autograd-gamma",
+          "version": "0.5.0",
+          "metadata_sha256": "8f347153fee4985c64350c43c93d2dbcf75c3b3679dc7c29219f2203cc2acc1c"
+        },
+        {
+          "dist_info": "certifi-2025.11.12.dist-info",
+          "name": "certifi",
+          "version": "2025.11.12",
+          "metadata_sha256": "fc9a6b1aeff595649d1e5aee44129ca2b5e7adfbc10e1bd7ffa291afc1d06cb7"
+        },
+        {
+          "dist_info": "cffi-2.0.0.dist-info",
+          "name": "cffi",
+          "version": "2.0.0",
+          "metadata_sha256": "b98ce7e3417af089bc12d5c73412d9b3b1683ccf8ec73c986c35ac8c9be1ba39"
+        },
+        {
+          "dist_info": "charset_normalizer-3.4.4.dist-info",
+          "name": "charset-normalizer",
+          "version": "3.4.4",
+          "metadata_sha256": "8d5b94141b62f1d6afd7d60bbd68acb138a155d176a33518e0a28cc3b8dd9014"
+        },
+        {
+          "dist_info": "chex-0.1.91.dist-info",
+          "name": "chex",
+          "version": "0.1.91",
+          "metadata_sha256": "e0cc8ff784ae62a2a18d0876bb0c3d1bdc21bb0726e001de644942f69b2eaabe"
+        },
+        {
+          "dist_info": "click-8.3.1.dist-info",
+          "name": "click",
+          "version": "8.3.1",
+          "metadata_sha256": "5d9781acc004d2085313cf128dfad20ee4b2342a413e9971251d6d6f00fda198"
+        },
+        {
+          "dist_info": "cma-4.4.1.dist-info",
+          "name": "cma",
+          "version": "4.4.1",
+          "metadata_sha256": "b8ba42358d472b22c9b5173cbaaa325b945b929cb1df852a74413c8c407a77ef"
+        },
+        {
+          "dist_info": "contourpy-1.3.3.dist-info",
+          "name": "contourpy",
+          "version": "1.3.3",
+          "metadata_sha256": "c43cef86baef09cff9c77975e578fa8cca0c9454df40dc176938b499a63de54a"
+        },
+        {
+          "dist_info": "cryptography-46.0.4.dist-info",
+          "name": "cryptography",
+          "version": "46.0.4",
+          "metadata_sha256": "23772263d659f0d86ba11a8de47e7e437df320dc4c531054aec18097f35cfc62"
+        },
+        {
+          "dist_info": "cycler-0.12.1.dist-info",
+          "name": "cycler",
+          "version": "0.12.1",
+          "metadata_sha256": "23289e19b76f1e01394227696e6af2b6cd1ce79e89731209bf9195148b18ed36"
+        },
+        {
+          "dist_info": "defusedxml-0.7.1.dist-info",
+          "name": "defusedxml",
+          "version": "0.7.1",
+          "metadata_sha256": "369d3cef64870daf849fba711cb8d05a7efe3c8d9ab0f763adc34079fe378bb1"
+        },
+        {
+          "dist_info": "deprecated-1.3.1.dist-info",
+          "name": "Deprecated",
+          "version": "1.3.1",
+          "metadata_sha256": "409767ac23878c1c694888ce4acc43dab6b37efa2b40499567fb5c7d9dce5852"
+        },
+        {
+          "dist_info": "diffrax-0.7.0.dist-info",
+          "name": "diffrax",
+          "version": "0.7.0",
+          "metadata_sha256": "0d64bea0fde348b60d5e116e49b1a362d57c7b3853e78f71b163991d88f44eff"
+        },
+        {
+          "dist_info": "distro-1.9.0.dist-info",
+          "name": "distro",
+          "version": "1.9.0",
+          "metadata_sha256": "31632ab2de5591131091b3397bdcdf797718579d85a75186f06839dd0c09e81d"
+        },
+        {
+          "dist_info": "duckdb-1.4.3.dist-info",
+          "name": "duckdb",
+          "version": "1.4.3",
+          "metadata_sha256": "341eb461699e7fee4d4e319d8d3912b2f080a32851bb60d4d31d3144e18e5e72"
+        },
+        {
+          "dist_info": "equinox-0.13.2.dist-info",
+          "name": "equinox",
+          "version": "0.13.2",
+          "metadata_sha256": "66340d7df80761d4e3d87dd595eb3e997ab2e36ab9de8a4a1042f85ba8a0f519"
+        },
+        {
+          "dist_info": "et_xmlfile-2.0.0.dist-info",
+          "name": "et_xmlfile",
+          "version": "2.0.0",
+          "metadata_sha256": "0e97d7ea909ed0fbe03d88bc8b6f58677cee1b07bd3353ce361cd2405915204e"
+        },
+        {
+          "dist_info": "execnet-2.1.2.dist-info",
+          "name": "execnet",
+          "version": "2.1.2",
+          "metadata_sha256": "7343015d62b2eaa1841ec06a7c7c132aeb482921f73ab6e0fd18331495684c61"
+        },
+        {
+          "dist_info": "fastapi-0.128.6.dist-info",
+          "name": "fastapi",
+          "version": "0.128.6",
+          "metadata_sha256": "b5a82d1fa8dac5bcbe37750e06d369f47bac813b2679a32ca5d040101b419507"
+        },
+        {
+          "dist_info": "fonttools-4.61.1.dist-info",
+          "name": "fonttools",
+          "version": "4.61.1",
+          "metadata_sha256": "b05d21d549792a841a9b870d8dc0ce5c9d43d99d67621ff1379b18be8a7c3940"
+        },
+        {
+          "dist_info": "formulaic-1.2.1.dist-info",
+          "name": "formulaic",
+          "version": "1.2.1",
+          "metadata_sha256": "b1d20a7d975579cf46455425c38696a3498db9a433dab1d0c13fcb1c970c2fab"
+        },
+        {
+          "dist_info": "fqdn-1.5.1.dist-info",
+          "name": "fqdn",
+          "version": "1.5.1",
+          "metadata_sha256": "b8f4f402018d1dc56fb20d41eb2c39b9f8faca17f6e8080fbe05abdd0be8b8fb"
+        },
+        {
+          "dist_info": "frozenlist-1.8.0.dist-info",
+          "name": "frozenlist",
+          "version": "1.8.0",
+          "metadata_sha256": "946c22dc9f7e2c76f2d698f00a4306dbe49a820e2b3f1a0e22fe5286cbec35f1"
+        },
+        {
+          "dist_info": "googleapis_common_protos-1.72.0.dist-info",
+          "name": "googleapis-common-protos",
+          "version": "1.72.0",
+          "metadata_sha256": "68cf81656989a003d414a29c77bcd190ce5fb76b34f5e39dd1b3cbb1b8f4a46d"
+        },
+        {
+          "dist_info": "graphemeu-0.7.2.dist-info",
+          "name": "graphemeu",
+          "version": "0.7.2",
+          "metadata_sha256": "a282764e80221fb3e11d74dd4de69e94bbf1bc647f7985fc44804b269f41c3ee"
+        },
+        {
+          "dist_info": "grpcio-1.78.0.dist-info",
+          "name": "grpcio",
+          "version": "1.78.0",
+          "metadata_sha256": "96c9450d16d5e0475287864889d8fb4c42374fdc1c99a77a8cd13c3ddca10db4"
+        },
+        {
+          "dist_info": "h11-0.16.0.dist-info",
+          "name": "h11",
+          "version": "0.16.0",
+          "metadata_sha256": "28f326098ac09fcba79b8f180f96087c841fe2456215cb7b872a9c7d5cd19d64"
+        },
+        {
+          "dist_info": "httpcore-1.0.9.dist-info",
+          "name": "httpcore",
+          "version": "1.0.9",
+          "metadata_sha256": "fe2d4fda6199128978779e0cf27f3c045c531863fcdd987eacc74f3a18d41c21"
+        },
+        {
+          "dist_info": "httptools-0.7.1.dist-info",
+          "name": "httptools",
+          "version": "0.7.1",
+          "metadata_sha256": "28203e137533b97c1ac002b264ebe2834c055a18af76e91fba0a5907a8ff3c21"
+        },
+        {
+          "dist_info": "httpx-0.28.1.dist-info",
+          "name": "httpx",
+          "version": "0.28.1",
+          "metadata_sha256": "febb9b0f8f3e80d57c8199c304f35c4336e8581d1d18d7983c92766b82793b25"
+        },
+        {
+          "dist_info": "hypothesis-6.151.2.dist-info",
+          "name": "hypothesis",
+          "version": "6.151.2",
+          "metadata_sha256": "b52c86be9d96a19da96f880d74c7518b2f68b54a49e68e4679fd7fe38162d780"
+        },
+        {
+          "dist_info": "idna-3.11.dist-info",
+          "name": "idna",
+          "version": "3.11",
+          "metadata_sha256": "7c2c12c30f52ba237c4c81e59454804944025b9e6102cf1dcca9ebf5168411b0"
+        },
+        {
+          "dist_info": "importlib_metadata-8.7.1.dist-info",
+          "name": "importlib_metadata",
+          "version": "8.7.1",
+          "metadata_sha256": "a3e38b9ee4326289d4864704f30e299ee769e2309ce9f4a75f0de1a50ad0a356"
+        },
+        {
+          "dist_info": "iniconfig-2.3.0.dist-info",
+          "name": "iniconfig",
+          "version": "2.3.0",
+          "metadata_sha256": "40d773f84e4e112f495bbf4f1be9cbd2d456c0aeb6ef5311f75d1bf322f2165b"
+        },
+        {
+          "dist_info": "interface_meta-1.3.0.dist-info",
+          "name": "interface-meta",
+          "version": "1.3.0",
+          "metadata_sha256": "7ad837c10d271ca54d58ff46b5038db1d75043f7a751743386afe59265316fb3"
+        },
+        {
+          "dist_info": "isoduration-20.11.0.dist-info",
+          "name": "isoduration",
+          "version": "20.11.0",
+          "metadata_sha256": "440045201154827793cad24bafbd54deca6800819259e3b17f6edbc06ca7b56b"
+        },
+        {
+          "dist_info": "jax-0.8.2.dist-info",
+          "name": "jax",
+          "version": "0.8.2",
+          "metadata_sha256": "814bff75113dc832e236125fd9ec53390fec2d6e4494c17cb92d69c1b9509f8c"
+        },
+        {
+          "dist_info": "jaxlib-0.8.2.dist-info",
+          "name": "jaxlib",
+          "version": "0.8.2",
+          "metadata_sha256": "83b52e6b98bb35a5dfb4a760174382eb7946bf67ec782f392d238aa034384960"
+        },
+        {
+          "dist_info": "jaxtyping-0.3.4.dist-info",
+          "name": "jaxtyping",
+          "version": "0.3.4",
+          "metadata_sha256": "ab20735002f63b12ea373154c296a6138b51656c0b962657f02604399d9abf39"
+        },
+        {
+          "dist_info": "jiter-0.13.0.dist-info",
+          "name": "jiter",
+          "version": "0.13.0",
+          "metadata_sha256": "0f158c4695a110f6fc14da364abccb42ff25160145b2e5b9fe35f9ae5aef9029"
+        },
+        {
+          "dist_info": "joblib-1.5.3.dist-info",
+          "name": "joblib",
+          "version": "1.5.3",
+          "metadata_sha256": "cee9c60896ae4e7a965a840fbde50d111d2f8018f61201d1ed2e9fc3dd4883e6"
+        },
+        {
+          "dist_info": "jsonpatch-1.33.dist-info",
+          "name": "jsonpatch",
+          "version": "1.33",
+          "metadata_sha256": "06f32bbb4669267d84a82bdaf5fc0dd4d861d0da006b2af5ef598259a66f7a29"
+        },
+        {
+          "dist_info": "jsonpointer-3.0.0.dist-info",
+          "name": "jsonpointer",
+          "version": "3.0.0",
+          "metadata_sha256": "9bc135c616e4a8076fb1930123abf2d3ad702d5e30a9c99b4ba8abc8509680b2"
+        },
+        {
+          "dist_info": "jsonschema-4.25.1.dist-info",
+          "name": "jsonschema",
+          "version": "4.25.1",
+          "metadata_sha256": "31f83c1579e46e1af62269cefa5d83534ef155f3ee21914f7881bbd544bc125c"
+        },
+        {
+          "dist_info": "jsonschema_specifications-2025.9.1.dist-info",
+          "name": "jsonschema-specifications",
+          "version": "2025.9.1",
+          "metadata_sha256": "35abd41757f32b4ea24756920ded47b70173d77cbc052a5a6d3ab583b2e8d89d"
+        },
+        {
+          "dist_info": "kiwisolver-1.4.9.dist-info",
+          "name": "kiwisolver",
+          "version": "1.4.9",
+          "metadata_sha256": "cad34a37b5cb66cfa1b9676f33721037ae2d850b9b0c71377478a1d6bf0c7d40"
+        },
+        {
+          "dist_info": "langchain-1.2.0.dist-info",
+          "name": "langchain",
+          "version": "1.2.0",
+          "metadata_sha256": "298bb89c64f53a5b7268bb1eaefcdbadf15d68806451cc423cee57308dc35e07"
+        },
+        {
+          "dist_info": "langchain_core-1.2.6.dist-info",
+          "name": "langchain-core",
+          "version": "1.2.6",
+          "metadata_sha256": "a4487544e79769da4e9a40983cdd5d0db0fa5eed8f0e4f7577f304c532cfee67"
+        },
+        {
+          "dist_info": "langgraph-1.0.5.dist-info",
+          "name": "langgraph",
+          "version": "1.0.5",
+          "metadata_sha256": "c3987d421a1ddaec1d5a13bf8f70911bbeebbc8b1e895d992651d501f5a138a5"
+        },
+        {
+          "dist_info": "langgraph_checkpoint-3.0.1.dist-info",
+          "name": "langgraph-checkpoint",
+          "version": "3.0.1",
+          "metadata_sha256": "a697b6e2bbdb8d9d49095beec4d27f3ee96672d08931ce0386656bfe41e066c3"
+        },
+        {
+          "dist_info": "langgraph_prebuilt-1.0.5.dist-info",
+          "name": "langgraph-prebuilt",
+          "version": "1.0.5",
+          "metadata_sha256": "f518f0aa3250dfaa0cc279417b30f5ecdd6062f5ca07a6c0d78d22e833611861"
+        },
+        {
+          "dist_info": "langgraph_sdk-0.3.1.dist-info",
+          "name": "langgraph-sdk",
+          "version": "0.3.1",
+          "metadata_sha256": "19fbb96757dae2a7a5ebdcd39227921d491392be2e8ce34e46ceb1351c041533"
+        },
+        {
+          "dist_info": "langsmith-0.6.0.dist-info",
+          "name": "langsmith",
+          "version": "0.6.0",
+          "metadata_sha256": "3057352849c71a1bbd56ac77b22e827fa27d8ea799fb4c4c2b296dac85aaa8bf"
+        },
+        {
+          "dist_info": "lark-1.3.1.dist-info",
+          "name": "lark",
+          "version": "1.3.1",
+          "metadata_sha256": "730d3f056045a9096bc0a65e4faccae53fe7f3634055174d4b8245cd19cb4cde"
+        },
+        {
+          "dist_info": "libcst-1.8.6.dist-info",
+          "name": "libcst",
+          "version": "1.8.6",
+          "metadata_sha256": "be37335c7a37a051a24badd91414c181be4d17dc47f1dd32341447d5ba0e10dc"
+        },
+        {
+          "dist_info": "lifelines-0.30.3.dist-info",
+          "name": "lifelines",
+          "version": "0.30.3",
+          "metadata_sha256": "e3af0ce586ff7419f98986dc63892e5d691a21b213359d0f07d05a6b1810cb1c"
+        },
+        {
+          "dist_info": "lineax-0.0.8.dist-info",
+          "name": "lineax",
+          "version": "0.0.8",
+          "metadata_sha256": "e8256a4ccbc161a1776dcced7a3973d2c2769e7b8bfebae87ef1622ab6a7dca2"
+        },
+        {
+          "dist_info": "loguru-0.7.3.dist-info",
+          "name": "loguru",
+          "version": "0.7.3",
+          "metadata_sha256": "3a371f8b089014fdaee055edc440d448242847926ad67613621af402f9975fd9"
+        },
+        {
+          "dist_info": "mapie-1.3.0.dist-info",
+          "name": "MAPIE",
+          "version": "1.3.0",
+          "metadata_sha256": "deaa12cdc160200ec0bb5be167fceb5b55f4b03f25d8810d4f809a333b170cce"
+        },
+        {
+          "dist_info": "matplotlib-3.10.8.dist-info",
+          "name": "matplotlib",
+          "version": "3.10.8",
+          "metadata_sha256": "271a91ad64b587781e3ccc76add7e042acb74e1ee94081decf4dc382be91fa06"
+        },
+        {
+          "dist_info": "ml_dtypes-0.5.4.dist-info",
+          "name": "ml_dtypes",
+          "version": "0.5.4",
+          "metadata_sha256": "51b5729b48ce71736748bbf43d4f355485f42b44977d6016717bbd6b11b7dfc0"
+        },
+        {
+          "dist_info": "moocore-0.1.10.dist-info",
+          "name": "moocore",
+          "version": "0.1.10",
+          "metadata_sha256": "f9bae398ea7feb7db43f30701554e20ad2484bc20e3699e2d12df0c4ff686c90"
+        },
+        {
+          "dist_info": "multidict-6.7.1.dist-info",
+          "name": "multidict",
+          "version": "6.7.1",
+          "metadata_sha256": "4913fdaae936a309c29b89b98c2dbebd237203fb27ab9e68ae5e4ec17ba3024f"
+        },
+        {
+          "dist_info": "narwhals-2.14.0.dist-info",
+          "name": "narwhals",
+          "version": "2.14.0",
+          "metadata_sha256": "bbce01083f185af1b4c5a371bd0c2676a126f0302715e2b214532f9ff9917c39"
+        },
+        {
+          "dist_info": "numpy-2.3.5.dist-info",
+          "name": "numpy",
+          "version": "2.3.5",
+          "metadata_sha256": "6002f29765e5bc1a3be4a1b92ed56b64968a0fecba73e7f81cd536d0c40f4fa3"
+        },
+        {
+          "dist_info": "odfpy-1.4.1.dist-info",
+          "name": "odfpy",
+          "version": "1.4.1",
+          "metadata_sha256": "ba4c334f0d133180f965dc41451edb1ee5f0ac901efe127e7a110dba09f29054",
+          "direct_url_sha256": "20d477f9e8871abbb1f22bf3df8b16168c21060dd00c85d45935fa8018fe13f1",
+          "direct_url_scheme": "file"
+        },
+        {
+          "dist_info": "openai-1.109.1.dist-info",
+          "name": "openai",
+          "version": "1.109.1",
+          "metadata_sha256": "c5db6f639ae950c59cfdec2a60f75ec554d5d5e5846616c6403171b090fb0d29"
+        },
+        {
+          "dist_info": "openpyxl-3.1.5.dist-info",
+          "name": "openpyxl",
+          "version": "3.1.5",
+          "metadata_sha256": "23f80ca9830dd89435da1710f26deda8f81e5409287e74540210c72627a4ad96"
+        },
+        {
+          "dist_info": "opentelemetry_api-1.39.1.dist-info",
+          "name": "opentelemetry-api",
+          "version": "1.39.1",
+          "metadata_sha256": "fc8fe7937002f224391d2038aac9ef231720bc9355d2ff9e23c36022ceb490d0"
+        },
+        {
+          "dist_info": "opentelemetry_exporter_otlp_proto_common-1.39.1.dist-info",
+          "name": "opentelemetry-exporter-otlp-proto-common",
+          "version": "1.39.1",
+          "metadata_sha256": "ba853ce1af19c6c31c41ae3382b609c34931789da68dcb1f4a7bf3bb0811053f"
+        },
+        {
+          "dist_info": "opentelemetry_exporter_otlp_proto_grpc-1.39.1.dist-info",
+          "name": "opentelemetry-exporter-otlp-proto-grpc",
+          "version": "1.39.1",
+          "metadata_sha256": "b50281cb7041efa486ea012b2962fd862b9d8390accdf94fa9ee82e059ea2206"
+        },
+        {
+          "dist_info": "opentelemetry_exporter_prometheus-0.60b1.dist-info",
+          "name": "opentelemetry-exporter-prometheus",
+          "version": "0.60b1",
+          "metadata_sha256": "bc099cdf6ea59c2ecabd467b1ea8b9370faef7b46d452f7f7dfe68c7c800f94c"
+        },
+        {
+          "dist_info": "opentelemetry_proto-1.39.1.dist-info",
+          "name": "opentelemetry-proto",
+          "version": "1.39.1",
+          "metadata_sha256": "f32e9c6cf36b1abb90e665eb54f8380c91408ccf524acb0bdb86527fd8eac196"
+        },
+        {
+          "dist_info": "opentelemetry_sdk-1.39.1.dist-info",
+          "name": "opentelemetry-sdk",
+          "version": "1.39.1",
+          "metadata_sha256": "319e763ac2456dae69175cfe2d2dd4a52e08a39bb5a036c6d642ae68647a0528"
+        },
+        {
+          "dist_info": "opentelemetry_semantic_conventions-0.60b1.dist-info",
+          "name": "opentelemetry-semantic-conventions",
+          "version": "0.60b1",
+          "metadata_sha256": "1f9cfd05276f64a388f13e2da6d432ab842bcb842f00728bc6478fcbca4c8b40"
+        },
+        {
+          "dist_info": "opt_einsum-3.4.0.dist-info",
+          "name": "opt_einsum",
+          "version": "3.4.0",
+          "metadata_sha256": "9f6791140c5e1be4f1b189365e6312d711a1eaaeb399b5dd6741f7a4bd99d03b"
+        },
+        {
+          "dist_info": "optax-0.2.6.dist-info",
+          "name": "optax",
+          "version": "0.2.6",
+          "metadata_sha256": "8c6cbfd1a7b7fa83a3c65ecce1394b2775076b40c7f95c6be587b78925bda834"
+        },
+        {
+          "dist_info": "optimistix-0.0.11.dist-info",
+          "name": "optimistix",
+          "version": "0.0.11",
+          "metadata_sha256": "289ff7ea61fb4cf85b51c7230cf5a1f1a9a5aaa005a60677612b1ed3ee856f4d"
+        },
+        {
+          "dist_info": "orjson-3.11.5.dist-info",
+          "name": "orjson",
+          "version": "3.11.5",
+          "metadata_sha256": "ece789bf575ed5bd036bfb519c23ed54a758a8376877be9ba6ccf0cbafee3ad9"
+        },
+        {
+          "dist_info": "ormsgpack-1.12.1.dist-info",
+          "name": "ormsgpack",
+          "version": "1.12.1",
+          "metadata_sha256": "bd56a7ad4f117532b27d1372ab7641b1c46ee8233a26eff577ee9d940adc238a"
+        },
+        {
+          "dist_info": "packaging-25.0.dist-info",
+          "name": "packaging",
+          "version": "25.0",
+          "metadata_sha256": "5b611a609c38fefc3d616bf45d20aec98fb7d53f245daca9e2c30fc85c7ac282"
+        },
+        {
+          "dist_info": "pandas-2.3.3.dist-info",
+          "name": "pandas",
+          "version": "2.3.3",
+          "metadata_sha256": "40ee953dc7ca155840b639a1881ff84578075187fce0ac20eeda55a7fa0d9a90"
+        },
+        {
+          "dist_info": "pillow-12.3.0.dist-info",
+          "name": "pillow",
+          "version": "12.3.0",
+          "metadata_sha256": "8fc07146cab33ef7582361dab6eac596d340b03ec648f18217da7894f73838c8"
+        },
+        {
+          "dist_info": "platformdirs-4.5.1.dist-info",
+          "name": "platformdirs",
+          "version": "4.5.1",
+          "metadata_sha256": "3a7ef90c694e34649fece11d27e88621cd6bc1344497e3e31e56d46bd423e928"
+        },
+        {
+          "dist_info": "pluggy-1.6.0.dist-info",
+          "name": "pluggy",
+          "version": "1.6.0",
+          "metadata_sha256": "7438c35ee25a095eb7416f84b461c2d74425c5e734ad54c3912453c65244e01c"
+        },
+        {
+          "dist_info": "policy_engine-0.1.0.dist-info",
+          "name": "policy-engine",
+          "version": "0.1.0",
+          "metadata_sha256": "9c60525985478039e536eb224db24baf07b777496ede5b8bcfe260ea87346ae3",
+          "direct_url_sha256": "094c8ef7c1b65fdb352704620350542ded53431bc7a108544351ecf190f6c06d",
+          "direct_url_scheme": "file"
+        },
+        {
+          "dist_info": "prometheus_client-0.23.1.dist-info",
+          "name": "prometheus_client",
+          "version": "0.23.1",
+          "metadata_sha256": "22c3a8dba8da39b7dd5adab472c120af773c27c2ce0f697e64915f1e4ed3368e"
+        },
+        {
+          "dist_info": "propcache-0.4.1.dist-info",
+          "name": "propcache",
+          "version": "0.4.1",
+          "metadata_sha256": "fc23f3c52b336d5335cd053f47d91ff6316949e65ad1f1e3dfccd5284f4d6ece"
+        },
+        {
+          "dist_info": "protobuf-6.33.2.dist-info",
+          "name": "protobuf",
+          "version": "6.33.2",
+          "metadata_sha256": "ad469488c5773500cc7545ee5b923acfe53abcc1935328729e74e42e783725bd"
+        },
+        {
+          "dist_info": "py_cpuinfo-9.0.0.dist-info",
+          "name": "py-cpuinfo",
+          "version": "9.0.0",
+          "metadata_sha256": "ad115e96f84576861c5e75d760301b81d23143cfe25546b99541e01265379dc1"
+        },
+        {
+          "dist_info": "pyarrow-22.0.0.dist-info",
+          "name": "pyarrow",
+          "version": "22.0.0",
+          "metadata_sha256": "26d9e7d42b760b1d20e715eba938823f74e228e5ed49a36610d14e9eb7fa9191"
+        },
+        {
+          "dist_info": "pycparser-2.23.dist-info",
+          "name": "pycparser",
+          "version": "2.23",
+          "metadata_sha256": "a2c9a11ccc5ade7e6c3f0bf959e529cb23e79bbe9ea215d8199c8a1a659b3c57"
+        },
+        {
+          "dist_info": "pydantic-2.12.5.dist-info",
+          "name": "pydantic",
+          "version": "2.12.5",
+          "metadata_sha256": "a3ba23e895191fed69b8323cbcbcdc82984ca0b6a3cdc62c48a2341886a9c08d"
+        },
+        {
+          "dist_info": "pydantic_core-2.41.5.dist-info",
+          "name": "pydantic_core",
+          "version": "2.41.5",
+          "metadata_sha256": "09f83baa3202ec3da98a284a56afdf1ba69976e4af7172488887e5b2b20591a9"
+        },
+        {
+          "dist_info": "pydantic_settings-2.12.0.dist-info",
+          "name": "pydantic-settings",
+          "version": "2.12.0",
+          "metadata_sha256": "67003b9f7edd71a70129f07a3bd50a3bc1909dd07e2a2c0d9cf8c388455f6b98"
+        },
+        {
+          "dist_info": "pygments-2.19.2.dist-info",
+          "name": "Pygments",
+          "version": "2.19.2",
+          "metadata_sha256": "7ae100d67d67006c6479803dd835fcf47a9b59fac794441ea8e66aa7f5984d82"
+        },
+        {
+          "dist_info": "pyjwt-2.11.0.dist-info",
+          "name": "PyJWT",
+          "version": "2.11.0",
+          "metadata_sha256": "63bfb762fb37bb51c1662bb7fe7b4afc05c3184a23821bafb561da94aba11166"
+        },
+        {
+          "dist_info": "pymoo-0.6.1.6.dist-info",
+          "name": "pymoo",
+          "version": "0.6.1.6",
+          "metadata_sha256": "b1f0ef30c49f0447f2eb32cb39268c38c51a38a38b0acaa03714f9b87aca19d3"
+        },
+        {
+          "dist_info": "pyparsing-3.3.1.dist-info",
+          "name": "pyparsing",
+          "version": "3.3.1",
+          "metadata_sha256": "840b0b7efab238c3eb10b39ec552e39a9b96aa238d9504e92f77fb66c871304e"
+        },
+        {
+          "dist_info": "pypdf-6.7.4.dist-info",
+          "name": "pypdf",
+          "version": "6.7.4",
+          "metadata_sha256": "3f1492149ecdceabe63710e47f0c4cc8f9b29d4c4d69c8d77af7b88cc598a035"
+        },
+        {
+          "dist_info": "pytest-9.0.2.dist-info",
+          "name": "pytest",
+          "version": "9.0.2",
+          "metadata_sha256": "14131718cc1f40cfecb5eac338037029a519b6392876100afec1e949f023d1ed"
+        },
+        {
+          "dist_info": "pytest_asyncio-1.3.0.dist-info",
+          "name": "pytest-asyncio",
+          "version": "1.3.0",
+          "metadata_sha256": "68d7250fb7d8f0cde8b57ed6797c4eb9de74325d80c362fccfe55e57966981b9"
+        },
+        {
+          "dist_info": "pytest_benchmark-5.2.3.dist-info",
+          "name": "pytest-benchmark",
+          "version": "5.2.3",
+          "metadata_sha256": "7e919f653f12b790e5d3099de1c7fcdbeeafdd9a6c950ab38850321e635ccd88"
+        },
+        {
+          "dist_info": "pytest_xdist-3.8.0.dist-info",
+          "name": "pytest-xdist",
+          "version": "3.8.0",
+          "metadata_sha256": "298f16af52794d340c358fc2eb20b054a29db2922f22fea90a35b459ecbcc18f"
+        },
+        {
+          "dist_info": "python_dateutil-2.9.0.post0.dist-info",
+          "name": "python-dateutil",
+          "version": "2.9.0.post0",
+          "metadata_sha256": "a9d436da322be808332f98d88325998e87cb693a678a9969feb4cfad729a6e93"
+        },
+        {
+          "dist_info": "python_dotenv-1.2.1.dist-info",
+          "name": "python-dotenv",
+          "version": "1.2.1",
+          "metadata_sha256": "4c8d8ed1c978b8f51a3d2edc7f38f19d41920169dd4bfa8a2e80533f76fd0aa0"
+        },
+        {
+          "dist_info": "pytz-2025.2.dist-info",
+          "name": "pytz",
+          "version": "2025.2",
+          "metadata_sha256": "e620e4e1f9f1c8019619388d4da496eb02119a13f35aaad55f022694a3c81f6c"
+        },
+        {
+          "dist_info": "pyyaml-6.0.3.dist-info",
+          "name": "PyYAML",
+          "version": "6.0.3",
+          "metadata_sha256": "03c3b415ed38d09faedc49360e930769b40c58f68585e6de00e2e4916a858d34"
+        },
+        {
+          "dist_info": "rdflib-7.6.0.dist-info",
+          "name": "rdflib",
+          "version": "7.6.0",
+          "metadata_sha256": "29c569443738a45bfd85dd37865a038d7e19e5cb282dd3bd5f80f149d8d1f552"
+        },
+        {
+          "dist_info": "referencing-0.37.0.dist-info",
+          "name": "referencing",
+          "version": "0.37.0",
+          "metadata_sha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a"
+        },
+        {
+          "dist_info": "regex-2026.9.3.dist-info",
+          "name": "regex",
+          "version": "2026.9.3",
+          "metadata_sha256": "0c8021f2d6df603d2f6b1ebe179f9903f985506a0a522750e1f7587573e80aa2"
+        },
+        {
+          "dist_info": "requests-2.32.5.dist-info",
+          "name": "requests",
+          "version": "2.32.5",
+          "metadata_sha256": "65b5a08da81f4915513e760965ff14b7518f65b7bb3efe0dab364bbcc4d40cb0"
+        },
+        {
+          "dist_info": "requests_toolbelt-1.0.0.dist-info",
+          "name": "requests-toolbelt",
+          "version": "1.0.0",
+          "metadata_sha256": "fa52f26237cc8d148d25c5746fdca499a56d0e765e69095cc3564a07cce23967"
+        },
+        {
+          "dist_info": "rfc3339_validator-0.1.4.dist-info",
+          "name": "rfc3339-validator",
+          "version": "0.1.4",
+          "metadata_sha256": "ac4dc2cdea6a8b61c16babbf35c0e9fa6e22e45f1c0338e66e089108dde872d2"
+        },
+        {
+          "dist_info": "rfc3986_validator-0.1.1.dist-info",
+          "name": "rfc3986-validator",
+          "version": "0.1.1",
+          "metadata_sha256": "feddd8265433ba7be465e1649b486ec83c4c78f593f36284e7ae6d655cae163c"
+        },
+        {
+          "dist_info": "rfc3987_syntax-1.1.0.dist-info",
+          "name": "rfc3987-syntax",
+          "version": "1.1.0",
+          "metadata_sha256": "7a518ae5bb5685568b537061e8207a4dbba766ae785b16ad26d930ad3853cb0d"
+        },
+        {
+          "dist_info": "rpds_py-0.30.0.dist-info",
+          "name": "rpds-py",
+          "version": "0.30.0",
+          "metadata_sha256": "cc01d097ddb9c7e07a29c9553ee8dd35cf920e85fb574f7b0c23d68138a716bf"
+        },
+        {
+          "dist_info": "scikit_learn-1.8.0.dist-info",
+          "name": "scikit-learn",
+          "version": "1.8.0",
+          "metadata_sha256": "95a8f42f4170fc940a71fedfed4fd9353723eb44126130a971a072fe5305d967"
+        },
+        {
+          "dist_info": "scipy-1.16.3.dist-info",
+          "name": "scipy",
+          "version": "1.16.3",
+          "metadata_sha256": "a54602d0aa61fb25ac030b1d7b0faf0c8cfec508290d4d824198d6b43647ec1b"
+        },
+        {
+          "dist_info": "six-1.17.0.dist-info",
+          "name": "six",
+          "version": "1.17.0",
+          "metadata_sha256": "562042078c2752549f6d8a7c86dbc5dd708088a7be6d80672ec7b07100b72468"
+        },
+        {
+          "dist_info": "sniffio-1.3.1.dist-info",
+          "name": "sniffio",
+          "version": "1.3.1",
+          "metadata_sha256": "0b318b57098edeccf585e60a889a6b6a7b5c4086f3a9aa62eff76a1d3cee12d9"
+        },
+        {
+          "dist_info": "sortedcontainers-2.4.0.dist-info",
+          "name": "sortedcontainers",
+          "version": "2.4.0",
+          "metadata_sha256": "eedf115109e215001e904da0882851beae50b03c0b0161a8b9e74b7cfd679473"
+        },
+        {
+          "dist_info": "starlette-0.52.1.dist-info",
+          "name": "starlette",
+          "version": "0.52.1",
+          "metadata_sha256": "c0ddc5837cca966a170fdeefb924a0dbd08f1cb1f310da1046a39faaeed0c535"
+        },
+        {
+          "dist_info": "structlog-25.5.0.dist-info",
+          "name": "structlog",
+          "version": "25.5.0",
+          "metadata_sha256": "bec5f360bcf0eb40e207e72b9ec2c86f2a8df54028603fba2f29a9c040df95e8"
+        },
+        {
+          "dist_info": "tenacity-9.1.2.dist-info",
+          "name": "tenacity",
+          "version": "9.1.2",
+          "metadata_sha256": "d6f3caf72fc1ee40caf9135adf7b5d44a45100115b4ea92b80f19ed183b157a5"
+        },
+        {
+          "dist_info": "threadpoolctl-3.6.0.dist-info",
+          "name": "threadpoolctl",
+          "version": "3.6.0",
+          "metadata_sha256": "a45df8d07ea1883d772183a501d7d526076aa70dfcfddb276a2cbdc04def5341"
+        },
+        {
+          "dist_info": "tiktoken-0.12.0.dist-info",
+          "name": "tiktoken",
+          "version": "0.12.0",
+          "metadata_sha256": "d3b28e6ec8f09c47cb4d0fa8443d2f86b137670fa834c26a4e505b11e271b59f"
+        },
+        {
+          "dist_info": "toolz-1.1.0.dist-info",
+          "name": "toolz",
+          "version": "1.1.0",
+          "metadata_sha256": "24b01cee796d9d1b679bda1b5edc8306148aa76681fafc2028fef054da29250a"
+        },
+        {
+          "dist_info": "tqdm-4.67.3.dist-info",
+          "name": "tqdm",
+          "version": "4.67.3",
+          "metadata_sha256": "7c0e9a662c19095f339a4b761201eb06cff9c61fb9581535b2f96f44e718ed29"
+        },
+        {
+          "dist_info": "typing_extensions-4.15.0.dist-info",
+          "name": "typing_extensions",
+          "version": "4.15.0",
+          "metadata_sha256": "c138378fe8f18934ac99de060535c53ec6c13aeed65e94c32641da7ee3192a72"
+        },
+        {
+          "dist_info": "typing_inspection-0.4.2.dist-info",
+          "name": "typing-inspection",
+          "version": "0.4.2",
+          "metadata_sha256": "61096cd0bfe3c7040b6f98c22b02d190fe01936d0ff7616c5134fed02891953a"
+        },
+        {
+          "dist_info": "tzdata-2025.3.dist-info",
+          "name": "tzdata",
+          "version": "2025.3",
+          "metadata_sha256": "4225d7bb5592b2007f665b38624e93dbadd36413fbfcf3c1fa7cd80ae7b087f8"
+        },
+        {
+          "dist_info": "uri_template-1.3.0.dist-info",
+          "name": "uri-template",
+          "version": "1.3.0",
+          "metadata_sha256": "3a8c53a915e5755c13b09faa29a4211fcff0c6ee188a169fc02cc092d89f46bc"
+        },
+        {
+          "dist_info": "urllib3-2.6.2.dist-info",
+          "name": "urllib3",
+          "version": "2.6.2",
+          "metadata_sha256": "532da8b2c7b39b017e837451b0d9c946061a2ec4a9e04d4161e487166a731a53"
+        },
+        {
+          "dist_info": "uuid_utils-0.12.0.dist-info",
+          "name": "uuid_utils",
+          "version": "0.12.0",
+          "metadata_sha256": "7eedc4ebe254a43aa4dc4ccefb6d75bf6528a13f74db7e060b1a4c887e55fee4"
+        },
+        {
+          "dist_info": "uvicorn-0.40.0.dist-info",
+          "name": "uvicorn",
+          "version": "0.40.0",
+          "metadata_sha256": "94178891ae340d1cfa61949e6a14645246282d27ecf3b4c2fc50d77bb2031be2"
+        },
+        {
+          "dist_info": "uvloop-0.22.1.dist-info",
+          "name": "uvloop",
+          "version": "0.22.1",
+          "metadata_sha256": "7106328da9670776c358802971b7dc41c0b86ed3673bf9cc4c0d5e11ff2f3583"
+        },
+        {
+          "dist_info": "wadler_lindig-0.1.7.dist-info",
+          "name": "wadler_lindig",
+          "version": "0.1.7",
+          "metadata_sha256": "83659a4fe5e6a3a96abda2af32163a27769bb6e807e8babcd1fe37c54b87fa16"
+        },
+        {
+          "dist_info": "watchfiles-1.1.1.dist-info",
+          "name": "watchfiles",
+          "version": "1.1.1",
+          "metadata_sha256": "877e3062d4327b3698127f4641683ccf877d24256214b4f8be629dfe2a7a585f"
+        },
+        {
+          "dist_info": "webcolors-25.10.0.dist-info",
+          "name": "webcolors",
+          "version": "25.10.0",
+          "metadata_sha256": "53b0da874b2e90dd8f1ccaa9c75c41e8db9107eb2568fc7a4e605b71c955d099"
+        },
+        {
+          "dist_info": "websockets-16.0.dist-info",
+          "name": "websockets",
+          "version": "16.0",
+          "metadata_sha256": "25c0ef5a8f03552c39ba80c015b93d37c7c95ee449be7adc2d7541172063c0df"
+        },
+        {
+          "dist_info": "wrapt-2.0.1.dist-info",
+          "name": "wrapt",
+          "version": "2.0.1",
+          "metadata_sha256": "9dbb3322325cd2fb21fc35628fb6fd72de91f46d950b35534cf4a47b98a696fb"
+        },
+        {
+          "dist_info": "xlrd-2.0.2.dist-info",
+          "name": "xlrd",
+          "version": "2.0.2",
+          "metadata_sha256": "ae263dba4d616210bb2d709cd091ba453984314f79f8f50f44af864352656dec"
+        },
+        {
+          "dist_info": "xxhash-3.6.0.dist-info",
+          "name": "xxhash",
+          "version": "3.6.0",
+          "metadata_sha256": "9dcdbae3ea685db00dc0691d6f90ec6c1d74349658f97e5a4f55f9bdf183db21"
+        },
+        {
+          "dist_info": "yarl-1.22.0.dist-info",
+          "name": "yarl",
+          "version": "1.22.0",
+          "metadata_sha256": "8004c398c5d50b9ded9c4143c0570e775b242b914cf2424d6d8f061640910cb8"
+        },
+        {
+          "dist_info": "zipp-3.23.0.dist-info",
+          "name": "zipp",
+          "version": "3.23.0",
+          "metadata_sha256": "bdd67d4d16cf0bf3b893e7d18cd3d2d774adb82f37ed985bc7770c607226b35b"
+        },
+        {
+          "dist_info": "zstandard-0.25.0.dist-info",
+          "name": "zstandard",
+          "version": "0.25.0",
+          "metadata_sha256": "03d37736b26b9ae48451dd17026d93dffbd252fb708c1a2a9ae1be0c0966de92"
+        }
+      ],
+      "reproduce": "Use the preserved source/pyproject.toml and source/uv.lock with the recorded CPython/uv versions and a fresh environment; the canonical generated-artifact freshness producer admits dependencies from that lock. No source or deciding outputs are removed."
+    }
+  ],
+  "process_proof": {
+    "time_unix": 1791365982.937313,
+    "processes_inspected": 112,
+    "fd_references_inspected": 1575,
+    "excluded_inspector_ancestors": [
+      0,
+      515,
+      500284,
+      500286
+    ],
+    "candidate_users": [],
+    "unreadable_task_user_processes": [],
+    "secret_custody": "Only candidate-match booleans for eight non-secret path variables; no environment values or credentials published"
+  },
+  "storage_before": [
+    {
+      "path": "/tmp",
+      "total_bytes": 9441349632,
+      "available_bytes": 6145081344,
+      "used_bytes": 3296268288
+    },
+    {
+      "path": "/workspace",
+      "total_bytes": 33770192896,
+      "available_bytes": 5466009600,
+      "used_bytes": 26569420800
+    }
+  ],
+  "memory_before": {
+    "memory.current": "17179807744\n",
+    "memory.events": "low 0\nhigh 0\nmax 3251201\noom 80\noom_kill 8\noom_group_kill 0\n",
+    "memory.stat": "anon 12824748032\nfile 3423539200\nkernel 931434496\nkernel_stack 12681216\npagetables 241401856\nsec_pagetables 0\npercpu 26404\nsock 147456\nvmalloc 12288\nshmem 3296268288\nfile_mapped 32677888\nfile_dirty 126976\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 14592434176\nactive_anon 1528582144\ninactive_file 11673600\nactive_file 115249152\nunevictable 0\nslab_reclaimable 587705944\nslab_unreclaimable 86831856\nslab 674537800\nworkingset_refault_anon 0\nworkingset_refault_file 134446766\nworkingset_activate_anon 0\nworkingset_activate_file 20265543\nworkingset_restore_anon 0\nworkingset_restore_file 9559929\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6434886447\npgsteal 141170031\npswpin 0\npswpout 0\npgscan_kswapd 5809036\npgscan_direct 6429073147\npgscan_khugepaged 4264\npgscan_proactive 0\npgsteal_kswapd 5482684\npgsteal_direct 135683227\npgsteal_khugepaged 4120\npgsteal_proactive 0\npgfault 489561478\npgmajfault 185567\npgrefill 41362509\npgactivate 19931995\npgdeactivate 38496873\npglazyfree 3098\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 26\nthp_collapse_alloc 8\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "memory.max": "17179869184\n"
+  },
+  "helper_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-old-generator-envs.py.txt",
+    "bytes": 11961,
+    "sha256": "2b3eccc32fbd3511f95bdcdf1080bf9064497af7f7dc581a62b7abf6da336fc1"
+  },
+  "exact_targets": [
+    "/tmp/polisyos_generated_freshness_2qqaelx2/environment",
+    "/tmp/polisyos_generated_freshness_2qqaelx2/uv-cache",
+    "/tmp/polisyos_generated_freshness__mxs8xu3/environment",
+    "/tmp/polisyos_generated_freshness__mxs8xu3/uv-cache"
+  ],
+  "mode": "delete",
+  "preserved": [
+    "/tmp/polisyos_generated_freshness_2qqaelx2/source",
+    "/tmp/polisyos_generated_freshness_2qqaelx2/outputs",
+    "/tmp/polisyos_generated_freshness__mxs8xu3/source",
+    "/tmp/polisyos_generated_freshness__mxs8xu3/outputs"
+  ]
+}

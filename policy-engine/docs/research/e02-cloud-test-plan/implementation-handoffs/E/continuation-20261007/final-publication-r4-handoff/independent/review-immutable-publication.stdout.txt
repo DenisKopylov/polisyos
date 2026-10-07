@@ -1,0 +1,12 @@
+{
+  "report": {
+    "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/independent-immutable-publication-bf0e8fe7.json",
+    "bytes": 57423,
+    "sha256": "366bb958d8b41366f7ee93161b4b05abda79d736ae27e97567425591820b5656"
+  },
+  "candidate": "bf0e8fe7ecf62b28893deb24fba4b6f7bbb9c4e7",
+  "tree": "0fa674e2f0e03687502d21fb6470e5464cac106a",
+  "paths": 114,
+  "total_bytes": 3293594,
+  "verdict": "GO bounded docs-only custody"
+}

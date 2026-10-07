@@ -1,0 +1,171 @@
+"""Read-only independent Git/original selection custody and tiny copier controls."""
+from __future__ import annotations
+import argparse, ast, copy, hashlib, json, subprocess, sys
+from collections import Counter
+from pathlib import Path
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+STAGE=Path('/tmp/e02-E-closed-additions-publication-r4-stage')
+OUT=Path('/tmp/e02-E-closed-additions-custody-independent-doe')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+SOURCE_TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+BASE='2e28bed33d179d1d0f9db4b6cbb3837d809c42c0'
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions/'
+ANCHORS={
+'frontend':('/tmp/e02-E-frontend-retry-analysis-64d/publication-selection.json',28210,'e426af773e3833e8dc89fd86bc25ee3dbbc205fa4289dc3c0b15d4fb720c6acf',68),
+'http-attribution':('/tmp/e02-E-http-error-independent-64d/publication-selection-final.json',3311,'404b4481a90f3cb5be64b2a5b99e3fd126c0fba1e6216dca7a068a27d2900e61',14),
+'cycleboard-retry':('/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/publication-selection-final.json',3666,'69b315df4109cb27d15f0ace61f26e4c8be1f01d492dfa2dd5f20f266574f4a0',15),
+'cleanup-ci11':('/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/publication-selection.json',2339,'20ee5fe7b1b1b5c8f97135e350dd3507de9618187e67bee21e77d3722e419d82',6),
+'catalog-owner':('/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection-v2.json',57973,'279bea54f3a313f42b103d6f064bde6bc9364128a5a31236fbc106c4d1e090ad',106),
+'catalog-independent':('/tmp/e02-E-native-catalog-packet-independent-64d/publication-selection-final-v2.json',22017,'f695a3fd5c47a63c6fc34b2ead2ad2ef6d4ddd3faf1e3daec51e39673f9eca4e',39),
+}
+
+def require(value,reason):
+ if not value: raise ValueError(reason)
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+def ref(path):
+ raw=Path(path).read_bytes();return {'path':str(path),'bytes':len(raw),'sha256':digest(raw)}
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def write_json(path,value):path.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
+def members(selected,family):return selected['assets']+selected.get('identical_byte_aliases',[]) if family=='frontend' else selected['assets']
+def member_tuple(family,row,source_base):
+ source=row.get('source_path',row.get('path'))
+ portable=row.get('portable_path') or row.get('destination')
+ if portable: relative=Path(portable)
+ else:
+  try:relative=Path(source).relative_to(source_base)
+  except ValueError:relative=Path('actual-execution').joinpath(*Path(source).parts[-3:])
+ if relative.name.endswith('.py'):relative=relative.with_name(relative.name+'.txt')
+ return (family,source,row['bytes'],row['sha256'],(Path(family)/relative).as_posix(),row.get('role'),row.get('stored_at'),row.get('same_bytes_as'))
+def actual_tuple(row):return (row['family'],row['source_path'],row['source_bytes'],row['source_sha256'],row['logical_destination'],row.get('declared_role'),row.get('declared_stored_at'),row.get('declared_same_bytes_as'))
+
+parser=argparse.ArgumentParser();parser.add_argument('--candidate',required=True);parser.add_argument('--tree',required=True);parser.add_argument('--mode',default='normal');args=parser.parse_args()
+CANDIDATE=args.candidate;TREE=args.tree
+require(len(CANDIDATE)==40 and all(c in '0123456789abcdef' for c in CANDIDATE),'strict immutable commit')
+require(git('rev-parse',CANDIDATE+'^{tree}').decode().strip()==TREE,'immutable tree')
+require(subprocess.run(['git','-C',str(ROOT),'merge-base','--is-ancestor',BASE,CANDIDATE]).returncode==0,'ordinary append-only implementation ancestry')
+require(git('rev-list','--count',BASE+'..'+CANDIDATE).decode().strip()=='2','two append-only commits including explicit ignored CSV addition')
+require(git('rev-parse',CANDIDATE+'^^').decode().strip()==BASE,'ordinary linear two-commit parent chain')
+RUN=OUT/args.mode;RUN.mkdir(exist_ok=False)
+root_before={'head':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'tracked_status':git('status','--porcelain','--untracked-files=no').decode()}
+require(root_before['head']==SOURCE and root_before['tree']==SOURCE_TREE and not root_before['tracked_status'],'physical ROOT frozen source')
+manifest_raw=git('show',CANDIDATE+':'+PREFIX+'manifest.json');manifest=json.loads(manifest_raw)
+require(manifest_raw==(STAGE/'manifest.json').read_bytes(),'committed staged manifest byte identity')
+require(digest(manifest_raw)=='8eb551e9b96d403f571686adce443e2184de48e9c4703d44ed87894fe134a254','closed original manifest')
+copier=git('show',CANDIDATE+':'+PREFIX+'copy-closed-additions.py.txt')
+require(copier==(STAGE/'copy-closed-additions.py.txt').read_bytes(),'copier immutable before execution')
+require(digest(copier)=='099f71e9df6e01a4e54d2e54f24a5a3c1f831789a5a5fe08a8288d5bd900cdfd','closed copier source')
+checks=[];originals=[];selection_rows=[];expect=[]
+for family,(path,n,sha,count) in ANCHORS.items():
+ raw=Path(path).read_bytes();require((len(raw),digest(raw))==(n,sha),'original selector anchor '+family)
+ selected=json.loads(raw);rows=members(selected,family);require(len(rows)==count,'complete selected denominator '+family)
+ selected_sources=[]
+ for row in rows:
+  t=member_tuple(family,row,Path(path).parent);data=Path(t[1]).read_bytes();require((len(data),digest(data))==(t[2],t[3]),'actual original asset hash/size '+t[1]);expect.append(t)
+  selected_sources.append({'source_path':t[1],'bytes':t[2],'sha256':t[3],'logical_destination':t[4],'role':t[5],'stored_at':t[6],'same_bytes_as':t[7]})
+ if family=='frontend':
+  primary={row['portable_path']:row for row in selected['assets']}
+  for row in selected.get('identical_byte_aliases',[]):
+   p=primary[row['same_bytes_as']];require((p['bytes'],p['sha256'])==(row['bytes'],row['sha256']),'frontend alias named binding')
+ if family.startswith('catalog-'):
+  primary={row['destination']:row for row in selected['assets']}
+  for row in selected['assets']:
+   p=primary[row['stored_at']];require((p['bytes'],p['sha256'])==(row['bytes'],row['sha256']),'catalog stored-at binding')
+ expect.append(('selectors',path,n,sha,'selectors/'+family+'-selection.json',None,None,None))
+ selection_rows.append({'family':family,**ref(Path(path)),'selected_member_count':len(rows),'original_member_bytes':sum(row['bytes'] for row in rows)})
+ originals.extend(selected_sources)
+require(Counter(actual_tuple(row) for row in manifest['logical_sources'])==Counter(expect),'independent exact 254 original member multiset including roles/aliases')
+require(len(expect)==254 and len(originals)==248,'full six-family denominator')
+seen={};copies={r['portable_path']:r for r in manifest['canonical_copies']};literal=[]
+require(len(copies)==154,'complete canonical count')
+for row in manifest['logical_sources']:
+ content=(row['source_bytes'],row['source_sha256']);alias=content in seen
+ if not alias:seen[content]=row['logical_destination']
+ require(row['literal_alias'] is alias and row['canonical_destination']==seen[content],'independent first-content alias rule')
+ require(row['proposed_git_path']==PREFIX+seen[content],'logical Git destination')
+ target=copies[seen[content]];raw=Path(target['staged_path']).read_bytes();source=Path(row['source_path']).read_bytes()
+ require(raw==source,'alias original/current staged physical byte equality')
+ require(git('show',CANDIDATE+':'+row['proposed_git_path'])==raw,'each logical committed carrier binding')
+require(set(copies)==set(seen.values()),'no dropped or orphan canonical')
+require(manifest['unique_payload_bytes']==2340542 and sum(row['bytes'] for row in copies.values())==2340542,'moderate canonical byte denominator')
+require(manifest['deduplicated_logical_aliases']==100,'complete alias denominator')
+expected_files={PREFIX+row['portable_path']:Path(row['staged_path']) for row in copies.values()}
+for name in ('manifest.json','README.md','copy-closed-additions.py.txt','build-stage.py.txt','build.stdout.json','build.stderr.txt'):expected_files[PREFIX+name]=STAGE/name
+lines=git('diff','--name-status',BASE,CANDIDATE,'--').decode().splitlines()
+require(len(lines)==160 and all(line.startswith('A\t') for line in lines),'exact 160 additive DOC implementation paths')
+require({line.split('\t')[1] for line in lines}==set(expected_files),'whole implementation footprint')
+for path,source in expected_files.items():
+ raw=git('show',CANDIDATE+':'+path);require(raw==source.read_bytes(),'immutable Git byte equality '+path)
+ require(path.startswith(PREFIX) and not path.endswith('.py'),'passive docs-only owned footprint')
+ literal.append({'path':path,'source_path':str(source),'bytes':len(raw),'sha256':digest(raw),'git_blob':git('rev-parse',CANDIDATE+':'+path).decode().strip()})
+# Re-bind the catalog observer's actual fifteen source inputs. No application imports.
+catalog_review=json.loads(Path('/tmp/e02-E-native-catalog-packet-independent-64d/v2-publication-custody-independent-review.json').read_text());source_rows=[]
+for row in catalog_review['exact_source_inputs']:
+ data=git('show',SOURCE+':'+row['path']);require((len(data),digest(data))==(row['bytes'],row['sha256']) and data==(ROOT/row['path']).read_bytes(),'source Git/physical immutable '+row['path']);source_rows.append({**row,'independently_rebound':True})
+require(len(source_rows)==15,'all fifteen source companions')
+# Preserve outcome boundaries from exact copied original records, without semantic re-review.
+frontend=json.loads(Path('/tmp/e02-E-frontend-retry-analysis-64d/required-native-retry-closeout-normal.json').read_text())
+http=json.loads(Path('/tmp/e02-E-http-error-independent-64d/http-failure-attribution.json').read_text())
+cycle=json.loads(Path('/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/retry-completion.json').read_text())
+catalog=json.loads(Path('/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/evidence-summary-closeout-v2.json').read_text())
+require(http['native_outcome']=='FAIL' and http['counts']=={'cases':1585,'passed':675,'failed':81,'errors':827,'skipped':2},'original full HTTP failure retained')
+require(cycle['native_outcome']=='PASS' and cycle['native_counts']=={'cases':1,'passed':1,'failed':0,'errors':0,'skipped':0} and cycle['original_full_HTTP_outcome_retained']=='FAIL','bounded CycleBoard retry distinct from full HTTP')
+require(not catalog['finding_closure'] and not catalog['owner_helper_patch_accepted'],'catalog evidence correction not product authority')
+require(not frontend['source_patched'] and not frontend['finding_disposition_changed'] and not frontend['numeric_wave_repeated'],'frontend exact retry scope')
+# Pure literal custody corruptions independently refused, and removal is discriminating.
+def custody_guard(row):
+ require((len(Path(row['source_path']).read_bytes()),digest(Path(row['source_path']).read_bytes()))==(row['bytes'],row['sha256']),'independent original byte guard')
+ return True
+probe=copy.deepcopy(originals[1]);probe['sha256']='f'*64
+try:custody_guard(probe)
+except ValueError:checks.append({'name':'independent source digest corruption','outcome':'PASS refusal'})
+else:raise ValueError('source digest escape')
+probe=copy.deepcopy(originals[1]);probe['bytes']+=1
+try:custody_guard(probe)
+except ValueError:checks.append({'name':'independent source size corruption','outcome':'PASS refusal'})
+else:raise ValueError('source size escape')
+# The actual copier is executed only as stdlib, pinned immutable source in isolated /tmp.
+script=RUN/'immutable-copy-closed-additions.py.txt';script.write_bytes(copier)
+for name in ('README.md','copy-closed-additions.py.txt','build-stage.py.txt','build.stdout.json','build.stderr.txt'):(RUN/name).write_bytes((STAGE/name).read_bytes())
+def cli(label,value,expected_code,marker=None,source=script):
+ case=RUN/label;case.mkdir();inp=case/'manifest.json';write_json(inp,value)
+ for name in ('README.md','copy-closed-additions.py.txt','build-stage.py.txt','build.stdout.json','build.stderr.txt'):(case/name).write_bytes((RUN/name).read_bytes())
+ destination=case/'destination';argv=[sys.executable,*(['-O'] if args.mode=='optimized' else []),str(source),'--manifest',str(inp),'--destination-root',str(destination)]
+ with (case/'stdout.txt').open('wb') as out,(case/'stderr.txt').open('wb') as err:result=subprocess.run(argv,cwd=case,stdout=out,stderr=err)
+ require((result.returncode==0)==(expected_code==0),'actual copier result '+label)
+ if expected_code:require(not destination.exists(),'refusal before destination exists '+label)
+ if marker:require(marker in (case/'stderr.txt').read_text(),'exact actual refusal '+label)
+ row={'name':label,'argv':argv,'cwd':str(case),'exit_code':result.returncode,'destination_created':destination.exists(),'stdout':ref(case/'stdout.txt'),'stderr':ref(case/'stderr.txt'),'input':ref(inp)}
+ if not expected_code:
+  files=[p for p in destination.rglob('*') if p.is_file()];row['actual_files']=len(files)
+ checks.append(row);return destination,row
+healthy,healthy_row=cli('healthy',manifest,0);require(healthy_row['actual_files']==160,'actual native healthy copier full denominator')
+for path,original in expected_files.items():require((healthy/path).read_bytes()==original.read_bytes(),'actual healthy write readback')
+def retotal(value):
+ value['unique_payload_files']=len(value['canonical_copies']);value['unique_payload_bytes']=sum(r['bytes'] for r in value['canonical_copies']);value['logical_count_including_selectors']=len(value['logical_sources']);value['logical_bytes_including_selectors']=sum(r['source_bytes'] for r in value['logical_sources']);value['deduplicated_logical_aliases']=sum(r['literal_alias'] for r in value['logical_sources']);return value
+v=copy.deepcopy(manifest);v['verification_source']='f'*40;cli('source-corruption',v,1,'frozen source identity')
+v=copy.deepcopy(manifest);v['selection_inputs'][0]['sha256']='f'*64;cli('selector-hash-corruption',v,1,'original selector identity')
+v=copy.deepcopy(manifest);v['canonical_copies'][1]['bytes']+=1;retotal(v);cli('payload-size-corruption',v,1,'literal staged hash and size')
+v=copy.deepcopy(manifest);v['canonical_copies'][1]['sha256']='f'*64;cli('payload-hash-corruption',v,1,'literal staged hash and size')
+v=copy.deepcopy(manifest);r=next(r for r in v['logical_sources'] if r['declared_same_bytes_as']);r['declared_same_bytes_as']='forged-alias';cli('frontend-alias-name-corruption',v,1,'exact anchored original selected-member multiset')
+v=copy.deepcopy(manifest);r=next(r for r in v['logical_sources'] if r['declared_stored_at']);r['declared_stored_at']='forged-stored-at';cli('catalog-alias-name-corruption',v,1,'exact anchored original selected-member multiset')
+v=copy.deepcopy(manifest);v['logical_sources'][1]['declared_role']='forged-role';cli('role-corruption',v,1,'exact anchored original selected-member multiset')
+v=copy.deepcopy(manifest);r=next(r for r in v['logical_sources'] if r['literal_alias']);r['literal_alias']=False;retotal(v);cli('alias-state-corruption',v,1,'recomputed literal alias state')
+# Select a mandatory unique non-selector item, remove it, and recompute all summary totals.
+usage=Counter(r['canonical_destination'] for r in manifest['logical_sources']);chosen=next(r for r in manifest['logical_sources'] if r['family']=='http-attribution' and usage[r['canonical_destination']]==1 and r['source_bytes']>0)
+omitted=copy.deepcopy(manifest);omitted['logical_sources']=[r for r in omitted['logical_sources'] if r['source_path']!=chosen['source_path']];omitted['canonical_copies']=[r for r in omitted['canonical_copies'] if r['portable_path']!=chosen['canonical_destination']];retotal(omitted)
+cli('omitted-mandatory-original-retotalled',omitted,1,'exact anchored original selected-member multiset')
+# A shared alias may be removed without changing any canonical bytes; it still must refuse.
+v=copy.deepcopy(manifest);alias=next(r for r in v['logical_sources'] if r['family']=='catalog-independent' and r['literal_alias']);v['logical_sources'].remove(alias);retotal(v);cli('omitted-shared-alias-retotalled',v,1,'exact anchored original selected-member multiset')
+# Effective removal of only the selected-member predicate, reason marker retained.
+tree=ast.parse(copier);targets=[]
+for node in ast.walk(tree):
+ if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id=='require' and len(node.args)==2 and isinstance(node.args[1],ast.Constant) and node.args[1].value=='exact anchored original selected-member multiset':targets.append(node)
+require(len(targets)==1,'single membership predicate removal');targets[0].args[0]=ast.Constant(True);ast.fix_missing_locations(tree)
+removed=RUN/'membership-removal.py.txt';removed.write_text(ast.unparse(tree)+'\n');require('exact anchored original selected-member multiset' in removed.read_text(),'marker preserved in actual property removal')
+removed_out,removed_row=cli('effective-membership-removal-admits-omission',omitted,0,source=removed)
+require(removed_row['actual_files']==159 and not (removed_out/PREFIX/chosen['canonical_destination']).exists(),'effective removal changes actual written member denominator')
+removed_row['defining_property_outcome']='FAIL';removed_row['missing_original']=chosen;removed_row['reason_marker_retained']=True
+root_after={'head':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'tracked_status':git('status','--porcelain','--untracked-files=no').decode()};require(root_after==root_before,'ROOT source unchanged by independent stdlib custody observation')
+report={'schema':'policyos.e02.independent_closed_additions_docs_custody.v1','verdict':'GO bounded literal DOC custody','base':BASE,'candidate':CANDIDATE,'tree':TREE,'verification_source':SOURCE,'verification_tree':SOURCE_TREE,'mode':args.mode,'manifest':ref(STAGE/'manifest.json'),'copier':ref(STAGE/'copy-closed-additions.py.txt'),'selected_members':248,'original_selectors':6,'logical_count':254,'canonical_count':154,'canonical_bytes':2340542,'aliases':100,'implementation_paths':literal,'implementation_path_count':len(literal),'implementation_bytes':sum(r['bytes'] for r in literal),'source_companions':source_rows,'original_selections':selection_rows,'actual_cli_controls':checks,'original_http_outcome':http['native_outcome'],'original_http_counts':http['counts'],'bounded_cycleboard_outcome':cycle['native_outcome'],'bounded_cycleboard_counts':cycle['native_counts'],'preserved_catalog_originals':[catalog[k] for k in ('original_packet_unchanged','original_selection_unchanged','original_validator_unchanged')],'catalog_owner_helper_patch_accepted':False,'finding_closure':False,'own_ci11_cleanup_semantics_reviewed':False,'ROOT_before':root_before,'ROOT_after':root_after,'numeric_backend_application_or_gate_rerun':False,'environment_mutation':False,'scope':'Literal copies, all selected members/aliases and exact source identities only. Semantics/mechanism acceptance belongs to original reviewers. Historical FAIL/UNRUN and V1 escapes remain original bytes; no global or finding PASS.'}
+path=RUN/'independent-review.json';write_json(path,report);print(json.dumps({'report':ref(path),'verdict':report['verdict'],'candidate':CANDIDATE,'tree':TREE,'controls':len(checks),'paths':len(literal)},indent=2))

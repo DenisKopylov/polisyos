@@ -1,0 +1,25 @@
+{
+  "mode": "normal",
+  "case": "effective_qualification_removal",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/removed-qualification.py.txt",
+    "--manifest",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-effective_qualification_removal/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-effective_qualification_removal/destination"
+  ],
+  "exit_code": 0,
+  "destination_created": true,
+  "stdout": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-effective_qualification_removal/stdout.txt",
+    "bytes": 472,
+    "sha256": "adb75fb21994893f086a73b84ec62e724ef69247414913a2ad1494c0dcde9ea1"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-effective_qualification_removal/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "copied_exact_file_count": 177
+}

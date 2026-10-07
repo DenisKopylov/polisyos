@@ -1,0 +1,122 @@
+{
+  "schema": "policyos.e02.independent_72049_custody_claim_counterexamples.v1",
+  "candidate": "72049b1f4af560703eb0278289e888dc938f1d93",
+  "tree": "e6e145d7aab4cf5241d1461784008b8d587d7810",
+  "source_copier_sha256": "e663d9bc1edf8c160a093e6ba3a857be84cbdcf55df6c887244b304d05c7dc44",
+  "cases": [
+    {
+      "id": "typed_historical_closed_int1_to_boolTrue",
+      "mode": "normal",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/typed_historical_closed_int1_to_boolTrue-normal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/typed_historical_closed_int1_to_boolTrue-normal/destination"
+      ],
+      "return_code": 0,
+      "destination_exists": true,
+      "required_refusal_control": "FAIL",
+      "stdout": "{\n  \"outcome\": \"PASS literal custody\",\n  \"logical_count\": 237,\n  \"payload_files\": 168,\n  \"payload_bytes\": 8218180,\n  \"metadata_files\": 9,\n  \"total_files\": 177,\n  \"destination\": \"/tmp/e02-E-decisions-prereqs-custody-independent/typed_historical_closed_int1_to_boolTrue-normal/destination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs\",\n  \"source_numeric_gate_execution\": false\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "typed_historical_closed_int1_to_boolTrue",
+      "mode": "optimized",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/typed_historical_closed_int1_to_boolTrue-optimized/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/typed_historical_closed_int1_to_boolTrue-optimized/destination"
+      ],
+      "return_code": 0,
+      "destination_exists": true,
+      "required_refusal_control": "FAIL",
+      "stdout": "{\n  \"outcome\": \"PASS literal custody\",\n  \"logical_count\": 237,\n  \"payload_files\": 168,\n  \"payload_bytes\": 8218180,\n  \"metadata_files\": 9,\n  \"total_files\": 177,\n  \"destination\": \"/tmp/e02-E-decisions-prereqs-custody-independent/typed_historical_closed_int1_to_boolTrue-optimized/destination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs\",\n  \"source_numeric_gate_execution\": false\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "ROOT_after_different_SHA",
+      "mode": "normal",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/ROOT_after_different_SHA-normal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/ROOT_after_different_SHA-normal/destination"
+      ],
+      "return_code": 0,
+      "destination_exists": true,
+      "required_refusal_control": "FAIL",
+      "stdout": "{\n  \"outcome\": \"PASS literal custody\",\n  \"logical_count\": 237,\n  \"payload_files\": 168,\n  \"payload_bytes\": 8218180,\n  \"metadata_files\": 9,\n  \"total_files\": 177,\n  \"destination\": \"/tmp/e02-E-decisions-prereqs-custody-independent/ROOT_after_different_SHA-normal/destination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs\",\n  \"source_numeric_gate_execution\": false\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "ROOT_after_different_SHA",
+      "mode": "optimized",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/ROOT_after_different_SHA-optimized/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/ROOT_after_different_SHA-optimized/destination"
+      ],
+      "return_code": 0,
+      "destination_exists": true,
+      "required_refusal_control": "FAIL",
+      "stdout": "{\n  \"outcome\": \"PASS literal custody\",\n  \"logical_count\": 237,\n  \"payload_files\": 168,\n  \"payload_bytes\": 8218180,\n  \"metadata_files\": 9,\n  \"total_files\": 177,\n  \"destination\": \"/tmp/e02-E-decisions-prereqs-custody-independent/ROOT_after_different_SHA-optimized/destination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs\",\n  \"source_numeric_gate_execution\": false\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "source_numeric_execution_false_to_true",
+      "mode": "normal",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/source_numeric_execution_false_to_true-normal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/source_numeric_execution_false_to_true-normal/destination"
+      ],
+      "return_code": 0,
+      "destination_exists": true,
+      "required_refusal_control": "FAIL",
+      "stdout": "{\n  \"outcome\": \"PASS literal custody\",\n  \"logical_count\": 237,\n  \"payload_files\": 168,\n  \"payload_bytes\": 8218180,\n  \"metadata_files\": 9,\n  \"total_files\": 177,\n  \"destination\": \"/tmp/e02-E-decisions-prereqs-custody-independent/source_numeric_execution_false_to_true-normal/destination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs\",\n  \"source_numeric_gate_execution\": false\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "source_numeric_execution_false_to_true",
+      "mode": "optimized",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/source_numeric_execution_false_to_true-optimized/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-custody-independent/source_numeric_execution_false_to_true-optimized/destination"
+      ],
+      "return_code": 0,
+      "destination_exists": true,
+      "required_refusal_control": "FAIL",
+      "stdout": "{\n  \"outcome\": \"PASS literal custody\",\n  \"logical_count\": 237,\n  \"payload_files\": 168,\n  \"payload_bytes\": 8218180,\n  \"metadata_files\": 9,\n  \"total_files\": 177,\n  \"destination\": \"/tmp/e02-E-decisions-prereqs-custody-independent/source_numeric_execution_false_to_true-optimized/destination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs\",\n  \"source_numeric_gate_execution\": false\n}\n",
+      "stderr": ""
+    }
+  ],
+  "all_original_payload_and_selected_byte_hashes_retained": true,
+  "no_native_or_numerical_checks_executed": true,
+  "outcome": "CHANGE_REQUIRED"
+}

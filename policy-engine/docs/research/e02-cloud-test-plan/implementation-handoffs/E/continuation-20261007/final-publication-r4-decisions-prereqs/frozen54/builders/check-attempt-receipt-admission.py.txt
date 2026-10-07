@@ -1,0 +1,148 @@
+"""Check attempted-output admission against exact old/current observer branches."""
+
+from __future__ import annotations
+
+import ast
+import copy
+import hashlib
+import json
+import runpy
+import sys
+from pathlib import Path
+from typing import Any
+
+BASE = Path("/workspace/e02-E-pr38-r3-receipts/criteria-r4")
+NEW = BASE / "build-current-37-selector-index.py.txt"
+OLD = BASE / "build-current-37-selector-index.before-attempt-evidence.py.txt"
+ACTUAL = Path(
+    "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.stdout.txt"
+)
+FIXTURE = BASE / "attempt-admission-control"
+FIXTURE.mkdir(exist_ok=True)
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def record(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    return {
+        "path": str(path),
+        "bytes": len(raw),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+    }
+
+
+def branch(source: bytes) -> ast.If:
+    matching = [
+        n
+        for n in ast.walk(ast.parse(source))
+        if isinstance(n, ast.If) and ast.unparse(n.test) == "path.is_file()"
+    ]
+    require(len(matching) == 1, "one exact observer admission branch")
+    return matching[0]
+
+
+def observe(node: ast.If, path: Path, active: dict[str, Any]) -> dict[str, Any]:
+    namespace: dict[str, Any] = {
+        "path": path,
+        "active": active,
+        "name": "actual-control",
+        "step": {},
+        "SOURCE": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "record": record,
+        "require": require,
+        "check": runpy.run_path(str(BASE / "build-final-all-54-update.py.txt"))[
+            "frozen_receipt"
+        ],
+    }
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[])),
+            "exact_admission_branch",
+            "exec",
+        ),
+        namespace,
+    )  # noqa: S102 - isolated trusted exact AST branches; diagnostic fixture only
+    return namespace["step"]
+
+
+new_raw = NEW.read_bytes()
+old_raw = OLD.read_bytes()
+new_branch = branch(new_raw)
+old_branch = branch(old_raw)
+snapshot = FIXTURE / "attempted.stdout.txt"
+if not snapshot.exists():
+    snapshot.write_bytes(ACTUAL.read_bytes()[:4096])
+attempted = FIXTURE / "attempted.json"
+require(
+    not attempted.exists(), "actual-attempt prefix fixture has no fabricated final JSON"
+)
+no_attempt = FIXTURE / "never-attempted.json"
+require(
+    not no_attempt.exists() and not no_attempt.with_suffix(".stdout.txt").exists(),
+    "fresh no-attempt control",
+)
+old_state = observe(copy.deepcopy(old_branch), attempted, {})
+new_state = observe(copy.deepcopy(new_branch), attempted, {})
+require(old_state["outcome"] == "UNRUN", "old proxy divergence")
+require(
+    new_state["outcome"] is None
+    and new_state["receipt_not_final"] is True
+    and new_state["execution_running"] is False,
+    "attempt cannot become UNRUN",
+)
+never = observe(copy.deepcopy(new_branch), no_attempt, {})
+require(
+    never["outcome"] == "UNRUN" and never["receipt_not_final"] is False,
+    "actual no-attempt control",
+)
+active = observe(
+    copy.deepcopy(new_branch),
+    attempted,
+    {"actual-control": [{"candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"}]},
+)
+require(
+    active["outcome"] is None and active["execution_running"] is True,
+    "running remains pending",
+)
+removed = copy.deepcopy(new_branch)
+missing = removed.orelse[0].orelse[0]
+require(
+    isinstance(missing, ast.If) and ".stdout.txt" in ast.unparse(missing.test),
+    "exact attempt property",
+)
+removed.orelse[0].orelse = missing.orelse
+removed_state = observe(removed, attempted, {})
+require(
+    removed_state["outcome"] == "UNRUN", "effective removal reproduces old wrong state"
+)
+require(NEW.read_bytes() == new_raw and OLD.read_bytes() == old_raw, "source bracket")
+output = BASE / (
+    "attempt-admission-optimized.json"
+    if sys.flags.optimize
+    else "attempt-admission-normal.json"
+)
+require(not output.exists(), "append-only output")
+value = {
+    "schema": "policyos.e02.E.attempted_receipt_admission_controls.v1",
+    "check_outcome": "PASS",
+    "optimized": bool(sys.flags.optimize),
+    "new_source": record(NEW),
+    "old_source": record(OLD),
+    "verifier_source": record(Path(__file__)),
+    "fixture_input": record(snapshot),
+    "fixture_scope": "First4096 bytes of complete native CI02 stdout replayed with its receipt intentionally omitted. This controlled admission fixture is not the actual current CI02 execution state or a new native test result.",
+    "old_without_final_receipt": old_state,
+    "current_without_final_receipt": new_state,
+    "never_attempted": never,
+    "actually_running_branch": active,
+    "effective_property_removal": removed_state,
+    "native_selectors_rerun": False,
+    "processes_terminated": False,
+    "root_source_or_env_mutated": False,
+}
+output.write_text(json.dumps(value, indent=2) + "\n")
+sys.stdout.write(json.dumps(record(output), indent=2) + "\n")

@@ -1,0 +1,296 @@
+{
+  "schema": "policyos.e02.exact_remaining_forecast_api_owner_packet.v1",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "canonical_IR_declaration": {
+    "module": "polisyos.ir",
+    "classification": "public_stable",
+    "facade_mode": "lazy_facade",
+    "owner": "team-polisyos",
+    "readme": "src/polisyos/ir/README.md",
+    "reference_doc": "docs/reference/public-surface.md",
+    "supported_entrypoints": [
+      "polisyos.ir",
+      "polisyos.ir.analytics",
+      "polisyos.ir.api"
+    ],
+    "major_subsystem": true,
+    "notes": "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
+  },
+  "complete_supported_entrypoint_census": [
+    {
+      "entrypoint_source": "policy-engine/src/polisyos/ir/__init__.py",
+      "all_top_level_assignments_and_direct_bindings_read": true,
+      "requested_direct_bindings": [],
+      "native_forecast_mappings": [
+        {
+          "mapping": "_LAZY_IMPORTS",
+          "existing_native_forecast_bindings": {
+            "ForecastCalibrationMethod": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastCalibrationMethod"
+            ],
+            "ForecastCoverageDiagnostic": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastCoverageDiagnostic"
+            ],
+            "ForecastIntervalSemantics": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastIntervalSemantics"
+            ],
+            "ForecastingUncertaintyBundle": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastingUncertaintyBundle"
+            ],
+            "ForecastingUncertaintyBundleV2": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastingUncertaintyBundleV2"
+            ],
+            "FanChartSpec": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "FanChartSpec"
+            ],
+            "ReconciliationCertificate": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ReconciliationCertificate"
+            ],
+            "ReconciliationMethod": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ReconciliationMethod"
+            ],
+            "ReconciliationStatus": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ReconciliationStatus"
+            ],
+            "HorizonInterval": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "HorizonInterval"
+            ],
+            "HorizonPolicySpec": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "HorizonPolicySpec"
+            ]
+          },
+          "requested_native_aliases": {}
+        }
+      ]
+    },
+    {
+      "entrypoint_source": "policy-engine/src/polisyos/ir/api.py",
+      "all_top_level_assignments_and_direct_bindings_read": true,
+      "requested_direct_bindings": [],
+      "native_forecast_mappings": [
+        {
+          "mapping": "ANALYTICS_FACADE_EXPORTS",
+          "existing_native_forecast_bindings": {
+            "ForecastCalibrationMethod": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastCalibrationMethod"
+            ],
+            "ForecastCoverageDiagnostic": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastCoverageDiagnostic"
+            ],
+            "ForecastIntervalSemantics": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastIntervalSemantics"
+            ],
+            "ForecastingUncertaintyBundle": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastingUncertaintyBundle"
+            ],
+            "ForecastingUncertaintyBundleV2": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ForecastingUncertaintyBundleV2"
+            ],
+            "FanChartSpec": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "FanChartSpec"
+            ],
+            "ReconciliationCertificate": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ReconciliationCertificate"
+            ],
+            "ReconciliationMethod": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ReconciliationMethod"
+            ],
+            "ReconciliationStatus": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "ReconciliationStatus"
+            ],
+            "HorizonInterval": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "HorizonInterval"
+            ],
+            "HorizonPolicySpec": [
+              "polisyos.ir.analytics.forecasting_uncertainty",
+              "HorizonPolicySpec"
+            ]
+          },
+          "requested_native_aliases": {}
+        }
+      ]
+    },
+    {
+      "entrypoint_source": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "all_top_level_assignments_and_direct_bindings_read": true,
+      "requested_direct_bindings": [],
+      "native_forecast_mappings": []
+    }
+  ],
+  "required_existing_typed_definitions": [
+    {
+      "name": "persist_forecasting_uncertainty_bundle",
+      "line": 725,
+      "signature": "def persist_forecasting_uncertainty_bundle(store: ArtifactStore, bundle: ForecastingUncertaintyBundle, *, inputs: list[InputRef] | None=None, schema_name: str='ir.forecasting_uncertainty_bundle', schema_version: str='1.0') -> ForecastingUncertaintyBundleRef:",
+      "definition_sha256": "ca96bcc96625be570223f1fa99864ac4e53f86d20a904687cc1ccf0af8033e93",
+      "definition_body": "def persist_forecasting_uncertainty_bundle(\n    store: ArtifactStore,\n    bundle: ForecastingUncertaintyBundle,\n    *,\n    inputs: list[InputRef] | None = None,\n    schema_name: str = \"ir.forecasting_uncertainty_bundle\",\n    schema_version: str = \"1.0\",\n) -> ForecastingUncertaintyBundleRef:\n    \"\"\"Persist a forecasting uncertainty bundle as a typed JSON artifact.\"\"\"\n\n    if isinstance(bundle, ForecastingUncertaintyBundleV2) and schema_version == \"1.0\":\n        schema_version = \"2.0\"\n\n    ref = put_json_artifact(\n        store,\n        bundle.model_dump(mode=\"json\", round_trip=True),\n        kind=\"ir.forecasting_uncertainty_bundle\",\n        schema_name=schema_name,\n        schema_version=schema_version,\n        inputs=inputs,\n        canon_spec=CanonSpec(forbid_floats=False),\n    )\n    return ForecastingUncertaintyBundleRef.model_validate(ref)"
+    },
+    {
+      "name": "load_forecasting_uncertainty_bundle",
+      "line": 750,
+      "signature": "def load_forecasting_uncertainty_bundle(store: ArtifactStore, ref: ForecastingUncertaintyBundleRef) -> ForecastingUncertaintyBundle | ForecastingUncertaintyBundleV2:",
+      "definition_sha256": "a3282f66e28d9aa1d3900a14b902eacc5f0a8a93f9111fb550d33cc27229a0db",
+      "definition_body": "def load_forecasting_uncertainty_bundle(\n    store: ArtifactStore,\n    ref: ForecastingUncertaintyBundleRef,\n) -> ForecastingUncertaintyBundle | ForecastingUncertaintyBundleV2:\n    \"\"\"Load a forecasting uncertainty bundle from artifact storage.\"\"\"\n\n    payload = get_json_artifact(store, ref.artifact_id)\n    if (\n        isinstance(payload, dict)\n        and (\n            payload.get(\"schema_version\") == \"2.0\"\n            or payload.get(\"reconciliation_certificate\") is not None\n        )\n    ):\n        return ForecastingUncertaintyBundleV2.model_validate(payload)\n    return ForecastingUncertaintyBundle.model_validate(payload)"
+    }
+  ],
+  "source_bindings": [
+    {
+      "path": ".github/CODEOWNERS",
+      "bytes": 4869,
+      "sha256": "e491efb90f9f96c2d05d16adbc0225017650aa82781cb34736e7674edfcd0b32",
+      "git_blob": "7eea690f3943d174bd74cf727edbf7677e0edbba"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5"
+    },
+    {
+      "path": "policy-engine/docs/reference/ownership.md",
+      "bytes": 11656,
+      "sha256": "fc4931abf31d46c54d01bb7b1d6ffbca0138f628cfdee1fe4975e65962b49d3f",
+      "git_blob": "23bcf339dc128c78ea9c10c850400e91f3ffed63"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "git_blob": "5557f1ec06a594e99ec1d00c2178c50f0fff68b9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 49444,
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "git_blob": "cac5101dabadb09a07a7c00c7688fa1dc2f3b105"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "bytes": 1152,
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "git_blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/forecasting_uncertainty.py",
+      "bytes": 32440,
+      "sha256": "c7051425f7471d9afe9f037d5dd2a75ae6067533ab1cd4b536c7d1089f4da9a3",
+      "git_blob": "d1cdcc94cbe262bc53b71680a5a150629694883d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "git_blob": "b3bce8ce42df233d434196fafdca31225e949c18"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "bytes": 59611,
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c"
+    }
+  ],
+  "available_supported_serializer_route": false,
+  "incidental_module_fallback": "analytics.__getattr__ can expose an arbitrary internal submodule; neither that fallback nor a previously imported module is a curated declaration of these typed helpers. It is not used to hide an internal API edge. Root __getattr__ resolves only _LAZY_IMPORTS.",
+  "canonical_writer": {
+    "logical": "@ir-owners / team-polisyos IR API",
+    "public_surface_inventory_review": "@architecture-owners / team-architecture",
+    "fallback": "@platform-owners",
+    "enforceable_GitHub_reviewer": "@DenisKopylov",
+    "ownership_sources": [
+      ".github/CODEOWNERS",
+      "policy-engine/docs/reference/ownership.md",
+      "policy-engine/architecture/public_surface/contract.toml"
+    ]
+  },
+  "required_owner_input": "Admit one existing loader alias for the historical12 edge, or the recommended existing writer+loader pair for the real ForecastOwner producer/readback and bridge. No new data, noise law, wire functional or consumer authority is required for these identity aliases.",
+  "minimum_historical_edge_patch": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch",
+    "bytes": 1257,
+    "sha256": "b9941f66776a7f4fd99f7bdd41fd5f6092c5fec0b016368ef2ee1899b65b5a2a",
+    "git_apply_check": {
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/e02-E-continuation-20261006",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "applied": false
+  },
+  "recommended_full_producer_consumer_pair_patch": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch",
+    "bytes": 1928,
+    "sha256": "329965955e276b201c53929b1a09694ac49b3f23369d691a5c58c120ff38a508",
+    "git_apply_check": {
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/e02-E-continuation-20261006",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "applied": false
+  },
+  "patch_state": "reviewable_not_applied",
+  "required_companions": [
+    "Existing IR facade tests: exact native object identities for both helpers, every old export/mapping retained, fresh process before any private submodule import",
+    "Actual ETS ForecastOwner with configured CAS, separate candidate/evidence artifacts, fresh bundle reader and forecast bridge consumer, plus integrity-valid measurement/count forgery and route-removal controls",
+    "IR README/API/release classification with canonical owner review; regenerate public inventory/docs through canonical tool with --skip-deep-import-baseline, never hand-edit generated output or widen deep baseline/exception",
+    "Architecture recomputing selector after owner implementation, with present-name/private-route fake and collector-removal negative",
+    "Ruff/format import-order and import-cycle smoke after the optional producer companion route changes; native function bodies remain unchanged"
+  ],
+  "affected_current_selectors": [
+    "tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_configured_ets_emits_separate_evidence_and_candidate_receipt",
+    "tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_fresh_receipt_reader_refuses_integrity_valid_measurement_forgery",
+    "tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_content_valid_false_counts_are_rejected_on_fresh_consumer_read",
+    "tests/unit/remediation/test_frc_02_owner.py",
+    "tests/unit/ir/test_forecasting_uncertainty.py"
+  ],
+  "prior_independent_applicability_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/owner-packet-review.json",
+    "sha256": "ddd49dc698b98f7f4dcec22dd991d9f9cf64da807aca8796ae848c966b53ea0b",
+    "source_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+    "use": "Prior identity-alias design and bounded behavior evidence only; not a current applied public admission or current64d patched-runtime PASS."
+  },
+  "separate_outside_historical12": "BKT Foundry executor helpers and welfare uncertainty serializers retain their own owner packet. Core adapter is an explicitly approved internal native test seam, not a public root export.",
+  "capability_state": "surface_missing",
+  "predicate_basis": "recomputed",
+  "P41": "not_established; no exact base complete gate replay in this targeted declaration search",
+  "limits": [
+    "Read-only exact current declaration/native definition census and git apply --check only. No patch applied, generated file changed, facade behavior test or global gate repeated.",
+    "E scoped B201/B202 appointment grants no general IR/FRC/Core public facade lease.",
+    "Global architecture/static outcomes and individual finding dispositions remain separate. Native production history remains local and is not needed to decide this library alias admission."
+  ]
+}

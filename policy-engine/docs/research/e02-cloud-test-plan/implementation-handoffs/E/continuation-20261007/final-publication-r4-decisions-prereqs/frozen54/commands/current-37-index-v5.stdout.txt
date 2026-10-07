@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-37-selector-dispositions-v5.json",
+  "bytes": 115563,
+  "sha256": "ed043655af120349142c669db39b4f5822ff354e7a33610690b0fab046159175"
+}

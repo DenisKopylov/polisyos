@@ -1,0 +1,15 @@
+from pathlib import Path
+import subprocess,hashlib,json
+root=Path('/workspace/e02-E-continuation-20261006');output=Path('/workspace/e02-E-pr38-r3-receipts/final-lint-recorder');python=str(root/'policy-engine/.venv/bin/python');relative='docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/trace.py'
+commands=[('canonical',root/'policy-engine',[python,'-m','ruff','check','--show-settings',relative]),('explicit-root-config',root,[python,'-m','ruff','check','--show-settings','--config','policy-engine/ruff.toml','policy-engine/'+relative])]
+rows=[]
+for name,cwd,argv in commands:
+ completed=subprocess.run(argv,cwd=cwd,capture_output=True);assets={}
+ for stream,data in [('stdout',completed.stdout),('stderr',completed.stderr)]:
+  path=output/(name+'-settings.'+stream);path.write_bytes(data);assets[stream]={'path':str(path),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+ roots=[line for line in completed.stdout.decode().splitlines() if line.startswith(('Settings path:','file_resolver.project_root =','linter.project_root =','cache_dir ='))]
+ rows.append({'name':name,'argv':argv,'cwd':str(cwd),'exit_code':completed.returncode,'complete_outputs':assets,'root_settings':roots,'scope':'One-file settings resolution only; no Ruff diagnostics or global check'})
+ if completed.returncode:raise RuntimeError(completed.stderr.decode())
+if rows[0]['root_settings']==rows[1]['root_settings']:raise RuntimeError('Expected project-root distinction absent')
+(output/'canonical-config-distinction.json').write_text(json.dumps({'schema':'policyos.e02.lint_selector_distinction.v1','commands':rows,'same_settings_file':True,'different_project_root_and_relative_resolution':True,'global_Ruff_or_format_executed':False},indent=2)+'\n')
+print(json.dumps({'selector_controls':'PASS','canonical':rows[0]['root_settings'],'explicit':rows[1]['root_settings'],'global_Ruff_or_format_executed':False},indent=2))

@@ -1,0 +1,5743 @@
+{
+  "schema": "policyos.e02.independent_source_census.v1",
+  "base_sha": "c4b2ccfb1f8716680f0b431ab4c5757dcc75343f",
+  "base_tree": "61e2babec557b813036c194811ceece78ce95ca6",
+  "invocation_python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "source_denominator": 2701,
+  "parse_success_count": 2701,
+  "parse_errors": [],
+  "selected_source_path_count": 121,
+  "selection": "full tracked .py source AST: imports and calls bound to named uncertainty/carrier/ref/summary symbols plus joint/profile keys; attribute uses are reported only inside selected paths",
+  "known_limits": [
+    "Static symbol/attribute bindings only; dynamic getattr, registry dispatch, re-exports and runtime data-flow are not inferred.",
+    "Original manifest ownership is declaration evidence; runtime consumption requires the specific source/native witness.",
+    "No test files or ignored outputs in source denominator."
+  ],
+  "summary_direct_callers": [],
+  "C_F_manifest_selected_edges": [
+    {
+      "bundle": "GRF-03",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_queries.py"
+      ]
+    },
+    {
+      "bundle": "CAU-01",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "policy-engine/src/polisyos/ir/analytics/causal.py"
+      ]
+    },
+    {
+      "bundle": "CAU-02",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ]
+    },
+    {
+      "bundle": "CAU-03",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ]
+    },
+    {
+      "bundle": "CAU-04",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+        "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+      ]
+    },
+    {
+      "bundle": "CAU-05",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ]
+    },
+    {
+      "bundle": "SCM-01",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+      ]
+    },
+    {
+      "bundle": "SCM-02",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_queries.py"
+      ]
+    },
+    {
+      "bundle": "SCM-03",
+      "unit": "F",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py"
+      ]
+    }
+  ],
+  "current_head_observed": "fd9cc860b14bb10b9f72cd3ab2914fd450fcb78e",
+  "product_delta_from_base": [],
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "imports": [
+        {
+          "line": 995,
+          "binding": "load_forecasting_uncertainty_bundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "blob": "80ecfa1eb62284adc453c5c74724059d81d3121a",
+      "sha256": "9b711f5139397946be246aca817aacfb31c7637385cac570cff71872470e7d4e",
+      "imports": [
+        {
+          "line": 1330,
+          "binding": "ForecastingUncertaintyBundleRef",
+          "qualified": "uncertainty.ForecastingUncertaintyBundleRef",
+          "relative_level": 1
+        },
+        {
+          "line": 1330,
+          "binding": "RegimeShiftForecastBundleRef",
+          "qualified": "uncertainty.RegimeShiftForecastBundleRef",
+          "relative_level": 1
+        },
+        {
+          "line": 1330,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "uncertainty.UncertaintyEnvelopeRef",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "blob": "cca74f769735987af10b0a38cdc93581fc364042",
+      "sha256": "390415a884778be3f78415c6610db9ea51e26484466d246859a912076a557bf7",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "uncertainty.UncertaintyEnvelopeRef",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+      "blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+      "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d",
+      "imports": [
+        {
+          "line": 17,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "uncertainty.UncertaintyEnvelopeRef",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/uncertainty.py",
+      "blob": "c3d3691b8debde6afd2beec2f93c33d6da1b08aa",
+      "sha256": "39098b2e757991cf87c9ced1ecd06ccfeca71b5cfa0dec568aa0f40d4ed17928",
+      "imports": [
+        {
+          "line": 3,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "polisyos.ir.registry.refs.UncertaintyEnvelopeRef",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/claims/conflicts/resolve.py",
+      "blob": "0d58535aad64af9839eda4bdb05d4e576ed7635c",
+      "sha256": "f505c6d3ab794aa87dcaa9ac3b60b0c251a8f63375905b1f1713586ca59a8c00",
+      "imports": [
+        {
+          "line": 31,
+          "binding": "persist_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+          "relative_level": 0
+        },
+        {
+          "line": 70,
+          "binding": "envelope_from_conflict_resolution",
+          "qualified": "uncertainty_adapter.envelope_from_conflict_resolution",
+          "relative_level": 1
+        }
+      ],
+      "calls": [
+        {
+          "line": 684,
+          "call": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/claims/conflicts/uncertainty_adapter.py",
+      "blob": "126c07847c20a1d1f7f01635e2b2de398b9b21a9",
+      "sha256": "b5bb4a0a3c121c6852a54a575f77dd446d58dfe410d67a7ee95b5489d3ba63bf",
+      "imports": [
+        {
+          "line": 7,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 7,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 7,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 7,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 7,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 65,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/trust/adapter.py",
+      "blob": "5083015e48928091bd1097b29602283a6f345b52",
+      "sha256": "21182d17becb8468974d4f3177afdc89e98456de0aaac462d0c642d21347a1f6",
+      "imports": [
+        {
+          "line": 6,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 6,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 6,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 6,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 6,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 35,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/trust/trust.py",
+      "blob": "e96966ea13ae3193f393322a1fd78981112daa41",
+      "sha256": "5ed2c0a5c982db5fd5bf37e14bed8b17da27e8f450ac9b35e06e41cd2520af57",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/world/targets/bayesian.py",
+      "blob": "aa509ab208213fbe33dd0147a21fee9219b139c7",
+      "sha256": "683e12657d2d2caa2f598f31cc65a30a16acefbc67e6cb1487a47569533eb2f2",
+      "imports": [],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [
+        {
+          "line": 62,
+          "key": "posterior_mean"
+        },
+        {
+          "line": 84,
+          "key": "posterior_mean"
+        }
+      ],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "blob": "f29b8927e613941051031e894b89674b6d857fda",
+      "sha256": "86393eb0df0ea9373f9e493a23be04935abfe1d7ca853b8b9ddf657c65dd0cbc",
+      "imports": [
+        {
+          "line": 61,
+          "binding": "envelope_from_calibration_param",
+          "qualified": "uncertainty_adapter.envelope_from_calibration_param",
+          "relative_level": 1
+        },
+        {
+          "line": 61,
+          "binding": "envelopes_from_calibration",
+          "qualified": "uncertainty_adapter.envelopes_from_calibration",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+      "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca",
+      "imports": [
+        {
+          "line": 70,
+          "binding": "envelopes_from_calibration",
+          "qualified": "polisyos.foundry.calibration.uncertainty_adapter.envelopes_from_calibration",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "CAL-02",
+          "unit": "E"
+        },
+        {
+          "bundle": "CAL-03",
+          "unit": "E"
+        },
+        {
+          "bundle": "CAL-04",
+          "unit": "E"
+        },
+        {
+          "bundle": "CAL-06",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "CAL-05",
+          "unit": "E"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "blob": "fc6a1df59013b46c01dcf2eb966923fb896f8498",
+      "sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945",
+      "imports": [
+        {
+          "line": 21,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "polisyos.core.contracts.uncertainty.UncertaintyEnvelopeRef",
+          "relative_level": 0
+        },
+        {
+          "line": 24,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/robust_set_selector.py",
+      "blob": "9423540857fff724e563856c5333488336b3b56e",
+      "sha256": "59f1dbf20b68f732815ef7bead87e106e1f3ab0706b820d54d8d69366315c839",
+      "imports": [
+        {
+          "line": 12,
+          "binding": "RobustSetAdequacyStatus",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetAdequacyStatus",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "RobustSetCalibrationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetCalibrationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "RobustSetCalibrationReport",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetCalibrationReport",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "RobustSetCalibrationStatus",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetCalibrationStatus",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "RobustSetFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "RobustSetFrontierPoint",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetFrontierPoint",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "RobustSetSpec",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetSpec",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "blob": "00ede8ba8383e7531bfbfcb05a5dc17e09cd9d0a",
+      "sha256": "76a4961b9c32f4a8a021796617d84bbc68420d4ef11548c5f21bf39d21291841",
+      "imports": [
+        {
+          "line": 15,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 15,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 15,
+          "binding": "ParametricFitCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 15,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 15,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 15,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 145,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 284,
+          "call": "BayesianCalibrationPosteriorSummary"
+        },
+        {
+          "line": 240,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "CAL-06",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQS-01",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/validated.py",
+      "blob": "fe1d0e762d607941fd570ff3614e9dc2444e1e7d",
+      "sha256": "b8cd1c5fa38eaae135a5caed462d4de33441b10c67127f59612b0ad41544373a",
+      "imports": [
+        {
+          "line": 14,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 14,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 14,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 14,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 14,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 262,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "blob": "4d73b367bb7f067fabaff11399066694bab424a2",
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8",
+      "imports": [
+        {
+          "line": 38,
+          "binding": "OutputContractCapability",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractCapability",
+          "relative_level": 0
+        },
+        {
+          "line": 38,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 38,
+          "binding": "supports_value_uncertainty_projection_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.supports_value_uncertainty_projection_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/advanced.py",
+      "blob": "946a73ecf04c1ca9eecf791df81bff155f69faf5",
+      "sha256": "2a2db025e2f187b6ad70eee1a90f288347ece06b797d9af7bf3b2583547f4b11",
+      "imports": [],
+      "calls": [
+        {
+          "line": 2272,
+          "call": "posterior_result.to_uncertainty_envelope"
+        },
+        {
+          "line": 2569,
+          "call": "posterior_result.to_uncertainty_envelope"
+        },
+        {
+          "line": 2873,
+          "call": "posterior_result.to_uncertainty_envelope"
+        },
+        {
+          "line": 3034,
+          "call": "posterior_result.to_uncertainty_envelope"
+        },
+        {
+          "line": 3200,
+          "call": "posterior_result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/frontier.py",
+      "blob": "c2edd6fb3021c7f608b8028869101ebed3bd4007",
+      "sha256": "8ea184a7f1b9451f34bcdac60b2d1747d797383cb25d6095707127b485f6849b",
+      "imports": [],
+      "calls": [
+        {
+          "line": 926,
+          "call": "posterior.to_uncertainty_envelope"
+        },
+        {
+          "line": 1124,
+          "call": "posterior.to_uncertainty_envelope"
+        },
+        {
+          "line": 1246,
+          "call": "posterior.to_uncertainty_envelope"
+        },
+        {
+          "line": 1643,
+          "call": "posterior.to_uncertainty_envelope"
+        },
+        {
+          "line": 2033,
+          "call": "posterior.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 1109,
+          "attribute": "posterior.posterior_means"
+        },
+        {
+          "line": 1106,
+          "attribute": "posterior.posterior_means"
+        },
+        {
+          "line": 1115,
+          "attribute": "posterior.posterior_means"
+        },
+        {
+          "line": 1116,
+          "attribute": "posterior.posterior_means"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/gp.py",
+      "blob": "30356da4923f1090e0dc295934136fd842c472d2",
+      "sha256": "f4361641e10309d825ebb9effabba746c6c27c77792f08945bc55aec4c38c15c",
+      "imports": [
+        {
+          "line": 36,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 36,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 36,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 36,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 36,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 439,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 607,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/protocols.py",
+      "blob": "7e6beaf119b744b3fec178380a8062b42cf3f628",
+      "sha256": "be9ae1dd65693ec818fd36d2bf2d88b36f86c15e4706e5966399ae6bc353d86e",
+      "imports": [
+        {
+          "line": 23,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "NativeValueEstimandBinding",
+          "qualified": "polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "ValueUncertaintyProjectionKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "value_uncertainty_output_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.value_uncertainty_output_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 1683,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 1718,
+          "call": "self.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 1674,
+          "attribute": "self.posterior_means"
+        },
+        {
+          "line": 1680,
+          "attribute": "self.posterior_means"
+        },
+        {
+          "line": 1670,
+          "attribute": "self.posterior_means"
+        },
+        {
+          "line": 1666,
+          "attribute": "self.posterior_means"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/regression.py",
+      "blob": "402fcaa4b71f4feb1e25668608aaea441beda28e",
+      "sha256": "7544709002776aee05b3a66c3d2fbb04c0c787c3abccc7c2abf56e73f1d172d4",
+      "imports": [],
+      "calls": [
+        {
+          "line": 348,
+          "call": "posterior_result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/timeseries.py",
+      "blob": "6f172a6e5745e32c8f1a70295d2e0d576e24775f",
+      "sha256": "49c8326cc119de084e1245a29741bcd3f8a092d1cac5f6332a1cc338dc6f0a28",
+      "imports": [],
+      "calls": [
+        {
+          "line": 346,
+          "call": "posterior_result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/variational.py",
+      "blob": "bd139370bd47a169083e32cab449f720ed363f23",
+      "sha256": "0ddd87d8d4bb9a81def797c7f4f1523cbb86970a0964330dda547af177909fdf",
+      "imports": [
+        {
+          "line": 38,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 38,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 38,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 38,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 38,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 478,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 707,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 479,
+          "attribute": "result.posterior_means"
+        },
+        {
+          "line": 708,
+          "attribute": "result.posterior_means"
+        }
+      ],
+      "profile_or_joint_key_locations": [
+        {
+          "line": 490,
+          "key": "posterior_mean"
+        },
+        {
+          "line": 719,
+          "key": "posterior_mean"
+        }
+      ],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+      "blob": "9097e312036819146bac6bbd8bc8decebf236f3f",
+      "sha256": "afe8b61f2d8bd9ff8b6c357ff8c42133603f2a1bc2b437e3546d681a5a1490ab",
+      "imports": [],
+      "calls": [
+        {
+          "line": 145,
+          "call": "report.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "CAU-01",
+          "unit": "F"
+        },
+        {
+          "bundle": "CAU-04",
+          "unit": "F"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "CAU-02",
+          "unit": "F"
+        },
+        {
+          "bundle": "CAU-03",
+          "unit": "F"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "blob": "f172e9cbffb33bc20aa7bf653b7e72246d4a4211",
+      "sha256": "f489e92583da8ad260c79d2d5e5554d95a674dfddff08ce0295ff3c3c28db04e",
+      "imports": [],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [
+        {
+          "line": 201,
+          "key": "posterior_mean"
+        }
+      ],
+      "original_bundle_writers": [
+        {
+          "bundle": "GRF-03",
+          "unit": "F"
+        },
+        {
+          "bundle": "SCM-01",
+          "unit": "F"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "blob": "6340b61ea737791d4d83a78a984d7a8dbf626483",
+      "sha256": "11cfcef04b6d81b22c96d086198684887802a6c62657ca9f57400d2b41651e29",
+      "imports": [],
+      "calls": [
+        {
+          "line": 1635,
+          "call": "query_result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [
+        {
+          "line": 151,
+          "key": "posterior_mean"
+        },
+        {
+          "line": 152,
+          "key": "posterior_mean"
+        },
+        {
+          "line": 921,
+          "key": "posterior_mean"
+        },
+        {
+          "line": 151,
+          "key": "posterior_mean"
+        }
+      ],
+      "original_bundle_writers": [
+        {
+          "bundle": "GRF-03",
+          "unit": "F"
+        },
+        {
+          "bundle": "SCM-01",
+          "unit": "F"
+        },
+        {
+          "bundle": "SCM-02",
+          "unit": "F"
+        },
+        {
+          "bundle": "SCM-03",
+          "unit": "F"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+      "imports": [
+        {
+          "line": 31,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 1158,
+          "call": "report.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "CAU-01",
+          "unit": "F"
+        },
+        {
+          "bundle": "CAU-02",
+          "unit": "F"
+        },
+        {
+          "bundle": "CAU-03",
+          "unit": "F"
+        },
+        {
+          "bundle": "CAU-04",
+          "unit": "F"
+        },
+        {
+          "bundle": "CAU-05",
+          "unit": "F"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "blob": "4286ec4c4ef5f296756d7418d4eedd5031f34961",
+      "sha256": "ec44211026a0d2ce6703f8251b23f80870f672fdb37ac35b64051993a1bd1519",
+      "imports": [
+        {
+          "line": 62,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 62,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 62,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 62,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 62,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 567,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "SCM-01",
+          "unit": "F"
+        },
+        {
+          "bundle": "SCM-02",
+          "unit": "F"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "SCM-03",
+          "unit": "F"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "blob": "437aeb254c9dff6c2735f9c914953553ea9f6de3",
+      "sha256": "b80774434a4680f8b10fd880644754958c68d233f4a38e69858ab53ab826f745",
+      "imports": [
+        {
+          "line": 34,
+          "binding": "FanChartSpec",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.FanChartSpec",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "ForecastCalibrationMethod",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastCalibrationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "ForecastCoverageDiagnostic",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastCoverageDiagnostic",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "ForecastingUncertaintyBundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "ForecastIntervalSemantics",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastIntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "HorizonDiagnosticState",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonDiagnosticState",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "HorizonInterval",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonInterval",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "HorizonPolicyRule",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonPolicyRule",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "HorizonPolicySpec",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonPolicySpec",
+          "relative_level": 0
+        },
+        {
+          "line": 34,
+          "binding": "HorizonQuantileSet",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonQuantileSet",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 1074,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 1218,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 1334,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 1427,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 2102,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 2189,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/dynamic_panel.py",
+      "blob": "15b3d5ce93b0104bfc11fe17b6328c0ada67d96a",
+      "sha256": "2f3345c71dcf0964b028211733b6534014eb0aedbdc0c8f596ef3bce5dd1eeb7",
+      "imports": [],
+      "calls": [
+        {
+          "line": 1339,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 1390,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/expansion.py",
+      "blob": "4abd95c20c1f4633929d5682bac7907f939ac4c7",
+      "sha256": "adc09aaedc0a9c8c6834742cbab6e18a9969a7303b3aaafcd28abc9af6382b3c",
+      "imports": [],
+      "calls": [
+        {
+          "line": 145,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 285,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 409,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 513,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/factor_models.py",
+      "blob": "259f3cb9f1579c6faf1f0f131e367251a8507c6b",
+      "sha256": "203eab2160c2b8b3c47fbda6f81ecd03b57564d00aa614e2ef5a30c3f1eea9cd",
+      "imports": [
+        {
+          "line": 218,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 218,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 218,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 218,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 218,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 479,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 479,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 479,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 479,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 479,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 226,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 487,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/high_dimensional_iv.py",
+      "blob": "e9f8c65cb232930868844b67eeb9d0be356148ec",
+      "sha256": "e24868aaa0d23f41213f8b0e8005bf3a31266fc88678f2858f81d5d9340ea36c",
+      "imports": [],
+      "calls": [
+        {
+          "line": 1186,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/iv.py",
+      "blob": "a68e1bea4aecd7c40c8333da494e8e90ffc430b8",
+      "sha256": "6aa81020e39e411fb9dbfa898b4643ec5a5a33d14254b52aaeebf144dc63c5fd",
+      "imports": [],
+      "calls": [
+        {
+          "line": 417,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 482,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 544,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/panel.py",
+      "blob": "6f5e09d40bd687b3e29d8cf7d5a663f654e96a4f",
+      "sha256": "9c850d9c3080aec392893ccd711c8b5d423f5c511be6aac16f688f600bed8f69",
+      "imports": [],
+      "calls": [
+        {
+          "line": 538,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 602,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 664,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/protocols.py",
+      "blob": "5ca44f59bf5b59518dc96548a22d46dec7af28db",
+      "sha256": "57f7138520f65b8bc22ad5848ae20d85326db1d4c1196568d3431418209f137e",
+      "imports": [
+        {
+          "line": 21,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 21,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 21,
+          "binding": "NativeValueEstimandBinding",
+          "qualified": "polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding",
+          "relative_level": 0
+        },
+        {
+          "line": 21,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 21,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 21,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 21,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 21,
+          "binding": "ValueUncertaintyProjectionKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind",
+          "relative_level": 0
+        },
+        {
+          "line": 21,
+          "binding": "value_uncertainty_output_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.value_uncertainty_output_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 881,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 920,
+          "call": "self.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 514,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 514,
+          "attribute": "self.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/thresholds.py",
+      "blob": "ef41587f67456448de4a8f30a753b8cbedadf0ab",
+      "sha256": "dd17afb0b167182bae18cf592b80fa7863d23cc2a7994d7a3f5b5e992a67a6b5",
+      "imports": [],
+      "calls": [
+        {
+          "line": 1321,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 1663,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/timeseries.py",
+      "blob": "d4f12adf011c1e04dedc84e34a9aed7539a92b02",
+      "sha256": "7383972ceaa43c1562217fedd2002e9f07e38ffa9c5036904a0e7aaaca5052a4",
+      "imports": [],
+      "calls": [
+        {
+          "line": 327,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 396,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 463,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/advanced.py",
+      "blob": "31d980504edd463b252e63f1f440911231528518",
+      "sha256": "f03abbcaae152a37146816b8fded773a8ecd924a13ecdf87832fd53dbd55d584",
+      "imports": [
+        {
+          "line": 23,
+          "binding": "build_attached_output_bundle",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.build_attached_output_bundle",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "build_residual_conformal_bundle",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.build_residual_conformal_bundle",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "forecasting_output_slots",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.forecasting_output_slots",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "resolve_artifact_store",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.resolve_artifact_store",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/hybrid.py",
+      "blob": "67932e424b2b91deeff68534ea0981f0fb7d3ce4",
+      "sha256": "935940f19744a792662759ce69ed176ef62b56c479a2bcbca7fa431e9abb2bd0",
+      "imports": [
+        {
+          "line": 26,
+          "binding": "build_residual_conformal_bundle",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.build_residual_conformal_bundle",
+          "relative_level": 0
+        },
+        {
+          "line": 26,
+          "binding": "forecasting_output_slots",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.forecasting_output_slots",
+          "relative_level": 0
+        },
+        {
+          "line": 26,
+          "binding": "resolve_artifact_store",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.resolve_artifact_store",
+          "relative_level": 0
+        },
+        {
+          "line": 35,
+          "binding": "ForecastCalibrationMethod",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastCalibrationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 35,
+          "binding": "ForecastingUncertaintyBundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle",
+          "relative_level": 0
+        },
+        {
+          "line": 35,
+          "binding": "HorizonDiagnosticState",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonDiagnosticState",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/regime_shift.py",
+      "blob": "90005dfbfdde786a80c00ff8ab10408415cbda78",
+      "sha256": "e654aa15c504b208664624da1dfd183dea6464f5d877f10a1ffad463f39b68dd",
+      "imports": [
+        {
+          "line": 27,
+          "binding": "forecasting_output_slots",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.forecasting_output_slots",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "resolve_artifact_store",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.resolve_artifact_store",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "FanChartSpec",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.FanChartSpec",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "ForecastCalibrationMethod",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastCalibrationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "ForecastCoverageDiagnostic",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastCoverageDiagnostic",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "ForecastIntervalSemantics",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastIntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "HorizonDiagnosticState",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonDiagnosticState",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "HorizonInterval",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonInterval",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "HorizonPolicyRule",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonPolicyRule",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "HorizonPolicySpec",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonPolicySpec",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "HorizonQuantileSet",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonQuantileSet",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/uncertainty.py",
+      "blob": "c00cedd6fc0ae95ff044cffa1a7c4e7d1b873530",
+      "sha256": "c1b190bcdd03ea740cf3d1175972897c2f211e50c803ac2e2acf2f272c98a5d0",
+      "imports": [
+        {
+          "line": 13,
+          "binding": "FanChartSpec",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.FanChartSpec",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "ForecastCalibrationMethod",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastCalibrationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "ForecastCoverageDiagnostic",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastCoverageDiagnostic",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "ForecastingUncertaintyBundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "ForecastingUncertaintyBundleV2",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundleV2",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "ForecastIntervalSemantics",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastIntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "HorizonDiagnosticState",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonDiagnosticState",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "HorizonInterval",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonInterval",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "HorizonPolicyRule",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonPolicyRule",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "HorizonPolicySpec",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonPolicySpec",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "HorizonQuantileSet",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.HorizonQuantileSet",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "ReconciliationCertificate",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ReconciliationCertificate",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "ReconciliationMethod",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ReconciliationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 13,
+          "binding": "ReconciliationStatus",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ReconciliationStatus",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/univariate.py",
+      "blob": "6b82ae8d8b53fef79f2b50315479caa04ecb3cc8",
+      "sha256": "13af9e369b3ae70dfaba96be626f4450848a2e2ee5e189013d8c2c75c02e1542",
+      "imports": [
+        {
+          "line": 23,
+          "binding": "build_member_spread_bundle",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.build_member_spread_bundle",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "build_reconciled_conformal_bundle",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.build_reconciled_conformal_bundle",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "build_reconciliation_placeholder_bundle",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.build_reconciliation_placeholder_bundle",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "build_residual_conformal_bundle",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.build_residual_conformal_bundle",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "forecasting_output_slots",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.forecasting_output_slots",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "resolve_artifact_store",
+          "qualified": "polisyos.foundry.methods.catalog.forecasting.uncertainty.resolve_artifact_store",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "ForecastingUncertaintyBundleV2",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundleV2",
+          "relative_level": 0
+        },
+        {
+          "line": 31,
+          "binding": "ReconciliationMethod",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ReconciliationMethod",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/microsim/advanced.py",
+      "blob": "8309a1f6a9515d635df27286da493e07549c12fa",
+      "sha256": "6d0d8723cb65d691f9ebc3e3504731fc8f2640cb2bef7889612d62afd74eebb9",
+      "imports": [],
+      "calls": [
+        {
+          "line": 1528,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 1623,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 2028,
+          "call": "result.to_uncertainty_envelope"
+        },
+        {
+          "line": 2382,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/microsim/mnar.py",
+      "blob": "9fb73542407b3ef293a20c1ab86bd599813567c7",
+      "sha256": "7cebe89cf177ffa27886b6a2ac534f1c58b99da36dca234b05c0f312ee0e500b",
+      "imports": [
+        {
+          "line": 26,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 26,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 26,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 26,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 26,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 542,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/microsim/protocols.py",
+      "blob": "1ff0fe0f18c534ba5f67f81314a32004fce50bfe",
+      "sha256": "49e42021396ea01d686d2c51aac79f48fa57cf3b091d76f2e72e348f5c320b2e",
+      "imports": [
+        {
+          "line": 19,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 19,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 19,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 19,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 19,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 199,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 382,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 431,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 515,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 1041,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 1185,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 1172,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/microsim/static.py",
+      "blob": "71e077a5560177beeecf7b68d7474c59ae361078",
+      "sha256": "80c5d1d0bf1f6c9cf8570ee22572f2d4e19f266f810c05054607436345db187c",
+      "imports": [],
+      "calls": [
+        {
+          "line": 196,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/ml/__init__.py",
+      "blob": "5665ee128f8fb08989225bc63e35fcfd6ded5610",
+      "sha256": "4c3b629fb02fcc36a29bea90f99db8587c404cce2a7119ef516c5de4a3aa9574",
+      "imports": [
+        {
+          "line": 47,
+          "binding": "ConformalPredictionEstimator",
+          "qualified": "uncertainty.ConformalPredictionEstimator",
+          "relative_level": 1
+        },
+        {
+          "line": 47,
+          "binding": "GraphAwareConformalizer",
+          "qualified": "uncertainty.GraphAwareConformalizer",
+          "relative_level": 1
+        },
+        {
+          "line": 47,
+          "binding": "MondrianAPSRAPSConformalizer",
+          "qualified": "uncertainty.MondrianAPSRAPSConformalizer",
+          "relative_level": 1
+        },
+        {
+          "line": 47,
+          "binding": "MondrianCQRConformalizer",
+          "qualified": "uncertainty.MondrianCQRConformalizer",
+          "relative_level": 1
+        },
+        {
+          "line": 47,
+          "binding": "NormalizedResidualMondrianConformalizer",
+          "qualified": "uncertainty.NormalizedResidualMondrianConformalizer",
+          "relative_level": 1
+        },
+        {
+          "line": 47,
+          "binding": "WeightedConformalQuantile",
+          "qualified": "uncertainty.WeightedConformalQuantile",
+          "relative_level": 1
+        },
+        {
+          "line": 47,
+          "binding": "evaluate_conformal_acceptance_gate",
+          "qualified": "uncertainty.evaluate_conformal_acceptance_gate",
+          "relative_level": 1
+        },
+        {
+          "line": 47,
+          "binding": "update_conditional_coverage_diagnostic_with_outcomes",
+          "qualified": "uncertainty.update_conditional_coverage_diagnostic_with_outcomes",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/ml/_registry_boot.py",
+      "blob": "70126d205fe91ea8ddd56089f817510d99e88651",
+      "sha256": "f53a84020d63ecf115c0701956dc268e9ec58fb33ce3e7c72dff70e2117c56dd",
+      "imports": [
+        {
+          "line": 24,
+          "binding": "ConformalPredictionEstimator",
+          "qualified": "uncertainty.ConformalPredictionEstimator",
+          "relative_level": 1
+        },
+        {
+          "line": 24,
+          "binding": "GraphAwareConformalizer",
+          "qualified": "uncertainty.GraphAwareConformalizer",
+          "relative_level": 1
+        },
+        {
+          "line": 24,
+          "binding": "MondrianAPSRAPSConformalizer",
+          "qualified": "uncertainty.MondrianAPSRAPSConformalizer",
+          "relative_level": 1
+        },
+        {
+          "line": 24,
+          "binding": "MondrianCQRConformalizer",
+          "qualified": "uncertainty.MondrianCQRConformalizer",
+          "relative_level": 1
+        },
+        {
+          "line": 24,
+          "binding": "NormalizedResidualMondrianConformalizer",
+          "qualified": "uncertainty.NormalizedResidualMondrianConformalizer",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/ml/advanced.py",
+      "blob": "4d46b7e6e90c5a5c3d755fccc3891e1152ee5737",
+      "sha256": "2ef9c44d3d18a701ccd7003a5a0e65c73c726fd982c14340f941aad7d585ab4d",
+      "imports": [],
+      "calls": [
+        {
+          "line": 134,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/ml/protocols.py",
+      "blob": "b423aaab1a144d2b7856ab6617369b448e21bb7e",
+      "sha256": "853f78cd584df7d056ad0559bd8922adbdb9056c51515f0b0f32ec911bc899f1",
+      "imports": [
+        {
+          "line": 27,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 177,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/ml/regression.py",
+      "blob": "5c0edebbd90dff05955024685292cdea06d7a268",
+      "sha256": "33eb28110d46ebc9b238dc949dd9e8c45a94f9e7a5821f64855a5c6b87505aa1",
+      "imports": [],
+      "calls": [
+        {
+          "line": 94,
+          "call": "result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/ml/uncertainty.py",
+      "blob": "191995ccfb29343f19573fafb3966671bf8d2f93",
+      "sha256": "060b2298fc7a8a3d1c2bd9d2e930bcc64ec09f078622a023074c37ed878d3211",
+      "imports": [],
+      "calls": [
+        {
+          "line": 1574,
+          "call": "prediction_result.to_uncertainty_envelope"
+        },
+        {
+          "line": 1812,
+          "call": "prediction_result.to_uncertainty_envelope"
+        },
+        {
+          "line": 2039,
+          "call": "prediction_result.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/optimization/auction.py",
+      "blob": "c7f350da40b902d6c8cb8112ad1fbac0bba666bc",
+      "sha256": "eb442bacc32d034943b1f25f76716cafd6acf4bd4be1b881c3daf0e3b52813c0",
+      "imports": [
+        {
+          "line": 25,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 595,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/optimization/convex.py",
+      "blob": "fa019d088d5481895b90c1118cbdd4c9ffbabea3",
+      "sha256": "9e11ec383d5ed28eafa0597c22520bd02084c9263efbf2160f242ae674515bed",
+      "imports": [
+        {
+          "line": 24,
+          "binding": "RobustSetFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 24,
+          "binding": "RobustSetSpec",
+          "qualified": "polisyos.ir.analytics.uncertainty.RobustSetSpec",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/optimization/io_model.py",
+      "blob": "23a73c0d034868435eac5609854a1e0f3a17c1af",
+      "sha256": "1c3f4490023cde499b2b17da8dd08d5bfafd2fe24665f00fe44d1e9324ba576a",
+      "imports": [
+        {
+          "line": 25,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 329,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 309,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/optimization/lp.py",
+      "blob": "bfebde3c15e1b315c78b7192959657fb526edcf9",
+      "sha256": "b7d9c75697be471af130fc02cd6a3dda1f545d4f36fba569ff421f83dd518c47",
+      "imports": [
+        {
+          "line": 24,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 24,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 24,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 24,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 264,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 386,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/optimization/milp.py",
+      "blob": "73278c678f37b1380bc18b2de5e21a13c8e4e203",
+      "sha256": "a4daa844a4a92abf9f493121c07ba89024671267522846165565e7991e4b3de8",
+      "imports": [
+        {
+          "line": 23,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 299,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/optimization/protocols.py",
+      "blob": "6ea7467f3dcad1ed4158c187c15ef9189da4152a",
+      "sha256": "4ab3bcd2b1050826223234f6836ca7b9f73fde7135f0e34c3cde68e393fd3e11",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [
+        {
+          "line": 211,
+          "attribute": "self.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/slot_schema.py",
+      "blob": "2b3c40ea7844fcddd6f82967844d5c63c1ab9981",
+      "sha256": "93ae378d72ce59f927fe5ce51daa25e2ab9201962fbadadeaf213333c429b461",
+      "imports": [],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [
+        {
+          "line": 579,
+          "key": "posterior_mean"
+        }
+      ],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "CMP-03",
+          "unit": "B"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+      "blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+      "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40",
+      "imports": [
+        {
+          "line": 27,
+          "binding": "NativeValueEstimandBinding",
+          "qualified": "polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "OutputContractCapability",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractCapability",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "ValueUncertaintyProjectionKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "supports_value_uncertainty_projection_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.supports_value_uncertainty_projection_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "blob": "47aa05a090e01d7ba0ea047345407193d25d1b27",
+      "sha256": "939dc81300e48b8815e46c903375add8d48b34b58b6a9af1e55cb30e2381d1eb",
+      "imports": [
+        {
+          "line": 61,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "SEL-01",
+          "unit": "A"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "CYC-01",
+          "unit": "A"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/cache.py",
+      "blob": "13ecb23192bd10dcbad63d4d9a0a531e0a493aba",
+      "sha256": "bc44fc84beb893a7f24bb26bc0b4462b226e72358b05423f2313fc06686dcf08",
+      "imports": [
+        {
+          "line": 412,
+          "binding": "OutputContractCapability",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractCapability",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "blob": "06000c239bd2ec7fd8af3abf1575ed40a598dd1a",
+      "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4",
+      "imports": [
+        {
+          "line": 6,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+      "blob": "c4e3ab88c7b1a4f4c096a84f5be0d59a707f76ae",
+      "sha256": "93a426c33d6cb2469b746886afc5cfa61e3ddb21f47e3696b8dbe6279dd2aac7",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "CertificateKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.CertificateKind",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ComposedFlavour",
+          "qualified": "polisyos.ir.analytics.uncertainty.ComposedFlavour",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ExactnessKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ExactnessKind",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintyCompatibilityError",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyCompatibilityError",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "build_composition_provenance",
+          "qualified": "polisyos.ir.analytics.uncertainty.build_composition_provenance",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 297,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 374,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 452,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 438,
+          "attribute": ".point_estimate"
+        },
+        {
+          "line": 253,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 364,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 444,
+          "attribute": "env.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "UQS-01",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+      "blob": "3c07d954b61bfc30dbd772571e636de5bf3175a2",
+      "sha256": "6933d1f077c59bc4dcab83f64e6e7b5b290c26c69be96cb2a6cd3dfd6721538c",
+      "imports": [
+        {
+          "line": 12,
+          "binding": "CertificateKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.CertificateKind",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "ComposedFlavour",
+          "qualified": "polisyos.ir.analytics.uncertainty.ComposedFlavour",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "ExactnessKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ExactnessKind",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "ParametricFitCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "_merge_certificate_kind",
+          "qualified": "polisyos.ir.analytics.uncertainty._merge_certificate_kind",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "_merge_certificate_radii",
+          "qualified": "polisyos.ir.analytics.uncertainty._merge_certificate_radii",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "_propagate_certificate_radius",
+          "qualified": "polisyos.ir.analytics.uncertainty._propagate_certificate_radius",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "_worst_exactness",
+          "qualified": "polisyos.ir.analytics.uncertainty._worst_exactness",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "build_composition_provenance",
+          "qualified": "polisyos.ir.analytics.uncertainty.build_composition_provenance",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 155,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 128,
+          "attribute": "env.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "UQP-02",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "blob": "2fdabad5a401ac2456aea652dbcb1e8cc19e5311",
+      "sha256": "f6ca43c06d2a699d2bcaa0b48d5eeffc82a0933014d1742ec49ea9b8bbfdfab1",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ParametricFitCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "PosteriorSamplesCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [
+        {
+          "line": 26,
+          "attribute": "env.distribution_payload"
+        },
+        {
+          "line": 92,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 269,
+          "attribute": "envelope.distribution_payload"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "CAL-06",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQP-02",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "UQS-01",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQP-01",
+          "unit": "E"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+      "blob": "0abb5a46226a686f2f602f3beda38c826a32c666",
+      "sha256": "979639d91f68f24bb48334ef0a6429b60973aa3fceeca768ea15d26bb381b235",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "CertificateKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.CertificateKind",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ComposedFlavour",
+          "qualified": "polisyos.ir.analytics.uncertainty.ComposedFlavour",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ExactnessKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ExactnessKind",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ParametricFitCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "build_composition_provenance",
+          "qualified": "polisyos.ir.analytics.uncertainty.build_composition_provenance",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 150,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 219,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 251,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "UQP-01",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQP-02",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "blob": "fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+      "sha256": "6127d211f01dd89b762a49a3f537a8374131661f363ef06ce64c19285266ec4e",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ParametricFitCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "PosteriorSamplesCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 312,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 283,
+          "attribute": "envelope.distribution_payload"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "UQP-01",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQP-02",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "UQP-03",
+          "unit": "E"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+      "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7",
+      "imports": [
+        {
+          "line": 22,
+          "binding": "CertificateKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.CertificateKind",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "ComposedFlavour",
+          "qualified": "polisyos.ir.analytics.uncertainty.ComposedFlavour",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "ExactnessKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ExactnessKind",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "ParametricFitCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "PosteriorSamplesCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 22,
+          "binding": "build_composition_provenance",
+          "qualified": "polisyos.ir.analytics.uncertainty.build_composition_provenance",
+          "relative_level": 0
+        },
+        {
+          "line": 39,
+          "binding": "joint_carrier_digest",
+          "qualified": "sampling_admission.joint_carrier_digest",
+          "relative_level": 1
+        }
+      ],
+      "calls": [
+        {
+          "line": 255,
+          "call": "sampling_admission.joint_carrier_digest"
+        },
+        {
+          "line": 316,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 1238,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 1282,
+          "call": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier"
+        },
+        {
+          "line": 1427,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 171,
+          "attribute": "env.distribution_payload"
+        },
+        {
+          "line": 211,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1523,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 1618,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 199,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1586,
+          "attribute": ".point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [
+        {
+          "line": 247,
+          "key": "joint_draw_ids"
+        },
+        {
+          "line": 257,
+          "key": "joint_draw_ids"
+        },
+        {
+          "line": 258,
+          "key": "joint_parameter_order"
+        },
+        {
+          "line": 259,
+          "key": "joint_law_sha256"
+        }
+      ],
+      "original_bundle_writers": [
+        {
+          "bundle": "UQP-01",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQP-02",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQP-03",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "blob": "f988c3862055ba8748978c59f8b4bf27fc21a040",
+      "sha256": "a67f555f3444047ecb7cd5ee054fdf85fe7da47945af81d378d41533dac0ed1d",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 135,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+      "sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f",
+      "imports": [
+        {
+          "line": 20,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 27,
+          "binding": "PosteriorSamplesCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [
+        {
+          "line": 385,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 89,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 322,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 85,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 400,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 45,
+          "attribute": ".distribution_payload"
+        },
+        {
+          "line": 108,
+          "attribute": "env.distribution_payload"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/validation/phase0_closure.py",
+      "blob": "98cd11fddd202c9a80afeeb3d25dee70d77878bc",
+      "sha256": "314e259d61105c0dcf8844d1774c9191acfd2b86c06822a103d7ceea212b2473",
+      "imports": [
+        {
+          "line": 70,
+          "binding": "ForecastingUncertaintyBundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle",
+          "relative_level": 0
+        },
+        {
+          "line": 71,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "blob": "6ada4b5b0444780b97bbb06f8fcb980a78f8911a",
+      "sha256": "494115ebd281156c564252b2f9e14d196553aafbccebe43fc05f0258243de8d7",
+      "imports": [
+        {
+          "line": 28,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 328,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 290,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 276,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 264,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 277,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 311,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 329,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 273,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 287,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 287,
+          "attribute": "self.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "CAU-04",
+          "unit": "F"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "CAU-01",
+          "unit": "F"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_ensemble.py",
+      "blob": "e22619f4c53061cf23c4fc8aee465b97c22f2bce",
+      "sha256": "52033f705a2e036da99bb73f45ce0b1738a8c5594ca6446a42ec04e338cb83cc",
+      "imports": [
+        {
+          "line": 10,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 10,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 10,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 10,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 10,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 95,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 77,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+      "blob": "52cce6135cb56fb267f6622c0c04c3b27c6862aa",
+      "sha256": "093459b6282e952b35cf406b0c2e95f29df3c2fa084ced7eec07f08047dc50eb",
+      "imports": [
+        {
+          "line": 12,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 425,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "SCM-02",
+          "unit": "F"
+        },
+        {
+          "bundle": "SCM-03",
+          "unit": "F"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "GRF-03",
+          "unit": "F"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/distributional.py",
+      "blob": "45e44c891ae8e118a02c716bdfc81a5f0dc5f7db",
+      "sha256": "649eec2b608e543f4c59f5f92f8fa8b8e17d3ea4a065783d9c61df5ba10c0efa",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "NativeValueEstimandBinding",
+          "qualified": "polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ValueUncertaintyProjectionKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "value_uncertainty_output_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.value_uncertainty_output_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 821,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/forecasting_uncertainty.py",
+      "blob": "d1cdcc94cbe262bc53b71680a5a150629694883d",
+      "sha256": "c7051425f7471d9afe9f037d5dd2a75ae6067533ab1cd4b536c7d1089f4da9a3",
+      "imports": [
+        {
+          "line": 17,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "NativeValueEstimandBinding",
+          "qualified": "polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "NumericPolicySpec",
+          "qualified": "polisyos.ir.analytics.uncertainty.NumericPolicySpec",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "ValueUncertaintyProjectionKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind",
+          "relative_level": 0
+        },
+        {
+          "line": 17,
+          "binding": "value_uncertainty_output_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.value_uncertainty_output_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 613,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/partial_identification.py",
+      "blob": "4538687cf7489c478d8922d6c3b9246a0dc8cd33",
+      "sha256": "41fe1adeb23b51f45c43cd0f1bd32fd5124610e8ac512522093123fd05026cd8",
+      "imports": [
+        {
+          "line": 11,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "NativeValueEstimandBinding",
+          "qualified": "polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ValueUncertaintyProjectionKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "value_uncertainty_output_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.value_uncertainty_output_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 371,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py",
+      "blob": "c6c1da87075c86cef44c6172bc7cfcf79f0ee877",
+      "sha256": "4553ef68a7cc4665875d565b1fb185db07c2069b911fd82b7d72489bac9f93c7",
+      "imports": [
+        {
+          "line": 15,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "polisyos.ir.registry.refs.UncertaintyEnvelopeRef",
+          "relative_level": 0
+        },
+        {
+          "line": 30,
+          "binding": "ForecastingUncertaintyBundle",
+          "qualified": "forecasting_uncertainty.ForecastingUncertaintyBundle",
+          "relative_level": 1
+        },
+        {
+          "line": 30,
+          "binding": "HorizonDiagnosticState",
+          "qualified": "forecasting_uncertainty.HorizonDiagnosticState",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/privacy_transportability.py",
+      "blob": "201dd11cb7824db601e624c92d5b6a37d04fd57e",
+      "sha256": "62b70b1179448a42bc25e8f25968dc6f0d7f781c7a2d6834fbfe741591c54c4e",
+      "imports": [
+        {
+          "line": 25,
+          "binding": "EnvelopeCombinationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.EnvelopeCombinationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "combine_envelopes",
+          "qualified": "polisyos.ir.analytics.uncertainty.combine_envelopes",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "persist_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+          "relative_level": 0
+        },
+        {
+          "line": 35,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "polisyos.ir.registry.refs.UncertaintyEnvelopeRef",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 467,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        },
+        {
+          "line": 773,
+          "call": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/regime_shift_forecast.py",
+      "blob": "cf12184d15375114ca9f62203b17da73d70b4ce7",
+      "sha256": "ad10155c991b11d3331e8b4466f990b08ba7314c7864a7a2fb30869fde87e6a5",
+      "imports": [
+        {
+          "line": 10,
+          "binding": "ForecastingUncertaintyBundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "ValueUncertaintyProjectionKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind",
+          "relative_level": 0
+        },
+        {
+          "line": 11,
+          "binding": "value_uncertainty_output_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.value_uncertainty_output_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+      "blob": "1a4edaa03a316028b45a9eed9311636cb8481255",
+      "sha256": "dff40166d350c60364335e1101e4223c7dba91d2000ebbc7c2e06927af90495d",
+      "imports": [
+        {
+          "line": 12,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "NativeValueEstimandBinding",
+          "qualified": "polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "OutputContractDeclaration",
+          "qualified": "polisyos.ir.analytics.uncertainty.OutputContractDeclaration",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "ValueUncertaintyProjectionKind",
+          "qualified": "polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind",
+          "relative_level": 0
+        },
+        {
+          "line": 12,
+          "binding": "value_uncertainty_output_contract",
+          "qualified": "polisyos.ir.analytics.uncertainty.value_uncertainty_output_contract",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 657,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+      "blob": "fa362546de4083f6fb19bb78cbe931d7b1d6a92e",
+      "sha256": "195b8901e217d55b6d934513da4753f4a4beb6f1df08ab39b59c660cb9b3afdb",
+      "imports": [
+        {
+          "line": 23,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "PropagationMethod",
+          "qualified": "polisyos.ir.analytics.uncertainty.PropagationMethod",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 23,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 189,
+          "call": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+      "imports": [
+        {
+          "line": 18,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "polisyos.ir.registry.refs.UncertaintyEnvelopeRef",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 1580,
+          "call": "UncertaintyEnvelope"
+        },
+        {
+          "line": 1841,
+          "call": "UncertaintyEnvelope"
+        },
+        {
+          "line": 1979,
+          "call": "UncertaintyEnvelope"
+        },
+        {
+          "line": 2081,
+          "call": "UncertaintyEnvelope"
+        },
+        {
+          "line": 1286,
+          "call": "PosteriorSamplesCarrier"
+        },
+        {
+          "line": 1739,
+          "call": "PosteriorSamplesCarrier"
+        },
+        {
+          "line": 1915,
+          "call": "PosteriorSamplesCarrier"
+        },
+        {
+          "line": 1642,
+          "call": "PosteriorSamplesCarrier"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 1220,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1612,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 815,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 833,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1125,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1268,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1714,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 799,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 1425,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 1438,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 1483,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 1485,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 1524,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 1754,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 1242,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 1752,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 2020,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 1127,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1440,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 1653,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1656,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 1792,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 1930,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 2036,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 1628,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 2029,
+          "attribute": "envelope.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "UQS-01",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "CAU-04",
+          "unit": "F"
+        },
+        {
+          "bundle": "SCM-01",
+          "unit": "F"
+        },
+        {
+          "bundle": "CAL-06",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQP-02",
+          "unit": "E"
+        },
+        {
+          "bundle": "UQP-03",
+          "unit": "E"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/welfare.py",
+      "blob": "afcdf34e4c118e45bff63c1490fd96da79f9c56a",
+      "sha256": "58da810d7c06634d459edf55884147eb8e4265cece1c018eef902c30a4cea58b",
+      "imports": [
+        {
+          "line": 15,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "polisyos.ir.registry.refs.UncertaintyEnvelopeRef",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [
+        {
+          "line": 317,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 343,
+          "attribute": "self.point_estimate"
+        },
+        {
+          "line": 317,
+          "attribute": "self.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+      "blob": "92b3175c93a9b35c543456a8f107153ce42798bf",
+      "sha256": "008a5457867cac6808157eb4d8d22b6ab34a148a3826059ba44451244a0a65b5",
+      "imports": [
+        {
+          "line": 15,
+          "binding": "load_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 110,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 142,
+          "attribute": "env.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "imports": [
+        {
+          "line": 58,
+          "binding": "ForecastingUncertaintyBundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle",
+          "relative_level": 0
+        },
+        {
+          "line": 58,
+          "binding": "ForecastIntervalSemantics",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.ForecastIntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 58,
+          "binding": "load_forecasting_uncertainty_bundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle",
+          "relative_level": 0
+        },
+        {
+          "line": 58,
+          "binding": "persist_forecasting_uncertainty_bundle",
+          "qualified": "polisyos.ir.analytics.forecasting_uncertainty.persist_forecasting_uncertainty_bundle",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "blob": "22db2f26c1b72517e11367c6861b92239f00c199",
+      "sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a",
+      "imports": [
+        {
+          "line": 33,
+          "binding": "IntervalSemantics",
+          "qualified": "polisyos.ir.analytics.uncertainty.IntervalSemantics",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "UncertaintySource",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintySource",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "combine_envelopes",
+          "qualified": "polisyos.ir.analytics.uncertainty.combine_envelopes",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "BKT-01",
+          "unit": "E"
+        },
+        {
+          "bundle": "BKT-02",
+          "unit": "E"
+        },
+        {
+          "bundle": "BKT-03",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/__init__.py",
+      "blob": "1f1d5b6ea3728d9b7aba141bb0680644d358673f",
+      "sha256": "ed880fe654d655f4a4bc849f614f3d09daded7cfef268de99885d35623cfcd37",
+      "imports": [
+        {
+          "line": 58,
+          "binding": "JointSensitivityUncertainty",
+          "qualified": "uncertainty.JointSensitivityUncertainty",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "MorrisStoragePayload",
+          "qualified": "uncertainty.MorrisStoragePayload",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "ResolvedSensitivityUncertaintyMethod",
+          "qualified": "uncertainty.ResolvedSensitivityUncertaintyMethod",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SensitivityDiagnostics",
+          "qualified": "uncertainty.SensitivityDiagnostics",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SensitivityIndexUncertainty",
+          "qualified": "uncertainty.SensitivityIndexUncertainty",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SensitivityInterval",
+          "qualified": "uncertainty.SensitivityInterval",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SensitivityMethodMetadata",
+          "qualified": "uncertainty.SensitivityMethodMetadata",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SensitivityUncertaintyBundle",
+          "qualified": "uncertainty.SensitivityUncertaintyBundle",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SensitivityUncertaintyConfig",
+          "qualified": "uncertainty.SensitivityUncertaintyConfig",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SobolQMCMetadata",
+          "qualified": "uncertainty.SobolQMCMetadata",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SobolRowBlockData",
+          "qualified": "uncertainty.SobolRowBlockData",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "SobolStoragePayload",
+          "qualified": "uncertainty.SobolStoragePayload",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "analyze_hierarchical_replicate_bootstrap",
+          "qualified": "uncertainty.analyze_hierarchical_replicate_bootstrap",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "analyze_morris_trajectory_bootstrap",
+          "qualified": "uncertainty.analyze_morris_trajectory_bootstrap",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "analyze_rqmc_replicate_ci",
+          "qualified": "uncertainty.analyze_rqmc_replicate_ci",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "analyze_single_qmc_warning",
+          "qualified": "uncertainty.analyze_single_qmc_warning",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "analyze_sobol_asymptotic_delta",
+          "qualified": "uncertainty.analyze_sobol_asymptotic_delta",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "analyze_sobol_paired_bootstrap",
+          "qualified": "uncertainty.analyze_sobol_paired_bootstrap",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "analyze_surrogate_sobol_bootstrap",
+          "qualified": "uncertainty.analyze_surrogate_sobol_bootstrap",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "apply_calibrated_multiplier",
+          "qualified": "uncertainty.apply_calibrated_multiplier",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "morris_analytic_intervals",
+          "qualified": "uncertainty.morris_analytic_intervals",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "morris_elementary_effects_from_samples",
+          "qualified": "uncertainty.morris_elementary_effects_from_samples",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "morris_elementary_effects_from_storage",
+          "qualified": "uncertainty.morris_elementary_effects_from_storage",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "morris_storage_from_elementary_effects",
+          "qualified": "uncertainty.morris_storage_from_elementary_effects",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "resolve_sensitivity_uncertainty_method",
+          "qualified": "uncertainty.resolve_sensitivity_uncertainty_method",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "sobol_blocks_from_salib_outputs",
+          "qualified": "uncertainty.sobol_blocks_from_salib_outputs",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "sobol_blocks_from_storage",
+          "qualified": "uncertainty.sobol_blocks_from_storage",
+          "relative_level": 1
+        },
+        {
+          "line": 58,
+          "binding": "sobol_storage_from_blocks",
+          "qualified": "uncertainty.sobol_storage_from_blocks",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "blob": "4e71700ece55e60c0327c7101cc13523c8440413",
+      "sha256": "98856f7f50784eb899efb807eaefd6c4f33cb3c75f9029dc252c48068afe1e1c",
+      "imports": [
+        {
+          "line": 27,
+          "binding": "analyze_morris_trajectory_bootstrap",
+          "qualified": "uncertainty.analyze_morris_trajectory_bootstrap",
+          "relative_level": 1
+        },
+        {
+          "line": 27,
+          "binding": "analyze_sobol_asymptotic_delta",
+          "qualified": "uncertainty.analyze_sobol_asymptotic_delta",
+          "relative_level": 1
+        },
+        {
+          "line": 27,
+          "binding": "analyze_sobol_paired_bootstrap",
+          "qualified": "uncertainty.analyze_sobol_paired_bootstrap",
+          "relative_level": 1
+        },
+        {
+          "line": 27,
+          "binding": "morris_elementary_effects_from_samples",
+          "qualified": "uncertainty.morris_elementary_effects_from_samples",
+          "relative_level": 1
+        },
+        {
+          "line": 27,
+          "binding": "sobol_blocks_from_salib_outputs",
+          "qualified": "uncertainty.sobol_blocks_from_salib_outputs",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "DOE-02",
+          "unit": "E"
+        },
+        {
+          "bundle": "DOE-03",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "blob": "c2ea71aa81c6ebdd470894ae2aa4e6310833e2cd",
+      "sha256": "271ae2f0b35bc833af5f0b1c748132311d5ebb256440d394cc46fc1c402b7e73",
+      "imports": [
+        {
+          "line": 13,
+          "binding": "SensitivityUncertaintyBundle",
+          "qualified": "uncertainty.SensitivityUncertaintyBundle",
+          "relative_level": 1
+        },
+        {
+          "line": 13,
+          "binding": "SensitivityUncertaintyConfig",
+          "qualified": "uncertainty.SensitivityUncertaintyConfig",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "DOE-01",
+          "unit": "E"
+        },
+        {
+          "bundle": "DOE-02",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "DOE-03",
+          "unit": "E"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+      "blob": "ca67b8db7e1a965d2c5efd08411e0d141b99960a",
+      "sha256": "c4ffd36f8a23a0b6ab8c08832a0f97c018952d6eb65eb5ef21d8bc01ce9c17d6",
+      "imports": [
+        {
+          "line": 12,
+          "binding": "SensitivityInterval",
+          "qualified": "uncertainty.SensitivityInterval",
+          "relative_level": 1
+        },
+        {
+          "line": 12,
+          "binding": "SensitivityUncertaintyBundle",
+          "qualified": "uncertainty.SensitivityUncertaintyBundle",
+          "relative_level": 1
+        },
+        {
+          "line": 12,
+          "binding": "SensitivityUncertaintyConfig",
+          "qualified": "uncertainty.SensitivityUncertaintyConfig",
+          "relative_level": 1
+        },
+        {
+          "line": 12,
+          "binding": "SobolRowBlockData",
+          "qualified": "uncertainty.SobolRowBlockData",
+          "relative_level": 1
+        },
+        {
+          "line": 12,
+          "binding": "_sobol_estimates",
+          "qualified": "uncertainty._sobol_estimates",
+          "relative_level": 1
+        },
+        {
+          "line": 12,
+          "binding": "analyze_morris_trajectory_bootstrap",
+          "qualified": "uncertainty.analyze_morris_trajectory_bootstrap",
+          "relative_level": 1
+        },
+        {
+          "line": 12,
+          "binding": "analyze_sobol_paired_bootstrap",
+          "qualified": "uncertainty.analyze_sobol_paired_bootstrap",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/__init__.py",
+      "blob": "15ba55ef58fae026d7e5a8f9eb58dc844a4ff5a9",
+      "sha256": "df819b7ed0d863018b6097cc3b07c76188f3a63f94e91cc30a3fafe4dbbc36a5",
+      "imports": [
+        {
+          "line": 12,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.funnel.types.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level0_static.py",
+      "blob": "8abc457fe698357b1f3bc47d5f9155058404324a",
+      "sha256": "bbaf8a750918079a1f6722b4b752b30d6fd21e3aee0b782d264714f338752a33",
+      "imports": [
+        {
+          "line": 23,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.funnel.types.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level1_heuristic.py",
+      "blob": "51b538226cb20674dcca18928d3dce020d8676db",
+      "sha256": "27ae2e52497754de9127de770a244581bcd9d0ef311d6fe30b4e42b73273f8c0",
+      "imports": [
+        {
+          "line": 23,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.funnel.types.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py",
+      "blob": "3f4d2baa804e3d554c28b125522cbb2c8749c90b",
+      "sha256": "476b190a18ec6bb16911695169e5c5ec5202853304f6467aabb05503e6f91930",
+      "imports": [
+        {
+          "line": 30,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.funnel.types.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "blob": "c692a9aa352fe145d26fc9cc34975c97e8d28aef",
+      "sha256": "5d59459e50babcfb74b5b6349cd2244a511231ebaef325be70a2d88aa4c9e923",
+      "imports": [
+        {
+          "line": 20,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.funnel.types.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "FUN-02",
+          "unit": "D"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+      "blob": "af004d8dd6d2a46acc4b1a47bcd5dfc9695267f4",
+      "sha256": "f31c387906a0ce24ab8581349a22deb033b5c77201ec9a5bafb58b07e445807e",
+      "imports": [
+        {
+          "line": 15,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.funnel.types.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "FUN-02",
+          "unit": "D"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "blob": "dd62eb9e6b5cb2071dcef3858c153c69851b58d6",
+      "sha256": "c1f3613955dfa23f099e9635cffa68402ec74fc2a4a3d3726f59a38dfcfc57a8",
+      "imports": [
+        {
+          "line": 28,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "UncertaintyEstimate",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEstimate",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "UncertaintyType",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyType",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "blob": "b77bfbf37c36ee88a562b1323d4eb80e292f7aa0",
+      "sha256": "f749a97bdc6be039c89b7e43754935bd4096e1f56dbf61fd80d874e5ca884149",
+      "imports": [
+        {
+          "line": 17,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "FUN-03",
+          "unit": "D"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "blob": "e0656b09f28d83816eb844f199e56cf8656eee64",
+      "sha256": "b17aedcc81bf56f6ea61e0f09a25bf9b290e51d4c418ad33fa2aed41741912c2",
+      "imports": [
+        {
+          "line": 17,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.funnel.types.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "FUN-01",
+          "unit": "D"
+        },
+        {
+          "bundle": "FUN-02",
+          "unit": "D"
+        },
+        {
+          "bundle": "FUN-03",
+          "unit": "D"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "SRV-01",
+          "unit": "D"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "blob": "6e099ff6f8c7c4e4e1106a36407d97c5053caa3d",
+      "sha256": "f82bd07c912c44e16aadd5d1a553c65f6256843e8dddb3620d3521b35625ad30",
+      "imports": [
+        {
+          "line": 14,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 14,
+          "binding": "UncertaintyEstimate",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEstimate",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "FUN-02",
+          "unit": "D"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "FUN-01",
+          "unit": "D"
+        },
+        {
+          "bundle": "FUN-03",
+          "unit": "D"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/judge_stack.py",
+      "blob": "85e51430799715e630d2a53a05f6dd92ee800964",
+      "sha256": "960c1c668ae70d6c9a17923179bdedbae1e36cc25d16ba9a555ce8095568fa1a",
+      "imports": [
+        {
+          "line": 31,
+          "binding": "IRUncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 75,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 75,
+          "binding": "UncertaintyEstimate",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEstimate",
+          "relative_level": 0
+        },
+        {
+          "line": 75,
+          "binding": "UncertaintyType",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyType",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 1744,
+          "call": "causal_effect_report.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/readiness.py",
+      "blob": "012c4705832672a72ffc308ca9ba6bddb0745aa2",
+      "sha256": "89b0e535b4c7436cbfe4b7aa2d616f5dada83181f586a6324aa4d40b1bcc0854",
+      "imports": [
+        {
+          "line": 29,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 29,
+          "binding": "UncertaintyType",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyType",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "blob": "856c6919a3be13f676172d7d0767d0d2d3554f43",
+      "sha256": "7abf99878e05b420ed899662fdfd719492634640daff28c602d1e4fb6be70fed",
+      "imports": [],
+      "calls": [
+        {
+          "line": 145,
+          "call": "UncertaintyEnvelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "FUN-03",
+          "unit": "D"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/__init__.py",
+      "blob": "850ac3188644009be898da14c4d0707c8f707c24",
+      "sha256": "460863d97a94a1c95f76eb2e3f1b895178fb3e8df7de63ee6145347cd8b5e851",
+      "imports": [
+        {
+          "line": 172,
+          "binding": "PropagateUncertaintyNode",
+          "qualified": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty.PropagateUncertaintyNode",
+          "relative_level": 0
+        },
+        {
+          "line": 364,
+          "binding": "PropagateUncertaintyNode",
+          "qualified": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty.PropagateUncertaintyNode",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+      "blob": "495378ee4c26b2bda57a9f2ffa4614a126561758",
+      "sha256": "6e986595121d3699d1e6995b7d08c1f60e1cf5e59e27b7b5087abc2bcb69470e",
+      "imports": [
+        {
+          "line": 44,
+          "binding": "persist_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 754,
+          "call": "ensemble.to_uncertainty_envelope"
+        },
+        {
+          "line": 777,
+          "call": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "blob": "b1ee04ff3e918ec9c3660f650f80489b4250f617",
+      "sha256": "669d25306e455397930f1a4c74e3e76c15368f31d77c06f195d100847610e098",
+      "imports": [
+        {
+          "line": 24,
+          "binding": "persist_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 284,
+          "call": "query_result.to_uncertainty_envelope"
+        },
+        {
+          "line": 301,
+          "call": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "blob": "cb00a12a6256f3cc208569cc9acc8f6146c098f0",
+      "sha256": "8dc029683583c70fc9747b47324430b9b63946da233907592287a3e9b2d50e78",
+      "imports": [
+        {
+          "line": 16,
+          "binding": "load_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 322,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+      "blob": "20c1bf019f69e3861c197115a86fe81912404c70",
+      "sha256": "397cb40abc81437bd38b634dc27a081298bff1855f80a9f69ffcfbc6709263c0",
+      "imports": [
+        {
+          "line": 26,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "polisyos.core.contracts.uncertainty.UncertaintyEnvelopeRef",
+          "relative_level": 0
+        },
+        {
+          "line": 63,
+          "binding": "load_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 2012,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 2793,
+          "call": "polisyos.core.contracts.uncertainty.UncertaintyEnvelopeRef"
+        },
+        {
+          "line": 2794,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 2814,
+          "call": "polisyos.core.contracts.uncertainty.UncertaintyEnvelopeRef"
+        },
+        {
+          "line": 2815,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 2834,
+          "call": "polisyos.core.contracts.uncertainty.UncertaintyEnvelopeRef"
+        },
+        {
+          "line": 2835,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 2014,
+          "call": "polisyos.core.contracts.uncertainty.UncertaintyEnvelopeRef"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 2807,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 1804,
+          "attribute": "welfare.point_estimate"
+        },
+        {
+          "line": 2017,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 2818,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 2838,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 678,
+          "attribute": "report.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_request.py",
+      "blob": "2f599ab5afdd799bb8f0d62b916ecb45119822fe",
+      "sha256": "d1ffa5549b5b1b3c6f59181c45450c283dee1655d173920ae8c46c9aa96d103c",
+      "imports": [
+        {
+          "line": 37,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+      "blob": "74105f79bbbd67aa30b949113d9a0b9161aa64b9",
+      "sha256": "13a119c2e0b325daccaa15a6064884a9303a31ba7af08edbe25d955e7ab8cfcc",
+      "imports": [
+        {
+          "line": 29,
+          "binding": "load_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+          "relative_level": 0
+        },
+        {
+          "line": 63,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 63,
+          "binding": "UncertaintyType",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyType",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 1007,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 1416,
+          "attribute": "causal_effect_report.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+      "blob": "db70afa6b0bf2a4d17ee92dba7573a4dd0707b59",
+      "sha256": "f1b009eae25282f0cd7dc79210dfc6bdf4923c91675858f7579939b225030d85",
+      "imports": [
+        {
+          "line": 19,
+          "binding": "load_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 412,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/__init__.py",
+      "blob": "3285fa68cb9334184285587fdeb04895d5146a94",
+      "sha256": "5fce29d221db78095f93a26e6926d18b90ecd954adb86ef374853ff45caef41d",
+      "imports": [
+        {
+          "line": 8,
+          "binding": "PropagateUncertaintyNode",
+          "qualified": "propagate_uncertainty.PropagateUncertaintyNode",
+          "relative_level": 1
+        },
+        {
+          "line": 47,
+          "binding": "PropagateUncertaintyNode",
+          "qualified": "propagate_uncertainty.PropagateUncertaintyNode",
+          "relative_level": 1
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "blob": "638c484b28cdb8b2cdbc45e5755a9b315943abe9",
+      "sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd",
+      "imports": [
+        {
+          "line": 19,
+          "binding": "BoundedIndicatorResponse",
+          "qualified": "polisyos.foundry.uncertainty.BoundedIndicatorResponse",
+          "relative_level": 0
+        },
+        {
+          "line": 19,
+          "binding": "load_foundry_calibration_report",
+          "qualified": "polisyos.foundry.uncertainty.load_foundry_calibration_report",
+          "relative_level": 0
+        },
+        {
+          "line": 19,
+          "binding": "reconcile_draw_outcomes",
+          "qualified": "polisyos.foundry.uncertainty.reconcile_draw_outcomes",
+          "relative_level": 0
+        },
+        {
+          "line": 19,
+          "binding": "verify_mean_certificate",
+          "qualified": "polisyos.foundry.uncertainty.verify_mean_certificate",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "load_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "persist_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 196,
+          "call": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope"
+        },
+        {
+          "line": 197,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 321,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 342,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 134,
+          "attribute": "env.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "UQP-01",
+          "unit": "E"
+        }
+      ],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "blob": "25b30b9efa5b8672928caa9c9b2ef7bdbb5b7ce0",
+      "sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def",
+      "imports": [
+        {
+          "line": 33,
+          "binding": "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+          "qualified": "polisyos.foundry.uncertainty.CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+          "qualified": "polisyos.foundry.uncertainty.CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "admit_empirical_weights",
+          "qualified": "polisyos.foundry.uncertainty.admit_empirical_weights",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "admit_unit_uniform",
+          "qualified": "polisyos.foundry.uncertainty.admit_unit_uniform",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "build_covariance_matrix",
+          "qualified": "polisyos.foundry.uncertainty.build_covariance_matrix",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "calibration_covariance_blocks_agree_v1",
+          "qualified": "polisyos.foundry.uncertainty.calibration_covariance_blocks_agree_v1",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "empirical_cdf",
+          "qualified": "polisyos.foundry.uncertainty.empirical_cdf",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "preserve_singular_covariance",
+          "qualified": "polisyos.foundry.uncertainty.preserve_singular_covariance",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "reconcile_draw_outcomes",
+          "qualified": "polisyos.foundry.uncertainty.reconcile_draw_outcomes",
+          "relative_level": 0
+        },
+        {
+          "line": 33,
+          "binding": "sampling_content_digest",
+          "qualified": "polisyos.foundry.uncertainty.sampling_content_digest",
+          "relative_level": 0
+        },
+        {
+          "line": 45,
+          "binding": "_extract_typed_std",
+          "qualified": "polisyos.foundry.uncertainty.extract_std",
+          "relative_level": 0
+        },
+        {
+          "line": 52,
+          "binding": "DistributionFamily",
+          "qualified": "polisyos.ir.analytics.uncertainty.DistributionFamily",
+          "relative_level": 0
+        },
+        {
+          "line": 52,
+          "binding": "ParametricFitCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 52,
+          "binding": "PosteriorSamplesCarrier",
+          "qualified": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier",
+          "relative_level": 0
+        },
+        {
+          "line": 52,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 52,
+          "binding": "load_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+          "relative_level": 0
+        },
+        {
+          "line": 52,
+          "binding": "persist_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+          "relative_level": 0
+        },
+        {
+          "line": 75,
+          "binding": "UncertaintyEnvelopeRef",
+          "qualified": "polisyos.ir.registry.refs.UncertaintyEnvelopeRef",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 234,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 2179,
+          "call": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope"
+        },
+        {
+          "line": 1055,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 1866,
+          "call": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope"
+        },
+        {
+          "line": 1082,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        },
+        {
+          "line": 1137,
+          "call": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 4612,
+          "attribute": "env.distribution_payload"
+        },
+        {
+          "line": 4564,
+          "attribute": "envelope.distribution_payload"
+        },
+        {
+          "line": 4610,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 1849,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 3596,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 3567,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 1839,
+          "attribute": ".point_estimate"
+        },
+        {
+          "line": 1894,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 3493,
+          "attribute": ".point_estimate"
+        },
+        {
+          "line": 3467,
+          "attribute": ".point_estimate"
+        },
+        {
+          "line": 3657,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 3658,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 3659,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 1895,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 1896,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 3471,
+          "attribute": "envelope.point_estimate"
+        },
+        {
+          "line": 1912,
+          "attribute": "env.point_estimate"
+        },
+        {
+          "line": 1921,
+          "attribute": "env.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "blob": "87c522211207190c37aba176a721e29f3c51c1f2",
+      "sha256": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934",
+      "imports": [
+        {
+          "line": 44,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 44,
+          "binding": "persist_uncertainty_envelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 1198,
+          "call": "report.to_uncertainty_envelope"
+        },
+        {
+          "line": 624,
+          "call": "report.to_uncertainty_envelope"
+        },
+        {
+          "line": 1201,
+          "call": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [
+        {
+          "line": 375,
+          "attribute": "report.point_estimate"
+        },
+        {
+          "line": 630,
+          "attribute": "report.point_estimate"
+        }
+      ],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+      "blob": "f7e1945d99245cd8ea762be22f91150684878ad6",
+      "sha256": "0f4682e1157ff2ae1bbc349d1d88363cc9e37eecbbcb0b898b405d141ea15253",
+      "imports": [
+        {
+          "line": 22,
+          "binding": "IRUncertaintyEnvelope",
+          "qualified": "polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 25,
+          "binding": "SearchUncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        },
+        {
+          "line": 28,
+          "binding": "UncertaintyType",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyType",
+          "relative_level": 0
+        }
+      ],
+      "calls": [
+        {
+          "line": 894,
+          "call": "causal_report.to_uncertainty_envelope"
+        }
+      ],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [
+        {
+          "bundle": "CTL-02",
+          "unit": "D"
+        }
+      ],
+      "original_bundle_declared_readers": [
+        {
+          "bundle": "CTL-03",
+          "unit": "D"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+      "sha256": "7c6cc3c4c1f4e57d9c5ade7ada832d5881b88060c5cbdf8b23109de46a5542cd",
+      "imports": [
+        {
+          "line": 65,
+          "binding": "UncertaintyEnvelope",
+          "qualified": "polisyos.scientist.methods.search.uncertainty.UncertaintyEnvelope",
+          "relative_level": 0
+        }
+      ],
+      "calls": [],
+      "related_attribute_accesses": [],
+      "profile_or_joint_key_locations": [],
+      "original_bundle_writers": [],
+      "original_bundle_declared_readers": []
+    }
+  ]
+}

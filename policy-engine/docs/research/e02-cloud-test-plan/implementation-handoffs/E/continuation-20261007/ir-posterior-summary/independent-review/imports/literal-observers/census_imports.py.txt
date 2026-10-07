@@ -1,0 +1,150 @@
+"""Read complete immutable changed-Python sets; distinguish source/tests/companions."""
+from __future__ import annotations
+import argparse
+import ast
+import collections
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--candidate', required=True)
+parser.add_argument('--base', required=True)
+parser.add_argument('--repo', required=True)
+parser.add_argument('--output', required=True)
+args = parser.parse_args()
+repo = Path(args.repo)
+
+def git(*argv):
+    return subprocess.check_output(['/usr/bin/git', '-C', str(repo), *argv])
+
+def require(value, reason):
+    if not value:
+        raise AssertionError(reason)
+
+for value in (args.candidate, args.base):
+    require(re.fullmatch('[0-9a-f]{40}', value), 'immutable full SHA required')
+    require(git('rev-parse', value + '^{commit}').decode().strip() == value, 'source commit mismatch')
+require(subprocess.run(['/usr/bin/git', '-C', str(repo), 'merge-base', '--is-ancestor', args.base, args.candidate], check=False).returncode == 0, 'slice-base ancestry missing')
+MAIN = '198076863e143dea9f89f02734b13d50dae3eed5'
+HISTORICAL = '539ee6d6aad7f9db4c03dc520fc515dabef8d799'
+
+
+def read(ref, path):
+    attempt = subprocess.run(['/usr/bin/git', '-C', str(repo), 'show', ref + ':' + path], capture_output=True, check=False)
+    if attempt.returncode == 0:
+        return attempt.stdout
+    listed = subprocess.run(['/usr/bin/git', '-C', str(repo), 'ls-tree', '--name-only', ref, '--', path], capture_output=True, check=False)
+    if listed.returncode == 0 and listed.stdout == b'':
+        return None
+    raise RuntimeError(attempt.stderr.decode())
+
+
+def path_role(path):
+    if path.startswith('policy-engine/src/polisyos/'):
+        return 'product_source', path.split('/')[3]
+    if path.startswith('policy-engine/tests/'):
+        parts = path.split('/')
+        return 'tests', parts[3] if len(parts) > 4 and parts[2] in ('unit', 'integration') else None
+    return 'companion', None
+
+
+def source_module(path):
+    prefix = 'policy-engine/src/'
+    if not path.startswith(prefix):
+        return None, False
+    parts = path.removeprefix(prefix).removesuffix('.py').split('/')
+    package = parts[-1] == '__init__'
+    return '.'.join(parts[:-1] if package else parts), package
+
+
+def resolve_relative(path, node):
+    module, package = source_module(path)
+    if not node.level:
+        return node.module
+    if module is None:
+        return None
+    parts = module.split('.')
+    if not package:
+        parts = parts[:-1]
+    levels = node.level - 1
+    if levels:
+        parts = parts[:-levels]
+    if node.module:
+        parts += node.module.split('.')
+    return '.'.join(parts)
+
+
+def imports(path, data):
+    if data is None:
+        return [], []
+    tree = ast.parse(data, filename=path)
+    role, owner_root = path_role(path)
+    out, undecided = [], []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports = [(alias.name, alias.name, alias.asname) for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            module = resolve_relative(path, node)
+            if module is None and node.level:
+                undecided.append({'line': node.lineno, 'class': 'relative_test_or_companion_package_context_unselected', 'source': ast.unparse(node)})
+                continue
+            imports = [(module, alias.name, alias.asname) for alias in node.names]
+        else:
+            continue
+        for target, name, alias in imports:
+            if target is None or not target.startswith('polisyos.'):
+                continue
+            root = target.split('.')[1]
+            out.append({'target_module': target, 'symbol': name, 'asname': alias, 'line': node.lineno, 'path_role': role, 'source_root': owner_root, 'target_root': root, 'cross_root': owner_root is not None and owner_root != root})
+    return out, undecided
+
+
+censuses = []
+for name, base in [('slice-base', args.base), ('published-main-198', MAIN), ('historical-Core-route-source-539', HISTORICAL)]:
+    paths = git('diff', '--name-only', base, args.candidate).decode().splitlines()
+    selected = [path for path in paths if path.endswith('.py')]
+    rows, totals = [], collections.Counter()
+    for path in selected:
+        before, after = read(base, path), read(args.candidate, path)
+        old, old_unknown = imports(path, before)
+        new, new_unknown = imports(path, after)
+        key = lambda row: (row['target_module'], row['symbol'], row['asname'])
+        a, b = collections.Counter(key(row) for row in old), collections.Counter(key(row) for row in new)
+        added_keys, removed_keys = b - a, a - b
+        added, removed = [], []
+        for values, counter, dest in [(new, added_keys, added), (old, removed_keys, removed)]:
+            for row in values:
+                k = key(row)
+                if counter[k]:
+                    counter[k] -= 1
+                    dest.append(row)
+        role, _ = path_role(path)
+        totals[role] += 1
+        totals['added_polisyos_import_rows'] += len(added)
+        totals['removed_polisyos_import_rows'] += len(removed)
+        totals['added_cross_root_rows'] += sum(row['cross_root'] for row in added)
+        rows.append({'path': path, 'role': role, 'before': None if before is None else {'bytes': len(before), 'sha256': hashlib.sha256(before).hexdigest()}, 'candidate': None if after is None else {'bytes': len(after), 'sha256': hashlib.sha256(after).hexdigest()}, 'added_import_rows': added, 'removed_import_rows': removed, 'unresolved_by_construction': old_unknown + new_unknown})
+    require(len(rows) == len(selected) == sum(totals[role] for role in ['product_source', 'tests', 'companion']), 'Python census denominator mismatch')
+    censuses.append({'comparison': name, 'base': base, 'candidate': args.candidate, 'complete_changed_path_count': len(paths), 'complete_changed_python_count': len(selected), 'totals': dict(totals), 'rows': rows})
+
+preserved_paths = [
+    'policy-engine/src/polisyos/calibration/continuous.py',
+    'policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py',
+    'policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py',
+    'policy-engine/src/polisyos/scientist/methods/doe/_receipt.py',
+    'policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py',
+    'policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py',
+    'policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py',
+]
+preserved = []
+for path in preserved_paths:
+    before, after = read(HISTORICAL, path), read(args.candidate, path)
+    preserved.append({'path': path, 'prior_review_source': HISTORICAL, 'exact_bytes_unchanged': before == after, 'old_sha256': hashlib.sha256(before).hexdigest(), 'candidate_sha256': hashlib.sha256(after).hexdigest(), 'review_scope': 'Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation.'})
+
+result = {'schema': 'policyos.e02.independent_ir_import_census.v1', 'reviewer': 'imports_r4', 'candidate': args.candidate, 'tree': git('rev-parse', args.candidate + '^{tree}').decode().strip(), 'slice_base': args.base, 'predicate_basis': 'recomputed', 'complete_changed_python_censuses': censuses, 'prior_Core_route_preservation': preserved, 'actual_input_operations': 'Git diff enumerates every changed path for each declared ref; every changed .py blob at both refs is read and parsed; missing/deleted blobs require a successful empty exact Git ls-tree lookup. AST failure aborts instead of returning a zero.', 'unresolved_by_construction': ['Dynamic Python import dispatch not represented by Import/ImportFrom AST; actual selected public facade identities are checked separately.', 'Relative test/companion package context is not inferred as a product-root edge.', 'AST edges do not establish numerical law, persisted content authority or native consumer behavior.'], 'limits': 'Complete changed-Python syntax census including tests and companions; product-source canonical collector and public identities remain separate checks. This is not a full global architecture PASS or P41 inherited attribution.'}
+Path(args.output).write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({k: v for k, v in result.items() if k not in ('complete_changed_python_censuses', 'prior_Core_route_preservation')}, indent=2))
+print(json.dumps([{'comparison': c['comparison'], 'base': c['base'], 'complete_changed_path_count': c['complete_changed_path_count'], 'complete_changed_python_count': c['complete_changed_python_count'], 'totals': c['totals']} for c in censuses], indent=2))

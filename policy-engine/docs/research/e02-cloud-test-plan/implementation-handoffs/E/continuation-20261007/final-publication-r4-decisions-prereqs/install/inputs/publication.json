@@ -1,0 +1,57 @@
+{
+  "schema": "policyos.e02.root_source_publication.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "branch": "codex/e02-E-continuation-20261006",
+  "previous_remote": "050ac746f8206b63071908ee83a52e5fd4d491d3",
+  "command": [
+    "git",
+    "push",
+    "origin",
+    "HEAD:refs/heads/codex/e02-E-continuation-20261006"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "exit_code": 0,
+  "captured_at_utc": "2026-10-07T10:32:31Z",
+  "capture": "Literal complete combined exec/write_stdin tool output, not separate subprocess streams",
+  "output": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/push-tool-combined.stdout.txt",
+    "bytes": 601,
+    "sha256": "2f384dea0553a415dd21fb86074d602866e8ce345b01bc17b9565c678421a8f9"
+  },
+  "hook": "Normal Lefthook v2.1.6; typecheck native no matching push files, no override/bypass",
+  "runtime_source_changed_by_publication": false,
+  "global_ci_pass": false,
+  "finding_closure": false,
+  "limits": [
+    "This publishes immutable source before supplemental selectors finish; deciding receipts publish separately.",
+    "The push hook skip is not a typecheck PASS; actual frozen typecheck selector passed separately."
+  ],
+  "remote_readback": {
+    "ls_remote": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd refs/heads/codex/e02-E-continuation-20261006",
+    "fetched_tracking_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "fetched_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "required_source_exact": true,
+    "original_observation_time": "not_established; prior exact timestamp was manually filled and not recorded by the native command"
+  },
+  "timestamp_correction": {
+    "preserved_original": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt-before-timestamp-correction.json.txt",
+      "bytes": 1628,
+      "sha256": "542e2b5f75393b2f9503b388a6e0646d6325f21ff42fe465f8a6ad26707f5828"
+    },
+    "fresh_command": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-E-continuation-20261006"
+    ],
+    "started_at_utc": "2026-10-07T10:59:30.911716+00:00",
+    "finished_at_utc": "2026-10-07T10:59:32.246115+00:00",
+    "exit_code": 0,
+    "stdout": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd\trefs/heads/codex/e02-E-continuation-20261006\n",
+    "stderr": "",
+    "fresh_remote_source_matches": true,
+    "note": "This corrective metadata preserves original publication stdout and identifies the unsupported precise observation timestamp."
+  }
+}

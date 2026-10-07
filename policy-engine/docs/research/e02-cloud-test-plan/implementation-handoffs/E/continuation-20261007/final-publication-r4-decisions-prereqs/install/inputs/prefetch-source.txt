@@ -1,0 +1,94 @@
+"""Prefetch four hash-admitted wheels into ignored scratch, without environment changes."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+import urllib.request
+from pathlib import Path
+from typing import Any
+
+ADMISSION = Path(
+    "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-dependency-artifacts.json"
+)
+EXPECTED_NAMES = {"hatchling", "ortools", "immutabledict", "trove-classifiers"}
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def ref(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    return {"path": str(path), "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output-root", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output_root.exists(), "fresh exclusive wheel directory required")
+    admission = json.loads(ADMISSION.read_bytes())
+    rows = admission["rows"]
+    require(
+        len(rows) == 4 and {row["name"] for row in rows} == EXPECTED_NAMES,
+        "exact four admitted packages required",
+    )
+    for row in rows:
+        artifact = row["artifact"]
+        filename = artifact["filename"]
+        require(Path(filename).name == filename and filename.endswith(".whl"), "wheel basename")
+        require(
+            artifact["url"].startswith("https://files.pythonhosted.org/packages/"), "artifact host"
+        )
+        require(artifact["url"].endswith("/" + filename), "URL filename mismatch")
+        require(
+            type(artifact["bytes"]) is int and 0 < artifact["bytes"] < 40_000_000, "admitted size"
+        )
+        require(len(artifact["sha256"]) == 64, "admitted digest")
+    args.output_root.mkdir(parents=True)
+    outputs = []
+    for row in rows:
+        artifact = row["artifact"]
+        target = args.output_root / artifact["filename"]
+        digest = hashlib.sha256()
+        total = 0
+        with (
+            urllib.request.urlopen(artifact["url"], timeout=30) as response,  # noqa: S310 - HTTPS host and exact artifact hash admitted above.
+            target.open("xb") as handle,
+        ):
+            while chunk := response.read(1 << 20):
+                total += len(chunk)
+                require(total <= artifact["bytes"], "wheel exceeded admitted size")
+                digest.update(chunk)
+                handle.write(chunk)
+        require(
+            total == artifact["bytes"] and digest.hexdigest() == artifact["sha256"],
+            "download differs from admitted wheel",
+        )
+        outputs.append({"name": row["name"], "version": row["version"], "wheel": ref(target)})
+    value = {
+        "schema": "policyos.e02.admitted_wheel_prefetch.v1",
+        "admission": ref(ADMISSION),
+        "source": ref(Path(__file__)),
+        "outputs": outputs,
+        "total_bytes": sum(x["wheel"]["bytes"] for x in outputs),
+        "environment_mutated": False,
+        "environment_created": False,
+        "tests_run": False,
+        "scope": (
+            "Ignored reproducible package payloads; source/configuration/unique deciding "
+            "receipts preserved"
+        ),
+    }
+    receipt = args.output_root.parent / (args.output_root.name + "-receipt.json")
+    require(not receipt.exists(), "fresh receipt output")
+    receipt.write_text(json.dumps(value, indent=2) + "\n")
+    sys.stdout.write(json.dumps(ref(receipt), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

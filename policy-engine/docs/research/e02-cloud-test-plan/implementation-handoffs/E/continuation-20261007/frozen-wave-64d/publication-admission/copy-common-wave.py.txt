@@ -1,0 +1,82 @@
+"""Publish fixed moderate original common-wave observations without execution."""
+import hashlib
+import json
+from pathlib import Path
+
+lane=Path('/workspace/e02-E-frc-20261006')
+scratch=Path('/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d')
+relative=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d')
+packet=lane/relative
+selection_path=Path('/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/moderate-publication-selection.json')
+assert hashlib.sha256(selection_path.read_bytes()).hexdigest()=='865f0422c6c9f78751a958a0f6aaf825711e014ec425d71cc41a540e1e2f3823'
+selection=json.loads(selection_path.read_text())
+assert selection['deciding_output_count']==76 and selection['deciding_output_bytes']==5549441
+assert selection['actual_case_outcomes']=={'PASS':1541,'FAIL':8}
+packet.mkdir(parents=True,exist_ok=False)
+rows=[]
+def copy(source,destination,role,expected=None):
+    data=source.read_bytes()
+    actual={'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+    if expected is not None:
+        assert all(actual[key]==expected[key] for key in ('bytes','sha256'))
+    relative_path=Path(destination)
+    assert not relative_path.is_absolute() and '..' not in relative_path.parts and relative_path.as_posix()==destination
+    target=packet/relative_path
+    target.parent.mkdir(parents=True,exist_ok=True)
+    with target.open('xb') as handle:handle.write(data)
+    assert target.read_bytes()==data
+    rows.append({'source_path':str(source),'portable_path':destination,'role':role,**actual})
+for row in selection['current_files']:
+    copy(Path(row['path']),row['portable_path'],row['role'],row)
+assert len(rows)==76 and sum(row['bytes'] for row in rows)==5549441
+copy(selection_path,'moderate-publication-selection.json','fixed independently selected complete15-job moderate observation index')
+for name in ('admission-resume.json','admission-resume.stderr.txt','copy-common-wave.py.txt'):
+    copy(scratch/name,'publication-admission/'+name,'exact lane admission or literal copy command source')
+index={'schema':'policyos.e02.literal_frozen_wave_copy_index.v1','verification_candidate_sha':selection['source'],'verification_candidate_tree_sha':selection['tree'],'publication_parent_sha':'3eafb85617738c9b398fe67c70d58b3d0d05a5a9','fixed_selected_outputs':76,'fixed_selected_output_bytes':5549441,'copied_files':len(rows),'copied_bytes':sum(row['bytes'] for row in rows),'copies':rows,'literal_original_bytes':True,'exclusions':selection['excluded'],'prior_CAL_retry_carrier':selection['previous_published_retry_carrier']}
+(packet/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+footprint=sorted([str(relative/'README.md'),str(relative/'implementation-handoff.json'),str(relative/'copy-index.json')]+[str(relative/row['portable_path']) for row in rows])
+handoff={
+    'schema':'policyos.e02.frozen_wave_verification_publication_handoff.v1',
+    'base_sha':selection['source'],'candidate_sha':selection['source'],'candidate_tree_sha':selection['tree'],
+    'publication_parent_sha':'3eafb85617738c9b398fe67c70d58b3d0d05a5a9','publication_parent_tree_sha':'a2981e42fb6a3b456c0ca2b8b08ffb5786dc8e84',
+    'publication_future_sha':'Excluded; separate immutable commit/remote readback provided after commit',
+    'canonical_writers':'E root source freeze/original driver/owner dispositions; family authors separate from checks; frc_r4 publication only; oracle_r4 independent collector/input/output interpretation',
+    'runtime_property_scope':'Original common numerical/consumer selectors and seven original global gates on frozen64d; no numerical/test/gate/source execution by this publication task',
+    'primary_job_count':15,'numerical_group_count':7,'importer_count':1,'original_global_gate_count':7,
+    'observed_native_test_path_count':125,'additional_owner_packet_path_count':1,
+    'actual_case_count_including_distinct_CAL_retry':1549,'actual_case_outcomes':{'PASS':1541,'FAIL':8},
+    'known_current_A_failure_count':8,'unexpected_current_numeric_failures':'None reported by independent collector; current A binding does not establish inherited P41 cause',
+    'original_CAL':selection['original_CAL'],'separate_CAL_retry':selection['separate_CAL_retry'],
+    'prior_complete_CAL_retry_carrier':selection['previous_published_retry_carrier'],
+    'case_denominator_basis':'Six completed original JUnit files plus distinct324-case bounded CAL retry; original SIGKILL/noJUnit contributes no invented cases',
+    'original_global_gate_outcomes':{'architecture':{'exit_code':2,'check_outcome':'FAIL'},'runtime-api-contract':{'exit_code':1,'check_outcome':'FAIL'},'static-invocation':{'exit_code':1,'check_outcome':'FAIL'},'ruff':{'exit_code':1,'check_outcome':'FAIL'},'ruff-format':{'exit_code':1,'check_outcome':'FAIL'},'workspace-verify':{'exit_code':1,'check_outcome':'FAIL'},'ci-parity':{'exit_code':1,'check_outcome':'FAIL'}},
+    'required_successors':'Root continued separate required workspace/CI selectors after original fail-fast. Pending successors are excluded from this fixed15-job carrier; no UNRUN is converted to PASS.',
+    'driver':'wave/plan.json; wave/wave-started.json; wave/execution-complete.json. Exact receipt commands, stdout, environments/backends, source/input hashes preserved.',
+    'input_identity':'Frozen source64d/treeaef; all17,016 tracked inputs524,100,024 bytes and framef45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5. Independent collector binds source/owner54 rows22 bundles55 links; query/baseline rows are navigation, not candidatePASS.',
+    'independent_oracle_and_negatives':'independent/recomputed-wave.json, case-index.json and defining-current-case-index.json preserve exact case/owner/assertion navigation. Thirteen parser/environment corrupt controls and normal/optimized inventory controls are included with literal archived command sources.',
+    'A_consumer_boundary':'Native BKT/FRC/S10 group321 cases:313PASS/8FAIL. Actual seven-case A contract packet archived; A shared writers untouched. Real producer/CAS witness and preexisting source reviews are separate from A default/HTTP verifier closure.',
+    'source_and_owner_inputs':'Source-and-owner inputs are literal frozen records; individual accountable original-criterion decisions remain independent of PASS totals.',
+    'copy_index':'copy-index.json','copied_files':index['copied_files'],'copied_bytes':index['copied_bytes'],'selected_output_count':76,'selected_output_bytes':5549441,
+    'changed_paths':footprint,'path_count':len(footprint),'active_python_path_count':0,'source_test_delta_paths':[],
+    'finding_closure':False,'finding_status_policy':'Historical partial/held/closed ledger and each accountable owner decision remain distinct from check outcomes; no automatic closure or inherited-red waiver.',
+    'limits':selection['excluded']+['Post-command backend observer is not proof of unmeasured pytest-child JAX state.','Original SIGKILL per-process OOM cause remainsnot_established.','Eight current A failure bindings do not prove P41 inherited cause without exact base/full-input replay.','Root owns source64d publication/combined successor carrier on its controlled boundary.'],
+    'next_owners':'E root/G bind available successor receipts and current global gate queue; A resolves eight real default-consumer status/reason failures and independently verifies fresh persisted/default/HTTP decisions; canonical generator/Core/IR owners handle their exact companion packets; G accepts code and findings separately.',
+    'cleanup':'Source, unique deciding observations and rootenv preserved. Raw temporary/fixture/cache/environment trees excluded from Git; cleanup only after reader custody and actual active-user checks.'
+}
+(packet/'implementation-handoff.json').write_text(json.dumps(handoff,indent=2)+'\n')
+(packet/'README.md').write_text('''# Frozen E common wave on64d
+
+This carrier publishes the completed original **15-job wave** on `64d7444a18c55df7b88b71b7699a2f1b25ca24bd` / tree `aef23574d3162abb19bf5a1c67d02624ff9d4d1d`: seven numerical groups, one importer and seven original global gates. Source/tests were not changed and no numerical or gate command was repeated by this publication task.
+
+The independent collector parsed **1,549 completed cases:1,541 PASS /8 FAIL**. All eight FAIL cases belong to the current A contract/native-consumer boundary; their exact test identities and source bindings are retained. This classification does not establish inherited cause by P41 or imply original-criterion closure. The original CAL attempt stays distinct: actualexit−9/SIGKILL, wrapperFAIL, noJUnit/counts. Its separate bounded retry contributed324 PASS cases; complete interruption/resource/input/command/independent custody evidence was already published in E leaf commit `3eafb85617738c9b398fe67c70d58b3d0d05a5a9`.
+
+All seven original global gate observations were FAIL and are retained literally. Root continues required workspace/CI successor selectors separately; pending successors are outside this fixed carrier and are not presented as PASS. This is not a fullCI PASS claim. Exact original driverplan/start/completion, six originalJUnit files, all15 canonical receipts/combined stdout, seven-case A packet, emitter catalog metadata and independent collector/case/assertion joins are included.
+
+`moderate-publication-selection.json` freezes76 deciding assets(5,549,441bytes). `copy-index.json` binds literal original copies and publication admission. `implementation-handoff.json` pins source/tree, complete DOC footprint, denominator basis, limitations and next owners. Review/reproducer sources are archived as `.py.txt`, including thirteen effective parser/environment corrupt controls and normal/optimized inventory checks; no activePython/source/test delta is introduced. Historical observer output before correct omitted-classname binding is retained without rewriting its stdout.
+
+Private Git config bytes, rawCAS/fixtures/cache/environments, huge generated OpenAPI/clientraw and duplicate byte-identical history are excluded explicitly. Original absolute paths remain observed text; portable paths in the copy index locate committed copies. The full CAL interruption/retry carrier is reused by immutable Git ref. Source64d publication and the combined successor/gate carrier belong to root; G fetches exact source and this separate evidence commit.
+
+Finding ownership and original criteria remain separate from check totals:54 IDs,22 bundles,55 links. Production history/source-law inputs stay local read-only where required, and held/unavailable semantic/source inputs are not fabricated by this wave.
+''')
+assert sorted(p.relative_to(lane).as_posix() for p in packet.rglob('*') if p.is_file())==footprint
+print(json.dumps({'packet':str(packet),'selected_outputs':76,'selected_bytes':5549441,'copied_files':len(rows),'copied_bytes':index['copied_bytes'],'path_count':len(footprint),'active_python_paths':0,'literal_copy':'PASS'},indent=2))

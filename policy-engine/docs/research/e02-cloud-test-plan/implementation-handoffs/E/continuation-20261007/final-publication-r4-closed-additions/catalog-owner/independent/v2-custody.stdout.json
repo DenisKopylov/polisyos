@@ -1,0 +1,19 @@
+{
+  "outcome": "GO",
+  "receipt": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-publication-custody-independent-review.json",
+    "bytes": 33125,
+    "sha256": "978d1c2db70ff2aefddee3916d0638b550908b201adf52ad729accaf396b248e"
+  },
+  "counts": {
+    "original_logical": 50,
+    "original_unique": 42,
+    "original_unique_bytes": 510011,
+    "corrected_logical": 64,
+    "corrected_unique": 51,
+    "corrected_unique_bytes": 591188
+  },
+  "exact_source_inputs": 15,
+  "original50_unchanged": true,
+  "no_native_reexecution": true
+}

@@ -1,0 +1,83 @@
+{
+  "schema": "policyos.e02.existing_environment_admission_refusal.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "time_unix": 1791368674.9618738,
+  "candidate_environment": "/workspace/e02-E-cal05-20261006/policy-engine/.venv",
+  "realpath": "/workspace/e02-E-cal05-20261006/policy-engine/.venv",
+  "pyvenv_cfg": {
+    "path": "/workspace/e02-E-cal05-20261006/policy-engine/.venv/pyvenv.cfg",
+    "bytes": 194,
+    "sha256": "2babae500cfeb9d798df4241f91104fd98a1f968dd54b8462273da6900c4fc3a"
+  },
+  "python_link": "/home/agent/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+  "site_package_roots": [
+    "/workspace/e02-E-cal05-20261006/policy-engine/.venv/lib/python3.14/site-packages"
+  ],
+  "installed_distribution_count": 0,
+  "root_baseline_distribution_count": 203,
+  "root_baseline_ref": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-before-read-only.json",
+    "bytes": 84697,
+    "sha256": "c1173ca53947224fac54a1fdb8582cf4ed94b01e7f96a235c1a01babc94e3d0d"
+  },
+  "required_protected_numerical_packages": [
+    {
+      "name": "jax",
+      "version": "0.8.2",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax-0.8.2.dist-info/METADATA",
+      "bytes": 13409,
+      "sha256": "814bff75113dc832e236125fd9ec53390fec2d6e4494c17cb92d69c1b9509f8c"
+    },
+    {
+      "name": "jaxlib",
+      "version": "0.8.2",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jaxlib-0.8.2.dist-info/METADATA",
+      "bytes": 1339,
+      "sha256": "83b52e6b98bb35a5dfb4a760174382eb7946bf67ec782f392d238aa034384960"
+    },
+    {
+      "name": "numpy",
+      "version": "2.3.5",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info/METADATA",
+      "bytes": 62117,
+      "sha256": "6002f29765e5bc1a3be4a1b92ed56b64968a0fecba73e7f81cd536d0c40f4fa3"
+    },
+    {
+      "name": "SALib",
+      "version": "1.5.2",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/salib-1.5.2.dist-info/METADATA",
+      "bytes": 11832,
+      "sha256": "fe5e530e9552269f51db14bcd0f0bd3b7123002d171ef06ec1ecfde3dac11dfc"
+    },
+    {
+      "name": "scipy",
+      "version": "1.16.3",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy-1.16.3.dist-info/METADATA",
+      "bytes": 62003,
+      "sha256": "a54602d0aa61fb25ac030b1d7b0faf0c8cfec508290d4d824198d6b43647ec1b"
+    }
+  ],
+  "actual_protected_packages": [],
+  "parity": false,
+  "deciding_reason": "Candidate environment is bare: zero installed distributions with include-system-site-packages=false. Minimum four package additions cannot preserve existing numerical parity or provide pytest/pydantic/frozen backend consumers. No installation or fullselector attempt is admitted.",
+  "active_owner_uid_users": [],
+  "unreadable_owner_uid_processes": [],
+  "owner_uid_user_proof_quiescent": true,
+  "infrastructure_privacy_boundary": "UID0 dockerd/containerd private process fields are outside observable owned task-user scope; no silent infrastructure zero-user assertion",
+  "additional_native_prefix_constraint": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/tools/quality/validation/universality_preflight.py",
+    "source": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tools/quality/validation/universality_preflight.py",
+      "bytes": 4164,
+      "sha256": "bdb0328f31459a4891394f2b4b095bc11d7b70c504e30dce65650d8ebaf69200"
+    },
+    "predicate": "sys.prefix and sys.exec_prefix must equal resolved ROOT/.venv and differ from sys.base_prefix",
+    "consequence": "Even a populated foreign-prefix environment cannot claim the original native universality preflight under root source; preserve this typed refusal rather than spoofing the interpreter or skipping required test"
+  },
+  "environment_mutated": false,
+  "package_install_executed": false,
+  "test_selector_executed": false,
+  "next_owner": "E root scheduler/environment owner",
+  "next_verifiable_result": "After actual root environment readers/writers close, admit the minimum four hash-pinned dependencies under an exclusive root-env lease and retry full workspace14 selector with fresh independent receipts. Existing alternate env is useful only for selectors whose native contracts admit its actual prefix."
+}

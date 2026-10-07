@@ -1,0 +1,64 @@
+"""Independent stdlib XML/output/env readback; no additional execution of tests."""
+import ast
+import hashlib
+import importlib.metadata
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+base=Path('/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110')
+root=Path('/workspace/e02-E-continuation-20261006')
+product=root/'policy-engine'
+name='cycle-board-owner-recompute-retry'
+check=base/'checks'/name
+sha='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+tree='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+def identity(p):
+ b=p.read_bytes();return dict(path=str(p),bytes=len(b),sha256=hashlib.sha256(b).hexdigest())
+def write(n,j):
+ p=base/n;p.write_text(json.dumps(j,ensure_ascii=False,indent=2)+'\n');return identity(p)
+receipt=json.loads((check/(name+'.json')).read_text())
+admission=json.loads((base/'retry-admission.json').read_text())
+if receipt['candidate_sha']!=sha or receipt['candidate_tree_sha']!=tree or receipt['command']!=admission['test_command'] or receipt['source_identity_before']!=receipt['source_identity_after'] or not receipt['source_immutable']:raise ValueError('Canonical admission/source mismatch')
+stdout=identity(Path(receipt['stdout_path']))
+if stdout['sha256']!=receipt['stdout_sha256'] or stdout['bytes']!=receipt['stdout_bytes']:raise ValueError('Native complete stdout mismatch')
+cases=list(ET.parse(check/'pytest.xml').getroot().iter('testcase'))
+counts=dict(cases=len(cases),passed=sum(not any(c.find(t) is not None for t in ('failure','error','skipped')) for c in cases),failed=sum(c.find('failure') is not None for c in cases),errors=sum(c.find('error') is not None for c in cases),skipped=sum(c.find('skipped') is not None for c in cases))
+if counts!=receipt['counts'] or counts!=dict(cases=1,passed=1,failed=0,errors=0,skipped=0) or receipt['exit_code']!=0 or receipt['outcome']!='PASS':raise ValueError('Actual affected native outcome does not match')
+classname='tests.unit.runtime.http.test_cycle_board_projection_fact_owners'
+testname='test_cycle_board_claims_equal_live_owner_recomputation_and_detect_corruption'
+if [(c.get('classname'),c.get('name')) for c in cases]!=[(classname,testname)]:raise ValueError('Different selector executed')
+originalpath=Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02')
+original=json.loads((originalpath/'standalone-ci-02.json').read_text())
+oldcases=[c for c in ET.parse(originalpath/'pytest.xml').getroot().iter('testcase') if c.get('classname')==classname and c.get('name')==testname]
+if len(oldcases)!=1 or oldcases[0].find('failure') is None:raise ValueError('Original exact failure absent')
+oldtrace=oldcases[0].find('failure').text or ''
+if not all(s in oldtrace for s in ['ortools_cp_sat:ModuleNotFoundError','CgSubstrateUnavailableError','SystemExit: 1']):raise ValueError('Original backend failure chain absent')
+before=json.loads((base/'actual-root-environment-before.json').read_text())
+site=next((product/'.venv/lib').glob('python*/site-packages'))
+rows=[]
+for distribution in importlib.metadata.distributions(path=[str(site)]):
+ p=Path(distribution._path)/'METADATA';r=identity(p);rows.append(dict(name=distribution.metadata.get('Name'),version=distribution.version,path=str(p),bytes=r['bytes'],sha256=r['sha256']))
+rows.sort(key=lambda r:(r['name'].casefold(),r['path']))
+frame=hashlib.sha256(json.dumps(rows,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+if rows!=before['complete_metadata'] or len(rows)!=207 or frame!=before['frame_sha256']:raise ValueError('Current actual root environment changed during retry')
+env_after=write('actual-root-environment-after-readback.json',dict(readback_interpreter=sys.executable,root_interpreter_not_reexecuted=True,distributions=len(rows),complete_metadata=rows,frame_sha256=frame,byte_equal_to_actual_root_preexecution_readback=True))
+source=product/'tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py'
+text=source.read_text();module=ast.parse(text)
+function=next(n for n in module.body if isinstance(n,ast.FunctionDef) and n.name==testname)
+with_assertions=[ast.get_source_segment(text,n) for n in ast.walk(function) if isinstance(n,ast.With) and 'pytest.raises(AssertionError)' in (ast.get_source_segment(text,n) or '')]
+if len(with_assertions)!=2 or '_assert_rows_equal_owner(packet.payload.rows, expected)' not in ast.get_source_segment(text,function):raise ValueError('Required healthy/removal observations absent from executed test body')
+current_head=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
+current_tree=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD^{tree}'],text=True).strip()
+if (current_head,current_tree)!=(sha,tree):raise ValueError('Root source changed')
+completion=dict(schema='policyos.e02.backend_affected_http_retry_completion.v1',source=sha,tree=tree,reviewer='oracle_r4',native_outcome='PASS',native_counts=counts,actual_native_classname=classname,actual_native_name=testname,canonical_receipt=identity(check/(name+'.json')),complete_stdout=stdout,junit=identity(check/'pytest.xml'),wall_seconds=receipt['wall_seconds'],source_input_identity_before=receipt['source_identity_before'],source_input_identity_after=receipt['source_identity_after'],original_full_HTTP_counts_retained=original['counts'],original_full_HTTP_outcome_retained=original['outcome'],original_full_HTTP_receipt=identity(originalpath/'standalone-ci-02.json'),original_junit=identity(originalpath/'pytest.xml'),original_exact_failure_message=oldcases[0].find('failure').get('message'),original_complete_exact_failure_trace_sha256=hashlib.sha256(oldtrace.encode()).hexdigest(),changed_dependency_boundary='Only already approved declared dependencies were installed by root before this narrowly authorized retry; actual native original missing-ortools chain is preserved. Same source and same single defining test now ran with ortools9.15.6755. No claim about global/generic inherited failure causation.',current_environment_before=identity(base/'actual-root-environment-before.json'),current_environment_after=env_after,root_distribution_count=207,current_metadata_framed_sha256=frame,executed_defining_control_scope=dict(test_source=identity(source),one_native_case_not_three=True,healthy='Actual owner truth recomputation compared with served projection packet rows',two_existing_corruption_assertions=with_assertions),no_other_HTTP_selector_run=True,no_package_or_source_mutation=True,no_test_repeat_after_native_result=True,no_private_config_publication=True,P41='not_established',finding_closure=False)
+completion_ref=write('retry-completion.json',completion)
+shutil.copyfile(Path('/tmp/e02-E-http-error-independent-64d/prepare_cycle_board_retry.py'),base/'prepare_cycle_board_retry.py.txt')
+shutil.copyfile(Path(__file__),base/'recompute_retry.py.txt')
+assets=[base/'retry-admission.json',base/'actual-root-environment-before.json',base/'actual-root-environment-after-readback.json',base/'retry-completion.json',base/'launch-result.json',base/'runner.stdout.txt',base/'runner.stderr.txt',check/(name+'.json'),check/(name+'.stdout.txt'),check/'pytest.xml',base/'prepare_cycle_board_retry.py.txt',base/'recompute_retry.py.txt']
+refs=[identity(p) for p in assets]
+write('publication-selection.json',dict(schema='policyos.e02.moderate_backend_http_retry_selection.v1',source=sha,tree=tree,assets=refs,count=len(refs),total_bytes=sum(r['bytes'] for r in refs),private_git_config_excluded=True,fixture_cache_dirs_excluded=True,original_fail_receipt_not_rewritten=True))
+print(json.dumps(dict(completion=completion_ref,counts=counts,native_outcome='PASS',source_immutable=True,root_environment_metadata_unchanged=True,root_distributions=207,actual_existing_corruption_assertions=2,selection=identity(base/'publication-selection.json'),assets=len(refs),total_bytes=sum(r['bytes'] for r in refs)),indent=2))

@@ -1,0 +1,185 @@
+{
+  "outcome": "PASS",
+  "checks": 21,
+  "controls": [
+    {
+      "name": "healthy_class_bound_packet",
+      "outcome": "PASS"
+    },
+    {
+      "name": "full_HTTP_summary_1PASS_markers_intact",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:native_full_HTTP.full_original_counts"
+    },
+    {
+      "name": "catalog_observations_100_markers_intact",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:minimum_fixture_inputs.actual_catalog_counts"
+    },
+    {
+      "name": "extra_product_path_markers_intact",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:source_footprint"
+    },
+    {
+      "name": "bool_observations_rejected",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:minimum_fixture_inputs.actual_catalog_counts"
+    },
+    {
+      "name": "missing_catalog_table",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:minimum_fixture_inputs.actual_catalog_counts"
+    },
+    {
+      "name": "extra_catalog_table",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:minimum_fixture_inputs.actual_catalog_counts"
+    },
+    {
+      "name": "bool_HTTP_count_rejected",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:native_full_HTTP.full_original_counts"
+    },
+    {
+      "name": "omitted_HTTP_count",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:native_full_HTTP.full_original_counts"
+    },
+    {
+      "name": "HTTP_exit_code_mutation",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:native_full_HTTP.native_exit_code"
+    },
+    {
+      "name": "replaced_schema_ref",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:minimum_fixture_inputs.actual_schema_and_profile_ref"
+    },
+    {
+      "name": "configured_path_mutation",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:configured_input.path"
+    },
+    {
+      "name": "configured_presence_flag_mutation",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:configured_input.is_file"
+    },
+    {
+      "name": "source_input_denominator_mutation",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:source_guard_inputs"
+    },
+    {
+      "name": "environment_denominator_mutation",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:actual_environment"
+    },
+    {
+      "name": "runtime_edit_claim",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:source_footprint"
+    },
+    {
+      "name": "generated_edit_claim",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:source_footprint"
+    },
+    {
+      "name": "new_API_claim",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:source_footprint"
+    },
+    {
+      "name": "bool_footprint_claim",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:source_footprint"
+    },
+    {
+      "name": "footprint_companion_omission",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:source_footprint"
+    },
+    {
+      "name": "extra_footprint_field",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch:source_footprint"
+    }
+  ],
+  "summary_admission_basis": {
+    "structured_claims": [
+      "source_sha",
+      "tree_sha",
+      "source_guard_inputs",
+      "actual_environment",
+      "receipts.native_positive.source_sha",
+      "receipts.native_positive.tree_sha",
+      "receipts.native_positive.source_immutable",
+      "receipts.native_positive.source_inputs",
+      "receipts.missing_native_startup.source_sha",
+      "receipts.missing_native_startup.tree_sha",
+      "receipts.missing_native_startup.source_immutable",
+      "receipts.missing_native_startup.source_inputs",
+      "receipts.owner_overlay_healthy.source_sha",
+      "receipts.owner_overlay_healthy.tree_sha",
+      "receipts.owner_overlay_healthy.source_immutable",
+      "receipts.owner_overlay_healthy.source_inputs",
+      "receipts.owner_overlay_removed_route.source_sha",
+      "receipts.owner_overlay_removed_route.tree_sha",
+      "receipts.owner_overlay_removed_route.source_immutable",
+      "receipts.owner_overlay_removed_route.source_inputs",
+      "receipts.owner_overlay_fake_producer.source_sha",
+      "receipts.owner_overlay_fake_producer.tree_sha",
+      "receipts.owner_overlay_fake_producer.source_immutable",
+      "receipts.owner_overlay_fake_producer.source_inputs",
+      "minimum_fixture_inputs.actual_catalog_counts",
+      "minimum_fixture_inputs.actual_schema_and_profile_ref",
+      "configured_input.source_root",
+      "configured_input.path",
+      "configured_input.is_file",
+      "configured_input.actual_default_overlay_path",
+      "HTTP.native_source",
+      "HTTP.native_tree",
+      "HTTP.native_immutable",
+      "HTTP.attribution_source",
+      "HTTP.attribution_tree",
+      "native_full_HTTP.full_original_counts",
+      "HTTP.attribution_counts",
+      "native_full_HTTP.original_outcome",
+      "HTTP.attribution_outcome",
+      "native_full_HTTP.native_exit_code",
+      "HTTP.attribution_exit_code",
+      "HTTP.attribution_native_receipt",
+      "HTTP.attribution_native_stdout",
+      "HTTP.attribution_native_junit",
+      "HTTP.stdout_path",
+      "HTTP.stdout_bytes",
+      "HTTP.stdout_sha256",
+      "HTTP.junit_path",
+      "native_full_HTTP.catalog_error_count",
+      "native_full_HTTP.statuses",
+      "native_full_HTTP.literal_errno28_trace_count",
+      "native_full_HTTP.cause_ENOSPC_established",
+      "native_full_HTTP.P41",
+      "overlay.sha256",
+      "overlay.size",
+      "overlay.is_committed_candidate",
+      "owner_overlay_removed_route.literal_overlay_sha256",
+      "owner_overlay_removed_route.literal_overlay_size",
+      "owner_overlay_removed_route.is_committed_candidate",
+      "owner_overlay_fake_producer.literal_overlay_sha256",
+      "owner_overlay_fake_producer.literal_overlay_size",
+      "owner_overlay_fake_producer.is_committed_candidate",
+      "source_footprint",
+      "observer_provenance.native_sources_unchanged",
+      "observer_provenance.owner_overlay_not_a_Git_candidate"
+    ],
+    "claim_count": 65,
+    "patch_numstat": "43\t0\tpolicy-engine/tests/_helpers/runtime_http.py\n",
+    "public_signatures_preserved": true,
+    "narrative_concurrency_and_owner_limits": "manual owner assertions; not inferred authority"
+  },
+  "native_selectors_repeated": false,
+  "original_validator_sha256": "558ea2ebbc183da3d2e1bd6981f9671585931c6ebae7f290c5ba9511e3d44052"
+}

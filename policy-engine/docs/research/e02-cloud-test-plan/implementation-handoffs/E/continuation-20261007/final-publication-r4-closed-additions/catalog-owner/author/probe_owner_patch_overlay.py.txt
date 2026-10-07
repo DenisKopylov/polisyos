@@ -1,0 +1,115 @@
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import os
+import sys
+import types
+from pathlib import Path
+
+from probe_native_catalog_fixture import SOURCE, TREE, require, source_inputs
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", required=True, type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--overlay", required=True, type=Path)
+    parser.add_argument("--mode", choices=("healthy", "fake-producer", "removed-route"), required=True)
+    args = parser.parse_args()
+    repo, product = args.repo.resolve(), args.repo.resolve() / "policy-engine"
+    inputs = source_inputs(repo)
+    output = args.output.resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    overlay_raw = args.overlay.read_bytes()
+    overlay_source = overlay_raw.decode()
+    if args.mode == "removed-route":
+        predicate = "if Path(root).resolve() == fixture_source_root:"
+        require(overlay_source.count(predicate) == 1, "removal_predicate_not_unique")
+        overlay_source = overlay_source.replace(predicate, "if False:")
+    for root in (product, product / "src", product / "tests"):
+        sys.path.insert(0, str(root))
+    os.environ["POLISYOS_CACHE_HOME"] = str(output / "cache")
+    os.environ["POLISYOS_METRICS_PORT"] = "0"
+
+    import pytest
+    from fastapi.testclient import TestClient
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.runtime.quality import substrate_registry
+
+    helper_path = product / "tests/_helpers/runtime_http.py"
+    module = types.ModuleType("_helpers.runtime_http")
+    module.__file__ = str(helper_path)
+    module.__package__ = "_helpers"
+    sys.modules[module.__name__] = module
+    # Only the proposed fixture helper is an overlay; every native runtime/DataForge module
+    # remains the physically hash-checked immutable source. Original filename keeps the
+    # helper's actual checkout-root identity, instead of deriving it from a scratch tree.
+    exec(compile(overlay_source, str(helper_path), "exec"), module.__dict__)
+    server_path = product / "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
+    spec = importlib.util.spec_from_file_location("native_owner_overlay_server", server_path)
+    require(spec is not None and spec.loader is not None, "server_source_missing")
+    server = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(server)
+    callback_count = []
+    class FakeCatalog:
+        credible = True
+        gate_eligible = True
+        def close(self):
+            callback_count.append("fake_close")
+    original_builder = catalog_api.build_slice0_fixture_catalog_graph
+    def fake_builder(root=None):
+        if root is not None and Path(root).resolve() == output / "native-api/retrieval-catalog":
+            callback_count.append(str(root))
+            return FakeCatalog()
+        return original_builder(root)
+
+    env = None
+    refused = None
+    positive = None
+    try:
+        with pytest.MonkeyPatch.context() as patch:
+            if args.mode == "fake-producer":
+                patch.setattr(catalog_api, "build_slice0_fixture_catalog_graph", fake_builder)
+            try:
+                env = server._build_dashboard_fixture_env(
+                    output / "native-api", include_run_paper_fixtures=True,
+                    include_bound_run_paper_fixture=True, include_test_client=False,
+                )
+            except ValueError as exc:
+                if args.mode == "healthy" or str(exc) != "catalog_fetch_source_unreadable":
+                    raise
+                refused = {"type": type(exc).__name__, "reason": str(exc)}
+            if args.mode == "healthy":
+                require(env is not None, "overlay_native_env_missing")
+                service = env["app"].state._control_service
+                graph = service._retrieval_catalog
+                require(type(graph) is catalog_api.DatasetCatalogGraph, "native_catalog_owner_substituted")
+                binding = graph.bind_fetch_target(
+                    metric_id="msme_credit_access", connector_id="worldbank.wdi",
+                    request_dataset_id="IC.FRM.ACCS.ZS", profile_id="worldbank", filters={},
+                )
+                raw = (output / "native-api/retrieval-catalog/catalog.duckdb").read_bytes()
+                require(binding.baseline.content_sha256 == "sha256:" + hashlib.sha256(raw).hexdigest(), "overlay_wrong_actual_catalog_bytes")
+                with TestClient(env["app"]) as client:
+                    health = client.get("/health")
+                    runs = client.get("/api/v1/runs", headers={"X-Tenant-ID": str(env["tenant_a"]), "X-Cell-ID": str(env["cell_a"])})
+                    require(health.status_code == 200 and runs.status_code == 200, "overlay_native_HTTP_unhealthy")
+                positive = {"catalog_binding": binding.model_dump(mode="json"), "health_status": health.status_code, "runs_status": runs.status_code, "bound_run_id": env["run_paper_bound_run_id"], "default_path_restored": str(substrate_registry.default_substrate_catalog_paths(product).l1_dcat_path)}
+                require(substrate_registry.default_substrate_catalog_paths(product).l1_dcat_path != Path(binding.baseline.source_path), "process_path_override_leaked")
+            else:
+                require(env is None and refused is not None, "required_property_discriminator_missing")
+    finally:
+        if env is not None:
+            module.close_runtime_api_env(env)
+        module.close_registered_runtime_api_envs()
+    require(source_inputs(repo) == inputs, "native_source_changed")
+    result = {"outcome": "PASS", "source_sha": SOURCE, "tree_sha": TREE, "source_immutable": True, "mode": args.mode, "overlay": {"source_path": str(args.overlay), "source_size": len(overlay_raw), "source_sha256": hashlib.sha256(overlay_raw).hexdigest(), "effective_sha256": hashlib.sha256(overlay_source.encode()).hexdigest(), "is_committed_candidate": False}, "source_inputs": inputs, "positive": positive, "refusal": refused, "fake_callbacks": callback_count, "authority_limits": "Fixture startup/HTTP readback and source refusal only; no production/source-law/decision authority and no browser cases."}
+    (output / "receipt.json").write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps({"outcome": result["outcome"], "mode": args.mode, "receipt": str(output / "receipt.json")}, indent=2))
+
+
+if __name__ == "__main__":
+    main()

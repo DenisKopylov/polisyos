@@ -1,0 +1,202 @@
+"""Read-only review of bounded original-criterion owner proposals; no checks executed."""
+import ast
+from collections import Counter
+import copy
+import csv
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import subprocess
+
+REPO=Path('/workspace/e02-E-continuation-20261006')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+PACKET=Path('/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json')
+OUT=Path('/tmp/e02-E-criteria-decision-independent-64d')
+BASE='a9f78817c873be5b35a08155f2593b229d9fdbb6'
+OLD_E='e9cb425e4dfe888720f93eb84f1667f24a8a92c4'
+ORIGINAL='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json'
+
+
+def git(*args):
+ return subprocess.check_output(['git','-C',str(REPO),*args])
+
+
+def blob(path,sha=SOURCE):
+ return git('show',f'{sha}:{path}')
+
+
+def identity(data):
+ return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+
+
+def require(test,message):
+ if not test:raise ValueError(message)
+
+
+packet_raw=PACKET.read_bytes(); packet=json.loads(packet_raw)
+original=json.loads(blob(ORIGINAL,OLD_E))
+owners={r['finding_id']:r for r in csv.DictReader(io.StringIO(blob('policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv').decode()),delimiter='\t') if r['unit']=='E'}
+bundle_owners={r['bundle_id']:r for r in csv.DictReader(io.StringIO(blob('policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv').decode()),delimiter='\t') if r['unit']=='E'}
+original_by_id={r['id']:r for r in original['rows']}
+
+# Check full current original citations, not just names or imported result page.
+source_cache={}
+criterion_audit=[]
+for row in packet['rows']:
+ checks=[]
+ for ref in row['criterion_evidence']['original_criterion_refs']:
+  path=ref['path']
+  if path not in source_cache:source_cache[path]=blob(path).decode().splitlines()
+  low,high=ref['lines']; raw=('\n'.join(source_cache[path][low-1:high])+'\n').encode()
+  require(hashlib.sha256(raw).hexdigest()==ref['sha256'],'original source fragment hash '+row['id'])
+  require(row['id'] in raw.decode().splitlines()[0],'criterion identity '+row['id'])
+  checks.append({'path':path,'lines':ref['lines'],**identity(raw)})
+ for ref in row['criterion_evidence']['original_card_refs']:
+  path,rev=ref.rsplit('@',1)
+  old=blob(path,rev); current=blob(path)
+  require(old==current,'original card changed '+row['id'])
+  require(re.search(r'<!-- SOURCE_BEGIN (?:B|LA):'+re.escape(row['id'])+r' -->',current.decode()) is not None,'card criterion missing '+row['id'])
+ criterion_audit.append({'id':row['id'],'links':len(row['bundle_ids']),'fragments':checks,'card_unchanged':True})
+
+
+def validate(data):
+ rows=data['rows']; ids=[r['id'] for r in rows]
+ require(len(rows)==len(set(ids))==54 and set(ids)==set(owners),'full54 owner IDs')
+ require(data['complete_denominator']=={'bundles':22,'findings':54,'finding_bundle_links':55},'complete denominator')
+ require(set(b['id'] for b in data['bundles'])==set(bundle_owners),'full22 bundles')
+ require(sum(len(r['bundle_ids']) for r in rows)==55,'full55 links')
+ require(data['frozen_source']['sha']==SOURCE and data['frozen_source']['tree']==TREE,'exact frozen source/tree')
+ require(data['formal_ledger_change'] is False,'no formal ledger mutation')
+ historical=Counter(r['historical_ledger_status'] for r in rows)
+ require(dict(historical)=={'partial':49,'held':4,'closed':1} and data['historical_ledger']==dict(historical),'historical ledger')
+ actual=Counter(r['proposed_finding_outcome'] for r in rows)
+ require(dict(actual)=={'limited':9,'closed':43,'held':2} and data['proposed_finding_counts']=={'closed':43,'limited':9,'held':2,'open':0},'proposal count')
+ for row in rows:
+  oid=row['id']; original_row=original_by_id[oid]
+  require(set(row['bundle_ids'])==set(owners[oid]['source_bundle_ids'].split(',')),'original bundle ownership '+oid)
+  require(row['historical_ledger_status']==owners[oid]['source_status']==original_row['ledger_status_preserved'],'historical row identity '+oid)
+  require(row['formal_ledger_change'] is False,'row ledger mutation '+oid)
+  require(row['criterion_evidence']['original_criterion_refs']==original_row['original_source_criterion_refs'],'original criterion linkage '+oid)
+  require(row['criterion_evidence']['property']==original_row['criterion'],'original property scope '+oid)
+  require(row['accountable_owner'] and row['next_owner'],'concrete owner '+oid)
+  require(row['criterion_evidence']['individual_evidence_refs'],'per-row evidence refs '+oid)
+  if row['proposed_finding_outcome']!='closed':
+   remaining=row['remaining_input_or_implementation']
+   require(remaining is not None and remaining['owner'] and remaining['minimal_inputs'] and remaining['next_verifiable_result'],'remaining next result '+oid)
+  require(row['current_check_links']['frozen_wave']['candidate']==SOURCE and row['current_check_links']['frozen_wave']['tree']==TREE,'check/source boundary '+oid)
+ return {'historical':dict(historical),'proposed':dict(actual)}
+
+counts=validate(packet)
+
+# Every precise local/Git reference with explicit hashes is checked independently.
+references={}
+def inspect_refs(value):
+ if isinstance(value,dict):
+  if 'path' in value and 'bytes' in value and 'sha256' in value and isinstance(value['path'],str):
+   key=(value.get('revision'),value['path'],value['sha256'])
+   if key not in references:
+    if value.get('revision'):raw=blob(value['path'],value['revision'])
+    elif value['path'].startswith('/'):raw=Path(value['path']).read_bytes()
+    else:raw=blob(value['path'])
+    actual=identity(raw);require(actual=={'bytes':value['bytes'],'sha256':value['sha256']},'explicit receipt hash/size '+value['path'])
+    references[key]={'revision':value.get('revision'),'path':value['path'],**actual}
+  for child in value.values():inspect_refs(child)
+ elif isinstance(value,list):
+  for child in value:inspect_refs(child)
+inspect_refs(packet)
+
+# Reuse only immutable source/dependency brackets, without executing a suite.
+brackets=[]
+IR='700f9d5a5e2167787d7042ca11e1ef3bf80ced74'
+IR_BASE='cdaea067935c8062a6a13fab8d7ffb53ae5fd401'
+ir_paths=[p.decode() for p in git('diff','--name-only','-z',IR_BASE,IR).split(b'\0') if p]
+for path in ir_paths:
+ reviewed=blob(path,IR); current=blob(path)
+ require(reviewed==current,'independently reviewed IR byte changed '+path)
+ brackets.append({'path':path,'reviewed_sha':IR,'current_sha':SOURCE,'byte_identical':True,**identity(current)})
+DOE='5840d477346912b0502689a3eeeb6504e6bc2711'
+doe_functions=[
+ ('policy-engine/src/polisyos/scientist/methods/doe/designs.py','_admit_sensitivity_plan'),
+ ('policy-engine/src/polisyos/scientist/methods/doe/analysis.py','_prepare_analysis_inputs'),
+ ('policy-engine/src/polisyos/scientist/methods/doe/analysis.py','_analysis_identity'),
+ ('policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py','_validate_morris_plan_samples'),
+ ('policy-engine/src/polisyos/scientist/methods/doe/stability.py','RankingStabilityChecker')]
+for path,name in doe_functions:
+ trees=[ast.parse(blob(path,s)) for s in (DOE,SOURCE)]
+ nodes=[next(n for n in t.body if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name==name) for t in trees]
+ dumps=[ast.dump(n,include_attributes=False) for n in nodes]
+ require(dumps[0]==dumps[1],'reviewed DoE function dependency changed '+name)
+ brackets.append({'path':path,'symbol':name,'reviewed_sha':DOE,'current_sha':SOURCE,'AST_identical':True,'AST_sha256':hashlib.sha256(dumps[1].encode()).hexdigest()})
+# Existing legacy envelope/codec and frozen-N algorithm were not reinterpreted.
+legacy=[
+ 'policy-engine/src/polisyos/ir/analytics/uncertainty.py',
+ 'policy-engine/src/polisyos/common/serialization.py',
+ 'policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py',
+ 'policy-engine/src/polisyos/foundry/uncertainty/config.py',
+ 'policy-engine/src/polisyos/foundry/uncertainty/quasi_mc.py']
+for path in legacy:
+ old=blob(path,BASE);current=blob(path)
+ require(old==current,'historical defining dependency changed '+path)
+ brackets.append({'path':path,'reviewed_sha':BASE,'current_sha':SOURCE,'byte_identical':True,**identity(current)})
+# The B193 guard/verifier functions are unchanged despite new posterior imports/helper.
+p='policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py'
+for name in ['BoundedIIDMeanPlan','BoundedIIDMeanCertificate','BoundedIndicatorResponse','_admit_indicator_recipe','admit_bounded_mean_response','frozen_bernstein_budget','verify_mean_certificate']:
+ nodes=[]
+ for sha in [BASE,SOURCE]:
+  tree=ast.parse(blob(p,sha)); nodes.append(next(n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name==name))
+ dumps=[ast.dump(n,include_attributes=False) for n in nodes]
+ require(dumps[0]==dumps[1],'B193 defining algorithm changed '+name)
+ brackets.append({'path':p,'symbol':name,'reviewed_sha':BASE,'current_sha':SOURCE,'AST_identical':True,'AST_sha256':hashlib.sha256(dumps[1].encode()).hexdigest()})
+
+negatives=[]
+for mutation in ['full54_count','historical_held','proposed_count','wrong_B193_original_refs','wrong_B201_property','no_B194_next_inputs','formal_ledger_change','wrong_B100_bundle','wrong_frozen_tree']:
+ bad=copy.deepcopy(packet)
+ if mutation=='full54_count':bad['rows'].pop()
+ elif mutation=='historical_held':next(r for r in bad['rows'] if r['id']=='B197')['historical_ledger_status']='partial'
+ elif mutation=='proposed_count':bad['proposed_finding_counts']['closed']=54
+ elif mutation=='wrong_B193_original_refs':next(r for r in bad['rows'] if r['id']=='B193')['criterion_evidence']['original_criterion_refs']=next(r for r in bad['rows'] if r['id']=='B194')['criterion_evidence']['original_criterion_refs']
+ elif mutation=='wrong_B201_property':next(r for r in bad['rows'] if r['id']=='B201')['criterion_evidence']['property']=next(r for r in bad['rows'] if r['id']=='B202')['criterion_evidence']['property']
+ elif mutation=='no_B194_next_inputs':next(r for r in bad['rows'] if r['id']=='B194')['remaining_input_or_implementation']['minimal_inputs']=''
+ elif mutation=='formal_ledger_change':bad['formal_ledger_change']=True
+ elif mutation=='wrong_B100_bundle':next(r for r in bad['rows'] if r['id']=='B100')['bundle_ids']=['DOE-01']
+ else:bad['frozen_source']['tree']='0'*40
+ try:validate(bad)
+ except ValueError as exc:negatives.append({'mutation':mutation,'outcome':'REFUSED','reason':str(exc)})
+ else:raise ValueError('bad decision packet admitted '+mutation)
+
+result={
+ 'schema':'policyos.e02.independent_original_criterion_decision_review.v1',
+ 'reviewer':'oracle_r4 independent from criteria_r4 author and product writers',
+ 'source':SOURCE,'tree':TREE,'reviewed_packet':{'path':str(PACKET),**identity(packet_raw)},
+ 'scope':'All54 original-source linkage, individual owner-proposal scope and existing defining evidence reuse; no source/test/numerical/global check execution.',
+ 'complete_denominator':{'bundles':22,'findings':54,'links':55},
+ 'preserved_historical_ledger':counts['historical'],'reviewed_E_proposals':counts['proposed'],
+ 'formal_ledger_change':False,
+ 'disposition':'CHANGE_REQUIRED for stale B199/B200 chain metadata; GO bounded owner proposals after that documentation correction',
+ 'change_required':[{'ids':['B199','B200'],'field':'producer_artifact_bridge_consumer_surface','reason':'The current rows still assert a future distinctEnvelopev2 exact-law producer awaiting semantic ratification/C-F appointment. Scopeda0/cda/700 actually ratified compatibleEnvelopev1.1 plus a distinctmetadata profile; existingB199 aggregator is independent, B200 lacks content-bound information-unit relationship producer.','smallest_fix':'State existingv1.1 aggregator/provenance path, preserveB199 interval type/level outcome; bindB200 remaining information-unit relationships to its real producer. Do not appointC/F or reopenB201/B202 semantics.'}],
+ 'new_original_scope_dispositions':[
+ {'id':'B193','proposal':'closed','review':'GO bounded approved IID[0,1] mean/frozen-N and complete-net RQMC estimator-error mechanism.','original_scope':'Chosen estimator error and truthful stopping/batch behavior, not per-draw missing support or arbitrary served-law authority.','positive':'Configured native bounded indicator; independent256pilot excluded; fixedN408; actual nativeCAS fresh verifier; incompatible batch sizes same mainrows.','negative':'Opaque callback cannot selfcertify; below664pilot+main budget refuses; CASvalid samepilot/main stream and corrupted estimator fields refuse; publicverify property removal preservedsymbol exposesforgedpublication.','reuse':'Exact legacy fixed-N algorithms AST-identical froma9; current700affected10selectors and root64dactualMC receipt separate.','remaining':'Unrequested quantile/CDF/anytime methods and unknownservedlaw applications are not certified; separateB194held remains.'},
+ {'id':'B201','proposal':'closed','review':'GO bounded originalrepresentation; explicit compatiblemedian projection is directly allowed originalcard.','positive':'100draws99zeros+100 produce mean1, explicitlymedian0, q05/q95[0,0]; nativev1.1CAS decoder, publicprofile reader, actualE nominalmean consumer.','negative':'Symmetric/bounded/weighted real controls plus rawbool/string/nonfinite/invalidmass/CDFcollapse/function/contextforgery beforecallback; genuineNEWprofile-marker removal refused; oldgenericlabels replayunchanged.','authority':'Scientificposteriorquality/sourcefit/noise or institutional authority not established; gatefalse.','surface':'Canonicalgenerated/publicinventory companion remains surface_missing but does not negate native originalrepresentation criterion. No broadpublic-releaseGO inferred.'},
+ {'id':'B202','proposal':'closed','review':'GO bounded exact supplied corpus linkage; independent fromB201displaypoint andB192consumer sampling.','positive':'Actualposteriorproducer attaches existingexact inlinecarrier plus configuredCASref; freshread distinguishes identicalsummaries/differentatoms and +1/-1pairing; current700fullgroup/node+sampler controls preservejointrows/order/weights/context.','negative':'Consistentfakejointdigest, singlecoordorder/rowids/staledigest, incompleteprojection, rawcarrier coercion and metadata-marker removal refuse beforeactualnominal/evaluator; effective intake removal restoresunsafeacceptance.','authority':'No marginalmoments reconstructlaw; C/F sourcecensus records adjacentoldtransportreaders, no inventednewconsumerappointments.','surface':'Generatedcompanion available ownerpacket; no unknownproductionhistory blankethold for finitesuppliedcorpus.'}],
+ 'neighbor_separation':[
+ 'B99 allow_large_run/pre-evaluator block criterion is separate from discoveredMorrisactual-analysis-work admission; the latter corrected5840andnowcurrentASTidentical.',
+ 'B100 sampler/analyzer distribution/support/quantile/truncation/fingerprint roundtrip is independent of D additionaldefaultSearchanalysis_ref/codec/reopen/ranking.',
+ 'B193 estimatorerror is independent of B194conditionalfailedsupport.',
+ 'B201 namedpoint/interval representation is independent of B202 exactlawretention and B200informationunitrelationships.',
+ 'B172/B173 diagnostics/backendtruth do not proveequivalence/neutrality; specificprofile/margin remains ownerinputperuser.'
+ ],
+ 'remaining_owner_queue':[{'id':r['id'],'outcome':r['proposed_finding_outcome'],'owner':r['remaining_input_or_implementation']['owner'],'minimal_inputs':r['remaining_input_or_implementation']['minimal_inputs'],'next_verifiable_result':r['remaining_input_or_implementation']['next_verifiable_result']} for r in packet['rows'] if r['proposed_finding_outcome']!='closed'],
+ 'unchanged_bounded_proposals':[r['id'] for r in packet['rows'] if r['proposed_finding_outcome']=='closed' and r['id'] not in ['B193','B201','B202']],
+ 'reuse_rule':'These40 rows (39newbounded andretainedB198) keep exact per-ID originalsource/positive/negative references. Reused historical observations remain historical. Current125-nativecase receipt is additional regression evidence, not closure by1541PASS.',
+ 'original_criterion_link_audit':criterion_audit,
+ 'explicit_hash_references_checked':list(references.values()),
+ 'source_dependency_brackets':brackets,
+ 'decision_packet_negative_controls':negatives,
+ 'positive_negative_interpretation':'The9 controls above establish decision/citation metadata integrity only; defining runtime removal/adversarial receipts are reused by exact refs, not replaced by this validator.',
+ 'limits':['No formalGledger/codeintake or publicrelease acceptance inferred.','Prewavefrozen_wave UNRUN/emptybindings remain historicalinputstate; finaljoin must use exact completed independentcase receipt.','OriginalCAL−9 plus distinct324retry and eightA failures remain as observed, not rewritten.','Requiredglobal/successor receipts remain independent fromfindingoutcome; no UNRUN meansPASS.','WorkspaceoverlayENOSPC observed; boundedreview receipts written toexisting/tmpfs scratch, no production/code deletion or environment creation.']
+}
+(OUT/'criteria-decision-review.json').write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
+print(json.dumps({'source':SOURCE,'tree':TREE,'disposition':result['disposition'],'denominator':result['complete_denominator'],'historical':counts['historical'],'proposed':counts['proposed'],'hash_reference_count':len(references),'bracket_count':len(brackets),'negative_controls':len(negatives)}))

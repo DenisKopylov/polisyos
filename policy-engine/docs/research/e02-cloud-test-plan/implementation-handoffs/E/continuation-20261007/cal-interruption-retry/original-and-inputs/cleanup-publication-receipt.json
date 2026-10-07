@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.cloud-cleanup-publication.v1",
+  "authorization_verbatim": "Важное уточненние. Работая в облаке ти можешь если требуеться удалять уже не нужние результати тестов или созданние оркежунния. Деректива об работе через корзину отоситься лишь к локлаьной работе. В остальном продолжай работу",
+  "frozen_candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "admission_before_deletion": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/admitted-before-deletion.json",
+    "bytes": 81905,
+    "sha256": "3260e86a2c2ca9593df646b075ff814f2598bd152913738f9cad07d0ec93d835"
+  },
+  "result": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-result.json",
+    "bytes": 3194,
+    "sha256": "15e2d2a58a1f733d3f744a97b80dc630a78ce8a5d8632f556b69170742cdc2a1"
+  },
+  "recovered_tmpfs_bytes": 2265067520,
+  "recovered_tmpfs_GB_decimal": 2.26506752,
+  "storage_before": [
+    {
+      "path": "/tmp",
+      "total_bytes": 9441349632,
+      "available_bytes": 6145081344,
+      "used_bytes": 3296268288
+    },
+    {
+      "path": "/workspace",
+      "total_bytes": 33770192896,
+      "available_bytes": 5466009600,
+      "used_bytes": 26569420800
+    }
+  ],
+  "storage_after": [
+    {
+      "path": "/tmp",
+      "total_bytes": 9441349632,
+      "available_bytes": 8410148864,
+      "used_bytes": 1031200768
+    },
+    {
+      "path": "/workspace",
+      "total_bytes": 33770192896,
+      "available_bytes": 5459488768,
+      "used_bytes": 26575941632
+    }
+  ],
+  "memory_current_before": 17179807744,
+  "memory_current_after": 15622676480,
+  "memory_stat_before": {
+    "anon": 12824748032,
+    "file": 3423539200,
+    "shmem": 3296268288
+  },
+  "memory_stat_after": {
+    "anon": 13042057216,
+    "file": 1657872384,
+    "shmem": 1031200768
+  },
+  "memory_events_before": "low 0\nhigh 0\nmax 3251201\noom 80\noom_kill 8\noom_group_kill 0\n",
+  "memory_events_after": "low 0\nhigh 0\nmax 3320131\noom 80\noom_kill 8\noom_group_kill 0\n",
+  "resource_attribution": "Exact/tmp used-byte and shmem reductions match2,265,067,520bytes; concurrent live jobs affect anon/file/total memory, so total memory delta is an observation, not solely assigned to cleanup.",
+  "exact_deleted_children": [
+    "/tmp/polisyos_generated_freshness_2qqaelx2/environment",
+    "/tmp/polisyos_generated_freshness_2qqaelx2/uv-cache",
+    "/tmp/polisyos_generated_freshness__mxs8xu3/environment",
+    "/tmp/polisyos_generated_freshness__mxs8xu3/uv-cache"
+  ],
+  "no_active_users": {
+    "initial": {
+      "time_unix": 1791365982.937313,
+      "processes_inspected": 112,
+      "fd_references_inspected": 1575,
+      "excluded_inspector_ancestors": [
+        0,
+        515,
+        500284,
+        500286
+      ],
+      "candidate_users": [],
+      "unreadable_task_user_processes": [],
+      "secret_custody": "Only candidate-match booleans for eight non-secret path variables; no environment values or credentials published"
+    },
+    "fresh_immediately_before_deletion": {
+      "time_unix": 1791366001.5545042,
+      "processes_inspected": 110,
+      "fd_references_inspected": 1556,
+      "excluded_inspector_ancestors": [
+        0,
+        515,
+        500284,
+        500286
+      ],
+      "candidate_users": [],
+      "unreadable_task_user_processes": [],
+      "secret_custody": "Only candidate-match booleans for eight non-secret path variables; no environment values or credentials published"
+    }
+  },
+  "preserved_paths": [
+    "/tmp/polisyos_generated_freshness_2qqaelx2/source",
+    "/tmp/polisyos_generated_freshness_2qqaelx2/outputs",
+    "/tmp/polisyos_generated_freshness__mxs8xu3/source",
+    "/tmp/polisyos_generated_freshness__mxs8xu3/outputs"
+  ],
+  "not_selected": {
+    "rootvenv": "active and preserved",
+    "currentwaveandsuccessors": "all preserved",
+    "barecal05andFRCvenvs": "only96K each, leave untouched",
+    "pytest-of-agent": "6.3M last3 trees, leave untouched",
+    "Gitrefsregistrationscheckouts": "untouched",
+    "sourceoutputsproductioninputsuniqueevidence": "preserved"
+  },
+  "source_custody": {
+    "executed_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-old-generator-envs.py.txt",
+      "bytes": 11961,
+      "sha256": "2b3eccc32fbd3511f95bdcdf1080bf9064497af7f7dc581a62b7abf6da336fc1"
+    },
+    "current_style_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-old-generator-envs-current-style.py.txt",
+      "bytes": 13060,
+      "sha256": "dab9dd59d9cbb7f85e0c9073637dec9d03d0f977bb0930b410a9a558769ea3a7"
+    },
+    "AST_exactly_equal_excluding_locations": true,
+    "executed_source_bytes_unchanged": true,
+    "style_source_executed_delete": false
+  },
+  "style_observation": {
+    "executed_source_Ruff": "initial operational scratch helper had22 lint diagnostics; no product source/global gate was changed",
+    "current_style_Ruff": "PASS",
+    "current_style_format": "PASS",
+    "scope": "Formatting and four local S108 annotations explain exact admitted existing scratch paths or filesystem-only observation; no repository baseline/allowance changes. Exact executed source is retained as historical evidence."
+  },
+  "observer_correction": {
+    "early_AST_compare": "Formatter was still running, so comparison saw incomplete output and refused; no source copy or deletion resulted from that observer",
+    "final": "Completed formatter output checked exact AST against executed helper; current styleRuff/format pass"
+  },
+  "future_cleanup": "No further deletion requested/executed. Old source/outputs remain available for exact reproductions."
+}

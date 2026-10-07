@@ -1,0 +1,10 @@
+import sys,json
+from pathlib import Path
+from hatchling.builders.sdist import SdistBuilder
+from hatchling.builders.wheel import WheelBuilder
+from ortools.sat.python import cp_model
+from tools.quality.validation.universality_preflight import assert_universality_preflight
+resolved,availability=assert_universality_preflight(Path('/workspace/e02-E-continuation-20261006/policy-engine'))
+m=cp_model.CpModel();x=m.NewIntVar(0,2,'x');m.Add(x>=1);m.Minimize(x);s=cp_model.CpSolver();status=s.Solve(m)
+assert status==cp_model.OPTIMAL and s.Value(x)==1
+print(json.dumps({'sys_prefix':sys.prefix,'resolved_package':str(resolved),'required_backend_status':availability.required_backend_status,'hatchling':[SdistBuilder.__module__,WheelBuilder.__module__],'ortools_native_optimal_value':s.Value(x)}))

@@ -1,0 +1,9 @@
+{
+  "outcome": "PASS",
+  "native_startup_outcome": "refused",
+  "reason": "catalog_fetch_source_unreadable",
+  "type": "ValueError",
+  "missing_path": "/workspace/e02-E-continuation-20261006/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+  "path_is_file": false,
+  "property_removal": "Only the positive scoped catalog-path fixture inlet is absent. Same immutable existing full dashboard builder flags; native strict reader refuses before an app can serve."
+}

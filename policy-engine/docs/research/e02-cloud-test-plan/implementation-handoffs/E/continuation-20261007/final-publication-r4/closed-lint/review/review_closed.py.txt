@@ -1,0 +1,144 @@
+"""Independently review closed Ruff/format outputs; never runs those tools."""
+from __future__ import annotations
+import copy
+from collections import Counter
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-E-pr38-r3-receipts/final-lint-recorder')
+OUT = ROOT/'closed-wave-64d7444a'
+REPO = Path('/workspace/e02-E-continuation-20261006')
+WAVE = Path('/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007')
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+CANDIDATE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+CHECKS=[]
+
+def check(name,value,**details):
+    CHECKS.append({'name':name,'passed':bool(value),**details})
+    if not value: raise ValueError(CHECKS[-1])
+
+def digest(body): return hashlib.sha256(body).hexdigest()
+
+def bind(path):
+    body=path.read_bytes()
+    return {'source_path':str(path),'bytes':len(body),'sha256':digest(body)}
+
+def validate_capture(receipt,body):
+    if type(receipt['stdout_bytes']) is not int or receipt['stdout_bytes']!=len(body) or receipt['stdout_sha256']!=digest(body):
+        raise ValueError('Complete stdout byte binding refused')
+
+def parse_ruff(body,paths):
+    text=body.decode('utf-8')
+    headers=list(re.finditer(r'^([A-Z]+[0-9]{3}) (.+)$',text,re.MULTILINE))
+    summary=re.findall(r'^Found ([0-9]+) errors?\.$',text,re.MULTILINE)
+    if len(summary)!=1 or len(headers)!=int(summary[0]): raise ValueError('Ruff complete diagnostic count differs from terminal count')
+    rows=[]
+    for index,header in enumerate(headers):
+        stop=headers[index+1].start() if index+1<len(headers) else text.index('Found ',header.end())
+        segment=text[header.start():stop]
+        locations=re.findall(r'^\s*--> (.+):([0-9]+):([0-9]+)$',segment,re.MULTILINE)
+        if len(locations)!=1:raise ValueError('Ruff diagnostic lacks one concrete source location')
+        relative,line,column=locations[0];path='policy-engine/'+relative
+        if path not in paths:raise ValueError('Ruff diagnostic escapes complete admitted input denominator')
+        rows.append({'code':header.group(1),'message':header.group(2),'path':path,'line':int(line),'column':int(column),'stdout_start_byte':len(text[:header.start()].encode()),'stdout_end_byte':len(text[:stop].encode()),'complete_diagnostic_text':segment})
+    return rows
+
+def parse_format(body,paths):
+    text=body.decode();rows=[];summary=None
+    for line in text.splitlines():
+        if line.startswith('Would reformat: '):
+            path='policy-engine/'+line.removeprefix('Would reformat: ')
+            if path not in paths:raise ValueError('Format path escapes input denominator')
+            rows.append(path)
+        else:
+            match=re.fullmatch(r'([0-9]+) files would be reformatted, ([0-9]+) files already formatted',line)
+            if match and summary is None:summary=(int(match[1]),int(match[2]))
+            elif line:raise ValueError('Unclassified format stdout line')
+    if summary is None or len(rows)!=len(set(rows)) or len(rows)!=summary[0] or sum(summary)!=len(paths):raise ValueError('Complete format denominator/count refused')
+    return rows,summary
+
+def refuses(function,*arguments):
+    try:function(*arguments)
+    except ValueError:return True
+    return False
+
+record=json.loads((ROOT/'closed-64d7444a-denominator.json').read_text())
+preview=json.loads((ROOT/'preview-64d7444a.json').read_text())
+supplement=json.loads((ROOT/'writer-attribution-supplement-64d7444a.json').read_text())
+old229=json.loads(Path('/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json').read_text())
+rows=record['rows'];paths={row['path'] for row in rows};ordered=[row['path'] for row in rows]
+check('exact_main_base_and_frozen_source',record['base_sha']==BASE and record['candidate_sha']==CANDIDATE and record['candidate_tree']==TREE and record['input_binding_complete'])
+check('complete360_status_denominator',len(rows)==len(paths)==360 and record['python_status_counts']=={'A':273,'M':87,'T':0} and record['command_python_path_count']==360)
+check('recorder_no_broad_execution',record['global_Ruff_or_format_executed'] is False)
+check('frozen_preview_denominator_unchanged',[(row['path'],row['object_id'],row['sha256']) for row in rows]==[(row['path'],row['object_id'],row['sha256']) for row in preview['rows']])
+# Actual post-wave byte observations bind each complete input, not counts alone.
+for row in rows:
+    body=(REPO/row['path']).read_bytes()
+    if len(body)!=row['bytes'] or digest(body)!=row['sha256']:raise ValueError('Post-wave source input differs: '+row['path'])
+check('all360_post_wave_source_bytes_match_Git',True)
+by_path={row['path']:row for row in rows}
+old_paths={row['path'] for row in old229['utility_rows']}
+check('original229_scope_covered_once',len(old_paths)==229 and old_paths.issubset(paths))
+check('original229_current_hashes_match_reviewed74',all(by_path[row['path']]['sha256']==row['candidate_sha256'] and by_path[row['path']]['bytes']==row['candidate_bytes'] for row in old229['utility_rows']))
+# Supplement records factual source writer, while canonical shared authority stays scoped.
+for entry in supplement['records']:
+    if entry['path'] not in by_path or by_path[entry['path']]['sha256']!=entry['sha256'] or by_path[entry['path']]['object_id']!=entry['frozen_blob']:
+        raise ValueError('Writer supplement source identity differs')
+    by_path[entry['path']]['writer_attribution']={**by_path[entry['path']]['writer_attribution'],'writer':entry['factual_source_writer_unit'],'source_author':entry['factual_source_author_agent'],'scope_decision':supplement['scope_decision'],'canonical_owner_scope':entry['canonical_owner_scope'],'source_implementation_sha':entry['source_sha']}
+check('complete_factual_writer_attribution',all(row['writer_attribution'].get('writer') in {'A','B','C','D','E','F','G'} for row in rows))
+writer_counts=dict(sorted(Counter(row['writer_attribution']['writer'] for row in rows).items()))
+artifacts={};parsed={}
+for name,offset,expected_prefix in [('ruff',4,['-m','ruff','check']),('ruff-format',5,['-m','ruff','format','--check'])]:
+    receipt_path=WAVE/'checks'/name/(name+'.json');stdout_path=WAVE/'checks'/name/(name+'.stdout.txt')
+    receipt=json.loads(receipt_path.read_text());body=stdout_path.read_bytes()
+    validate_capture(receipt,body)
+    command=receipt['command']
+    check('actual_'+name+'_immutable_failed_outcome',receipt['candidate_sha']==CANDIDATE and receipt['candidate_tree_sha']==TREE and receipt['head_at_end']==CANDIDATE and receipt['source_immutable'] is True and receipt['source_identity_before']==receipt['source_identity_after'] and receipt['exit_code']==1 and receipt['outcome']=='FAIL')
+    check('actual_'+name+'_canonical_cwd_and_selector',receipt['cwd']==str(REPO/'policy-engine') and command[1:offset]==expected_prefix and '--config' not in command and command[0]==record['commands'][0]['argv'][0])
+    actual_paths=['policy-engine/'+path for path in command[offset:]]
+    check('actual_'+name+'_complete_ordered360_inputs',actual_paths==ordered and len(set(actual_paths))==360)
+    for config in record['configuration_inputs']:
+        current=(REPO/config['path']).read_bytes()
+        if len(current)!=config['bytes'] or digest(current)!=config['sha256']:raise ValueError('Discovered config changed')
+    # Recorded receipt input bytes bind actual configuration/control sources.
+    for path,item in receipt['input_files'].items():
+        current=(REPO/path).read_bytes()
+        if len(current)!=item['bytes'] or digest(current)!=item['sha256']:raise ValueError('Receipt input changed')
+    check('actual_'+name+'_receipt_input_and_discovered_config_bytes',True)
+    artifacts[name]={'receipt':bind(receipt_path),'complete_stdout':bind(stdout_path),'actual_command':command,'actual_cwd':receipt['cwd'],'environment':receipt['environment'],'exit_code':receipt['exit_code'],'check_outcome':receipt['outcome'],'source_identity_before':receipt['source_identity_before'],'source_identity_after':receipt['source_identity_after'],'P41':receipt['P41']}
+    parsed[name]=parse_ruff(body,paths) if name=='ruff' else parse_format(body,paths)
+    corrupted=copy.deepcopy(receipt);corrupted['stdout_sha256']='0'*64
+    check('actual_'+name+'_hash_corruption_refused',refuses(validate_capture,corrupted,body))
+    corrupted=copy.deepcopy(receipt);corrupted['stdout_bytes']-=1
+    check('actual_'+name+'_size_corruption_refused',refuses(validate_capture,corrupted,body))
+
+ruff_rows=parsed['ruff'];format_paths,format_counts=parsed['ruff-format']
+check('complete_native_output_counts',len(ruff_rows)==36 and format_counts==(3,357))
+check('complete_Ruff_diagnostic_source_lines',all(0<row['line']<=len((REPO/row['path']).read_text().splitlines()) for row in ruff_rows))
+ruff_body=(WAVE/'checks/ruff/ruff.stdout.txt').read_bytes();format_body=(WAVE/'checks/ruff-format/ruff-format.stdout.txt').read_bytes()
+check('Ruff_terminal_count_corruption_refused',refuses(parse_ruff,ruff_body.replace(b'Found 36 errors.',b'Found 35 errors.'),paths))
+first=ruff_rows[0]
+removed=ruff_body[:first['stdout_start_byte']]+ruff_body[first['stdout_end_byte']:]
+check('Ruff_diagnostic_omission_refused',refuses(parse_ruff,removed,paths))
+check('Ruff_unmeasured_path_refused',refuses(parse_ruff,ruff_body.replace(first['path'].removeprefix('policy-engine/').encode(),b'out_of_denominator.py',1),paths))
+check('format_summary_corruption_refused',refuses(parse_format,format_body.replace(b'357 files already formatted',b'356 files already formatted'),paths))
+check('format_path_duplicate_refused',refuses(parse_format,format_body.replace(b'3 files would',('Would reformat: '+format_paths[0].removeprefix('policy-engine/')+'\n3 files would').encode()),paths))
+check('format_missing_admitted_path_refused',refuses(parse_format,format_body,paths-{format_paths[0]}))
+# Effective current parser property-removal control is the same complete output with terminal count removed;
+# a proxy that counts headers alone returns35 on omitted diagnostics, while the current full-binding parser refuses.
+proxy_count=len(re.findall(rb'^[A-Z]+[0-9]{3} ',removed,re.MULTILINE))
+check('count_proxy_diverges_on_omission',proxy_count==35 and refuses(parse_ruff,removed,paths),proxy_only_count=proxy_count)
+all_red_paths=sorted({row['path'] for row in ruff_rows}|set(format_paths));owner_packets=[]
+for path in all_red_paths:
+    source=by_path[path];diagnostics=[row for row in ruff_rows if row['path']==path];writer=source['writer_attribution']['writer']
+    owner_packets.append({'canonical_publication_writer':writer,'factual_writer_basis':source['writer_attribution'],'path':path,'frozen_source':{key:source[key] for key in ['status','object_id','bytes','sha256']},'diagnostic_count':len(diagnostics),'diagnostic_codes':dict(sorted(Counter(row['code'] for row in diagnostics).items())),'diagnostics':diagnostics,'format_would_reformat':path in format_paths,'next_owner':writer,'next_result':'Canonical owner repairs this current utility with independent semantic/removal controls and exact historical replay distinctions; rerun affected selector, then final full current denominator. G coordinates owner handoff. E does not alter these non-E files.','P41':'not_established: no exact slice-base full-command/input replay is supplied; this is a current measured FAIL, not inherited attribution','finding_closure':False})
+check('all_current_defects_named_A_B_writers',len(owner_packets)==3 and {item['canonical_publication_writer'] for item in owner_packets}=={'A','B'})
+check('no_E_path_in_complete_closed_diagnostics_or_format',all(by_path[path]['writer_attribution']['writer']!='E' for path in all_red_paths))
+report={'schema':'policyos.e02.E.closed_full_lint_review.v1','reviewer':'/root/lint_r4','candidate_sha':CANDIDATE,'candidate_tree':TREE,'base_sha':BASE,'checks':CHECKS,'check_count':len(CHECKS),'all_controls_passed':all(row['passed'] for row in CHECKS),'environment':{'python':sys.version,'executable':sys.executable,'observer_cwd':str(Path.cwd())},'complete_denominator_receipt':bind(ROOT/'closed-64d7444a-denominator.json'),'original229_input':bind(Path('/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json')),'writer_supplement':bind(ROOT/'writer-attribution-supplement-64d7444a.json'),'configuration_selector_distinction':'Actual canonical policy-engine cwd with discovered ruff.toml→generated.toml. Planned JSON-output argv was not executed; actual frozen stdout is human native output parsed here. Explicit root --config changes project-root/relative settings and is a separate selector.','complete_input_count':360,'status_counts':record['python_status_counts'],'factual_writer_counts':writer_counts,'complete_source_inputs':rows,'actual_closed_gate_observations':artifacts,'Ruff_diagnostic_count':len(ruff_rows),'Ruff_diagnostic_path_count':len({row['path'] for row in ruff_rows}),'Ruff_code_counts':dict(sorted(Counter(row['code'] for row in ruff_rows).items())),'format_counts':{'would_reformat':format_counts[0],'already_formatted':format_counts[1]},'owner_packets':owner_packets,'E_current_defect_count':0,'independent_review_disposition':'GO for exact evidence/denominator/current owner attribution only. Both actual native gates remain FAIL; no waiver or PASS substitution.','postfreeze_current361_status':'UNRUN; pending postfreeze current publication merge and its separate full current selectors. Frozen360 observation is not current361 PASS.','global_tools_rerun_by_this_observer':False,'root_tracked_writes':0,'finding_dispositions_changed':False,'P41':'not_established for inherited/base-red claims; complete current source/output is measured and attributed by canonical publication writer separately'}
+(OUT/'closed-lint-review.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({'controls':len(CHECKS),'all_passed':all(row['passed'] for row in CHECKS),'Ruff_diagnostics':len(ruff_rows),'Ruff_paths':len(all_red_paths),'format':format_counts,'writer_counts':writer_counts,'E_current_defects':0,'global_tools_rerun':False}))

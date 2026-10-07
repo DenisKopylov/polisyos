@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.E.current54_recomputing_validation.v1",
+  "check_outcome": "PASS",
+  "optimized": false,
+  "joined_output": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.json",
+    "bytes": 948332,
+    "sha256": "9ce6df09fe956cb4fc3c55021649ceb4fbc92fb89b341dc4e4a66b08f8778872"
+  },
+  "input_records": {
+    "prewave": {
+      "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+      "bytes": 314142,
+      "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8"
+    },
+    "numeric": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/recomputed-wave.json",
+      "bytes": 1049493,
+      "sha256": "bb59345873fdc306c98458587354f3caaed45312694c14a51d01edfd08768bbf"
+    },
+    "case_index": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/case-index.json",
+      "bytes": 701747,
+      "sha256": "73a5974a61fe29424373bac0edfc0bbdff1840b7717dd493e8261c3dff3e7ab0"
+    },
+    "successor_index": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-37-selector-dispositions-v5.json",
+      "bytes": 115563,
+      "sha256": "ed043655af120349142c669db39b4f5822ff354e7a33610690b0fab046159175"
+    },
+    "defining_case_index": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/defining-current-case-index.json",
+      "bytes": 654655,
+      "sha256": "6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1"
+    }
+  },
+  "join_helper": {
+    "path": "/tmp/e02-E-criteria-r4-current54-v2/join-final-all-54-current-v2.py.txt",
+    "bytes": 12370,
+    "sha256": "245c0c17a8ac24d88906bf71c66242145bebb502bbf1dffb619a6a6a3024f75f"
+  },
+  "verifier_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/validate-current-all-54-v2.py.txt",
+    "bytes": 6197,
+    "sha256": "22b8dcfe076b3bdc63311f1ebebca241541319241dc35b438e048a2f9397845a"
+  },
+  "healthy_recomputation": "PASS",
+  "corrupt_controls": [
+    {
+      "mutation": "historical_ledger_count",
+      "outcome": "rejected",
+      "reason": "current54 recomputed content drift"
+    },
+    {
+      "mutation": "proposed_finding_count",
+      "outcome": "rejected",
+      "reason": "current54 recomputed content drift"
+    },
+    {
+      "mutation": "criterion_status",
+      "outcome": "rejected",
+      "reason": "current54 recomputed content drift"
+    },
+    {
+      "mutation": "canonical_UNRUN",
+      "outcome": "rejected",
+      "reason": "current54 recomputed content drift"
+    },
+    {
+      "mutation": "actual_selector_outcome",
+      "outcome": "rejected",
+      "reason": "current54 recomputed content drift"
+    },
+    {
+      "mutation": "content_bound_report_ref",
+      "outcome": "rejected",
+      "reason": "current54 recomputed content drift"
+    },
+    {
+      "mutation": "actual_case_navigation",
+      "outcome": "rejected",
+      "reason": "current54 recomputed content drift"
+    }
+  ],
+  "property_removal_control": "A marker-only validator retains schema and source identity and admits every altered payload above; full content recomputation rejects all seven.",
+  "native_checks_repeated": false,
+  "root_environment_mutated_or_imported": false,
+  "remaining_available_scope": "Initial37 source observations are closed. Supplemental architecture/browser/backend retry receipts are separate and not asserted complete here."
+}

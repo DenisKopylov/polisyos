@@ -1,0 +1,322 @@
+{
+  "P41": "not_established",
+  "actual_default_failure_writer": "Vitest4.1.5 headless Playwright: screenshotFailures defaults true; native provider output defaults adjacent source/__screenshots__; Git-visible unlike configured ignored cache/external TMPDIR",
+  "browser_configuration_inputs": [
+    {
+      "bytes": 1325,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/vitest.storybook.config.ts",
+      "sha256": "61e57d5c2097bcc9a1fb4dcd0df3ff067ef61ee4ad86d5a7a16d42ff3441a294"
+    },
+    {
+      "bytes": 717,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/.storybook/main.ts",
+      "sha256": "2d2265fda3660e4ad54f2c88f2b439363c1e7b83d68c70b72502e067efed2eac"
+    },
+    {
+      "bytes": 54974,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/dist/chunks/coverage.DM_a_rWm.js",
+      "sha256": "e509f3cc1bd81ae6426265253fa926cbde02be5cebfe35b1df422017bffdca31"
+    },
+    {
+      "bytes": 271042,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@vitest+browser@4.1.5_msw@2.14.2_@types+node@24.12.2_typescript@5.9.3__vite@7.3.2_@type_f5d5d2c263159c828c572e5c254b33ed/node_modules/@vitest/browser/dist/index.js",
+      "sha256": "6ded07bd8a69f9e923fe01982ba7452d14c7aa158dad31383ffc01f4af3b3c20"
+    },
+    {
+      "bytes": 75277,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@vitest+browser@4.1.5_msw@2.14.2_@types+node@24.12.2_typescript@5.9.3__vite@7.3.2_@type_f5d5d2c263159c828c572e5c254b33ed/node_modules/@vitest/browser/dist/client/__vitest_browser__/tester-Bf18VQr2.js",
+      "sha256": "efb075d5b9684f4ffff8bb4caa71822bb1ca12688de410bf0b2384cd042b0eeb"
+    }
+  ],
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "canonical_architecture_input_scope": "all Git-visible tracked and nonignored untracked paths; story failure screenshots intersect this scope even at a different source path",
+  "generator_executed": false,
+  "interval_seconds": 483.04505038261414,
+  "known_same_confidence_output_writer": "closed ci18 native confidence browser controller; active ci22 Storybook only *.stories.(ts|tsx), excluding confidenceLedgerRiskSpendTwin.browser.test.tsx",
+  "next_prerequisite": "only CI22 terminal or evidence of actual current configured screenshot output redirected outside Git-visible root; HTTP temp output/read-source remains disjoint and CPU alone is not attribution",
+  "observed_active_processes": [
+    {
+      "argv": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py --repo /workspace/e02-E-continuation-20261006 --candidate 64d7444a18c55df7b88b71b7699a2f1b25ca24bd --cwd /workspace/e02-E-continuation-20261006/policy-engine --output /workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02 --name standalone-ci-02 --junit /workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml -- /workspace/.polisyos-environment/uv/bin/uv run --no-sync pytest tests/unit/runtime/http --basetemp /workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base -o cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-cache --benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/benchmarks --junitxml=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "pid": 496652,
+      "selected_environment": {
+        "MKL_NUM_THREADS": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/environment-tmp",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+      }
+    },
+    {
+      "argv": "/workspace/.polisyos-environment/uv/bin/uv run --no-sync pytest tests/unit/runtime/http --basetemp /workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base -o cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-cache --benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/benchmarks --junitxml=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "pid": 497199,
+      "selected_environment": {
+        "MKL_NUM_THREADS": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/environment-tmp",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+      }
+    },
+    {
+      "argv": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/pytest tests/unit/runtime/http --basetemp /workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base -o cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-cache --benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/benchmarks --junitxml=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "pid": 497206,
+      "selected_environment": {
+        "MKL_NUM_THREADS": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/environment-tmp",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+      }
+    }
+  ],
+  "observed_snapshots": [
+    {
+      "bytes": 526,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/fresh-shared-snapshot-a.json",
+      "sha256": "26fcb2e9a79d5b59b59ad28ad43ee91e6b99eb5b0cb7ba1f00bbca22a58cc48e"
+    },
+    {
+      "bytes": 526,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/fresh-shared-snapshot-b.json",
+      "sha256": "43961d3402c6ab2e54463317951490ebe360903069f74910eb02427a7ffefd89"
+    }
+  ],
+  "proof_limit": "two complete snapshots equal and no current source/generated/root-env mutation observed; future CI22 native failure output not excluded by current config",
+  "same_complete_git_visible_snapshot": true,
+  "schema": "policyos.e02.runtime_retry_shared_preflight.v1",
+  "story_source_denominator": [
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/artifacts/bureaucratic/__screenshots__/BureaucraticArtifactView.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.stories.tsx",
+      "sha256": "56c893ab35861fd4dca639f22bd54ba56f11fae6ba2d2734504491d5883c20a9"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/artifacts/reading-view/__screenshots__/MonographLayout.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.stories.tsx",
+      "sha256": "c9b3ec15e3bd072066ddddd3874bd298fc8c190ba8a9b8c493a55df440c98b8c"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/export/social/__screenshots__/OGCard.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/export/social/OGCard.stories.tsx",
+      "sha256": "2626d29d134ed5aac7c40f7fe6325b7f4d61e9c0d07ca0281fd0f540e439b7e6"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/platform/routes/__screenshots__/PlatformHealthPage.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.stories.tsx",
+      "sha256": "7a3cd12ba066d7c6761a15ebe3e4c4749c63d06c18511d65e954937fd281fbcc"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/platform/settings/__screenshots__/AppearanceSection.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/platform/settings/AppearanceSection.stories.tsx",
+      "sha256": "5556b7da6bb2fb08b8a8c927d2b3037d08f91159cc2456c701a2409dbf333929"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/runs/compare/__screenshots__/PolicyDiffView.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.stories.tsx",
+      "sha256": "abe6cd7c89af42e45b34d54b622ab779e99190d22550e2aeb237575ae52adfff"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/runs/components/__screenshots__/AtlasRunDeck.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.stories.tsx",
+      "sha256": "244acc341e03e8e1f70d5ea429b6b6bb7d3ab95ddf362448f2224635a4e98347"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/runs/routes/__screenshots__/RunsListPage.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunsListPage.stories.tsx",
+      "sha256": "e9ff1209c3d3aa66107e8b6dfb60e6a4aedb1a0f2103bbda32f1e5a4533fedd9"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/brand/__screenshots__/AtlasBrand.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/brand/AtlasBrand.stories.tsx",
+      "sha256": "51945683982dd0afd9e2e40f11442b9ccab1d856992e2b25af46b73e17deaaeb"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/brand/__screenshots__/EvidenceSigil.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/brand/EvidenceSigil.stories.tsx",
+      "sha256": "703f3c1d201337fe37403f0d5521aed34fb798db6fb1543810707b97cc1f6450"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/brand/__screenshots__/Glyph.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/brand/Glyph.stories.tsx",
+      "sha256": "7ac46eba3704b08fa4ccdf76130201fc551f56ee36db530f688ad500c0542e6f"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/brand/__screenshots__/JanusGlyph.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/brand/JanusGlyph.stories.tsx",
+      "sha256": "2e40c9989a26be0eb4ce52820f6cb95584e3a99b6cd0349493d8e95ed4135e82"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/__screenshots__/FanChart.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/FanChart.stories.tsx",
+      "sha256": "767a9ae253085a200fa3dec271687f27090a86141d4169b73d0f1804fe545248"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/__screenshots__/HypotheticalOutcomePlot.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/HypotheticalOutcomePlot.stories.tsx",
+      "sha256": "fb619b2f17f55ddf6809db28da548561201d9b1779bef426203c5fec3456e150"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/__screenshots__/QuantileDotplot.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/QuantileDotplot.stories.tsx",
+      "sha256": "0a4e7eac9c23e73a4a526dc994ca1b5b16a699d53c5280fcf73d4c49f9e81b43"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/__screenshots__/SmallMultiples.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/SmallMultiples.stories.tsx",
+      "sha256": "db85ed533d17b87a17818e896c92cefdcfafa590193fd7f634ef313475c60a34"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/__screenshots__/UncertaintyBand.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/UncertaintyBand.stories.tsx",
+      "sha256": "e2fe42cced6b391e763eb39ffd7e2aae4dc149cf25f07e360ce39d9d85b89ac3"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/__screenshots__/UncertaintyCharts.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/charts/UncertaintyCharts.stories.tsx",
+      "sha256": "eb28e1e5498dfbd457d1053ebca49e9cb1fb9899390b742da5a41750e83e819c"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/AsyncSection.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/AsyncSection.stories.tsx",
+      "sha256": "2aca113402360a48cc0d875382ff5979300790f459f972b0c4746b76d736dcee"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Badge.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Badge.stories.tsx",
+      "sha256": "0e8a89722b1efd97d7972b3a5d8e0c84ce767805b7c8954adb7c9e9e99ac62bb"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Button.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Button.stories.tsx",
+      "sha256": "38a509c13ecc8e84212c75b97b7232edb93f69815ab01872ac28d83a488248dd"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Card.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Card.stories.tsx",
+      "sha256": "18a82c964999381cbf9040c7700ae1dc585d113ea6d0e342f3ab8fba7e2919f7"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Checkbox.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Checkbox.stories.tsx",
+      "sha256": "60d92aabe1bfc9fb8515474c329cd31adc5bbc88ffb6053c4440bb650adc4d89"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/DataTable.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/DataTable.stories.tsx",
+      "sha256": "c301bc695a0acaeb285e7edb41b305fffdda5a7cbdb8ccc1b18a87e260a4f92e"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/EmptyState.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/EmptyState.stories.tsx",
+      "sha256": "605096c48293738f0de666b89a5389b674bf136d824f7608f6d1f50de24dac0c"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Input.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Input.stories.tsx",
+      "sha256": "4c9f31a2d861b8f2525f02733f16bd021088bbefc5a6004e3bdead156be18f6d"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/LineageGraph.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/LineageGraph.stories.tsx",
+      "sha256": "f9e54e91579f2a3b046ad83d61636aa6975c601376cf90ab9ba2a6de032c21a8"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/ProvenanceStrip.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.stories.tsx",
+      "sha256": "a2c75e142d0fa66061fc07248dbc5830c4bf00d8338fc693507b602053948e59"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Radio.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Radio.stories.tsx",
+      "sha256": "1c003d28e91914b1f9f8a76f970fa7ef82671bb47cf280ff13c49fe0de885a53"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/SegmentedControl.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/SegmentedControl.stories.tsx",
+      "sha256": "c3126089f16e18a28fd722f42e5408b44863072a51ef6497d0a6bc9f8d4dbbed"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Select.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Select.stories.tsx",
+      "sha256": "27dc976273f7fdcccc6755b1364c03cf5de91bd4d7b44b3385037f4a653795da"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Skeleton.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Skeleton.stories.tsx",
+      "sha256": "316ba62eb4d7e8bf1f17b9a87af555fa63468176fc62cf19dd9c6f9f7eb7f654"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Switch.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Switch.stories.tsx",
+      "sha256": "ca59e73c7845f5965acfa880617a11e5ffb84c5a426bc7f5fd02e818a7893aaa"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Text.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Text.stories.tsx",
+      "sha256": "52fec9360366d25589aec439ac3cf13c2077837257d83ba4e425a5d32a9461af"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/Textarea.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/Textarea.stories.tsx",
+      "sha256": "54efdeab08acab9e48fc9a4dac48f07720371584c93a7594358c8c74c51d96d3"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/__screenshots__/ToggleButton.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/ToggleButton.stories.tsx",
+      "sha256": "9d4627b0a7946af6507354f543d61f615636d176c952de8035f1b7755f883f67"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/authored-text/__screenshots__/AuthoredText.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.stories.tsx",
+      "sha256": "bd50900504ec5984605722aa7d124d47564083a1488b481b1f599e1ab8bbfd3b"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/compounds/__screenshots__/Compounds.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/compounds/Compounds.stories.tsx",
+      "sha256": "6b91983a0c864f04d02a53ab176852216f3c33bbbeefd4a04dea438e3457bb04"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/evidence/__screenshots__/EvidencePrimitives.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/evidence/EvidencePrimitives.stories.tsx",
+      "sha256": "e5aa48eb47f2f1c7a06068b81c675ace6191e0333f025e139b6601eb4c9b1cb7"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/patterns/__screenshots__/Patterns.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/patterns/Patterns.stories.tsx",
+      "sha256": "0e7ba296d111040394caba449ed9377dc3fda5ed35e1bd0cfa2689ce62a3c521"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/__screenshots__/Quantity.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.stories.tsx",
+      "sha256": "0bb0c3b403f22e7324b1e5a7ebb2716287ec228f3fdfd258b85fa61bcd816bad"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/temporal/__screenshots__/TemporalScrubber.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.stories.tsx",
+      "sha256": "82fb965c3dc75ac1f9cbc2bbfd37b21d7ee492ae79c25ffefed46f901c0f813a"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/tokens/__screenshots__/AtlasV4Reference.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+      "sha256": "f27bb4ed6926339530cf6d04b056de482cff2ae4bbfa8d03c6effe53729baa50"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/tokens/__screenshots__/DesignTokens.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/shared/ui/tokens/DesignTokens.stories.tsx",
+      "sha256": "bc17016c8afd6a614d590502ea6b2c99599bdb9f20c307d88cb44cc6a7d18707"
+    },
+    {
+      "default_failed_screenshot_directory": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/test/a11y/__screenshots__/OpaqueBackgroundContrast.stories.tsx",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/test/a11y/OpaqueBackgroundContrast.stories.tsx",
+      "sha256": "6410eeacb6eaec3e100b0490609af5466a16bb5cc3d1f62c1a3103e16f78d916"
+    }
+  ],
+  "tracked_diff": []
+}

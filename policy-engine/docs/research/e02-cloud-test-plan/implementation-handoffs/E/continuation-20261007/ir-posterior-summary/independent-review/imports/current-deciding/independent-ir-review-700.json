@@ -1,0 +1,1637 @@
+{
+  "schema": "policyos.e02.independent_ir_architecture_review.v1",
+  "reviewer": "imports_r4",
+  "author": "frc_r4",
+  "disposition": "GO",
+  "scope": "Architectural placement, complete source/test/companion import census, scoped public-route definition identity, actual selected caller binding and collector discrimination.",
+  "original_bundle": "UQS-01",
+  "original_finding_ids": [
+    "B201",
+    "B202"
+  ],
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "prior_sources": [
+    "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+    "c8616e2babe1f0674799c12f07faffa5d6bd266d"
+  ],
+  "topic_branch": "codex/e02-E-frc-20261006",
+  "admitted_worktree": "/workspace/e02-E-frc-20261006",
+  "source_status_at_final_read": "## codex/e02-E-frc-20261006\n",
+  "predicate_basis": "recomputed",
+  "all16_changed_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+      "git_blob": "341af4f413559315f17f1d6b4b1d9fd644604069",
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7",
+      "bytes": 1712
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "git_blob": "c3f7eebffcc214235e01804ebafd4aeadf7f83ad",
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3",
+      "bytes": 16300
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "git_blob": "e28d91f65219311ec666f112d70e650f26855f90",
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "bytes": 17116
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "git_blob": "e0d7f2864beb1a9b2a04eb25a14702126b3325dc",
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3",
+      "bytes": 5742
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "git_blob": "357fdf1a28902fe718181a6528034cc4c093c739",
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "bytes": 23932
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "git_blob": "5557f1ec06a594e99ec1d00c2178c50f0fff68b9",
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "git_blob": "fc4e4f27f8ffc5f382a375d5116102df720291bc",
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200",
+      "bytes": 7397
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "git_blob": "2c510c47321dd2e85d8a83f9822e8525eadf90ac",
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "bytes": 19970
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "git_blob": "cac5101dabadb09a07a7c00c7688fa1dc2f3b105",
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "bytes": 49444
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "git_blob": "74ffbcabe1452878ff1c74fa9d0a660922603819",
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "git_blob": "0e09fe4517a02a5e5780ad6c5cd59c53ca7e428d",
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "bytes": 20893
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "git_blob": "3c8d7b1c1c7ae4aeffba622b6fb452388afa8687",
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "bytes": 193138
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "git_blob": "9c71d74379577609f2da636a0b8534d2483defd1",
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e",
+      "bytes": 9674
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "git_blob": "126e986e347a3210df0f453a23e9c2962a78523b",
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a",
+      "bytes": 15782
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "git_blob": "ecbf6e41d8c7ad3888209e7c9928d15fa1789758",
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+      "bytes": 15822
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "git_blob": "1810f0815b332dbe641c2317d1fd039c9c95f105",
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e",
+      "bytes": 16962
+    }
+  ],
+  "complete_changed_python_denominators": [
+    {
+      "comparison": "slice-base",
+      "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "complete_changed_path_count": 16,
+      "complete_changed_python_count": 14,
+      "totals": {
+        "product_source": 10,
+        "added_polisyos_import_rows": 71,
+        "removed_polisyos_import_rows": 4,
+        "added_cross_root_rows": 38,
+        "tests": 4
+      },
+      "delta_AST_reparsed_paths": [
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py"
+      ],
+      "exact_unchanged_AST_reuse_count": 10
+    },
+    {
+      "comparison": "published-main-198",
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "complete_changed_path_count": 2986,
+      "complete_changed_python_count": 360,
+      "totals": {
+        "companion": 239,
+        "added_polisyos_import_rows": 1831,
+        "removed_polisyos_import_rows": 15,
+        "added_cross_root_rows": 392,
+        "product_source": 57,
+        "tests": 64
+      },
+      "delta_AST_reparsed_paths": [
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py"
+      ],
+      "exact_unchanged_AST_reuse_count": 356
+    },
+    {
+      "comparison": "historical-Core-route-source-539",
+      "base": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "complete_changed_path_count": 220,
+      "complete_changed_python_count": 28,
+      "totals": {
+        "companion": 6,
+        "added_polisyos_import_rows": 101,
+        "removed_polisyos_import_rows": 14,
+        "added_cross_root_rows": 46,
+        "product_source": 14,
+        "tests": 8
+      },
+      "delta_AST_reparsed_paths": [
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py"
+      ],
+      "exact_unchanged_AST_reuse_count": 24
+    }
+  ],
+  "all_added_slice_cross_root_product_rows": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "target_module": "polisyos.core",
+      "symbol": "artifacts",
+      "asname": "core_artifacts",
+      "line": 17,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "core",
+      "cross_root": true,
+      "route_basis": "Existing Core root module export"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "validate_raw_posterior_summary_envelope",
+      "asname": null,
+      "line": 23,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "PosteriorSamplesCarrier",
+      "asname": null,
+      "line": 20,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "PosteriorSummaryContext",
+      "asname": null,
+      "line": 20,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "PosteriorSummaryProfile",
+      "asname": null,
+      "line": 20,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "posterior_carrier_content_hash",
+      "asname": null,
+      "line": 20,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "posterior_summary_functionals",
+      "asname": null,
+      "line": 20,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "PosteriorSamplesCarrier",
+      "asname": null,
+      "line": 20,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "posterior_joint_carrier_digest",
+      "asname": null,
+      "line": 20,
+      "path_role": "product_source",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "admit_posterior_summary_profiles",
+      "asname": null,
+      "line": 28,
+      "path_role": "product_source",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "posterior_nominal_mean",
+      "asname": null,
+      "line": 28,
+      "path_role": "product_source",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "load_posterior_summary_envelope",
+      "asname": "load_uncertainty_envelope",
+      "line": 29,
+      "path_role": "product_source",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "admit_posterior_summary_profiles",
+      "asname": null,
+      "line": 47,
+      "path_role": "product_source",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "posterior_nominal_mean",
+      "asname": null,
+      "line": 47,
+      "path_role": "product_source",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "validate_raw_posterior_summary_envelope",
+      "asname": null,
+      "line": 47,
+      "path_role": "product_source",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "load_posterior_summary_envelope",
+      "asname": "load_uncertainty_envelope",
+      "line": 52,
+      "path_role": "product_source",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "route_basis": "Registered IR analytics facade with actual native identity"
+    }
+  ],
+  "all_added_slice_cross_root_test_rows_with_owner_purpose": [
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "UncertaintyEnvelope",
+      "asname": null,
+      "line": 19,
+      "path_role": "tests",
+      "source_root": "foundry",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "target_module": "polisyos.core",
+      "symbol": "artifacts",
+      "asname": "core_artifacts",
+      "line": 10,
+      "path_role": "tests",
+      "source_root": "ir",
+      "target_root": "core",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "target_module": "polisyos.core",
+      "symbol": "canon",
+      "asname": "core_canon",
+      "line": 11,
+      "path_role": "tests",
+      "source_root": "ir",
+      "target_root": "core",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "target_module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "symbol": "summarize_bayesian_calibration_posterior",
+      "asname": null,
+      "line": 12,
+      "path_role": "tests",
+      "source_root": "ir",
+      "target_root": "foundry",
+      "cross_root": true,
+      "purpose": "Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.",
+      "canonical_owner": "Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author."
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "target_module": "polisyos.foundry.uncertainty",
+      "symbol": "sampling_admission",
+      "asname": null,
+      "line": 271,
+      "path_role": "tests",
+      "source_root": "ir",
+      "target_root": "foundry",
+      "cross_root": true,
+      "purpose": "Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.",
+      "canonical_owner": "Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "target_module": "polisyos.foundry.calibration",
+      "symbol": "uncertainty_adapter",
+      "asname": null,
+      "line": 120,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "foundry",
+      "cross_root": true,
+      "purpose": "Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.",
+      "canonical_owner": "Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "target_module": "polisyos.foundry.calibration",
+      "symbol": "uncertainty_adapter",
+      "asname": null,
+      "line": 157,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "foundry",
+      "cross_root": true,
+      "purpose": "Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.",
+      "canonical_owner": "Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.core",
+      "symbol": "artifacts",
+      "asname": "core_artifacts",
+      "line": 130,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "core",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.core",
+      "symbol": "canon",
+      "asname": "core_canon",
+      "line": 131,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "core",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.foundry.calibration",
+      "symbol": "uncertainty_adapter",
+      "asname": null,
+      "line": 132,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "foundry",
+      "cross_root": true,
+      "purpose": "Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.",
+      "canonical_owner": "Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.foundry.calibration.report",
+      "symbol": "CalibrationReport",
+      "asname": null,
+      "line": 133,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "foundry",
+      "cross_root": true,
+      "purpose": "Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.",
+      "canonical_owner": "Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.foundry.calibration.report",
+      "symbol": "put_calibration_config",
+      "asname": null,
+      "line": 133,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "foundry",
+      "cross_root": true,
+      "purpose": "Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.",
+      "canonical_owner": "Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.foundry.calibration.report",
+      "symbol": "put_calibration_report",
+      "asname": null,
+      "line": 133,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "foundry",
+      "cross_root": true,
+      "purpose": "Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.",
+      "canonical_owner": "Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.ir",
+      "symbol": "CalibrationConfig",
+      "asname": null,
+      "line": 138,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "PosteriorParameterBinding",
+      "asname": null,
+      "line": 139,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "PosteriorSummaryContext",
+      "asname": null,
+      "line": 139,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "symbol": "load_uncertainty_envelope",
+      "asname": null,
+      "line": 292,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Exact old v1.1 codec/replay definition control; curated legacy serializers remain separate owner packet.",
+      "canonical_owner": "IR API/codec owner; E scoped compatibility fixture."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "symbol": "load_uncertainty_envelope",
+      "asname": null,
+      "line": 314,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Exact old v1.1 codec/replay definition control; curated legacy serializers remain separate owner packet.",
+      "canonical_owner": "IR API/codec owner; E scoped compatibility fixture."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbol": "ir_adapter",
+      "asname": null,
+      "line": 387,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "core",
+      "cross_root": true,
+      "purpose": "Explicit root-confirmed native canonical Core-to-IR adapter test seam; not a public facade export.",
+      "canonical_owner": "Core/API owner packet and enforceable reviewer @DenisKopylov; E owns native regression test."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "load_posterior_summary_envelope",
+      "asname": null,
+      "line": 388,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.ir.analytics",
+      "symbol": "posterior_nominal_mean",
+      "asname": null,
+      "line": 388,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Existing curated facade; profile additions remain scoped semantic owner contract.",
+      "canonical_owner": "Core/IR API facade owners; E scoped B201/B202 author uses existing definitions."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "target_module": "polisyos.ir.registry.refs",
+      "symbol": "UncertaintyEnvelopeRef",
+      "asname": null,
+      "line": 199,
+      "path_role": "tests",
+      "source_root": "scientist",
+      "target_root": "ir",
+      "cross_root": true,
+      "purpose": "Native typed CAS-ref fixture, existing definition not curated on root/analytics.",
+      "canonical_owner": "IR ref/API owner; E scoped raw CAS fixture."
+    }
+  ],
+  "selected_product_collector": {
+    "path": [
+      "guardrails.collect_deep_import_edges",
+      "guardrails._check_deep_import_creep"
+    ],
+    "complete_changed_product_denominator": 10,
+    "base_selected_violation_count": 2,
+    "candidate_selected_violation_count": 0,
+    "new_edges": [],
+    "removed_edges": [
+      [
+        "polisyos.foundry.calibration.report",
+        "polisyos.core.artifacts.protocol"
+      ],
+      [
+        "polisyos.foundry.uncertainty.sampling_admission",
+        "polisyos.ir.analytics.uncertainty"
+      ]
+    ],
+    "complete_controls": [
+      {
+        "case": "healthy_declared_analytics_facade",
+        "outcome": "PASS",
+        "source_sha256": "57f4bc4ef289a38add94a2646b0d9bc66b5bcd92bc3ed806a88494c3facaa278",
+        "probe_violation_count": 0,
+        "probe_violations": [],
+        "total_selected_source_violation_count": 0
+      },
+      {
+        "case": "present_but_fake_deep_facade",
+        "outcome": "PASS",
+        "source_sha256": "c144f83d06773da85893c580320797abd00a043d6376ca4a2c88954cdd11d8a9",
+        "probe_violation_count": 1,
+        "probe_violations": [
+          {
+            "check": "deep_import",
+            "subject": "polisyos.scientist.nodes.builtins.simulate.profile_facade_probe",
+            "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.simulate.profile_facade_probe -> polisyos.ir.analytics.posterior_summary (src/polisyos/scientist/nodes/builtins/simulate/profile_facade_probe.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+            "detail": "polisyos.ir.analytics.posterior_summary",
+            "source_module": "polisyos.scientist.nodes.builtins.simulate.profile_facade_probe",
+            "target_module": "polisyos.ir.analytics.posterior_summary"
+          }
+        ],
+        "total_selected_source_violation_count": 1
+      }
+    ],
+    "removal": {
+      "discriminator": "PASS",
+      "required_negative_gate": "FAIL",
+      "reason": "actual collector property removed while public markers survive",
+      "actual_edge_count": 0,
+      "actual_violation_count": 0
+    }
+  },
+  "public_facades": {
+    "root_old_count": 287,
+    "root_new_count": 290,
+    "analytics_old_count": 278,
+    "analytics_new_count": 290,
+    "old_root_names_and_old_mapping_targets_preserved": true,
+    "new_export_binding_count": 15,
+    "all_new_export_identities": [
+      {
+        "facade": "polisyos.ir",
+        "name": "PosteriorParameterBinding",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "PosteriorParameterBinding",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "class"
+      },
+      {
+        "facade": "polisyos.ir",
+        "name": "PosteriorSummaryContext",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "PosteriorSummaryContext",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "class"
+      },
+      {
+        "facade": "polisyos.ir",
+        "name": "PosteriorSummaryProfile",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "PosteriorSummaryProfile",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "class"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "PosteriorParameterBinding",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "PosteriorParameterBinding",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "class"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "PosteriorSamplesCarrier",
+        "definition_module": "polisyos.ir.analytics.uncertainty",
+        "definition_attribute": "PosteriorSamplesCarrier",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "actual_object_identity_equal": true,
+        "kind": "class"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "PosteriorSummaryContext",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "PosteriorSummaryContext",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "class"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "PosteriorSummaryProfile",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "PosteriorSummaryProfile",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "class"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "admit_posterior_summary_profiles",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "admit_posterior_summary_profiles",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "function"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "load_posterior_summary_envelope",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "load_posterior_summary_envelope",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "function"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "posterior_carrier_content_hash",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "posterior_carrier_content_hash",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "function"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "posterior_joint_carrier_digest",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "posterior_joint_carrier_digest",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "function"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "posterior_nominal_mean",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "posterior_nominal_mean",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "function"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "posterior_summary_functionals",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "posterior_summary_functionals",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "function"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "read_posterior_summary_profile",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "read_posterior_summary_profile",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "function"
+      },
+      {
+        "facade": "polisyos.ir.analytics",
+        "name": "validate_raw_posterior_summary_envelope",
+        "definition_module": "polisyos.ir.analytics.posterior_summary",
+        "definition_attribute": "validate_raw_posterior_summary_envelope",
+        "definition_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "actual_object_identity_equal": true,
+        "kind": "function"
+      }
+    ],
+    "all_actual_IR_product_caller_bindings": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+        "module": "polisyos.foundry.calibration.report",
+        "line": 23,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "validate_raw_posterior_summary_envelope",
+        "bound_name": "validate_raw_posterior_summary_envelope",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "module": "polisyos.foundry.calibration.uncertainty_adapter",
+        "line": 20,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "PosteriorSamplesCarrier",
+        "bound_name": "PosteriorSamplesCarrier",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "module": "polisyos.foundry.calibration.uncertainty_adapter",
+        "line": 20,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "PosteriorSummaryContext",
+        "bound_name": "PosteriorSummaryContext",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "module": "polisyos.foundry.calibration.uncertainty_adapter",
+        "line": 20,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "PosteriorSummaryProfile",
+        "bound_name": "PosteriorSummaryProfile",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "module": "polisyos.foundry.calibration.uncertainty_adapter",
+        "line": 20,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "posterior_carrier_content_hash",
+        "bound_name": "posterior_carrier_content_hash",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "module": "polisyos.foundry.calibration.uncertainty_adapter",
+        "line": 20,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "posterior_summary_functionals",
+        "bound_name": "posterior_summary_functionals",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "module": "polisyos.foundry.uncertainty.sampling_admission",
+        "line": 20,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "PosteriorSamplesCarrier",
+        "bound_name": "PosteriorSamplesCarrier",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "module": "polisyos.foundry.uncertainty.sampling_admission",
+        "line": 20,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "posterior_joint_carrier_digest",
+        "bound_name": "posterior_joint_carrier_digest",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+        "line": 28,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "admit_posterior_summary_profiles",
+        "bound_name": "admit_posterior_summary_profiles",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+        "line": 28,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "posterior_nominal_mean",
+        "bound_name": "posterior_nominal_mean",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+        "line": 29,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "load_posterior_summary_envelope",
+        "bound_name": "load_uncertainty_envelope",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+        "line": 47,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "admit_posterior_summary_profiles",
+        "bound_name": "admit_posterior_summary_profiles",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+        "line": 47,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "posterior_nominal_mean",
+        "bound_name": "posterior_nominal_mean",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+        "line": 47,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "validate_raw_posterior_summary_envelope",
+        "bound_name": "validate_raw_posterior_summary_envelope",
+        "actual_object_identity_equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+        "line": 52,
+        "facade": "polisyos.ir.analytics",
+        "public_name": "load_posterior_summary_envelope",
+        "bound_name": "load_uncertainty_envelope",
+        "actual_object_identity_equal": true
+      }
+    ],
+    "actual_public_invocations": {
+      "internal_existing_Bayesian_producer": "polisyos.foundry.calibration.uncertainty_adapter",
+      "new_profile_instance": "PosteriorSummaryProfile",
+      "sample_ids": [
+        "r0",
+        "r1",
+        "r2"
+      ],
+      "named_mean": 2.5,
+      "observed_functionals": [
+        2.5,
+        2.0,
+        [
+          0.0,
+          4.0
+        ]
+      ],
+      "carrier_hash": "sha256:d8a6d8e29b69f9e176ad44853d5488424eec5266e2e1f944d0105a6a927a86d3",
+      "gate_eligible": false,
+      "raw_inlet": "actual admitted raw envelope accepted"
+    },
+    "present_name_function_metadata_and_numeric_output_fake": {
+      "discriminator": "PASS",
+      "required_identity_gate": "FAIL",
+      "reason": "facade identity property absent while name and numeric observation survive",
+      "same_name": "posterior_nominal_mean",
+      "same_healthy_numeric_observation": true,
+      "same_function_name_qualname_module_doc": true
+    },
+    "ABI_definition_identity": {
+      "abi_key": "posterior_summary_profile",
+      "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
+      "module": "ir",
+      "schema_file": "posterior_summary_profile.schema.json",
+      "version_field": "profile_version",
+      "actual_same_class_as_root_and_analytics": true,
+      "scope": "Definition placement/identity only; generated schema, replay and public inventory remain independent criteria lease."
+    }
+  },
+  "Core_and_shared_digest_routes": {
+    "schema": "policyos.e02.independent_ir_additional_route_binding.v1",
+    "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+    "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "predicate_basis": "recomputed",
+    "Core_report_route": [
+      {
+        "function": "polisyos.foundry.calibration.report.put_calibration_config",
+        "store_is_existing_Core_root_ArtifactStore": true
+      },
+      {
+        "function": "polisyos.foundry.calibration.report.put_calibration_report",
+        "store_is_existing_Core_root_ArtifactStore": true
+      },
+      {
+        "function": "polisyos.foundry.calibration.report.load_calibration_report",
+        "store_is_existing_Core_root_ArtifactStore": true
+      }
+    ],
+    "actual_old_digest_delegate": {
+      "observed_digest": "7e590d658cc7c389647a71ab546f510fd4a3d2a72f45bdcf5e8de88415d05813",
+      "same_curated_function_bound": true,
+      "actual_delegate_calls": [
+        [
+          [
+            "theta"
+          ],
+          [
+            "r0",
+            "r1",
+            "r2"
+          ]
+        ]
+      ]
+    },
+    "existing_Core_root_test_routes": [
+      {
+        "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "line": 10,
+        "symbol": "artifacts",
+        "alias": "core_artifacts",
+        "actual_module_identity_equal": true
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "line": 11,
+        "symbol": "canon",
+        "alias": "core_canon",
+        "actual_module_identity_equal": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "line": 130,
+        "symbol": "artifacts",
+        "alias": "core_artifacts",
+        "actual_module_identity_equal": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "line": 131,
+        "symbol": "canon",
+        "alias": "core_canon",
+        "actual_module_identity_equal": true
+      }
+    ],
+    "complete_changed_source_bindings": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+        "bytes": 1712,
+        "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+        "bytes": 16300,
+        "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "bytes": 17116,
+        "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+        "bytes": 5742,
+        "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "bytes": 23932,
+        "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "bytes": 39304,
+        "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "bytes": 7397,
+        "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "bytes": 19970,
+        "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "bytes": 49444,
+        "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "bytes": 27404,
+        "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "bytes": 20893,
+        "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "bytes": 193138,
+        "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "bytes": 9674,
+        "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "bytes": 15782,
+        "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+        "bytes": 15822,
+        "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "bytes": 16962,
+        "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e"
+      }
+    ],
+    "limits": [
+      "Actual route/delegate observation only; independent digest arithmetic is oracle scope.",
+      "Canonical Core adapter is not publicly exported; its explicitly owner-attributed native test seam is recorded separately.",
+      "No Core539 implementation or full optional public API was reviewed by its author."
+    ]
+  },
+  "contracts_and_complete_baseline_unchanged": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "exact_base_candidate_bytes_unchanged": true
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "exact_base_candidate_bytes_unchanged": true
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "exact_base_candidate_bytes_unchanged": true
+    },
+    {
+      "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+      "bytes": 947189,
+      "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7",
+      "exact_base_candidate_bytes_unchanged": true
+    }
+  ],
+  "prior_Core539_author_bodies_preserved_only": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "prior_review_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "exact_bytes_unchanged": true,
+      "old_sha256": "4aac5f3164d0f137d7b2a54c2302bdb7df85f05d71a57d8e1fa7b920c3525a97",
+      "candidate_sha256": "4aac5f3164d0f137d7b2a54c2302bdb7df85f05d71a57d8e1fa7b920c3525a97",
+      "review_scope": "Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation."
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "prior_review_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "exact_bytes_unchanged": true,
+      "old_sha256": "b80774434a4680f8b10fd880644754958c68d233f4a38e69858ab53ab826f745",
+      "candidate_sha256": "b80774434a4680f8b10fd880644754958c68d233f4a38e69858ab53ab826f745",
+      "review_scope": "Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "prior_review_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "exact_bytes_unchanged": true,
+      "old_sha256": "80e10adb3a793a63f7126fd9983e8a262cb458913efcfdbdc97a016f5e6fe172",
+      "candidate_sha256": "80e10adb3a793a63f7126fd9983e8a262cb458913efcfdbdc97a016f5e6fe172",
+      "review_scope": "Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "prior_review_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "exact_bytes_unchanged": true,
+      "old_sha256": "f719fb79cd644059f9249b11af74a19f6911bcb2163259c07dbf9a2fa3d16d61",
+      "candidate_sha256": "f719fb79cd644059f9249b11af74a19f6911bcb2163259c07dbf9a2fa3d16d61",
+      "review_scope": "Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "prior_review_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "exact_bytes_unchanged": true,
+      "old_sha256": "098fc2c23c5316e59a4c7c62d9304c58142244810d539dc204781af1fb96bd27",
+      "candidate_sha256": "098fc2c23c5316e59a4c7c62d9304c58142244810d539dc204781af1fb96bd27",
+      "review_scope": "Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "prior_review_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "exact_bytes_unchanged": true,
+      "old_sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0",
+      "candidate_sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0",
+      "review_scope": "Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "prior_review_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "exact_bytes_unchanged": true,
+      "old_sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a",
+      "candidate_sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a",
+      "review_scope": "Byte preservation of prior-reviewed body only; this author does not self-review own539 implementation."
+    }
+  ],
+  "current_remaining_owner_packet": {
+    "schema": "policyos.e02.independent_ir_historical_owner_packet_status.v1",
+    "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "historical_owner_packet_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+    "historical_packet": {
+      "path": "/workspace/e02-E-cal-review-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/owner-export-packet.json",
+      "bytes": 4522,
+      "sha256": "7531f33b5bf12a524a0f4d2f68b66a4b4b1864af90fcf286191300f2c13368e7"
+    },
+    "rows": [
+      {
+        "name": "PosteriorSamplesCarrier",
+        "native_definition": "polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier",
+        "entrypoint": "polisyos.ir.analytics",
+        "present_same_native_mapping": true,
+        "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+      },
+      {
+        "name": "ParametricFitCarrier",
+        "native_definition": "polisyos.ir.analytics.uncertainty.ParametricFitCarrier",
+        "entrypoint": "polisyos.ir.analytics",
+        "present_same_native_mapping": false,
+        "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+      },
+      {
+        "name": "load_uncertainty_envelope",
+        "native_definition": "polisyos.ir.analytics.uncertainty.load_uncertainty_envelope",
+        "entrypoint": "polisyos.ir.analytics",
+        "present_same_native_mapping": false,
+        "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+      },
+      {
+        "name": "persist_uncertainty_envelope",
+        "native_definition": "polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope",
+        "entrypoint": "polisyos.ir.analytics",
+        "present_same_native_mapping": false,
+        "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+      },
+      {
+        "name": "load_forecasting_uncertainty_bundle",
+        "native_definition": "polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle",
+        "entrypoint": "polisyos.ir.analytics",
+        "present_same_native_mapping": false,
+        "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+      },
+      {
+        "name": "persist_forecasting_uncertainty_bundle",
+        "native_definition": "polisyos.ir.analytics.forecasting_uncertainty.persist_forecasting_uncertainty_bundle",
+        "entrypoint": "polisyos.ir.analytics",
+        "present_same_native_mapping": false,
+        "canonical_writer": "team-polisyos IR API, team-architecture public-surface inventory review"
+      },
+      {
+        "name": "get_state_path",
+        "native_definition": "polisyos.foundry.execute.executor.get_state_path",
+        "entrypoint": "polisyos.foundry.execute",
+        "present_same_native_mapping": false,
+        "canonical_writer": "team-polisyos Foundry execute API, team-architecture public-surface inventory review"
+      },
+      {
+        "name": "load_state_snapshot",
+        "native_definition": "polisyos.foundry.execute.executor.load_state_snapshot",
+        "entrypoint": "polisyos.foundry.execute",
+        "present_same_native_mapping": false,
+        "canonical_writer": "team-polisyos Foundry execute API, team-architecture public-surface inventory review"
+      },
+      {
+        "name": "put_state_snapshot",
+        "native_definition": "polisyos.foundry.execute.executor.put_state_snapshot",
+        "entrypoint": "polisyos.foundry.execute",
+        "present_same_native_mapping": false,
+        "canonical_writer": "team-polisyos Foundry execute API, team-architecture public-surface inventory review"
+      }
+    ],
+    "Core_native_test_seam": {
+      "fresh_interpreter_command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "import sys,json; sys.path.insert(0,'/workspace/e02-E-frc-20261006/policy-engine/src'); from polisyos.core import artifacts as core_artifacts; print(json.dumps({\"fresh_root_only_ir_adapter_attribute\":hasattr(core_artifacts,\"ir_adapter\"),\"fresh_artifacts_definition\":core_artifacts.__file__}))"
+      ],
+      "stdout": "{\"fresh_root_only_ir_adapter_attribute\": false, \"fresh_artifacts_definition\": \"/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/core/artifacts/__init__.py\"}\n",
+      "stderr": "",
+      "exit_code": 0,
+      "observations": {
+        "fresh_root_only_ir_adapter_attribute": false,
+        "fresh_artifacts_definition": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/core/artifacts/__init__.py"
+      },
+      "admission": "Root explicitly confirmed honest test-only native Core adapter seam plus Core owner packet. No public export or Core shared-file lease was granted.",
+      "canonical_writer": "Core/API owner @core-owners, @platform-owners; enforceable reviewer @DenisKopylov",
+      "minimal_input": "Choose native test-only seam admission or add typed ir_adapter module export through existing Core artifacts facade with its API/inventory companions.",
+      "next_verifiable_result": "Core owner disposition/export commit plus fresh-interpreter identity and actual IR-protocol CAS adapter roundtrip/refusal tests."
+    },
+    "limits": "Immutable mapping status and fresh module availability only. Scoped B201/B202 appointment does not admit the other legacy aliases or Core adapter. Runtime law/transport remain independent oracle/criteria scope."
+  },
+  "runtime_environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "task_imposed_worker_process_thread_or_CPU_cap": false,
+    "packages": {
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5"
+    },
+    "new_environment_or_install": false,
+    "production_data_used": false
+  },
+  "complete_deciding_execution_receipts": [
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/census_imports_delta.py",
+        "--candidate",
+        "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+        "--base",
+        "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/import-census-700.json",
+        "--prior-output",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/import-census-c861.json",
+        "--prior-candidate",
+        "c8616e2babe1f0674799c12f07faffa5d6bd266d"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "started_utc": "2026-10-07T08:59:38.609096+00:00",
+      "ended_utc": "2026-10-07T08:59:42.788634+00:00",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-imports.stdout",
+        "bytes": 3064,
+        "sha256": "338c4caa265259f8faf4a25cdb8db96ecb56321f8fac333a332b05ec3eaf56a8"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-imports.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "literal_observer_source": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/census_imports_delta.py",
+          "bytes": 9361,
+          "sha256": "acbf4729fe0e2800ef0d713162ac1861a3793ba6ee3f23a1303793215df2fd4b"
+        }
+      ],
+      "execution_environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "task_imposed_worker_process_thread_or_CPU_cap": false
+      },
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_architecture.py",
+        "--candidate",
+        "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+        "--base",
+        "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--destination",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/architecture-700"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "started_utc": "2026-10-07T08:59:38.611846+00:00",
+      "ended_utc": "2026-10-07T08:59:40.485169+00:00",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-architecture.stdout",
+        "bytes": 3107,
+        "sha256": "67c83df43c0ede9932776263566ed45c394f5bd01425b7fe2e2e1423917f6e1f"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-architecture.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "literal_observer_source": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_architecture.py",
+          "bytes": 7652,
+          "sha256": "abb6f8d6ec979ae1c7815ab694da6e3204e9e6082c6d9d65627d2191e6f2cce4"
+        }
+      ],
+      "execution_environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "task_imposed_worker_process_thread_or_CPU_cap": false
+      },
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_facade_bindings_postcompat.py",
+        "--candidate",
+        "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+        "--base",
+        "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/facade-bindings-700.json"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "started_utc": "2026-10-07T08:59:38.749408+00:00",
+      "ended_utc": "2026-10-07T08:59:49.698717+00:00",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-facades.stdout",
+        "bytes": 3222,
+        "sha256": "98c8ad3d3c9b7296b15402c8ecdee616600ec5e4fd0e5c6b6a6e636de6e1e1ed"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-facades.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "literal_observer_source": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_facade_bindings_postcompat.py",
+          "bytes": 11124,
+          "sha256": "c3e07886b85763016383c2f8f1f8be31ccd7a5c4b1815e1dcd48f83af0505005"
+        }
+      ],
+      "execution_environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "task_imposed_worker_process_thread_or_CPU_cap": false
+      },
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_additional_route_bindings.py",
+        "--candidate",
+        "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+        "--base",
+        "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/additional-routes-700.json"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "started_utc": "2026-10-07T08:59:38.689150+00:00",
+      "ended_utc": "2026-10-07T08:59:46.504254+00:00",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-additional-routes.stdout",
+        "bytes": 2313,
+        "sha256": "53fd7ddbb18dc2b9de43b61a78123f94b3c73ad9903a81f705b6d092099cbb32"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-additional-routes.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "literal_observer_source": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_additional_route_bindings.py",
+          "bytes": 5000,
+          "sha256": "4045451554ffa84241bdc0a3c780ccb804f9526089bdde1caeedaf82509bc9ee"
+        }
+      ],
+      "execution_environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "task_imposed_worker_process_thread_or_CPU_cap": false
+      },
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_owner_packet_routes.py",
+        "--candidate",
+        "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+        "--repo",
+        "/workspace/e02-E-frc-20261006",
+        "--packet",
+        "/workspace/e02-E-cal-review-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/owner-export-packet.json",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/owner-packet-status-700.json"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "started_utc": "2026-10-07T08:59:38.595955+00:00",
+      "ended_utc": "2026-10-07T08:59:39.430346+00:00",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-owner-packet.stdout",
+        "bytes": 5357,
+        "sha256": "ec7554f9354907ff459cef5401cdf12298dba2675021989f4351f3d902b456a0"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-owner-packet.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "literal_observer_source": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_owner_packet_routes.py",
+          "bytes": 3878,
+          "sha256": "4d74d2f2b69eb7e885e3a353c16996356e9c0db6e4c69492209b6b57a94600bd"
+        }
+      ],
+      "execution_environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "task_imposed_worker_process_thread_or_CPU_cap": false
+      },
+      "status": "PASS"
+    }
+  ],
+  "authority_and_review_boundaries": {
+    "scoped_semantic_appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76:policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.md",
+    "four_decision_ratification": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/decision.json",
+    "original_card": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+    "full_finding_owner_source": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74:policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+    "source_semantics_law_truth": "Independent oracle_r4; this review checks admitted facade/route mechanism only.",
+    "strictness_v11_replay_native_consumers_generated_companions": "Independent criteria_r4 and canonical generator/API owner.",
+    "finding_outcomes": "Not adjudicated by this narrow review; original historical ledger status remains separate from check PASS.",
+    "general_legacy_exports": "Eight old aliases still absent; existing c07 owner packet remains applicable. Scoped E appointment does not grant general Core/IR/Foundry facade authority.",
+    "global_architecture_and_P41": "No full global architecture PASS or inherited attribution. Final broad selector/root gate ownership remains separate; P41 not_established unless exact full base command/input intersection proves it."
+  },
+  "limitations": [
+    "Dynamic import dispatch outside selected actual facade routes is not inferred from AST.",
+    "Complete main198 and historical539 denominators include other owners and utilities; their cross-root rows are not assigned wholesale to E.",
+    "Optional old APIs were not all imported; exact old lazy map/name preservation is checked statically.",
+    "Core adapter remains an explicit native test seam, absent from fresh Core root artifact module availability.",
+    "CAS law correctness/transport/refusals, signed-zero arithmetic and legacy generic-label semantics are separate independent oracle/criteria controls.",
+    "Generated public schema/inventory/reference/release and current global gates remain canonical owner queue.",
+    "No new broad numerical wave was run."
+  ],
+  "cleanup": {
+    "native_Trash_used": false,
+    "reason": "Cloud has no native Trash; retain unique deciding observations and enumerate repeatable candidates after checking active users.",
+    "candidates": [
+      "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/architecture/base",
+      "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/architecture/candidate",
+      "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/architecture-c861/base",
+      "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/architecture-c861/candidate",
+      "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/architecture-700/base",
+      "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/architecture-700/candidate"
+    ],
+    "active_source_and_shared_environment": "Author lane, source code, committed docs and shared interpreter remain active and are preserved."
+  }
+}

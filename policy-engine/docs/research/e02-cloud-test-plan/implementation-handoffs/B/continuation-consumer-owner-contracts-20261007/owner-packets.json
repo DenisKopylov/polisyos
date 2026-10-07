@@ -1,0 +1,338 @@
+{
+  "schema": "policyos.e02.consumer_owner_packet.v1",
+  "source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "source_tree": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50",
+  "formal_closure": false,
+  "status": "bounded consumer contracts; no production edits or invented institutional authority",
+  "contracts": [
+    {
+      "id": "B87/B89",
+      "technical_state": "B87 open; B89 limited",
+      "owner": "C owns StreamingSourceSession/process_stream_dataset. B pool/registry owner assists only through canonical ownership contract; G consumes exactsource evidence.",
+      "source_refs": [
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+          "bytes": 108192,
+          "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3",
+          "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+          "bytes": 43461,
+          "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+          "git_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+          "bytes": 29359,
+          "sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+          "git_blob": "71d21e8f8d4517c602efc2662106f35d45f0ebc4"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/fabric/connectors/registry.py",
+          "bytes": 769,
+          "sha256": "9b1d8efbd3dcff030db88ab7a28080beb0877adf1ac78e270292cf26b45ded05",
+          "git_blob": "fb7d08d06747eaa81bc30fbdd03a290721f3ed9c"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+          "bytes": 35047,
+          "sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405",
+          "git_blob": "31525859297cf05d5c190db00e5389ab0c61b0ff"
+        }
+      ],
+      "actual_negative": {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "current_equal_source": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "counts": "historicalwhole10=8PASS2FAIL only; 8cleanup=7PASS1FAIL, 2capacity=1PASS1FAIL",
+        "cleanup": "Once actual finaldisconnect refusal: original handle unconfirmed1, originalpoolclosed, pending_permitFalse/freepermit1, registryowner0; registryshutdown does notretire it; freshsession yields2concurrentlyunconfirmedhandles. Testobserver laterclose is diagnostic/rescue, never productionowner.",
+        "separate_budget": "Realcap3checkpoint retained2rows; reopenwithcap1 stillpolls/commits/flushes. This is independent restoredoperatorcapacity failure, not physicalcleanup or semaphorefault.",
+        "full_evidence": [
+          {
+            "git_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/native.txt",
+            "bytes": 47027,
+            "sha256": "739f1f5905edb0ed3ef7e603ee35cc4a04072f0105b94d634ab03308f506a764",
+            "git_blob": "44432fdd22c77ee753d3fa5fcfc8ae6062797072"
+          },
+          {
+            "git_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/native.xml",
+            "bytes": 15453,
+            "sha256": "b4b60fd6c986cbd3a2d454cbdfd5ac5d0a2294941b27583f4faec17cb0fc7958",
+            "git_blob": "2e6cb8dab92d59206c7d50404cec6eabd315e326"
+          },
+          {
+            "git_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/observer.json",
+            "bytes": 1275524,
+            "sha256": "ed2e2286bf2c71338d93a3ecb90aeb3d02967aabf42f6e6ff716074a6c4ea583",
+            "git_blob": "00e9b45e890366109e76c19bc438bac604ad1c32"
+          },
+          {
+            "git_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/result.json",
+            "bytes": 25157,
+            "sha256": "ae9cec8143a97059009a6ffbaa2d15102531fd10605886fdd14bc2db6c1954c8",
+            "git_blob": "0ce223c0ccdf53c13763a5375665c8e7fa0a10c5"
+          },
+          {
+            "git_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/driver.source.txt",
+            "bytes": 3842,
+            "sha256": "245bf142722775952c4a4e27519e61d53e030c886a6d5c541735dcd77b1c254a",
+            "git_blob": "40f0d525104ed22e7e3ce60c29e618c0755ea276"
+          },
+          {
+            "git_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/run.source.txt",
+            "bytes": 5851,
+            "sha256": "d52d0a9b292812980e68415b12f5850293496c4bbb88ea7305ebb8cadfa0934b",
+            "git_blob": "07d36753d4515aded97e7139e800583bf5d55deb"
+          },
+          {
+            "git_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/case-and-property-join.json",
+            "bytes": 53447,
+            "sha256": "6e16580f5e644100bd62753d8f241bf057f584361864ca4e01ee3f8967fc1124",
+            "git_blob": "7e8779631e6d81acd4d7d918e3ff67d5c75957ee"
+          }
+        ]
+      },
+      "minimal_production_transfer_proposal": {
+        "existing_seam": "Startup streaming.py290 transfers actual session.pool via registry._retain_pending_startup_cleanup; registry._close_pools removes retainedowner onlyafter actual pool.close_all success. Final process_stream_dataset finally2382 does nottransfer onfailure.",
+        "smallest_extension": "C finalprocess owner catches failedclose beforelosing scope and transfers that SAME pool/connector instance to existing registry retry ownership, with accepted transfer checked beforecallerdiscards lastreachablereference; generalize existing startup transfer ratherthan invent secondcleanup ledger. If transfer fails, retain primaryerror and explicit unresolved owner/handle state; no completionACK.",
+        "identity": "Actual connector_id + poolinstanceidentity/owner generation + original ConnectionHandle.session_id + connectorinstance + cleanup phase/notconfirmed + pending_permit flag; retain exact pool ratherthan reconstruct handle from string.",
+        "caller": "process_stream_dataset finally/sessionclose caller; caller cancellation and primaryexception are preserved with cleanup note; registryshutdown/connectorunregister retries SAMEownedhandle.",
+        "retirement": "Only actual successful connector.disconnect and poolpending removal retire obligation; permit free, newpool or observerclose doesnot prove retirement.",
+        "positive": "Oncefault then real productionregistryretry disconnects samehandle exactlyonce, pendingowner0 and freshsessioncontrol independent; explicit retainedsession repeatclose historicalpositive alreadyworks.",
+        "negative": "Wrong handle/pool/newgeneration cannot acknowledge original; failedretry keepsowner; releasepermit+dropowner mustremainFAIL; lateobservercleanup cannot satisfyproductionrecovery.",
+        "persistence_limit": "Finiteprocess-localcleanup transfer only. No processdeath recovery, persistentnetworkFD, externalconnector global quota orinstitutionalgrant is claimed."
+      },
+      "necessary_dependency_replay": "None identified in243captured trackedpaths/all249 retainedfixtures; prooftransferis explicit. Currentdynamic backend/environment resource equivalence is notassumed. Csource fixneeds freshnativefailedinput."
+    },
+    {
+      "id": "B13",
+      "technical_state": "limited; served simulation read stillrequiresinput",
+      "owner": "A/G actualserved simulation candidate consumer and owner-catalog/acquisition composition; B runtime typed results",
+      "source_refs": [
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+          "bytes": 77081,
+          "sha256": "19f04157cd395d404ebfe948f3ba6ae0fd40a9c7c888cb6e56b1cc0905114087",
+          "git_blob": "56ce07b69f2edf6b5a4af477fbbe02c92151e61a"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+          "bytes": 97418,
+          "sha256": "22a4b2a4b560e4134b8ba7d1a028b90cafb8893670a5bdd512dff75a8a4cde82",
+          "git_blob": "fb62ad33a7ef5aedeb20f2c45c211c0d27ed22a2"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/runtime/http/routes/debug.py",
+          "bytes": 8702,
+          "sha256": "c4d284f4daa253e37dc377fbbc3a1cd715601cc6ecd277104ca15e31b6a232b3",
+          "git_blob": "06d3047dbf39f683b474cfec8710cbb18a08ffff"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+          "bytes": 61265,
+          "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d",
+          "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+          "bytes": 39751,
+          "sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d",
+          "git_blob": "71987b5a1f52c7ca8ddb4033b306d2d6fc0a6492"
+        }
+      ],
+      "producer": "WorkflowExecutionResult(state,report,run_ref); actual WorkflowReport.nodes retains run_simulation ok/artifacts, later_failure fail NodeError.scope/reason, dependent skip upstream_failed, independent sibling ok; reportstatusfail is not absence of successfulresults. SimulationResult+actualCAS manifestedinputs bind execplan/data/boundstate/run node.",
+      "actual_consumer": "GET/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result → Debug.get_simulation_result_candidate: verifies persisted state/report/run/node/ref/kind/media/schema/tenant and CAS integrity then returns candidate_reference_only. Generic artifactauthority route remainsblocked.",
+      "obligation_contract": "Retain successful contentbound simulation artifact + state/report refs + later NodeError/skip_blocker + run/node/tenant/cell identity + dependent basis graph. Serve intact localcandidate whilelaterunrelatederror remainsvisible; foundationrevocation marks onlydependingconclusions unusable. No reportconstructor/typedpartial means full authority.",
+      "positive": "Existing realTrinity5agents2firms/taxrate.1+WorkflowExecutor succeeds simulation, laterfail andindependentsibling; HTTP candidate mustinclude actual SimulationResult and latererror with candidateonlygrade.",
+      "negative": "Wrongrun/node/ref/schema/tenant/manifest/tamperedbytes refuse beforecandidate emission; change commonbasis invalidatesdependentconclusion whileunrelatedsiblingstate preserved. Actualoldroute teststopped beforethese assertions; do notcopy themasPASS.",
+      "smallest_missing_input": "Existing TestClient startup refused catalog_fetch_source_unreadable beforeHTTProute. G needs real read-only default dataset_catalog.duckdb and configured acquisition_overlay.v2 accepted by same startup + supported authenticated/tenant scope; preserve exact oldbounded Trinity/CAS fixtures and allref/scope integrity negatives. No replacement emptycatalog or constructoronly grant; full productiondataset onlywhen actual chosen localroute requires it.",
+      "next_artifact": "A/G exact startup/catalog-overlayreceipt+actual GETcandidate response/workflow-errors/refreadback andfail-before-response negative onsourcecandidate; no supplied actualroutebyte receipt yet."
+    },
+    {
+      "id": "B154",
+      "technical_state": "limited; all-confirmations publisher absent",
+      "owner": "A/G appointed actualpublisher + currentrequiredpopulation/trustowner. B canonicalbatchmechanism",
+      "source_refs": [
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+          "bytes": 30675,
+          "sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+          "git_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+          "bytes": 18059,
+          "sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+          "git_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "bytes": 190227,
+          "sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+          "git_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+          "bytes": 46449,
+          "sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+          "git_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+          "bytes": 14133,
+          "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503",
+          "git_blob": "c493db7680df69132ef36f14e951f001f0f993e9"
+        }
+      ],
+      "producer": "FileSystemCAS.verify_all_signatures(...artifact_ids=requiredrefs,cancel_event,absolute deadline) → freshlocal BulkVerificationReport(BatchCompletion complete|aborted, admitted/finished/inventory_exhausted/abort_reason, details exactArtifactRef/status). Localerrors retainothercompletedrows; globalcancel/deadline isaborted withfinishedprefix.",
+      "existing_consumer": "Signature cryptoCLI is a diagnostic notpublication. CASimport TransferVerificationBatch.require_complete_valid is a byte/manifest integrity fence, not signatureauthority. Scoped rg src verify_all_signatures/require_complete_valid shows noA all-confirmation signaturepublisher callsite.",
+      "minimal_contract": "Appointed existingpublisher supplies exactselectedrequiredrefpopulation andapprovedverifier/trustconfig; callsfreshcanonicalproducer and report.require_complete_valid(required) immediatelybeforeitsnormalpublication fence. Do notconsume externalDTO, count/.ok (legacyunsigned/untrusted canremainok), subset/defaultview orcompletedprefix asall-confirmed.",
+      "positive": "Three actualsignedCAS objects/selectedprofiles confirmedVALID; exactrequired setpassespredicate thenactualpublisher emits underitsownedfence.",
+      "negative": "Corruptmember→2VALID1ERROR; cancelafteractualfirst verification→abortedprefix; remove detail butretaincounter3; substitute defaultforselectedview→predicate refusal, actualpublisher bytecount/publichead staysunchanged. Existingdefining producer negatives do not provepublishernoeffect.",
+      "smallest_missing_input": "Name actualpublisherand its existing all-confirmations obligation/population/trustowner. No such owner-specific productioncomposition receipt supplied orestablishedbyscopedsource. A/Gmustappointonlyunderexistinglaw, notBguess newmandatorysignaturepolicy.",
+      "next_artifact": "Actualpublisher producer→predicate→durablepublication effect/noeffect packet onexactselectedrefs, actualtrustconfig andcurrentowner law."
+    },
+    {
+      "id": "B61",
+      "technical_state": "held semantic-owner decision",
+      "owner": "SKG source/dataset publication owner + deployedconsumercomposition; A/G coordinates semantic decision, EXE owns bridge",
+      "source_refs": [
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+          "bytes": 126235,
+          "sha256": "5e936af06ac9aba1c8fd2db835cb1c4947056da1d0d18d95c0090c2c9c762653",
+          "git_blob": "88c9553da1377e28418bcb06b00449010409a011"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+          "bytes": 77081,
+          "sha256": "19f04157cd395d404ebfe948f3ba6ae0fd40a9c7c888cb6e56b1cc0905114087",
+          "git_blob": "56ce07b69f2edf6b5a4af477fbbe02c92151e61a"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "bytes": 34274,
+          "sha256": "3f8cb9bef47dbaf1a242fda929a4d71f4276ca4c0761b7392fef34e80c81e996",
+          "git_blob": "854aec5c890f52b20bacce7461c532b8d064d3ff"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+          "bytes": 15771,
+          "sha256": "eb550486eebae50a0a0262c1909bc495354ba560c017ad2f1dc4448c028963d7",
+          "git_blob": "c5a522a2154994684d8f03a7924fbb0dfc3626c5"
+        }
+      ],
+      "producer_consumer": "SKGQuery.prepare_read binds fullfileSHA underread-only transaction; PreparedSKGRead.cache_binding feeds actualnodecachekey and SAMEquery used by ResolveParameters. PreparedSKGReadReceipt.v3 binds original/current fullsnapshot/hash/query/selector/prepared_at+outputrefs, explicitly source_snapshot_authenticity/output_dependency not_established.",
+      "minimal_consumed_contract": "Owner supplies immutableconsumed snapshot/epoch identity and permitted replaytime semantics; selector opens SAMEgeneration forkey+actualqueries; exact consumedread binding participatescachekey. Ownerdecides immutable-during-run ornewgeneration/re-entry; actualselectedrows/queryscope derivation mustbe linkedtooutput. No mtime/path/wholeDBhash substitutes semanticconsumption/authenticity.",
+      "positive": "Change consumedfact/epoch refusesoldcache; sameconsumedversion/key actualqueries produce sameboundoutput andreadreceipt.",
+      "negative": "Keyfromv1/bodyreadv2 mismatch; WAL/generationchange duringprepare; sourcebytehashonlywithouttrustedepoch; unconsumed unrelatedversion mustnotautomatically imply required allnodeinvalidations.",
+      "absence_reason": "Repository has boundtransaction candidateevidence; no ratified actual SKGsnapshot/epochowner policy supplied, andreceipt explicitlydenies semanticoutputdependence/authenticity. Genericsourcehash mechanicspass cannotsettle originalowner decision.",
+      "next_artifact": "Ownerissued snapshot/epoch publication policy plus realconsumedrow/evidence→output mapping and key/read samegeneration positive/negative onlocal source."
+    },
+    {
+      "id": "B67/B68",
+      "technical_state": "held normative reuse/singleflight scope",
+      "owner": "Deployment institutionalreusepermission owner injected via CacheReuseAuthorizer; B-W09 canonicalmechanics",
+      "source_refs": [
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "bytes": 43152,
+          "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5",
+          "git_blob": "e4aece7bace8cc969a0c896727c09cd80cef25bf"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "bytes": 9508,
+          "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+          "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "bytes": 21507,
+          "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+          "git_blob": "a21bca5b1280069d6852bad0b5437d9783925886"
+        }
+      ],
+      "typed_contract": "Existing CacheReuseEvidence(ref,version,content_hash,contentbytes), CacheReuseRequest(actualactor,tenant,scope,purpose llm_snapshot_reuse,model,parameters_digest,evidence), CacheReuseDecision(issuer,epoch+exactsamefields), constructor CacheReuseAuthorizer.authorize_reuse. _require_current_reuse rereads exactdecision beforeconsumption; flight terminalproof bindsphysicalattempt/role internally butisnotinstitutionalreusepermission.",
+      "producer_consumer": "Actualprincipalfromaccesscontext + immutablemetadataevidence validatedhash → authorizer → keyincludesdecisionepoch → currentdecision/cachehit/join; live/mutableevidence ormissingdecision doesnotreceive institutionalpermission fromcacheableflag/hash.",
+      "positive": "Actualowner grants sameactor/tenant/purpose/model/params/exactsnapshot/currentepoch; hit orpreadmittedsharedflight runsoneactualprovider; independentrepetition policy explicitlyallowsorrefusessharing; onewaitercancel preservesownerproducer.",
+      "negative": "Foreigntenant/principal/purpose, changedseed/model/snapshotbytes/ref/epoch, revokeddecision orrequest requiringindependentreplication cannotjoin/reuse; providerrawcachemarker/userbool/opaqueflightrole are notgrant.",
+      "absence_reason": "Fullsrc authorize_reuse census has Protocol+twocanonicalcalls only; no deploymentowner implementation/ratifiedlaw in suppliedprofile. Tests inject operational authorizers andestablishmechanics, not institutionalgrant.",
+      "next_artifact": "Trustedactualownercomposition andversioned currentpermission/revocation/independentrepetition policy binding CacheReuseDecision, with actual cache/freshprincipal/epoch negatives beforeprovider/join."
+    },
+    {
+      "id": "B148",
+      "technical_state": "held cross-tenant/first-for-tenant rule",
+      "owner": "CAS tenancy/import ownership policy owner + G deploymentcomposition; CAScanonicalwriter",
+      "source_refs": [
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "bytes": 190227,
+          "sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+          "git_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+          "bytes": 46449,
+          "sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+          "git_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9"
+        },
+        {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+          "bytes": 98037,
+          "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+          "git_blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7"
+        }
+      ],
+      "producer_consumer": "Canonical import intake validatesbound tenantcontext+inputowners underartifactleases; claimedcontent requirescurrentownertenantand exactviewclaims, newno-claimcontent stages privately, verification precedespublish. Sameownerno-op preserves selectedview/time/bytes; no foreignmanifest orunboundclaim manufactured.",
+      "minimal_consumed_contract_proposal": "Actualowner supplies versioneddecision first-for-tenant/cross-tenant sharing/import: binds initiatingactor+tenant/cell, sourceowner/currentgeneration, exactcontent andselectedmanifestview/inputownership, intendedpurpose andpermittedoperation. Existingcanonicaladmission mustconsumeownerdecision beforestaging/publish withcurrentclaimlease. This decision DTO/API is NOTcurrentlyestablishedjustby manifesttenantcontext.",
+      "positive": "Owner-approvedidentical sameownedview no-op; ifownerexplicitlyallows firstclaim/sharedimport, actualtenant-bound producer plusadmitteddecision permits exactlythatview withoutmutatingpriorownerbytes/time.",
+      "negative": "Foreign/unboundintake, mixedsourceinputowners, existingforeignclaim, missingcurrentdecision orchangedmanifestprofile refusesbeforepublish; completearchive/hashreadability isnotownershipgrant.",
+      "absence_reason": "Existingstricttechnicalprofile observed; normative cross-tenant/first-tenant policy hasnotbeenappointed/ratified by suppliedowner. Cannotclosebyallow_shared boolean/defaulttenant orhash.",
+      "next_artifact": "Actualowner rule/version+consumeradmissionreceipt+sameownerpositive/foreignfirstclaimnegative usingactualtenantbound CASproducer; currentdefiningprofile unchanged untilratification."
+    }
+  ],
+  "current_mechanism_searches": {
+    "reuse": "rg -n authorize_reuse|reuse_authorizer= policy-engine/src/polisyos",
+    "signature_consumer": "rg -n verify_all_signatures|require_complete_valid policy-engine/src/polisyos/runtime policy-engine/src/polisyos/core/artifacts",
+    "cleanup": "rg -n retain_pending_startup_cleanup|close_all policy-engine/src/polisyos/fabric",
+    "classification": "C/Amechanism/evidence gap distinct from missing localcatalog andheld semanticowner law"
+  },
+  "P37": {
+    "captured fullblobinput transfer/nativephysicalfacts": "recomputed",
+    "proposed ownercontracttechnicalsemantics": "consumer_asserted until owneradopts andactualconsumerwitness",
+    "institutional grant/semantic policy": "not_established"
+  }
+}

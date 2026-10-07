@@ -1,0 +1,62 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-runtime-continuation-20261007/run_b_a.py",
+    "--child"
+  ],
+  "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+  "source_before": {
+    "head": "2c7a6398efc773a18bf04abd7d119b6462a8809b",
+    "tree": "9fde3268a1255248f32168d7b45995666e1f1703",
+    "branch": "codex/e02-B-current-runtime",
+    "status": "",
+    "source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+    "source_tree": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50",
+    "actual_loaded_origins": []
+  },
+  "input": {
+    "path": "/workspace/e02-B-current-runtime/policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+    "sha256": "ee41bd7df1c2123b8b4748a645646cc6240c4619b77e9305d93a698714389770",
+    "bytes": 7886
+  },
+  "driver": {
+    "path": "/tmp/e02-B-runtime-continuation-20261007/run_b_a.py",
+    "sha256": "73c2280b0eb4d6b994528f1513191a6c770bce70bcd2ef6807757dd5604e64f7",
+    "bytes": 3650
+  },
+  "environment": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "PYTHONPATH": "/workspace/e02-B-current-runtime/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTEST_ADDOPTS": null,
+    "POLISYOS_METRICS_PORT": "0",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "started_utc": "2026-10-07T07:33:34.519427+00:00",
+  "exit_code": 1,
+  "wall_seconds": 34.752363566018175,
+  "max_rss_kib": 741564,
+  "resource_method": "Linux wait4 actual child",
+  "source_after": {
+    "head": "2c7a6398efc773a18bf04abd7d119b6462a8809b",
+    "tree": "9fde3268a1255248f32168d7b45995666e1f1703",
+    "branch": "codex/e02-B-current-runtime",
+    "status": "",
+    "source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+    "source_tree": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50",
+    "actual_loaded_origins": []
+  },
+  "output": {
+    "path": "/tmp/e02-B-runtime-continuation-20261007/b-a-projection/native.txt",
+    "sha256": "674c6f26b084418ff9fc9cf961252c4e32a6205ae0f901e63c1c58f71c23211e",
+    "bytes": 21529
+  },
+  "ended_utc": "2026-10-07T07:34:09.348757+00:00"
+}

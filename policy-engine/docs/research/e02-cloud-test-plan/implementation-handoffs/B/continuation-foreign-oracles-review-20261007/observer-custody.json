@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.retained_evidence_custody.v1",
+  "input_grade": "Actual root probe bytes read without rerunning native; complete listed input/output set preserved. No terminal session or powerloss claim.",
+  "files": [
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/oracle.json",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/oracle.json",
+      "bytes": 3596,
+      "sha256": "5f4caa290be5998bec369f1a0f942b0983237c4483f63378b65a12b6728fe718"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/current_cohort_inventory.py",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/current_cohort_inventory.source.txt",
+      "bytes": 22420,
+      "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/test_real_phase_journal.source.txt",
+      "bytes": 135,
+      "sha256": "fa51a8abe4f1b9ff320980fe1a32f197b1ae5609bedc49155a0fd210aa3ed5bd"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/stdout.txt",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+      "bytes": 1094,
+      "sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/stderr.txt",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/inventory.json",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/inventory.json",
+      "bytes": 7725,
+      "sha256": "748140a60fbe78f8c6ab395530ae05227eb9149fc861da1e055b82c8ab675251"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/stdout.txt",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+      "bytes": 1102,
+      "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/stderr.txt",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/inventory.json",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/inventory.json",
+      "bytes": 7606,
+      "sha256": "9994c04b2f709867a456b377dccd5ae172a6bd59433545fb18fa07a5147fdf3d"
+    },
+    {
+      "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/reports.jsonl",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/reports.jsonl",
+      "bytes": 3015,
+      "sha256": "56262daf90bc7a13a9de1ff7042564fc783588d7f75067ff2e898164af2bd7e2"
+    }
+  ],
+  "input_role": "Python fixture and observer inputs are preserved as .source.txt, not collected as new tests or run as package helpers. Original bytes and original execution paths remain unchanged."
+}

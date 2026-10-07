@@ -1,0 +1,36 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/README.md",
+      "bytes": 4379,
+      "sha256": "f583eb4b45cb2d4565570c6751628bda967630a11b2e849bbec091e4837dbfbc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/baseline-navigation.json",
+      "bytes": 416022,
+      "sha256": "8cb4734868dcbbcb886f90aff55d086b3b4afc2be62d69ffe77ea8474051268f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/c-input-equality.json",
+      "bytes": 97924,
+      "sha256": "50030e2696a261ddab5e0c13e5492b7bd5144e2c4847a5bb7098561d516276a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/check-c-equality.source.txt",
+      "bytes": 4524,
+      "sha256": "e3a79cf869f1b8500d69c9a35c82bef14a8a92dbd218c3d6f55eb1d9b59771a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/check-profile.json",
+      "bytes": 760,
+      "sha256": "2c7cf7255734bce0918e229485603b8c65a9effde32908625d0fac635c93dc44"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/owner-packets.json",
+      "bytes": 26728,
+      "sha256": "958351580782c127584f6c30983d719ef054cb642fa815c557d83d46dd34a8a5"
+    }
+  ],
+  "bytes": 550337,
+  "purpose": "Complete six payloads; self index separate. Source/input equality and owner proposals, no runtime acceptance."
+}

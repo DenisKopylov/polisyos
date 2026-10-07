@@ -1,0 +1,395 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+_________ test_missing_ref_tier_and_s6_share_named_missing_ref_reason __________
+
+    def test_missing_ref_tier_and_s6_share_named_missing_ref_reason() -> None:
+        inputs = _build_s10_forecast_inputs(
+            **_inputs(
+                method_result=SimpleNamespace(output={}),
+                selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0",
+            ),
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://reason-world",
+            expected_policy_context_ref="policy-context://reason-world",
+            false_clear_counts={},
+            calibration_evidence={},
+        )
+        assert inputs["forecast_calibration_record"] is None
+        support = inputs["forecast_support"]
+        assert support.forecast_tier == "blocked"
+>       assert support.s6_limitation_refs == [
+            "s10://calibration/fail-closed/empirical_evidence_ref_missing"
+        ]
+E       AssertionError: assert [] == ['s10://calib..._ref_missing']
+E         
+E         Right contains one more item: 's10://calibration/fail-closed/empirical_evidence_ref_missing'
+E         Use -v to get more diff
+
+../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py:59: AssertionError
+__________ test_resolved_limited_evidence_keeps_floor_failure_reason ___________
+
+tmp_path = PosixPath('/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp/test_resolved_limited_evidence0')
+
+    def test_resolved_limited_evidence_keeps_floor_failure_reason(tmp_path: Path) -> None:
+        store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        request, profile = configured_forecast_request(store, [1000.0] * 4)
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+        fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        fields = result.to_s10_input_fields(fresh)
+        evidence = load_empirical_calibration_evidence(fresh, result.empirical_evidence_ref)
+        assert (evidence.recomputed_numerator, evidence.recomputed_denominator) == (0, 4)
+        assert evidence.failure_codes == ("calibration_floor_not_met",)
+        inputs = RealValueOwnerGateway(
+            repo_root=fresh.root,
+            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+                fresh, ref
+            ),
+        ).produce_forecast_inputs(
+            **_inputs(
+                method_result=SimpleNamespace(output=fields),
+                selected_method_fqn=request.method_fqn,
+            )
+        )
+        record = inputs["forecast_calibration_record"]
+        assert record is not None and record.calibration_status == "limit"
+        support = inputs["forecast_support"]
+>       assert support.s6_limitation_refs == ["s10://calibration/calibration_floor_not_met"]
+E       AssertionError: assert ['s10://calib...ient-history'] == ['s10://calib...loor_not_met']
+E         
+E         At index 0 diff: 's10://calibration/insufficient-history' != 's10://calibration/calibration_floor_not_met'
+E         Use -v to get more diff
+
+../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py:91: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.advanced.prophet@1.0.0 lazy=True namespace=forecasting.advanced override=False tags=['additive', 'advanced', 'builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'prophet', 'time-series'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.decomposition.stl@1.0.0 lazy=True namespace=forecasting.decomposition override=False tags=['builtin', 'decomposition', 'domain:forecasting', 'family:forecasting', 'forecasting', 'seasonal', 'stl', 'time-series'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.ensemble.simple_average@1.0.0 lazy=True namespace=forecasting.ensemble override=False tags=['builtin', 'domain:forecasting', 'ensemble', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.hybrid.guarded_neural@1.0.0 lazy=True namespace=forecasting.hybrid override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hybrid', 'neural', 'time-series', 'trust-region'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.multivariate.vec_forecast@1.0.0 lazy=True namespace=forecasting.multivariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'multivariate', 'time-series', 'var', 'vec'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.bottom_up@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hierarchical', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.general_linear_projection@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'general-linear', 'grouped', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.regime_shift.hybrid@1.0.0 lazy=True namespace=forecasting.regime_shift override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'regime-switching', 'structural-breaks', 'time-series'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'exponential-smoothing', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-07 07:37:21 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.theta@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'theta', 'time-series'] version=1.0.0
+2026-10-07 07:37:21 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:37:21 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=60.86 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing] _
+
+tmp_path = PosixPath('/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp/test_native_gateway_tier_s6_an0')
+defect = 'missing_ref', reason = 'empirical_evidence_ref_missing'
+
+    @pytest.mark.parametrize(
+        ("defect", "reason"),
+        [
+            ("missing_ref", "empirical_evidence_ref_missing"),
+            ("unresolved_ref", "empirical_evidence_ref_unresolved"),
+            ("wrong_kind", "empirical_evidence_ref_kind_mismatch"),
+            ("wrong_time", "empirical_evidence_time_mismatch"),
+            ("wrong_rule", "empirical_evidence_rule_mismatch"),
+        ],
+    )
+    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(
+        tmp_path: Path, defect: str, reason: str
+    ) -> None:
+        store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+        fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        fields = result.to_s10_input_fields(fresh)
+        if defect == "missing_ref":
+            fields["empirical_calibration_evidence_ref"] = None
+        elif defect == "unresolved_ref":
+            fields["empirical_calibration_evidence_ref"] = (
+                result.empirical_evidence_ref.model_copy(
+                    update={"artifact_id": "sha256:" + "f" * 64}
+                )
+            )
+        elif defect == "wrong_kind":
+            fields["empirical_calibration_evidence_ref"] = result.backtest_report_ref
+        elif defect == "wrong_time":
+            fields["temporal_roles"] = request.temporal_roles.model_copy(
+                update={"observation_time": datetime(2025, 1, 1, tzinfo=UTC)}
+            )
+        else:
+            fields["expected_rule_version_ref"] = "wrong-rule"
+        inputs = RealValueOwnerGateway(
+            repo_root=fresh.root,
+            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+                fresh, ref
+            ),
+        ).produce_forecast_inputs(
+            **_inputs(
+                method_result=SimpleNamespace(output=fields),
+                selected_method_fqn=request.method_fqn,
+            )
+        )
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.s6_limitation_refs == [f"s10://calibration/fail-closed/{reason}"]
+>       assert reason in support.forecast_authority_disposition_reason
+E       AssertionError: assert 'empirical_evidence_ref_missing' in 'S10 owner refused value because the Foundry report was missing.'
+E        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason
+
+../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py:144: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:37:23 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:37:23 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=51.02 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved] _
+
+tmp_path = PosixPath('/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp/test_native_gateway_tier_s6_an1')
+defect = 'unresolved_ref', reason = 'empirical_evidence_ref_unresolved'
+
+    @pytest.mark.parametrize(
+        ("defect", "reason"),
+        [
+            ("missing_ref", "empirical_evidence_ref_missing"),
+            ("unresolved_ref", "empirical_evidence_ref_unresolved"),
+            ("wrong_kind", "empirical_evidence_ref_kind_mismatch"),
+            ("wrong_time", "empirical_evidence_time_mismatch"),
+            ("wrong_rule", "empirical_evidence_rule_mismatch"),
+        ],
+    )
+    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(
+        tmp_path: Path, defect: str, reason: str
+    ) -> None:
+        store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+        fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        fields = result.to_s10_input_fields(fresh)
+        if defect == "missing_ref":
+            fields["empirical_calibration_evidence_ref"] = None
+        elif defect == "unresolved_ref":
+            fields["empirical_calibration_evidence_ref"] = (
+                result.empirical_evidence_ref.model_copy(
+                    update={"artifact_id": "sha256:" + "f" * 64}
+                )
+            )
+        elif defect == "wrong_kind":
+            fields["empirical_calibration_evidence_ref"] = result.backtest_report_ref
+        elif defect == "wrong_time":
+            fields["temporal_roles"] = request.temporal_roles.model_copy(
+                update={"observation_time": datetime(2025, 1, 1, tzinfo=UTC)}
+            )
+        else:
+            fields["expected_rule_version_ref"] = "wrong-rule"
+        inputs = RealValueOwnerGateway(
+            repo_root=fresh.root,
+            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+                fresh, ref
+            ),
+        ).produce_forecast_inputs(
+            **_inputs(
+                method_result=SimpleNamespace(output=fields),
+                selected_method_fqn=request.method_fqn,
+            )
+        )
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.s6_limitation_refs == [f"s10://calibration/fail-closed/{reason}"]
+>       assert reason in support.forecast_authority_disposition_reason
+E       AssertionError: assert 'empirical_evidence_ref_unresolved' in 'S10 owner refused value because the Foundry report was missing.'
+E        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason
+
+../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py:144: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:37:24 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:37:24 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=45.23 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch] _
+
+tmp_path = PosixPath('/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp/test_native_gateway_tier_s6_an2')
+defect = 'wrong_kind', reason = 'empirical_evidence_ref_kind_mismatch'
+
+    @pytest.mark.parametrize(
+        ("defect", "reason"),
+        [
+            ("missing_ref", "empirical_evidence_ref_missing"),
+            ("unresolved_ref", "empirical_evidence_ref_unresolved"),
+            ("wrong_kind", "empirical_evidence_ref_kind_mismatch"),
+            ("wrong_time", "empirical_evidence_time_mismatch"),
+            ("wrong_rule", "empirical_evidence_rule_mismatch"),
+        ],
+    )
+    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(
+        tmp_path: Path, defect: str, reason: str
+    ) -> None:
+        store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+        fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        fields = result.to_s10_input_fields(fresh)
+        if defect == "missing_ref":
+            fields["empirical_calibration_evidence_ref"] = None
+        elif defect == "unresolved_ref":
+            fields["empirical_calibration_evidence_ref"] = (
+                result.empirical_evidence_ref.model_copy(
+                    update={"artifact_id": "sha256:" + "f" * 64}
+                )
+            )
+        elif defect == "wrong_kind":
+            fields["empirical_calibration_evidence_ref"] = result.backtest_report_ref
+        elif defect == "wrong_time":
+            fields["temporal_roles"] = request.temporal_roles.model_copy(
+                update={"observation_time": datetime(2025, 1, 1, tzinfo=UTC)}
+            )
+        else:
+            fields["expected_rule_version_ref"] = "wrong-rule"
+        inputs = RealValueOwnerGateway(
+            repo_root=fresh.root,
+            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+                fresh, ref
+            ),
+        ).produce_forecast_inputs(
+            **_inputs(
+                method_result=SimpleNamespace(output=fields),
+                selected_method_fqn=request.method_fqn,
+            )
+        )
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.s6_limitation_refs == [f"s10://calibration/fail-closed/{reason}"]
+>       assert reason in support.forecast_authority_disposition_reason
+E       AssertionError: assert 'empirical_evidence_ref_kind_mismatch' in 'S10 owner refused value because the Foundry report was missing.'
+E        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason
+
+../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py:144: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:37:25 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:37:26 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=34.8 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch] _
+
+tmp_path = PosixPath('/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp/test_native_gateway_tier_s6_an3')
+defect = 'wrong_time', reason = 'empirical_evidence_time_mismatch'
+
+    @pytest.mark.parametrize(
+        ("defect", "reason"),
+        [
+            ("missing_ref", "empirical_evidence_ref_missing"),
+            ("unresolved_ref", "empirical_evidence_ref_unresolved"),
+            ("wrong_kind", "empirical_evidence_ref_kind_mismatch"),
+            ("wrong_time", "empirical_evidence_time_mismatch"),
+            ("wrong_rule", "empirical_evidence_rule_mismatch"),
+        ],
+    )
+    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(
+        tmp_path: Path, defect: str, reason: str
+    ) -> None:
+        store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+        fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        fields = result.to_s10_input_fields(fresh)
+        if defect == "missing_ref":
+            fields["empirical_calibration_evidence_ref"] = None
+        elif defect == "unresolved_ref":
+            fields["empirical_calibration_evidence_ref"] = (
+                result.empirical_evidence_ref.model_copy(
+                    update={"artifact_id": "sha256:" + "f" * 64}
+                )
+            )
+        elif defect == "wrong_kind":
+            fields["empirical_calibration_evidence_ref"] = result.backtest_report_ref
+        elif defect == "wrong_time":
+            fields["temporal_roles"] = request.temporal_roles.model_copy(
+                update={"observation_time": datetime(2025, 1, 1, tzinfo=UTC)}
+            )
+        else:
+            fields["expected_rule_version_ref"] = "wrong-rule"
+        inputs = RealValueOwnerGateway(
+            repo_root=fresh.root,
+            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+                fresh, ref
+            ),
+        ).produce_forecast_inputs(
+            **_inputs(
+                method_result=SimpleNamespace(output=fields),
+                selected_method_fqn=request.method_fqn,
+            )
+        )
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.s6_limitation_refs == [f"s10://calibration/fail-closed/{reason}"]
+>       assert reason in support.forecast_authority_disposition_reason
+E       AssertionError: assert 'empirical_evidence_time_mismatch' in 'S10 owner refused value because the Foundry report was missing.'
+E        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason
+
+../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py:144: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:37:27 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:37:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=42.16 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch] _
+
+tmp_path = PosixPath('/workspace/e02-E-pr38-r3-receipts/frc-r4/a-core-route-unpatched-tmp/test_native_gateway_tier_s6_an4')
+defect = 'wrong_rule', reason = 'empirical_evidence_rule_mismatch'
+
+    @pytest.mark.parametrize(
+        ("defect", "reason"),
+        [
+            ("missing_ref", "empirical_evidence_ref_missing"),
+            ("unresolved_ref", "empirical_evidence_ref_unresolved"),
+            ("wrong_kind", "empirical_evidence_ref_kind_mismatch"),
+            ("wrong_time", "empirical_evidence_time_mismatch"),
+            ("wrong_rule", "empirical_evidence_rule_mismatch"),
+        ],
+    )
+    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(
+        tmp_path: Path, defect: str, reason: str
+    ) -> None:
+        store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+        fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
+        fields = result.to_s10_input_fields(fresh)
+        if defect == "missing_ref":
+            fields["empirical_calibration_evidence_ref"] = None
+        elif defect == "unresolved_ref":
+            fields["empirical_calibration_evidence_ref"] = (
+                result.empirical_evidence_ref.model_copy(
+                    update={"artifact_id": "sha256:" + "f" * 64}
+                )
+            )
+        elif defect == "wrong_kind":
+            fields["empirical_calibration_evidence_ref"] = result.backtest_report_ref
+        elif defect == "wrong_time":
+            fields["temporal_roles"] = request.temporal_roles.model_copy(
+                update={"observation_time": datetime(2025, 1, 1, tzinfo=UTC)}
+            )
+        else:
+            fields["expected_rule_version_ref"] = "wrong-rule"
+        inputs = RealValueOwnerGateway(
+            repo_root=fresh.root,
+            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+                fresh, ref
+            ),
+        ).produce_forecast_inputs(
+            **_inputs(
+                method_result=SimpleNamespace(output=fields),
+                selected_method_fqn=request.method_fqn,
+            )
+        )
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.s6_limitation_refs == [f"s10://calibration/fail-closed/{reason}"]
+>       assert reason in support.forecast_authority_disposition_reason
+E       AssertionError: assert 'empirical_evidence_rule_mismatch' in 'S10 owner refused value because the Foundry report was missing.'
+E        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason
+
+../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py:144: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:37:28 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:37:28 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=34.27 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED ../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py::test_missing_ref_tier_and_s6_share_named_missing_ref_reason
+FAILED ../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py::test_resolved_limited_evidence_keeps_floor_failure_reason
+FAILED ../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py::test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]
+FAILED ../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py::test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]
+FAILED ../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py::test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]
+FAILED ../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py::test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]
+FAILED ../../e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py::test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]
+7 failed in 64.99s (0:01:04)

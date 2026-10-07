@@ -1,0 +1,120 @@
+{
+  "candidate_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "candidate_tree_sha": "0b79095f9293a04ca263356b24d22478b46e6688",
+  "records": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/frc-independent-review-1eba9f9e.json",
+      "sha256": "1c1b75c3b8fb77251df7fc475885894d1f7598b1141046ccf75f3a03db67cf46",
+      "bytes": 20923,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/frc-independent-review-1eba9f9e.json",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/candidate-1eba-final/native-fRC-review-results.json",
+      "sha256": "d12b4bf0fcbafcb6e864e9f5af444dc64989497b8423b1510bd4b15507da529e",
+      "bytes": 10648,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/native-fRC-review-results.json",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/candidate-1eba-final.stdout.txt",
+      "sha256": "832dea50b5f4917d344fa041fa189dfdc245f32d75f56ab645d16fe73fbe5a1b",
+      "bytes": 4727,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stdout.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/candidate-1eba-final.stderr.txt",
+      "sha256": "40e5860a66ceceac7a1d275f51ac24b7d3c22f64c04ddc26908048c4d8a80168",
+      "bytes": 415,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stderr.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay-inputs.json",
+      "sha256": "c75be684bcd0380b43c29a708ff0bf93c3167a688be617720a19b4e72b1ec77f",
+      "bytes": 934,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-overlay-inputs.json",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-unpatched.xml",
+      "sha256": "4db99ac917f967fb2cc67d166b169c2bd7ac6319b73b13233f5e0b042decf33e",
+      "bytes": 23312,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.xml",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-unpatched.stdout.txt",
+      "sha256": "ecc41a66a245f8d7320a8734db97cd34b8f260688e6785cd7e6dcadef8f5dcfc",
+      "bytes": 28157,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.stdout.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-unpatched.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.stderr.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay.xml",
+      "sha256": "e38a152278b7ff88c2dd7edc6d23a019a5b93d8444851e6a99865c4a070262e9",
+      "bytes": 1245,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-overlay.xml",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay.stdout.txt",
+      "sha256": "e61f867ac3e35b20a83b3273722b748701a6b74e41f7bf22f50d258cbbb65cdc",
+      "bytes": 712,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-overlay.stdout.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-overlay.stderr.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-patch-application.stdout.txt",
+      "sha256": "c4594f3f3536d6a3640135375ccca41dbaf02a246f7283224b6e8a4ad4fb75b0",
+      "bytes": 77,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-patch-application.stdout.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-patch-application.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-patch-application.stderr.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/probe_native_frc.py",
+      "sha256": "b506635baada115153afaf03bbdd3e8d6c59ef781b7c5616532ad51db84d710e",
+      "bytes": 11146,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/probe_native_frc.py.txt",
+      "publication": "verbatim independent output copy"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/test_independent_A_packet.py",
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+      "bytes": 5982,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+      "publication": "existing tracked packet at candidate"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/independent_A_overlay.py",
+      "sha256": "a85fc4778f78b5add643e3ac6d8fac4c824aaf596bd87d9716624ded03017586",
+      "bytes": 651,
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/independent_A_overlay.py.txt",
+      "publication": "verbatim independent output copy"
+    }
+  ],
+  "copied_bytes": 102947,
+  "production_data_copied": false
+}

@@ -1,0 +1,21 @@
+"""Isolated read-only A patch-packet verifier; never changes repository writers."""
+
+import importlib.abc
+import importlib.util
+from pathlib import Path
+import sys
+
+TARGET = "polisyos.runtime.quality.generation_cycle"
+SOURCE = Path(__file__).with_name("generation_cycle.py")
+
+
+class PacketFinder(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == TARGET:
+            return importlib.util.spec_from_file_location(fullname, SOURCE)
+        return None
+
+
+if TARGET in sys.modules:
+    raise RuntimeError("A overlay admission occurred after shared module import")
+sys.meta_path.insert(0, PacketFinder())

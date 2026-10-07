@@ -1,0 +1,460 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "layer3-predicate-basis-correction",
+  "publication_branch": "codex/e02-E-doe-20261006",
+  "canonical_writer": "E additive research metadata; canonical G/test owner retains unapplied Layer3 proposal/runtime acceptance",
+  "implementation_kind": "DOC-only passive P37 classification correction",
+  "base_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+  "candidate_sha": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+  "candidate_tree_sha": "a067361f310259449bea5dd90b86c4d96796e5b0",
+  "runtime_source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "runtime_source_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "complete_implementation_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/README.md",
+      "change": "A",
+      "git_blob": "c3c0edd4af171fda5bc784326f831b3e29cc14c8",
+      "bytes": 1708,
+      "sha256": "faf0b2fade6cacc4a8de4baac67d98aabc41ca67849c3d452f05e7844d0122d0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/admission-resume.json",
+      "change": "A",
+      "git_blob": "8cefd511923f1c9c4b5dbebabe8141a28dd201f7",
+      "bytes": 123130,
+      "sha256": "4801eb93a253c1ce3259573f549d2f8984d22d1cb8a9e897b08018684a548ce5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/admission-resume.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/class-correction-receipt.json",
+      "change": "A",
+      "git_blob": "80f946689ff536659f67b4c24b6344196432af42",
+      "bytes": 1412,
+      "sha256": "9409f0c3c41bf67c43e80db32dbd80c82b367480bdb0153e424cc1bca2213388"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-independent-CHANGE_REQUIRED.json",
+      "change": "A",
+      "git_blob": "ca216c43d4f7d77e76658c837db0699ee0010130",
+      "bytes": 13570,
+      "sha256": "4b3b7867199c0f4ca6da5953fe597ee7f3bc6239521e4d1af2861b5eb8ed8598"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.normal.json",
+      "change": "A",
+      "git_blob": "c989175c04b5295ad63e1077b6fedc9bc1449352",
+      "bytes": 1893,
+      "sha256": "a9969e21e71f0d0a18e5f70d454bb3dc1c2c62cb7e25ad6992e001e76771a471"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.normal.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.optimized.json",
+      "change": "A",
+      "git_blob": "c989175c04b5295ad63e1077b6fedc9bc1449352",
+      "bytes": 1893,
+      "sha256": "a9969e21e71f0d0a18e5f70d454bb3dc1c2c62cb7e25ad6992e001e76771a471"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.optimized.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-validate_predicate_basis.py.txt",
+      "change": "A",
+      "git_blob": "6286f9163c9af9d564e9c412e78827919fff132a",
+      "bytes": 7056,
+      "sha256": "99b706274f51d0adc1e44c99cf0bedcd7f255d94afac754eeff234dfa1fbdb4c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.json",
+      "change": "A",
+      "git_blob": "9bd0e39e690bf431efd6c9e335a9cd31a47de48f",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.json",
+      "change": "A",
+      "git_blob": "9bd0e39e690bf431efd6c9e335a9cd31a47de48f",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/predicate-basis-correction.json",
+      "change": "A",
+      "git_blob": "25e4c3d58f03e85acfbc8a28b04dbf9bc5172af1",
+      "bytes": 11169,
+      "sha256": "0bd5c3049abf201886ba6dce3a8541e3e7390856f71af906d7531975eed4e9f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/validate_predicate_basis.py.txt",
+      "change": "A",
+      "git_blob": "7929cf514292a364ec7731e6ef0a154d873bd40e",
+      "bytes": 9427,
+      "sha256": "8a71c65cfdab881b3efe3dad7ecc4c0e845ff66af745f9065a0143f369f66c6e"
+    }
+  ],
+  "companions": [
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-commit.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-commit.stdout.txt",
+      "bytes": 1736,
+      "sha256": "91627765cc24602cf215b44295e336bdce62e0e07f6e279cf2a86726a4b82d05"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-commit.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "004aa7aa3a5d97add549764bae93da3f2e007d8dd145ccae69282ce6cc81129c"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-readback.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-readback.json",
+      "bytes": 3779,
+      "sha256": "357ebbb074202ed928e112dede98fd7be2273f595a3db88fc359d4e6cb7846b8"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-push.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-push.stdout.txt",
+      "bytes": 486,
+      "sha256": "3d22a47465be290b6cf98055fd61b9834f5fa9db501ce54a8b7ea22853e4ac13"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-push.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-push.stderr.txt",
+      "bytes": 126,
+      "sha256": "f4aa8f51f2f809054eb8771be0477e66d7f77c4fdc841f2128d5b641d28e1ede"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-fetch.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-fetch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-fetch.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-fetch.stderr.txt",
+      "bytes": 131,
+      "sha256": "e9b69189319718510ee2ea81bf93d0cc032b7d5bf74f862541242eb4a8f0f068"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/corrective-implementation-commit.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-commit.stdout.txt",
+      "bytes": 1511,
+      "sha256": "e7d2d2b79b366fddaeccd3e17ed417665b93ce1e62702186b21057f2983deeb2"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/corrective-implementation-commit.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "b8ab27124c28e4b8a735baf15a55f794358832ee97db687414d6a268c434ef86"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/corrective-implementation-readback.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-readback.json",
+      "bytes": 6537,
+      "sha256": "c351d7d6bdfc91fb5af7937c51d3df4229f70f11ac7ed5e88e75439f383af291"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/independent/corrective-review.json",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02"
+    }
+  ],
+  "runtime_property": "Passive research metadata status and predicate basis are admitted as complete typed records; no invented nativePASS/current caller/input isolation/authority. No native product mechanism changed.",
+  "predicate_basis": [
+    {
+      "predicate": "immutable_candidate_and_tree",
+      "basis": "recomputed",
+      "admission_measurement": "Git rev-parse and exact committed DOC footprint; source ref validation requires full immutable SHA before callbacks.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+        "bytes": 1606,
+        "sha256": "bc74d95048475771197e0b209075df2a4549472e0f87cda7f8fca335c3d1e4a7",
+        "git_blob": "84c0a4b051600e9ee891eed679ec03d1d45b94b4"
+      }
+    },
+    {
+      "predicate": "literal_copy_hash_size_and_git_blob",
+      "basis": "recomputed",
+      "admission_measurement": "Actual copied bytes and Git blobs recomputed against copy-index; booleans are refused as sizes.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+        "bytes": 1606,
+        "sha256": "bc74d95048475771197e0b209075df2a4549472e0f87cda7f8fca335c3d1e4a7",
+        "git_blob": "84c0a4b051600e9ee891eed679ec03d1d45b94b4"
+      }
+    },
+    {
+      "predicate": "selected_member_multiset",
+      "basis": "recomputed",
+      "admission_measurement": "Four original frozen selectors derive exact87-member Counter; selector carrier rows separately conserved.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+        "bytes": 1606,
+        "sha256": "bc74d95048475771197e0b209075df2a4549472e0f87cda7f8fca335c3d1e4a7",
+        "git_blob": "84c0a4b051600e9ee891eed679ec03d1d45b94b4"
+      }
+    },
+    {
+      "predicate": "source_helper_output_reconciliation",
+      "basis": "independently_reconciled",
+      "admission_measurement": "Independent writer-boundary test reconstructs28/29/24 actual output paths; observed parent29-path snapshot reconciled, without current native caller attribution.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/independent/independent-final-owner-review-v3.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/independent/independent-final-owner-review-v3.json",
+        "bytes": 15456,
+        "sha256": "1a82fdfbc58158f8569181015fb9d08d5a501ad5d3810597699eeb40ad9bfd2f",
+        "git_blob": "df467e94bed5c8a047f8a062a0e87302127a7709"
+      }
+    },
+    {
+      "predicate": "original_to_published_copy_reconciliation",
+      "basis": "independently_reconciled",
+      "admission_measurement": "Independent peers read source originals, immutable Git copies and complete95+11 literal custody separately.",
+      "evidence": "peer criteria thin DOC normal/-O review; separate final owner review",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/layer3-doc-custody-independent-normal-v3.json",
+        "bytes": 44341,
+        "sha256": "57ed0d39536905c5a5852b4ef05b77813db0063ed931ab43ecd9150d6f50bbc2",
+        "scope": "External closed independent custody receipt; exact9d6/73e documents, no native/gate acceptance"
+      }
+    },
+    {
+      "predicate": "fixture_containment_admission_before_archive",
+      "basis": "independently_reconciled",
+      "admission_measurement": "Peer tiny archive actual callbacks0 on malformedbase/returnedroot; effective guard removal writes two files inside source stand-in. Full product archive not run.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/independent/independent-final-owner-review-v3.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/independent/independent-final-owner-review-v3.json",
+        "bytes": 15456,
+        "sha256": "1a82fdfbc58158f8569181015fb9d08d5a501ad5d3810597699eeb40ad9bfd2f",
+        "git_blob": "df467e94bed5c8a047f8a062a0e87302127a7709"
+      }
+    },
+    {
+      "predicate": "full_native_fixture_outcome",
+      "basis": "not_established",
+      "admission_measurement": "Proposed full module fixture selectors remain UNRUN; no actual full product archive or native whole-suite proof.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/observer-v3/owner-packet-v3.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/observer-v3/owner-packet-v3.json",
+        "bytes": 8486,
+        "sha256": "7e8469dd9053c14997e3a2042be6fb5496c7bedf3a9bf4b0faf039a139a57c91",
+        "git_blob": "9a594e7e386e549bcff2d194f55603f3c280d20b"
+      }
+    },
+    {
+      "predicate": "complete_input_isolation",
+      "basis": "not_established",
+      "admission_measurement": "Known G6/G8 explicit and implicit DEFAULT_ROOT read aliases remain owner companions; supplied write root does not establish all reads isolated.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/observer-v3/fixture-read-alias-companion-v2.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/observer-v3/fixture-read-alias-companion-v2.json",
+        "bytes": 17904,
+        "sha256": "fb9c791f576a106560c890f000181db1eda59ae391eb5a4fff421932953fc85e",
+        "git_blob": "5808846a8f7dc5ce55beb623a4f46123a4debda9"
+      }
+    },
+    {
+      "predicate": "current_native_caller_P41",
+      "basis": "not_established",
+      "admission_measurement": "Source call graph establishes write class; active ROOT backend individual native selector attribution not observed. Parent29 snapshot is non-atomic aggregate.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/author-v1/parent-observation.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/author-v1/parent-observation.json",
+        "bytes": 24848,
+        "sha256": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0",
+        "git_blob": "cb4c23a33ee04b26f0d7a31fe0a084f72966844c"
+      }
+    },
+    {
+      "predicate": "finding_closure_or_institutional_authority",
+      "basis": "not_established",
+      "admission_measurement": "DOC custody and bounded tiny-fixture GO confer neither original finding closure nor runtime/code acceptance. Canonical G/test owner must apply/review.",
+      "evidence": "implementation-handoff.json limitations and next-owner",
+      "evidence_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/implementation-handoff.json",
+        "bytes": 48070,
+        "sha256": "553dad27a2494eac70200b1036a11f7d8fcd741492ae72d4d2e0228fb4de3da6",
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89"
+      }
+    }
+  ],
+  "authority_bounds": {
+    "full_native_fixture_outcome": {
+      "basis": "not_established",
+      "positive_claim": false,
+      "check_status": "UNRUN"
+    },
+    "complete_input_isolation": {
+      "basis": "not_established",
+      "positive_claim": false,
+      "check_status": "UNRUN"
+    },
+    "current_native_caller_P41": {
+      "basis": "not_established",
+      "positive_claim": false,
+      "check_status": "not_established"
+    },
+    "finding_closure_or_institutional_authority": {
+      "basis": "not_established",
+      "positive_claim": false,
+      "check_status": "not_established"
+    }
+  },
+  "oracle": "Exact prior9d6 Git blobs/tree and existing independent source/custody receipts; no rerun of source algorithms or actual full backend.",
+  "negative_controls": "22 actual normal/-O corruptions refuse. Full unknown-record preflight removal admits false nativePASS despite intact ten bases/refs/positive_false; defining status truthfulness FAIL. The original frozen-basis guard removal remains a separate effective control.",
+  "deciding_output_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.json",
+      "change": "A",
+      "git_blob": "9bd0e39e690bf431efd6c9e335a9cd31a47de48f",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.json",
+      "change": "A",
+      "git_blob": "9bd0e39e690bf431efd6c9e335a9cd31a47de48f",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.stderr.txt",
+      "change": "A",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "actual_commands": [
+    [
+      "python3",
+      "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/validate_predicate_basis_v2.py",
+      "--repo",
+      "/workspace/e02-E-doe-20261006",
+      "--packet",
+      "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/predicate-basis-correction.json"
+    ],
+    [
+      "python3",
+      "-O",
+      "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/validate_predicate_basis_v2.py",
+      "--repo",
+      "/workspace/e02-E-doe-20261006",
+      "--packet",
+      "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/predicate-basis-correction.json"
+    ]
+  ],
+  "environment": {
+    "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "product_environment_imports": false,
+    "product_environment_mutation": false,
+    "numeric_or_global_checks_launched": false,
+    "new_environments": 0,
+    "source_cwd": "/workspace",
+    "metrics_port_for_readonly_admission": "0",
+    "artificial_resource_caps": "none"
+  },
+  "input_identity": {
+    "prior_commit": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+    "prior_tree": "33ec3a2ecdc2a36211f220d78dd6dc925734c15f",
+    "prior_doc_paths": 111,
+    "prior_literal_copies": 106,
+    "prior_literal_partition": "95+11",
+    "current_evidence_source": "exact prior Git and external closed independent custody receipt, hash/size pinned",
+    "production_data": "none"
+  },
+  "capability_state": {
+    "execution": "not_established",
+    "authority": "not_established",
+    "canonical_vocabulary_source": "policy-engine/src/polisyos/core/contracts/capability_discovery.py@64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "scope": "Full native fixture/current caller/complete input isolation/finding authority; existing bounded proposal/custody retained."
+  },
+  "limitations": [
+    "Unapplied G/test-owner proposal remains unchanged.",
+    "Full module-native fixture selectors UNRUN; explicit/implicit G6/G8 DEFAULT_ROOT input companions still prevent full input-isolation claim.",
+    "Active ROOT backend current native caller/P41 remains not_established; no root writes/restores.",
+    "No ledger/finding status or product/gate acceptance changes.",
+    "Independent narrow metadata review GO closes passive record admission/custody only; no native/gate/finding acceptance."
+  ],
+  "next_owner": "G/test owners apply/review scoped isolation proposal and native caller/input boundaries; parent/root integrates only by ordinary append-only merge",
+  "finding_closure": false,
+  "source_or_schema_changes": false,
+  "surface_classification": "internal research docs; no public API/schema/generator change",
+  "release_fragment": "not_required; DOC-only passive metadata",
+  "future_handoff_SHA": "Not self-referenced; source/candidate pins already committed2824114d corrective implementation.",
+  "correction_history": {
+    "first_published_DOC_candidate": "6b6280d1e66edf26031568e8773e93726fde9928",
+    "first_source_tree": "e8b0672320d13329560306a9c8c6cc506f1567ce",
+    "first_verdict": "CHANGE_REQUIRED; actual native check_status UNRUN\u2192PASS accepted with all correct bases/refs and positive_false intact",
+    "first_published_utility_and_outputs": "Preserved exactly under historical-6b-* in corrective implementation",
+    "current_corrective_candidate": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+    "current_corrective_tree": "a067361f310259449bea5dd90b86c4d96796e5b0",
+    "current_class_invariant": "Full pure typed unknown-record admission before evidenceIO: exact four scopes, exact fieldset, scoped status/basis/boolFalse claim; sibling status/claim/context/type promotions refused",
+    "independent_corrective_review": {
+      "verdict": "GO; passive metadata scope only",
+      "candidate": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+      "tree": "a067361f310259449bea5dd90b86c4d96796e5b0",
+      "receipt": {
+        "original_path": "/tmp/e02-E-DoE-basis2824-independent/review.json",
+        "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/independent/corrective-review.json",
+        "bytes": 8221,
+        "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02"
+      }
+    }
+  }
+}

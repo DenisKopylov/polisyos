@@ -1,0 +1,26 @@
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_same_admg_shape_has_real_producer_node_and_fresh_reader
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_retagged_mgraph_refuses_all_current_intakes_without_publication[dict]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_retagged_mgraph_refuses_all_current_intakes_without_publication[json]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[dag-None]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[dag-False]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[dag-not-json]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[dag-payload3]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[dag-payload4]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[admg-None]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[admg-False]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[admg-not-json]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[admg-payload3]
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence[admg-payload4]
+tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_retagged_known_profile
+tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader[prior]
+tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader[hint]
+tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_no_reconciliation_request_does_not_invent_limitation
+
+=============================== warnings summary ===============================
+tests/conftest.py:215
+  /tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/conftest.py:215: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(getattr(pytest.mark, primary_marker))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+17 tests collected in 10.53s
+{"source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2", "mode": "collect", "pytest_exit": 0, "cases": 17, "owned_product_origins": 978, "origin_violations": 0}

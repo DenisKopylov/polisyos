@@ -1,0 +1,391 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "files": [
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/AUTHORING.md",
+      "git_blob": "224fbb9653d30289d2055986417483c231cd0aff",
+      "bytes": 1072,
+      "sha256": "7a10a611b477a67fd0f4feef15982778ae45033edf13a85d06337c421caa987b"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/README.md",
+      "git_blob": "cca7864be9433476f8f679a390e9ac2c8b973b19",
+      "bytes": 963,
+      "sha256": "1d8d06f76ef41bee803cfeffa22032a0c486281e607484c9cccfec85ddf037db"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/__init__.py",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/acquisition_chain.py",
+      "git_blob": "170fd3cb355de4fb87103c1aa5c2b277cb9964ca",
+      "bytes": 10878,
+      "sha256": "a9c80b88d3437c13b5267cb6a6fe0fe3bbf33afd2e1c90c06b48c7faf7fd9cc8"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/acquisition_epoch_production.py",
+      "git_blob": "9a8d8842376a746fbd901bf37d6b582db49734e6",
+      "bytes": 7281,
+      "sha256": "ee68578f03d60cd7df54849a1d975ee719733b8904092a2b51393fe81a28e7ef"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/acquisition_human_decision.py",
+      "git_blob": "4191d4925709c172014b81e82bf072532bedbe4c",
+      "bytes": 12473,
+      "sha256": "b6107b2f37e031eb84eca028996f77aab8bae52dcd8ba84d57dc629cd383b278"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/acquisition_movement.py",
+      "git_blob": "b3975deaf87b27fc41e16199146765f9f89d26ec",
+      "bytes": 9106,
+      "sha256": "ff56d70724c99dd12dfa7075b4b9e866f2cbe4be5fd29343e9c0099673836489"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/acquisition_production.py",
+      "git_blob": "65020462d09f74d4fc218a1c6b8ab8631217530d",
+      "bytes": 17120,
+      "sha256": "1e004223eb1fa78a672e3db5f716ec897c49638421a44b7651e0ee8499ff587f"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/acquisition_supplier.py",
+      "git_blob": "eb795977614f229bb804d2fc03d37504bc774fb1",
+      "bytes": 3082,
+      "sha256": "505c0be95628f07912a959a9eb97625d0af5cffdd06abdf8a399083a5fea3de4"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/artifacts.py",
+      "git_blob": "7bbf2cd7ef2d8b97455788aa3560bed5cd19d664",
+      "bytes": 9046,
+      "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/c7_synthetic_data.py",
+      "git_blob": "e9d9ff7342bad71b8f1d47c7d90c8f3392651028",
+      "bytes": 31194,
+      "sha256": "22ba84f8db13df430a28e31717680c3145f1e5036d7286b1c55a311db92d6a3a"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/causal_scm_fixtures.py",
+      "git_blob": "a0af722fc7ece0fb152b8078043ff0f65407cd61",
+      "bytes": 8112,
+      "sha256": "8c381aa9afbc59d96660645254d4a4a081c679c9093e5035a2c5c4f6211cbdb3"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/chronology_qualification.py",
+      "git_blob": "f0ccce158aa5d2a1f4e026429ad7208634cf65e5",
+      "bytes": 88529,
+      "sha256": "12131fa3bff8aa9a6fbe4d2bc9da982efd708d96c6de6ffddd4254bfe3de4714"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/control_worker.py",
+      "git_blob": "35b6ffbf0e66abc1af4b8338ef108323063bcded",
+      "bytes": 3128,
+      "sha256": "060132f88dc11d72dab9215f2d8245339e013716907fe18da11616d6b097b269"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/controlled_candidate_profile.py",
+      "git_blob": "c987b343e740ae87114172be41d5df90278d1b98",
+      "bytes": 10771,
+      "sha256": "9456d7811ff0b58e681c11733511f86be086f3a0b4ff8eb7695b7f7f1b9adf04"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/custody_markdown.py",
+      "git_blob": "a4011a9db7433cce530b88d989080c354d4bcddd",
+      "bytes": 2294,
+      "sha256": "abc23b97e43d05d9e3bee7553f7717868a604e339c30021cebb94f9817d704dd"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/hds_quality.py",
+      "git_blob": "79e943bb681c634b5b9734dff017190636dd986d",
+      "bytes": 139138,
+      "sha256": "389e71836146218e2b09a9d1eca0aee524baa1011586d2c442db221bc932a01b"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/mirror_contracts.py",
+      "git_blob": "1859c7ebf683f7fea303f149d26b1d9bc3b9fecb",
+      "bytes": 1953,
+      "sha256": "5e287fddd810a14131d5be42a5ef7626b587148a4358120dd91c78b224951b1a"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/observability.py",
+      "git_blob": "745c3fd6f8531f6f76339b153a9b6667e230ee55",
+      "bytes": 2392,
+      "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/policy_design_case_projection.py",
+      "git_blob": "31470a6abfabc40e1508bd05cbe840b185d09c82",
+      "bytes": 2717,
+      "sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/runtime_http.py",
+      "git_blob": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+      "bytes": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/scientist_runtime.py",
+      "git_blob": "30f18c3d737d56b5ba91b127df7eea9a29bc6edf",
+      "bytes": 14637,
+      "sha256": "f506c8b714388dceca16a275d3e84c5ae7923e6ca712d6738835de25981265cd"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/search_strategies.py",
+      "git_blob": "99589ee19d48f4090c1a984a2fe1be7a2521f8ac",
+      "bytes": 1741,
+      "sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/_helpers/semantic_epoch_native.py",
+      "git_blob": "2bf1456346880edecb02fa2a9d34641a75fcf46e",
+      "bytes": 10497,
+      "sha256": "6b5df236c53627b3d0325d66ece56e730339774630b41026bf63377110b48d77"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/conftest.py",
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/contract/conftest.py",
+      "git_blob": "a9b9cb246e35fd70b40db2f97ace3a0f90351b93",
+      "bytes": 471,
+      "sha256": "0366d6b2da0f1713dbe7025aeafddd7bab7c99cf7ea27e8c392509cb48e128ae"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/property/foundry/methods/conftest.py",
+      "git_blob": "05e1a1e7e7a11388d8f41f4ec708ac4669146843",
+      "bytes": 849,
+      "sha256": "1328deaf08ff4de8c70b49e1f16a3c0e6c4d07ee094b542950458740b706c01a"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/repo_quality/conftest.py",
+      "git_blob": "e4b3ad9e375c132729cd3fc0f49efc3c57b04295",
+      "bytes": 588,
+      "sha256": "48dbbacf5d48bdbc012c5bfa817c37edbe17ebdad416d4d2a18f916ee6a37126"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/berl/conftest.py",
+      "git_blob": "7363077bdc362b0d834ce8a2b99385f072f6d6ed",
+      "bytes": 93,
+      "sha256": "1819dc595688f1cfb18f631eb5dc886f7d53aa1cdbabed4baac7d75e291b75de"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/calibration/conftest.py",
+      "git_blob": "7aea0202c278a764fc8c21aed4e06613f5384e86",
+      "bytes": 107,
+      "sha256": "4be2df3812b20de1ca887caf34333a48dc1a9de371fdc862ed62ba8aaa2ae8c2"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/common/conftest.py",
+      "git_blob": "5773ee7c927c2e67ece2bae1f55dad8b02b6df9f",
+      "bytes": 105,
+      "sha256": "b2e4e5f3cf94c28ff6ff09a3975d90a5097b09b7def417c965887b80fa394b99"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/core/conftest.py",
+      "git_blob": "d28e3eec66da784a9a82388a53bda5547f215d64",
+      "bytes": 101,
+      "sha256": "e05c5e31b5113b760b314691473acf9af9dda52b0200c47e61b05e415cbe88c3"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/data_forge/conftest.py",
+      "git_blob": "99f9ef6550cad28c9860af144fcdfb795676979d",
+      "bytes": 105,
+      "sha256": "4a61ad636dc710882f9882a1ea989ef860dadcca4362a856b407ccd8b47e3725"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/ddm/conftest.py",
+      "git_blob": "01893f63e7004b75cd1f8a13f9eb840c4aadf502",
+      "bytes": 58,
+      "sha256": "86b228fb06286d2316310fc4d3490b438204106fe2c96d27732e4b79a7d86c3e"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/fabric/conftest.py",
+      "git_blob": "c5c4c565ac9410feff285422816e2252c0372a79",
+      "bytes": 97,
+      "sha256": "7df4085256e8f0b4afcf6e6529fe666c56fd741699e4ff92b5c32744d53e0307"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/fabric/connectors/conftest.py",
+      "git_blob": "59d15ba03844e2e18da2fbd5e0ce62c21c5e4913",
+      "bytes": 8194,
+      "sha256": "16f8fa44c54469d37ccadb79f0aacc4a2e1f82e42117eb4184e96100652fec9a"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/foundry/agent_sim/conftest.py",
+      "git_blob": "8d34fd1feca226029bb7b031d79bd0e897e55b35",
+      "bytes": 376,
+      "sha256": "82605561e21badbd04be58005d39976794c70a5136309b3347976c57b7cf052f"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/foundry/calibration/conftest.py",
+      "git_blob": "d7001761cd98419102765b1e72da5cbf225ce9b7",
+      "bytes": 140,
+      "sha256": "16b7373329785877550597fe356ead7c463565926463b302f89bad46fb4cc432"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/foundry/conftest.py",
+      "git_blob": "4a7555a6dc2292312f0a053de3b5e2e34f6744cd",
+      "bytes": 969,
+      "sha256": "53c808c34be3ea5d31db2c8e5172c0c75235a0ea1f11846416dacc2501b5ec40"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/foundry/method_regression/conftest.py",
+      "git_blob": "0b9d4d8db0a6a383c39be2ba9a866f22a046c97b",
+      "bytes": 834,
+      "sha256": "1f94c934dc91730e646c9d6aff7f6a8c183bbe5cfcf0c960c039a1b3b7187e28"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+      "git_blob": "6373650ccf55d9cd82725ffebba261c810267477",
+      "bytes": 7312,
+      "sha256": "637f8d20274e50f4c6c9e6d386b8e188576c85e5fb4378d75e04824c12d7b802"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "git_blob": "28be212da517d103518e043d94f45af2500a69ee",
+      "bytes": 46346,
+      "sha256": "c33be06cd580350c6f1b6f5af247cee1172c52ba26ed5824e428383c87293efd"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/foundry/methods/conftest.py",
+      "git_blob": "2b7d7725ef999c197f322af6b8d746f7e6c1ce0c",
+      "bytes": 11773,
+      "sha256": "d4cc421ea080fd04e04c93345f066c9f2993020a1e95219e325319d0fb987d11"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/ir/conftest.py",
+      "git_blob": "7794efe0f774edcc9a9cc50e35591e24419b3650",
+      "bytes": 89,
+      "sha256": "232e282e96fbc8ba53a4710b271a41c7d305790bb2cf5d84180f5eaf7b5168af"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/lex/conftest.py",
+      "git_blob": "e91a980711e679a027f18f872e29a34cbd5cb9af",
+      "bytes": 91,
+      "sha256": "997b6538ffd1cca1ff31676a25913607541a006217a2d56250310e51b010d3f4"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/runtime/conftest.py",
+      "git_blob": "3d23664091fec4bdaacf6eaeb562e84940485e5b",
+      "bytes": 99,
+      "sha256": "85147d4db3518969cdfa50bd10f84c0f5bab79f72dd8e00123cd49722af37ab3"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/runtime/http/conftest.py",
+      "git_blob": "1ad9ada96b7a081059ce11785e70b8cb55b1b923",
+      "bytes": 74,
+      "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/scholar/conftest.py",
+      "git_blob": "b5470f3970451348192855ce4919fc705d72eb7d",
+      "bytes": 99,
+      "sha256": "a60289256d1e44a78e9e0f7a8637768ff5f4964cfeae7fe9a4a59aec81f7275b"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/scientist/conftest.py",
+      "git_blob": "8da092e5640e18bcdac257e5521f4d3a4e7aa2c0",
+      "bytes": 103,
+      "sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/scientist/governance/conftest.py",
+      "git_blob": "d35c286d6b6680de511b5f8a41d56ec9acfcd52d",
+      "bytes": 1244,
+      "sha256": "86eb14363ea26771aa61bcc65f063f9255649a72546517a1fbce62f0e6ace5af"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "git_blob": "2ef2b90d48c24cfa4f2612a5079f282a8f4393d7",
+      "bytes": 30691,
+      "sha256": "cbb60623e8dc087830cbf5ce0a91c3a82c64afc4aed6c42771a57bb7041bfe41"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/scientist/nodes/conftest.py",
+      "git_blob": "190c0e9665f2b4ab1507868978b4193872079006",
+      "bytes": 1556,
+      "sha256": "5efe0ef0510816c884b4ae09930fadeabd058eb8dfb16b1f3e281fdd5096d9b7"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/scientist/orchestration/kernel/conftest.py",
+      "git_blob": "f89a4060bdd2ee6da4c8472918285655a419ad2f",
+      "bytes": 610,
+      "sha256": "cc7ec0b667952e2efb63915697ee8f911fd1977adfd1015d0c2efa4fa0ff40c6"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/scientist/search/conftest.py",
+      "git_blob": "82ed5f82c0fe08dfdb94ec417e254022d992c474",
+      "bytes": 40,
+      "sha256": "6dc9b5da7ccd8b39349aeea13ab21048c2c1f40e3c7485269b767cc014b3e0a4"
+    },
+    {
+      "git_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer/tests/unit/scientist/search/strategies/conftest.py",
+      "git_blob": "611ace82d55431f2f66ea31556f192f3e998d189",
+      "bytes": 55,
+      "sha256": "2fd12a2db914514cf7297c2e9a458463a784115e4858a9cc878a5bbeb59c7420"
+    }
+  ]
+}

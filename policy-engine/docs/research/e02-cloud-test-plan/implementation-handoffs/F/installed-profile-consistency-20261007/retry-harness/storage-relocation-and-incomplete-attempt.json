@@ -1,0 +1,37 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "initial_attempt": {
+    "state": "ERROR/incomplete",
+    "command": [
+      "python3",
+      "/tmp/e02-F-profile-consistency-20261007/installed/capture_installed.py",
+      "native",
+      "/tmp/e02-F-profile-consistency-20261007/installed/launch_affected_installed.py",
+      "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/installed-config.json",
+      "native"
+    ],
+    "capture_exit": 1,
+    "native_exit": "unknown",
+    "complete_native_stdout_stderr": "unavailable; capture ENOSPC",
+    "junit_bytes": 0,
+    "output_grade": "complete returned exec_command capture traceback; native output unavailable"
+  },
+  "relocation": {
+    "from_site": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-env/lib/python3.14/site-packages",
+    "to_site": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-env/lib/python3.14/site-packages",
+    "product_resource_bytes_verified": 3464,
+    "from_carrier": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/wheel-consumer",
+    "to_carrier": "/dev/shm/e02-F-profile-consistency-installed/candidate-wheel/wheel-consumer",
+    "carrier_files_verified": 55,
+    "wheel_unchanged": {
+      "path": "/tmp/e02-F-profile-consistency-20261007/installed/candidate-wheel/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15148329,
+      "sha256": "529ef8c597d18d75641d50e462bd6e8f59f10e77fd9695b47dcfc0114f43a3f2"
+    },
+    "copy_method": "shutil.copytree symlinks=True, no rebuild/reinstall/deletion; existing exact source-wheel and originalsite/attempt remain retained",
+    "dependency_pth": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n",
+    "limitations": "First incomplete runtime state never PASS/FAIL; retry same exact17 with fresh SHM temp/CAS/output and lossless relocated site."
+  },
+  "resource_snapshot": "Filesystem       1B-blocks        Used  Available Use% Mounted on\nshm             9441349632   403177472 9038172160   5% /dev/shm\nnone            9441349632  9257881600  183468032  99% /tmp\noverlay        33770192896 31720271872  315158528 100% /\n"
+}

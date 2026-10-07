@@ -1,0 +1,5 @@
+## codex/e02-F-fry-20261006
+defa506dfbe226fbbdbdf7722ae84c03828e181b
+5e6aa2bd1fa5a47eef1fd76198a2fde916346325
+error: Failed to spawn: `polisyos-tools`
+  cause: No such file or directory (os error 2)

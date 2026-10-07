@@ -1,0 +1,40 @@
+{
+  "schema": "e02.F.installed_profile_consistency_plan.v1",
+  "review_state": "ALL_INDEPENDENT_REVIEWS_GO",
+  "candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "candidate_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "slice_base_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "measured_previous_source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "selectors": [
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_retagged_mgraph_refuses_all_current_intakes_without_publication",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_reserved_profile_never_becomes_absence",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_retagged_known_profile",
+    "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_requested_pag_reconciliation_limitation_survives_method_cas_reader",
+    "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py::test_no_reconciliation_request_does_not_invent_limitation"
+  ],
+  "profile": "One fresh source-wheel isolated Python3.14 -I site with exact dependency-only .pth; no full16/91/catalog replay or rebuilt-sdist",
+  "scope": [
+    "Known typed MGraph metadata retagged DAG/ADMG refusal via real MethodJob and Node supplied/current CAS",
+    "Clean DAG/ADMG same-boundary positives",
+    "Requested PAG reconciliation report warning+metadata persisted consumer and no-request control",
+    "One additional differentPID installed reader with selected cleanADMG and original genuineMGraph after refusal",
+    "Runtime consistency guard removal while markers+metadata+static checks retained must cause expected assertion FAIL"
+  ],
+  "custody": [
+    "Full frozenGit/Hatch product and resource bytes\u2192wheel\u2192site binding, all actual imported origins installed",
+    "Derive exact affected test bodies/helper/conftest carrier from frozenGit not mutable source",
+    "Keep exact commands/nodeids/fullstdout/stderr/JUnit/all harness attempts"
+  ],
+  "limits": [
+    "No scientific identification/authority positive",
+    "Rebuilt-sdist UNRUN",
+    "Optional inprocess Python3.14 DoWhy/EconML UNRUN",
+    "Old4ee16 and51991/91 never new whole candidate PASS",
+    "No productiondata/shared resource admission positive",
+    "CloudnativeTrash unavailable; no cleanup"
+  ],
+  "removal_selector": "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_retagged_mgraph_refuses_all_current_intakes_without_publication[dict]",
+  "census_basis": "Actual collection derives exact nodeids/param denominator at finalimmutablecandidate; selectorlist notexpectedcountgate.",
+  "review_approval": "Root confirmed graph_review final852 carry, report_review exact8a/852, and adversary ba5 guard GO before this installed wave."
+}

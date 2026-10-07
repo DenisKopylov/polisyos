@@ -1,0 +1,9 @@
+{
+  "outcome": "ERROR",
+  "actual_exit_code": 2,
+  "scope": "setup-only own lane absent polisyos-tools executable; not product check",
+  "capture_grade": "complete returned exec_command tool output; blended initial branch/status and uv stderr; does not claim original separate stderr bytes",
+  "output": "admission-ownlane.initial-tool-output.txt",
+  "root_tool_corrected_attempt": "admission-resume-root-tool.json",
+  "corrected_status": "admitted"
+}

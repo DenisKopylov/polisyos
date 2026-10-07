@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/dev/shm/e02-F-profile-consistency-installed/fresh_profile_bridge.py", line 59, in <module>
+    refusal={'job_issues':[i.model_dump(mode='json') for i in rejected_job.issues],'method_result_ref':None,'node_status':rejected_node.status,'node_artifacts':[a.model_dump(mode='json') for a in rejected_node.artifacts],'has_reconciled_ref':key in rejected_node.state.artifacts_index,'node_error':rejected_node.error.model_dump(mode='json')}
+                           ^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'model_dump'

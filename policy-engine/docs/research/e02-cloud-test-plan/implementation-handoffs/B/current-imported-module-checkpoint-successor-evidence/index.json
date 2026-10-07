@@ -77,6 +77,21 @@
       "bytes": 640
     },
     {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-format.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-style-profile.json",
+      "sha256": "0c3255dd4e03d8c0caa8b3693f511ae0477dbbacb4442cd55e87b33ef02265b4",
+      "bytes": 1837
+    },
+    {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/format-corrected.txt",
       "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
       "bytes": 25
@@ -147,6 +162,6 @@
       "bytes": 10286
     }
   ],
-  "object_count": 29,
-  "payload_bytes": 193540
+  "object_count": 32,
+  "payload_bytes": 195421
 }

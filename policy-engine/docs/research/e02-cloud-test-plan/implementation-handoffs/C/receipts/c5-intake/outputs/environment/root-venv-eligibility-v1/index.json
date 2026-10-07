@@ -1,0 +1,107 @@
+{
+  "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+  "candidate_scope": "only policy-engine/.venv in admitted C continuation worktree",
+  "commands": [
+    {
+      "argv": [
+        "/opt/homebrew/bin/python3",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/inventory.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.033454,
+      "exit_code": 0,
+      "name": "001-inventory",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/001-inventory.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 7886,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/001-inventory.stdout.txt",
+      "stdout_sha256": "e5d385c183bbe7a31767222ca756d32bb2ee31e13e75ea5050558afafca2d045",
+      "timed_out": false,
+      "timeout_seconds": 10
+    },
+    {
+      "argv": [
+        "git",
+        "check-ignore",
+        "-v",
+        "policy-engine/.venv"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.00806,
+      "exit_code": 0,
+      "name": "002-ignore-rule",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/002-ignore-rule.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 55,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/002-ignore-rule.stdout.txt",
+      "stdout_sha256": "b29606bb89f2a19e3e9121bf1453e2174284f32aeb08c32db7ccc1d142e6b05d",
+      "timed_out": false,
+      "timeout_seconds": 10
+    },
+    {
+      "argv": [
+        "/bin/cat",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/pyvenv.cfg"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.00226,
+      "exit_code": 0,
+      "name": "003-pyvenv-config",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/003-pyvenv-config.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 205,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/003-pyvenv-config.stdout.txt",
+      "stdout_sha256": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046",
+      "timed_out": false,
+      "timeout_seconds": 10
+    },
+    {
+      "argv": [
+        "/usr/sbin/lsof",
+        "-nP",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.094202,
+      "exit_code": 1,
+      "name": "004-open-handles-lsof",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/004-open-handles-lsof.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/004-open-handles-lsof.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 10
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.067077,
+      "exit_code": 0,
+      "name": "005-root-status",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/005-root-status.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 37,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/005-root-status.stdout.txt",
+      "stdout_sha256": "a2603e8908e292ad296a8d57a16f51ca528a530a29e8b85c184adf85fe07c753",
+      "timed_out": false,
+      "timeout_seconds": 10
+    }
+  ],
+  "native_trash_action": "none",
+  "outside_interpreter_to_preserve": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14",
+  "process_check_scope": "lsof -nP +D exact candidate directory only",
+  "receipt": "C5 read-only root partial venv cleanup eligibility; no move performed",
+  "repo_head": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+  "repo_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+}

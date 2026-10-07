@@ -1,0 +1,7 @@
+exe /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python
+version 3.14.0
+hatchling ABSENT
+build ABSENT
+wheel ABSENT
+pip ABSENT
+build_spec False

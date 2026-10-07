@@ -1,0 +1,73 @@
+{
+  "candidate": {
+    "creation_context": {
+      "command_index_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/intake/commands.json",
+      "command_index_sha256": "dfd1c106b4fdbe4176d18db5375792bb9adc98deecec84a19080f4deb193dcc8",
+      "nonreceipt": "canonical uv-run admission attempt failed before observation and created only this partial environment; use the original nonreceipt, not as an admission result",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/intake/admission-canonical.stderr.txt",
+      "stderr_sha256": "ac84d77f4f06f7763005b6d9b2f0d871b64de8dbf01746b10f4e5bacfe0bf06a"
+    },
+    "ignore_rule": "recorded by root-venv-eligibility-v1/002-ignore-rule.stdout.txt",
+    "interpreter_target_to_preserve": {
+      "action": "preserve; it is shared UV-managed interpreter state outside policy-engine/.venv",
+      "exists": true,
+      "outside_candidate": true,
+      "resolved_path": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14"
+    },
+    "inventory_note": "The inventory's convenience boolean `all_entries_confined_except_interpreter_symlinks` is false because it compared the resolved 3.14.3 path to a versionless alias. Its exact per-symlink records show all three links resolve to the same existing UV Python 3.14.3 interpreter above; there are no other symlinks.",
+    "lifecycle_assessment": "eligible for future same-volume native Trash after final C5 checks and handoff evidence are retained; no move performed",
+    "observed_contents": {
+      "entry_count_below_root": 21,
+      "items": "virtualenv activation scripts, pyvenv.cfg, cache marker, and only _virtualenv.py/_virtualenv.pth under site-packages; no project package, test receipt, wheel, source, or production data",
+      "regular_file_bytes": 30471,
+      "regular_file_count": 14,
+      "symlink_count": 3
+    },
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+    "process_observation": {
+      "command": [
+        "/usr/sbin/lsof",
+        "-nP",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv"
+      ],
+      "exit_code": 1,
+      "meaning": "no open handles were returned for this exact candidate path at observation time",
+      "stderr_bytes": 0,
+      "stdout_bytes": 0
+    },
+    "relative_path": "policy-engine/.venv"
+  },
+  "evidence_indexes": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/index.json",
+      "scope": "14 exact backend availability commands, outputs, exits, and CAN pyproject @ e3cb3faf",
+      "sha256": "15624a094216e620967c26f08a0e40269a513a04cba8fbaa35d3a970126ad3e2"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/index.json",
+      "scope": "root partial venv no-follow inventory, ignore rule, pyvenv.cfg, scoped lsof, root status",
+      "sha256": "b44a612e0f4d80003f4c85b32210a842515d044f7886416d01e49afa451fafaa"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/root-venv-eligibility-v1/inventory.py",
+      "scope": "read-only no-follow inventory command source",
+      "sha256": "1560c1a3801fce138fa1c76a91120f867908128f851548b165df20d6c2955cf5"
+    }
+  ],
+  "receipt": "C5 read-only eligibility assessment for the newly-created root partial virtualenv",
+  "repo": {
+    "branch": "codex/e02-C-continuation-20261006",
+    "head": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "tree": "d360d36e2cf2dbd13e60422e174e229491e384be",
+    "working_tree": "clean; all new records are under ignored .tmp/e02-C5/raw"
+  },
+  "side_effects": {
+    "build": false,
+    "install": false,
+    "move_or_trash": false,
+    "network": false,
+    "worktree_registration_change": false
+  }
+}

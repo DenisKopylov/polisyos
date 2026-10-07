@@ -1,0 +1,58 @@
+{
+  "files": [
+    {
+      "command": {
+        "argv": [
+          "/usr/bin/swift",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/dfk-native-retirement/trash-item.swift",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/src/polisyos/foundry/domain/schema.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\n  \"operation\" : \"FileManager.default.trashItem\",\n  \"source\" : \"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-dfk-lifecycle-20261007\\/polisyos\\/policy-engine\\/src\\/polisyos\\/foundry\\/domain\\/schema.py\",\n  \"trash_destination\" : \"\\/Users\\/deniskopylov\\/.Trash\\/schema.py\",\n  \"trash_emptied\" : false\n}\n",
+        "stderr": "",
+        "wall_seconds": 1.2359038749709725
+      },
+      "native": {
+        "operation": "FileManager.default.trashItem",
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/src/polisyos/foundry/domain/schema.py",
+        "trash_destination": "/Users/deniskopylov/.Trash/schema.py",
+        "trash_emptied": false
+      },
+      "readback": {
+        "sha256": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+        "inode": 174159546,
+        "device": 16777231,
+        "source_absent": true
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/usr/bin/swift",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/dfk-native-retirement/trash-item.swift",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\n  \"operation\" : \"FileManager.default.trashItem\",\n  \"source\" : \"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-dfk-lifecycle-20261007\\/polisyos\\/policy-engine\\/src\\/polisyos\\/data_forge\\/kernel\\/schemas\\/codegen.py\",\n  \"trash_destination\" : \"\\/Users\\/deniskopylov\\/.Trash\\/codegen.py\",\n  \"trash_emptied\" : false\n}\n",
+        "stderr": "",
+        "wall_seconds": 0.2367666669888422
+      },
+      "native": {
+        "operation": "FileManager.default.trashItem",
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+        "trash_destination": "/Users/deniskopylov/.Trash/codegen.py",
+        "trash_emptied": false
+      },
+      "readback": {
+        "sha256": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+        "inode": 174158940,
+        "device": 16777231,
+        "source_absent": true
+      }
+    }
+  ],
+  "trash_emptied": false,
+  "source_code_preserved_in_git_and_native_trash": true
+}

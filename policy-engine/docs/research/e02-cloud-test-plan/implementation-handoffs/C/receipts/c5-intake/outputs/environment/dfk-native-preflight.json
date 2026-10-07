@@ -1,0 +1,37 @@
+{
+  "operation": "native macOS Trash only; requested exact two internal FQN retirement files; canonical registry unchanged",
+  "files": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/src/polisyos/foundry/domain/schema.py",
+      "relative_path": "policy-engine/src/polisyos/foundry/domain/schema.py",
+      "git_source": "28b04149e6477216f37c2ab2e0abfc54b8857ac6:policy-engine/src/polisyos/foundry/domain/schema.py",
+      "sha256": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+      "size_bytes": 1153,
+      "inode": 174159546,
+      "device": 16777231,
+      "lsof_argv": [
+        "/usr/sbin/lsof",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/src/polisyos/foundry/domain/schema.py"
+      ],
+      "lsof_exit": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": ""
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+      "relative_path": "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+      "git_source": "28b04149e6477216f37c2ab2e0abfc54b8857ac6:policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+      "sha256": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+      "size_bytes": 373,
+      "inode": 174158940,
+      "device": 16777231,
+      "lsof_argv": [
+        "/usr/sbin/lsof",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py"
+      ],
+      "lsof_exit": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": ""
+    }
+  ]
+}

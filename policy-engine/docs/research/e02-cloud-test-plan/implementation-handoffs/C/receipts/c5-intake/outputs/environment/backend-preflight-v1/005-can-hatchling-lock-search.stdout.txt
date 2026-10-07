@@ -1,0 +1,2 @@
+e3cb3faf:policy-engine/pyproject.toml:2:requires = ["hatchling>=1.27.0"]
+e3cb3faf:policy-engine/pyproject.toml:3:build-backend = "hatchling.build"

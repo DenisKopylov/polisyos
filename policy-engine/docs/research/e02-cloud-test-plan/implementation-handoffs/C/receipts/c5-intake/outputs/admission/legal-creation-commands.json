@@ -1,0 +1,114 @@
+[
+  {
+    "name": "legal-create-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-legal-query-20261007'\nE02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos'\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission create --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.09285666700452566,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440"
+  },
+  {
+    "name": "legal-create-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "create",
+      "--branch",
+      "codex/e02-C-legal-query-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.5333864159765653,
+    "stdout_sha256": "9248a7b8dd87c97fcb2b89cda9ece40c82ef9f886d23b02ddc213f67f59d237d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-git-create",
+    "argv": [
+      "git",
+      "worktree",
+      "add",
+      "-b",
+      "codex/e02-C-legal-query-20261007",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos",
+      "f428b114f4afb5c9cdde93a8e9bf036abe5ac329"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 1.9414564580074511,
+    "stdout_sha256": "50962525aa8a562c60d2d3a74277c22dd45d26471c7cada4c350f838bdbdb1e1",
+    "stderr_sha256": "fe955d07ee198942178254ed0ee98eb47ce2883059deffd95963a8633733c00a"
+  },
+  {
+    "name": "legal-resume-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-legal-query-20261007'\nE02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos'\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.01479345903499052,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440"
+  },
+  {
+    "name": "legal-resume-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-C-legal-query-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.527731792011764,
+    "stdout_sha256": "838f577bbcf29f752b0ef6310f6b53800d5290f676eb9c92683d6ac7afce6651",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-state",
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.29340429103467613,
+    "stdout_sha256": "c0536e0e89239de5062d01d7887ea573d1ac26963f003f3fc412870fc52b169d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-identity",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.008754083013627678,
+    "stdout_sha256": "2d193ff50131dc66d564cf548af55182d9aecc5d0f2d48d40055fc0789722cb1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

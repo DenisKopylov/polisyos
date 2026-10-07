@@ -1,0 +1,14 @@
+/Users/deniskopylov/.cache/uv/.lock
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/1ab03d7d46377f40.msgpack
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/4b4777202ad71ca7.msgpack
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/301865c2c35c0333.msgpack
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/4e5861dad59887dc.msgpack
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/eac7c59a006cef71.msgpack
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/5b04d015b3a9e7c2.msgpack
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/006c91650c5ae23a.msgpack
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/5d96fdb8f31d9959.msgpack
+/Users/deniskopylov/.cache/uv/interpreter-v4/72477d20415402fe/fb9663c5014cf7b0.msgpack
+/Users/deniskopylov/.cache/uv/CACHEDIR.TAG
+/Users/deniskopylov/.cache/uv/sdists-v9/.gitignore
+/Users/deniskopylov/.cache/uv/sdists-v9/.git
+/Users/deniskopylov/.cache/uv/.gitignore

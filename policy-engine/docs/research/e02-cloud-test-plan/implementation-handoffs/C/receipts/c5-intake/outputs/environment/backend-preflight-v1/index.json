@@ -1,0 +1,287 @@
+{
+  "can_input_commit": "e3cb3faf",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.087794,
+      "exit_code": 0,
+      "name": "001-root-state",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/001-root-state.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 37,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/001-root-state.stdout.txt",
+      "stdout_sha256": "a2603e8908e292ad296a8d57a16f51ca528a530a29e8b85c184adf85fe07c753",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.010391,
+      "exit_code": 0,
+      "name": "002-root-head-tree",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/002-root-head-tree.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 82,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/002-root-head-tree.stdout.txt",
+      "stdout_sha256": "b06d2646a7fdf88f45a64d38d05136264c0a1a23f33e3961b91fa1d80e668b10",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "e3cb3faf:policy-engine/pyproject.toml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.007135,
+      "exit_code": 0,
+      "name": "003-can-pyproject-blob",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/003-can-pyproject-blob.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 41,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/003-can-pyproject-blob.stdout.txt",
+      "stdout_sha256": "19f4793a2786538a0d1bfaad8334c4b0469fb0dbb2ad2db30099288e8093c7bd",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/bin/zsh",
+        "-fc",
+        "git show e3cb3faf:policy-engine/pyproject.toml | sed -n '1,4p'"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.011531,
+      "exit_code": 0,
+      "name": "004-can-build-system",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/004-can-build-system.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 83,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/004-can-build-system.stdout.txt",
+      "stdout_sha256": "cac0de9ed0b722b7767c1e2b41adc7fa47fcd85ad52fb6424978cebbade9372e",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "git",
+        "grep",
+        "-n",
+        "hatchling",
+        "e3cb3faf",
+        "--",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.009249,
+      "exit_code": 0,
+      "name": "005-can-hatchling-lock-search",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/005-can-hatchling-lock-search.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 147,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/005-can-hatchling-lock-search.stdout.txt",
+      "stdout_sha256": "01d9ff8b42e022a4b73a92995cac726c568d3e9e798b13ec0b11c791ad12122a",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "--version"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.033989,
+      "exit_code": 0,
+      "name": "006-uv-version",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/006-uv-version.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 32,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/006-uv-version.stdout.txt",
+      "stdout_sha256": "7728e0b9eca0980345bdbc588dd16e0216520c71321140d7c82bbbd54d8ee7a1",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "build",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.011844,
+      "exit_code": 0,
+      "name": "007-uv-build-help",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/007-uv-build-help.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 8040,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/007-uv-build-help.stdout.txt",
+      "stdout_sha256": "2cc037a183d9495aeb4e6a6a200e0eeb949a9dd1ac62d9b886973241ee487edf",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "cache",
+        "dir"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.033768,
+      "exit_code": 0,
+      "name": "008-uv-cache-dir",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/008-uv-cache-dir.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 30,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/008-uv-cache-dir.stdout.txt",
+      "stdout_sha256": "0a420d069bb5576406b0d72393639e78866af28110d0d11b7a9bb5de74ec2a65",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/usr/bin/find",
+        "/Users/deniskopylov/.cache/uv",
+        "-type",
+        "f",
+        "-print"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.00332,
+      "exit_code": 0,
+      "name": "009-uv-cache-files",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/009-uv-cache-files.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 999,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/009-uv-cache-files.stdout.txt",
+      "stdout_sha256": "cce66a3c4525aca843250934113206675496bf8183e3aa046f8180170e9408b0",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "python",
+        "list",
+        "--only-installed"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.269259,
+      "exit_code": 0,
+      "name": "010-uv-installed-python-list",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/010-uv-installed-python-list.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 1306,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/010-uv-installed-python-list.stdout.txt",
+      "stdout_sha256": "b813acb7d5d7cad1eac18aedc8c77e61e0fde5f42f30730b7dae599b27779e96",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/bin/zsh",
+        "-fc",
+        "for n in uv hatch hatchling build python3 corepack; do command -v \"$n\" || true; done"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.012431,
+      "exit_code": 0,
+      "name": "011-shell-build-tools",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/011-shell-build-tools.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 74,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/011-shell-build-tools.stdout.txt",
+      "stdout_sha256": "a98a256104b7da1b003d2cfb245308116a543c37c5aee41978dffeda6ca82dc4",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/python3",
+        "-I",
+        "-c",
+        "import sys,importlib.util,importlib.metadata as m; print(\"exe\",sys.executable); print(\"version\",sys.version.split()[0]); present={d.metadata[\"Name\"].lower():d.version for d in m.distributions()}; [print(n,present.get(n,\"ABSENT\")) for n in (\"hatchling\",\"build\",\"wheel\",\"pip\")]; print(\"build_spec\",bool(importlib.util.find_spec(\"build\")))"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.224898,
+      "exit_code": 0,
+      "name": "012-system-python-packages",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/012-system-python-packages.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 133,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/012-system-python-packages.stdout.txt",
+      "stdout_sha256": "becd80feea0e2c7e37a43c93540e297d02bf13f832773745cebfb4365a3d88c5",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "-c",
+        "import sys,importlib.util,importlib.metadata as m; print(\"exe\",sys.executable); print(\"version\",sys.version.split()[0]); present={d.metadata[\"Name\"].lower():d.version for d in m.distributions()}; [print(n,present.get(n,\"ABSENT\")) for n in (\"hatchling\",\"build\",\"wheel\",\"pip\")]; print(\"build_spec\",bool(importlib.util.find_spec(\"build\")))"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.187348,
+      "exit_code": 0,
+      "name": "013-original-venv-packages",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/013-original-venv-packages.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 150,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/013-original-venv-packages.stdout.txt",
+      "stdout_sha256": "792201fc9903d33b52df965742bfbfc59a020627030e35959ab25f1ce510c6a1",
+      "timed_out": false,
+      "timeout_seconds": 20
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+        "-I",
+        "-c",
+        "import sys,importlib.util,importlib.metadata as m; print(\"exe\",sys.executable); print(\"version\",sys.version.split()[0]); present={d.metadata[\"Name\"].lower():d.version for d in m.distributions()}; [print(n,present.get(n,\"ABSENT\")) for n in (\"hatchling\",\"build\",\"wheel\",\"pip\")]; print(\"build_spec\",bool(importlib.util.find_spec(\"build\")))"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.055249,
+      "exit_code": 0,
+      "name": "014-uv-managed-python-packages",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/014-uv-managed-python-packages.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 182,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/environment/backend-preflight-v1/014-uv-managed-python-packages.stdout.txt",
+      "stdout_sha256": "24f36d32fd16613ab06265f8960f34e57b0e1af27edf2d21401c7d23e52ed96a",
+      "timed_out": false,
+      "timeout_seconds": 20
+    }
+  ],
+  "installation_or_build_performed": false,
+  "network_used": false,
+  "receipt": "C5 read-only build-backend availability preflight",
+  "repo_commit_expected": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+  "repo_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+}

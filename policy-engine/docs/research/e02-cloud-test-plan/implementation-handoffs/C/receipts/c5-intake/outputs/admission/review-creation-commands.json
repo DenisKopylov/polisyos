@@ -1,0 +1,226 @@
+[
+  {
+    "name": "dfk-review-create-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-dfk-review-20261007'\nE02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos'\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission create --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.10241079097613692,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440"
+  },
+  {
+    "name": "dfk-review-create-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "create",
+      "--branch",
+      "codex/e02-C-dfk-review-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.6035226249950938,
+    "stdout_sha256": "70216cf3fbbbbb79b8028ebc0e492258614615558c3582f3969b7d659bbb2af6",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-review-git-create",
+    "argv": [
+      "git",
+      "worktree",
+      "add",
+      "-b",
+      "codex/e02-C-dfk-review-20261007",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+      "bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 2.2697927079861984,
+    "stdout_sha256": "dad57964b44abe89e256a106878d0bc03b38fb4243a6c0b1f80f79caecdf1366",
+    "stderr_sha256": "a94287b99047bbb74bfda3fab93a08816f460f4b15f3215d646135ba311bf132"
+  },
+  {
+    "name": "dfk-review-resume-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-dfk-review-20261007'\nE02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos'\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.014780250028707087,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440"
+  },
+  {
+    "name": "dfk-review-resume-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-C-dfk-review-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.530012083996553,
+    "stdout_sha256": "76f7cb059678332bacfa42b09df8a43a296ebd03098da2e5c1e95f1305cd8404",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-review-state",
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.37215470895171165,
+    "stdout_sha256": "88cdc717bff06b4e7caa79d8b02fa2ae9fd13bca263bf35a5587af3103bd10f2",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-review-identity",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.007863292004913092,
+    "stdout_sha256": "2e11d7367851f1bab652e79b22e858da163cfeb778072d2bd8a8115b5c00e365",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-review-create-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-legal-review-20261007'\nE02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos'\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission create --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.013819582993164659,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440"
+  },
+  {
+    "name": "legal-review-create-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "create",
+      "--branch",
+      "codex/e02-C-legal-review-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.5047698749694973,
+    "stdout_sha256": "edf8f0d53f363bd37fb3622ea0ae1c562cc5efc69b2781f89f96bd57297c1e06",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-review-git-create",
+    "argv": [
+      "git",
+      "worktree",
+      "add",
+      "-b",
+      "codex/e02-C-legal-review-20261007",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+      "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 2.0540852500125766,
+    "stdout_sha256": "af0cbd80b18242c84b8f5990afde38d77246f9af9bc4916a60944f04269de654",
+    "stderr_sha256": "7bed858199db6ecc6157a2f88ff8210cba8bc5f574765cc042a30c8e60959ccc"
+  },
+  {
+    "name": "legal-review-resume-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-legal-review-20261007'\nE02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos'\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.023081624996848404,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440"
+  },
+  {
+    "name": "legal-review-resume-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-C-legal-review-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.5864366670139134,
+    "stdout_sha256": "5f5e3ad289631e7dd7b8d7711a404ae7ae669754572365c41604d784ce531e08",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-review-state",
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 1.0794345419853926,
+    "stdout_sha256": "09f3c761b6d78a12e3c153b87bc9e502a63bb02eb0c32ba1c205b383e67eb6a4",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-review-identity",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.007283209008164704,
+    "stdout_sha256": "0274615de4fcc83a78733b5dd883512a5624989273c03f5b442bbc4d540e5e7b",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

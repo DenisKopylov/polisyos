@@ -1,0 +1,85 @@
+[
+  {
+    "name": "query-failures",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--failures-only",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.10072816698811948,
+    "stdout_sha256": "1e3b6ea0517a7d030d1c80efafd0fc9183ab7b7feb99846d9323baf632158d51",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "query-C-failures",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--unit",
+      "C",
+      "--failures-only",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.15499437501421198,
+    "stdout_sha256": "a88c3dc6b80a1a8d65870040bfef51363f0a3f3cdbcf421c95f9f200a6100512",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "query-LA005",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-005",
+      "--details",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.05916733300546184,
+    "stdout_sha256": "8887ddbb952bda6039c34ddc630e43df1441b6a0b5bb9cc54be445508f4d70a1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "query-LA026",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-026",
+      "--details",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.0606211670092307,
+    "stdout_sha256": "80cacd958aaec34fdaaf73a14320fa7003a45a984eb992e0b4cf8a6b68cc607c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "query-LA040",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-040",
+      "--details",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.058014666952658445,
+    "stdout_sha256": "bf1bcb1fcdebcfa2027b6be222ce5ac4d06ca3e51d23d78308b14d76f62abc3d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

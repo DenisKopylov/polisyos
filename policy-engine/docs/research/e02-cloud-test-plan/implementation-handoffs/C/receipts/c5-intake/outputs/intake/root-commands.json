@@ -1,0 +1,104 @@
+[
+  {
+    "name": "root-state",
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.07819533301517367,
+    "stdout_sha256": "a2603e8908e292ad296a8d57a16f51ca528a530a29e8b85c184adf85fe07c753",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "refs",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}",
+      "origin/main",
+      "origin/main^{tree}",
+      "origin/codex/e02-integration",
+      "origin/codex/e02-integration^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.007464791997335851,
+    "stdout_sha256": "b39f28544a8ea2058013fdf89821259cadf336791a6a90e48df1fb52f3271060",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "main-anchor",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "origin/main"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.0075888330466113985,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "admission-canonical",
+    "argv": [
+      "uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-C-continuation-20261006",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 2,
+    "wall_seconds": 0.1392552920151502,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "ac84d77f4f06f7763005b6d9b2f0d871b64de8dbf01746b10f4e5bacfe0bf06a"
+  },
+  {
+    "name": "admission-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-C-continuation-20261006",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.6044155419804156,
+    "stdout_sha256": "07df86bbc02f1461ba7b32ba9ea9a35b9745965831be91e8025c75ae04d5b0b4",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "import-check",
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+      "--check"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.15207237499998882,
+    "stdout_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

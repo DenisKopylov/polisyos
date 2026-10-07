@@ -1,0 +1,101 @@
+[
+  {
+    "name": "dfk-create-immediate",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "create",
+      "--branch",
+      "codex/e02-C-dfk-lifecycle-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.4747006250545382,
+    "stdout_sha256": "34637d8559a87e1fccef6fdfe0ec0c7bb25e8be125a752889bef862ca80787a9",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-create-git",
+    "argv": [
+      "git",
+      "worktree",
+      "add",
+      "-b",
+      "codex/e02-C-dfk-lifecycle-20261007",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+      "28b04149e6477216f37c2ab2e0abfc54b8857ac6"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 2.0038889999850653,
+    "stdout_sha256": "ce174ed8b56f64054465c319f02f781e9ee35ee5c00f04cc9a36afaf9d8b9d59",
+    "stderr_sha256": "0ade7041083cc150fb9e595335d8732f24003c39770a7a02c8399a0921351801"
+  },
+  {
+    "name": "dfk-resume-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-dfk-lifecycle-20261007'\nE02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos'\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.09209950000513345,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440"
+  },
+  {
+    "name": "dfk-resume-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-C-dfk-lifecycle-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.4717737910104915,
+    "stdout_sha256": "8f08ee1b054b256226c64000192be40150c82859f912f39c142d64d004c65465",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-created-state",
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.5491471660207026,
+    "stdout_sha256": "6b6553455c5950325d0c880146adb384de22e091a48353d5ae3f5c38fe099c68",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-created-identity",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.009196166007313877,
+    "stdout_sha256": "845e3876e7f8d1721b8836c6a4258be3c0cb43f097a3e6cf88d9342b02be467e",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

@@ -1,0 +1,10 @@
+cpython-3.14.3-macos-aarch64-none     /Users/deniskopylov/.local/bin/python3.14 -> /Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14
+cpython-3.14.3-macos-aarch64-none     /Users/deniskopylov/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14
+cpython-3.14.0-macos-aarch64-none     /opt/homebrew/bin/python3.14 -> ../Cellar/python@3.14/3.14.0_1/bin/python3.14
+cpython-3.14.0-macos-aarch64-none     /opt/homebrew/bin/python3 -> ../Cellar/python@3.14/3.14.0_1/bin/python3
+cpython-3.13.3-macos-aarch64-none     /opt/homebrew/bin/python3.13 -> ../Cellar/python@3.13/3.13.3/bin/python3.13
+cpython-3.12.12-macos-aarch64-none    /Users/deniskopylov/.local/bin/python3.12 -> /Users/deniskopylov/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12
+cpython-3.12.12-macos-aarch64-none    /Users/deniskopylov/.local/share/uv/python/cpython-3.12-macos-aarch64-none/bin/python3.12
+cpython-3.11.14-macos-aarch64-none    /Users/deniskopylov/.local/bin/python3.11 -> /Users/deniskopylov/.local/share/uv/python/cpython-3.11.14-macos-aarch64-none/bin/python3.11
+cpython-3.11.14-macos-aarch64-none    /Users/deniskopylov/.local/share/uv/python/cpython-3.11-macos-aarch64-none/bin/python3.11
+cpython-3.9.6-macos-aarch64-none      /usr/bin/python3

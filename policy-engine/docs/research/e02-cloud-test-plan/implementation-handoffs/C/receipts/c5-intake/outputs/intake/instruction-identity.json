@@ -1,0 +1,93 @@
+{
+  "refs": [
+    "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "c5668bcb9ac76a55984fce0d196197dbfded1151",
+    "9806442ddb47d624a2940bac75d9d6248e934c48"
+  ],
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "bytes": 61268,
+      "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/README.md",
+      "bytes": 41135,
+      "sha256": "ab45ac1dc98969df9149e56e7afd19843c777854a7bff4bacb4bcc2e37f1933e",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/README.md",
+      "bytes": 16778,
+      "sha256": "d23afa2c31cada1a42be2c3e66ecdaa7b57cb436a7a133f288c36edd361f5fbe",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "bytes": 96423,
+      "sha256": "83c987d9a26807f4e5947677b384643b505b83b510f58add5053f0dbb3399eca",
+      "equal_frozen_C4_G83": false,
+      "equal_current_G": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "equal_frozen_C4_G83": false,
+      "equal_current_G": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "bytes": 144848,
+      "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8",
+      "equal_frozen_C4_G83": false,
+      "equal_current_G": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "bytes": 46944,
+      "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "bytes": 52438,
+      "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md",
+      "bytes": 20783,
+      "sha256": "d71d4aa68d1cb754139030367514b3662fa4c9acde54d55af66311213a3c32a1",
+      "equal_frozen_C4_G83": true,
+      "equal_current_G": true
+    }
+  ]
+}

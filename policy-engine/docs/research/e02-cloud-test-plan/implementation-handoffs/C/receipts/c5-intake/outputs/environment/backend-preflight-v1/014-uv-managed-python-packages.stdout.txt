@@ -1,0 +1,7 @@
+exe /Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14
+version 3.14.3
+hatchling ABSENT
+build ABSENT
+wheel ABSENT
+pip 26.0.1
+build_spec False

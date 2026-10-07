@@ -1,0 +1,271 @@
+{
+  "observations": [
+    {
+      "direct_entry_count": 260,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 173542757
+      },
+      "kind": "base-environment",
+      "observed_identity": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 173542757,
+        "is_symlink": false,
+        "mode": "0o40755"
+      },
+      "prior_receipt": "C3",
+      "receipt_identity_match": true,
+      "relevant_direct_entries": [],
+      "site_packages_path": "/Users/deniskopylov/.Trash/venv-base 14-12-41-514/lib/python3.14/site-packages",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/venv-base 14-12-41-514"
+    },
+    {
+      "direct_entry_count": 233,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 173612285
+      },
+      "kind": "base-environment",
+      "observed_identity": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 173612285,
+        "is_symlink": false,
+        "mode": "0o40755"
+      },
+      "prior_receipt": "C3",
+      "receipt_identity_match": true,
+      "relevant_direct_entries": [],
+      "site_packages_path": "/Users/deniskopylov/.Trash/venv-base 14-12-42-909/lib/python3.14/site-packages",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/venv-base 14-12-42-909"
+    },
+    {
+      "direct_entry_count": 259,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 173706466
+      },
+      "kind": "base-environment",
+      "observed_identity": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 173706466,
+        "is_symlink": false,
+        "mode": "0o40755"
+      },
+      "prior_receipt": "C3",
+      "receipt_identity_match": true,
+      "relevant_direct_entries": [],
+      "site_packages_path": "/Users/deniskopylov/.Trash/venv-base 14-12-44-959/lib/python3.14/site-packages",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/venv-base 14-12-44-959"
+    },
+    {
+      "direct_entry_count": 306,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 173253393
+      },
+      "kind": "fresh_root_test_environment",
+      "observed_identity": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 173253393,
+        "is_symlink": false,
+        "mode": "0o40755"
+      },
+      "prior_receipt": "C3",
+      "receipt_identity_match": true,
+      "relevant_direct_entries": [],
+      "site_packages_path": "/Users/deniskopylov/.Trash/.venv/lib/python3.14/site-packages",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+      "trash_path": "/Users/deniskopylov/.Trash/.venv"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 169205902
+      },
+      "kind": "private_python_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/.venv",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/006-e02-c-client-20261006-.venv"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 171889314
+      },
+      "kind": "installed_python_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/007-e02-c-continuation-20261006-venv"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 172898713
+      },
+      "kind": "installed_python_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/008-e02-c-continuation-20261006-venv-base"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 172758119
+      },
+      "kind": "installed_python_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-vector-search",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/009-e02-c-continuation-20261006-venv-vector-search"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 172384589
+      },
+      "kind": "installed_python_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/010-e02-c-continuation-20261006-venv-base"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 172228460
+      },
+      "kind": "installed_python_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/011-e02-c-continuation-20261006-venv-base"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 172629418
+      },
+      "kind": "installed_python_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/012-e02-c-continuation-20261006-venv-base"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 171977866
+      },
+      "kind": "private_build_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/013-e02-c-continuation-20261006-buildenv"
+    },
+    {
+      "direct_entry_count": null,
+      "expected_identity": {
+        "device": 16777231,
+        "inode": 168962343
+      },
+      "kind": "private_python_environment",
+      "observed_identity": {
+        "exists": false,
+        "is_symlink": false
+      },
+      "prior_receipt": "C2",
+      "receipt_identity_match": false,
+      "relevant_direct_entries": [],
+      "site_packages_path": null,
+      "source_absent_and_destination_inode_matches_in_receipt": true,
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-C-20261006-2007-242da/014-e02-c-continuation-20261006-.venv"
+    }
+  ],
+  "receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/final-native-trash.json",
+      "sha256": "f94856087b4a5efd14039bb5828b87094fd1393c044f442c933d4da2073a4078"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.json",
+      "sha256": "1afca1366300a0404e99667e6d7d6a05b3e0de04fda4837769e88dc34e8c02c3"
+    }
+  ],
+  "schema": "policyos.e02.c5.known_trash_readonly.v1",
+  "scope": "Only exact environment Trash paths named by the committed C2/C3 cleanup receipts; no Trash discovery, restoration, install, or deletion."
+}

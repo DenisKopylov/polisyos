@@ -1,0 +1,7 @@
+exe /opt/homebrew/opt/python@3.14/bin/python3.14
+version 3.14.0
+hatchling ABSENT
+build ABSENT
+wheel 0.45.1
+pip 25.3
+build_spec False

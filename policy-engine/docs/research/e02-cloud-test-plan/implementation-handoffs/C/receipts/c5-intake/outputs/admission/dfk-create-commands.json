@@ -1,0 +1,36 @@
+[
+  {
+    "name": "dfk-create-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-dfk-lifecycle-20261007'\nE02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos'\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission create --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.11809324997011572,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440"
+  },
+  {
+    "name": "dfk-create-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "create",
+      "--branch",
+      "codex/e02-C-dfk-lifecycle-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.504137083014939,
+    "stdout_sha256": "cdd6b6db4c7ee2227b7310d8aaa5883e8e3b4e7df6cdfda72da50d560d0ee223",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

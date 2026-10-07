@@ -655,7 +655,14 @@ def test_dfk_01_census_observes_module_and_package_source_variants(
     assert negative_import_probe.returncode == 1
     assert "DID NOT RAISE" in negative_import_probe.stderr
 
-    (tmp_path / package_init).unlink()
+    missing_initializer = tmp_path / package_init
+    preserved_initializer = missing_initializer.with_name(
+        f"{missing_initializer.name}.preserved"
+    )
+    initializer_bytes = missing_initializer.read_bytes()
+    missing_initializer.rename(preserved_initializer)
+    assert not missing_initializer.exists()
+    assert preserved_initializer.read_bytes() == initializer_bytes
     missing, missing_receipt = _run_census(tmp_path)
     assert missing.returncode == 2
     assert missing_receipt["result"] == "partial_unreadable_input"

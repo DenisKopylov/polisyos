@@ -453,13 +453,20 @@ def posterior_joint_carrier_digest(
     Returns:
         Existing SHA-256 digest of the exact JSON joint carrier representation.
     """
+    carriers = []
+    for name in names:
+        envelope = envelopes.get(name)
+        if envelope is None:
+            raise ValueError("posterior joint digest requires every declared coordinate")
+        carrier = envelope.distribution_payload
+        if not isinstance(carrier, PosteriorSamplesCarrier):
+            raise ValueError("posterior joint digest requires exact posterior carriers")
+        carriers.append(carrier.model_dump(mode="json"))
     raw = json.dumps(
         {
             "parameter_order": names,
             "draw_ids": draw_ids,
-            "carriers": [
-                envelopes[name].distribution_payload.model_dump(mode="json") for name in names
-            ],
+            "carriers": carriers,
         },
         sort_keys=True,
         separators=(",", ":"),

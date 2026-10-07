@@ -1,0 +1,11 @@
+id = "2026-10-07-posterior-ratio-composition"
+title = "Bind posterior composition to the actual transformed ratio law"
+type = "fixed"
+component = "ir-uncertainty"
+owner = "E-scoped-B201-B202"
+summary = "Profile2 scalar push-forward reissues carrier-bound functionals and rejects incomplete joint inputs before map callbacks; loss-of-law projections clear posterior declarations and remain non-gating."
+surface_classification = "public_stable: existing polisyos.ir uncertainty composition helpers; no new facade, schema or outer wire version"
+compatibility = "Profile1 reader/replay/functionals and unprofiled composition remain unchanged. Profile2 scalar composition now refuses incomplete multi-coordinate profiles and invalid mapped support."
+migration = "Use a complete single-coordinate Profile2 law for scalar push-forward. Treat interval/moment projections and pull-back as explicitly limited outputs, rather than original posterior carriers."
+limitations = "Arbitrary maps do not establish unit/estimand identity or fit/source-law authority. Moment intervals are normal approximations and population spread is not inferential covariance. Canonical generator and finding acceptance remain separate owner decisions."
+evidence = ["tests/unit/ir/test_uncertainty_posterior_composition.py"]

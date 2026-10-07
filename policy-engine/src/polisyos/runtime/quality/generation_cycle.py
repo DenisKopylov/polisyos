@@ -3169,6 +3169,7 @@ class JointSimulationPort:
 
         candidate_id = _candidate_id(candidate)
         request = None
+        candidate_input_consumed = False
         if prepared_candidate is not None:
             if (
                 prepared_candidate.candidate_id != candidate_id
@@ -3258,6 +3259,7 @@ class JointSimulationPort:
                     problem=problem,
                     input_record=candidate_simulation_input,
                 )
+                candidate_input_consumed = True
             except (TypeError, ValueError, WorldModelRecordError) as exc:
                 code = str(getattr(exc, "code", None) or "candidate_simulation_n5_input_invalid")
                 world_record = None
@@ -3529,7 +3531,7 @@ class JointSimulationPort:
                 )
         k_world_ref = request.world_model_record.content_hash
         status, authority_blockers = _joint_simulation_port_outcome(result)
-        if candidate_simulation_input is not None:
+        if candidate_input_consumed:
             # Preserve the admitted candidate purpose for persisted readers.
             # Numerical execution never upgrades this input's authority band.
             authority_blockers = tuple(

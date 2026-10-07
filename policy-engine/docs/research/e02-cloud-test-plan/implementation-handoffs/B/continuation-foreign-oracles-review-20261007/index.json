@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "payload_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/README.md",
+      "bytes": 3000,
+      "sha256": "a252eaa5645bd63fd72144f9b1b2c6afe8d5e3e1a5b39f06f70cb819abc7e14a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check-output.txt",
+      "bytes": 2553,
+      "sha256": "0f359134fcedec0cd17a36cc76c1c08e1869d16b682faeb5479eea03bd7a2b76"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check.source.txt",
+      "bytes": 7931,
+      "sha256": "f770570ece3e61e9ffae7ebf88f27f69f709019d9ffd61b295a294dfe4acd57c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-custody.json",
+      "bytes": 4810,
+      "sha256": "1485e37881dfe6fff22ffc05ad14c5e4e71559b3546e1cc45d26963bf6e89394"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/current_cohort_inventory.py",
+      "bytes": 22420,
+      "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/inventory.json",
+      "bytes": 7725,
+      "sha256": "748140a60fbe78f8c6ab395530ae05227eb9149fc861da1e055b82c8ab675251"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/reports.jsonl",
+      "bytes": 3015,
+      "sha256": "56262daf90bc7a13a9de1ff7042564fc783588d7f75067ff2e898164af2bd7e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+      "bytes": 1094,
+      "sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/oracle.json",
+      "bytes": 3596,
+      "sha256": "5f4caa290be5998bec369f1a0f942b0983237c4483f63378b65a12b6728fe718"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/test_real_phase_journal.py",
+      "bytes": 135,
+      "sha256": "fa51a8abe4f1b9ff320980fe1a32f197b1ae5609bedc49155a0fd210aa3ed5bd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/inventory.json",
+      "bytes": 7606,
+      "sha256": "9994c04b2f709867a456b377dccd5ae172a6bd59433545fb18fa07a5147fdf3d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+      "bytes": 1102,
+      "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/profile.json",
+      "bytes": 1454,
+      "sha256": "01da80c66d7c9dd514c2f101360b2209a0c94f07993cfc820dcf96f026d9b663"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/review.json",
+      "bytes": 19368,
+      "sha256": "b3bff02736ecce3c4613427d372931da8a5526f3d555f2518f9f319b1a560df0"
+    }
+  ],
+  "payload_count": 16,
+  "payload_bytes": 85809,
+  "index_self": "This index is an additional implementation file; its own binding is in the later handoff."
+}

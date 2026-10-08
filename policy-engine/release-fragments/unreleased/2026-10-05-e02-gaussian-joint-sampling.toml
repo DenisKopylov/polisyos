@@ -1,0 +1,17 @@
+id = "2026-10-05-e02-gaussian-joint-sampling"
+title = "Preserve declared Gaussian covariance in Monte Carlo draws"
+type = "fixed"
+component = "foundry-uncertainty"
+owner = "team-policyos-runtime"
+summary = "Random, Sobol, and Halton propagation now transform Normal inputs together using declared covariance, preserving singular joint support and covariance axis identity. Invalid declared covariance is rejected before simulation calls."
+evidence = [
+  "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+  "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/E/gaussian-joint-sampling.json",
+]
+compatibility = "Internal numerical correction; existing public signatures and IR schemas are unchanged. Declared Gaussian covariance changes draws that previously sampled marginals independently."
+change_class = "internal-runtime-behavior"
+surface_classification = "internal: polisyos.foundry.uncertainty.monte_carlo"
+migration = "Recompute affected candidate propagation outputs rather than treating historical independent draws as covariance-preserving evidence."
+api = "The sampling recipe records the declared multivariate Normal assumption and canonical parameter order."
+limitations = "Normal marginals plus covariance establish a declared candidate model, not an admitted joint source law; these outputs remain gate-ineligible. Served evaluator, Calibrator producer authority, point functional, and source-law carrier decisions remain held under B194, B197, B201, and B202."

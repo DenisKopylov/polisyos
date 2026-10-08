@@ -109,3 +109,30 @@ uv run pytest tests/unit/foundry/calibration/test_identifiability.py \
 - [docs/adr/0012-uncertainty-envelope-ir-contract.md](../../../../docs/adr/0012-uncertainty-envelope-ir-contract.md)
 - [docs/adr/0013-uncertainty-propagation-pipeline.md](../../../../docs/adr/0013-uncertainty-propagation-pipeline.md)
 - [docs/adr/0074-numpyro-bayesian-scm.md](../../../../docs/adr/0074-numpyro-bayesian-scm.md)
+
+## Execute-backed local response basis
+
+`identifiability_diagnostic(..., response_slots={"balance": "government.balance"})`
+can measure a local Jacobian from actual Foundry replays and persisted scalar
+state. Parameter keys are registered `node_id.parameter` entries. Moment and
+parameter units come from the exact bound registry; moment/parameter axis order,
+source/model/input references, bytes and selected manifests, finite-difference
+points, requested execution config, seeds, and actual replay artifacts remain in
+the matrix's `response_basis` and manifest lineage. The internal companion reader
+recomputes that basis and the Jacobian/weighting/Fisher matrices from fresh CAS
+states before returning them.
+
+This profile requires explicit inline observed moments and parameter center,
+registered global scalar response slots, a persisted sensitivity matrix, and
+zero bootstrap/profile repetitions. A callback, an unknown or vector response,
+an unbound unit, changed source/config/axis, or incomplete lineage cannot be
+substituted for this profile. The existing callback and operational-metrics
+paths retain their behavior and produce no execute-state basis.
+
+The basis describes a local numerical response and always has
+`gate_eligible=False`. It provides neither a measurement law nor causal,
+scientific, or Runtime admission. An uncertainty/Scientist adapter must select
+and validate its own source/law/target contract before consuming this internal
+basis; this producer does not implement that cross-owner adapter. Registered
+deterministic income tax is an available synthetic witness, not a calibrated
+fiscal model.

@@ -1,0 +1,11 @@
+{
+  "source": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+  "runtime": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+  "footprint_paths": 24,
+  "archive_count": 8,
+  "archive_members": 2075,
+  "decoded_member_bytes": 6209000,
+  "stored_archive_bytes": 1035810,
+  "transport_files": 16,
+  "outputs": "/dev/shm/e02-orch03-20261008/c09/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis"
+}

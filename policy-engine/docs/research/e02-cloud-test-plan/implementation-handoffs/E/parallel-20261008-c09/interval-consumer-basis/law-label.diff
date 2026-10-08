@@ -1,0 +1,136 @@
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml b/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml
+index a45d65449..e16d4add6 100644
+--- a/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml
++++ b/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml
+@@ -3,7 +3,7 @@ title = "Separate conditional Monte Carlo mean error from outcome dispersion"
+ type = "added"
+ component = "foundry"
+ owner = "team-foundry"
+-summary = "Persist a non-gating mean-estimator numerical-error diagnostic for complete fixed random typed-Normal draws; unsupported laws and incomplete/adaptive/QMC corpora remain unavailable."
++summary = "Persist a non-gating mean-estimator numerical-error diagnostic with actual input-recipe metadata; unsupported laws and incomplete/adaptive/QMC corpora remain unavailable."
+ change_class = "internal"
+ surface_classification = "internal: uncertainty numerical diagnostics"
+ compatibility = "Existing outcome intervals, mc_std, composition profiles, result schema and gates are unchanged. The new conditional diagnostic does not establish scientific IID, finite-variance or authority admission."
+diff --git a/policy-engine/src/polisyos/foundry/uncertainty/README.md b/policy-engine/src/polisyos/foundry/uncertainty/README.md
+index 8fbdae4b4..8808513d8 100644
+--- a/policy-engine/src/polisyos/foundry/uncertainty/README.md
++++ b/policy-engine/src/polisyos/foundry/uncertainty/README.md
+@@ -60,3 +60,11 @@ Scientific source/law authority and served consumer admission remain separate.
+ The diagnostic persists in the existing uncertainty envelope metadata and reads
+ back through the maintained CAS reader. Existing outcome intervals, composition
+ profiles, `mc_std` and their gate semantics are unchanged by this additive field.
++
++`sampling_law` describes the implemented input recipe; it names the typed-Normal
++product only on that actual fixed-random input profile. Other carriers, inferred
++laws, adaptive stopping and QMC paths keep a generic implemented-recipe label and
++their actual `input_recipe_profiles` family/carrier fields. The diagnostic's
++`supported_estimator_profile` is a separate eligibility profile, never an assertion
++that unsupported actual inputs followed that law. Input metadata labels cannot
++override these fields, and correcting them does not change any numerical estimator.
+diff --git a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+index df6bf1966..1b2c0a71a 100644
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -333,12 +333,35 @@ def _mean_estimator_error(
+ ) -> dict[str, Any]:
+     """Describe conditional numerical error, never admit a scientific IID law."""
+     n = int(values.size)
++    normal_input_profile = bool(input_envelopes) and all(
++        isinstance(env.distribution_payload, ParametricFitCarrier)
++        and env.distribution_family is DistributionFamily.NORMAL
++        and _normal_parametric_fit(env) is not None
++        and _normal_parametric_fit(env)[1] >= 1e-12
++        for env in input_envelopes.values()
++    )
+     diagnostic: dict[str, Any] = {
+         "status": "unavailable",
+         "standard_error": None,
+         "target": "implemented_push_forward_mean",
+         "estimator": "sample_mean",
+-        "sampling_law": "implemented_product_of_typed_normal_fits",
++        "sampling_law": (
++            "implemented_product_of_typed_normal_fits"
++            if normal_input_profile and qmc_method is None and not config.adaptive_stopping.enabled
++            else "implemented_input_sampling_recipe"
++        ),
++        "supported_estimator_profile": "fixed_random_product_of_typed_normal_fits",
++        "input_recipe_profiles": {
++            name: {
++                "distribution_family": env.distribution_family.value,
++                "carrier": (
++                    type(env.distribution_payload).__name__
++                    if env.distribution_payload is not None
++                    else None
++                ),
++            }
++            for name, env in input_envelopes.items()
++        },
+         "sampling_method": config.mc_sampling_method,
+         "seed": int(config.mc_seed),
+         "requested_draw_count": requested_count,
+@@ -357,13 +380,7 @@ def _mean_estimator_error(
+         reason = "qmc_replica_means_not_retained"
+     elif config.adaptive_stopping.enabled:
+         reason = "adaptive_sampling"
+-    elif not input_envelopes or any(
+-        not isinstance(env.distribution_payload, ParametricFitCarrier)
+-        or env.distribution_family is not DistributionFamily.NORMAL
+-        or _normal_parametric_fit(env) is None
+-        or _normal_parametric_fit(env)[1] < 1e-12
+-        for env in input_envelopes.values()
+-    ):
++    elif not normal_input_profile:
+         reason = "unsupported_input_sampling_law"
+     elif n < 2:
+         reason = "insufficient_independent_draws"
+diff --git a/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py b/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py
+index ff6b899ec..ed0386521 100644
+--- a/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py
++++ b/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py
+@@ -123,6 +123,46 @@ def test_weighted_empirical_draw_axis_and_iid_marker_do_not_launder_profile() ->
+     assert diagnostic["status"] == "unavailable"
+     assert diagnostic["standard_error"] is None
+     assert diagnostic["reason"] == "unsupported_input_sampling_law"
++    assert diagnostic["sampling_law"] == "implemented_input_sampling_recipe"
++    assert diagnostic["input_recipe_profiles"]["x"] == {
++        "distribution_family": "bootstrap",
++        "carrier": "PosteriorSamplesCarrier",
++    }
++
++
++@pytest.mark.parametrize("profile", ["typed_normal", "weighted_empirical", "legacy_inferred"])
++def test_observed_input_recipe_label_survives_actual_mc_and_fresh_cas(tmp_path, profile):
++    env = _normal_law()
++    if profile == "weighted_empirical":
++        env = env.model_copy(
++            update={
++                "distribution_family": DistributionFamily.BOOTSTRAP,
++                "distribution_payload": PosteriorSamplesCarrier(
++                    samples=(-1.0, 1.0), weights=(0.9, 0.1), sample_axis="draw"
++                ),
++                "metadata": {
++                    "sampling_law": "implemented_product_of_typed_normal_fits",
++                    "iid": True,
++                },
++            }
++        )
++    elif profile == "legacy_inferred":
++        env = env.model_copy(update={"distribution_payload": None})
++    result = _propagate(PropagationConfig(mc_n_samples=100, mc_seed=42), env)
++    ref = persist_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), result.envelope)
++    fresh = load_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), ref)
++    diagnostic = fresh.metadata["mean_estimator_error"]
++    assert diagnostic["requested_draw_count"] == diagnostic["attempted_draw_count"] == 100
++    assert diagnostic["finite_output_count"] == 100
++    assert diagnostic["gate_eligible"] is False and fresh.gate_eligible is False
++    assert diagnostic["supported_estimator_profile"] == "fixed_random_product_of_typed_normal_fits"
++    if profile == "typed_normal":
++        assert diagnostic["sampling_law"] == "implemented_product_of_typed_normal_fits"
++        assert diagnostic["status"] == "conditional_estimate"
++    else:
++        assert diagnostic["sampling_law"] == "implemented_input_sampling_recipe"
++        assert diagnostic["status"] == "unavailable" and diagnostic["standard_error"] is None
++        assert diagnostic["reason"] == "unsupported_input_sampling_law"
+ 
+ 
+ def test_adaptive_sampling_does_not_use_fixed_iid_formula() -> None:

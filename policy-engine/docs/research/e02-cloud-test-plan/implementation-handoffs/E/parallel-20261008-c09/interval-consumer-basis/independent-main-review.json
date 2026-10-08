@@ -1,0 +1,754 @@
+{
+  "artifacts": [
+    {
+      "bytes": 9675,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/input-manifest.json",
+      "sha256": "a536c14befbc818ab8d2552aa8e284ee0f61acc024078642b83f1fa76a69d165"
+    },
+    {
+      "bytes": 86802,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/full-diff.patch",
+      "sha256": "2ef4f223666933b7fcf6bd8c3bbbc97df0edc5bae50c03974a40de98741b7032"
+    },
+    {
+      "bytes": 35251,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe.py",
+      "sha256": "aebdd6b09d2e684c31422f467d18357ef03396335735181ace2b83afd732d0b4"
+    },
+    {
+      "bytes": 1191,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/run-harness.py",
+      "sha256": "0e83a4a865f67217070199e7d545605e4a1229be1f2f506ba2f950a2f22035b5"
+    },
+    {
+      "bytes": 886,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/harness.json",
+      "sha256": "f100ddec635181f89ae2a89569c91f4caf899b7c6a70fc23a6ae821159080970"
+    },
+    {
+      "bytes": 225168,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe.stdout.json",
+      "sha256": "313aeb73aa99ec806a8eb35053d1c622121457c8cd137027d4d9d3160242f658"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 225167,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json",
+      "sha256": "93f3749875823b6c9dada7a972f86eb680224b5dca8d01e2aaa97545e6a91c87"
+    },
+    {
+      "bytes": 365370,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/module-origins.json",
+      "sha256": "042712a43c88857f7bcab725820914adf82a15f45ca8218106000354aa33846a"
+    },
+    {
+      "bytes": 3121,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/fresh-child.py",
+      "sha256": "8dbda106e39b445679f8c15861b3a76b3a92893cb70041fbcee090eced13cc0d"
+    },
+    {
+      "bytes": 875,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/fresh-child.execution.json",
+      "sha256": "8c989aec8d5fc577c4da7ef50c23eae4a0a494a9968da6d8c4e444759993bc45"
+    },
+    {
+      "bytes": 8299,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/fresh-child.stdout.json",
+      "sha256": "2f72a81e1747028a4d35835246f1bd3c7590ffeb9b2b643c67f40658db01aa96"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/fresh-child.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 354960,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/fresh-child-origins.json",
+      "sha256": "1f09023e6aaa35200c048470e7a5527a7ee1300d7dc72780cb8507211974f632"
+    },
+    {
+      "bytes": 2241,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/summary-probe.py",
+      "sha256": "f47c76e3de205f702afc806532bf54c28faebc3d15e17b149c36ba088a785e11"
+    },
+    {
+      "bytes": 882,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/summary-probe.execution.json",
+      "sha256": "c34a0f96f3735385e5fde7237340bb0df8de2ce76ef32f64b83c4efb8200c1f9"
+    },
+    {
+      "bytes": 1498,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/summary-probe.stdout.json",
+      "sha256": "3d0bf22b4fd781e204178894a9a9b2637946cb58ad4d93b3dde9da8f68132909"
+    },
+    {
+      "bytes": 442,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/summary-probe.stderr.txt",
+      "sha256": "ddbfbc6abd307366f4004f70d679b56049889012b78273358cc41fd78c2d147a"
+    },
+    {
+      "bytes": 2226,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/input-manifest.json",
+      "sha256": "9c98da00662244b0c23f97b7f662de9d889225a8c5fc39d34650cc1352087cb4"
+    },
+    {
+      "bytes": 4198,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward.diff",
+      "sha256": "af0b05724eb301f1fcea695f05d0905ff0f47609cd0ea30eae753b667e48e98b"
+    },
+    {
+      "bytes": 6697,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-probe.py",
+      "sha256": "fdfdb56e26ca2294d0491ea0c6b1b9b0333b5d879eef01bba207086ec46f6893"
+    },
+    {
+      "bytes": 882,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-probe.execution.json",
+      "sha256": "fdf04b719a1e25c556114effa10e14ffbba3514b77d697e9beea6cfd12619443"
+    },
+    {
+      "bytes": 27996,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-probe.stdout.json",
+      "sha256": "7fd1e6a06a96bb2082c928f9501d58dfa4a903c1a9ecb518d4d143f237e9f25a"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-probe.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 314294,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-origins.json",
+      "sha256": "40c38c0e21311e21f5865cf44da778522a729b0cc0c61cbb067ae61b02c32027"
+    },
+    {
+      "bytes": 692,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-child.execution.json",
+      "sha256": "2da31e7905975cde148d7fd3f0aa637a649d77917e9a490b46e485c4a9672537"
+    },
+    {
+      "bytes": 2379,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-child.stdout.json",
+      "sha256": "54ee90233c9e7f079fd7255195fefa6c7cadc736ef279fb1d4a5f25e61efa133"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-child.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 314294,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/forward-child-origins.json",
+      "sha256": "40c38c0e21311e21f5865cf44da778522a729b0cc0c61cbb067ae61b02c32027"
+    },
+    {
+      "bytes": 394,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-1/classification.json",
+      "sha256": "ee37cdec8e94ecc251ec83ded0adb69d477654d72b8cd1b6e324ba2ce575c3ed"
+    },
+    {
+      "bytes": 884,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-1/harness.json",
+      "sha256": "f0ce1df8dd82366f6c93fe5ab796ae40753e3c0f9c282aa788839e1c0ca21941"
+    },
+    {
+      "bytes": 33294,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-1/probe.py",
+      "sha256": "3109f19b67e0ffc4bf580d5b87a88b71521470e893e2678cdce7dbc85c0f7343"
+    },
+    {
+      "bytes": 462,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-1/probe.stderr.txt",
+      "sha256": "5fb6d8b8d154e83a76939cb88c1a42adb082fcc07d700345717f55ddfc22189d"
+    },
+    {
+      "bytes": 3626,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-1/probe.stdout.json",
+      "sha256": "94b29224a78367c57eefe5660ef5631f37cd11d6cc75016f0255733fb0434294"
+    },
+    {
+      "bytes": 1191,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-1/run-harness.py",
+      "sha256": "0e83a4a865f67217070199e7d545605e4a1229be1f2f506ba2f950a2f22035b5"
+    },
+    {
+      "bytes": 363,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-2/classification.json",
+      "sha256": "e9cd6cee79e981788a9cd61b2215cb2da2ed71f5ded4c1102e571e4e7049eb9a"
+    },
+    {
+      "bytes": 884,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-2/harness.json",
+      "sha256": "d7beeb1e7e1d30c6b6b3838e270f9286ebb27f3a7044a79e19a6c9919dc4a49f"
+    },
+    {
+      "bytes": 33886,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-2/probe.py",
+      "sha256": "5e1f63be2c141b522e2c9dd8742adc2acfb7b8165596668f0b94c148ed6ba437"
+    },
+    {
+      "bytes": 579,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-2/probe.stderr.txt",
+      "sha256": "74f6fe1b9eb45a52302f84f3787277068ebabf2c81e9ce5fcb058ce2a79695ae"
+    },
+    {
+      "bytes": 4077,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-2/probe.stdout.json",
+      "sha256": "f272c017a8484d4fb947621c91251eb77f7f6c746e2bfc9340c9bcc1a74225ad"
+    },
+    {
+      "bytes": 167892,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-2/progress-records.json",
+      "sha256": "97b2135b1537f31aeabb44028d2b098081ff280082e23ec84080b4f0853c9801"
+    },
+    {
+      "bytes": 1191,
+      "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/attempt-2/run-harness.py",
+      "sha256": "0e83a4a865f67217070199e7d545605e4a1229be1f2f506ba2f950a2f22035b5"
+    }
+  ],
+  "author_final_wave": "permitted only after this independent GO on exactadb. Prepared affected selectors/JUnit denominators and release/quality companions must be recorded by canonical writer; no oldwidewave repeat.",
+  "canonical_writer": "/root/c09; original E producer ownership preserved; B21 original A/SIM-03 contract remains separate",
+  "delta_carry": {
+    "rules": "carry only bounded properties whose inputs and exercised code are unchanged; builder metadata precedence separately tested onadb. No whole old77/MC37/Gwave transplant. All four MC661 blobs identical throughadb.",
+    "temporal_function_closure": {
+      "evaluate_temporal_trajectory": {
+        "AST_identical": true,
+        "ast_sha256": "c859dd8440bdb0f32de16cbb6f857be32e0a56e5926bb8d2a75c5fff93711397"
+      },
+      "summarize_temporal_evaluations": {
+        "AST_identical": true,
+        "ast_sha256": "2c156a17e2a36b79288fd53241eda1387b02efdc9264ece052e3ea06f8569488"
+      }
+    },
+    "unchanged_source_blobs": [
+      {
+        "identical_git_blob": "e46f0a326ee374dfdb5b3cc762209cde2799ea2b",
+        "path": "policy-engine/src/polisyos/calibration/interval_basis.py"
+      },
+      {
+        "identical_git_blob": "4d6c81e751ac212a8f32bb53cc1993c08e7fd870",
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py"
+      },
+      {
+        "identical_git_blob": "58a38150c54281048cc044ae73b73a2428c8c691",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py"
+      },
+      {
+        "identical_git_blob": "18681dfd63018384715fc7c9c30b7aca72a5e2b2",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py"
+      },
+      {
+        "identical_git_blob": "519360e709077454624156f3de97de806f03bc53",
+        "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py"
+      },
+      {
+        "identical_git_blob": "eb8152fccd1aecbd58670ad26be6fb21f2e397af",
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py"
+      },
+      {
+        "identical_git_blob": "9ab9e0d37987f551ddff2688b9c884ae168d37a6",
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py"
+      },
+      {
+        "identical_git_blob": "1b2c0a71a5849b33f56da024f03ebcf33ef7076d",
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py"
+      },
+      {
+        "identical_git_blob": "e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+      },
+      {
+        "identical_git_blob": "9a82e7ff3c5487d72f88f486362b6b0867305b9a",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/structural_time_series.py"
+      },
+      {
+        "identical_git_blob": "7a03e103eb22806655f778c4eceda2d63f078791",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/temporal_estimand_compiler.py"
+      },
+      {
+        "identical_git_blob": "26b15390105b5c478824f899754af9a0f6bc64d8",
+        "path": "policy-engine/src/polisyos/ir/analytics/backtest.py"
+      }
+    ]
+  },
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "cleanup": "none; preserve code/docs/unique inputs/all deciding outputs and active environments; noTrash action",
+    "cloud_quotas_added": false,
+    "exe": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "packages": {
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "scipy": "1.16.3",
+      "statsmodels": "0.14.6"
+    },
+    "production_data_loaded": false,
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "source_imports": "private exactGit archives; all loaded maintained origins checked against immutableGit blobs"
+  },
+  "executed_evidence": {
+    "final_adb_forward": {
+      "all_attempts": "one successful delta-only probe; no numerical producer rerun",
+      "check": "PASS3 ordinary limited/complete/point controls",
+      "child_origins": 862,
+      "expected_retained_marker_failures": 1,
+      "forward_cases": [
+        [
+          "limited_spoof",
+          "PASS"
+        ],
+        [
+          "complete_spoof",
+          "PASS"
+        ],
+        [
+          "point_only_spoof",
+          "PASS"
+        ],
+        [
+          "summary_guard_removed",
+          "EXPECTED_FAIL"
+        ]
+      ],
+      "fresh_child_check": "PASS",
+      "origin_mismatches": 0,
+      "parent_origins": 862,
+      "separate_fresh_child_refs": 4
+    },
+    "final_parent661": {
+      "all20_records": [
+        {
+          "actual_surface": "CalibrationValidationRunner\u2192actualMatrix\u2192nativeStress\u2192Leaderboard\u2192persistBundle\u2192newCASReader",
+          "case": "complete",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "CalibrationValidationRunner\u2192actualMatrix\u2192nativeStress\u2192Leaderboard\u2192persistBundle\u2192newCASReader",
+          "case": "partial",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "CalibrationValidationRunner\u2192actualMatrix\u2192nativeStress\u2192Leaderboard\u2192persistBundle\u2192newCASReader",
+          "case": "point_only",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "actualScenario\u2192fixtureTemporalEvaluationResult\u2192publicTemporalBuilder\u2192CAS\u2192newCASReader",
+          "case": "temporal_partial",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "actualScenario\u2192fixtureTemporalEvaluationResult\u2192publicTemporalBuilder\u2192CAS\u2192newCASReader",
+          "case": "temporal_fake_marker",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "actualScenario\u2192fixtureTemporalEvaluationResult\u2192publicTemporalBuilder\u2192CAS\u2192newCASReader",
+          "case": "temporal_missing_marker",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "actualReport\u2192fixtureRoleProfileContext\u2192realForecastBridge",
+          "case": "forecast_complete",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "actualReport\u2192fixtureRoleProfileContext\u2192realForecastBridge",
+          "case": "forecast_partial",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "empty_axis_retained_request",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "orphan_within_ci_no_bounds",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "actual_temporal_solver_evaluator",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "forged_matrix_actual_cas_refuses",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "actual_foreign_kind_with_retained_shape_refuses",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "statsmodels ETS via actual ForecastOwner.run in retained attempt2; same exact661 and freshCAS on resume",
+          "case": "ets_supported",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "statsmodels ETS via actual ForecastOwner.run in retained attempt2; same exact661 and freshCAS on resume",
+          "case": "ets_changed_observations",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "shared_runtime_guard_removals",
+          "check": "EXPECTED_FAIL_controls",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "mc_typed_normal_label",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "mc_weighted_actual_recipe",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "mc_legacy_inferred_recipe",
+          "check": "PASS",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        },
+        {
+          "actual_surface": "see complete deciding payload",
+          "case": "mc_label_property_removed",
+          "check": "EXPECTED_FAIL",
+          "input_authority": "synthetic/fixture/public mechanics; no scientific/Runtime claim",
+          "payload_file": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-661/probe-result.json"
+        }
+      ],
+      "check": "PASS bounded defining controls; expected failures separate",
+      "execution_attempts": [
+        {
+          "attempt": 1,
+          "check": "ERROR/incomplete reviewer harness",
+          "completed_native_outputs": "actual CAS retained in fixtures; no final verdict inferred",
+          "reason": "incorrect forecasting uncertainty reader module import; full command/stdout/stderr/CAS retained; not product FAIL"
+        },
+        {
+          "attempt": 2,
+          "check": "ERROR/incomplete reviewer harness",
+          "completed_native_C5b_ETS_carry": "resumed only through actual CAS readback of those deciding outputs on same exactsource; no repeated C5b/ETS numerical jobs",
+          "reason": "plural field name point_forecasts instead of actual ForecastOwnerResult.point_forecast; all15 completed native record payloads retained"
+        },
+        {
+          "attempt": 3,
+          "check": "PASS",
+          "returncode": 0,
+          "scope": "reread actual native attempts2 bytes; remaining modest controls, MC label and origin guards",
+          "wall_seconds": 18.124872440996114
+        }
+      ],
+      "expected_retained_marker_failures": 4,
+      "native_complete_partial_point_promotion": [
+        [
+          "complete",
+          15,
+          15,
+          true
+        ],
+        [
+          "partial",
+          15,
+          5,
+          false
+        ],
+        [
+          "point_only",
+          0,
+          0,
+          true
+        ]
+      ],
+      "native_real_ETS": "Statsmodels0.14.6 actualForecastOwner.run retained attempt2 outputs; same point_forecast/CI with different true holdout changes coverage numerator and empirical_suitability; complete interval basis while bridge_pending/degraded/nontrusteligible; missing authentic context stays blocked",
+      "ordinary_native_observations": 18,
+      "parent_origin_denominator": 988,
+      "parent_origin_mismatches": 0,
+      "separate_child_readback": {
+        "check": "PASS",
+        "mismatches": 0,
+        "origin_denominator": 971,
+        "refs": 14
+      }
+    },
+    "historical661_summary_escape": {
+      "check": "FAIL report diagnostic truth",
+      "reproduction": "actual native evaluator deciding output\u2192publicbuilder caller temporal_summary\u2192CAS\u2192fresh reader; all outputs retained",
+      "superseded_by": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "typed_gate": "degradedTrue/trustFalse preserved; no observed typed promotion"
+    }
+  },
+  "finding_decision": "No original ID reassignment or formal closure. Scope is code-ready technical follow-up for C09/E; B21A originalrepeat profile and F35 untouched. G retains source/finding acceptance.",
+  "full_delta_read": {
+    "all_source_tests_README_release_docs_read": true,
+    "base_to_final_paths": 23,
+    "footprint": [
+      {
+        "blob": "1dc12cea19ce4e890b528632bb993578bfe65e01",
+        "bytes": 4926,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md",
+        "sha256": "ca985a37487c0c58d66c5d1e1116593f527cb798c34f502188ef700bd3682206"
+      },
+      {
+        "blob": "b3d3e99d36c02d808bbdf1a3aa2555cc102a389e",
+        "bytes": 2039,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json",
+        "sha256": "ff7717707746c0d70fbce7ec26a15effcf2b6cb16e0d1af7ac1fc15d65a0db44"
+      },
+      {
+        "blob": "011ef4ee62f9f71e5e149ac0f18909ef332e4eaf",
+        "bytes": 2144,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/preparation.json",
+        "sha256": "58b80814c7bdd246253ea187e33cda2b77d4083e2c4cbdc65e9dde96e6cea04e"
+      },
+      {
+        "blob": "d2bccd8ecce7f9c8dffb0dd03c066e03f7813e4c",
+        "bytes": 37892,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json",
+        "sha256": "5661a1ff4ed7764bc6d8106d0d99f848cf6f772035663ea15883c69eaae3a9c9"
+      },
+      {
+        "blob": "c7f984636091c08051eb9ce1981b829ef05527e5",
+        "bytes": 2034,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-interval-consumer-basis.toml",
+        "sha256": "135be92cb6c2ab109db15de848a2d9362e1a1a55beace5263025819a5d4380c4"
+      },
+      {
+        "blob": "e16d4add6f9e980fa8f3f5d9c4458f470f4eee99",
+        "bytes": 926,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml",
+        "sha256": "0c8740b98cb1bf21896fea948439b479dcf80350eb595c0879211715c3fb2af0"
+      },
+      {
+        "blob": "210a827c7c4c15758a9974fff074413a438177ea",
+        "bytes": 1694,
+        "path": "policy-engine/src/polisyos/calibration/README.md",
+        "sha256": "31052604e058d83ad61e25aad96cacd04d7e2302a7987088d6f4b031428baf8d"
+      },
+      {
+        "blob": "4d6c81e751ac212a8f32bb53cc1993c08e7fd870",
+        "bytes": 60761,
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "sha256": "816342d818fd4af8be95405686a7ee7382315f93a23449c3b36288690797c7be"
+      },
+      {
+        "blob": "e46f0a326ee374dfdb5b3cc762209cde2799ea2b",
+        "bytes": 5287,
+        "path": "policy-engine/src/polisyos/calibration/interval_basis.py",
+        "sha256": "47ebd92e77e9850962ca88f04fdb04761deea575efb87d2d4fef9713f6d418e8"
+      },
+      {
+        "blob": "8808513d89071f040e14ed4f11071d52cf19caad",
+        "bytes": 4016,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "sha256": "5500ef397acb646e5beec3d3a0a004b2102ee8babf12d87dcd3e3bfef101abc5"
+      },
+      {
+        "blob": "1b2c0a71a5849b33f56da024f03ebcf33ef7076d",
+        "bytes": 60778,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "sha256": "4d66d400ad9270b521a7da93dd3dc488da1bb6b799e78e16d3396aed34127c82"
+      },
+      {
+        "blob": "519360e709077454624156f3de97de806f03bc53",
+        "bytes": 13342,
+        "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+        "sha256": "42ea9a67d44fda038a66c58201f53e488c9a9c661eda060b34b7166a2eacaad2"
+      },
+      {
+        "blob": "9ab9e0d37987f551ddff2688b9c884ae168d37a6",
+        "bytes": 17535,
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py",
+        "sha256": "e1097a9b23aaefd68be865c6d3d79177f2aeb0319f98d776168392ef35135234"
+      },
+      {
+        "blob": "eb8152fccd1aecbd58670ad26be6fb21f2e397af",
+        "bytes": 19575,
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+        "sha256": "e469088f88b69721338dbcbb08c07d035ee95cf7458b5cfa8cdea43d2660614b"
+      },
+      {
+        "blob": "90a0d19673dee7ca2efc017f4603cfe7d93ccc65",
+        "bytes": 5052,
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+        "sha256": "cbabf23598e0ae37b81ad3bfe926dc0f214a13ae15e3c76ed2672b09d94adad2"
+      },
+      {
+        "blob": "58a38150c54281048cc044ae73b73a2428c8c691",
+        "bytes": 11314,
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+        "sha256": "818a6b7a566fc52f2c569d7c4a450214911af01d78b29e33686af3d15bb23b2f"
+      },
+      {
+        "blob": "18681dfd63018384715fc7c9c30b7aca72a5e2b2",
+        "bytes": 47830,
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "sha256": "7e47a9742dd7500b7387b6684963b73f8f3756ca3ac1e6a7116ce34376b0ff6b"
+      },
+      {
+        "blob": "91babca4fa6b711991edd096ff990dd402bba78d",
+        "bytes": 22914,
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py",
+        "sha256": "fa5049a4d0295df866da4914404444d040c94e466eb9ff1d305da4bc6582f2a5"
+      },
+      {
+        "blob": "ab28456740912acb9893caeae315c74ad5787816",
+        "bytes": 3134,
+        "path": "policy-engine/tests/unit/calibration/test_forecast_interval_basis.py",
+        "sha256": "a5fe8997626499a277886f0afd0175253ecece3f32eaea02bb254b536b73762f"
+      },
+      {
+        "blob": "ed0386521555f3a996014a11ae8b676bcc63317e",
+        "bytes": 11406,
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+        "sha256": "19041e876faca40ecc6b4e74b97373918b474adc28c25f2d522858ff39169d46"
+      },
+      {
+        "blob": "13ef25791f81c49173c8173a42a960a79f049e0f",
+        "bytes": 10462,
+        "path": "policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py",
+        "sha256": "89a2f1df091aaac66edcd16f9d31f0174a7d844848fa411cc2a7e047a8d1b76e"
+      },
+      {
+        "blob": "123687f76b0a5a95f3b91f93eb6bd7df39ed18b6",
+        "bytes": 7483,
+        "path": "policy-engine/tests/unit/scientist/governance/test_interval_basis_promotion.py",
+        "sha256": "122aa50a9ff5989d3aa75f47324db333541fa4400748a5d46103a60b7a98a64a"
+      },
+      {
+        "blob": "991a6bec453136424f346d391c416850abfc3500",
+        "bytes": 7498,
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_interval_basis.py",
+        "sha256": "a21a60469724981f2601671dd6999e779c5c74dc6206beea83c2691cd07c93a2"
+      }
+    ],
+    "lease": "19 interval paths aa;4 MC law-label paths661;4 forward summary pathsadb overlapping existing interval paths; original history append-only",
+    "root_integration_main_source_writes": false,
+    "shared_IR_schema_generators_lockfiles_unchanged": true
+  },
+  "independent_original_binding_preparation": {
+    "bytes": 12872,
+    "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/independent-preparation.json",
+    "sha256": "7b925b53db61a738645e1d725949df177c462a947ec8bc1c26db5b1ca30c148d"
+  },
+  "limits_and_minimum_packets": [
+    {
+      "check": "UNRUN/not_established",
+      "limit": "no authentic verifier/challenge/current appointment/scientific sampling/identification admission demonstrated; positive fixture governance/content role profiles are not such admission",
+      "minimum": "actual source/CAS/manifest/bytes; current Runtime context/verifier/issuer/revision/fresh challenge; accountable evaluation profile only when criterion requires it",
+      "owner": "C10/Runtime/S10, scientific accountable source owner"
+    },
+    {
+      "actual_supported_route": "ForecastOwner resolved observedDataSnapshot, explicit train/holdout split, target metric, ordered horizons and source/forecast/bundle/report manifest lineage",
+      "check": "UNRUN authentic ordered source roster",
+      "limit": "generic OutcomeComparison lacks row/time identity; consistent substituted equal-count rows cannot be detected from this artifact alone; repeated metric names/identical values are legitimate",
+      "minimum_committed_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json",
+      "owner": "C10 predictive consumer; C09 producer"
+    },
+    {
+      "check": "not_established broader closure",
+      "limit": "existing G heuristic trust profile not independently scientifically admitted; interval consistency repair does not resolve B172/B173 trust-purpose or missing true inference",
+      "owner": "E/BKT trust-purpose accountable owner"
+    },
+    {
+      "check": "bounded diagnostic only; no scientific meanCI or universal IID law",
+      "limit": "conditional Normal-input SEM assumes fixed deterministic response and finite response variance; assumptions_verifiedFalse/source_law_authoritynot_established/gateFalse; weighted/unknown/adaptive/incomplete/QMC replica error unavailable",
+      "owner": "A/B21 and E MonteCarlo law/source owner"
+    },
+    {
+      "check": "no new raw transport admission proof",
+      "limit": "HistoricalValidationPlan pre-evaluator raw numeric coercion is outside this new propagation repair; direct evaluator rejects non-real malformed bounds",
+      "owner": "maintained typed request frontdoor"
+    },
+    {
+      "check": "GacceptanceUNRUN; formal closure0",
+      "limit": "native cloud profile is not installed/Gintegrated/production/local accepted composition; all old scanner/Ruff/public inventory/inheritedP41 states remain separate",
+      "owner": "G"
+    }
+  ],
+  "properties": [
+    {
+      "negative": "partial typed roster; fake/missing positive admission metadata; forged positive matrix scores; foreign report kind with correct report shape; missing/corrupt/schema negatives independently statically reviewed in maintained tests",
+      "oracle": "derive actual finite ordered bounds and observed hits; requested15/evaluated5 vs15/15 from actual five BacktestKinds; point errors remain valid",
+      "producer_artifact_bridge_consumer_surface": "HistoricalValidationPlan\u2192actualBacktestOrchestrator/Matrix\u2192CASBacktestReport\u2192existing CAS-backed CalibrationLeaderboard/CalibrationValidationRunner\u2192fresh bundle promotion field; native temporal evaluator\u2192report builder\u2192CAS; report\u2192empirical forecast bridge\u2192neutral predictive evidence",
+      "property": "requested numerical interval evidence cannot be promoted/scored as complete by conditional evaluated-pair coverage or positive metadata",
+      "retained_marker": "empty only runtime common helper issues in memory while row counts15/5, labels, diagnostics and profiles stay; temporal/Leaderboard/forecast property each EXPECTED_FAIL"
+    },
+    {
+      "negative": "fake summaryTrue on limited actual result; fake summaryFalse on ordinary complete/point-only controls",
+      "oracle": "actual limited native temporal scenario has passes_allFalse; complete/point-only scenarioTrue; generic annotations retained",
+      "producer_artifact_bridge_consumer_surface": "unchanged native compiler/solver/evaluator deciding output661\u2192publicbuild_temporal_backtest_report atadb\u2192CAS\u2192fresh child reader",
+      "property": "reserved temporal summary must remain recomputed when caller annotations contain a counterfeit summary",
+      "retained_marker": "restore legacy caller overwrite in memory; intervals/counts/typeddegraded/trustFalse retained; diagnostic truth EXPECTED_FAIL, not typed gate escalation"
+    },
+    {
+      "negative": "weighted fakeNormal/IID label and payload-free inferred law; both100requested/100attempted/100finite, unavailable/nongating",
+      "oracle": "actual100draw weighted/bootstrap PosteriorSamplesCarrier(.9/.1) plus callerIID/Normal markers requires generic recipe label and bootstrap/carrier profile, SEMnull; actual typedNormal profile retains namedNormal law and conditional diagnostic",
+      "producer_artifact_bridge_consumer_surface": "typed uncertainty input\u2192actualMonteCarloPropagator\u2192persisted UncertaintyEnvelope\u2192fresh independent child",
+      "property": "sampling_law describes actual input recipe, not unsupported estimator-profile label",
+      "retained_marker": "restore only old constant Normal-law output while all non-gating/status/refusal fields remain; label assertion EXPECTED_FAIL"
+    }
+  ],
+  "reviewer": "/root/oracle_empirical (non-author; no children/source edits)",
+  "schema": "policyos.e02.C09.independent_review.v1",
+  "source": {
+    "G_dependency_MC": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+    "G_dependency_interval": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+    "MC_label_implementation": "66134569f999951e8eefef737424f12aeba24616",
+    "interval_implementation": "aa2d87945c2fc385418188086165927a2fa66cb7",
+    "interval_tree": "25d4ece36d455705c780da3c9e669c8f590aee09",
+    "parent": "66134569f999951e8eefef737424f12aeba24616",
+    "parent_tree": "a1d408e8c9ead9573a9ad846b6672d9c6dc7506e",
+    "sha": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+    "slice_base": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+    "slice_base_tree": "99f904d38e56fc5709a78a3a20c980b6e6fba9d4",
+    "tree": "f2c1f993052c25586420d07c766b868f632fbf39"
+  },
+  "verdict": "GO scoped exact final candidate for shared interval-consumer numerical consistency and truthful MC implemented-recipe metadata; authorize prepared affected wave only"
+}

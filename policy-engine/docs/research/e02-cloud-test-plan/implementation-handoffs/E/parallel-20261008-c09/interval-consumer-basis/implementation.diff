@@ -1,0 +1,1693 @@
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md
+index bff37721a..1dc12cea1 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md
+@@ -14,3 +14,8 @@ P36 B190 supplier clarification: the historical Gf00d execute-summary helper rea
+ 
+ 
+ B190 qualification superseding the preparation note above: e6 is a historical unaccepted candidate, with independent GO withheld after nested `StateSnapshot` NPZ corruption was accepted. The sensitivity writer is widening initial/all-replay NPZ and state-schema validation in a forward source. Final component linkage must use that later exact freeze/receipt after independent GO. No whole-head e6 PASS or completed source acceptance is asserted. CI/MC source and deciding receipts remain unchanged; no suite is repeated for this passive correction.
++
++
++Current G disposition supersedes code-ready delivery wording above: G71ec holds the interval slice pending downstream temporal/matrix/leaderboard/forecast interval-basis propagation; Gd23 holds the MC metadata pending actual sampling-law label correction. Prior bounded intake/arithmetic receipts remain their historical exact-source evidence, not whole downstream acceptance. Forward source repairs are being frozen separately on this original topic history. No G acceptance or formal closure is issued.
++
++B190 completed forward supplier supersedes the pending-link note: runtime `c9125bc5e4d2992adeae468a79189d1fa535c88b` / tree `707e9dbb08dc69d465f87867e51766406aff4fb7` has independent GO and49 affected PASS; its finite initial/every-replay StateSnapshot2.2 NPZ/schema closure refuses corruption before interpretation. Passive companion `f2c102fa2ee588b91b2baaa8c9d1c393699838c0` retains runtime/test blobs. Published receipt carrier `32bfa995ab6208067cfed27359fe8674a54c90cf` / tree `f1be1d5bf3e3c70d3ce325a4c9ec7241d9c0f726` binds `implementation-handoffs/E/parallel-20261008-c09-sensitivity/handoff.json`, SHA256 `2b7a45da07396310197ef7c02d06acf43447275418a288ee86434c2f5bb96f2c`. Historical665/e6 GO-withheld remains visible above. Native4r−2/J[4,0] is distinct from callbackx−2/J1; actual Node adoption and installed composition remain UNRUN.
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json
+new file mode 100644
+index 000000000..b3d3e99d3
+--- /dev/null
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json
+@@ -0,0 +1,28 @@
++{
++  "schema": "policyos.e02.minimum_dependency_packet.v1",
++  "original_owner": "E/C09 producer; C10 composed predictive consumer",
++  "property": "authentic ordered paired interval roster/currentness beyond numerical report consistency",
++  "source_choice": "existing ForecastOwner observed DataSnapshot and explicit train/holdout/horizon contract, not new row-ID schema",
++  "existing_source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++  "existing_fields": [
++    "ForecastOwnerRequest.observed_source_ref",
++    "ForecastOwnerRequest.split.train_end/holdout_start/holdout_end/horizon",
++    "ForecastOwnerRequest.target_metric",
++    "report manifest inputs",
++    "HistoricalValidationPlan.historical_data_ref",
++    "HistoricalValidationPlan.ground_truth_outcomes",
++    "ordered prediction_interval horizons",
++    "method/rule/model/policy refs"
++  ],
++  "minimum_packet": [
++    "actual resolved observed source/converted DataSnapshot refs and bytes",
++    "exact request split/target metric/ordered horizon roster",
++    "actual forecast and interval bundle refs/manifest lineage",
++    "selected report ref/manifest/bytes/current reader"
++  ],
++  "consumer_requirement": "C10 compare each ordered observation/prediction/bound tuple against source holdout and prediction horizons. Duplicate/omitted/substituted rows retaining counts must refuse or recompute. Do not reject repeated metric names or identical values by themselves.",
++  "this_slice": "checks declared counts, finite ordered actual bounds/hits, retained producer limitations and real report CAS profile/bytes plus matrix/kind roster; no authentic source-axis or Runtime/scientific authority admission",
++  "limitation": "OutcomeComparison contains metric_name but no row/time identity; a consistently substituted row tuple cannot be detected solely from this report schema.",
++  "positive_genuine_runtime_admission": "UNRUN; actual C10/S10 verifier context is separate from fixture-content predictive context",
++  "no_new_schema_or_service": true
++}
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/preparation.json b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/preparation.json
+new file mode 100644
+index 000000000..011ef4ee6
+--- /dev/null
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/preparation.json
+@@ -0,0 +1,33 @@
++{
++  "schema": "policyos.e02.C09.interval_consumer_preparation.v1",
++  "slice_base": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
++  "slice_base_tree": "99f904d38e56fc5709a78a3a20c980b6e6fba9d4",
++  "G_interval_grant": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
++  "G_latest_doc_dependency": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
++  "canonical_writer": "C09; original E producer ownership preserved",
++  "scope": "P40 same known interval-admissibility class across actual public consumers",
++  "invariant": "requested interval basis is admitted only when actual bounds/hits/typed roster/counts and retained producer limitations reconcile; positive markers alone cannot override it",
++  "actual_consumers": [
++    "PredictionEvaluator",
++    "BacktestOrchestrator",
++    "evaluate_temporal_trajectory/build_temporal_backtest_report",
++    "BacktestMatrixRunner/scorer",
++    "CalibrationValidationRunner\u2192existing CAS-backed CalibrationLeaderboard",
++    "produce/persist/load empirical forecast evidence"
++  ],
++  "ABI": "CalibrationLeaderboard(store=None) additive; existing store reused, no second CAS. Same exports and report schema; missing store yields diagnostic score plus explicit nonpromotion gap.",
++  "supported_controls": [
++    "point-only",
++    "complete paired legacy report lacking admission metadata",
++    "complete predictive ETS report with separate bridge_pending limitation",
++    "clean actual CAS report kind/schema/bytes and full matrix/kind/scenario roster"
++  ],
++  "artifact_profile_check": "Reuse existing forecast_bridge._load_verified_report rather than shape-only IR load.",
++  "limits": [
++    "historical heuristic trust-purpose remains unadjudicated",
++    "fixture governance approval/context not authentic Runtime/scientific authority",
++    "authentic ordered source-row roster is minimum-row-roster-packet.json; UNRUN composed consumer",
++    "no full original B172/B173/B21/E/global closure"
++  ],
++  "delta_only": "Prior CI intake79 and MC37 receipts remain historical exact-source bounded evidence; do not repeat old fullwaves. New changed consumer and sampling-label deltas require independent review/affected checks."
++}
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json
+index 8ee5b7697..d2bccd8ec 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json
+@@ -251,13 +251,13 @@
+         "source/model input refs on matrix manifest",
+         "content-bound evaluator identity"
+       ],
+-      "free_C09_work": "Root-appointed disjoint canonical sensitivity writer has prepared a native scalar-state response producer; e6 is an unaccepted historical candidate. Independent nested StateSnapshot NPZ corruption discriminator withheld GO; initial/all-replay NPZ and state-schema validation widening is pending forward source and review. Use only the later source-bound handoff after that review, not e6 whole-head PASS. No second evaluator or simulation service is introduced.",
++      "free_C09_work": "Root-appointed disjoint canonical sensitivity writer completed forward initial/all-replay StateSnapshot2.2 NPZ/schema closure in c912. Published source-qualified handoff and independent GO cover the finite native scalar-state response producer. Historical e6 nested-corruption acceptance remains unaccepted; no second evaluator or simulation service is introduced.",
+       "partner_bridge": "PropagateUncertaintyNode currently params-only affine; outside C09/C08 declared lease. G must appoint exact Node adapter writer before source mutation.",
+       "tests_proposal": [
+         "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py"
+       ],
+       "consumer_discriminator": "Separate mathematical callback control y=x−2 at x=2 has J=1 and variance1 for input variance1; it has no execute-state response_basis. Native deterministic registered income_tax fixture has government.balance=4r−2 at r=.5, J=4, with a second declared global.tax_rate response having J=0. Wrong axis/unit/source/manifest lineage refuses before state load; no scientific measurement/noise or authority claim.",
+-      "current_work": "Root-appointed /root/producer_packets owns disjoint codex/e02-E-c09-sensitivity-20261008. Historical prepared e6d76c534ee79efea5de38d9e383bbf0b67b1490 / tree e7c6b418607d6b39b55f4a5f6b1d37532788273c adds native scalar-state projection/reader but has no GO/source acceptance after nested NPZ corruption acceptance. Forward finite-closure source pending; PropagateUncertaintyNode remains a separately appointed cross-owner adapter.",
++      "current_work": "The native supplier leaf is published with original history on codex/e02-E-c09-sensitivity-20261008@32bfa995ab6208067cfed27359fe8674a54c90cf. Runtime c912 has independent GO and49 affected PASS; passive f2 has separately reviewed unchanged runtime blobs. Actual PropagateUncertaintyNode adoption and installed composition remain UNRUN under the separately appointed adapter owner.",
+       "frozen_native_producer": {
+         "source_sha": "e6d76c534ee79efea5de38d9e383bbf0b67b1490",
+         "source_tree": "e7c6b418607d6b39b55f4a5f6b1d37532788273c",
+@@ -278,6 +278,20 @@
+         "publication": "Final source/receipt pointer awaits later frozen correction after independent GO; e6 is history only, not a completed whole-head PASS.",
+         "source_status": "historical_prepared_unaccepted_GO_withheld",
+         "independent_limitation": "Nested StateSnapshot NPZ corruption accepted in e6; validation must bind initial and every replay NPZ/state-schema closure before final GO."
++      },
++      "completed_forward_component": {
++        "source_sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
++        "source_tree": "707e9dbb08dc69d465f87867e51766406aff4fb7",
++        "passive_companion_sha": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
++        "passive_companion_tree": "ded11abdc70d4c91bf19cdf6f4a203acb83a3a46",
++        "receipt_carrier": "32bfa995ab6208067cfed27359fe8674a54c90cf",
++        "receipt_tree": "f1be1d5bf3e3c70d3ce325a4c9ec7241d9c0f726",
++        "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/handoff.json",
++        "handoff_sha256": "2b7a45da07396310197ef7c02d06acf43447275418a288ee86434c2f5bb96f2c",
++        "minimum_Node_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json",
++        "checks": "49 PASS exact c912;1 native positive PASS;1 expected retained-marker property-removal FAIL; passive fragment1 fragment/2 rows PASS",
++        "independent_source_review": "GO exact c912; historical665/e6 nested escape not retroactively passed",
++        "remaining": "Actual Node adoption/partial semantics and installed composition UNRUN; no original B190 closure, scientific response-law certification or G acceptance."
+       }
+     },
+     {
+@@ -608,7 +622,7 @@
+   "missing_historical_custody": "No old raw archive transfer or source PR prose used as new candidate PASS. Non-deciding175c history not mandatory new-method input.",
+   "next_concrete_results": [
+     "publish narrow MC conditional mean error source/receipt after independent review",
+-    "consume later forward native scalar-state sensitivity source/receipt after independent initial/all-replay NPZ/schema corruption negatives and GO; e6 remains unaccepted history; then exact G-appointed Node adapter",
++    "consume published c912/32bfa995 native scalar-state sensitivity source/receipt after independent finite NPZ/schema closure GO; e6 remains unaccepted history; implement exact G-appointed Node adapter",
+     "G selects compatible ForecastOwner v2 +calibration facade source, C10 configured actual consumer replay",
+     "G/C07 choose existing observed-feature law intake, C09/C08 supply exact profile then BERL/C10/C11 negatives"
+   ]
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-08-c09-interval-consumer-basis.toml b/policy-engine/release-fragments/unreleased/2026-10-08-c09-interval-consumer-basis.toml
+new file mode 100644
+index 000000000..c7f984636
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-08-c09-interval-consumer-basis.toml
+@@ -0,0 +1,27 @@
++id = "2026-10-08-c09-interval-consumer-basis"
++title = "Preserve incomplete interval basis through backtest consumers"
++type = "fixed"
++component = "scientist"
++owner = "team-scientist"
++summary = "Recompute one shared interval basis for temporal reports, matrix scores, forecast evidence and CAS-backed calibration promotion; incomplete requested pairs cannot be promoted by positive markers."
++limitations = "Computed temporal summary remains bound to actual interval basis; caller annotations cannot override it. Scientific/source-row/Runtime authority remains outside this numerical consistency contract."
++change_class = "internal"
++surface_classification = "internal: report consumers and additive existing-CAS injection"
++compatibility = "Point-only and complete legacy paired reports remain supported. CalibrationLeaderboard's optional store argument is additive; store-free calls remain diagnostic, without promotion. No report schema or facade changes."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md", "src/polisyos/calibration/README.md"]
++runbook_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
++evidence = ["tests/unit/scientist/methods/backtesting/test_interval_basis.py", "tests/unit/scientist/governance/test_interval_basis_promotion.py", "tests/unit/calibration/test_forecast_interval_basis.py"]
++
++[[compatibility_change]]
++id = "c09-existing-cas-interval-consumer"
++change_class = "internal"
++impact = "internal"
++surface = "internal: polisyos.scientist.governance.calibration_leaderboard"
++owner = "team-scientist"
++version_owner = "team-scientist"
++deprecation_window = "not_applicable"
++release_note = "CalibrationLeaderboard optionally accepts the existing runner CAS; legacy store-free calls remain diagnostic and cannot establish promotion."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
++runbook_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml b/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml
+index a45d65449..e16d4add6 100644
+--- a/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml
++++ b/policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml
+@@ -3,7 +3,7 @@ title = "Separate conditional Monte Carlo mean error from outcome dispersion"
+ type = "added"
+ component = "foundry"
+ owner = "team-foundry"
+-summary = "Persist a non-gating mean-estimator numerical-error diagnostic for complete fixed random typed-Normal draws; unsupported laws and incomplete/adaptive/QMC corpora remain unavailable."
++summary = "Persist a non-gating mean-estimator numerical-error diagnostic with actual input-recipe metadata; unsupported laws and incomplete/adaptive/QMC corpora remain unavailable."
+ change_class = "internal"
+ surface_classification = "internal: uncertainty numerical diagnostics"
+ compatibility = "Existing outcome intervals, mc_std, composition profiles, result schema and gates are unchanged. The new conditional diagnostic does not establish scientific IID, finite-variance or authority admission."
+diff --git a/policy-engine/src/polisyos/calibration/README.md b/policy-engine/src/polisyos/calibration/README.md
+index 28cda33ec..210a827c7 100644
+--- a/policy-engine/src/polisyos/calibration/README.md
++++ b/policy-engine/src/polisyos/calibration/README.md
+@@ -24,3 +24,15 @@ separate `scientist/calibration` package root.
+ - `apply_calibrator`
+ - `compare_calibrators`
+ - `to_validation_report`
++
++## Internal interval report consistency
++
++`interval_basis.py` is an internal helper shared by backtest report consumers. It reconciles
++finite ordered bounds, actual observed hits, requested/evaluated counts and retained limitations;
++its numerical consistency result does not establish scientific sampling law or authority.
++The forecast bridge rejects an incomplete interval basis while retaining descriptive conditional
++coverage. Complete predictive evidence can still be content-consistent when a separate consumer
++bridge is pending; genuine Runtime/S10 admission remains a separate contract.
++
++Scientist governance consumers may reuse this calibration helper. It has no package-root export
++and introduces no additional CAS, service or authority registry.
+diff --git a/policy-engine/src/polisyos/calibration/forecast_bridge.py b/policy-engine/src/polisyos/calibration/forecast_bridge.py
+index db07beb89..4d6c81e75 100644
+--- a/policy-engine/src/polisyos/calibration/forecast_bridge.py
++++ b/policy-engine/src/polisyos/calibration/forecast_bridge.py
+@@ -28,6 +28,7 @@ from pydantic import (
+     model_validator,
+ )
+ 
++from polisyos.calibration.interval_basis import _reconcile_interval_basis
+ from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
+ from polisyos.ir.artifacts import (
+     ArtifactID,
+@@ -155,6 +156,7 @@ _TRIVIAL_IDENTITY_VALUES = frozenset(
+ 
+ _OBSERVATION_BLOCKERS = frozenset(
+     {
++        "interval_basis_limited",
+         "interval_bounds_missing",
+         "interval_bounds_partial",
+         "within_ci_missing",
+@@ -183,6 +185,7 @@ _PERSISTENCE_ALLOWED_LIMITATIONS = frozenset(
+     }
+ )
+ 
++
+ class EvidenceArtifactRef(BaseModel):
+     """Typed CAS reference with the contract needed to verify provenance."""
+ 
+@@ -430,19 +433,14 @@ def produce_empirical_calibration_evidence(
+         issues.extend(binding_issues)
+         issues.extend(provenance_issues)
+ 
+-    pass_rate = (
+-        recomputed_numerator / recomputed_denominator
+-        if recomputed_denominator
+-        else None
+-    )
++    pass_rate = recomputed_numerator / recomputed_denominator if recomputed_denominator else None
+     if context is not None and pass_rate is not None and pass_rate < context.calibration_threshold:
+         issues.append("calibration_floor_not_met")
+ 
+     failure_codes = _dedupe(issues)
+     context_bound = context is not None and not binding_issues and not provenance_issues
+-    empirical_observations_available = (
+-        recomputed_denominator > 0
+-        and not any(issue in _OBSERVATION_BLOCKERS for issue in failure_codes)
++    empirical_observations_available = recomputed_denominator > 0 and not any(
++        issue in _OBSERVATION_BLOCKERS for issue in failure_codes
+     )
+     floor_passed = bool(
+         context_bound
+@@ -462,12 +460,8 @@ def produce_empirical_calibration_evidence(
+         method_ref=context.method_ref if context else None,
+         method_version=context.method_version if context else None,
+         rule_version_ref=context.rule_version_ref if context else None,
+-        authority_scope=(
+-            context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE
+-        ),
+-        may_not_use_for=(
+-            context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS
+-        ),
++        authority_scope=(context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE),
++        may_not_use_for=(context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS),
+         evidence_origin=context.evidence_origin if context else None,
+         calibration_threshold=context.calibration_threshold if context else None,
+         nominal_confidence_level=nominal_confidence_level,
+@@ -488,9 +482,7 @@ def produce_empirical_calibration_evidence(
+         calibration_window_start=context.calibration_window_start if context else None,
+         calibration_window_end=context.calibration_window_end if context else None,
+         evidence_kind=(
+-            "observed_interval_comparisons"
+-            if recomputed_denominator
+-            else "unavailable"
++            "observed_interval_comparisons" if recomputed_denominator else "unavailable"
+         ),
+         empirical_observations_available=empirical_observations_available,
+         context_bound=context_bound,
+@@ -514,9 +506,7 @@ def persist_empirical_calibration_evidence(
+     """Persist neutral evidence and return its typed CAS reference."""
+ 
+     if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+-        raise ValueError(
+-            "legacy empirical calibration evidence must not be repersisted"
+-        )
++        raise ValueError("legacy empirical calibration evidence must not be repersisted")
+     expected = _reproduce_evidence(store, evidence)
+     if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+         raise ValueError("new empirical calibration evidence must use schema 1.1")
+@@ -602,16 +592,11 @@ def _validate_evidence_input_edges(
+ 
+     expected = [
+         (str(evidence.report_ref.artifact_id), "backtest_report"),
+-        *(
+-            (str(ref.artifact_id), role)
+-            for role, ref in _context_refs(evidence)
+-        ),
++        *((str(ref.artifact_id), role) for role, ref in _context_refs(evidence)),
+     ]
+     actual = _manifest_input_edges(store, evidence_ref.artifact_id)
+     if sorted(actual) != sorted(expected):
+-        raise ValueError(
+-            "empirical evidence manifest input edge/role binding mismatch"
+-        )
++        raise ValueError("empirical evidence manifest input edge/role binding mismatch")
+ 
+ 
+ def _manifest_input_edges(
+@@ -622,9 +607,7 @@ def _manifest_input_edges(
+ 
+     manifest = _as_mapping(store.get_manifest(artifact_id))
+     raw_inputs = _field(manifest, "inputs")
+-    if not isinstance(raw_inputs, Sequence) or isinstance(
+-        raw_inputs, (str, bytes, bytearray)
+-    ):
++    if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
+         raise ValueError("artifact manifest inputs are missing or malformed")
+     edges: list[tuple[str, str]] = []
+     for raw_input in raw_inputs:
+@@ -659,9 +642,7 @@ def _reproduce_evidence(
+         expected_payload["schema_version"] = LEGACY_EVIDENCE_SCHEMA_VERSION
+         expected_payload["nominal_confidence_level"] = None
+     if expected_payload != evidence.model_dump(mode="json"):
+-        raise ValueError(
+-            "empirical evidence payload is not reproducible from its report"
+-        )
++        raise ValueError("empirical evidence payload is not reproducible from its report")
+     return expected
+ 
+ 
+@@ -725,9 +706,7 @@ def _context_from_evidence(
+ 
+     _report_ref, report = _load_verified_report(store, evidence.report_ref)
+     if not report.model_spec_ref or not report.policy_spec_ref:
+-        raise ValueError(
+-            "persisted evidence context lacks a complete report model/policy pair"
+-        )
++        raise ValueError("persisted evidence context lacks a complete report model/policy pair")
+     return EmpiricalCalibrationContext.model_validate(
+         {
+             "model_spec_ref": report.model_spec_ref,
+@@ -849,9 +828,7 @@ def _context_reference_issues(
+         (str(ref.artifact_id), role) for role, ref in _context_refs(context)
+     )
+     actual_context_edges = tuple(
+-        (artifact_id, role)
+-        for artifact_id, role in input_edges
+-        if role in _REFERENCE_INPUT_ROLES
++        (artifact_id, role) for artifact_id, role in input_edges if role in _REFERENCE_INPUT_ROLES
+     )
+     if sorted(actual_context_edges) != sorted(expected_context_edges):
+         issues.append("report_context_input_edges_mismatch")
+@@ -866,9 +843,7 @@ def _context_reference_issues(
+         try:
+             payload = _validate_and_load_reference(store, ref, role=role)
+         except (FileNotFoundError, OSError, TypeError, ValueError):
+-            issues.extend(
+-                ("provenance_ref_unresolved", f"provenance_ref_invalid:{role}")
+-            )
++            issues.extend(("provenance_ref_unresolved", f"provenance_ref_invalid:{role}"))
+             continue
+         payloads.setdefault(role, []).append(payload)
+ 
+@@ -897,9 +872,7 @@ def _context_reference_issues(
+             context,
+         )
+     )
+-    return _dedupe(issues), {
+-        role: tuple(values) for role, values in payloads.items()
+-    }
++    return _dedupe(issues), {role: tuple(values) for role, values in payloads.items()}
+ 
+ 
+ def _report_input_edges(
+@@ -918,9 +891,7 @@ def _report_input_edges(
+     except (FileNotFoundError, OSError, TypeError, ValueError):
+         return ()
+     raw_inputs = _field(manifest, "inputs")
+-    if not isinstance(raw_inputs, Sequence) or isinstance(
+-        raw_inputs, (str, bytes, bytearray)
+-    ):
++    if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
+         return ()
+     relations: list[tuple[str, str]] = []
+     for raw_input in raw_inputs:
+@@ -990,9 +961,7 @@ def _validate_and_load_reference(
+         raise ValueError("evidence reference role mismatch")
+     _validate_reference_identity_contract(ref, role)
+     try:
+-        expected_kind, expected_schema_name, expected_schema_version = (
+-            REFERENCE_PROFILES[role]
+-        )
++        expected_kind, expected_schema_name, expected_schema_version = REFERENCE_PROFILES[role]
+     except KeyError as exc:
+         raise ValueError("unsupported evidence reference role") from exc
+     if ref.media_type != "application/json":
+@@ -1060,6 +1029,8 @@ def _recompute_and_reconcile(
+     )
+ 
+     for scenario in report.scenarios:
++        if not _reconcile_interval_basis(scenario).complete:
++            issues.append("interval_basis_limited")
+         scenario_recomputed_numerator = 0
+         scenario_recomputed_denominator = 0
+         complete_bounds_count = 0
+@@ -1131,9 +1102,7 @@ def _recompute_and_reconcile(
+             issues.append("persisted_projection_incomplete")
+     if report.overall_coverage_probability is not None:
+         expected_overall = (
+-            recomputed_numerator / recomputed_denominator
+-            if recomputed_denominator
+-            else None
++            recomputed_numerator / recomputed_denominator if recomputed_denominator else None
+         )
+         if expected_overall is None or report.overall_coverage_probability != expected_overall:
+             issues.append("persisted_overall_coverage_mismatch")
+@@ -1305,9 +1274,7 @@ def _collect_scope_values(value: object) -> dict[str, list[str]]:
+                 target = str(key)
+                 if target in collected or target in plural:
+                     canonical = (
+-                        collected[target]
+-                        if target in collected
+-                        else collected[plural[target]]
++                        collected[target] if target in collected else collected[plural[target]]
+                     )
+                     canonical.extend(_as_text_sequence(child))
+                 else:
+@@ -1355,9 +1322,7 @@ def _validate_reference_identity_contract(
+     if expected_path is None:
+         raise ValueError("unsupported evidence reference role")
+     if ref.identity_path != expected_path:
+-        raise ValueError(
+-            f"evidence reference identity path must be {expected_path!r} for {role}"
+-        )
++        raise ValueError(f"evidence reference identity path must be {expected_path!r} for {role}")
+     normalized = ref.identity_value.strip().casefold()
+     if (
+         normalized in _TRIVIAL_IDENTITY_VALUES
+@@ -1472,8 +1437,7 @@ def _payload_contains_forbidden_marker(payload: object) -> bool:
+     markers = ("synthetic", "fixture", "self-attest", "self_attest", "self attest")
+     if isinstance(payload, Mapping):
+         return any(
+-            _payload_contains_forbidden_marker(key)
+-            or _payload_contains_forbidden_marker(value)
++            _payload_contains_forbidden_marker(key) or _payload_contains_forbidden_marker(value)
+             for key, value in payload.items()
+         )
+     if isinstance(payload, Sequence) and not isinstance(payload, (str, bytes, bytearray)):
+diff --git a/policy-engine/src/polisyos/calibration/interval_basis.py b/policy-engine/src/polisyos/calibration/interval_basis.py
+new file mode 100644
+index 000000000..e46f0a326
+--- /dev/null
++++ b/policy-engine/src/polisyos/calibration/interval_basis.py
+@@ -0,0 +1,133 @@
++"""Internal reconciliation of a scenario's declared interval evidence.
++
++This numerical completeness check supplies no scientific or Runtime authority.
++Point-only reports remain point-only; conditional coverage is descriptive when
++the requested interval roster is incomplete or its projections contradict rows.
++"""
++
++from __future__ import annotations
++
++import math
++import numbers
++from dataclasses import dataclass
++
++from polisyos.ir.analytics.backtest import BacktestScenario
++
++
++def _read_interval(value: object) -> tuple[tuple[float, float] | None, str | None]:
++    """Read a finite ordered numeric pair without repairing its contents."""
++    if not isinstance(value, (list, tuple)) or len(value) != 2:
++        return None, "invalid_interval_shape"
++    if any(isinstance(bound, bool) or not isinstance(bound, numbers.Real) for bound in value):
++        return None, "non_numeric_interval"
++    try:
++        lower, upper = float(value[0]), float(value[1])
++    except (TypeError, ValueError, OverflowError):
++        return None, "non_finite_interval"
++    if not math.isfinite(lower) or not math.isfinite(upper):
++        return None, "non_finite_interval"
++    if lower > upper:
++        return None, "reversed_interval"
++    return (lower, upper), None
++
++
++@dataclass(frozen=True)
++class _IntervalBasis:
++    requested: bool
++    requested_count: int
++    evaluated_count: int
++    hit_count: int
++    issues: tuple[str, ...]
++
++    @property
++    def complete(self) -> bool:
++        return not self.issues
++
++
++def _reconcile_interval_basis(scenario: BacktestScenario) -> _IntervalBasis:
++    """Derive completeness from actual bounds, observations and typed counts.
++
++    An absent metadata marker does not invalidate a reconcilable legacy report.
++    A positive marker never overrides a missing row, a wrong count or a retained
++    producer limitation (including extra metric/time axes not present in rows).
++    """
++    rows = scenario.outcome_comparisons
++    admission = scenario.metadata.get("interval_admission")
++    requested = bool(
++        scenario.interval_requested_count
++        or scenario.interval_available_count
++        or scenario.interval_evaluated_count
++        or scenario.interval_hit_count
++        or scenario.interval_availability is not None
++        or scenario.interval_hit_rate is not None
++        or scenario.coverage_probability is not None
++        or any(
++            row.ci_lower is not None or row.ci_upper is not None or row.within_ci is not None
++            for row in rows
++        )
++        or admission is not None
++    )
++    if not requested:
++        return _IntervalBasis(False, 0, 0, 0, ())
++
++    issues: list[str] = []
++    expected = max(scenario.interval_requested_count, scenario.requested_count, len(rows))
++    if expected == 0 or scenario.interval_requested_count != expected:
++        issues.append("interval_requested_roster_mismatch")
++    if len(rows) != expected:
++        issues.append("interval_point_roster_incomplete")
++    if scenario.requested_count and scenario.compared_count != len(rows):
++        issues.append("interval_point_projection_mismatch")
++
++    evaluated = 0
++    hits = 0
++    for row in rows:
++        bounds, reason = _read_interval((row.ci_lower, row.ci_upper))
++        if bounds is None:
++            issues.append("interval_bounds_unavailable:" + str(reason))
++            continue
++        evaluated += 1
++        hit = bounds[0] <= row.y_true <= bounds[1]
++        hits += int(hit)
++        if row.within_ci is not hit:
++            issues.append("interval_hit_projection_mismatch")
++
++    if evaluated != expected:
++        issues.append("interval_evaluated_roster_incomplete")
++    if scenario.interval_available_count != evaluated:
++        issues.append("interval_available_projection_mismatch")
++    if scenario.interval_evaluated_count != evaluated:
++        issues.append("interval_evaluated_projection_mismatch")
++    if scenario.interval_hit_count != hits:
++        issues.append("interval_hits_projection_mismatch")
++    availability = evaluated / expected if expected else None
++    rate = hits / evaluated if evaluated else None
++    for actual, derived in (
++        (scenario.interval_availability, availability),
++        (scenario.interval_hit_rate, rate),
++    ):
++        if actual != derived:
++            issues.append("interval_rate_projection_mismatch")
++    # Legacy interval_hit_rate is the measured projection; the optional
++    # coverage alias need not exist, but it cannot contradict actual rows.
++    if scenario.coverage_probability is not None and scenario.coverage_probability != rate:
++        issues.append("interval_rate_projection_mismatch")
++
++    if isinstance(admission, dict):
++        if (
++            admission.get("status") == "limited"
++            or admission.get("limitations")
++            or admission.get("reconciled_issues")
++        ):
++            issues.append("producer_interval_limitations")
++        if (
++            admission.get("requested_count", expected) != expected
++            or admission.get("evaluated_count", evaluated) != evaluated
++        ):
++            issues.append("interval_metadata_projection_mismatch")
++    elif admission is not None:
++        issues.append("interval_metadata_malformed")
++    return _IntervalBasis(requested, expected, evaluated, hits, tuple(dict.fromkeys(issues)))
++
++
++__all__: list[str] = []
+diff --git a/policy-engine/src/polisyos/foundry/uncertainty/README.md b/policy-engine/src/polisyos/foundry/uncertainty/README.md
+index 8fbdae4b4..8808513d8 100644
+--- a/policy-engine/src/polisyos/foundry/uncertainty/README.md
++++ b/policy-engine/src/polisyos/foundry/uncertainty/README.md
+@@ -60,3 +60,11 @@ Scientific source/law authority and served consumer admission remain separate.
+ The diagnostic persists in the existing uncertainty envelope metadata and reads
+ back through the maintained CAS reader. Existing outcome intervals, composition
+ profiles, `mc_std` and their gate semantics are unchanged by this additive field.
++
++`sampling_law` describes the implemented input recipe; it names the typed-Normal
++product only on that actual fixed-random input profile. Other carriers, inferred
++laws, adaptive stopping and QMC paths keep a generic implemented-recipe label and
++their actual `input_recipe_profiles` family/carrier fields. The diagnostic's
++`supported_estimator_profile` is a separate eligibility profile, never an assertion
++that unsupported actual inputs followed that law. Input metadata labels cannot
++override these fields, and correcting them does not change any numerical estimator.
+diff --git a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+index df6bf1966..1b2c0a71a 100644
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -333,12 +333,35 @@ def _mean_estimator_error(
+ ) -> dict[str, Any]:
+     """Describe conditional numerical error, never admit a scientific IID law."""
+     n = int(values.size)
++    normal_input_profile = bool(input_envelopes) and all(
++        isinstance(env.distribution_payload, ParametricFitCarrier)
++        and env.distribution_family is DistributionFamily.NORMAL
++        and _normal_parametric_fit(env) is not None
++        and _normal_parametric_fit(env)[1] >= 1e-12
++        for env in input_envelopes.values()
++    )
+     diagnostic: dict[str, Any] = {
+         "status": "unavailable",
+         "standard_error": None,
+         "target": "implemented_push_forward_mean",
+         "estimator": "sample_mean",
+-        "sampling_law": "implemented_product_of_typed_normal_fits",
++        "sampling_law": (
++            "implemented_product_of_typed_normal_fits"
++            if normal_input_profile and qmc_method is None and not config.adaptive_stopping.enabled
++            else "implemented_input_sampling_recipe"
++        ),
++        "supported_estimator_profile": "fixed_random_product_of_typed_normal_fits",
++        "input_recipe_profiles": {
++            name: {
++                "distribution_family": env.distribution_family.value,
++                "carrier": (
++                    type(env.distribution_payload).__name__
++                    if env.distribution_payload is not None
++                    else None
++                ),
++            }
++            for name, env in input_envelopes.items()
++        },
+         "sampling_method": config.mc_sampling_method,
+         "seed": int(config.mc_seed),
+         "requested_draw_count": requested_count,
+@@ -357,13 +380,7 @@ def _mean_estimator_error(
+         reason = "qmc_replica_means_not_retained"
+     elif config.adaptive_stopping.enabled:
+         reason = "adaptive_sampling"
+-    elif not input_envelopes or any(
+-        not isinstance(env.distribution_payload, ParametricFitCarrier)
+-        or env.distribution_family is not DistributionFamily.NORMAL
+-        or _normal_parametric_fit(env) is None
+-        or _normal_parametric_fit(env)[1] < 1e-12
+-        for env in input_envelopes.values()
+-    ):
++    elif not normal_input_profile:
+         reason = "unsupported_input_sampling_law"
+     elif n < 2:
+         reason = "insufficient_independent_draws"
+diff --git a/policy-engine/src/polisyos/scientist/governance/backtest_matrix.py b/policy-engine/src/polisyos/scientist/governance/backtest_matrix.py
+index 9f29a70a7..519360e70 100644
+--- a/policy-engine/src/polisyos/scientist/governance/backtest_matrix.py
++++ b/policy-engine/src/polisyos/scientist/governance/backtest_matrix.py
+@@ -15,6 +15,7 @@ from typing import Any
+ 
+ from pydantic import BaseModel, ConfigDict, Field
+ 
++from polisyos.calibration.interval_basis import _reconcile_interval_basis
+ from polisyos.core.artifacts.manifest import InputRef
+ from polisyos.core.artifacts.store import FileSystemCAS
+ from polisyos.core.contracts.backtest import BacktestReportRef
+@@ -202,16 +203,23 @@ class BacktestMatrixRunner:
+                 notes.extend(str(item) for item in scenario_warnings)
+ 
+             scenarios_for_kind = scenario_groups[kind]
++            limited_interval_basis = any(
++                not _reconcile_interval_basis(scenario).complete for scenario in scenarios_for_kind
++            )
++            gap_flag = f"limited_interval_basis:{kind.value}" if limited_interval_basis else None
++            if gap_flag is not None:
++                gap_flags.append(gap_flag)
+             kind_results.append(
+                 BacktestKindResult(
+                     kind=kind,
+-                    status="ok",
++                    status="gap" if limited_interval_basis else "ok",
+                     score=_score_backtest_scenarios(scenarios_for_kind),
+                     n_plans=len(plans),
+                     n_scenarios=len(scenarios_for_kind),
+                     scenario_ids=[scenario.scenario_id for scenario in scenarios_for_kind],
+                     observation_families=list(_BACKTEST_KIND_FAMILIES[kind]),
+                     notes=notes,
++                    gap_flag=gap_flag,
+                     metadata={
+                         "holdout_windows": list(bundle.holdout_windows),
+                         "historical_payload_keys": sorted(bundle.historical_payloads.keys()),
+@@ -287,7 +295,7 @@ class BacktestMatrixRunner:
+ 
+ 
+ def _score_backtest_scenarios(scenarios: list[BacktestScenario]) -> float | None:
+-    if not scenarios:
++    if not scenarios or any(not _reconcile_interval_basis(item).complete for item in scenarios):
+         return None
+     scenario_scores: list[float] = []
+     for scenario in scenarios:
+diff --git a/policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py b/policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py
+index df8e9cafd..9ab9e0d37 100644
+--- a/policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py
++++ b/policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py
+@@ -13,19 +13,26 @@ from typing import Any
+ 
+ from pydantic import BaseModel, ConfigDict, Field
+ 
++from polisyos.calibration.forecast_bridge import _load_verified_report
++from polisyos.calibration.interval_basis import _reconcile_interval_basis
+ from polisyos.core.artifacts.manifest import ArtifactRef
++from polisyos.core.artifacts.store import FileSystemCAS
+ from polisyos.foundry.methods.catalog.causal.strategic import StrategicSolveResult
+ from polisyos.foundry.methods.catalog.sensitivity.specification import SpecificationCurveEstimator
+ from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkInterferenceReport
+ from polisyos.ir.analytics.transportability import TransportabilityResult, TransportabilityStatus
+ from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
+-from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
+-from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
++from polisyos.scientist.governance.backtest_matrix import (
++    BacktestKind,
++    BacktestMatrixResult,
++    _score_backtest_scenarios,
++)
+ from polisyos.scientist.governance.calibration import (
+     CalibrationAdversarialResult,
+     CalibrationGovernanceReport,
+ )
+ from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
++from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
+ 
+ _WEIGHTS: dict[str, float] = {
+     "calibration_fit_score": 0.20,
+@@ -91,7 +98,8 @@ class CalibrationLeaderboard:
+     entries by eligibility, composite score, and deterministic tie-breakers.
+     """
+ 
+-    def __init__(self) -> None:
++    def __init__(self, store: FileSystemCAS | None = None) -> None:
++        self._store = store
+         self._specification_curve_estimator = SpecificationCurveEstimator()
+ 
+     def build_entry(
+@@ -113,6 +121,7 @@ class CalibrationLeaderboard:
+     ) -> CalibrationLeaderboardEntry:
+         """Assemble a leaderboard entry from governance and validation evidence."""
+ 
++        interval_basis_issues = self._backtest_basis_issues(backtest_matrix)
+         metrics = CalibrationLeaderboardMetrics(
+             calibration_fit_score=_clamp(calibration_fit_score),
+             backtest_matrix_score=(
+@@ -139,7 +148,15 @@ class CalibrationLeaderboard:
+             governance_verdict=governance_report.resolved_verdict(),
+             adversarial_passed=_adversarial_passed(governance_report.adversarial_results),
+         )
+-        gap_flags = _collect_gap_flags(metrics)
++        gap_flags = list(
++            dict.fromkeys(
++                [
++                    *_collect_gap_flags(metrics),
++                    *(backtest_matrix.gap_flags if backtest_matrix is not None else []),
++                    *interval_basis_issues,
++                ]
++            )
++        )
+         metrics.gap_flags = gap_flags
+         metrics.composite_score = _compute_composite_score(metrics)
+         metrics.eligible_for_promotion = (
+@@ -159,6 +176,62 @@ class CalibrationLeaderboard:
+             metadata=dict(metadata or {}),
+         )
+ 
++    def _backtest_basis_issues(self, matrix: BacktestMatrixResult | None) -> list[str]:
++        """Read the actual report before admitting a matrix's interval basis.
++
++        The store is the existing runner's CAS, not a separate authority service.
++        Legacy score-only calls remain diagnostic and cannot establish promotion.
++        """
++        if matrix is None:
++            return []
++        if self._store is None or matrix.backtest_report_ref is None:
++            return ["backtest_interval_basis_unresolved"]
++        try:
++            _, report = _load_verified_report(self._store, matrix.backtest_report_ref)
++        except (OSError, ValueError, KeyError):
++            return ["backtest_interval_basis_unresolved"]
++        issues: list[str] = []
++        if report.report_id != matrix.report_id:
++            issues.append("backtest_report_identity_mismatch")
++        report_ids = [scenario.scenario_id for scenario in report.scenarios]
++        matrix_ids = [
++            identifier for item in matrix.kind_results for identifier in item.scenario_ids
++        ]
++        if (
++            not report_ids
++            or sorted(report_ids) != sorted(matrix_ids)
++            or len(set(report_ids)) != len(report_ids)
++        ):
++            issues.append("backtest_scenario_roster_mismatch")
++        if {item.kind for item in matrix.kind_results} != set(BacktestKind) or len(
++            matrix.kind_results
++        ) != len(BacktestKind):
++            issues.append("backtest_kind_roster_mismatch")
++        scores: list[float] = []
++        for item in matrix.kind_results:
++            scenarios = [
++                scenario
++                for scenario in report.scenarios
++                if scenario.metadata.get("backtest_kind") == item.kind.value
++            ]
++            if sorted(scenario.scenario_id for scenario in scenarios) != sorted(item.scenario_ids):
++                issues.append("backtest_kind_scenario_mismatch")
++            if len(scenarios) != item.n_scenarios:
++                issues.append("backtest_kind_count_mismatch")
++            if any(not _reconcile_interval_basis(scenario).complete for scenario in scenarios):
++                issues.append("backtest_interval_basis_limited")
++            actual_score = _score_backtest_scenarios(scenarios)
++            if actual_score != item.score:
++                issues.append("backtest_kind_score_mismatch")
++            if item.status != "ok" or item.gap_flag is not None:
++                issues.append("backtest_kind_unavailable")
++            if actual_score is not None:
++                scores.append(actual_score)
++        actual_composite = sum(scores) / len(scores) if scores else None
++        if actual_composite != matrix.composite_score:
++            issues.append("backtest_composite_score_mismatch")
++        return list(dict.fromkeys(issues))
++
+     def rank(
+         self, entries: Sequence[CalibrationLeaderboardEntry]
+     ) -> list[CalibrationLeaderboardEntry]:
+diff --git a/policy-engine/src/polisyos/scientist/governance/calibration_validation.py b/policy-engine/src/polisyos/scientist/governance/calibration_validation.py
+index 12f35c0e3..eb8152fcc 100644
+--- a/policy-engine/src/polisyos/scientist/governance/calibration_validation.py
++++ b/policy-engine/src/polisyos/scientist/governance/calibration_validation.py
+@@ -25,7 +25,6 @@ from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkI
+ from polisyos.ir.analytics.transportability import TransportabilityResult
+ from polisyos.ir.observation.bundles import BacktestPlanBundle
+ from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
+-from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
+ from polisyos.scientist.governance.accountability import (
+     GovernanceAccountabilityInput,
+     build_governance_accountability_artifact,
+@@ -46,6 +45,7 @@ from polisyos.scientist.governance.stress_scenarios import (
+     StressScenarioResult,
+     StressScenarioRunner,
+ )
++from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
+ 
+ 
+ class CalibrationValidationRunnerInput(BaseModel):
+@@ -191,7 +191,7 @@ class CalibrationValidationRunner:
+         self._store = store
+         self._backtest_runner = backtest_runner or BacktestMatrixRunner(store)
+         self._stress_runner = stress_runner or StressScenarioRunner(store)
+-        self._leaderboard = leaderboard or CalibrationLeaderboard()
++        self._leaderboard = leaderboard or CalibrationLeaderboard(store)
+         self._lesson_publisher = lesson_publisher or CalibrationValidationLessonPublisher()
+ 
+     def run(self, bundle: CalibrationValidationRunnerInput) -> CalibrationValidationRunnerResult:
+@@ -339,7 +339,11 @@ class CalibrationValidationLessonPublisher:
+         bundle_input: CalibrationValidationRunnerInput,
+         bundle: CalibrationValidationBundle,
+     ) -> ArtifactRef | None:
+-        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonTrustLevel
++        from polisyos.scientist.methods.search.lessons import (
++            LessonCard,
++            LessonKind,
++            LessonTrustLevel,
++        )
+         from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
+ 
+         registry = bundle_input.lesson_registry
+diff --git a/policy-engine/src/polisyos/scientist/methods/backtesting/README.md b/policy-engine/src/polisyos/scientist/methods/backtesting/README.md
+index 2dfea9bd3..90a0d1967 100644
+--- a/policy-engine/src/polisyos/scientist/methods/backtesting/README.md
++++ b/policy-engine/src/polisyos/scientist/methods/backtesting/README.md
+@@ -39,6 +39,29 @@ Empirical interval hits measure these paired synthetic/observed cases, not causa
+ population calibration, equivalence, or institutional authority. The historical heuristic trust
+ profile on this source remains a separate accountable purpose/profile decision.
+ 
++### Interval basis through report consumers
++
++The internal `polisyos.calibration.interval_basis` check recomputes completeness from each
++scenario's actual bounds, observations, hits and declared counts. Temporal report construction,
++matrix scoring, empirical forecast evidence and calibration promotion all consume this same
++check. Missing or positive metadata labels cannot turn a partial interval roster into a complete
++one; retained producer limitations also remain blocking. Conditional coverage and valid point
++errors stay readable while an incomplete interval basis is unavailable for scoring or promotion.
++Caller annotations cannot replace the recomputed temporal summary; unrelated annotations remain.
++
++`CalibrationValidationRunner` injects its existing CAS into `CalibrationLeaderboard`.
++The optional constructor store argument is additive: callers without a store may still obtain
++diagnostic scores, but cannot establish promotion. With a store, the leaderboard resolves and
++verifies the report's kind, schema and bytes, scenario/kind roster and recomputed matrix scores.
++Complete legacy paired reports need no new metadata marker. Point-only reports remain supported,
++and a complete predictive ETS report's separate bridge-pending limitation does not itself imply
++an interval-basis defect.
++
++The current `OutcomeComparison` schema has metric names but no row/time identity. This check
++does not establish the authentic source roster or detect substituted equal rows whose declared
++counts remain consistent. A scientific population/axis admission needs the actual source/row
++contract; this internal consistency check supplies no Runtime or institutional authority.
++
+ ## Public API
+ 
+ - `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`
+diff --git a/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py b/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py
+index 5f9f5e3eb..58a38150c 100644
+--- a/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py
++++ b/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py
+@@ -3,31 +3,14 @@
+ from __future__ import annotations
+ 
+ import math
+-import numbers
+ from typing import Any
+ 
+ import numpy as np
+ 
++from polisyos.calibration.interval_basis import _read_interval, _reconcile_interval_basis
+ from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
+ 
+ 
+-def _read_interval(value: object) -> tuple[tuple[float, float] | None, str | None]:
+-    """Admit the declared finite ordered pair without repairing its contents."""
+-    if not isinstance(value, (list, tuple)) or len(value) != 2:
+-        return None, "invalid_interval_shape"
+-    if any(isinstance(bound, bool) or not isinstance(bound, numbers.Real) for bound in value):
+-        return None, "non_numeric_interval"
+-    try:
+-        lower, upper = float(value[0]), float(value[1])
+-    except (TypeError, ValueError, OverflowError):
+-        return None, "non_finite_interval"
+-    if not math.isfinite(lower) or not math.isfinite(upper):
+-        return None, "non_finite_interval"
+-    if lower > upper:
+-        return None, "reversed_interval"
+-    return (lower, upper), None
+-
+-
+ class PredictionEvaluator:
+     """Compute per-metric replay errors and interval coverage for one scenario."""
+ 
+@@ -235,7 +218,7 @@ class PredictionEvaluator:
+         if interval_type is not None and not isinstance(interval_type, str):
+             interval_type = str(interval_type)
+ 
+-        return BacktestScenario(
++        scenario = BacktestScenario(
+             scenario_id=scenario_id,
+             scenario_label=scenario_label,
+             jurisdiction=jurisdiction,
+@@ -266,6 +249,13 @@ class PredictionEvaluator:
+             percentage_error_count=len(percentage_errors),
+             metadata=metadata_payload,
+         )
++        if interval_contract_declared:
++            basis = _reconcile_interval_basis(scenario)
++            scenario.metadata["interval_admission"]["status"] = (
++                "evaluated" if basis.complete else "limited"
++            )
++            scenario.metadata["interval_admission"]["reconciled_issues"] = list(basis.issues)
++        return scenario
+ 
+ 
+ __all__ = ["PredictionEvaluator"]
+diff --git a/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py b/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py
+index 6dadf8370..18681dfd6 100644
+--- a/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py
++++ b/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py
+@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, cast
+ 
+ import numpy as np
+ 
++from polisyos.calibration.interval_basis import _reconcile_interval_basis
+ from polisyos.core.artifacts.ids import ArtifactID
+ from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store, ensure_ir_artifact_store
+ from polisyos.core.canon import from_canonical_bytes
+@@ -329,8 +330,7 @@ class BacktestOrchestrator:
+             data_source=plan.historical_data_ref or plan.historical_data_path or "",
+             metadata=scenario_metadata,
+         )
+-        interval_admission = scenario.metadata.get("interval_admission")
+-        if isinstance(interval_admission, dict) and interval_admission.get("status") == "limited":
++        if not _reconcile_interval_basis(scenario).complete:
+             degraded_reasons.append("interval_admission_limited")
+         return (
+             scenario,
+@@ -881,7 +881,14 @@ class BacktestOrchestrator:
+             metadata_payload["trust_screening"] = trust_screening.value
+ 
+         biases, statistical_degraded_reasons = self._detect_systematic_biases(scenarios)
+-        all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
++        interval_reasons = [
++            f"{scenario.scenario_id}: interval_admission_limited"
++            for scenario in scenarios
++            if not _reconcile_interval_basis(scenario).complete
++        ]
++        all_degraded_reasons = list(
++            dict.fromkeys([*degraded_reasons, *statistical_degraded_reasons, *interval_reasons])
++        )
+         if trust_screening is not TrustScreeningMode.DEFAULT:
+             all_degraded_reasons.append(f"trust_screening:{trust_screening.value}")
+ 
+diff --git a/policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py b/policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py
+index ec97f3aab..91babca4f 100644
+--- a/policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py
++++ b/policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py
+@@ -8,6 +8,7 @@ from typing import Any
+ 
+ import numpy as np
+ 
++from polisyos.calibration.interval_basis import _reconcile_interval_basis
+ from polisyos.foundry.methods.catalog.causal.structural_time_series import TemporalTrajectoryResult
+ from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import TemporalCompileError
+ from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario
+@@ -166,6 +167,7 @@ def evaluate_temporal_trajectory(
+     acceptance_checks["diagnostics_complete"] = bool(diagnostics_checks["complete"])
+     for name, value in (extra_acceptance_checks or {}).items():
+         acceptance_checks[str(name)] = bool(value)
++    acceptance_checks["interval_basis_complete"] = _reconcile_interval_basis(scenario).complete
+ 
+     passes = all(acceptance_checks.values()) if acceptance_checks else True
+     actual_outcome = "pass"
+@@ -215,6 +217,7 @@ def evaluate_temporal_trajectory(
+         ),
+     }
+ 
++    interval_admission = dict(scenario.metadata.get("interval_admission", {}))
+     scenario.metadata.update(
+         {
+             "temporal_metrics": {
+@@ -235,6 +238,8 @@ def evaluate_temporal_trajectory(
+             **dict(metadata or {}),
+         }
+     )
++    # Caller annotations cannot replace the evaluator's interval roster/basis.
++    scenario.metadata["interval_admission"] = interval_admission
+ 
+     return TemporalEvaluationResult(
+         scenario=scenario,
+@@ -324,7 +329,11 @@ def summarize_temporal_evaluations(
+     """Aggregate temporal evaluation outcomes for suite-level scorecards."""
+ 
+     n_total = len(evaluations)
+-    n_passed = sum(1 for item in evaluations if item.matches_expected_outcome)
++    n_passed = sum(
++        1
++        for item in evaluations
++        if item.matches_expected_outcome and _reconcile_interval_basis(item.scenario).complete
++    )
+     safe_rejection_cases = [
+         item for item in evaluations if item.expected_outcome == "safe_rejection"
+     ]
+@@ -354,6 +363,7 @@ def summarize_temporal_evaluations(
+         item.uncertainty_metrics["band_coverage"]
+         for item in evaluations
+         if "band_coverage" in item.uncertainty_metrics
++        and _reconcile_interval_basis(item.scenario).complete
+     ]
+ 
+     diagnostics_presence_rate = _mean(
+@@ -405,6 +415,11 @@ def build_temporal_backtest_report(
+             if scenario.coverage_probability is not None
+         ]
+     )
++    interval_reasons = [
++        f"{scenario.scenario_id}: interval_admission_limited"
++        for scenario in scenarios
++        if not _reconcile_interval_basis(scenario).complete
++    ]
+     return BacktestReport(
+         report_id=report_id,
+         scenarios=scenarios,
+@@ -414,9 +429,12 @@ def build_temporal_backtest_report(
+         overall_coverage_probability=overall_coverage,
+         n_scenarios=len(scenarios),
+         n_metrics_evaluated=sum(len(scenario.outcome_comparisons) for scenario in scenarios),
++        degraded=bool(interval_reasons),
++        degraded_reasons=interval_reasons,
++        trust_eligible=bool(scenarios) and not interval_reasons,
+         metadata={
+-            "temporal_summary": summary,
+             **dict(metadata or {}),
++            "temporal_summary": summary,
+         },
+     )
+ 
+diff --git a/policy-engine/tests/unit/calibration/test_forecast_interval_basis.py b/policy-engine/tests/unit/calibration/test_forecast_interval_basis.py
+new file mode 100644
+index 000000000..ab2845674
+--- /dev/null
++++ b/policy-engine/tests/unit/calibration/test_forecast_interval_basis.py
+@@ -0,0 +1,71 @@
++"""Content-bound predictive fixture evidence is separate from Runtime authority."""
++
++from __future__ import annotations
++
++import runpy
++from pathlib import Path
++
++import pytest
++
++from polisyos.calibration.forecast_bridge import (
++    load_empirical_calibration_evidence,
++    persist_empirical_calibration_evidence,
++    produce_empirical_calibration_evidence,
++)
++from polisyos.core.artifacts import FileSystemCAS
++from polisyos.ir.analytics.backtest import persist_backtest_report
++from polisyos.ir.artifacts import InputRef
++
++
++@pytest.mark.parametrize("marker", ["missing", "fake_complete", "limited"])
++def test_actual_forecast_evidence_does_not_admit_conditional_partial_pairs(tmp_path, marker):
++    fixture = runpy.run_path(str(Path(__file__).parents[1] / "remediation/test_frc_02_bridge.py"))
++    store, _, report, refs = fixture["_persist_report"](
++        tmp_path, label=marker, observations=(True, None, None), threshold=0.5
++    )
++    scenario = report.scenarios[0]
++    if marker != "missing":
++        scenario.metadata["interval_admission"] = {
++            "status": "evaluated" if marker == "fake_complete" else "limited",
++            "requested_count": 3,
++            "evaluated_count": 3,
++        }
++    ref = persist_backtest_report(
++        store,
++        report,
++        inputs=[
++            InputRef(artifact_id=value["artifact_id"], role=role) for role, value in refs.items()
++        ],
++    )
++    evidence = produce_empirical_calibration_evidence(store, ref, context=fixture["_context"](refs))
++    assert evidence.context_bound  # fixture content/role reconciliation, no current EvalSafety
++    assert evidence.recomputed_denominator == 1
++    assert evidence.recomputed_pass_rate == 1.0
++    assert "interval_basis_limited" in evidence.failure_codes
++    assert not evidence.usable_for_calibration and not evidence.floor_passed
++    with pytest.raises(ValueError, match="blocked"):
++        persist_empirical_calibration_evidence(store, evidence)
++
++
++def test_complete_predictive_bridge_pending_is_not_refused_by_generic_degraded_flag(tmp_path):
++    fixture = runpy.run_path(str(Path(__file__).parents[1] / "remediation/test_frc_02_bridge.py"))
++    store, _, report, refs = fixture["_persist_report"](
++        tmp_path, label="complete-predictive", observations=(True, True, True), threshold=0.5
++    )
++    report.degraded, report.trust_eligible = True, False
++    report.degraded_reasons = ["predictive_only_bridge_pending"]
++    ref = persist_backtest_report(
++        store,
++        report,
++        inputs=[
++            InputRef(artifact_id=value["artifact_id"], role=role) for role, value in refs.items()
++        ],
++    )
++    evidence = produce_empirical_calibration_evidence(store, ref, context=fixture["_context"](refs))
++    assert evidence.usable_for_calibration and evidence.floor_passed
++    assert evidence.recomputed_denominator == 3
++    eref = persist_empirical_calibration_evidence(store, evidence)
++    fresh = load_empirical_calibration_evidence(FileSystemCAS(store.root), eref)
++    assert fresh.usable_for_calibration
++    assert fresh.authority_scope == "predictive_only"
++    assert "s10_authority" in fresh.may_not_use_for
+diff --git a/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py b/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py
+index ff6b899ec..ed0386521 100644
+--- a/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py
++++ b/policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py
+@@ -123,6 +123,46 @@ def test_weighted_empirical_draw_axis_and_iid_marker_do_not_launder_profile() ->
+     assert diagnostic["status"] == "unavailable"
+     assert diagnostic["standard_error"] is None
+     assert diagnostic["reason"] == "unsupported_input_sampling_law"
++    assert diagnostic["sampling_law"] == "implemented_input_sampling_recipe"
++    assert diagnostic["input_recipe_profiles"]["x"] == {
++        "distribution_family": "bootstrap",
++        "carrier": "PosteriorSamplesCarrier",
++    }
++
++
++@pytest.mark.parametrize("profile", ["typed_normal", "weighted_empirical", "legacy_inferred"])
++def test_observed_input_recipe_label_survives_actual_mc_and_fresh_cas(tmp_path, profile):
++    env = _normal_law()
++    if profile == "weighted_empirical":
++        env = env.model_copy(
++            update={
++                "distribution_family": DistributionFamily.BOOTSTRAP,
++                "distribution_payload": PosteriorSamplesCarrier(
++                    samples=(-1.0, 1.0), weights=(0.9, 0.1), sample_axis="draw"
++                ),
++                "metadata": {
++                    "sampling_law": "implemented_product_of_typed_normal_fits",
++                    "iid": True,
++                },
++            }
++        )
++    elif profile == "legacy_inferred":
++        env = env.model_copy(update={"distribution_payload": None})
++    result = _propagate(PropagationConfig(mc_n_samples=100, mc_seed=42), env)
++    ref = persist_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), result.envelope)
++    fresh = load_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), ref)
++    diagnostic = fresh.metadata["mean_estimator_error"]
++    assert diagnostic["requested_draw_count"] == diagnostic["attempted_draw_count"] == 100
++    assert diagnostic["finite_output_count"] == 100
++    assert diagnostic["gate_eligible"] is False and fresh.gate_eligible is False
++    assert diagnostic["supported_estimator_profile"] == "fixed_random_product_of_typed_normal_fits"
++    if profile == "typed_normal":
++        assert diagnostic["sampling_law"] == "implemented_product_of_typed_normal_fits"
++        assert diagnostic["status"] == "conditional_estimate"
++    else:
++        assert diagnostic["sampling_law"] == "implemented_input_sampling_recipe"
++        assert diagnostic["status"] == "unavailable" and diagnostic["standard_error"] is None
++        assert diagnostic["reason"] == "unsupported_input_sampling_law"
+ 
+ 
+ def test_adaptive_sampling_does_not_use_fixed_iid_formula() -> None:
+diff --git a/policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py b/policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py
+index 381bb8283..13ef25791 100644
+--- a/policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py
++++ b/policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py
+@@ -1,5 +1,8 @@
+ from __future__ import annotations
+ 
++import runpy
++from pathlib import Path
++
+ from polisyos.core.artifacts.manifest import ArtifactRef
+ from polisyos.core.contracts.backtest import BacktestReportRef
+ from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+@@ -14,14 +17,11 @@ from polisyos.ir.analytics.interference import (
+ )
+ from polisyos.ir.analytics.strategic import StrategicFallbackMode
+ from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
+-from polisyos.scientist.methods.discovery.utility_judge import (
+-    DownstreamUtilityReport,
+-    HypothesisUtilityScore,
+-)
+ from polisyos.scientist.governance.backtest_matrix import (
+     BacktestKind,
+     BacktestKindResult,
+     BacktestMatrixResult,
++    BacktestMatrixRunner,
+ )
+ from polisyos.scientist.governance.calibration import (
+     CalibrationAdversarialResult,
+@@ -33,6 +33,10 @@ from polisyos.scientist.governance.stress_scenarios import (
+     StressScenarioKind,
+     StressScenarioResult,
+ )
++from polisyos.scientist.methods.discovery.utility_judge import (
++    DownstreamUtilityReport,
++    HypothesisUtilityScore,
++)
+ 
+ 
+ def _artifact_ref(seed: str) -> ArtifactRef:
+@@ -150,14 +154,18 @@ def _network_interference_report() -> NetworkInterferenceReport:
+     )
+ 
+ 
+-def test_calibration_leaderboard_populates_all_metric_slots() -> None:
+-    leaderboard = CalibrationLeaderboard()
++def test_calibration_leaderboard_populates_all_metric_slots(tmp_path, cas_store) -> None:
++    fixture = runpy.run_path(str(Path(__file__).with_name("test_interval_basis_promotion.py")))
++    matrix = BacktestMatrixRunner(cas_store).run(
++        {kind: fixture["_bundle"](tmp_path, kind, None) for kind in BacktestKind}
++    )
++    leaderboard = CalibrationLeaderboard(cas_store)
+     entry = leaderboard.build_entry(
+         run_id="R_lb_full",
+         candidate_ref=_artifact_ref("a"),
+         governance_report=_governance_report(),
+         calibration_fit_score=0.92,
+-        backtest_matrix=_backtest_matrix(),
++        backtest_matrix=matrix,
+         stress_scenarios=_stress_result(),
+         specification_curve_input=SpecificationCurveInput(
+             specification_ids=["s1", "s2", "s3"],
+@@ -190,6 +198,20 @@ def test_calibration_leaderboard_populates_all_metric_slots() -> None:
+     assert metrics.eligible_for_promotion is True
+ 
+ 
++def test_legacy_score_without_resolvable_report_store_is_diagnostic_only() -> None:
++    entry = CalibrationLeaderboard().build_entry(
++        run_id="legacy-score",
++        candidate_ref=_artifact_ref("a"),
++        governance_report=_governance_report(),
++        calibration_fit_score=0.9,
++        backtest_matrix=_backtest_matrix(),
++        stress_scenarios=_stress_result(),
++    )
++    assert entry.metrics.backtest_matrix_score == 0.8
++    assert not entry.metrics.eligible_for_promotion
++    assert "backtest_interval_basis_unresolved" in entry.metrics.gap_flags
++
++
+ def test_calibration_leaderboard_renormalizes_composite_on_optional_gaps() -> None:
+     leaderboard = CalibrationLeaderboard()
+     entry = leaderboard.build_entry(
+diff --git a/policy-engine/tests/unit/scientist/governance/test_calibration_validation.py b/policy-engine/tests/unit/scientist/governance/test_calibration_validation.py
+index a8c3283f3..ea2333712 100644
+--- a/policy-engine/tests/unit/scientist/governance/test_calibration_validation.py
++++ b/policy-engine/tests/unit/scientist/governance/test_calibration_validation.py
+@@ -2,6 +2,7 @@ from __future__ import annotations
+ 
+ import json
+ 
++from polisyos.core.artifacts import PutOptions
+ from polisyos.core.artifacts.manifest import ArtifactRef
+ from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
+ from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
+@@ -183,7 +184,10 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
+     result = runner.run(
+         CalibrationValidationRunnerInput(
+             run_id="R_c5b_full",
+-            candidate_ref=_artifact_ref("a"),
++            candidate_ref=cas_store.put_json(
++                {"synthetic_candidate": "R_c5b_full"},
++                PutOptions(kind="scientist.test", media_type="application/json"),
++            ),
+             governance_report=_governance_report(),
+             calibration_fit_score=0.91,
+             backtest_plan_bundles={kind: _plan_bundle(tmp_path, kind) for kind in BacktestKind},
+@@ -240,7 +244,10 @@ def test_calibration_validation_runner_blocks_eligibility_on_missing_transport_a
+     result = runner.run(
+         CalibrationValidationRunnerInput(
+             run_id="R_c5b_gaps",
+-            candidate_ref=_artifact_ref("b"),
++            candidate_ref=cas_store.put_json(
++                {"synthetic_candidate": "R_c5b_gaps"},
++                PutOptions(kind="scientist.test", media_type="application/json"),
++            ),
+             governance_report=_governance_report(),
+             calibration_fit_score=0.9,
+             backtest_plan_bundles={kind: _plan_bundle(tmp_path, kind) for kind in BacktestKind},
+diff --git a/policy-engine/tests/unit/scientist/governance/test_interval_basis_promotion.py b/policy-engine/tests/unit/scientist/governance/test_interval_basis_promotion.py
+new file mode 100644
+index 000000000..123687f76
+--- /dev/null
++++ b/policy-engine/tests/unit/scientist/governance/test_interval_basis_promotion.py
+@@ -0,0 +1,160 @@
++"""Actual C5b replay/CAS interval completeness; approval inputs are fixtures."""
++
++from __future__ import annotations
++
++import json
++import runpy
++from pathlib import Path
++
++import pytest
++
++from polisyos.core.artifacts import FileSystemCAS, PutOptions
++from polisyos.core.artifacts.manifest import SchemaInfo
++from polisyos.core.canon import CanonSpec
++from polisyos.ir.analytics.backtest import load_backtest_report
++from polisyos.ir.analytics.interference import InterferenceCertificate
++from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
++from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
++from polisyos.ir.registry.refs import BacktestReportRef
++from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
++from polisyos.scientist.governance.calibration_leaderboard import CalibrationLeaderboard
++from polisyos.scientist.governance.calibration_validation import (
++    CalibrationValidationRunner,
++    CalibrationValidationRunnerInput,
++    load_calibration_validation_bundle,
++)
++from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
++
++
++def _bundle(tmp_path, kind, intervals):
++    path = tmp_path / (kind.value + ".json")
++    path.write_text(json.dumps({"m": [0.0, 0.0, 0.0]}))
++    plan = HistoricalValidationPlan(
++        plan_id=kind.value,
++        historical_data_path=str(path),
++        prediction_source=PredictionSource.PROVIDED,
++        predicted_outcomes={"m": [0.0, 0.0, 0.0]},
++        ground_truth_outcomes={"m": [0.0, 0.0, 0.0]},
++        prediction_intervals=None if intervals is None else {"m": intervals},
++    )
++    return BacktestPlanBundle(
++        contract_target=ContractCompatibilityTarget(
++            contract_id=kind.value, contract_fqn="test.plan"
++        ),
++        required_fields=["m"],
++        plans=[plan.model_dump(mode="json")],
++    )
++
++
++@pytest.mark.parametrize("profile", ["complete", "partial", "point_only"])
++def test_actual_validation_matrix_leaderboard_and_fresh_cas_consume_interval_basis(
++    tmp_path, profile
++):
++    fixture = runpy.run_path(str(Path(__file__).with_name("test_calibration_validation.py")))
++    store = FileSystemCAS(tmp_path / "cas")
++    candidate = store.put_json(
++        {"synthetic_candidate": True},
++        PutOptions(kind="test.candidate", media_type="application/json"),
++    )
++    intervals = {"complete": [(-1.0, 1.0)] * 3, "partial": [(-1.0, 1.0)], "point_only": None}[
++        profile
++    ]
++    result = CalibrationValidationRunner(store).run(
++        CalibrationValidationRunnerInput(
++            run_id="interval-" + profile,
++            candidate_ref=candidate,
++            governance_report=fixture["_governance_report"](),
++            calibration_fit_score=0.9,
++            backtest_plan_bundles={
++                kind: _bundle(tmp_path, kind, intervals) for kind in BacktestKind
++            },
++            specification_curve_input=SpecificationCurveInput(
++                specification_ids=["a", "b"], estimates=[0.3, 0.31], standard_errors=[0.1, 0.1]
++            ),
++            downstream_utility_report=fixture["_utility_report"](),
++            network_interference_report=fixture["_interference_report"](),
++            interference_certificate=InterferenceCertificate(
++                supported_query_family="spillover",
++                fallback_mode="pairwise",
++                reduction_error_bound=0.05,
++            ),
++            strategic_summary={
++                "fallback_mode": "exact_equilibrium",
++                "multiplicity_note": "disclosed",
++            },
++            baseline_metrics={"policy_value": 100.0},
++        )
++    )
++    fresh = load_calibration_validation_bundle(FileSystemCAS(tmp_path / "cas"), result.bundle_ref)
++    report = load_backtest_report(store, fresh.backtest_report_ref)
++    assert len(report.scenarios) == 5
++    assert sum(s.interval_requested_count for s in report.scenarios) == (
++        0 if profile == "point_only" else 15
++    )
++    expected_evaluated = {"complete": 15, "partial": 5, "point_only": 0}[profile]
++    assert sum(s.interval_evaluated_count for s in report.scenarios) == expected_evaluated
++    eligible = fresh.leaderboard_entry.metrics.eligible_for_promotion
++    assert eligible is (profile != "partial")  # fixture policy outcome, no institutional authority
++    if profile == "partial":
++        assert fresh.backtest_matrix.composite_score is None
++        assert all(s.rmse == 0.0 for s in report.scenarios)
++        assert all(s.coverage_probability == 1.0 for s in report.scenarios)
++        assert "backtest_interval_basis_limited" in fresh.leaderboard_entry.metrics.gap_flags
++        forged = fresh.backtest_matrix.model_copy(deep=True)
++        forged.composite_score = 1.0
++        forged.gap_flags = []
++        for item in forged.kind_results:
++            item.status, item.score, item.gap_flag = "ok", 1.0, None
++        # Consumers resolve original CAS rows instead of accepting these retained positive markers.
++        entry = CalibrationLeaderboard(store).build_entry(
++            run_id="forged",
++            candidate_ref=candidate,
++            governance_report=fixture["_governance_report"](),
++            calibration_fit_score=0.9,
++            backtest_matrix=forged,
++            stress_scenarios=fresh.stress_scenarios,
++        )
++        assert not entry.metrics.eligible_for_promotion
++        assert "backtest_interval_basis_limited" in entry.metrics.gap_flags
++
++
++@pytest.mark.parametrize("profile", ["wrong_kind", "wrong_schema", "missing", "corrupt"])
++def test_leaderboard_resolves_report_profile_and_bytes_before_accepting_shape(tmp_path, profile):
++    fixture = runpy.run_path(str(Path(__file__).with_name("test_calibration_leaderboard.py")))
++    store = FileSystemCAS(tmp_path / "cas")
++    matrix = BacktestMatrixRunner(store).run(
++        {kind: _bundle(tmp_path, kind, None) for kind in BacktestKind}
++    )
++    report = load_backtest_report(store, matrix.backtest_report_ref)
++    if profile == "missing":
++        matrix.backtest_report_ref = BacktestReportRef(artifact_id="sha256:" + "0" * 64)
++    elif profile == "corrupt":
++        # Corrupt the actual stored blob, leaving the typed ref and positive matrix markers.
++        store._paths(matrix.backtest_report_ref.artifact_id)[0].write_bytes(b"{}")
++    else:
++        payload = report.model_dump(mode="json")
++        payload["metadata"]["profile_negative"] = profile
++        wrong = store.put_json(
++            payload,
++            PutOptions(
++                kind="test.other_report" if profile == "wrong_kind" else "ir.backtest_report",
++                media_type="application/json",
++                schema=SchemaInfo(
++                    name="ir.backtest_report",
++                    version="9.9" if profile == "wrong_schema" else "1.0",
++                ),
++            ),
++            canon_spec=CanonSpec(forbid_floats=False),
++        )
++        # A correctly shaped report is insufficient when its actual CAS profile differs.
++        matrix.backtest_report_ref = BacktestReportRef(artifact_id=wrong.artifact_id)
++    entry = CalibrationLeaderboard(store).build_entry(
++        run_id="profile-negative",
++        candidate_ref=None,
++        governance_report=fixture["_governance_report"](),
++        calibration_fit_score=0.9,
++        backtest_matrix=matrix,
++        stress_scenarios=fixture["_stress_result"](),
++    )
++    assert not entry.metrics.eligible_for_promotion
++    assert "backtest_interval_basis_unresolved" in entry.metrics.gap_flags
+diff --git a/policy-engine/tests/unit/scientist/methods/backtesting/test_interval_basis.py b/policy-engine/tests/unit/scientist/methods/backtesting/test_interval_basis.py
+new file mode 100644
+index 000000000..991a6bec4
+--- /dev/null
++++ b/policy-engine/tests/unit/scientist/methods/backtesting/test_interval_basis.py
+@@ -0,0 +1,179 @@
++"""Behavioral consumers of the recomputed interval roster (synthetic only)."""
++
++from __future__ import annotations
++
++import json
++import runpy
++from pathlib import Path
++
++import pytest
++
++from polisyos.calibration.interval_basis import _reconcile_interval_basis
++from polisyos.core.artifacts import FileSystemCAS
++from polisyos.ir.analytics.backtest import load_backtest_report, persist_backtest_report
++from polisyos.ir.registry.refs import BacktestReportRef
++from polisyos.scientist.governance.backtest_matrix import _score_backtest_scenarios
++from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
++from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
++from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
++from polisyos.scientist.methods.backtesting.temporal import (
++    TemporalEvaluationResult,
++    TemporalThresholds,
++    build_temporal_backtest_report,
++    evaluate_temporal_trajectory,
++)
++
++
++@pytest.mark.parametrize(
++    "admission", [None, {"status": "evaluated", "requested_count": 3, "evaluated_count": 3}]
++)
++def test_fake_or_missing_marker_cannot_admit_partial_actual_rows(admission):
++    scenario = PredictionEvaluator().evaluate(
++        scenario_id="partial",
++        scenario_label="partial",
++        y_pred={"m": [0.0, 0.0, 0.0]},
++        y_true={"m": [0.0, 0.0, 0.0]},
++        intervals={"m": [(-1.0, 1.0)]},
++    )
++    scenario.metadata = {} if admission is None else {"interval_admission": admission}
++    basis = _reconcile_interval_basis(scenario)
++    assert not basis.complete
++    assert (basis.requested_count, basis.evaluated_count) == (3, 1)
++    assert scenario.coverage_probability == 1.0
++    assert scenario.rmse == 0.0
++    assert _score_backtest_scenarios([scenario]) is None
++
++
++def test_complete_legacy_and_point_only_have_no_new_marker_requirement():
++    evaluator = PredictionEvaluator()
++    complete = evaluator.evaluate(
++        scenario_id="legacy",
++        scenario_label="legacy",
++        y_pred={"m": [0.0, 0.0, 0.0]},
++        y_true={"m": [-1.0, 0.0, 1.0]},
++        intervals={"m": [(-1.0, 1.0)] * 3},
++    )
++    complete.metadata = {}
++    complete.coverage_probability = None  # legacy alias absent; measured hit rate remains
++    assert _reconcile_interval_basis(complete).complete
++    point = evaluator.evaluate(
++        scenario_id="point", scenario_label="point", y_pred={"m": [0.0]}, y_true={"m": [0.0]}
++    )
++    assert not _reconcile_interval_basis(point).requested
++    assert _score_backtest_scenarios([point]) == 1.0
++
++
++def test_counts_and_hits_are_recomputed_instead_of_accepting_complete_label():
++    scenario = PredictionEvaluator().evaluate(
++        scenario_id="contradiction",
++        scenario_label="contradiction",
++        y_pred={"m": [0.0]},
++        y_true={"m": [2.0]},
++        intervals={"m": [(-1.0, 1.0)]},
++    )
++    scenario.interval_hit_count = 1
++    scenario.interval_hit_rate = scenario.coverage_probability = 1.0
++    scenario.outcome_comparisons[0].within_ci = True
++    scenario.metadata = {"interval_admission": {"status": "evaluated"}}
++    assert not _reconcile_interval_basis(scenario).complete
++
++
++def test_retained_recomputed_issue_and_orphan_hit_rate_cannot_become_point_only():
++    scenario = PredictionEvaluator().evaluate(
++        scenario_id="retained",
++        scenario_label="retained",
++        y_pred={"m": [0.0]},
++        y_true={"m": [0.0]},
++        intervals={"m": [(-1.0, 1.0)]},
++    )
++    scenario.metadata["interval_admission"].update(
++        status="evaluated", reconciled_issues=["interval_point_roster_incomplete"]
++    )
++    assert not _reconcile_interval_basis(scenario).complete
++    point = PredictionEvaluator().evaluate(
++        scenario_id="point", scenario_label="point", y_pred={"m": [0.0]}, y_true={"m": [0.0]}
++    )
++    point.interval_hit_rate = 1.0
++    assert not _reconcile_interval_basis(point).complete
++
++
++def test_empty_requested_axis_and_retained_extra_pair_are_not_point_only():
++    scenario = PredictionEvaluator().evaluate(
++        scenario_id="empty-axis",
++        scenario_label="empty-axis",
++        y_pred={"m": []},
++        y_true={"m": []},
++        intervals={"m": [(-1.0, 1.0)]},
++    )
++    assert scenario.metadata["interval_admission"]["status"] == "limited"
++    assert not _reconcile_interval_basis(scenario).complete
++    assert _score_backtest_scenarios([scenario]) is None
++
++
++def test_real_orchestrator_scenario_cannot_escape_temporal_persisted_projection(tmp_path):
++    cas_store = FileSystemCAS(tmp_path / "cas")
++    history = tmp_path / "history.json"
++    history.write_text(json.dumps({"m": [0.0, 0.0, 0.0]}))
++    report = BacktestOrchestrator(cas=cas_store).run(
++        [
++            HistoricalValidationPlan(
++                plan_id="partial",
++                historical_data_path=str(history),
++                prediction_source=PredictionSource.PROVIDED,
++                predicted_outcomes={"m": [0.0, 0.0, 0.0]},
++                ground_truth_outcomes={"m": [0.0, 0.0, 0.0]},
++                prediction_intervals={"m": [(-1.0, 1.0)]},
++            )
++        ]
++    )
++    fresh = load_backtest_report(cas_store, BacktestReportRef(artifact_id=report.cas_artifact_id))
++    # This typed projection fixture is not a temporal trajectory producer/authority.
++    carrier = TemporalEvaluationResult(
++        scenario=fresh.scenarios[0],
++        pointwise_metrics={},
++        functional_metrics={},
++        uncertainty_metrics={"band_coverage": 1.0},
++        diagnostics_checks={"complete": True},
++        gating_checks={},
++        thresholds={},
++        acceptance_checks={},
++        expected_outcome="pass",
++        actual_outcome="pass",
++        matches_expected_outcome=True,
++        passes=True,
++    )
++    result = build_temporal_backtest_report(
++        report_id="projection",
++        evaluations=[carrier],
++        metadata={"temporal_summary": {"passes_all": True}, "annotation": "keep"},
++    )
++    ref = persist_backtest_report(cas_store, result)
++    reopened = load_backtest_report(cas_store, ref)
++    assert reopened.degraded and not reopened.trust_eligible
++    assert reopened.metadata["temporal_summary"]["passes_all"] is False
++    assert reopened.metadata["annotation"] == "keep"
++    assert reopened.scenarios[0].interval_requested_count == 3
++    assert reopened.scenarios[0].coverage_probability == 1.0
++
++
++def test_actual_temporal_solver_evaluator_preserves_reserved_basis_against_caller_metadata():
++    # Maintained helper calls compile_temporal_estimand and solve_temporal_effect_path.
++    trajectory = runpy.run_path(str(Path(__file__).with_name("test_temporal.py")))["_trajectory"](
++        [0.0, 0.2, 0.4, 0.6]
++    )
++    payload = trajectory.model_dump()
++    payload["confidence_band_lower"] = (1.0, 1.0, 1.0, 1.0)
++    payload["confidence_band_upper"] = (-1.0, -1.0, -1.0, -1.0)
++    malformed = type(trajectory).model_validate(payload)  # genuine supported DTO validation
++    result = evaluate_temporal_trajectory(
++        scenario_id="invalid-band",
++        scenario_label="invalid-band",
++        trajectory=malformed,
++        expected_effect_path=[0.0, 0.2, 0.4, 0.6],
++        thresholds=TemporalThresholds(min_band_coverage=0.0),
++        extra_acceptance_checks={"interval_basis_complete": True},
++        metadata={"interval_admission": {"status": "evaluated", "evaluated_count": 4}},
++    )
++    assert result.scenario.metadata["interval_admission"]["status"] == "limited"
++    assert result.acceptance_checks["interval_basis_complete"] is False
++    assert result.passes is False

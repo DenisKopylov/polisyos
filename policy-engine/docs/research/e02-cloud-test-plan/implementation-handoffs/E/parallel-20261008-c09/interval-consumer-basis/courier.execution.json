@@ -1,0 +1,7 @@
+{
+  "script": "build-lossless-packet.py",
+  "interpreter": "host Python3.12.14 (stdlib-only transfer, no product imports)",
+  "command": "python3 /dev/shm/e02-orch03-20261008/c09-scratch/publish_phase2_packet.py",
+  "returncode": 0,
+  "qualification": "Forward courier retry only after Python3.14 packaging process stalled; all valuable inputs/output/source retained; no product/test replay or outcome inferred from the courier interruption"
+}

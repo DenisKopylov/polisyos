@@ -1,0 +1,359 @@
+{
+  "schema": "policyos.e02.orch03.source_handoff.v1",
+  "role": "C09",
+  "canonical_writer": "/root/c09",
+  "original_unit_owner": "E predictive/calibration producer; B21 original owner A/SIM-03 preserved",
+  "topic": "codex/e02-E-c09-20261008",
+  "slice_base_sha": "6d470eb884c31a8b19ee06058881cf0deaa492f5",
+  "slice_base_tree": "99f904d38e56fc5709a78a3a20c980b6e6fba9d4",
+  "G_interval_dependency": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+  "G_law_dependency": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+  "candidate_sha": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+  "candidate_tree": "9d6577fe7dfc4e238f106e2f0bd22815e1d57e4e",
+  "runtime_source_sha": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+  "runtime_source_tree": "f2c1f993052c25586420d07c766b868f632fbf39",
+  "implementation_commits": [
+    "aa2d87945c2fc385418188086165927a2fa66cb7",
+    "66134569f999951e8eefef737424f12aeba24616",
+    "adb66080e3ac64d73b3faa85d693a47c6c284427",
+    "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2"
+  ],
+  "source_acceptance_G": "not_issued; historical ee0/1b8 HOLD preserved until G selects this forward source",
+  "formal_finding_closure": "not_issued",
+  "closed_ids": [],
+  "admission": {
+    "carrier": "8077016f144712b00a05f0b3b6701c51852f1d21",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH03/parallel-20261008-c09-propagation-resume.json.gz",
+    "branch": "codex/e02-E-c09-20261008",
+    "worktree": "/dev/shm/e02-orch03-20261008/c09",
+    "status": "admitted",
+    "decoded_sha256": "9eab02529709f5a7371785f639acd0e505118b38227905eecaaa8abb9c5fc1c6",
+    "full_JSON_custody": "exactroot807 receipt; not duplicate broad workspace JSON here"
+  },
+  "full_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md",
+      "base_blob": "bff37721a5752e3aa90a56a09e0f845d7c90b671",
+      "candidate_blob": "1dc12cea19ce4e890b528632bb993578bfe65e01"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json",
+      "base_blob": null,
+      "candidate_blob": "b3d3e99d36c02d808bbdf1a3aa2555cc102a389e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/preparation.json",
+      "base_blob": null,
+      "candidate_blob": "011ef4ee62f9f71e5e149ac0f18909ef332e4eaf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json",
+      "base_blob": "8ee5b76977dfe161173fd227c01de61a3e0fb965",
+      "candidate_blob": "d2bccd8ecce7f9c8dffb0dd03c066e03f7813e4c"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-interval-consumer-basis.toml",
+      "base_blob": null,
+      "candidate_blob": "c7f984636091c08051eb9ce1981b829ef05527e5"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-mc-mean-error.toml",
+      "base_blob": "a45d6544911a6a56ffc19c1d2017a83e3e628511",
+      "candidate_blob": "e16d4add6f9e980fa8f3f5d9c4458f470f4eee99"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "base_blob": "28cda33ec03580a83d0d177ae2d053f0eb868752",
+      "candidate_blob": "210a827c7c4c15758a9974fff074413a438177ea"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "base_blob": "db07beb895ca7c2262bcd945d3940bc46e008590",
+      "candidate_blob": "4d6c81e751ac212a8f32bb53cc1993c08e7fd870"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/interval_basis.py",
+      "base_blob": null,
+      "candidate_blob": "e46f0a326ee374dfdb5b3cc762209cde2799ea2b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "base_blob": "8fbdae4b4dbfd655d4b3bed4a925fe1ebf4a31c4",
+      "candidate_blob": "8808513d89071f040e14ed4f11071d52cf19caad"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "base_blob": "df6bf19660512724859dd1d6cd09821b2baca721",
+      "candidate_blob": "1b2c0a71a5849b33f56da024f03ebcf33ef7076d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "base_blob": "9f29a70a7850d75c13ee43b7b321af54ef84af84",
+      "candidate_blob": "519360e709077454624156f3de97de806f03bc53"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py",
+      "base_blob": "df8e9cafd2e705087e8c86182254c17e39efd7dd",
+      "candidate_blob": "9ab9e0d37987f551ddff2688b9c884ae168d37a6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+      "base_blob": "12f35c0e3bf16899fdfbed055dc19ddf012ab8e3",
+      "candidate_blob": "eb8152fccd1aecbd58670ad26be6fb21f2e397af"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "base_blob": "2dfea9bd3d450ecdb4f87cc48bc60468d8412ba0",
+      "candidate_blob": "90a0d19673dee7ca2efc017f4603cfe7d93ccc65"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "base_blob": "5f9f5e3ebf316b38faa81735a5f3942de0fa5d01",
+      "candidate_blob": "58a38150c54281048cc044ae73b73a2428c8c691"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "base_blob": "6dadf837033e0234f0e5c8070b331e29daed765a",
+      "candidate_blob": "18681dfd63018384715fc7c9c30b7aca72a5e2b2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/temporal.py",
+      "base_blob": "ec97f3aabe7be3955b1471fcceab0977d3ec9142",
+      "candidate_blob": "91babca4fa6b711991edd096ff990dd402bba78d"
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_forecast_interval_basis.py",
+      "base_blob": null,
+      "candidate_blob": "ab28456740912acb9893caeae315c74ad5787816"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_mean_estimator_error.py",
+      "base_blob": "ff6b899ecf8d91d7275f56a16336fe9404b3c0c3",
+      "candidate_blob": "ed0386521555f3a996014a11ae8b676bcc63317e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_calibration_leaderboard.py",
+      "base_blob": "381bb82830a86794a933302d1ecdc2082befaa64",
+      "candidate_blob": "13ef25791f81c49173c8173a42a960a79f049e0f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+      "base_blob": "a8c3283f3d134d815f5e96eb4dd11ac9deb20e6a",
+      "candidate_blob": "ea233371294eeb5a41aab02672f05dfcb07673da"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_interval_basis_promotion.py",
+      "base_blob": null,
+      "candidate_blob": "123687f76b0a5a95f3b91f93eb6bd7df39ed18b6"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_interval_basis.py",
+      "base_blob": null,
+      "candidate_blob": "991a6bec453136424f346d391c416850abfc3500"
+    }
+  ],
+  "full_diff": "interval-consumer-basis/implementation.diff",
+  "full_output_custody": "interval-consumer-basis/artifact-manifest.json + archive-members.json.gz; complete stdout/stderr/JUnit/commands/origins/CAS/control bytes, all attempts retained; Git source archives/cache excluded as reproducible, exact source objects retained",
+  "reviews": [
+    {
+      "name": "main",
+      "path": "interval-consumer-basis/independent-main-review.json",
+      "sha256": "774390f75f2b7707c1b8a55756cc622cff59ebbf099a90fc979830b5330fa27c",
+      "decision": "GO"
+    },
+    {
+      "name": "fixture",
+      "path": "interval-consumer-basis/independent-fixture-review.json",
+      "sha256": "6c603af13e63ca4d1e34edc22b0ee8798683d487ccd54c9b810914d3acaea4aa",
+      "decision": "GO"
+    },
+    {
+      "name": "retry",
+      "path": "interval-consumer-basis/independent-retry-review.json",
+      "sha256": "827ed6c6a9278262261999e63cfeda0ddb3da2ac58ed804474185c9c9a278c96",
+      "decision": "GO"
+    }
+  ],
+  "checks": [
+    {
+      "name": "final_affected_wave",
+      "source_sha": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "check_state": "FAIL",
+      "counts": {
+        "PASS": 54,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "denominator": 56,
+      "wall_seconds": 20.479357806994813,
+      "max_rss_kib": 1131524,
+      "origin_denominator": 991,
+      "origin_mismatches": 0,
+      "outputs": "author-final.tar.gz affected.* +loaded-module-origins.json",
+      "reason": "both old calibration_validation fixtures use absent shaped candidate refs; existing real CAS resolver correctly refuses before job. No inherited/P41 attribution."
+    },
+    {
+      "name": "fixture_forward_retry",
+      "source_sha": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+      "check_state": "PASS",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "denominator": 2,
+      "wall_seconds": 15.326852878002683,
+      "max_rss_kib": 1057936,
+      "origin_denominator": 971,
+      "origin_mismatches": 0,
+      "outputs": "author-final.tar.gz fixture-retry.*",
+      "qualification": "only two corrected test body selectors. src/schema/architecture trees byte-identical through b3; all54 unchanged case inputs carried. No whole56-case b3 run asserted."
+    },
+    {
+      "name": "independent_661_defining_controls",
+      "source_sha": "66134569f999951e8eefef737424f12aeba24616",
+      "check_state": "PASS",
+      "ordinary_observations": 18,
+      "retained_marker_EXPECTED_FAIL": 4,
+      "fresh_child_refs": 14,
+      "parent_loaded_origins": 988,
+      "child_loaded_origins": 971,
+      "origin_mismatches": 0,
+      "outputs": "review-661.tar.gz",
+      "qualification": "real C5b native Matrix/Stress/Leaderboard and actual ETS; fixture governance/context is not authentic authority. Private harness attempts1/2ERROR retained; third uses previously actual persisted deciding outputs, not repeated numerical jobs."
+    },
+    {
+      "name": "independent_adb_summary_delta",
+      "source_sha": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+      "check_state": "PASS",
+      "ordinary_controls": 3,
+      "retained_marker_EXPECTED_FAIL": 1,
+      "fresh_child_refs": 4,
+      "parent_child_loaded_origins": 862,
+      "origin_mismatches": 0,
+      "outputs": "review-adb.tar.gz",
+      "qualification": "limited/complete/point-only and fake summary; preserved other annotations"
+    },
+    {
+      "name": "scoped_quality_and_compatibility",
+      "check_state": "PASS",
+      "outputs": "author-final.tar.gz static.* +compatibility-inspection.*",
+      "scope": "14 changed Python files Ruff/format +exact2 fragments+same-object governance alias+additive constructor; no global lint/scanner/public-surface verdict"
+    },
+    {
+      "name": "changed_import_directions",
+      "check_state": "PASS",
+      "direction_violations": 0,
+      "reported_cycle_count": 1,
+      "cycles_enforced": false,
+      "outputs": "author-interval.tar.gz imports.*",
+      "qualification": "direction report exit0; broad cycle warning remains non-enforced/unattributed, not global strictarchitecturePASS"
+    }
+  ],
+  "attempts_and_historical_red": [
+    "independent baselineee0 actual full C5b/forecast/temporal FAIL and prior setupERROR fully retained; no authority positive inferred",
+    "author development first19-case run15PASS/3FAIL/1ERROR: new test fixture setup mistakes (missing cas_store fixture/media_type), all fulloutputs retained; second23case PASS before later orphan/reconciled-issue additions, not final frozen proof",
+    "author and independent661 temporal-summary product diagnostic FAIL retained; typed degraded/trust protection stayed effective. ForwardADB supersedes only that property.",
+    "independent661 private Forecast-reader module and point_forecasts name errors are harness ERROR/incomplete, not product/backendFAIL; complete attempt/CAS bytes retained",
+    "historical1b8 weighted-bootstrap law label is false despite unavailable/null nongating SEM; old37 PASS covers its original assertions, not newlabeltruth. Existing law-label-supersession source qualifier retained in prior reviewer custody; no old37 rerun.",
+    "ADB wide-wave2 unexpected pytestFAIL preserved; root-approved b3 actualcandidate fixtures corrected only these cases,2PASS separate",
+    "global scannerERROR/incomplete, Ruff/public-surface reds and P41not_established unchanged; no inherited/globalgreen claim",
+    "Documentation courier Python3.14 CPU-bound before first archive, interrupted with exit143; stdlib-only host Python3.12 courier retry completed. Full interruption record/recipe/stdout preserved; not a product/backend failure or numerical replay."
+  ],
+  "limits_and_next_owners": [
+    {
+      "owner": "C10 predictive consumer/C09 producer",
+      "check_state": "UNRUN",
+      "limit": "authentic ordered source/row currentness: OutcomeComparison lacks row/time ID; coherent substituted equal-count rows not detected from report shape",
+      "minimum_packet": "interval-consumer-basis/minimum-row-roster-packet.json",
+      "next_result": "existing ForecastOwner actual observedDataSnapshot+explicit split/horizon+actual source/prediction/bundle/report refs resolved and ordered paired roster compared; no invented row IDs"
+    },
+    {
+      "owner": "C10/Runtime/S10 +accountable scientific source owner",
+      "check_state": "UNRUN",
+      "limit": "no authentic verifier/current revision/appointment/fresh challenge/scientific-law admission; fixture role/context and governance approve remain fixtures",
+      "next_result": "exact permitted source/CAS/manifest/bytes and genuine current verifier/context/issuer/revision/fresh challenge packet when criterion requires authority"
+    },
+    {
+      "owner": "E/BKT accountable purpose owner",
+      "check_state": "not_established",
+      "limit": "historical heuristic trust policy remains separate; no universal neutral/equivalence proof or B172/B173 scientific inference closure"
+    },
+    {
+      "owner": "A/B21 and E MC source/law owner",
+      "check_state": "bounded_nongating_only",
+      "limit": "Normal-input conditional SEM assumes unverified deterministic response/finite variance; no scientific meanCI or universalIID law; unknown/adaptive/incomplete/weighted/QMC pooled profile unavailable"
+    },
+    {
+      "owner": "G",
+      "check_state": "UNRUN",
+      "limit": "installed/current integration/production composition and source/finding acceptance; no new wheel/sdist or C13 broad replay"
+    }
+  ],
+  "delta_only_carry": {
+    "prior_CI_source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+    "prior_CI_receipt": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+    "prior_MC_source": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+    "prior_MC_receipt": "0c3c1ed6a40823f56fef6e8e565d8990df7b3942",
+    "qualification": "old79/37 bounded property receipts historical only; newaffectedconsumers and label controls run. All MC4 label blobs unchanged661→ADB→b3; b3 only2 candidate testfixtures. Independent complete source/AST closure in main/fixture/retry reviews. No cumulative Ecarrier import."
+  },
+  "cleanup": {
+    "performed": false,
+    "preserve": "source/docs/unique inputs/deciding outputs/active environments",
+    "candidates_for_later_review": [
+      "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-interval-consumers/development-bases",
+      "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-interval-consumers/development2-bases",
+      "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/affected-bases",
+      "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/fixture-retry-bases"
+    ],
+    "action": "no deletion or Trash action; exact candidates only; inactive-user check still required before future cleanup"
+  },
+  "slice": "shared-interval-basis-consumer-consistency",
+  "original_bindings": [
+    {
+      "id": "B172",
+      "document": "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+      "lines": [
+        4388,
+        4399
+      ],
+      "sha256": "272c388626bc25adcaf03e6f1114819ebcd5ca8a904dfb8556f64a161734b306",
+      "original_unit": "E",
+      "bundle": "BKT-03",
+      "card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_text": "## B172. Постоянная ненулевая ошибка исчезает из диагностики систематического смещения\n\nОснование и область: `_detect_systematic_biases` пропускает метрику при std<=1e-12. Пустой список biases затем проецируется в NEUTRAL. Это защищает формулу t-test от деления на ноль, но одновременно стирает наблюдаемый постоянный сдвиг. [C16.R01]\n\n**Проверка.** Остатки `[10,10,10]` дают MAE=10, ноль detected_biases и NEUTRAL. Почти те же `[9.9,10,10.1]` дают одну карточку смещения с magnitude=10. Контроль `[0,0,0]` действительно имеет нулевую ошибку и не требует карточки ненулевого сдвига.\n\n**Рекомендуемое решение.** Разделить описательный остаток, наличие достаточных данных для статистического теста и вывод конкретного теста. Ненулевой постоянный остаток фиксировать с масштабом и областью; вырожденность дисперсии — отдельный статус теста. Не присваивать p=0 или статистическую достоверность автоматически: повторения могут быть зависимыми либо копиями одного результата.\n\nОтсутствие установленного p-value не означает нейтральность модели и не должно давать положительный компонент «смещений нет». Владелец trust-profile решает, как учитывать нерешённую диагностику; технический helper сохраняет исходные величины и ограничения. Знак ошибки и оценочное слово «оптимистично» также требуют направления предметной метрики, особенно для затрат.\n\n**Приёмка и приоритет.** При одинаковом ненулевом остатке описательная карточка сохраняется без выдуманной значимости; нулевая ошибка остаётся отдельным случаем; слишком малая/зависимая выборка не становится доказательством отсутствия проблемы. Локальный, сравнительно дешёвый ремонт диагностического перехода. Причинная либо популяционная интерпретация смещения локальными опытами не устанавливается.\n\n",
+      "status": "existing implementation carried unchanged; affected actual SciPy/constant-bias consumer tests PASS; no new finding closure"
+    },
+    {
+      "id": "B173",
+      "document": "B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5",
+      "lines": [
+        4400,
+        4411
+      ],
+      "sha256": "9cc7587ea32e5a5dd582054acdd30aa10f82468d8cb9a41188c3d3a2468926f8",
+      "original_unit": "E",
+      "bundle": "BKT-03",
+      "card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "original_text": "## B173. Недоступность SciPy меняет статистический тест, но отчёт продолжает называть его t-test\n\nОснование и область: `_two_sided_ttest_pvalue` при исключении импорта или вычисления использует нормальное приближение; caller по-прежнему записывает `one-sample t-test H0(mean_error=0)` и не добавляет degraded-причину. При малом числе наблюдений это не эквивалентная замена распределения. [C16.R01, E01]\n\n**Проверка.** Для остатков `[0.5,1.5,2.5]` настоящий SciPy даёт p≈0,121690. Контролируемая недоступность импорта переводит тот же расчёт в p≈0,009375. В первом случае нет значимой карточки, во втором она есть, помечена t-test; report остаётся degraded=False, trust_eligible=True. Независимый вызов настоящего `scipy.stats.ttest_1samp` совпал с штатной SciPy-ветвью до численной погрешности.\n\n**Рекомендуемое решение.** При недоступности компонента сохранить описательные ошибки и вернуть тест как невычисленный либо использовать действительно эквивалентную проверенную реализацию. Приближение допустимо только как явно выбранный другой метод с собственной областью, предпосылками и маркировкой; нельзя silently применять его к любому малому n.\n\nИзбежать вычитания почти единицы в хвостах можно через соответствующую survival-function, но это отдельная численная аккуратность, не оправдание замены t на normal. Если зависимости/версии влияют на алгоритм, их эффективная идентичность должна проходить в результат и кэш. Обязательные диагностические поля не должны блокировать сохранение уже правильной таблицы ошибок. Предположение независимости остаточных наблюдений и множественные проверки требуют предметной методологии; этот аудит не подтверждает их автоматически. [C16.E01]\n\n**Приёмка и приоритет.** На контрольном малом n окружение не меняет обозначенный метод; отсутствие SciPy не превращается в незаметное усиление значимости; действительные научные результаты не выбрасываются вместе с одной недоступной диагностикой. Высокий приоритет перед трактовкой p-value/trust, исправление умеренное.\n\n",
+      "status": "existing implementation carried unchanged; affected actual SciPy/constant-bias consumer tests PASS; no new finding closure"
+    }
+  ],
+  "original_binding_scope": "B172/B173 underlying maintained diagnostic cards preserved; this P40 consumer-property followup adds no finding ID or full original closure",
+  "property": "One canonical numerical interval basis reconciles actual finite ordered bounds/hits/requested typed counts and retained limitations across temporal/report/score/forecast/promotion. Conditional evaluated-pair coverage cannot be promoted by missing/fake positive metadata. Actual CAS kind/schema/bytes and full matrix/kind/scenario roster checked before promotion. Reserved temporal summary stays recomputed.",
+  "producer_artifact_bridge_consumer_surface": [
+    "HistoricalValidationPlan actual inputs→PredictionEvaluator",
+    "real BacktestOrchestrator/Matrix→persisted BacktestReport",
+    "actual temporal compiler/solver/evaluator→public report builder→CAS/fresh child",
+    "CalibrationValidationRunner existing CAS→actual report-profile/bytes/kind/scenario readback→CalibrationLeaderboard promotion",
+    "actual forecast bridge produce/persist/fresh reader (fixture-content positive; genuine Runtime admission UNRUN)"
+  ],
+  "oracle_negative": {
+    "oracle": "actual complete15/15 vs partial15/5 roster, paired observed hits, complete/point-only/legacy controls and real configured ETS holdout changes; preserve partial conditional coverage1.0 and point errors",
+    "negative": "fake/missing evaluated marker, retained issue/orphan rate, empty/foreign axis, forged matrix score, missing/corrupt/wrongkind/schema CAS, fake temporal summary",
+    "retained_marker": "four independent runtime removals on661 +one summary removalADB EXPECTED_FAIL while enums/strings/diagnostics/raw rows retained"
+  },
+  "compatibility": "CalibrationLeaderboard optional store additive; existing store reused. Deep governance alias same object. No new schema/export/rootstable helper; explicit supported entrypoint inventory scope inspected, unresolved totals remain unresolved."
+}

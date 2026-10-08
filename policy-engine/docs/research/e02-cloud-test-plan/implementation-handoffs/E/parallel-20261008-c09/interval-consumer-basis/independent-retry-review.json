@@ -1,0 +1,74 @@
+{
+  "G_acceptance": "UNRUN/unissued",
+  "P41": "not_established; no inherited red attribution",
+  "RSS_kib": 1057936,
+  "authority": "only synthetic real-CAS fixture mechanics, no scientific/Runtime/S10 admission",
+  "cases": [
+    {
+      "check": "PASS",
+      "classname": "tests.unit.scientist.governance.test_calibration_validation",
+      "name": "test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_lesson"
+    },
+    {
+      "check": "PASS",
+      "classname": "tests.unit.scientist.governance.test_calibration_validation",
+      "name": "test_calibration_validation_runner_blocks_eligibility_on_missing_transport_and_interference"
+    }
+  ],
+  "check": "PASS exacttwo corrected fixture selectors; no unexpectedFAIL/ERROR/SKIP in this retry",
+  "cleanup": "none",
+  "formal_finding_closure": "none",
+  "full_outputs_read": true,
+  "origins": [
+    {
+      "file": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/loaded-module-origins.json",
+      "mismatches": 0,
+      "pytest_exitstatus": 1,
+      "reported_actual_blobs_independently_checked_against_git_and_current_unchanged_runtime_files": 991,
+      "source": "adb66080e3ac64d73b3faa85d693a47c6c284427"
+    },
+    {
+      "file": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/fixture-retry.origins.json",
+      "mismatches": 0,
+      "pytest_exitstatus": 0,
+      "reported_actual_blobs_independently_checked_against_git_and_current_unchanged_runtime_files": 971,
+      "source": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2"
+    }
+  ],
+  "outputs": [
+    {
+      "bytes": 1757,
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/fixture-retry.execution.json",
+      "sha256": "21c3c455852a2e1a1592c8961f677bc5393c7f059e236c78c5c3fab78ed21126"
+    },
+    {
+      "bytes": 80,
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/fixture-retry.stdout",
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    {
+      "bytes": 0,
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/fixture-retry.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 631,
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/fixture-retry.junit.xml",
+      "sha256": "ff46d476303a71d01fb78ed761c2c9fabf45a8a4de0f4b5f1d2d065d2536f247"
+    },
+    {
+      "bytes": 286256,
+      "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/fixture-retry.origins.json",
+      "sha256": "2d7ec8fe8e71e5e85fa9732e5f2a1a8bcc7e7bc3c9ac8b09c0866b8507bbb527"
+    }
+  ],
+  "prior_wide_wave": "ADB56cases54PASS/2FAIL remains historical full actualrun. Corrected2selector retry is separate b3evidence. No complete56-case b3run asserted; unchanged54carry qualified only by identical runtime/test inputs.",
+  "returncode": 0,
+  "reviewer": "/root/oracle_empirical non-author",
+  "runtime_source": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+  "runtime_tree": "f2c1f993052c25586420d07c766b868f632fbf39",
+  "schema": "policyos.e02.C09.independent_fixture_retry_verification.v1",
+  "source": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+  "tree": "9d6577fe7dfc4e238f106e2f0bd22815e1d57e4e",
+  "wall_seconds": 15.326852878002683
+}

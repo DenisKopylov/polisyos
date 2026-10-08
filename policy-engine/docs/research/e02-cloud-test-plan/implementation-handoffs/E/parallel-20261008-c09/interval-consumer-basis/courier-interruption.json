@@ -1,0 +1,8 @@
+{
+  "state": "ERROR/interrupted courier harness",
+  "product_outcome": "not_applicable",
+  "pid": 1056823,
+  "reason": "stdlib-only courier unexpectedly CPU-bound before first archive for >7min; preserving all inputs and existing partial outputs. Retry only packaging under host Python3.12, no source/input/runtime tests change",
+  "signal": "SIGINT then SIGTERM after no completion",
+  "deciding_output_deleted": false
+}

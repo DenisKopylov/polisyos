@@ -1,0 +1,209 @@
+{
+  "schema": "policyos.e02.complete_lossless_transport.v1",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/archive-members.json.gz",
+      "bytes": 270290,
+      "sha256": "fbd7eabb862fa0849d44177afd5cee5b0c7f72967f62be0b5650fd614603233d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-final.tar.gz",
+      "bytes": 194936,
+      "sha256": "4d14f973f8047e6c82f3e19367b9fb4c2289438e3c56271f3651d2fb370818a6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-interval.tar.gz",
+      "bytes": 132320,
+      "sha256": "44024522494c2da3a0d62e2a6bd02ab0fbfda2fd63dbe92380cc9ca0b4863a05"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-law.tar.gz",
+      "bytes": 3150,
+      "sha256": "d6fa05f10a008e7ff1d82257206ae7e040c5d306b08273112aa0ac5a403491c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/build-lossless-packet.py",
+      "bytes": 19830,
+      "sha256": "bec5aa2ff82dd6a23d5ba12ddfa002c686984fc5e73b1f1021491bf00b0a7697"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/courier-interruption.json",
+      "bytes": 422,
+      "sha256": "3f2c118473b3c368699300226fd7fb56bdde1ccbc931cbb4d0f1a9dbf39daa9f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/courier.execution.json",
+      "bytes": 444,
+      "sha256": "8db2404a09406f61c9e446b2e2e47ab86ec9e061a02af7433c50b7988b670e5f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/courier.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/courier.stdout.json",
+      "bytes": 454,
+      "sha256": "33ae9b458d99067b97500a5a3e929f840e3c4e2b888631883ad61ae74c3994dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/implementation.diff",
+      "bytes": 89356,
+      "sha256": "2b4035236dc8df3e6a466f1fe847574b2a4374e5451d514128a2a304041f622c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/independent-fixture-review.json",
+      "bytes": 4591,
+      "sha256": "6c603af13e63ca4d1e34edc22b0ee8798683d487ccd54c9b810914d3acaea4aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/independent-main-review.json",
+      "bytes": 38758,
+      "sha256": "774390f75f2b7707c1b8a55756cc622cff59ebbf099a90fc979830b5330fa27c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/independent-retry-review.json",
+      "bytes": 3265,
+      "sha256": "827ed6c6a9278262261999e63cfeda0ddb3da2ac58ed804474185c9c9a278c96"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/law-label.diff",
+      "bytes": 7976,
+      "sha256": "9620164d9ab804dfaf7ebcc15cdc718806f734ec60d9d9883cacf5279d63a7b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/minimum-row-roster-packet.json",
+      "bytes": 2039,
+      "sha256": "ff7717707746c0d70fbce7ec26a15effcf2b6cb16e0d1af7ac1fc15d65a0db44"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/preparation.json",
+      "bytes": 2144,
+      "sha256": "58b80814c7bdd246253ea187e33cda2b77d4083e2c4cbdc65e9dde96e6cea04e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/publication.tar.gz",
+      "bytes": 745,
+      "sha256": "911c41d4b794f50ff7c3b471771f7fd132a8125f324506283b1c6959f12a5abf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-661.tar.gz",
+      "bytes": 389282,
+      "sha256": "d54f145ca9116e41f4d71741afa144bd7d77cdf3810d14df9601f690332b1a00"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-adb.tar.gz",
+      "bytes": 164599,
+      "sha256": "ede788e51e6a2a5f2eb8f42d6aa0d2dfcf5c7cd0608ea57e97bd81549414b8a5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-b3.tar.gz",
+      "bytes": 5891,
+      "sha256": "2ff93e9e9441db858ac7bffd0f0b102cad8c60cdbddbef0683a046f4c2fc0fb3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-baseline.tar.gz",
+      "bytes": 144887,
+      "sha256": "6e4b257849cfcce0c7589cce991eca543b8bd26ddbf0c1026d2f65a77a3c6f33"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis.json",
+      "bytes": 25817,
+      "sha256": "8a804ec83443f7c9b2b9c1779948131c8024f92fd5852b3da23829681c97da00"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/mean-law-label.json",
+      "bytes": 22105,
+      "sha256": "84edfd657fe2869a2806b4ce2c9c0144eb054cb9cee6b14b9b14b7d75a0d3dbb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/REPORT.md",
+      "bytes": 6390,
+      "sha256": "bda705d4cb41d99b13ef537ff3f106d28c683cb85a7a04444186273419171924"
+    }
+  ],
+  "archives_summary": [
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-interval.tar.gz",
+      "encoding": "gzip+tar",
+      "stored_bytes": 132320,
+      "stored_sha256": "44024522494c2da3a0d62e2a6bd02ab0fbfda2fd63dbe92380cc9ca0b4863a05",
+      "decoded_tar_bytes": 1699840,
+      "decoded_tar_sha256": "381d7e02f29f80d733120e704baee1b00244266468709eaa6c432bc1b46534d7",
+      "member_count": 553,
+      "member_payload_bytes": 825037
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-final.tar.gz",
+      "encoding": "gzip+tar",
+      "stored_bytes": 194936,
+      "stored_sha256": "4d14f973f8047e6c82f3e19367b9fb4c2289438e3c56271f3651d2fb370818a6",
+      "decoded_tar_bytes": 2529280,
+      "decoded_tar_sha256": "9cc1dd1cf44bf293ba320a83b400ed453d950b5e71dc3a5a0b37f254688a1455",
+      "member_count": 767,
+      "member_payload_bytes": 1288508
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-law.tar.gz",
+      "encoding": "gzip+tar",
+      "stored_bytes": 3150,
+      "stored_sha256": "d6fa05f10a008e7ff1d82257206ae7e040c5d306b08273112aa0ac5a403491c1",
+      "decoded_tar_bytes": 20480,
+      "decoded_tar_sha256": "213888221fc90f6473239d69878b210eddbbe46cf065b69d098e4e122e977917",
+      "member_count": 9,
+      "member_payload_bytes": 9383
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/publication.tar.gz",
+      "encoding": "gzip+tar",
+      "stored_bytes": 745,
+      "stored_sha256": "911c41d4b794f50ff7c3b471771f7fd132a8125f324506283b1c6959f12a5abf",
+      "decoded_tar_bytes": 10240,
+      "decoded_tar_sha256": "1ad11e7c595316a172a04e45184d6d120d7a59bee5a9ba8518edce774c8dc8ae",
+      "member_count": 8,
+      "member_payload_bytes": 825
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-baseline.tar.gz",
+      "encoding": "gzip+tar",
+      "stored_bytes": 144887,
+      "stored_sha256": "6e4b257849cfcce0c7589cce991eca543b8bd26ddbf0c1026d2f65a77a3c6f33",
+      "decoded_tar_bytes": 1105920,
+      "decoded_tar_sha256": "f75dbe8b8f2770d6e805452e0e673dc701f856113ee088fd0df5e9f77c81c0db",
+      "member_count": 187,
+      "member_payload_bytes": 845018
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-661.tar.gz",
+      "encoding": "gzip+tar",
+      "stored_bytes": 389282,
+      "stored_sha256": "d54f145ca9116e41f4d71741afa144bd7d77cdf3810d14df9601f690332b1a00",
+      "decoded_tar_bytes": 3194880,
+      "decoded_tar_sha256": "21e80aa71f8f256fe136ebdf0ebe2c5cae59e4ffa40d0be32aff7bde8b1b95ca",
+      "member_count": 514,
+      "member_payload_bytes": 2459335
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-adb.tar.gz",
+      "encoding": "gzip+tar",
+      "stored_bytes": 164599,
+      "stored_sha256": "ede788e51e6a2a5f2eb8f42d6aa0d2dfcf5c7cd0608ea57e97bd81549414b8a5",
+      "decoded_tar_bytes": 798720,
+      "decoded_tar_sha256": "b02571f74f0e976a9420e5f83aa49d8ae26e724273a82b17f242547dfa699494",
+      "member_count": 33,
+      "member_payload_bytes": 760629
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-b3.tar.gz",
+      "encoding": "gzip+tar",
+      "stored_bytes": 5891,
+      "stored_sha256": "2ff93e9e9441db858ac7bffd0f0b102cad8c60cdbddbef0683a046f4c2fc0fb3",
+      "decoded_tar_bytes": 30720,
+      "decoded_tar_sha256": "1e4ff43440ec011fed050b82eee669bbbf05de64344506c8c93e3cb07de49f9b",
+      "member_count": 4,
+      "member_payload_bytes": 20265
+    }
+  ],
+  "complete_archive_members": "archive-members.json.gz",
+  "exclusions": "only reproducible Git source/cache androot807 full doctor custody; no unique/deciding bytes removed"
+}

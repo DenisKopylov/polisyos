@@ -1,0 +1,91 @@
+{
+  "candidate": {
+    "parent": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+    "runtime_implementation": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+    "runtime_tree": "f2c1f993052c25586420d07c766b868f632fbf39",
+    "sha": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+    "tree": "9d6577fe7dfc4e238f106e2f0bd22815e1d57e4e"
+  },
+  "canonical_writer": "C09 original E ownership",
+  "carry": "54 old assertions on ADB source unchanged and unchanged test inputs; runtime directories byte-identical. Do not label this as a complete new56-case run on b3. Exact two-case forward retry receipt required.",
+  "diff": {
+    "bytes": 2013,
+    "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-b3/fixture-forward.diff",
+    "sha256": "9e17328b523cc6da4a6f9bfa96403f9fb07604a7fc2c0bfd5fba624b1aa1133f"
+  },
+  "footprint": [
+    {
+      "blob": "ea233371294eeb5a41aab02672f05dfcb07673da",
+      "bytes": 10396,
+      "path": "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+      "sha256": "a2e3ce82d48d2823fd8184a94683c96cb0e579bc7bccf2b626812a7bb2ae26fb"
+    }
+  ],
+  "full_delta_read": true,
+  "limits": "synthetic governance facts remain fixtures; no real scientific/Runtime/S10 authority; true source-row/production contracts UNRUN. G acceptance/formalclosure unissued. P41not_established unchanged.",
+  "mechanism": "replace each absent shaped candidate sha256:a/b ref with actual synthetic CAS put_json artifact of the existing scientist.test kind/media; manifest/bytes resolver unchanged; no mocks/waivers/admission authority",
+  "old_run": {
+    "ERROR": 0,
+    "FAIL": 2,
+    "PASS": 54,
+    "SKIP": 0,
+    "classification": "preserve unexpected pytestFAILs on old fixture inputs; do not relabel original run or assert inherited/P41 proof",
+    "failure_stage": "actual _resolve_manifest_inputs lookup before matrix/job; absent manifest for shaped a/b refs",
+    "full_stdout_read": true,
+    "outputs": [
+      {
+        "bytes": 3337,
+        "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/affected.execution.json",
+        "sha256": "671c49d5d2f29c11bf26d36284f4171c1f21b594e6b1c8c41e6ea8cfb207dfc5"
+      },
+      {
+        "bytes": 13623,
+        "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/affected.stdout",
+        "sha256": "2b213e8cd77c33515f5dae2768d9d1f5fac6f6a01905b7f7b97a33465df2a8a7"
+      },
+      {
+        "bytes": 0,
+        "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/affected.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 23411,
+        "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/affected.junit.xml",
+        "sha256": "f1aaf15bd3f17998cfe77b176da3117f69bcdfb660206644f20c5923ec0c745a"
+      },
+      {
+        "bytes": 292378,
+        "path": "/dev/shm/e02-orch03-20261008/c09-scratch/phase2-final/loaded-module-origins.json",
+        "sha256": "300e5fa4e84381653d8984f41cd7b1e683108ee3c36192738f30ab5ba42c2438"
+      }
+    ],
+    "source_sha": "adb66080e3ac64d73b3faa85d693a47c6c284427",
+    "tests": 56
+  },
+  "oracle_and_assertions": "original positive C5b/stress/leaderboard/lesson/accountability/readback and missing-transport/interference negative assertions unchanged; requires jobs actually execute through resolver",
+  "prior_independent_runtime_review": {
+    "path": "/dev/shm/e02-orch03-20261008/oracle-empirical/interval-consumer/review-adb/independent-review.json",
+    "sha256": "774390f75f2b7707c1b8a55756cc622cff59ebbf099a90fc979830b5330fa27c"
+  },
+  "reviewer": "/root/oracle_empirical non-author; source read-only",
+  "runtime_tree_closure": [
+    {
+      "identical_tree": "914a174cf763811e6a1b4240a6b268012b00680b",
+      "path": "policy-engine/src"
+    },
+    {
+      "identical_tree": "1ba0cf66b0099e17b6f535464fe8d713c90be79f",
+      "path": "policy-engine/schemas"
+    },
+    {
+      "identical_tree": "56317572976e306745832916293416c4f4142c3d",
+      "path": "policy-engine/architecture"
+    }
+  ],
+  "schema": "policyos.e02.C09.independent_fixture_forward_review.v1",
+  "test_retry_only": [
+    "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py::test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_lesson",
+    "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py::test_calibration_validation_runner_blocks_eligibility_on_missing_transport_and_interference"
+  ],
+  "verdict": "GO passive test-only forward; retry only two actual failing selectors"
+}

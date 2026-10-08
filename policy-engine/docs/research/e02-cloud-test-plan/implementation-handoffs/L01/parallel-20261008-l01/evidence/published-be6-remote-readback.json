@@ -1,0 +1,12 @@
+{
+  "branch": "codex/e02-L01-custody-20261008",
+  "advertised_remote_head": "be6e568e5b3a73dbb30c2b44c6e458e771f256bb",
+  "remote_tree": "4a2e058f04c1ca87935e200dabce313a4bc578f9",
+  "local_head": "be6e568e5b3a73dbb30c2b44c6e458e771f256bb",
+  "changed_paths_read_back": 40,
+  "changed_bytes_read_back": 383212,
+  "whole_tree_identity_matches": true,
+  "source_code_test_lock_generated_delta": "",
+  "main_untouched": true,
+  "outcome": "PASS"
+}

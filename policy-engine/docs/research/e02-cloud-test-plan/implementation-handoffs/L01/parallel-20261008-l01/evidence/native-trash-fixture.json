@@ -1,0 +1,15 @@
+{
+  "candidate_alias": "L01_REPRODUCIBLE_LA032_FIXTURE",
+  "lsof_exit": 1,
+  "lsof_stdout": "",
+  "native_tool": "Finder delete to Trash",
+  "exit": 0,
+  "source_still_exists": false,
+  "production_target": false,
+  "valuable_source_or_docs_removed": false,
+  "trash_emptied": false,
+  "deciding_stdout_and_recipe_preserved": true,
+  "trash_alias": "L01_TRASH_FIXTURE_01",
+  "private_locator": "L01_NATIVE_TRASH_PRIVATE",
+  "inactivity_scope": "Completed local probe; no observed open files from exact lsof path check. Valuable unique outputs and source/handoff files retained."
+}

@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.restart_inputs.v1",
+  "purpose": "Read-only stop analysis and execution prompts; no new source acceptance or formal closure",
+  "recorded_utc": "2026-10-08T15:20:25.976638+00:00",
+  "G_analysis_entry": {
+    "sha": "f1f99ba5d040e138e3b3b0849d53c9df17d1f437",
+    "tree": "9184f5871c76062718ff3785a32feeec9d241664",
+    "branch": "codex/e02-integration"
+  },
+  "original_dispatch": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+    "blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d"
+  },
+  "fetched_available_input_objects": {
+    "baa6c2814748c53393d71c4dfc299d32d3883173": {
+      "sha": "baa6c2814748c53393d71c4dfc299d32d3883173",
+      "tree": "8a3de60c222dfbfd34a82d9d65ccb9727ba83110",
+      "in_G_ancestry": false
+    },
+    "bb78b2b60dae0ed51e300f9369c580c622fe64d6": {
+      "sha": "bb78b2b60dae0ed51e300f9369c580c622fe64d6",
+      "tree": "d7d620a52b4a97beb50093ac82467c413c56a035",
+      "in_G_ancestry": false
+    },
+    "0cc9df727c2c921d64815e452a9b08681807ce13": {
+      "sha": "0cc9df727c2c921d64815e452a9b08681807ce13",
+      "tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+      "in_G_ancestry": true
+    },
+    "5c3afde4833e8ee0314fe6e003070a29b649ad5b": {
+      "sha": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "tree": "31198f8d6e8268db5eab7e89169c351741161d21",
+      "in_G_ancestry": true
+    },
+    "dce5b253": {
+      "sha": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+      "tree": "631dcaddc62c447ba84f2be891ed4de7d06e8bc6",
+      "in_G_ancestry": false
+    },
+    "8ea1f703": {
+      "sha": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+      "tree": "86d3ddc7c37a54ec6f9430cc09a6e167ef521971",
+      "in_G_ancestry": false
+    },
+    "ed50e8ee50afc6f345ce804b1d7d26a2edeb4061": {
+      "sha": "ed50e8ee50afc6f345ce804b1d7d26a2edeb4061",
+      "tree": "2b867defe3b84962484dc32ca80f0d1c47da5b77",
+      "in_G_ancestry": false
+    },
+    "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2": {
+      "sha": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+      "tree": "2432fcdc1ecade9b88fdf1f0d76175d4fbf678a5",
+      "in_G_ancestry": false
+    }
+  },
+  "ORCH02_preparations": {
+    "coordination_blob": "bd44b9476cb2349093ef5dccecc465ec93b54045",
+    "bytes": 39539,
+    "sha256": "f81ad6bdf7c7944c841bab74f513e8c5c60dddb9a7a5f888a04a84bb9ebaba50",
+    "artifact_kind": "Unattached Git blob; not applied code, branch or commit",
+    "C05": {
+      "base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+      "patch_blob": "a9d38a51c6b6ff2e28667bc6653008368c546346",
+      "patch_sha256": "e758776ce0798fe4b61f649db1674215190437e4833e00d287c03d216926e269",
+      "leaf_blob": "4df4a942553603746d349dd82c5f22eaaad7e062",
+      "final_source_review_blob": "6085eb77f80d71982ef9a239cdd5718a33a07cff",
+      "final_consumer_test_review_blob": "5e875f2c888bcd834267799063fd5be149a5acfd"
+    },
+    "C06": {
+      "leaf_blob": "c6dcac4d77d4f1db05cbe38450335acd772b7a7d",
+      "review_blob": "1bc6874b92eabb019758bb8acaa1e816256f0489",
+      "DFK": {
+        "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+        "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+        "patch_blob": "8ef5d4b4d37b035e978dab786539e9afa105a40c",
+        "property": "Real porcelain record count/path consumer; generic R/C two-path discriminator",
+        "native": "UNRUN"
+      },
+      "CAN": {
+        "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+        "patch_blob": "0861da93126c5e7d08ddcecae757a42001a25e70",
+        "property": "Complete actual persisted CanonInfo decoder + Decimal/depth fresh real CAS reader",
+        "native_installed": "UNRUN",
+        "scope": "Reader only; current G adapter/producer/contracts preserved; no e3/55b carrier overlay"
+      }
+    },
+    "C12": {
+      "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+      "leaf_blob": "7d92ae730cdd9a2060f3abe3901dfd437145e0df",
+      "patch_blob": "a8869a2adaa29f249378e4041f03f06b322e4480",
+      "patch_pointer": "/unified_patch",
+      "review_blob": "676a4ee950d309bdc376d7092d37aff2fdc21cfe"
+    },
+    "execution_boundary": "Environmentstatus pending102 thenstarting103 were controlplane observations. Selectedexecutor wait failed queryingconfigurationcapabilities; no runnable filesystem/shell/Python available. No startupfailurecause beyond exacterror established."
+  },
+  "ORCH04_recovery": {
+    "root_reported": "e2122918ad4aed97bdf1dccd2fd6e96e3ff26248",
+    "leaf_receipts_reported": {
+      "C10": "a92f57932385d5b3e34063c3d38a6db68c4a6084",
+      "C11": "f9903d8e803c17743554a58d3f45c6c66d686191",
+      "C13": "996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda"
+    },
+    "local_object_checks": "All four absent before recovery; exact root fetch128/not our ref on this host/time",
+    "exact_fetch": {
+      "sha": "e2122918ad4aed97bdf1dccd2fd6e96e3ff26248",
+      "returncode": 128,
+      "wall_s": 1.2616437090327963,
+      "object_available": false,
+      "meaning": "Exact CLI fetchability of this root only on this host/time, not global object absence and not source/runtime acceptance"
+    },
+    "claim_scope": "Predecessor thread/user report navigation; source/handoff/deciding bytes unavailable for independent G acceptance. No global object-absence claim.",
+    "recovery_requirement": "All leaf objects/refs and root; unique UI pre/postimages/patch and deciding outputs not guaranteed by root ancestry",
+    "native_hook_exception": "not_authorized"
+  },
+  "G_deciding_context": {
+    "review_root": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1159",
+    "C08_candidate": "a5e0d30d1b86b9c97ad944029589051380bc9ec8",
+    "C08_outcome": "HOLD:123cases121PASS2FAIL; graph-hash matched removal complete and source-qualified",
+    "C09_candidate": "b3df9b6d84c67b48e91ea9227cadb89f5010b2a2",
+    "C09_outcome": "BLOCKED: required-kind empty/forged partition real-CAS promotion counterexample; old54/2 and2fixture selectors not pooled",
+    "B190_supplier_accepted": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+    "B190_Node_acceptance": "not_given; preparedbb78 does not have a matching finished new runtime handoff",
+    "local_packets": "L01/L02 in G ancestry as qualified metadata/evidence, not authentic positives"
+  },
+  "publication_scope": {
+    "new_product_source": false,
+    "new_runtime_tests": false,
+    "source_acceptance": false,
+    "formal_closure_ids": [],
+    "new_machine_authorization": "Human allows continuing broken cloud roles on fresh machines; preserves canonical owners and requires actual admission",
+    "main_push_authorized": false,
+    "foreign_chat_messages_authorized": false
+  }
+}

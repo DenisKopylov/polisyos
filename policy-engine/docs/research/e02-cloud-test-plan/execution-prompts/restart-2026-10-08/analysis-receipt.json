@@ -1,0 +1,155 @@
+{
+  "schema": "policyos.e02.restart_analysis_receipt.v1",
+  "analysis_entry_G": {
+    "sha": "f1f99ba5d040e138e3b3b0849d53c9df17d1f437",
+    "tree": "9184f5871c76062718ff3785a32feeec9d241664",
+    "branch": "codex/e02-integration"
+  },
+  "completed_utc": "2026-10-08T15:26:41.195903+00:00",
+  "scope": "Five stopped roots:3cloudmechanismcoordinators+2localinput/verificationroots; related current G deciding evidence, not new source or finding adjudication",
+  "direct_helpers": {
+    "role_analyses": [
+      "source_identity",
+      "minimal_inputs",
+      "execution_recovery",
+      "denominator_audit",
+      "authority_decisions"
+    ],
+    "independent_prompt_reviews": [
+      "new_organization",
+      "platform_transport"
+    ],
+    "count": 7,
+    "delegation_levels": 1,
+    "child_agents_created": 0,
+    "product_tests_run": 0,
+    "source_or_ref_writes": false
+  },
+  "analysis_reports": [
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/stopped-five-20261008/ORCH02.md",
+      "sha256": "18ab36d7f828b7d5f0c99cc942b9b61bf8a1d6e87f29eae1eb06377d8abb5579",
+      "bytes": 37200,
+      "custody": "ignored local analysis/review; primary input refs are named in prompts/inputs, not copied source"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/stopped-five-20261008/ORCH03.md",
+      "sha256": "67b9c45d08bdc06031f936cf03626caa02244ee0ba7723a68b4d4cec6d36c28e",
+      "bytes": 19373,
+      "custody": "ignored local analysis/review; primary input refs are named in prompts/inputs, not copied source"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/stopped-five-20261008/ORCH04.md",
+      "sha256": "d7995c90849a0bd3aa4f21accaf83201a9864629e301693485331cb34bf4294d",
+      "bytes": 14770,
+      "custody": "ignored local analysis/review; primary input refs are named in prompts/inputs, not copied source"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/stopped-five-202608/L01.md",
+      "sha256": "54a43cac066b4fd4006bb1300144a4e7b52b708a3ad012c252ae2547ff633590",
+      "bytes": 15190,
+      "custody": "ignored local analysis/review; primary input refs are named in prompts/inputs, not copied source"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/stopped-five-20261008/L02.md",
+      "sha256": "d9c027fbbad43799f63aa78648b195856d15f8a1b49cc13e66fb2fcbb495ad32",
+      "bytes": 20531,
+      "custody": "ignored local analysis/review; primary input refs are named in prompts/inputs, not copied source"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/stopped-five-20261008/prompt-organization-review.md",
+      "sha256": "6e3ea9a85a4b1596d6b6f8f7fa56262a7cc5e89b664b03bb2289ca86746fe51c",
+      "bytes": 3759,
+      "custody": "ignored local analysis/review; primary input refs are named in prompts/inputs, not copied source"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/stopped-five-20261008/prompt-pin-review.md",
+      "sha256": "0364ac87bdd0fe37b237c63ec32e346c43b8c0d2694ac3b3bfa1400cc1c3ab46",
+      "bytes": 4002,
+      "custody": "ignored local analysis/review; primary input refs are named in prompts/inputs, not copied source"
+    }
+  ],
+  "independent_review_outcome": {
+    "organization": "GO after removing hook-disable exception; README/inputs reviewed separately",
+    "pins_recovery": "GO after exact C09 carrier/tree/handoff clarification",
+    "corrections": "Actual input needs do not block generic fixtures; local own receipts/topics may be published; affected-wave size follows new delta; granted UI component differs from G DTO validator; API blobs differ from commits; no hook bypass"
+  },
+  "fresh_nonproduct_checks": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "exit_code": 0,
+      "stdout": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}",
+      "verification_json_read": true,
+      "receipt_grade": "transfer_and_navigation_only; raw_archives_received=0; product_closure=not_established"
+    },
+    {
+      "fetch_exit_code": 0,
+      "pr_list_exit_code": 0,
+      "complete_observed_ref_count": 138,
+      "open_pr_count": 47,
+      "new_e02_heads": {},
+      "scope": "Transport/census at intake, not source owner or runtime inference",
+      "commands": [
+        [
+          "git",
+          "-c",
+          "gc.auto=0",
+          "fetch",
+          "--no-prune",
+          "origin"
+        ],
+        [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "DenisKopylov/polisyos",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,title,url,isDraft,headRefName,headRefOid,updatedAt"
+        ]
+      ]
+    },
+    {
+      "command": "git -c gc.auto=0 fetch --no-tags origin e2122918ad4aed97bdf1dccd2fd6e96e3ff26248",
+      "exit_code": 128,
+      "stdout": "",
+      "stderr": "fatal: remote error: upload-pack: not our ref e2122918ad4aed97bdf1dccd2fd6e96e3ff26248\n",
+      "scope": "Exact root fetch unavailable on this host/time only; no global object absence or product FAIL"
+    },
+    {
+      "command": "Decode ORCH02 API payload and compute Git blob header+content SHA1 and SHA256",
+      "outcome": "PASS",
+      "git_blob": "bd44b9476cb2349093ef5dccecc465ec93b54045",
+      "scope": "Byte custody, not applied source or runtime"
+    }
+  ],
+  "ORCH04_source_bytes_limitation": "Predecessor final messages and command navigation read; actual unpublished HANDOFF/source/UI/deciding bytes not available in G. New-machine prompt has explicit recovery/new-lineage paths.",
+  "document_validation": "All files in owned namespace: JSON parse, relative links, hash lengths, whitespace; final cached diff check and commit/readback are publication steps",
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P05",
+    "P12",
+    "P13",
+    "P29",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "publication_authority": {
+    "own_G_documentation_checkpoint": true,
+    "main": false,
+    "foreign_messages": false,
+    "new_threads_or_machines_created": false
+  },
+  "new_code_acceptance": false,
+  "formal_closure_ids": [],
+  "global_closeout": false
+}

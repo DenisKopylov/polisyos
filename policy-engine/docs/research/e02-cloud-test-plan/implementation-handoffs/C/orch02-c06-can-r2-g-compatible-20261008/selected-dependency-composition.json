@@ -1,0 +1,211 @@
+{
+  "schema": "policyos.e02.c06_can.r2_selected_dependency_composition.v1",
+  "prospective_base": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_frozen_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "all_repository_blob_denominator": 21559,
+  "all_source_Python_path_denominator": 2700,
+  "complete_source_Python_path_blob_pair_sha256": "6a98bd34333bfb5700c7a022ab9d42d48cf58323f2dd6c635eeb71b4184bf740",
+  "enumerator": "git ls-tree -rz --full-tree <immutable tree>; all Python regular blobs under policy-engine/src/polisyos/**",
+  "complete_foreign_hunk_witness": "git diff --name-only G frozen_tree gives exactly the four leased paths; all other selected DAG bytes therefore Gexact, including Core writer and older-identifiability difference from prior885-origin contour",
+  "all_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+    "policy-engine/src/polisyos/ir/artifacts/README.md",
+    "policy-engine/src/polisyos/ir/artifacts/io.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+  ],
+  "direct_mechanism_tests_contracts_and_gate_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "G_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "candidate_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "same_G": true,
+      "bytes": 5181,
+      "sha256": "7b4b5a674282165e7d6ec89bf345d47fd02c6682cf60c7ce8e4cc1b90f60dcc4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "G_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "candidate_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "same_G": true,
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "G_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "candidate_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "same_G": true,
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "G_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "candidate_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "same_G": true,
+      "bytes": 1137,
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "G_blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+      "candidate_blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+      "same_G": true,
+      "bytes": 5379,
+      "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "G_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "candidate_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "same_G": true,
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "G_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "candidate_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "same_G": true,
+      "bytes": 10154,
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "G_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+      "candidate_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+      "same_G": true,
+      "bytes": 6659,
+      "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "G_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "candidate_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "same_G": false,
+      "bytes": 4721,
+      "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "G_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "candidate_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "same_G": true,
+      "bytes": 2555,
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "G_blob": "26b15390105b5c478824f899754af9a0f6bc64d8",
+      "candidate_blob": "26b15390105b5c478824f899754af9a0f6bc64d8",
+      "same_G": true,
+      "bytes": 10339,
+      "sha256": "d1a0ee6fd24077f63cd0ba81f745df1ac4c6831cd8e7a68e9aeae6bc5f6cb80c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "G_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019",
+      "candidate_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019",
+      "same_G": true,
+      "bytes": 39552,
+      "sha256": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "G_blob": "b1583a98989ab64a53a12c9cafc19b220836087b",
+      "candidate_blob": "3d496f7582011219aee485518aa3ab53fa4004f8",
+      "same_G": false,
+      "bytes": 16170,
+      "sha256": "91dbd1581e1811328e0520899aadeb9154eb24cbcf4df0360c40c3bf294ec870"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "G_blob": "0576973cf69602c48acae759d4fc2c8769b9994f",
+      "candidate_blob": "0576973cf69602c48acae759d4fc2c8769b9994f",
+      "same_G": true,
+      "bytes": 7246,
+      "sha256": "058fd8c5f7c117a189b9cd86c6e369339c561e5bb38f9cb904d1257a07c9d6cd"
+    },
+    {
+      "path": "policy-engine/architecture/imports/policy.toml",
+      "G_blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+      "candidate_blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+      "same_G": true,
+      "bytes": 3465,
+      "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d"
+    },
+    {
+      "path": "policy-engine/architecture/imports/exceptions.toml",
+      "G_blob": "04bebe01f2d39f0d0fcacb2ff66a109a2baf1ed3",
+      "candidate_blob": "04bebe01f2d39f0d0fcacb2ff66a109a2baf1ed3",
+      "same_G": true,
+      "bytes": 11017,
+      "sha256": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "G_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "candidate_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "same_G": true,
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "G_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "candidate_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "same_G": true,
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "G_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "candidate_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "same_G": true,
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "G_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "candidate_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "same_G": true,
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "path": "policy-engine/mypy.ini",
+      "G_blob": "594ab4d060735c68b3d135f836908b096874801d",
+      "candidate_blob": "594ab4d060735c68b3d135f836908b096874801d",
+      "same_G": true,
+      "bytes": 328,
+      "sha256": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538"
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "G_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "candidate_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "same_G": true,
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/mypy_plugin.py",
+      "G_blob": "1a9008d27f83c73e1a8e0eb8f3ec6a8d0a0eb280",
+      "candidate_blob": "1a9008d27f83c73e1a8e0eb8f3ec6a8d0a0eb280",
+      "same_G": true,
+      "bytes": 4322,
+      "sha256": "fe34e9af14e1e222f31ae59238e39103b07a6dc732788d5c4b65ccb6d779611c"
+    }
+  ],
+  "origin_contours": {
+    "finite_author_process": "finite-compatibility-matrix.json#/origins (84 actual polisyos file origins, allG exceptownio)",
+    "independent_affected_native": "pending direct tester; no prior885-origin PASS transferred"
+  },
+  "prior_own_base_source": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "old_topic_reference_only": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+  "old_topic_snapshots_or_Core_writer_overlay_imported": false,
+  "source_acceptance": "not_issued_by_G",
+  "formal_closure_ids": []
+}

@@ -1,0 +1,28 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/core/artifacts/test_ir_adapter.py",
+    "-k",
+    "current_core_default or default_ir_artifact_reopens or nondefault_current_core or profileless_historical or current_core_only or actual_persisted_mismatched or raw_core_bypass",
+    "--basetemp",
+    "/workspace/orch02-r2/c06-can/author-fixture-basetemp"
+  ],
+  "cwd": "/workspace/orch02-r2-c06-can/policy-engine",
+  "PYTHONPATH": "/workspace/orch02-r2-c06-can/policy-engine/src",
+  "exit_code": 0,
+  "wall_seconds": 3.117367316999662,
+  "maxrss_kib_cumulative_child": 94948,
+  "profile": "read-only existing app venv Python3.14.2",
+  "scope": "author focused compatibility tests before independent source review; not independent evidence",
+  "stdout": {
+    "bytes": 80,
+    "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+  },
+  "stderr": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

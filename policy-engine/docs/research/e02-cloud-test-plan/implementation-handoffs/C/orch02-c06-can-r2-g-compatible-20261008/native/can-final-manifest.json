@@ -1,0 +1,781 @@
+{
+  "schema": "orch02.r2.c06.independent_native_manifest.v1",
+  "reviewer": "/root/native_c06",
+  "at": "2026-10-08T18:20:28.701919+00:00",
+  "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "selected_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "input_preflight": {
+    "path": "/workspace/orch02-r2/native-c06/can-input-preflight.json",
+    "bytes": 9527,
+    "sha256": "2e7fcca9f16e27bd0584f751c76c1da67f92910e74bada62c55df9d605228863"
+  },
+  "harness": [
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/run_receipt.py",
+      "bytes": 2565,
+      "sha256": "58b497ebcc4637e953f0fa675922100712951bd800f18f715f2280e8dada5f9a"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/pytest_source_bound.py",
+      "bytes": 6269,
+      "sha256": "b4ad42370086c198108b5d6664087db32f28b94f0b2639e1429ad29b9f53d789"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/test_can_boundaries.py",
+      "bytes": 6201,
+      "sha256": "81e9147e3202374ec48e9a548c56a291a6e2e8ceded46ad972d8ae8371ce0619"
+    }
+  ],
+  "waves": [
+    {
+      "name": "can-native",
+      "role": "newG affected reader/storage/typedCAS family",
+      "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/can-native/command.json",
+        "bytes": 2093,
+        "sha256": "9021fbcd69ed2e5b41b4168fe79978a5c1775ac0de9e4684c21a5183e9b98184"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/can-native/stdout.txt",
+        "bytes": 7891,
+        "sha256": "8c851a34bdda8f89fb61251297e3633133ddaeb152e60b412726854953c70a76"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/can-native/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/can-native/junit.xml",
+        "bytes": 8336,
+        "sha256": "40c19be66cd00e112d3c01644ae26910f1dc1f1ee143d100ede252d7d2c878f3"
+      },
+      "all_actual_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/can-native/origins.json",
+        "bytes": 259678,
+        "sha256": "455356bb0b72d0f3d01ec28caf9304a7b29b9e8252e0c84981228d11fc9dd6d3"
+      },
+      "returncode": 0,
+      "wall_seconds": 11.806656794000446,
+      "max_rss_kib": 255896,
+      "testcase_denominator": 50,
+      "cases": [
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_round_trips_backtest_report",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ensure_ir_artifact_store_preserves_existing_adapter",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_persists_decimal_bytes_that_the_ir_reader_accepts",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-float-hex]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-bytes-hex]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-array-digest]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[unknown-synonym]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[malformed-tag-kind]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[nested-core-only-float-hex]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_accepts_complete_json_manifest_mapping_without_byte_mutation",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_uses_nondefault_persisted_depth_through_existing_g_producer",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates0]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates1]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates2]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates3]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates4]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates5]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates6]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates7]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates8]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[None]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[name]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[version]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_floats]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_nan_inf]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[exclude_none]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[max_depth]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[sort_keys]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[separators]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[ensure_ascii]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_current_core_default_put_json_round_trips_through_fresh_ir_reader",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_default_ir_artifact_reopens_as_typed_backtest_report",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_nondefault_current_core_options_keep_shared_ir_values",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_profileless_historical_cas_artifact_is_refused_before_bytes",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload0-{\"_type\":\"float_hex\",\"value\":\"0x1.8p+1\"}]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload1-{\"_type\":\"bytes_hex\",\"value\":\"00ff\"}]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload2-{\"_type\":\"array_digest\",\"digest\":\"sha256:abc\",\"length\":2}]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_actual_persisted_mismatched_profile_refuses_before_bytes[profile0]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_actual_persisted_mismatched_profile_refuses_before_bytes[profile1]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_raw_core_bypass_with_shaped_profile_cannot_authorize_core_only_tag",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_storage_protocol_boundaries",
+          "name": "test_protocol_boundary_helpers_do_not_import_concrete_cas_details",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_storage_protocol_boundaries",
+          "name": "test_compiler_report_helpers_accept_protocol_store",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_storage_protocol_boundaries",
+          "name": "test_registry_bundle_build_and_load_work_with_protocol_store",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_hte_result_persist_round_trip",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_policy_recommendation_persist_round_trip",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_hte_result_normalizes_n_samples_consistently",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_hte_result_is_frozen_report_contract",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_policy_recommendation_normalizes_targeting_efficiency_consistently",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_policy_recommendation_is_frozen_report_contract",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_backtest_report_persist_round_trip",
+          "outcome": "PASS"
+        }
+      ],
+      "all_actual_file_origin_denominator": 387,
+      "unresolved_module_origins": [],
+      "G_nonidentical_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "identifiability_loaded": false
+    },
+    {
+      "name": "can-boundary-witnesses",
+      "role": "independent actual CAS witnesses of declared C02/G seams",
+      "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/command.json",
+        "bytes": 2049,
+        "sha256": "536986aa5b47547fc7b1bb20bf002440d37a683a3b9c68828e83273f97b9ad63"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/stdout.txt",
+        "bytes": 16794,
+        "sha256": "7bffd6c2663172bf906549ad1d338dc03629c879048da8a9498572e40069a550"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/junit.xml",
+        "bytes": 2071,
+        "sha256": "50b91a93297c36d111d14bdc94df45a8f71cde41ab6264fd401adfab0c5ac52d"
+      },
+      "all_actual_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/origins.json",
+        "bytes": 63012,
+        "sha256": "e9c24b7055f579fb6688000dea5260c7f85ce9b5daeb4865d285c0f2676540f5"
+      },
+      "returncode": 0,
+      "wall_seconds": 8.017547774999912,
+      "max_rss_kib": 102100,
+      "testcase_denominator": 11,
+      "cases": [
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_core_profile_is_not_serialization_conformance",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[name]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[version]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[forbid_floats]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[forbid_nan_inf]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[exclude_none]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[max_depth]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[sort_keys]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[separators]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[ensure_ascii]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_typed_vs_mapping_write_options_warning_boundary",
+          "outcome": "PASS"
+        }
+      ],
+      "all_actual_file_origin_denominator": 80,
+      "unresolved_module_origins": [],
+      "G_nonidentical_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "identifiability_loaded": false
+    },
+    {
+      "name": "can-remove-original-reader",
+      "role": "matched original-reader semantic removal",
+      "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/command.json",
+        "bytes": 2434,
+        "sha256": "79b15ebf96628ababb8f1057bb1bef0723c4b5fc6de7f62e8e5570b610453233"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/stdout.txt",
+        "bytes": 54749,
+        "sha256": "d2aff2a63ed37fdebdfb9a50feaa76d87bc0bd04acbd21a105845034002e759e"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/junit.xml",
+        "bytes": 52433,
+        "sha256": "23eee297018f4391f128ea4e4230339404bed2eae10040be32f29a4f6ad3eb89"
+      },
+      "all_actual_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/origins.json",
+        "bytes": 65446,
+        "sha256": "b6678149e7b1e6f08f3bd3af50adefea380605827b315053814eca2e3084f168"
+      },
+      "returncode": 1,
+      "wall_seconds": 9.107640391001041,
+      "max_rss_kib": 107468,
+      "testcase_denominator": 21,
+      "cases": [
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_uses_nondefault_persisted_depth_through_existing_g_producer",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates0]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates1]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates2]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates3]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates4]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates5]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates6]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates7]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates8]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[None]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[name]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[version]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_floats]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_nan_inf]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[exclude_none]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[max_depth]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[sort_keys]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[separators]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[ensure_ascii]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_profileless_historical_cas_artifact_is_refused_before_bytes",
+          "outcome": "FAIL"
+        }
+      ],
+      "all_actual_file_origin_denominator": 84,
+      "unresolved_module_origins": [],
+      "G_nonidentical_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "identifiability_loaded": false
+    },
+    {
+      "name": "can-remove-complete-field-guard",
+      "role": "matched complete-field guard removal preserving membership markers",
+      "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/command.json",
+        "bytes": 2363,
+        "sha256": "13c2b6fd902b9736a6868ba94f472943fd476cced08945f920378d8c7569017a"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/stdout.txt",
+        "bytes": 17487,
+        "sha256": "c9ab92ee545439b9f57d5103692fa7a81de492883802c5ed951f4316f0c08059"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/junit.xml",
+        "bytes": 15809,
+        "sha256": "af38606b59a66b626889556394717ce4f48e33c65dd8dda311932e5f07405995"
+      },
+      "all_actual_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/origins.json",
+        "bytes": 65451,
+        "sha256": "48486028c99e2b86be4b6a866c056648815524aad3c58b06fab5a66dcc3c7ecc"
+      },
+      "returncode": 1,
+      "wall_seconds": 6.865868254999441,
+      "max_rss_kib": 106796,
+      "testcase_denominator": 9,
+      "cases": [
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[name]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[version]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_floats]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_nan_inf]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[exclude_none]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[max_depth]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[sort_keys]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[separators]",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[ensure_ascii]",
+          "outcome": "FAIL"
+        }
+      ],
+      "all_actual_file_origin_denominator": 84,
+      "unresolved_module_origins": [],
+      "G_nonidentical_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "identifiability_loaded": false
+    },
+    {
+      "name": "can-remove-separator-normalization",
+      "role": "matched separator normalization removal",
+      "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "command": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/command.json",
+        "bytes": 2413,
+        "sha256": "0e8764917fb5493bae9637ff0cba5e61c401fc62c83396862d04573c8dd5e02e"
+      },
+      "full_stdout": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/stdout.txt",
+        "bytes": 12388,
+        "sha256": "69bbe8fc799272532e74d6567e8ca43ee8c577b6d66d178664d45cd8e63b99ba"
+      },
+      "full_stderr": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "full_JUnit": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/junit.xml",
+        "bytes": 11089,
+        "sha256": "18c9a197d5c08fe5d0b3c2b900bddc7a9ee0d909316630bc032cc8fe03c1ab87"
+      },
+      "all_actual_source_origins_and_environment": {
+        "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/origins.json",
+        "bytes": 65454,
+        "sha256": "4d8e8245852d01d58ff20c83311d97579b3f9bbd7b531b2809662e3ef28f785a"
+      },
+      "returncode": 1,
+      "wall_seconds": 6.490283305000048,
+      "max_rss_kib": 106712,
+      "testcase_denominator": 2,
+      "cases": [
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_accepts_complete_json_manifest_mapping_without_byte_mutation",
+          "outcome": "FAIL"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_nondefault_current_core_options_keep_shared_ir_values",
+          "outcome": "FAIL"
+        }
+      ],
+      "all_actual_file_origin_denominator": 84,
+      "unresolved_module_origins": [],
+      "G_nonidentical_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "identifiability_loaded": false
+    }
+  ],
+  "property_removals": [
+    {
+      "name": "original-reader",
+      "canonical_source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "canonical_source_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "canonical_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "mutation_source_sha256": "350506f57684f62ae61c9a9a8f6c741317dae9f7c452f158fd484793e775e8e8",
+      "mutation_delta_sha256": "21ddeecfdf47299b2141caa59023a510ca08a5989240784e98f64c34ae572e31",
+      "preserved_helpers_markers": true,
+      "minimal_delta": {
+        "path": "/workspace/orch02-r2/native-c06/mutants/can-original-reader/mutation.diff",
+        "bytes": 774,
+        "sha256": "21ddeecfdf47299b2141caa59023a510ca08a5989240784e98f64c34ae572e31"
+      },
+      "reconstruction": "Read canonical io.py from exact Gitref, apply minimal unified diff; resulting sha256 must equal mutation_source_sha256. Scratch io.py is executable isolation only, not a publishable companion."
+    },
+    {
+      "name": "complete-field-guard",
+      "canonical_source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "canonical_source_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "canonical_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "mutation_source_sha256": "90532afd1210ae2b1715de93e660627ef6033aab2b80a94a3d4711f75160b432",
+      "mutation_delta_sha256": "a379348ee759275f7eed5a33b02556cfbf7202133ca4058859b148d6031aac3f",
+      "preserved_helpers_markers": true,
+      "minimal_delta": {
+        "path": "/workspace/orch02-r2/native-c06/mutants/can-complete-field-guard/mutation.diff",
+        "bytes": 494,
+        "sha256": "a379348ee759275f7eed5a33b02556cfbf7202133ca4058859b148d6031aac3f"
+      },
+      "reconstruction": "Read canonical io.py from exact Gitref, apply minimal unified diff; resulting sha256 must equal mutation_source_sha256. Scratch io.py is executable isolation only, not a publishable companion."
+    },
+    {
+      "name": "separator-normalization",
+      "canonical_source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "canonical_source_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "canonical_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "mutation_source_sha256": "6bf315edf8f89f1b59b21e2d37b881bdde30ee4218eafd4fd4833338f7944bd9",
+      "mutation_delta_sha256": "e82c72cb6164e01ff0eec4ff530ba198bcf18bd21c0efb5085bcfe5ca6050beb",
+      "preserved_helpers_markers": true,
+      "minimal_delta": {
+        "path": "/workspace/orch02-r2/native-c06/mutants/can-separator-normalization/mutation.diff",
+        "bytes": 476,
+        "sha256": "e82c72cb6164e01ff0eec4ff530ba198bcf18bd21c0efb5085bcfe5ca6050beb"
+      },
+      "reconstruction": "Read canonical io.py from exact Gitref, apply minimal unified diff; resulting sha256 must equal mutation_source_sha256. Scratch io.py is executable isolation only, not a publishable companion."
+    }
+  ],
+  "verdict": "GO_BOUNDED_CANDIDATE_NATIVE; integration/G source acceptance/formal closure not issued",
+  "source_acceptance": "not_issued_by_G",
+  "formal_closure_ids": [],
+  "excluded_replays": [
+    "old95 CAN suite",
+    "old package wheel/sdist/installed36x2",
+    "old origins885",
+    "old full invocation graph",
+    "old full DFK census"
+  ],
+  "limitations": [
+    "Storage protocol AST case tests source imports and is fixture/source evidence only; protocol-store helpers execute an in-memory store, not installed packaging.",
+    "Four HTE contract tests are constructor/model invariants, not persisted reader proof; actual HTE/policy/backtest persistence cases separately ran.",
+    "Actual selected native product-module file denominator387 is reconciled only for this process. Unexecuted sibling consumers, installed packaging and fullG runtime are not established.",
+    "Identifiability not loaded in any new selected CAN process; all other observed suppliers equal currentG source, so no previous old-supplier native proof is transferred.",
+    "Core-only tags float_hex/bytes_hex/array_digest remain rejected after payload read despite matching profile names/version.",
+    "Profile-less real history remains refused before payload access; no migration/default synthesis decision issued.",
+    "Raw shaped profile cannot establish serialization conformance/provenance: real Core put_bytes raw numeric float is decoded despite forbid_floats=true.",
+    "Actual default-view raw sidecars missing any of nine schema-derived fields are materialized by Core get_manifest before IR strict presented Mapping; original persisted-field presence is not proven.",
+    "Typed ArtifactWriteOptions preserves warning1, equivalent Mapping loses warning0 through unchanged Core adapter coercion; C02/G owns extension/refusal decision."
+  ],
+  "predicate_basis": {
+    "source_identity": "independently_reconciled",
+    "actual_origin_set": "recomputed and independently_reconciled to exactGit blobs",
+    "profile_membership": "recomputed from IRCanonInfo.model_fields and mutated actual persisted Mapping",
+    "producer_conformance_and_provenance": "not_established; demonstrated divergent raw-byte witness; held C02/G"
+  }
+}

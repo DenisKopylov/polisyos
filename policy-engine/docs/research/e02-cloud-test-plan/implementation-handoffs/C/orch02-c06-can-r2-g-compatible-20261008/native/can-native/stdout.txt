@@ -1,0 +1,66 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: /workspace/orch02-r2/native-c06/can-native/pytest-cache
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/orch02-r2-c06-can/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/orch02-r2-c06-can/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 50 items
+
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_round_trips_backtest_report PASSED [  2%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ensure_ir_artifact_store_preserves_existing_adapter PASSED [  4%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_persists_decimal_bytes_that_the_ir_reader_accepts PASSED [  6%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-float-hex] PASSED [  8%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-bytes-hex] PASSED [ 10%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-array-digest] PASSED [ 12%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_rejects_incompatible_tags_before_persisting[unknown-synonym] PASSED [ 14%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_rejects_incompatible_tags_before_persisting[malformed-tag-kind] PASSED [ 16%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_rejects_incompatible_tags_before_persisting[nested-core-only-float-hex] PASSED [ 18%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_accepts_complete_json_manifest_mapping_without_byte_mutation PASSED [ 20%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_uses_nondefault_persisted_depth_through_existing_g_producer PASSED [ 22%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates0] PASSED [ 24%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates1] PASSED [ 26%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates2] PASSED [ 28%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates3] PASSED [ 30%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates4] PASSED [ 32%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates5] PASSED [ 34%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates6] PASSED [ 36%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates7] PASSED [ 38%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates8] PASSED [ 40%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[None] PASSED [ 42%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[name] PASSED [ 44%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[version] PASSED [ 46%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_floats] PASSED [ 48%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_nan_inf] PASSED [ 50%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[exclude_none] PASSED [ 52%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[max_depth] PASSED [ 54%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[sort_keys] PASSED [ 56%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[separators] PASSED [ 58%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_requires_every_persisted_profile_field_before_bytes[ensure_ascii] PASSED [ 60%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_current_core_default_put_json_round_trips_through_fresh_ir_reader PASSED [ 62%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_default_ir_artifact_reopens_as_typed_backtest_report PASSED [ 64%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_nondefault_current_core_options_keep_shared_ir_values PASSED [ 66%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_profileless_historical_cas_artifact_is_refused_before_bytes PASSED [ 68%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload0-{"_type":"float_hex","value":"0x1.8p+1"}] PASSED [ 70%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload1-{"_type":"bytes_hex","value":"00ff"}] PASSED [ 72%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload2-{"_type":"array_digest","digest":"sha256:abc","length":2}] PASSED [ 74%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_actual_persisted_mismatched_profile_refuses_before_bytes[profile0] PASSED [ 76%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_actual_persisted_mismatched_profile_refuses_before_bytes[profile1] PASSED [ 78%]
+tests/unit/core/artifacts/test_ir_adapter.py::test_raw_core_bypass_with_shaped_profile_cannot_authorize_core_only_tag PASSED [ 80%]
+tests/unit/core/artifacts/test_storage_protocol_boundaries.py::test_protocol_boundary_helpers_do_not_import_concrete_cas_details PASSED [ 82%]
+tests/unit/core/artifacts/test_storage_protocol_boundaries.py::test_compiler_report_helpers_accept_protocol_store PASSED [ 84%]
+tests/unit/core/artifacts/test_storage_protocol_boundaries.py::test_registry_bundle_build_and_load_work_with_protocol_store PASSED [ 86%]
+tests/unit/ir/test_hte_backtest.py::test_hte_result_persist_round_trip PASSED [ 88%]
+tests/unit/ir/test_hte_backtest.py::test_policy_recommendation_persist_round_trip PASSED [ 90%]
+tests/unit/ir/test_hte_backtest.py::test_hte_result_normalizes_n_samples_consistently PASSED [ 92%]
+tests/unit/ir/test_hte_backtest.py::test_hte_result_is_frozen_report_contract PASSED [ 94%]
+tests/unit/ir/test_hte_backtest.py::test_policy_recommendation_normalizes_targeting_efficiency_consistently PASSED [ 96%]
+tests/unit/ir/test_hte_backtest.py::test_policy_recommendation_is_frozen_report_contract PASSED [ 98%]
+tests/unit/ir/test_hte_backtest.py::test_backtest_report_persist_round_trip PASSED [100%]ORIGIN_RECONCILIATION {"file_origins": 387, "unresolved_modules": 0, "problems": 0}
+
+
+--- generated xml file: /workspace/orch02-r2/native-c06/can-native/junit.xml ---
+============================== 50 passed in 7.51s ==============================

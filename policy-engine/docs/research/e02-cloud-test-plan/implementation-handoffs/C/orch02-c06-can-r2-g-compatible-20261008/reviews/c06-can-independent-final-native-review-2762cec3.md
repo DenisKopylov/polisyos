@@ -1,0 +1,7 @@
+Source-qualified GO for CAN source `2762cec321d0cc78874abb986736dab54e2fb189`, tree `70051ecf56771a59c0ecc468e975e7878b66f728`, parent selected G `dee58973f7673299070b7c7374f419b0adb8175c`. All five command/output/JUnit/origin packets and all three minimal mutation reconstructions independently agree. No replay was run.
+
+The new affected native wave has 50 passing cases: 40 actual adapter/CAS reader cases, one source AST check, two in-memory protocol checks, three actual HTE/policy/backtest CAS roundtrips and four model invariants. Eleven separate actual CAS witnesses reproduce bounded Core seams. Matched original-reader/complete-field/separator removals give 21/9/2 expected failures with unchanged owned tests and no errors or skips.
+
+All 387 observed product-module file origins in the primary process match this candidate; only owned IR io differs from selected G. The 80/84/84/84 origins in the other processes reconcile, including each deliberately substituted io source. Identifiability and old package waves were not loaded or replayed.
+
+Presented complete Mapping validation is established. Original raw-sidecar completeness, producer serialization/provenance and warning fidelity are not: real raw numeric float is read under forbid_floats metadata, Core supplies all nine missing raw-field defaults, and Mapping write options lose an actual warning. These remain the declared C02/G compatibility class and require canonical supplier contracts, not a reader guard ladder. G acceptance and formal closure are separate and unissued; P41 is not established.

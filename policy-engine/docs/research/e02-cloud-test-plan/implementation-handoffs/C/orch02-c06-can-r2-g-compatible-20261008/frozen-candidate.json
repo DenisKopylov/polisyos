@@ -1,0 +1,64 @@
+{
+  "schema": "policyos.e02.c06_can.r2_source_freeze.v1",
+  "author": "/root/c06_can_writer",
+  "branch": "codex/e02-C-orch02-c06-can-r2-g-compatible",
+  "repo_root": "/workspace/orch02-r2-c06-can",
+  "prospective_base_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "prospective_base_tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+  "frozen_index_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "implementation_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "all_changed_paths": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+      "old_base_blob": null,
+      "G_preimage_blob": null,
+      "old_source_blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319",
+      "reconciliation": "add_unique_owned_fragment_to_absent_G_path",
+      "initial_reconciled_blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319",
+      "final_candidate_blob": "d400b3d86a640be60ca321194bc612f151733102",
+      "final_candidate_sha256": "69b6434c3dc1ef6610c002c575c863e51c63c052b9f2e4d468c30f1fedc2e582",
+      "bytes": 1897
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+      "old_base_blob": "9d6573ca431d74f3627586e65724a28bba06af07",
+      "G_preimage_blob": "9d6573ca431d74f3627586e65724a28bba06af07",
+      "old_source_blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5",
+      "reconciliation": "apply_exact_own_hunks_to_identical_preimage",
+      "initial_reconciled_blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5",
+      "final_candidate_blob": "ab2e0ed8e0e571cb58ae29ee7647a59e2c7852c9",
+      "final_candidate_sha256": "340b1b8938e789b76c134f3031e4b59dbe3c0b5f21aa34174c18a93ce1fde6cf",
+      "bytes": 4005
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "old_base_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "G_preimage_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "old_source_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "reconciliation": "apply_exact_own_hunks_to_identical_preimage",
+      "initial_reconciled_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "final_candidate_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "final_candidate_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "bytes": 4721
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "old_base_blob": "b1583a98989ab64a53a12c9cafc19b220836087b",
+      "G_preimage_blob": "b1583a98989ab64a53a12c9cafc19b220836087b",
+      "old_source_blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e",
+      "reconciliation": "apply_exact_own_hunks_to_identical_preimage",
+      "initial_reconciled_blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e",
+      "final_candidate_blob": "3d496f7582011219aee485518aa3ab53fa4004f8",
+      "final_candidate_sha256": "91dbd1581e1811328e0520899aadeb9154eb24cbcf4df0360c40c3bf294ec870",
+      "bytes": 16170
+    }
+  ],
+  "io_behavior_delta_versus_prior490": "byte-identical; Gcompatible port adds 10 current-G compatibility tests and precise limitations",
+  "prior_source_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "prior_topic_head": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+  "patch_sha256": "af8b872badc83b257b1337beee16ce8b123f0c2222fcbd847ca4ad4ec0872e28",
+  "dependency_composition": "All unmodified product source/tests/config/locks exactly prospective G tree. No old topic ancestry/snapshot or Core writer overlay imported. Exact observed runtime origins to be recorded independently after review.",
+  "independent_review": "pending",
+  "source_acceptance": "not_issued_by_G",
+  "formal_closure_ids": []
+}

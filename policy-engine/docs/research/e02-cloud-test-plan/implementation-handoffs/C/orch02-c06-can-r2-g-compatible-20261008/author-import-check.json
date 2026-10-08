@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.quality.lint.lint_imports",
+    "--changed-only",
+    "--git-base-ref",
+    "dee58973f7673299070b7c7374f419b0adb8175c",
+    "--cache-dir",
+    "/workspace/orch02-r2/c06-can/imports-cache",
+    "--output-format",
+    "json"
+  ],
+  "cwd": "/workspace/orch02-r2-c06-can/policy-engine",
+  "frozen_index_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "exit_code": 0,
+  "wall_seconds": 20.2753779199993,
+  "cumulative_max_child_rss_kib": 75884,
+  "PYTHONPATH": "/workspace/orch02-r2-c06-can/policy-engine/src:/workspace/orch02-r2-c06-can/policy-engine",
+  "scope": "Changed source policy gate, not global architecture/generated-family PASS; P41 inherited not_established",
+  "stdout": {
+    "path": "/workspace/orch02-r2/c06-can/imports.stdout",
+    "bytes": 1082,
+    "sha256": "6c5329992de454af0b4a2b747a22a88331c3b4cda5b29a21bbb5176799540150"
+  },
+  "stderr": {
+    "path": "/workspace/orch02-r2/c06-can/imports.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

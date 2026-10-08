@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.c06_can.r2_pathwise_reconciliation.v1",
+  "old_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "old_source": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "preserved_old_topic_head": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+  "prospective_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "patch_sha256": "f31cfdbf65b192fa2d31dd27b5811445c361ba448fdebfbdbb116c3cc0a46ce8",
+  "all_path_preimages": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+      "old_base_blob": null,
+      "G_preimage_blob": null,
+      "old_source_blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319",
+      "reconciliation": "add_unique_owned_fragment_to_absent_G_path",
+      "initial_reconciled_blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+      "old_base_blob": "9d6573ca431d74f3627586e65724a28bba06af07",
+      "G_preimage_blob": "9d6573ca431d74f3627586e65724a28bba06af07",
+      "old_source_blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5",
+      "reconciliation": "apply_exact_own_hunks_to_identical_preimage",
+      "initial_reconciled_blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "old_base_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "G_preimage_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "old_source_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "reconciliation": "apply_exact_own_hunks_to_identical_preimage",
+      "initial_reconciled_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "old_base_blob": "b1583a98989ab64a53a12c9cafc19b220836087b",
+      "G_preimage_blob": "b1583a98989ab64a53a12c9cafc19b220836087b",
+      "old_source_blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e",
+      "reconciliation": "apply_exact_own_hunks_to_identical_preimage",
+      "initial_reconciled_blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e"
+    }
+  ],
+  "foreign_hunks_overwritten": false,
+  "old_core_writer_overlay_imported": false,
+  "source_acceptance": "not_issued",
+  "formal_closure_ids": []
+}

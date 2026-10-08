@@ -55,3 +55,9 @@ training corpus и не меняют существующие compatibility/admi
 Для старого checkpoint без ledger `complete=false` явно сохраняет ограничение:
 прежние исчезнувшие записи и причины не восстановлены. Поле не доказывает
 scientific provenance, refinement permission или production admission law.
+
+Cold-start Sobol index и adaptive single-candidate acquisition planning получают
+тот же admitted/deduplicated corpus, что training path: whole и warm+current
+представления одинаковых разрешённых записей дают согласованный план. Batch
+сохраняет существующий fixed qEI путь; current-request iteration и full-refit
+counters не меняют своего прежнего значения от warm-history count.

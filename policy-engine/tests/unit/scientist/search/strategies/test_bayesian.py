@@ -141,6 +141,166 @@ def test_warm_start_rejections_survive_public_state_artifact_without_entering_co
     assert len(restored.get_state().metadata["warm_start_rejections"]["records"]) == 1
 
 
+def _warm_planning_records(simple_space: SearchSpace):
+    """The existing admitted warm fixture, including duplicate and independent replica."""
+    compatibility = {
+        "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+        "input_transform_fingerprint": "Normalize[0,1]",
+        "outcome_transform_fingerprint": "Standardize[m=1]",
+        "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+        "objective_fingerprint": "scalar_score[minimize]",
+        "context_fingerprint": "context/run-1",
+    }
+    warm = [
+        make_evaluation(
+            candidate_id=f"warm-{index}",
+            params={"x": -3.5 + index},
+            score=float(index),
+            space=simple_space,
+        )
+        for index in range(6)
+    ]
+    for index, evaluation in enumerate(warm):
+        evaluation.provenance_ref = f"origin/run-1/evaluation-{index}"
+        evaluation.metadata = {
+            "replicate_id": f"replica-{index}",
+            "seed": index,
+            "warm_start_compatibility": dict(compatibility),
+        }
+    warm[2].metadata.update(replicate_id="replica-1", seed=1)
+    duplicate = make_evaluation(
+        candidate_id="warm-2", params={"x": -1.5}, score=2.0, space=simple_space
+    )
+    duplicate.provenance_ref = "origin/run-1/evaluation-2"
+    duplicate.metadata = dict(warm[2].metadata)
+    replica = make_evaluation(
+        candidate_id="warm-2-replica", params={"x": -1.5}, score=2.25, space=simple_space
+    )
+    replica.provenance_ref = "origin/run-1/evaluation-2"
+    replica.metadata = {
+        "replicate_id": "replica-2",
+        "seed": 2,
+        "warm_start_compatibility": dict(compatibility),
+    }
+    warm.extend([duplicate, replica])
+    current = make_evaluation(
+        candidate_id="current-0", params={"x": 4.0}, score=8.0, space=simple_space
+    )
+    current.provenance_ref = "origin/run-2/evaluation-0"
+    current.metadata = {
+        "replicate_id": "current-0",
+        "seed": 101,
+        "warm_start_compatibility": dict(compatibility),
+    }
+    return warm, [current]
+
+
+@pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+@pytest.mark.parametrize("reverse", [False, True])
+@pytest.mark.parametrize("batch", [False, True])
+def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(
+    simple_space: SearchSpace, monkeypatch: pytest.MonkeyPatch, reverse: bool, batch: bool
+) -> None:
+    """Actual caller/selector/constructor routing; fit and optimization are controlled."""
+    warm, current = _warm_planning_records(simple_space)
+    if reverse:
+        warm.reverse()
+    config = BayesianConfig(
+        n_initial=6, seed=21, adaptive_acquisition=True, fallback_on_failure=False
+    )
+    whole = BayesianOptimizer(simple_space, config)
+    split = BayesianOptimizer(simple_space, config)
+    split.warm_start(warm)
+    expected = whole._effective_training_corpus([*warm, *current])
+    assert len(expected) == 8
+    assert sum(e.candidate_id == "warm-2" for e in expected) == 1
+    assert any(e.candidate_id == "warm-2-replica" for e in expected)
+
+    def observe_run(strategy, evaluations):
+        observed = {"training": [], "planning": [], "fit": [], "routes": []}
+        prepare = strategy._prepare_training_data
+        select = strategy._select_acquisition
+
+        def observe_prepare(records):
+            observed["training"].append([e.candidate_id for e in records])
+            return prepare(records)
+
+        def controlled_fit(x, y_bo):
+            observed["fit"].append((x.tolist(), y_bo.tolist()))
+            strategy._model = bayesian_module.SingleTaskGP(
+                train_X=x,
+                train_Y=y_bo,
+                input_transform=bayesian_module.Normalize(d=x.shape[-1]),
+                outcome_transform=bayesian_module.Standardize(m=1),
+            )
+
+        def observe_select(records, y_bo):
+            observed["planning"].append([e.candidate_id for e in records])
+            return select(records, y_bo)
+
+        def controlled_optimize(**kwargs):
+            observed["routes"].append(type(kwargs["acq_function"]).__name__)
+            q = kwargs["q"]
+            candidates = strategy._torch.linspace(0.61, 0.71, q, dtype=strategy._torch.float64)
+            return candidates.reshape(q, 1), strategy._torch.tensor(1.0)
+
+        monkeypatch.setattr(strategy, "_prepare_training_data", observe_prepare)
+        monkeypatch.setattr(strategy, "_fit_gp", controlled_fit)
+        monkeypatch.setattr(strategy, "_select_acquisition", observe_select)
+        monkeypatch.setattr(bayesian_module, "optimize_acqf", controlled_optimize)
+        result = (
+            strategy.suggest_batch(evaluations, batch_size=2)
+            if batch
+            else [strategy.suggest(evaluations)]
+        )
+        assert all(c.source_strategy in {"bayesian_acquisition", "batch_qei"} for c in result)
+        assert strategy._iteration == (0 if batch else len(evaluations))
+        return observed
+
+    whole_result = observe_run(whole, [*warm, *current])
+    split_result = observe_run(split, current)
+    expected_ids = [e.candidate_id for e in expected]
+    assert whole_result["training"] == split_result["training"] == [expected_ids]
+    assert whole_result["fit"] == split_result["fit"]
+    if batch:
+        assert whole_result["planning"] == split_result["planning"] == []
+        assert whole_result["routes"] == split_result["routes"] == ["qExpectedImprovement"]
+    else:
+        assert whole_result["planning"] == split_result["planning"] == [expected_ids]
+        expected_route = "UpperConfidenceBound" if reverse else "ExpectedImprovement"
+        assert whole_result["routes"] == split_result["routes"] == [expected_route]
+
+
+@pytest.mark.parametrize("batch", [False, True])
+def test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan(
+    simple_space: SearchSpace, batch: bool
+) -> None:
+    """Actual sampler inputs/parameters agree; current-request iteration stays separate."""
+    warm, current = _warm_planning_records(simple_space)
+    warm = warm[:2]
+    config = BayesianConfig(n_initial=6, seed=21)
+    whole = BayesianOptimizer(simple_space, config)
+    split = BayesianOptimizer(simple_space, config)
+    split.warm_start(warm)
+    corpus = whole._effective_training_corpus([*warm, *current])
+    assert len(corpus) == 3 < config.n_initial
+    whole_candidates = (
+        whole.suggest_batch([*warm, *current], batch_size=2)
+        if batch
+        else [whole.suggest([*warm, *current])]
+    )
+    split_candidates = (
+        split.suggest_batch(current, batch_size=2) if batch else [split.suggest(current)]
+    )
+    assert all(c.source_strategy == "sobol_init" for c in [*whole_candidates, *split_candidates])
+    assert [c.params for c in whole_candidates] == [c.params for c in split_candidates]
+    assert [c.params_normalized for c in whole_candidates] == [
+        c.params_normalized for c in split_candidates
+    ]
+    assert whole._iteration == (0 if batch else 3)
+    assert split._iteration == (0 if batch else 1)
+
+
 def test_duplicate_detection_uses_canonical_integer_and_category_execution() -> None:
     space = SearchSpace(
         bounds=[

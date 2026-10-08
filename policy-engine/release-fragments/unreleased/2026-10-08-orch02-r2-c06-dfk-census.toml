@@ -1,0 +1,30 @@
+id = "2026-10-08-orch02-r2-c06-dfk-census"
+title = "Add a bounded local schema FQN census candidate"
+type = "added"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Expose the local Git-visible schema census through validation schema-fqn-census, retaining every ordinary status record and both rename/copy paths."
+evidence = ["tests/unit/remediation/test_dfk_01.py"]
+compatibility = "Existing schema compatibility surfaces and their identity tests remain unchanged."
+change_class = "additive"
+surface_classification = "public_tool_cli"
+migration = "No schema retirement or caller migration is authorized by the census."
+api = "polisyos-tools validation schema-fqn-census --repo-root PATH emits polisyos.schema_fqn_census.v2 JSON; incomplete selected reads return 2."
+limitations = "Local static Git-visible UTF-8 text only; external, ignored, binary, historical, computed runtime callers and archive membership remain undecided. G owns public tool lifecycle adjudication and generated registry documentation."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "bounded-local-schema-census"
+change_class = "additive"
+impact = "additive"
+surface = "public tool: validation.schema-fqn-census"
+owner = "team-data-forge"
+version_owner = "team-devx"
+deprecation_window = "not_applicable; no existing surface is deprecated"
+release_note = "The census is an adoption candidate; autodiscovery supplies the active CLI entry, and its receipt is not a retirement authorization."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

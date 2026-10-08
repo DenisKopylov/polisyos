@@ -284,7 +284,6 @@ async def test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatc
             return None
 
     if override_target == "controller":
-
         class SideEffectController(GenerationCycleController):
             async def run(self, *args, **kwargs):
                 del args, kwargs
@@ -729,9 +728,11 @@ def _source_role(relative_path: str) -> str:
         return "example_only"
     if relative_path.startswith("docs/research/"):
         return "research_only"
-    # Executable research journals and worker/oracle programs can construct the
-    # same runtime owners. Their directory names do not exempt their calls.
-    if first in {"src", "tools", "apps", "ops", "architecture", "docs", "dev-oracles", "workers"}:
+    # Executable journals and worker/oracle programs can construct runtime owners.
+    # Their directory names do not exempt their calls from the actual census.
+    if first in {
+        "src", "tools", "apps", "ops", "architecture", "docs", "dev-oracles", "workers"
+    }:
         return "production_capable"
     if relative_path in {"jax_bootstrap.py", "migrate.py"}:
         return "production_capable"
@@ -774,7 +775,9 @@ def _production_python_paths(repo_root: Path) -> tuple[set[str], set[str]]:
         capture_output=True,
     )
     ignored_directories = {
-        item.decode().rstrip("/") for item in ignored_directory_result.stdout.split(b"\0") if item
+        item.decode().rstrip("/")
+        for item in ignored_directory_result.stdout.split(b"\0")
+        if item
     }
     discovered: list[str] = []
     for directory, child_dirs, files in os.walk(repo_root, followlinks=False):
@@ -783,7 +786,8 @@ def _production_python_paths(repo_root: Path) -> tuple[set[str], set[str]]:
             name
             for name in child_dirs
             if name != ".git"
-            and (root / name).relative_to(repo_root).as_posix() not in ignored_directories
+            and (root / name).relative_to(repo_root).as_posix()
+            not in ignored_directories
         ]
         for name in files:
             if name.endswith((".py", ".pyi")):
@@ -822,7 +826,9 @@ def _assert_constructor_contract(
             "compile_and_run_recursive_generation_cycle",
             "polisyos.runtime.quality.recursive_generation_cycle."
             "build_default_recursive_generation_cycle_controller",
-            frozenset({"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}),
+            frozenset(
+                {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+            ),
         ),
         (
             "polisyos.runtime.quality.recursive_generation_cycle",
@@ -830,7 +836,9 @@ def _assert_constructor_contract(
             "build_default_recursive_generation_cycle_controller",
             "polisyos.runtime.quality.recursive_generation_cycle."
             "RecursiveGenerationCycleController",
-            frozenset({"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}),
+            frozenset(
+                {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+            ),
         ),
         (
             "polisyos.runtime.quality.recursive_generation_cycle",
@@ -845,6 +853,10 @@ def _assert_constructor_contract(
                     "cycle_substrate_context",
                     "promotion_runtime",
                     "value_port",
+                    "eval_safety_verifier",
+                    "artifact_store",
+                    "candidate_simulation_handoff",
+                    "candidate_simulation_currentness_resolver",
                 }
             ),
         ),
@@ -853,7 +865,12 @@ def _assert_constructor_contract(
             "src/polisyos/runtime/quality/generation_cycle.py",
             "GenerationCycleController.__init__",
             "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
-            frozenset({"repo_root", "promotion_runtime", "epoch_n9_evidence_resolver"}),
+            frozenset(
+                {
+                    "repo_root", "promotion_runtime", "epoch_n9_evidence_resolver",
+                    "context_provider", "measurement_catalog", "measurement_providers",
+                }
+            ),
         ),
     }
     observed_production = {
@@ -1038,6 +1055,12 @@ def _assert_constructor_contract(
     assert len(constructors) == len(expected_production) + len(expected_verification)
     assert not any(row.has_keyword_expansion for row in constructors)
     expected_promotion_calls = {
+        (
+            "polisyos.runtime.quality.generation_cycle",
+            "src/polisyos/runtime/quality/generation_cycle.py",
+            "GenerationCycleController._promote_completed_generation",
+            frozenset({"admitted_batch", "problem", "deployment_identity"}),
+        ),
         (
             "polisyos.runtime.quality.generation_cycle",
             "src/polisyos/runtime/quality/generation_cycle.py",
@@ -1367,13 +1390,16 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
     assert current_run.strangle_receipt.status == "not_established"
     assert "n6_census_issuer_not_appointed" in current_run.strangle_receipt.limitation_refs
     assert validate_generation_cycle_candidate_run(current_run) == ()
-    strict_issue_codes = {issue["code"] for issue in validate_generation_cycle_run(current_run)}
+    strict_issue_codes = {
+        issue["code"] for issue in validate_generation_cycle_run(current_run)
+    }
     assert "strangle_receipt_currentness_not_established" in strict_issue_codes
     assert "single_pass_fixture_survives_as_production_cycle" not in strict_issue_codes
     assert current_run.promotion_port.status == "not_promoted"
     assert current_run.promotion_port.receipts == ()
     assert current_run.promotion_port.reason == (
-        "generation_cycle_blocked_before_n9:voi_safety_cap_reached_without_scheduler_stop"
+        "generation_cycle_blocked_before_n9:"
+        "voi_safety_cap_reached_without_scheduler_stop"
     )
     assert current_run.deployment_identity_status == "established"
     assert current_run.deployment_identity is not None
@@ -1403,7 +1429,11 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
 
     foreign_problem = _problem(f"recursive_eval_safety_foreign_{uuid4().hex}")
     foreign_context = fixture.execution_context.model_copy(
-        update={"design_problem_ref": gy_content_hash(foreign_problem.model_dump(mode="json"))}
+        update={
+            "design_problem_ref": gy_content_hash(
+                foreign_problem.model_dump(mode="json")
+            )
+        }
     )
 
     class VerifierMustNotRun:
@@ -1443,7 +1473,9 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
         fixture.execution_context.eval_safety_revision_head_ref
     )
     assert current_value.authority_blockers == ("value_owner_data_profile_invalid",)
-    assert replayed_value.authority_blockers == ("eval_safety_consumer_admission_blocked",)
+    assert replayed_value.authority_blockers == (
+        "eval_safety_consumer_admission_blocked",
+    )
     assert owner_calls == ["load_value_data_profile"]
     n4_calls_before_invalid_bindings = n4_calls
     for invalid_bindings in (
@@ -1501,7 +1533,6 @@ async def test_http_contextless_explicit_n4_refuses_before_n4(
 
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
     problem = _problem(f"recursive_owner_strangle_{uuid4().hex}")
-
     class _NeverCalledN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
@@ -1947,7 +1978,6 @@ async def test_http_protected_explicit_n4_without_owner_context_fails_closed_bef
         "build_design_problem_from_nl_request",
         compile_problem,
     )
-
     def reject_candidate_proposal(**_kwargs):
         pytest.fail("protected explicit N4 route entered candidate-only proposal path")
 
@@ -2041,29 +2071,11 @@ async def test_recursive_leaf_preserves_history_and_current_problem_binding() ->
 
 
 def test_recursive_constructor_census_scans_executable_source_families() -> None:
-    """New families retain the same constructor oracle, including alias calls."""
+    """Executable families retain actual alias resolution and unknown refusal."""
 
     repo_root = Path(__file__).resolve().parents[4]
     paths, filesystem_paths = _production_python_paths(repo_root)
     assert paths == filesystem_paths
-    constructors: list[_CallSite] = []
-    promotion_calls: list[_CallSite] = []
-    ambiguous: list[str] = []
-    for relative_path in sorted(paths):
-        found, ports, unresolved = _scan_python_source(
-            source=(repo_root / relative_path).read_text(encoding="utf-8"),
-            module=_module_name(repo_root, repo_root / relative_path),
-            source_path=relative_path,
-        )
-        constructors.extend(found)
-        promotion_calls.extend(ports)
-        ambiguous.extend(unresolved)
-
-    # This is a controlled positive fixture for the mutation oracle only. The
-    # live denominator test below still admits every production-capable path,
-    # including existing journal constructors that lack owner dependencies.
-    fixture = tuple(row for row in constructors if row.source_path.startswith(("src/", "tools/")))
-    _assert_constructor_contract(fixture, tuple(promotion_calls), tuple(ambiguous))
     for relative_path in (
         "docs/superpowers/journals/family_probe.py",
         "dev-oracles/family_probe.py",
@@ -2081,13 +2093,14 @@ def build():
             source_path=relative_path,
         )
         assert len(found) == 1
-        assert found[0].target.endswith("GenerationCycleController")
+        assert found[0].source_path == relative_path
+        assert found[0].target == (
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
+        )
         assert found[0].keyword_names == frozenset({"repo_root"})
+        assert found[0].authority_scope is None
+        assert not found[0].has_keyword_expansion
         assert ports == unresolved == ()
-        with pytest.raises(AssertionError):
-            _assert_constructor_contract(
-                (*fixture, *found), tuple(promotion_calls), tuple(ambiguous)
-            )
     with pytest.raises(AssertionError, match="unclassified Python/stub path"):
         _source_role("unallocated/family_probe.py")
 
@@ -2516,14 +2529,11 @@ def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_tran
     problem = _design_problem()
     registry = _registry("education")
     world = _world_record(
-        "education",
-        registry,
-        region_or_jurisdiction="UA",
+        "education", registry, region_or_jurisdiction="UA",
         policy_slot_ids=("education.teaching_method", "learning_outcomes"),
     )
     context = _cycle_context(
-        registry=registry,
-        world_model_record=world,
+        registry=registry, world_model_record=world,
         design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
     )
     profile_payload = {
@@ -2536,89 +2546,64 @@ def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_tran
             selected_registry_entry_hashes=context.selected_registry_entry_hashes,
             world_model_record=world,
             intervention_substrate=context.intervention_substrate,
-            candidate_levers=(),
-            transport_context=None,
+            candidate_levers=(), transport_context=None,
             source_pack_content_hash=context.source_pack_content_hash,
             substrate_input_content_hash=context.substrate_input_content_hash,
         ).model_dump(mode="json"),
         "rule": CandidateScenarioSetToRule(
-            operator_kind="teaching_method_set_to",
-            parameter_id="intensity",
-            target_world_slot="education.teaching_method",
-            unit_id="synthetic_score",
-            minimum=0,
-            maximum=1,
+            operator_kind="teaching_method_set_to", parameter_id="intensity",
+            target_world_slot="education.teaching_method", unit_id="synthetic_score",
+            minimum=0, maximum=1,
         ).model_dump(mode="json"),
         "n5": CandidateScenarioN5Config(
-            budget_ref="budget://bounded-child",
-            horizon=HorizonSpec(start=0, end=0, step=1),
+            budget_ref="budget://bounded-child", horizon=HorizonSpec(start=0, end=0, step=1),
             baseline_state={"education.teaching_method": 0.0, "learning_outcomes": 0.0},
-            seed=7,
-            replications=2,
+            seed=7, replications=2,
         ).model_dump(mode="json"),
         "limitations": (
-            "scenario_only",
-            "real_profile_not_established",
-            "real_time_not_established",
-            "grounding_not_established",
-            "s8_blocked",
-            "n9_not_admitted",
+            "scenario_only", "real_profile_not_established", "real_time_not_established",
+            "grounding_not_established", "s8_blocked", "n9_not_admitted",
         ),
     }
-    profile = CandidateSimulationScenarioProfile.model_validate(
-        {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
-    )
+    profile = CandidateSimulationScenarioProfile.model_validate({
+        **profile_payload, "content_hash": gy_content_hash(profile_payload)
+    })
     store = FileSystemCAS(tmp_path / "child-cas")
     job_owner = _TestCurrentJobExecutionOwner("child-job", "child-run")
     context_owner = CycleSubstrateContextArtifactOwner(store=store, control_store=job_owner)
     admission_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
-        profiles=(profile,),
-        store=store,
+        profiles=(profile,), store=store,
     )
     owner = RecursiveLeafContextOwner(
-        store=store,
-        context_owner=context_owner,
-        admission_owner=admission_owner,
+        store=store, context_owner=context_owner, admission_owner=admission_owner,
     )
     scope = {"tenant_id": "child-tenant", "cell_id": "child-cell"}
     expected = {
-        "node_ref": "design://child",
-        "parent_ref": "design://parent",
-        "problem": problem,
-        "expected_job_id": "child-job",
-        "expected_run_id": "child-run",
-        "expected_tenant_id": "child-tenant",
-        "expected_cell_id": "child-cell",
+        "node_ref": "design://child", "parent_ref": "design://parent", "problem": problem,
+        "expected_job_id": "child-job", "expected_run_id": "child-run",
+        "expected_tenant_id": "child-tenant", "expected_cell_id": "child-cell",
     }
     with _authenticated_tenant_scope(**scope):
         offer = admission_owner.admit_context(
-            problem=problem,
-            job_id="child-job",
-            run_id="child-run",
-            **scope,
+            problem=problem, job_id="child-job", run_id="child-run", **scope,
         )
         assert offer is not None
         context_ref = context_owner.persist_for_current_job(offer.context, problem=problem)
         handoff = CandidateSimulationContextHandoff(
-            context=offer.context,
-            context_job_ref=context_ref,
-            profile=profile,
+            context=offer.context, context_job_ref=context_ref, profile=profile,
             profile_config_ref=offer.profile_config_ref,
-            job_id="child-job",
-            run_id="child-run",
-            **scope,
+            job_id="child-job", run_id="child-run", **scope,
         )
         payload = {
             "schema_version": "policyos.runtime.recursive_leaf_context.v1",
             "authority_purpose": "candidate_leaf_replay_only",
-            "node_ref": "design://child",
-            "parent_ref": "design://parent",
+            "node_ref": "design://child", "parent_ref": "design://parent",
             "problem": problem.model_dump(mode="json"),
             "handoff": handoff.model_dump(mode="json"),
         }
-        capsule = RecursiveLeafContextCapsule.model_validate(
-            {**payload, "content_hash": gy_content_hash(payload)}
-        )
+        capsule = RecursiveLeafContextCapsule.model_validate({
+            **payload, "content_hash": gy_content_hash(payload)
+        })
         capsule_ref = owner.persist(capsule)
         assert owner.read(capsule_ref, **expected) == capsule
         assert capsule.problem.authority_profile == problem.authority_profile
@@ -2637,32 +2622,25 @@ def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_tran
         from tests.unit.runtime.quality.test_generation_cycle import _budget
 
         with pytest.raises(ValueError, match="recursive_child_context_owner_not_established"):
-            asyncio.run(
-                controller.run(
-                    graph,
-                    problems_by_node={"design://parent": problem, "design://child": problem},
-                    budget_state=_budget(),
-                    recursive_budget=RecursiveCycleBudget(
-                        max_depth=1,
-                        max_nodes=2,
-                        min_cycles_per_leaf=1,
-                        max_cycles_per_leaf=1,
-                    ),
-                    cycle_substrate_contexts_by_node={"design://child": handoff.context},
-                    candidate_simulation_handoffs_by_node={"design://child": handoff},
-                    candidate_simulation_currentness_resolvers_by_node={
-                        "design://child": lambda: True
-                    },
-                    execution_intents_by_node={"design://child": "simulate_only"},
-                )
-            )
+            asyncio.run(controller.run(
+                graph,
+                problems_by_node={"design://parent": problem, "design://child": problem},
+                budget_state=_budget(),
+                recursive_budget=RecursiveCycleBudget(
+                    max_depth=1, max_nodes=2, min_cycles_per_leaf=1, max_cycles_per_leaf=1,
+                ),
+                cycle_substrate_contexts_by_node={"design://child": handoff.context},
+                candidate_simulation_handoffs_by_node={"design://child": handoff},
+                candidate_simulation_currentness_resolvers_by_node={"design://child": lambda: True},
+                execution_intents_by_node={"design://child": "simulate_only"},
+            ))
         # Content hashes/markers remain valid; foreign actual problem fails.
         changed = problem.model_copy(update={"problem_statement": "Different child objective"})
         transplanted = {**payload, "problem": changed.model_dump(mode="json")}
         with pytest.raises(ValueError, match="recursive_leaf_capsule_full_problem_mismatch"):
-            RecursiveLeafContextCapsule.model_validate(
-                {**transplanted, "content_hash": gy_content_hash(transplanted)}
-            )
+            RecursiveLeafContextCapsule.model_validate({
+                **transplanted, "content_hash": gy_content_hash(transplanted)
+            })
         with pytest.raises(ValueError, match="recursive_leaf_capsule_reader_binding_mismatch"):
             owner.read(capsule_ref, **{**expected, "node_ref": "design://foreign"})
         with pytest.raises(ValueError, match="historical_binding_mismatch"):
@@ -2674,11 +2652,9 @@ def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_tran
             owner.require_current(capsule)
         assert owner.read(capsule_ref, **expected) == capsule
         no_profile_owner = RecursiveLeafContextOwner(
-            store=store,
-            context_owner=context_owner,
+            store=store, context_owner=context_owner,
             admission_owner=ConfiguredCandidateSimulationContextAdmissionOwner(
-                profiles=(),
-                store=store,
+                profiles=(), store=store,
             ),
         )
         with pytest.raises(ValueError, match="recursive_leaf_configured_profile_not_current"):

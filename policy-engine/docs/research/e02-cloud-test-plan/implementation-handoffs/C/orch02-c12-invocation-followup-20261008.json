@@ -121,5 +121,16 @@
   "source_acceptance": "not_admitted_by_G",
   "formal_G_closure": false,
   "closure_ids": [],
-  "independent_review": "pending immutable compact docs followup review before publication"
+  "independent_review": {
+    "reviewer": "/root/recovery_review",
+    "immutable_followup_target": "0a613e861a45981cf1f2808d5934d6d355147f13",
+    "immutable_followup_tree": "083320766a3b6356bd7e9a3f4d4fc62d6fd32844",
+    "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+    "actual_whole_checked_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+    "outcome": "Evidence/handoff publication GO; completed mandatory invocation remains FAIL/UNRESOLVED, partial coverage, runtime invocation not established; no G acceptance/closure",
+    "reports": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-invocation-handoff-review-0a613e86.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-invocation-handoff-review-0a613e86.json"
+    ]
+  }
 }

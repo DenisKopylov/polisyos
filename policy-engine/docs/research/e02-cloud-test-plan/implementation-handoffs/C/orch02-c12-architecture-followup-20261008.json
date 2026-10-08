@@ -118,6 +118,7 @@
   "artifact_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture-final-required-192/artifact-manifest.json",
   "limitations": [
     "Full default required architecture gate completed and FAILED; runtime API client/dashboard freshness clean are only their own byte-freshness results.",
+    "Client/dashboard clean outputs consume copied committed OpenAPI snapshot SHA25673d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a, not separate regenerated drifted OpenAPI. Own-family byte freshness does not prove a refreshed cross-family chain.",
     "No optional generated-family checks or standalone Atlas status-retirement gate, no actual served/native/production/law property proof from this command.",
     "Deep-import baseline drift and154edges are relative to checked baseline, not established introduction attribution. P41 not_established; no inherited-green/waiver or unrelated source repair.",
     "Prior677UNRUN and mypyFAIL14 remain explicit historical evidence. Node availability limitation is resolved for this new exact measurement; current full architecture outcome is FAIL.",
@@ -127,5 +128,17 @@
   "formal_G_closure": false,
   "closure_ids": [],
   "source_or_native_changes": false,
-  "independent_review": "pending immutable docs-only followup review before topic publication"
+  "independent_review": {
+    "reviewer": "/root/recovery_review",
+    "immutable_followup_target": "ab4531fd1b0db59c162dfce0e7507f953a52a694",
+    "immutable_followup_tree": "788a5694e1fc10d88cb035076427cc37bf4bbf5b",
+    "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+    "actual_whole_checked_head": "427068292f7e0e50a12441affe72f167a899c45b",
+    "outcome": "Evidence/handoff publication GO; complete default architecture remains FAIL, no G acceptance/closure",
+    "reports": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-architecture-followup-review-ab4531fd.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-architecture-followup-review-ab4531fd.json"
+    ],
+    "input_chain_limit": "Client/dashboard clean outputs consume copied committed OpenAPI snapshot SHA25673d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a, not separate regenerated drifted OpenAPI. Own-family byte freshness does not prove a refreshed cross-family chain."
+  }
 }

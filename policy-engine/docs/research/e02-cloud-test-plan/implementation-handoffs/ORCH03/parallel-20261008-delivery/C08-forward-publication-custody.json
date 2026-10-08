@@ -1,0 +1,15 @@
+{
+  "commit": "ed50e8ee50afc6f345ce804b1d7d26a2edeb4061",
+  "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-publication-readback.json",
+  "bytes": 83670,
+  "sha256": "b42bfe622ae34d3bd04e3d94583ce9b175290d27e0b03360372b3635ff8b48d2",
+  "passive_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-publication-readback-attempt1.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/proof-source-query-publication-readback.json"
+  ],
+  "scope": "Publicationcarrier identity only;H222d/runtime5e3 unchanged",
+  "check": "PASS",
+  "entries_verified": 177,
+  "receipt_and_output_tree_unchanged": true,
+  "first_stale_ref_setup_ERROR_retained": true
+}

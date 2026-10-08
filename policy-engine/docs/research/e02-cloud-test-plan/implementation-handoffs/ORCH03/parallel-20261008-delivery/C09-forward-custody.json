@@ -1,0 +1,72 @@
+{
+  "schema": "policyos.e02.orch03.Git-byte-custody.v1",
+  "commit": "8ea1f703f8ed6cd9294f9e9cce7f9aa96cf9d8b2",
+  "tree": "86d3ddc7c37a54ec6f9430cc09a6e167ef521971",
+  "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/artifact-manifest.json",
+  "manifest_sha256": "8a5ca20a7b38dea2ce828e02499b32f27bfea5267130de8ad8bcb161c3c46347",
+  "direct_artifacts": 24,
+  "stored_bytes": 1529691,
+  "archive_index_sha256": "fbd7eabb862fa0849d44177afd5cee5b0c7f72967f62be0b5650fd614603233d",
+  "archives": [
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-interval.tar.gz",
+      "member_count": 553,
+      "member_payload_bytes": 825037,
+      "stored_sha256": "44024522494c2da3a0d62e2a6bd02ab0fbfda2fd63dbe92380cc9ca0b4863a05",
+      "decoded_tar_sha256": "381d7e02f29f80d733120e704baee1b00244266468709eaa6c432bc1b46534d7"
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-final.tar.gz",
+      "member_count": 767,
+      "member_payload_bytes": 1288508,
+      "stored_sha256": "4d14f973f8047e6c82f3e19367b9fb4c2289438e3c56271f3651d2fb370818a6",
+      "decoded_tar_sha256": "9cc1dd1cf44bf293ba320a83b400ed453d950b5e71dc3a5a0b37f254688a1455"
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/author-law.tar.gz",
+      "member_count": 9,
+      "member_payload_bytes": 9383,
+      "stored_sha256": "d6fa05f10a008e7ff1d82257206ae7e040c5d306b08273112aa0ac5a403491c1",
+      "decoded_tar_sha256": "213888221fc90f6473239d69878b210eddbbe46cf065b69d098e4e122e977917"
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/publication.tar.gz",
+      "member_count": 8,
+      "member_payload_bytes": 825,
+      "stored_sha256": "911c41d4b794f50ff7c3b471771f7fd132a8125f324506283b1c6959f12a5abf",
+      "decoded_tar_sha256": "1ad11e7c595316a172a04e45184d6d120d7a59bee5a9ba8518edce774c8dc8ae"
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-baseline.tar.gz",
+      "member_count": 187,
+      "member_payload_bytes": 845018,
+      "stored_sha256": "6e4b257849cfcce0c7589cce991eca543b8bd26ddbf0c1026d2f65a77a3c6f33",
+      "decoded_tar_sha256": "f75dbe8b8f2770d6e805452e0e673dc701f856113ee088fd0df5e9f77c81c0db"
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-661.tar.gz",
+      "member_count": 514,
+      "member_payload_bytes": 2459335,
+      "stored_sha256": "d54f145ca9116e41f4d71741afa144bd7d77cdf3810d14df9601f690332b1a00",
+      "decoded_tar_sha256": "21e80aa71f8f256fe136ebdf0ebe2c5cae59e4ffa40d0be32aff7bde8b1b95ca"
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-adb.tar.gz",
+      "member_count": 33,
+      "member_payload_bytes": 760629,
+      "stored_sha256": "ede788e51e6a2a5f2eb8f42d6aa0d2dfcf5c7cd0608ea57e97bd81549414b8a5",
+      "decoded_tar_sha256": "b02571f74f0e976a9420e5f83aa49d8ae26e724273a82b17f242547dfa699494"
+    },
+    {
+      "archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-consumer-basis/review-b3.tar.gz",
+      "member_count": 4,
+      "member_payload_bytes": 20265,
+      "stored_sha256": "2ff93e9e9441db858ac7bffd0f0b102cad8c60cdbddbef0683a046f4c2fc0fb3",
+      "decoded_tar_sha256": "1e4ff43440ec011fed050b82eee669bbbf05de64344506c8c93e3cb07de49f9b"
+    }
+  ],
+  "member_count": 2075,
+  "member_payload_bytes": 6209000,
+  "check": "PASS",
+  "scope": "Root independent byte custody from fetched Git; no new product test, whole-head PASS or G acceptance"
+}

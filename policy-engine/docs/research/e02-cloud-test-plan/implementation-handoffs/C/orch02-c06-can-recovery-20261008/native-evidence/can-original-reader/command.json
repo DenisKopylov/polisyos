@@ -1,0 +1,53 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-I",
+    "/workspace/orch02-native-c06/pytest_bound.py",
+    "--target",
+    "/workspace/orch02-c06-can",
+    "--expected-sha",
+    "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "--origins",
+    "/workspace/orch02-native-c06/can-original-reader/origins.json",
+    "--mutant-module",
+    "polisyos.ir.artifacts.io",
+    "--mutant-path",
+    "/workspace/orch02-native-c06/removals/can-original-reader.py",
+    "--",
+    "tests/unit/core/artifacts/test_ir_adapter.py",
+    "-q",
+    "-o",
+    "cache_dir=/workspace/orch02-native-c06/can-original-reader/cache",
+    "--basetemp=/workspace/orch02-native-c06/can-original-reader/basetemp",
+    "--junitxml=/workspace/orch02-native-c06/can-original-reader/junit.xml"
+  ],
+  "cwd": "/workspace/orch02-c06-can/policy-engine",
+  "start_utc": "2026-10-08T15:52:26.817811+00:00",
+  "end_utc": "2026-10-08T15:52:34.324939+00:00",
+  "wall_seconds": 7.50692764900009,
+  "max_rss_kib": 96764,
+  "user_seconds": 5.50807,
+  "system_seconds": 0.704831,
+  "timeout_seconds": 240.0,
+  "timeout": false,
+  "returncode": 1,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 50927,
+      "sha256": "eedef45e1ff10723b2ac1810e38fda54cb72417357f5ee270315e5d4e57779cd"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "compressed": {
+    "path": "/workspace/orch02-c06-can/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/required-gates/invocation-initial/receipt.json.gz",
+    "bytes": 6019078,
+    "sha256": "ed585ec5628241dbe1a7c34c69b628171e0d3f972179199db72736feb4c814f1"
+  },
+  "decoded_exact": {
+    "path": "/workspace/orch02-recovery/c06-required-can-invocation/receipt.json",
+    "bytes": 171621305,
+    "sha256": "aede965d23e29f73193b46f7e7cf7b98a81c62a74bb1a82169f3736c9eb30c0c"
+  },
+  "round_trip_verified": true
+}

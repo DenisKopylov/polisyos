@@ -1,0 +1,132 @@
+[
+  {
+    "raw_published_relative_path": "native-evidence/can-consumer-companions/junit.xml",
+    "raw_bytes": 4258,
+    "raw_sha256": "ff1d00d8756a19d6c133898afa2bcb4ced4dd4ae95bce540f41a769f1a5c9b6e",
+    "lossless_published_path": "native-evidence/can-consumer-companions/junit.xml.gz",
+    "gzip_bytes": 719,
+    "gzip_sha256": "6e80886628d956ef3634d12e9d23e60b59fea142297718aa55bb17bcc5752aad",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-independent-native/junit.xml",
+    "raw_bytes": 822,
+    "raw_sha256": "e7170c23199f5855616e5b819e74b3037c786f9fc528389ecb363e72d7743679",
+    "lossless_published_path": "native-evidence/can-independent-native/junit.xml.gz",
+    "gzip_bytes": 323,
+    "gzip_sha256": "d5a49c5447f77bce3b76766c11f1253a47abd0f207e21655d2ffb49e007722c9",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-native/junit.xml",
+    "raw_bytes": 9657,
+    "raw_sha256": "1188530d2518d6e90690947faa296ac2120789265c1e1c8c8fb0deb67cc34cbc",
+    "lossless_published_path": "native-evidence/can-native/junit.xml.gz",
+    "gzip_bytes": 1579,
+    "gzip_sha256": "a7b11d3fcdcc8dda96330c35a2f78a96db8fbd474a1ff1ae5e7fd64da5892780",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-no-completeness-guard/junit.xml",
+    "raw_bytes": 19154,
+    "raw_sha256": "c3b5d327bacfc39d34f57d1e34a68495e5d3f756a413c9d6eec1ca0cc6286fd0",
+    "lossless_published_path": "native-evidence/can-no-completeness-guard/junit.xml.gz",
+    "gzip_bytes": 1504,
+    "gzip_sha256": "e4cd2f98de550295bacc1c4589aa0d1d7661fba3bdc864f9c9127b59c5bfe726",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-no-completeness-guard/stdout.txt",
+    "raw_bytes": 14980,
+    "raw_sha256": "7b8fc4c5f138bc49d8532bb10dfe13e5c3d1f413dd9d4652e9ade212c4f165b7",
+    "lossless_published_path": "native-evidence/can-no-completeness-guard/stdout.txt.gz",
+    "gzip_bytes": 1026,
+    "gzip_sha256": "3ce9f9be03579d0cbe4aaa379c126049206288be6218bb74a9a4f5cbd4b6198d",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-no-separators-normalization/junit.xml",
+    "raw_bytes": 15482,
+    "raw_sha256": "9d7d585e1f9db52d5e89563d22da325ac641f979564714f1068bb1acb9afd5e8",
+    "lossless_published_path": "native-evidence/can-no-separators-normalization/junit.xml.gz",
+    "gzip_bytes": 2137,
+    "gzip_sha256": "c14ad5f508f28e062c2603399f6a4fec08ce36e8305d698384a892e8b4961cec",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-no-separators-normalization/stdout.txt",
+    "raw_bytes": 10708,
+    "raw_sha256": "dc34650e104af2fcd72e13c7cb3c351bfc135b90dc07e80be980d4791b9eaa29",
+    "lossless_published_path": "native-evidence/can-no-separators-normalization/stdout.txt.gz",
+    "gzip_bytes": 1631,
+    "gzip_sha256": "0cd88eda6e1c006ec06b1eabf3032f100fbc4c5bf653519c8ce762acf52b6820",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-original-reader/junit.xml",
+    "raw_bytes": 54219,
+    "raw_sha256": "155d86e28fd03e6d2bcd6fc22d239c2637cc93cb1e4c792f6f4a8b9a20494fc5",
+    "lossless_published_path": "native-evidence/can-original-reader/junit.xml.gz",
+    "gzip_bytes": 2803,
+    "gzip_sha256": "622a61229d0e1ec01186a04d85a0a1b97d902a2d3ecbcc7b0d48317600f8134b",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-original-reader/stdout.txt",
+    "raw_bytes": 50927,
+    "raw_sha256": "eedef45e1ff10723b2ac1810e38fda54cb72417357f5ee270315e5d4e57779cd",
+    "lossless_published_path": "native-evidence/can-original-reader/stdout.txt.gz",
+    "gzip_bytes": 2509,
+    "gzip_sha256": "29fdab33d1c46478914fdbbc8e7b03b241b67f8a7fdc5c42a90c79cb23d63a2c",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-rebuilt-consumer/junit.xml",
+    "raw_bytes": 6789,
+    "raw_sha256": "f48337a711c80cbc26bc1ae283678fe3e02a5d98317c01a24755d9541532eef0",
+    "lossless_published_path": "native-evidence/can-rebuilt-consumer/junit.xml.gz",
+    "gzip_bytes": 906,
+    "gzip_sha256": "79ded3d7f7d0397d0f8ad444ddcbff35a33a7f7d4a81e4486b932f3b2ece75d5",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/can-wheel-consumer/junit.xml",
+    "raw_bytes": 6789,
+    "raw_sha256": "ad451cf34c479ae54a8dc6272db186d183ab62c8a173c436c4a8c76c2a37199d",
+    "lossless_published_path": "native-evidence/can-wheel-consumer/junit.xml.gz",
+    "gzip_bytes": 912,
+    "gzip_sha256": "23f83315c9a736f78bfe3ec5be1bf8574d75f2daae8d4cd22eb73b194c35e235",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/removals/can-no-completeness-guard.patch",
+    "raw_bytes": 436,
+    "raw_sha256": "c78c5b5ef5f18568767979a59c2b8dfbde6e0fc473c0bb4b075a18a2605110ab",
+    "lossless_published_path": "native-evidence/removals/can-no-completeness-guard.patch.gz",
+    "gzip_bytes": 243,
+    "gzip_sha256": "854dc9c8716f541c4ca773a814fc6250b59318c37ca6255f0752884a7cc1b05e",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  },
+  {
+    "raw_published_relative_path": "native-evidence/removals/can-original-reader.patch",
+    "raw_bytes": 774,
+    "raw_sha256": "21ddeecfdf47299b2141caa59023a510ca08a5989240784e98f64c34ae572e31",
+    "lossless_published_path": "native-evidence/removals/can-original-reader.patch.gz",
+    "gzip_bytes": 398,
+    "gzip_sha256": "6ec82f81a76db376d95d5b29d55528d4df3d5a1e7872184aa1d80cc9828d9901",
+    "roundtrip_verified": true,
+    "reason": "Preserve authentic deciding bytes including original EOF/trailing whitespace while passing repository text whitespace hooks."
+  }
+]

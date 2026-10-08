@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.partner_requirement.v1",
+  "unit": "C",
+  "execution_role": "C06",
+  "finding": "LA-021",
+  "mode": "read_only_C02_G_contract_requirement",
+  "source_G_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "reader_candidate_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "formal_closure_ids": [],
+  "source_manifest": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "blob": "610a563ce506be29c3606b4229ae4ab427920d5f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "blob": "72127a25ff25d4a034d376ba1452f54e96914931"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "blob": "ca14a6bf9cec51292cf457243f38191892c5828a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90"
+    }
+  ],
+  "source_selection": "Only current-G reader delta is proposed. The e3/55b writer-overlay requires put_bytes/options/contracts not present in the selected G IR protocol and is not imported.",
+  "minimum_C02_packet": {
+    "methods": "Current selected put_json(obj, opts, canon_spec), get_manifest(id), get_bytes(id), iter_artifact_ids() with exact source blobs.",
+    "manifest_read": "Complete persisted CanonInfo model field set, strict scalars, supported polisyos.canon.json@0.2.0 name/version and nonnegative integer depth; JSON separators lists admitted only when exactly two strings. These fields describe codec ABI and confer no custody authority.",
+    "options": "Reconcile every actual ArtifactWriteOptions dataclass field through the selected adapter using a fully nondefault legitimate sample and generic field-derived comparison; preserve typed tenant/input/authority/warning semantics. Only genuinely type-constrained default-only fields may be exempt.",
+    "observed_options_boundary": "Current G _coerce_write_options returns the historical subset; foreign tenant_context/same_input_closure/authority/warnings are not forwarded when options are supplied through the non-Core coercion path. No complete metadata-forwarding claim is made by C06 reader tests.",
+    "raw_Core_boundary": "Direct Core put_json can emit Core-only float_hex/bytes_hex/array_digest payloads under the same default canon name/version; IR deliberate narrower tag refusal remains. C02/G must choose the selected raw emission/profile/bypass contract before whole LA-021 closure.",
+    "historical_compatibility": "This reader proposal rejects profile-less persisted manifests. G must explicitly admit the narrower supported limitation or provide an existing source-qualified historical profile contract before deployment; no stored bytes or CAS IDs are rewritten."
+  },
+  "required_discriminators": [
+    "Current IR producer -> FileSystemCAS -> fresh complete untouched JSON-mode Mapping read, Decimal bytes/hash identity and supported depth129.",
+    "Malformed/unsupported/missing canon and every individually omitted runtime model field refuse before byte read.",
+    "Selected full legitimate write metadata reaches typed manifest without identity/default substitution; a foreign selected-input profile reaches Core admission and produces zero child writes.",
+    "Raw Core tag emission with unchanged name/version markers must remain distinguishable from the supported IR profile. Do not reinterpret the narrower reader as a writer strangle.",
+    "Remove only metadata forwarding or selected input-profile propagation while preserving field names; the generic option/foreign-admission oracle must fail on the selected owner mechanism."
+  ],
+  "next_owner": "C02 canonical Core write/profile/options owner and G composition/historical compatibility decision. C06 owns only reader adapter/tests and will rerun affected consumers after that specific frozen delta.",
+  "measurement_boundary": "Requirements and exact-source review only; no new Core source, no new metadata-forwarding/protected-admission runtime proof, no external/historical client absence."
+}

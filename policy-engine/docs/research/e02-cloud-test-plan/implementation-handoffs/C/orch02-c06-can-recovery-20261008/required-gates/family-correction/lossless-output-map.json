@@ -1,0 +1,11 @@
+[
+  {
+    "raw_path": "/workspace/orch02-recovery/c06-required-can-family-correction/trust-claim-posture-register/stdout.txt",
+    "raw_bytes": 2557984,
+    "raw_sha256": "ac525fc64e89542b6cce30d6cae52b90aee01e9283ca349e0e49881cbda7b39b",
+    "published_path": "required-gates/family-correction/trust-claim-posture-register/stdout.txt.gz",
+    "gzip_bytes": 451623,
+    "gzip_sha256": "10aa26581dcd5575fe94ea0730a1f32e26fd27802b82dfed82b312927eea1898",
+    "roundtrip_verified": true
+  }
+]

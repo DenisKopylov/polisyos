@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.quality.lint.lint_imports",
+    "--changed-only",
+    "--git-base-ref",
+    "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "--cache-dir",
+    "/workspace/orch02-recovery/c06-required-can-imports/cache",
+    "--output-format",
+    "json"
+  ],
+  "cwd": "/workspace/orch02-c06-can/policy-engine",
+  "start_utc": "2026-10-08T16:22:01.739887+00:00",
+  "end_utc": "2026-10-08T16:22:50.260459+00:00",
+  "wall_seconds": 48.52034963799997,
+  "max_rss_kib": 75920,
+  "user_seconds": 30.918992,
+  "system_seconds": 1.8987349999999998,
+  "timeout_seconds": null,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": "/workspace/polisyos/policy-engine/.venv"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 1082,
+      "sha256": "6c5329992de454af0b4a2b747a22a88331c3b4cda5b29a21bbb5176799540150"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

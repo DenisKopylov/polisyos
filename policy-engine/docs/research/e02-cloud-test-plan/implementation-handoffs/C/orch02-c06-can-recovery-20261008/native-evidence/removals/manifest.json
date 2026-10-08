@@ -1,0 +1,50 @@
+[
+  {
+    "name": "dfk-old-classifier",
+    "module": "tools.quality.validation.schema_fqn_census",
+    "candidate": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "original_path": "/workspace/orch02-c06-dfk/policy-engine/tools/quality/validation/schema_fqn_census.py",
+    "original_sha256": "02e9123c9be4606840cedad30504417a9e5fe46235437ce0003df7264e9ecff2",
+    "mutated_path": "/workspace/orch02-native-c06/removals/dfk-old-classifier.py",
+    "mutated_sha256": "777c0f151d7e21c24ebab7bb98bb548d7b8f32ac9bbeacb10b25b8fbfb1d54bb",
+    "diff": "/workspace/orch02-native-c06/removals/dfk-old-classifier.diff",
+    "target_source_modified": false,
+    "unchanged_tests_docs_markers": true
+  },
+  {
+    "name": "can-original-reader",
+    "module": "polisyos.ir.artifacts.io",
+    "candidate": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "original_path": "/workspace/orch02-c06-can/policy-engine/src/polisyos/ir/artifacts/io.py",
+    "original_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+    "mutated_path": "/workspace/orch02-native-c06/removals/can-original-reader.py",
+    "mutated_sha256": "350506f57684f62ae61c9a9a8f6c741317dae9f7c452f158fd484793e775e8e8",
+    "diff": "/workspace/orch02-native-c06/removals/can-original-reader.diff",
+    "target_source_modified": false,
+    "unchanged_tests_docs_markers": true
+  },
+  {
+    "name": "can-no-separators-normalization",
+    "module": "polisyos.ir.artifacts.io",
+    "candidate": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "original_path": "/workspace/orch02-c06-can/policy-engine/src/polisyos/ir/artifacts/io.py",
+    "original_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+    "mutated_path": "/workspace/orch02-native-c06/removals/can-no-separators-normalization.py",
+    "mutated_sha256": "21abe29fbc87ec7b5cde2c98cdda9ae26dde0c28ac6db4b23c249c73fca600d0",
+    "diff": "/workspace/orch02-native-c06/removals/can-no-separators-normalization.diff",
+    "target_source_modified": false,
+    "unchanged_tests_docs_markers": true
+  },
+  {
+    "name": "can-no-completeness-guard",
+    "module": "polisyos.ir.artifacts.io",
+    "candidate": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "original_path": "/workspace/orch02-c06-can/policy-engine/src/polisyos/ir/artifacts/io.py",
+    "original_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+    "mutated_path": "/workspace/orch02-native-c06/removals/can-no-completeness-guard.py",
+    "mutated_sha256": "eb8e8f76a37d45f995469d0217f9c68ce246dc303e92bec616d8429e2593e6cb",
+    "diff": "/workspace/orch02-native-c06/removals/can-no-completeness-guard.diff",
+    "target_source_modified": false,
+    "unchanged_tests_docs_markers": true
+  }
+]

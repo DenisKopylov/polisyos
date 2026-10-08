@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/workspace/orch02-native-c06/build-env/bin/python",
+    "-I",
+    "-m",
+    "build",
+    "--no-isolation",
+    "--wheel",
+    "--outdir",
+    "/workspace/orch02-native-c06/packages/can/rebuilt-dist"
+  ],
+  "cwd": "/workspace/orch02-native-c06/packages/can/rebuilt-source/policy_engine-0.1.0",
+  "start_utc": "2026-10-08T16:02:58.056634+00:00",
+  "end_utc": "2026-10-08T16:03:09.413500+00:00",
+  "wall_seconds": 11.356489213000032,
+  "max_rss_kib": 25672,
+  "user_seconds": 5.01572,
+  "system_seconds": 0.474529,
+  "timeout_seconds": 240.0,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 56,
+      "sha256": "4782df0867fa84829ebd852825d6bcfe636d0733a46ad5109a7d04971915b3d9"
+    },
+    "stderr.txt": {
+      "bytes": 62,
+      "sha256": "3fbf5c81df4d6f7774a09a7694742996e64ed07ccaea033ef3d34574059a981c"
+    }
+  }
+}

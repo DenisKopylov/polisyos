@@ -1,0 +1,61 @@
+Scope: all 6 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1213
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1213, reused 67, downloaded 0, added 63
+Progress: resolved 1213, reused 67, downloaded 17, added 84
+Progress: resolved 1213, reused 67, downloaded 32, added 99
+Progress: resolved 1213, reused 67, downloaded 45, added 111
+Progress: resolved 1213, reused 67, downloaded 70, added 136
+Progress: resolved 1213, reused 67, downloaded 87, added 154
+Progress: resolved 1213, reused 67, downloaded 103, added 170
+Progress: resolved 1213, reused 67, downloaded 122, added 189
+Progress: resolved 1213, reused 67, downloaded 145, added 212
+Progress: resolved 1213, reused 67, downloaded 166, added 233
+Progress: resolved 1213, reused 67, downloaded 184, added 251
+Progress: resolved 1213, reused 67, downloaded 208, added 274
+Progress: resolved 1213, reused 67, downloaded 225, added 292
+Progress: resolved 1213, reused 67, downloaded 245, added 312
+Progress: resolved 1213, reused 67, downloaded 266, added 333
+Progress: resolved 1213, reused 67, downloaded 287, added 353
+Progress: resolved 1213, reused 67, downloaded 310, added 376
+Progress: resolved 1213, reused 67, downloaded 329, added 396
+Progress: resolved 1213, reused 67, downloaded 356, added 423
+Progress: resolved 1213, reused 67, downloaded 378, added 445
+Progress: resolved 1213, reused 67, downloaded 402, added 468
+Progress: resolved 1213, reused 67, downloaded 423, added 490
+Progress: resolved 1213, reused 67, downloaded 443, added 510
+Progress: resolved 1213, reused 67, downloaded 467, added 534
+Progress: resolved 1213, reused 67, downloaded 494, added 561
+Progress: resolved 1213, reused 67, downloaded 514, added 582
+Progress: resolved 1213, reused 67, downloaded 540, added 608
+Progress: resolved 1213, reused 67, downloaded 562, added 630
+Progress: resolved 1213, reused 67, downloaded 585, added 653
+Progress: resolved 1213, reused 67, downloaded 611, added 679
+Progress: resolved 1213, reused 67, downloaded 635, added 703
+Progress: resolved 1213, reused 67, downloaded 657, added 725
+Progress: resolved 1213, reused 67, downloaded 676, added 743
+Progress: resolved 1213, reused 67, downloaded 697, added 765
+Progress: resolved 1213, reused 67, downloaded 726, added 794
+Progress: resolved 1213, reused 67, downloaded 744, added 812
+Progress: resolved 1213, reused 67, downloaded 769, added 835
+Progress: resolved 1213, reused 67, downloaded 793, added 861
+Progress: resolved 1213, reused 67, downloaded 820, added 888
+Progress: resolved 1213, reused 67, downloaded 844, added 912
+Progress: resolved 1213, reused 67, downloaded 866, added 934
+Progress: resolved 1213, reused 67, downloaded 886, added 953
+Progress: resolved 1213, reused 67, downloaded 910, added 978
+Progress: resolved 1213, reused 67, downloaded 930, added 998
+Progress: resolved 1213, reused 67, downloaded 954, added 1022
+Progress: resolved 1213, reused 67, downloaded 975, added 1043
+Progress: resolved 1213, reused 67, downloaded 1000, added 1069
+Progress: resolved 1213, reused 67, downloaded 1018, added 1087
+Progress: resolved 1213, reused 67, downloaded 1039, added 1108
+Progress: resolved 1213, reused 67, downloaded 1059, added 1128
+Progress: resolved 1213, reused 67, downloaded 1080, added 1149
+Progress: resolved 1213, reused 67, downloaded 1106, added 1174
+Progress: resolved 1213, reused 67, downloaded 1129, added 1198
+Progress: resolved 1213, reused 67, downloaded 1144, added 1213, done
+
+Done in 55.7s using pnpm v10.33.2

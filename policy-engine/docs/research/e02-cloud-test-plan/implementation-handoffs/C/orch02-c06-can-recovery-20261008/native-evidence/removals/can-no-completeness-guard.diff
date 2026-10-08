@@ -1,0 +1,11 @@
+--- /workspace/orch02-c06-can/policy-engine/src/polisyos/ir/artifacts/io.py
++++ /workspace/orch02-native-c06/removals/can-no-completeness-guard.py
+@@ -73,7 +73,7 @@
+         else:
+             payload = value
+ 
+-    if not isinstance(payload, Mapping) or set(CanonInfo.model_fields) - set(payload):
++    if not isinstance(payload, Mapping):
+         raise CanonViolation("unsupported_ir_canon_profile")
+     try:
+         profile = CanonInfo.model_validate(payload, strict=True)

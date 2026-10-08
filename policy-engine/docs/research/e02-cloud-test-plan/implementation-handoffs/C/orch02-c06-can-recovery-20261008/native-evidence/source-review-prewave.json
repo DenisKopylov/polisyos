@@ -1,0 +1,104 @@
+{
+  "mode": "independent read-only review before native wave",
+  "source_reviews": [
+    {
+      "role": "DFK",
+      "repo": "/workspace/orch02-c06-dfk",
+      "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "candidate": "66fce37eed873311259f111cf28c6b342cb6ae23",
+      "tree": "fae7bdb9a44c4a92e521fc56915e977e88a61a31",
+      "changed_paths": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-orch02-c06-dfk-census.toml",
+          "blob": "761efc1851fdd680aa4db1d47f58a4297d162ec7",
+          "sha256": "734b4049cd7e0744d1c309d035318cd7963bcaf5d50d3a5e959799c101aeed72",
+          "bytes": 1258
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+          "blob": "80b8bc5c1da0cb41126bc85dfa30ded4bcf0e17f",
+          "sha256": "17ad9a3d03d7974797a1eb603b306c616c9ac28ef3df08ca705615f4fff408f9",
+          "bytes": 1076
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+          "blob": "e0465e7eb0ad8f6f6a50f37aecfe16325213190c",
+          "sha256": "e8da8a4fa723dd5ad87d2f8b2cb5e193cf81b9b0a5f65346029b109739e74d40",
+          "bytes": 43988
+        },
+        {
+          "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "blob": "a17f05dec53c8aff5cef4da642e836acf5848c81",
+          "sha256": "1638d2d5267e35f045cb72a9eae9dc783af8d1be4f794082b8983e034d59bc78",
+          "bytes": 31023
+        }
+      ],
+      "CAN_baseline_dependency_delta_to_G032": []
+    },
+    {
+      "role": "CAN",
+      "repo": "/workspace/orch02-c06-can",
+      "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "candidate": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "tree": "7e73132dd639bf03e40a27dd5f12837d916aeb3f",
+      "changed_paths": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+          "blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319",
+          "sha256": "59bf26569d2c490bae347553d689d1bbf70c7a5064a0b3a92ce9269e3d95fcc0",
+          "bytes": 1680
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+          "blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5",
+          "sha256": "2e725d6229e93b98070e3dd483ca69374bf8a100008d7ec51f6946cf8008a307",
+          "bytes": 3412
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+          "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+          "bytes": 4721
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+          "blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e",
+          "sha256": "ae119000b7af559ce72b3edab4ed71c0d7416ff3e814a8ac2cc83e3ba06853f6",
+          "bytes": 8672
+        }
+      ],
+      "CAN_baseline_dependency_delta_to_G032": []
+    }
+  ],
+  "verdicts": {
+    "CAN": "GO for bounded reader source; formal LA-021/C02/Core bypass/profile-less policy decisions retained",
+    "DFK": "GO finalcbb finite parser property; native wave authorized"
+  },
+  "residuals": [
+    "No installed or native behavior PASS established at this review step",
+    "Raw Core additional tags use same name/version; pre-byte profile gate does not distinguish tag sets",
+    "Adapter non-Core option coercion omits tenant_context/same_input_closure/authority/warnings; unchanged Core decision",
+    "Profile-less persisted artifacts are refused; historical deploy compatibility requires G/C02 decision",
+    "DFK census is finite source read observation; cannot establish runtime-computed/external/historical/installed absence"
+  ],
+  "DFK_final_format_delta": {
+    "prior": "66fce37eed873311259f111cf28c6b342cb6ae23",
+    "final": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "tree": "e0ca5462ec6f38f91e4d2ebedf1bf2f18f2c9f99",
+    "complete_changed_denominator": [
+      {
+        "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "AST_equivalent_without_locations": true,
+        "source_before": "e0465e7eb0ad8f6f6a50f37aecfe16325213190c",
+        "source_after": "cd6a4456e835c5551093278b0335ff8f0765cce3"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "AST_equivalent_without_locations": true,
+        "source_before": "a17f05dec53c8aff5cef4da642e836acf5848c81",
+        "source_after": "ae838dc362ae33f2a01b984f42d959b74f80183e"
+      }
+    ],
+    "verdict": "GO; no syntax behavior change from independently reviewed66f"
+  }
+}

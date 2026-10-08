@@ -1,0 +1,64 @@
+{
+  "source_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "guardrails_path": "/workspace/orch02-c06-can/policy-engine/tools/devx/architecture/guardrails.py",
+  "guardrails_sha256": "6068c84d43217d19d9b96c65fd36d0a239297da6f98840e8994e6b04ec3fae2e",
+  "retained_source": "/workspace/orch02-recovery/c06-required-can-architecture/generated-freshness/source",
+  "retained_environment": "/workspace/orch02-recovery/c06-required-can-architecture/generated-freshness/environment",
+  "selected_families": [
+    "trust-claim-posture-register"
+  ],
+  "original_full_gate": "/workspace/orch02-recovery/c06-required-can-architecture",
+  "reason": "Writer concurrently packaged handoff files during original worktree isolation snapshots; repeat only affected family measurements with own lane writes suspended.",
+  "scope": "Narrow correction, not full architecture PASS or inherited-baseline verdict.",
+  "violations": [
+    {
+      "check": "generated_artifact",
+      "subject": "trust-claim-posture-register",
+      "message": "trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c06-can/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.",
+      "detail": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "source_module": "",
+      "target_module": ""
+    }
+  ],
+  "unrun": [],
+  "commands": [
+    {
+      "argv": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python",
+        "tools/quality/validation/check_trust_claim_posture.py",
+        "--repo-root",
+        ".",
+        "--write",
+        "--output-root",
+        "/workspace/orch02-recovery/c06-required-can-family-correction/outputs/trust-claim-posture-register"
+      ],
+      "cwd": "/workspace/orch02-recovery/c06-required-can-architecture/generated-freshness/source",
+      "started_utc": "2026-10-08T16:33:37.358860+00:00",
+      "wall_seconds": 80.74566399299965,
+      "returncode": 0,
+      "complete_outputs": {
+        "stdout.txt": {
+          "bytes": 2557984,
+          "sha256": "ac525fc64e89542b6cce30d6cae52b90aee01e9283ca349e0e49881cbda7b39b"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "capture_semantics": "Original guardrails subprocess.run capture_output=True,text=True; complete decoded text re-encoded UTF-8.",
+      "selected_environment": {
+        "PATH": "/workspace/orch02-recovery/c06-required-can-architecture/generated-freshness/environment/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/workspace/.polisyos-environment/uv/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "PYTHONPATH": "/workspace/orch02-recovery/c06-required-can-architecture/generated-freshness/source/src:/workspace/orch02-recovery/c06-required-can-architecture/generated-freshness/source",
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/orch02-recovery/c06-required-can-architecture/generated-freshness/environment",
+        "UV_CACHE_DIR": "/workspace/.polisyos-environment/cache/uv",
+        "UV_NO_SYNC": null,
+        "UV_OFFLINE": "1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "source_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "same_complete_source_input_denominator": true,
+  "runs": [
+    {
+      "receipt": "/workspace/orch02-recovery/c06-required-can-invocation/receipt.json",
+      "denominator_sha256": "2d4fb844969aaad56f7e46029324f8fd6d377443c87b371415cada9e13607eb7",
+      "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "current_files": 5959,
+      "base_files": 5959,
+      "source_files": 2700,
+      "runtime_invocation_established": false
+    },
+    {
+      "receipt": "/workspace/orch02-recovery/c06-required-can-invocation-retry/receipt.json",
+      "denominator_sha256": "2d4fb844969aaad56f7e46029324f8fd6d377443c87b371415cada9e13607eb7",
+      "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "current_files": 5959,
+      "base_files": 5959,
+      "source_files": 2700,
+      "runtime_invocation_established": false
+    }
+  ],
+  "command_delta": "Only --receipt output directory changed; original signal -9 and complete emitted bytes preserved. Static own-base check rerun serially after DFK memory freed, without timeout/source changes."
+}

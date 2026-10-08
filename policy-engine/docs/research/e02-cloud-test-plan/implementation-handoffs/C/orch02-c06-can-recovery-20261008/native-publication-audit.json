@@ -1,0 +1,86 @@
+{
+  "original_manifest": "/workspace/orch02-native-c06/can-final-manifest.json",
+  "original_manifest_sha256": "ad7d758fe8cb56e55eb3f2c38f262c8439fe59d1ff4ffb8427f5b352259e37fb",
+  "source_frozen": {
+    "repo": "/workspace/orch02-c06-can",
+    "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "head": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "tree": "7e73132dd639bf03e40a27dd5f12837d916aeb3f",
+    "status_porcelain_z_hex": "",
+    "complete_changed_paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+        "blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319",
+        "sha256": "59bf26569d2c490bae347553d689d1bbf70c7a5064a0b3a92ce9269e3d95fcc0",
+        "bytes": 1680
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+        "blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5",
+        "sha256": "2e725d6229e93b98070e3dd483ca69374bf8a100008d7ec51f6946cf8008a307",
+        "bytes": 3412
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+        "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+        "bytes": 4721
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e",
+        "sha256": "ae119000b7af559ce72b3edab4ed71c0d7416ff3e814a8ac2cc83e3ba06853f6",
+        "bytes": 8672
+      }
+    ]
+  },
+  "exact_copy": false,
+  "all_moderate_artifact_hashes_matched": 87,
+  "all_lossless_roundtrips_exact": 2,
+  "publication_prefix": "native-evidence/",
+  "path_rule": "Each manifest publishable absolute path under /workspace/orch02-native-c06/handoff-evidence/can maps to this handoff native-evidence/<relative path>; source/export/package binary paths remain raw reproducible refs only. Then apply lossless-byte-artifact-map.json to byte-exact text/EOF packaging exceptions.",
+  "raw_source_snapshot_exceptions": [
+    {
+      "raw_mutant_reference": "/workspace/orch02-native-c06/handoff-evidence/can/removals/can-no-completeness-guard.py",
+      "raw_mutant_sha256": "eb8e8f76a37d45f995469d0217f9c68ce246dc303e92bec616d8429e2593e6cb",
+      "raw_mutant_bytes": 4675,
+      "canonical_source": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "canonical_source_commit": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "delta_publication_path": "native-evidence/removals/can-no-completeness-guard.patch.gz",
+      "delta_sha256": "854dc9c8716f541c4ca773a814fc6250b59318c37ca6255f0752884a7cc1b05e",
+      "reconstruction": "git show <canonical_source_commit>:<canonical_source> then gzip-decode and apply this unified delta at that source path; exact resulting bytes match raw_mutant_sha256",
+      "reason": "AGENTS receipt rule: cite canonical tracked source plus minimal delta rather than duplicate complete source.",
+      "exact_reconstruction_verified": true,
+      "decoded_delta_sha256": "c78c5b5ef5f18568767979a59c2b8dfbde6e0fc473c0bb4b075a18a2605110ab",
+      "delta_encoding": "gzip"
+    },
+    {
+      "raw_mutant_reference": "/workspace/orch02-native-c06/handoff-evidence/can/removals/can-no-separators-normalization.py",
+      "raw_mutant_sha256": "21abe29fbc87ec7b5cde2c98cdda9ae26dde0c28ac6db4b23c249c73fca600d0",
+      "raw_mutant_bytes": 4736,
+      "canonical_source": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "canonical_source_commit": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "delta_publication_path": "native-evidence/removals/can-no-separators-normalization.patch",
+      "delta_sha256": "bd67e154d04f5e801e2fa6f7b897c51656dd820c05bbb1b4c53b61b7338df44d",
+      "reconstruction": "git show <canonical_source_commit>:<canonical_source> then apply this unified delta at that source path; exact resulting bytes match raw_mutant_sha256",
+      "reason": "AGENTS receipt rule: cite canonical tracked source plus minimal delta rather than duplicate complete source.",
+      "exact_reconstruction_verified": true
+    },
+    {
+      "raw_mutant_reference": "/workspace/orch02-native-c06/handoff-evidence/can/removals/can-original-reader.py",
+      "raw_mutant_sha256": "350506f57684f62ae61c9a9a8f6c741317dae9f7c452f158fd484793e775e8e8",
+      "raw_mutant_bytes": 4513,
+      "canonical_source": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "canonical_source_commit": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "delta_publication_path": "native-evidence/removals/can-original-reader.patch.gz",
+      "delta_sha256": "6ec82f81a76db376d95d5b29d55528d4df3d5a1e7872184aa1d80cc9828d9901",
+      "reconstruction": "git show <canonical_source_commit>:<canonical_source> then gzip-decode and apply this unified delta at that source path; exact resulting bytes match raw_mutant_sha256",
+      "reason": "AGENTS receipt rule: cite canonical tracked source plus minimal delta rather than duplicate complete source.",
+      "exact_reconstruction_verified": true,
+      "decoded_delta_sha256": "21ddeecfdf47299b2141caa59023a510ca08a5989240784e98f64c34ae572e31",
+      "delta_encoding": "gzip"
+    }
+  ],
+  "exact_copy_except_reproducible_removal_source_replaced_with_delta": true,
+  "authentic_text_lossless_map": "lossless-byte-artifact-map.json"
+}

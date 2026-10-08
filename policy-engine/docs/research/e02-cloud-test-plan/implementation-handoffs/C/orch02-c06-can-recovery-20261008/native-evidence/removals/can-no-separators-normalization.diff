@@ -1,0 +1,11 @@
+--- /workspace/orch02-c06-can/policy-engine/src/polisyos/ir/artifacts/io.py
++++ /workspace/orch02-native-c06/removals/can-no-separators-normalization.py
+@@ -61,7 +61,7 @@
+             and len(separators) == 2
+             and all(type(separator) is str for separator in separators)
+         ):
+-            payload["separators"] = tuple(separators)
++            pass  # normalization property removed; markers retained
+     else:
+         model_dump = getattr(value, "model_dump", None)
+         if callable(model_dump):

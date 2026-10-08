@@ -1,0 +1,68 @@
+{
+  "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "slice_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "checks": [
+    {
+      "gate": "own-lane frozen Node bootstrap",
+      "outcome": "PASS",
+      "evidence": "required-gates/node/command.json",
+      "child_returncode": 0
+    },
+    {
+      "gate": "scoped lint_imports --changed-only --git-base-ref own_base",
+      "outcome": "PASS",
+      "evidence": "required-gates/imports/command.json",
+      "child_returncode": 0
+    },
+    {
+      "gate": "full architecture default generated families",
+      "outcome": "FAIL",
+      "child_returncode": 1,
+      "evidence": "required-gates/architecture/command.json",
+      "complete_stdout": "required-gates/architecture/stdout.txt",
+      "deep_import_creep_count": 154,
+      "public_export_unresolved_count": 38,
+      "actual_global_diagnostics": [
+        "deep_import_baseline_drift",
+        "public_export_totals_unresolved",
+        "runtime_openapi_snapshot_mismatch",
+        "trust_claim_posture_register_mismatch"
+      ],
+      "initial_family_isolation": "ERROR caused by writer concurrently packaging handoff files in own worktree; no generator escape established.",
+      "inherited_attribution": "not_established; exact own-base full replay/zero complete denominator intersection not measured; no baseline sync/generated mutation authorized."
+    },
+    {
+      "gate": "narrow contaminated family correction",
+      "outcome": "FAIL_on_trust_expected_bytes; no isolation_escape; no_UNRUN",
+      "evidence": "required-gates/family-correction/receipt.json",
+      "selected_families": [
+        "trust-claim-posture-register"
+      ],
+      "scope": "Unchanged helper on same retained private source/environment; selected family/expected-output union narrower than full gate. No overall architecture or P41 inherited-green inference."
+    },
+    {
+      "gate": "production_invocation initial --base exact_f00",
+      "outcome": "ERROR_signal_minus9; cause_not_established",
+      "evidence": "required-gates/invocation-initial/command.json",
+      "child_returncode": -9,
+      "complete_receipt": "required-gates/invocation-initial/receipt.json.gz",
+      "lossless_map": "required-gates/invocation-initial/lossless.json",
+      "runtime_invocation_established": false,
+      "qualification": "Emitted optimistic passed/partial stdout does not establish completed process success."
+    },
+    {
+      "gate": "production_invocation serial retry --base exact_f00",
+      "outcome": "PASS_partial_static_only",
+      "evidence": "required-gates/invocation-retry/command.json",
+      "child_returncode": 0,
+      "complete_receipt": "required-gates/invocation-initial/receipt.json.gz",
+      "lossless_map": "required-gates/invocation-retry/lossless.json",
+      "same_input_reconciliation": "required-gates/invocation-input-reconciliation.json",
+      "runtime_invocation_established": false,
+      "scope": "Root-authorized retry after DFK graph freed memory; no timeout/source/native replay. Complete first and retry receipts byte-identical, stored once; both command histories retained. Only receipt output directory changed. Static reachability partial, runtime dispatch/persistence/effects unmeasured."
+    }
+  ],
+  "mandatory_global_release_gate_status": "architecture remains failed; G source admission/selected composition/required closeout pending",
+  "no_hook_bypass": true,
+  "shared_generated_or_lock_mutations": "none"
+}

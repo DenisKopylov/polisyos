@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "uv",
+    "--cache-dir",
+    "/workspace/orch02-native-c06/uv-cache",
+    "pip",
+    "install",
+    "--python",
+    "/workspace/orch02-native-c06/consumer-env/bin/python",
+    "--no-deps",
+    "-r",
+    "/workspace/orch02-native-c06/consumer-dependencies.txt"
+  ],
+  "cwd": "/workspace/orch02-native-c06",
+  "start_utc": "2026-10-08T15:57:06.479873+00:00",
+  "end_utc": "2026-10-08T15:57:16.490198+00:00",
+  "wall_seconds": 10.010149172999945,
+  "max_rss_kib": 196364,
+  "user_seconds": 10.757408,
+  "system_seconds": 4.516974,
+  "timeout_seconds": null,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.txt": {
+      "bytes": 5409,
+      "sha256": "b935da50b4ec070279df8f5efdc204392b7b2e9539bfe48f1140d6f6be771c5f"
+    }
+  }
+}

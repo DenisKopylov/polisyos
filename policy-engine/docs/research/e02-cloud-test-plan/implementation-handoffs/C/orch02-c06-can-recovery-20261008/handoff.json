@@ -1,0 +1,236 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "execution_role": "C06",
+  "slice": "orch02-c06-can-recovery-20261008",
+  "draft": false,
+  "closure_ids": [],
+  "original_finding_ids": [
+    "LA-021"
+  ],
+  "bundle_ids": [
+    "CAN-01"
+  ],
+  "formal_G_closure": "not_adjudicated",
+  "source_acceptance": "not_admitted_by_G",
+  "technical_proposal": "bounded_can_repair",
+  "slice_base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "slice_base_tree_sha": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "implementation_commits": [
+    "4901e26841e2be0ae6ef393754abed5cafb1e2d4"
+  ],
+  "candidate_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "candidate_tree_sha": "7e73132dd639bf03e40a27dd5f12837d916aeb3f",
+  "branch": "codex/e02-C-orch02-c06-can-recovery",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+    "policy-engine/src/polisyos/ir/artifacts/README.md",
+    "policy-engine/src/polisyos/ir/artifacts/io.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+  ],
+  "source_manifest": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+      "blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319",
+      "sha256": "59bf26569d2c490bae347553d689d1bbf70c7a5064a0b3a92ce9269e3d95fcc0",
+      "bytes": 1680
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+      "blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5",
+      "sha256": "2e725d6229e93b98070e3dd483ca69374bf8a100008d7ec51f6946cf8008a307",
+      "bytes": 3412
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "bytes": 4721
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e",
+      "sha256": "ae119000b7af559ce72b3edab4ed71c0d7416ff3e814a8ac2cc83e3ba06853f6",
+      "bytes": 8672
+    }
+  ],
+  "original_criteria": [
+    {
+      "id": "LA-021",
+      "document": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+      },
+      "lines": "990-1021",
+      "criterion_sha256": "6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b"
+    }
+  ],
+  "baseline_cells": [],
+  "baseline_results_use": "No prior results-pack PASS adopted as current runtime evidence.",
+  "recovery_admission": {
+    "source_commit": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+    "topic": "codex/e02-C-orch02-recovery-coordination",
+    "checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/checkpoint.json",
+    "create_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/c06-can-create.json",
+    "resume_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/c06-can-resume.json",
+    "scope": "exact own-base branch/path admitted by coordinator; snapshot not reservation"
+  },
+  "checks": [
+    {
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/author-checks.json",
+      "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "outcome": "PASS",
+      "scope": "Author scoped Ruff check/format, strict targeted mypy under repo config, and source-range diff check; not independent runtime evidence."
+    },
+    {
+      "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "outcome": "PASS_with_bounded_scope_and_retained_harness_history",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/can-final-manifest.json",
+      "scope": "Independent native defining/consumer, real protocol/CAS, removal, frozen Git export wheel/sdist/direct-rebuild member bytes and fresh installed consumer checks; all complete deciding outputs published through explicit mapping."
+    },
+    {
+      "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "outcome": "IMPORT_PASS; ARCHITECTURE_FAIL; INITIAL_INVOCATION_ERROR; RETRY_INVOCATION_PASS_PARTIAL_STATIC",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/required-gates-summary.json",
+      "scope": "Complete deciding outputs and graph receipt; initial writer schedulingERROR/narrow correction and invocation signalERROR/sameinput serialPASS retained separately. Required architecture green not claimed."
+    }
+  ],
+  "property": {
+    "statement": "Selected IR-produced JSON can be read from a fresh FileSystemCAS complete JSON-mode manifest Mapping using its persisted supported max_depth; missing, malformed or unsupported profile refuses before get_bytes.",
+    "runtime_path": [
+      "current-G put_json_artifact -> ensure_ir_artifact_store -> existing Core adapter.put_json -> FileSystemCAS.put_bytes",
+      "fresh reopened FileSystemCAS.get_manifest -> complete untouched JSON-mode Mapping",
+      "get_json_artifact -> strict complete supported canon profile -> get_bytes -> IR from_canonical_bytes"
+    ],
+    "proxy_divergence": "An exit success/name/version marker does not establish read ABI: JSON separators list, missing defaulted profile fields and persisted depth129 distinguish the real complete profile from default decoding.",
+    "negative_controls": [
+      {
+        "label": "can-original-reader",
+        "returncode": 1,
+        "junit": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "21",
+            "skipped": "0",
+            "tests": "30",
+            "time": "2.893",
+            "timestamp": "2026-10-08T15:52:30.818287+00:00",
+            "hostname": "31e1e2bb84ff"
+          }
+        ],
+        "meaning": "Expected assertion divergence with repair selectively removed; original markers and tests retained."
+      },
+      {
+        "label": "can-no-separators-normalization",
+        "returncode": 1,
+        "junit": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "2",
+            "skipped": "0",
+            "tests": "30",
+            "time": "2.590",
+            "timestamp": "2026-10-08T15:52:31.039774+00:00",
+            "hostname": "31e1e2bb84ff"
+          }
+        ],
+        "meaning": "Expected assertion divergence with repair selectively removed; original markers and tests retained."
+      },
+      {
+        "label": "can-no-completeness-guard",
+        "returncode": 1,
+        "junit": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "9",
+            "skipped": "0",
+            "tests": "30",
+            "time": "2.122",
+            "timestamp": "2026-10-08T15:52:29.686532+00:00",
+            "hostname": "31e1e2bb84ff"
+          }
+        ],
+        "meaning": "Expected assertion divergence with repair selectively removed; original markers and tests retained."
+      }
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "candidate_local_native_evidence_complete; formal_G_closure_not_adjudicated",
+  "independent_review": {
+    "reviewer": "/root/native_c06",
+    "exact_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "verdict": "GO for final 4901 reader-only profile admission/reconstruction; not overall LA-021 closure",
+    "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/independent-final-review.json",
+    "source_and_runtime_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/can-final-manifest.json",
+    "publication_map": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/native-publication-audit.json",
+    "no_G_acceptance": true
+  },
+  "limitations_and_next_owner": [
+    "Reader-only delta preserves current-G put_json producer, adapter and contracts; no e3/55b writer or metadata overlay.",
+    "Historical profile-less artifacts are deliberately rejected by this proposal; G/C02 selects compatibility before deployment.",
+    "Raw Core put_json same-name/version Core-only tags and option forwarding remain C02/G boundaries, not repaired by this read adapter.",
+    "Exact own f00 candidate native PASS includes loaded older foundry/calibration/identifiability blob aad1abdd89ac8dda43918981bc21f4a9755601a2 versus G032 d0b90fd348a2556b5e23ae8e20409950ad9e712b; actual observed885-file denominator reconciled, complete G composition equivalence is not established. G rechecks affected composed consumers.",
+    "Required global architecture remains FAIL on exact candidate; full output records baseline/OpenAPI/trust drift and unresolved public export totals. Initial writer packaging concurrency caused family isolationERROR; selected unchanged-helper correction removed that witness but trust mismatch remains. No inherited attribution or global green; G canonical generated/baseline owners decide next action."
+  ],
+  "handoff_companion_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/companion-inventory.json"
+  ],
+  "publication": {
+    "source_topic_push": "completed_and_remote_head_read_back_at_candidate_sha",
+    "handoff_topic_push": "normal_append_after_documentation_commit; exact final delivery refs supplied by coordinator independent readback",
+    "remote_readback_required": true,
+    "main_or_integration_publication": "none"
+  },
+  "recovered_input_artifact": {
+    "path": "/workspace/orch02-recovery/c06-can.patch",
+    "git_blob": "0861da93126c5e7d08ddcecae757a42001a25e70",
+    "sha256": "d212860f37f333168d52c2c52558c46fb2bbc420751b04193c3893fe0e1735ab",
+    "application": "native git apply --check and apply on exact admitted base; no source overlays/history rewrite"
+  },
+  "omitted_gates": [
+    {
+      "gate": "broad portable integration replay/C13",
+      "status": "UNRUN_by_C06",
+      "reason": "G selected composition/freeze not admitted; independent C13 owns one subsequent broad wave."
+    },
+    {
+      "gate": "local authentic production-dependent closeout/L02",
+      "status": "UNRUN_by_C06",
+      "reason": "This cloud candidate evidence does not supply genuine historical/external production inputs; local G/L02 owns named selected profile closeout."
+    },
+    {
+      "gate": "standalone Atlas retirement-inventory gate",
+      "status": "UNRUN_by_C06",
+      "reason": "Full architecture CLI explicitly reports this standalone gate is excluded; no Atlas source paths changed or Atlas retirement claim made."
+    }
+  ],
+  "native_summary": {
+    "native_affected_tests": 62,
+    "direct_IR_consumer_companions": 29,
+    "independent_actual_CAS_tests": 4,
+    "fresh_installed_direct_and_rebuilt_consumer_tests_each": 36,
+    "installed_deselected_each": 1,
+    "installed_deselection": "Source-AST import-boundary check is not installed behavioral proof."
+  },
+  "partner_requirements": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/c02-producer-contract-requirements.json",
+  "LA023_readonly_decision_proposal": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/la023-decision-proposal.json",
+  "package_scope": {
+    "wheel_member_denominator": 3469,
+    "sdist_member_denominator": 15829,
+    "all_source_owned_member_bytes_match_frozen_git_archive": true,
+    "direct_rebuilt_member_names_and_bytes_equal": true,
+    "wheel_RECORD_complete_and_hashes_valid": true,
+    "all_source_owned_wheel_members_bind_exact_git_blobs_count": 3464,
+    "retired_DFK_exact_member_prefixes_absent": null,
+    "no_source_or_editable_overlay": true,
+    "fresh_process_each_install": true
+  },
+  "requirements_scope": "AGENTS full architecture and exact own-base static production invocation are separately retained; static wiring never supplies runtime business proof.",
+  "complete_documentation_footprint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/companion-inventory.json"
+}

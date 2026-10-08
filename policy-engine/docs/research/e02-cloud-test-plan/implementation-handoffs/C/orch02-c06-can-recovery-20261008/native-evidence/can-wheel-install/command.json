@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "uv",
+    "--cache-dir",
+    "/workspace/orch02-native-c06/uv-cache",
+    "pip",
+    "install",
+    "--python",
+    "/workspace/orch02-native-c06/consumer-env/bin/python",
+    "--no-deps",
+    "--reinstall",
+    "/workspace/orch02-native-c06/packages/can/dist/policy_engine-0.1.0-py3-none-any.whl"
+  ],
+  "cwd": "/workspace/orch02-native-c06",
+  "start_utc": "2026-10-08T16:02:57.940162+00:00",
+  "end_utc": "2026-10-08T16:03:00.304227+00:00",
+  "wall_seconds": 2.3616190150000875,
+  "max_rss_kib": 26788,
+  "user_seconds": 0.7578699999999999,
+  "system_seconds": 0.628037,
+  "timeout_seconds": null,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.txt": {
+      "bytes": 256,
+      "sha256": "f03ff0348252c8f83e70d87bd822b8a5bd0801e75062eb9d09870849bd34b968"
+    }
+  }
+}

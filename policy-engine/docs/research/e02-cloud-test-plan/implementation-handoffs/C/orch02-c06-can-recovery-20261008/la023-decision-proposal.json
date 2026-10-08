@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.scoped_decision_proposal.v1",
+  "unit": "C",
+  "execution_role": "C06",
+  "finding": "LA-023",
+  "source_G_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "source_G_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "mode": "read_only_contract_research",
+  "formal_closure_ids": [],
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "blob": "fa4ba94a7eb5dcad50d24cdaa0a089958e8d5d9c",
+      "unchanged_from_f00": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248",
+      "unchanged_from_f00": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "blob": "21493e669ab31c8fd41352fa5704ae2bdec4c52f",
+      "unchanged_from_f00": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "blob": "55e9b012e37aa13e88cd34d5656b13c30773f539",
+      "unchanged_from_f00": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/artifact.py",
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "blob": "06367847f3e2f488c3999a4c401a0f31772829fd",
+      "unchanged_from_f00": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/cli.py",
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "blob": "8f487966b68fe574cbe8664f8eb5818c558d1d1f",
+      "unchanged_from_f00": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/README.md",
+      "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "blob": "71c3a2bdf05e9c7ddf79300f0fd14c895540d849",
+      "unchanged_from_f00": true
+    }
+  ],
+  "original_criterion": "LA_r09_original.md:1052-1083 requires parameter/action change, train/eval separation, RNG, reset/continuation and metrics; learned weights alone do not establish whole-training continuation.",
+  "inspected_property": {
+    "supported_existing_chain": "PolisySimulator.train -> EconomicsTrainingAdapter.train -> existing train_actor_critic_with_artifact -> AgentPolicyArtifact persistence/fresh readback -> TrainingResult/CLI PPO loss",
+    "warm_call": "API retains actor and composite state, but each native call constructs seed-derived RNG and initializes optimizer. It does not return persisted optimizer/RNG/cursor carry.",
+    "existing_carry": "TrainingCarry already carries params, opt_state and rng_key inside jit_training; it is not a public persisted cross-call checkpoint contract.",
+    "inert_public_knobs": "SimulationConfig.save_checkpoints/checkpoint_frequency are not read by the inspected train request path. Train and CLI do not expose a resume checkpoint argument.",
+    "denominator": "Only the seven exact inspected source paths; no repository-wide caller absence or runtime result is inferred."
+  },
+  "recommended_explicit_choice": {
+    "option": "bounded_one_call_and_cross_call_checkpoint_unsupported",
+    "supported": "Native one-call learning, final learned-policy artifact/fresh reader, seeded evaluation and supported warm-actor calls with fresh optimizer/RNG.",
+    "unsupported": "Full cross-call optimizer/RNG/episode/config checkpoint resume. Do not claim uninterrupted N+M equivalence from a final actor artifact.",
+    "minimum_canonical_action": "G/Product ratifies bounded promise; canonical API owner documents TrainingResult/warm actor scope and reconciles inert SimulationConfig checkpoint knobs. Where an actual explicit resume request exists, use existing TrainingCapabilityReason/TrainingBridgeError before optimizer/CAS effects; first locate that request, do not invent a flag.",
+    "falsifier": "A fresh simulator supplied only final actor weights cannot reproduce required optimizer/RNG/episode carry. Explicit unsupported checkpoint request, if supported by a real request path, must return typed refusal before updates/writes; one-call and warm-actor behavior remain separately bounded."
+  },
+  "alternative_if_resume_required": {
+    "option": "extend_existing_TrainingCarry",
+    "minimum_capability": "Expose and persist existing params+optimizer state+next RNG plus episode/step cursor, exact domain/schema/profile/config identity and parent artifact refs through the existing artifact bridge. No third PPO loop.",
+    "falsifier": "Same seed/config uninterrupted N+M versus N -> persisted checkpoint -> fresh simulator resume M; compare params/optimizer/RNG/cursor and next action. Wrong domain/schema/profile/foreign/stale ref refuses before update/write. Remove optimizer/RNG restore while keeping checkpoint markers and require divergence.",
+    "write_lease": "not_allocated; canonical continuation owner and exact paths require G scope decision before source mutation."
+  },
+  "runtime_evidence": "UNRUN; this packet adds no native or historical one-call PASS. No completed 17-case one-call suite repeated.",
+  "technical_proposal": "bounded_contract_choice_only",
+  "source_acceptance": "not_requested_for_continuation",
+  "next_owner": "G/Product for explicit promise decision; canonical C-W15 API/trainer owner for any subsequent leased implementation"
+}

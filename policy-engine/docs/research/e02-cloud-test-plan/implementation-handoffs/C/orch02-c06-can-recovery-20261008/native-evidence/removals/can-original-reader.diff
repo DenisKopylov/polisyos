@@ -1,0 +1,15 @@
+--- /workspace/orch02-c06-can/policy-engine/src/polisyos/ir/artifacts/io.py
++++ /workspace/orch02-native-c06/removals/can-original-reader.py
+@@ -117,11 +117,7 @@
+ def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> Any:
+     """Read IR JSON only under a complete supported persisted canon profile."""
+     normalized_id = ArtifactID.model_validate(str(artifact_id))
+-    canon = _manifest_canon(store, normalized_id)
+-    if canon is None:
+-        raise CanonViolation("unsupported_ir_canon_profile")
+-    profile = _validated_ir_canon_info(canon)
+-    return from_canonical_bytes(store.get_bytes(normalized_id), max_depth=profile.max_depth)
++    return from_canonical_bytes(store.get_bytes(normalized_id))
+ 
+ 
+ def normalize_input_sequence(inputs: Sequence[Any] | None) -> list[InputRef]:

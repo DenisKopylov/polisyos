@@ -1,0 +1,53 @@
+{
+  "argv": [
+    "/workspace/orch02-native-c06/consumer-env/bin/python",
+    "-I",
+    "/workspace/orch02-native-c06/pytest_bound.py",
+    "--installed-prefix",
+    "/workspace/orch02-native-c06/consumer-env",
+    "--origins",
+    "/workspace/orch02-native-c06/can-wheel-consumer/origins.json",
+    "--",
+    "-c",
+    "/workspace/orch02-native-c06/pytest.installed.ini",
+    "--noconftest",
+    "tests/unit/core/artifacts/test_ir_adapter.py",
+    "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+    "test_can_independent.py",
+    "-k",
+    "not protocol_boundary_helpers_do_not_import_concrete_cas_details",
+    "-o",
+    "cache_dir=/workspace/orch02-native-c06/can-wheel-consumer/cache",
+    "--basetemp=/workspace/orch02-native-c06/can-wheel-consumer/basetemp",
+    "--junitxml=/workspace/orch02-native-c06/can-wheel-consumer/junit.xml"
+  ],
+  "cwd": "/workspace/orch02-native-c06/packages/can/runner",
+  "start_utc": "2026-10-08T16:04:12.806910+00:00",
+  "end_utc": "2026-10-08T16:04:19.412484+00:00",
+  "wall_seconds": 6.605078602000049,
+  "max_rss_kib": 128132,
+  "user_seconds": 5.711388,
+  "system_seconds": 0.595486,
+  "timeout_seconds": 240.0,
+  "timeout": false,
+  "returncode": 0,
+  "selected_environment": {
+    "PYTHONPATH": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 113,
+      "sha256": "6067fb904c8bb5eace6d6b5a41bbba717d44d81ead02988ae248feac26e0e396"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

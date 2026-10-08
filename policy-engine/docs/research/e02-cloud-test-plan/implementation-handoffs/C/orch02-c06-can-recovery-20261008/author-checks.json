@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.author_checks.v1",
+  "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+  "target_tree": "7e73132dd639bf03e40a27dd5f12837d916aeb3f",
+  "checks": [
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/ir/artifacts/io.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py"
+      ],
+      "cwd": "/workspace/orch02-c06-can/policy-engine",
+      "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "started_utc": "2026-10-08T15:52:29.765741+00:00",
+      "timeout_seconds": 60,
+      "outcome": "PASS",
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": "",
+      "wall_seconds": 0.3889948219999724,
+      "peak_rss_kib": 14720,
+      "rss_method": "fresh single-child worker resource.getrusage(RUSAGE_CHILDREN), Linux KiB"
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/ir/artifacts/io.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py"
+      ],
+      "cwd": "/workspace/orch02-c06-can/policy-engine",
+      "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "started_utc": "2026-10-08T15:52:30.210565+00:00",
+      "timeout_seconds": 60,
+      "outcome": "PASS",
+      "exit_code": 0,
+      "stdout": "2 files already formatted\n",
+      "stderr": "",
+      "wall_seconds": 0.1721473220000007,
+      "peak_rss_kib": 14848,
+      "rss_method": "fresh single-child worker resource.getrusage(RUSAGE_CHILDREN), Linux KiB"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+        "4901e26841e2be0ae6ef393754abed5cafb1e2d4"
+      ],
+      "cwd": "/workspace/orch02-c06-can/policy-engine",
+      "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "started_utc": "2026-10-08T15:52:30.596426+00:00",
+      "timeout_seconds": 60,
+      "outcome": "PASS",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "wall_seconds": 0.005704043000037018,
+      "peak_rss_kib": 8576,
+      "rss_method": "fresh single-child worker resource.getrusage(RUSAGE_CHILDREN), Linux KiB"
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "mypy.ini",
+        "--follow-imports=silent",
+        "--cache-dir",
+        "/workspace/orch02-recovery/c06-mypy-can",
+        "src/polisyos/ir/artifacts/io.py"
+      ],
+      "cwd": "/workspace/orch02-c06-can/policy-engine",
+      "target_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "timeout_seconds": 60,
+      "outcome": "PASS",
+      "exit_code": 0,
+      "stdout": "Success: no issues found in 1 source file\n",
+      "stderr": "",
+      "wall_seconds": 0.48965439699986746,
+      "peak_rss_kib": 42144,
+      "rss_method": "fresh single-child worker resource.getrusage(RUSAGE_CHILDREN), Linux KiB",
+      "environment_override": {
+        "PYTHONPATH": "src:."
+      },
+      "scope": "single changed source with repo strict config; imported dependencies checked silently"
+    }
+  ],
+  "input_manifest": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+      "blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+      "blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "blob": "a815bcd7b3cd15322512c2086724d73ac1c32328"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "path": "policy-engine/mypy.ini",
+      "blob": "594ab4d060735c68b3d135f836908b096874801d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/mypy_plugin.py",
+      "blob": "1a9008d27f83c73e1a8e0eb8f3ec6a8d0a0eb280"
+    }
+  ],
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "Python 3.14.2",
+    "ruff_version": "ruff 0.14.10",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "mypy_version": "mypy 1.19.1 (compiled: yes)"
+  },
+  "not_independent_review": true,
+  "measurement_tool_boundary": "/usr/bin/time absent; fresh single-child resource worker used"
+}

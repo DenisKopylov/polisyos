@@ -1,0 +1,22 @@
+[
+  {
+    "role": "dfk",
+    "source_commit": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+    "repo": "/workspace/orch02-c06-dfk",
+    "tree_raw_sha256": "63efe4f68c953073f51917b940b3715295d94a0b0f1e1cc7212a0e2e30fe1bf0",
+    "source_archive": "/workspace/orch02-native-c06/packages/dfk/source.tar",
+    "source_archive_sha256": "2c3afcbc6607e8de92c17969a0ce149f98dc3207729d71d3a0c9e9c5bdc77d96",
+    "archive_members": 15182,
+    "source_directory": "/workspace/orch02-native-c06/packages/dfk/source/policy-engine"
+  },
+  {
+    "role": "can",
+    "source_commit": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "repo": "/workspace/orch02-c06-can",
+    "tree_raw_sha256": "910c7f9936b0149db40001585eb89711ee2056079b5334af78bd3c4af98a48ca",
+    "source_archive": "/workspace/orch02-native-c06/packages/can/source.tar",
+    "source_archive_sha256": "567c0dd7a2ebf19c5c574b383c84d6005c7b2248d7190ce22279ec708c608d25",
+    "archive_members": 23338,
+    "source_directory": "/workspace/orch02-native-c06/packages/can/source/policy-engine"
+  }
+]

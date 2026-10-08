@@ -1,0 +1,176 @@
+{
+  "schema": "policyos.e02.scoped_supplier_decisions.v1",
+  "G": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+  },
+  "E_source": {
+    "sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb"
+  },
+  "B190_supersession": "Current minimum-node-adoption-packet.json replaces the historical response producer proposal; native state response exists in frozen665/e6d. This preparation/oracle is not independent review of authored B190 source.",
+  "independent_math": "independent-oracles.json Fraction arithmetic, not native execution or scientific authority",
+  "rows": [
+    {
+      "id": "B194",
+      "state": "historical read-only source selection and minimum supplier decision, not implementation or native PASS",
+      "existing_capability": {
+        "id": "B194",
+        "existing_path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "producer": "MonteCarloPropagator.propagate \u2192 _eval_and_record \u2192 _build_results",
+        "free_C09_work": "Bind complete terminal attempted-draw inventory to configured source/evaluator and persist before external use. Reuse E_source sampling_admission.reconcile_draw_outcomes; do not reconstruct successes from count-only markers.",
+        "existing_E_fields": [
+          "requested_draw_count",
+          "attempted_draw_count",
+          "successful_draw_count",
+          "unattempted_draw_count",
+          "sampling_recipe",
+          "failure_records",
+          "draw_records"
+        ],
+        "limitation": "No named served evaluator/source-law packet; all exceptions in callback currently become draw failure. Typed global vs transient failure semantics require exact existing execution profile rather than invented taxonomy.",
+        "partner_bridge": "Scientist configured Node/Welfare/served consumer, named by G",
+        "tests_proposal": [
+          "policy-engine/tests/unit/foundry/uncertainty/test_draw_source_basis.py"
+        ]
+      },
+      "minimum_packet": {
+        "id": "B194",
+        "supplier": "Scientist configured evaluator/domain owner and Foundry source-law issuer",
+        "fields": [
+          "source_ref + exact manifest view/content digest",
+          "source role/allowed purpose",
+          "model/evaluator artifact refs and implementation/schema revision",
+          "subject/estimand/outcome/contrast/population + unit/scale",
+          "applicable observation/design/effective/prediction time roles",
+          "resolved custody/verifier provenance + freshness/current epoch",
+          "declared joint input law/support + draw sampling design",
+          "ordered draw IDs/seed stream and requested budget",
+          "terminal success/failure/refusal per draw/output",
+          "transient retry-same-draw policy vs new independent replicate",
+          "typed global contract/access failure policy"
+        ],
+        "trigger": "actual configured evaluator + exact law and attempted ledger",
+        "consumer": "existing Node/Welfare/served consumer",
+        "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+        "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+      },
+      "authority_fields_rule": "Common authority fields apply only to a selected consumer contract that actually requires them; they are not prerequisites to generic mathematical/native refusal mechanics. The listed law/noise/relationship fields are the specific supplier trigger.",
+      "work_since_preparation": "C09 actual Monte Carlo/backtesting writers are separate leases; this B190 slice does not claim their later sources or outcomes."
+    },
+    {
+      "id": "B197",
+      "state": "historical read-only source selection and minimum supplier decision, not implementation or native PASS",
+      "existing_capability": {
+        "id": "B197",
+        "existing_paths": [
+          "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+          "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py"
+        ],
+        "producer": "Calibrator(CalibratorInputs) \u2192 run \u2192 strict CalibrationReportv2 coordinate_projection \u2192 put_calibration_report \u2192 fresh envelopes_from_calibration",
+        "free_C09_work": "Use actual configured known-noise cross-sectional fit and existing projection, publish artifact lineage/input/ref/readback companion. Do not rebuild tied covariance or fabricate noise/independence authority.",
+        "limitation": "E_source gaussian_observation_std profile row_law_basis=consumer_asserted and covariance_authority_basis=not_established; mathematical fixture supports technical projection only.",
+        "tests_proposal": [
+          "policy-engine/tests/unit/foundry/calibration/test_calibrator_source_noise_lineage.py"
+        ]
+      },
+      "minimum_packet": {
+        "id": "B197",
+        "supplier": "Foundry configured Calibrator/source-fit/noise issuer",
+        "fields": [
+          "source_ref + exact manifest view/content digest",
+          "source role/allowed purpose",
+          "model/evaluator artifact refs and implementation/schema revision",
+          "subject/estimand/outcome/contrast/population + unit/scale",
+          "applicable observation/design/effective/prediction time roles",
+          "resolved custody/verifier provenance + freshness/current epoch",
+          "exact CalibratorInputs config/program/ExecPlan/base-state/registries/parameter refs",
+          "raw target source refs; row IDs + train/validation masks",
+          "known noise scales/profile and independent-observation premise",
+          "trainable addresses/tie groups/bounds/projection ordering"
+        ],
+        "trigger": "named actual fit/noise source input refs matching strict reportv2",
+        "consumer": "configured CalibrationReport reader/Welfare consumer",
+        "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+        "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+      },
+      "authority_fields_rule": "Common authority fields apply only to a selected consumer contract that actually requires them; they are not prerequisites to generic mathematical/native refusal mechanics. The listed law/noise/relationship fields are the specific supplier trigger.",
+      "work_since_preparation": "C09 actual Monte Carlo/backtesting writers are separate leases; this B190 slice does not claim their later sources or outcomes."
+    },
+    {
+      "id": "B200",
+      "state": "historical read-only source selection and minimum supplier decision, not implementation or native PASS",
+      "existing_capability": {
+        "id": "B200",
+        "existing_path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+        "producer": "existing envelope producers \u2192 persisted envelope refs \u2192 aggregator._prepare_inputs \u2192 precision/bayesian/widest result",
+        "free_C09_work": "Preserve exact-ref dedup/non-gating behavior. A producer-owned relationship manifest can resolve existing refs and preserve repeated vs distinct measurement units before aggregator; do not promote metadata independence string to authority.",
+        "limitation": "No in-lease appointed source measurement/replicate covariance relationship issuer yet; currently independence_basis=consumer_asserted in E_source.",
+        "tests_proposal": [
+          "policy-engine/tests/unit/foundry/uncertainty/test_measurement_lineage_aggregation.py"
+        ]
+      },
+      "minimum_packet": {
+        "id": "B200",
+        "supplier": "Foundry/Scientist source measurement/replicate relationship issuer",
+        "fields": [
+          "source_ref + exact manifest view/content digest",
+          "source role/allowed purpose",
+          "model/evaluator artifact refs and implementation/schema revision",
+          "subject/estimand/outcome/contrast/population + unit/scale",
+          "applicable observation/design/effective/prediction time roles",
+          "resolved custody/verifier provenance + freshness/current epoch",
+          "information-unit IDs with exact artifact refs",
+          "shared observation IDs/versions and replicate groups",
+          "covariance joint model/order or scoped independence basis",
+          "prior/likelihood/posterior role and overlap exclusion"
+        ],
+        "trigger": "actual relationship issuer/verification input rather than metadata strings",
+        "consumer": "fresh E aggregator",
+        "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+        "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+      },
+      "authority_fields_rule": "Common authority fields apply only to a selected consumer contract that actually requires them; they are not prerequisites to generic mathematical/native refusal mechanics. The listed law/noise/relationship fields are the specific supplier trigger.",
+      "work_since_preparation": "C09 actual Monte Carlo/backtesting writers are separate leases; this B190 slice does not claim their later sources or outcomes."
+    },
+    {
+      "id": "LA-036",
+      "state": "historical read-only source selection and minimum supplier decision, not implementation or native PASS",
+      "existing_capability": {
+        "id": "LA-036",
+        "smallest_existing_capability_choice": "Exact finite observed-feature row law + weighted conditional strata, or C08 exact supported Gaussian SCM projection after scoped admitted binding. Retain BERL conditional refusal until law-bound sampler is wired.",
+        "wrong_reuse": "Bayesian posterior parameter draws are not observed feature rows. dependent_copula.py uses Var(E[Y|coalition]) global sensitivity, not per-instance coalition expectations. No label-only reuse.",
+        "law_producer_scope_proposal": "C09 foundry/uncertainty/ observed-feature law producer using existing ArtifactStore/InputRef; actual IR contract companions C07 and model source C08, actual consumer adapters remain canonical C/BERL owner and served C10/C11. Exact source lease must be granted; no broad sensitivity catalog takeover.",
+        "tests_proposal": [
+          "policy-engine/tests/unit/foundry/uncertainty/test_observed_feature_law.py"
+        ],
+        "limitation": "Current source census has no verified observed-feature conditional-law issuer/intake. Declared covariance can supply mathematical fixture only, never source verification.",
+        "trigger": "G appoints scoped existing CAS law artifact/schema intake with exact observed-feature role, source/model/epoch/support/purpose and verifier context."
+      },
+      "minimum_packet": {
+        "id": "LA-036",
+        "supplier": "C09 observed-feature law producer; C08 model; local L01 source custodian facts",
+        "fields": [
+          "source_ref + exact manifest view/content digest",
+          "source role/allowed purpose",
+          "model/evaluator artifact refs and implementation/schema revision",
+          "subject/estimand/outcome/contrast/population + unit/scale",
+          "applicable observation/design/effective/prediction time roles",
+          "resolved custody/verifier provenance + freshness/current epoch",
+          "observed-feature role and exact ordered variable names",
+          "finite rows/weights/support or declared Gaussian conditional parameters",
+          "population/cohort/source selection and law/model epoch",
+          "conditioning event support and coalition sampling bound",
+          "nonlinear MC estimator/error/tolerance if selected"
+        ],
+        "trigger": "scoped typed law and verifier contract selected by G/C07; finite fixture can exercise mechanics without factual authority",
+        "consumer": "BERL canonical conditional adapter and C10 explanation_reliability/C11 phase5_preflight",
+        "packet_scope": "non-secret aliases/digests only where custody permits; confidential paths/rows remain local",
+        "gate_basis": "not_established until actual source resolve/content-bind/verifier"
+      },
+      "authority_fields_rule": "Common authority fields apply only to a selected consumer contract that actually requires them; they are not prerequisites to generic mathematical/native refusal mechanics. The listed law/noise/relationship fields are the specific supplier trigger.",
+      "work_since_preparation": "C09 actual Monte Carlo/backtesting writers are separate leases; this B190 slice does not claim their later sources or outcomes."
+    }
+  ]
+}

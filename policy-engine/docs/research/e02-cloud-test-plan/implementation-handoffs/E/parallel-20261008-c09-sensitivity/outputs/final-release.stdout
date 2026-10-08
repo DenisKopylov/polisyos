@@ -1,0 +1,19 @@
+{
+  "candidate_source_sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+  "fragment": "release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+  "errors": [
+    {
+      "check": "public-surface-review",
+      "severity": "error",
+      "subject": "release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml:execute-state-response-basis",
+      "message": "python public API change requires public_surface_inventory_reviewed=true",
+      "detail": ""
+    }
+  ],
+  "findings": [],
+  "denominator": {
+    "fragment_count": 1,
+    "compatibility_rows": 2
+  },
+  "public_inventory": "not claimed; canonical classification packet pending"
+}

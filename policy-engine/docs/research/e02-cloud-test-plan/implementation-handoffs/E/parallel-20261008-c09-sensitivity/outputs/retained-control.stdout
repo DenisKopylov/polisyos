@@ -1,0 +1,51 @@
+{"control": "remove runtime expected-basis predicate only", "candidate_source_sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b", "function_original_sha256": "e3a953cb5cfe7c6b513d5e7097d6e6906d0e855b8d7c6bcb6c8fcf6a2416b4ec", "removed_predicate": "if basis.model_copy(update={\"replays\": ()}).model_dump(mode=\"json\") != expected.model_dump(\n        mode=\"json\"\n    ):\n        raise ValueError(\"response basis differs from expected source/axes/units/config\")", "mutated_function_sha256": "9396e04941ef13310b5fabfc1081f0180a7324a1f8c623dd6b439097eaf82a6f", "markers_retained": ["execute_scalar_state_response_v1", "gate_eligible=False", "units", "exact CAS matrix and response numerical result"], "expected": "native positive PASS; forged-unit retained-marker test FAIL because the actual property is removed"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/dev/shm/e02-orch03-20261008/c09-sensitivity/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /dev/shm/e02-orch03-20261008/c09-sensitivity/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 2 items
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_fresh_reader_recomputes_actual_native_response 2026-10-08 10:29:32 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-08 10:29:32 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-08 10:29:32 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-08 10:29:32 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-08 10:29:32 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+PASSED
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_forged_unit_with_retained_markers_is_rejected FAILED
+
+=================================== FAILURES ===================================
+______________ test_forged_unit_with_retained_markers_is_rejected ______________
+
+response_case = (PosixPath('/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained-control-tmp/response_case0'), <polisyos.core....063'), kind='foundry.identifiability_sensitivity_matrix', media_type='application/json', manifest_profile_sha256=None))
+
+    def test_forged_unit_with_retained_markers_is_rejected(response_case):
+        def forged(payload):
+            payload["response_basis"]["moment_units"]["balance"]["currency"] = "UAH"
+    
+        matrix = _changed_matrix(response_case, forged)
+        payload = from_canonical_bytes(response_case[1].get_bytes(matrix))
+        assert payload["response_basis"]["profile"] == "execute_scalar_state_response_v1"
+        assert payload["response_basis"]["gate_eligible"] is False
+        assert payload["jacobian"][0][0] == pytest.approx(4.0, rel=2e-5)
+>       with pytest.raises(ValueError, match="basis differs"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py:311: Failed
+=============================== warnings summary ===============================
+../../../../workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_fresh_reader_recomputes_actual_native_response
+FAILED policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_forged_unit_with_retained_markers_is_rejected
+==================== 1 failed, 1 passed, 1 warning in 4.13s ====================

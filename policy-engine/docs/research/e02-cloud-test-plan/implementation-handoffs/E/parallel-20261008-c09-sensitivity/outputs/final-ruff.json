@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+    "check",
+    "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+    "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+    "--output-format",
+    "concise"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c09-sensitivity",
+  "returncode": 0,
+  "wall_s": 0.05485746299382299,
+  "stdout": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-ruff.stdout",
+  "stderr": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-ruff.stderr"
+}

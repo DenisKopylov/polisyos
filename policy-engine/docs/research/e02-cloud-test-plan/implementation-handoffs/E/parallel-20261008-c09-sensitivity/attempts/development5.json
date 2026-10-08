@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+    "-q",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development5-tmp"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c09-sensitivity",
+  "returncode": 0,
+  "wall_s": 25.152759794000303,
+  "stdout": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development5.stdout",
+  "stderr": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development5.stderr"
+}

@@ -1,0 +1,12 @@
+{
+  "candidate_source_sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+  "companion_sha": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+  "fragment": "release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+  "errors": [],
+  "findings": [],
+  "denominator": {
+    "fragment_count": 1,
+    "compatibility_rows": 2
+  },
+  "public_inventory": "not claimed; canonical classification packet pending"
+}

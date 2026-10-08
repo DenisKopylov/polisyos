@@ -1,0 +1,324 @@
+{
+  "schema": "policyos.e02.immutable_independent_review.v1",
+  "reviewer": "/root/oracle_ir",
+  "author": "/root/producer_packets",
+  "original_owner": "E/UQP-01",
+  "finding": "B190",
+  "base": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+  },
+  "runtime_candidate": {
+    "sha": "665ea762c107a76cf06024934fb3e176b41ba043",
+    "tree": "cb5d23374838763fc9e9a90fd25059905163dbed",
+    "parent": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b"
+  },
+  "forward_companion": {
+    "sha": "e6d76c534ee79efea5de38d9e383bbf0b67b1490",
+    "tree": "e7c6b418607d6b39b55f4a5f6b1d37532788273c",
+    "parent": "665ea762c107a76cf06024934fb3e176b41ba043",
+    "delta": "release compatibility classes and internal API/supplier classification only",
+    "unchanged_runtime_test_readme_blobs": {
+      "policy-engine/src/polisyos/foundry/calibration/identifiability.py": true,
+      "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py": true,
+      "policy-engine/src/polisyos/foundry/calibration/README.md": true
+    }
+  },
+  "full_source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json",
+      "added": "93",
+      "removed": "0",
+      "blob": "cc20145d5e2a91d1bc6cfc8d7ead0bbc6f94fb19"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+      "added": "27",
+      "removed": "0",
+      "blob": "014c67daa3bbe7c22025a3c47504590b7cba1420"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "added": "27",
+      "removed": "0",
+      "blob": "3b0ec567b5160e56ed9443e486cdb0c7240aff17"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "added": "484",
+      "removed": "3",
+      "blob": "85b299dfa7432428f7dee0c9517c42a7400c5e38"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "added": "590",
+      "removed": "0",
+      "blob": "40d1508b7d1fe0c3023e5095ef6c0cd577ed1939"
+    }
+  ],
+  "review_decision": "BLOCKED_complete_source_input_bytes_contract; companion_delta_GO; forward_runtime_correction_pending",
+  "independent_runtime": {
+    "source_candidate": "665ea762c107a76cf06024934fb3e176b41ba043",
+    "runtime_origin": "/dev/shm/e02-orch03-20261008/oracle-ir/source665/policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+    "runtime_sha256": "a5e8a040665416d210591326dc1ab6590df2bd8cc54bb7d89d4ffebe2935302e",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "dependencies": {
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "jax": "0.8.2",
+      "pytest": "9.0.2"
+    },
+    "native_fraction_points": [
+      {
+        "rate": "1/4",
+        "actual_balance": -1.0,
+        "expected_fraction": "-1",
+        "actual_tax_rate": 0.125
+      },
+      {
+        "rate": "1/2",
+        "actual_balance": 0.0,
+        "expected_fraction": "0",
+        "actual_tax_rate": 0.125
+      },
+      {
+        "rate": "3/4",
+        "actual_balance": 1.0,
+        "expected_fraction": "1",
+        "actual_tax_rate": 0.125
+      }
+    ],
+    "jacobian": [
+      [
+        4.0
+      ],
+      [
+        0.0
+      ]
+    ],
+    "covariance_fraction_oracle": [
+      [
+        "1",
+        "0"
+      ],
+      [
+        "0",
+        "0"
+      ]
+    ],
+    "discriminators": [
+      {
+        "case": "reversed_order",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response basis differs from expected source/axes/units/config"
+      },
+      {
+        "case": "foreign_center",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response basis differs from expected source/axes/units/config"
+      },
+      {
+        "case": "foreign_config",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response basis differs from expected source/axes/units/config"
+      },
+      {
+        "case": "valid_new_CAS_false_J",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response matrix differs from persisted-state finite differences"
+      },
+      {
+        "case": "forged_unit_markers_kept",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response basis differs from expected source/axes/units/config"
+      },
+      {
+        "case": "roster_missing",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response matrix manifest input roster differs from its basis"
+      },
+      {
+        "case": "roster_extra",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response matrix manifest input roster differs from its basis"
+      },
+      {
+        "case": "roster_duplicate",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response matrix manifest input roster differs from its basis"
+      }
+    ],
+    "fresh_child_returncode": 0,
+    "nested_input_probe": {
+      "case": "altered_initial_nested_state_blob",
+      "result": "ACCEPTED",
+      "expected": "REFUSAL_if_complete_input_bytes_claimed",
+      "initial_state_wrapper": {
+        "artifact_id": "sha256:5c5942dd91f2622b61a6d97de23c1fc7620694fc4b0e6a844dedb63d9fcc1ffd",
+        "kind": "foundry.state_snapshot",
+        "media_type": "application/json"
+      },
+      "nested_blob_ref": {
+        "artifact_id": "sha256:70b01657158f3d0e6160e3e6eda975730aef9bd49bb53f2c2915f7393920cfbf",
+        "kind": "foundry.state_blob",
+        "media_type": "application/x-npz"
+      }
+    },
+    "producer_matrix": {
+      "artifact_id": "sha256:61ccaf3e28a9fe6b3045ba71e74bcc5711d3cd5a562efe3dbebb3d3bc42af896",
+      "kind": "foundry.identifiability_sensitivity_matrix",
+      "media_type": "application/json"
+    },
+    "source": {
+      "artifact_id": "sha256:d5a4026b7aab245a133230fe31a2ebc993bc20a178fa2671788108c442de0511",
+      "kind": "foundry.simulation_result",
+      "media_type": "application/json"
+    },
+    "authority": "not_established_non_gating",
+    "partial_unknown": "canonical_Node_adoption_outside_scope"
+  },
+  "blockers": [
+    {
+      "severity": "P2",
+      "property": "source input nested-byte identity",
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "function": "_response_context / _load_execute_response_matrix",
+      "line": 1417,
+      "witness": "Actual persisted base StateSnapshot wrapper unchanged, only its NPZ state_blob bytes damaged in isolated copied CAS. Reader still returns the old sensitivity matrix because it never resolves initial nested state bytes.",
+      "expected": "Resolve the finite admitted initial StateSnapshot state_ref/checksum/selected manifest and optional schema through maintained contracts before positive matrix readback, or explicitly withdraw full input-byte closure and refuse unsupported source profile.",
+      "minimal_fix": "Writer prepares append-only finite StateSnapshot closure, no generic recursive resolver or foreign Node/executor mutation.",
+      "status": "confirmed_by_writer_forward_fix_pending"
+    }
+  ],
+  "attempts": [
+    {
+      "id": 1,
+      "status": "ERROR_setup_incomplete_private_export",
+      "returncode": 1,
+      "reason": "Immutable private export src-only lacked required architecture method-catalog digest-domain TOML. Import failed before native execution. Preserved stdout/stderr, not product FAIL."
+    },
+    {
+      "id": 2,
+      "status": "completed_native_positive_adversarial_and_boundary_probe",
+      "returncode": 0,
+      "scope": "Independent native three-rate Fraction points, local matrix+eight refusal checks+fresh child; includes ACCEPTED boundary probe recorded separately from passing controls. No historical whole-suite replay."
+    }
+  ],
+  "release_review": {
+    "original665": "Author-discovered invalid additive change_class/public-stable spelling; corrected ordinary forward e6 commit.",
+    "e6": "GO canonical python-public-api/additive and persisted-artifact-format/additive, internal package-specific API/reader; inventory completeness not claimed.",
+    "schema_facade_generated": "No tracked schema/facade/export generator edits; existing matrix1.0 gets optional internal profile_v1 basis; old callback/operational metrics remain readable. G-appointed inventory classification/adoption packet explicit."
+  },
+  "retained_marker": "Author final wave pending after corrected source freeze; earlier cases no eligibility/marker substitution accepted, but no final removal run supplied to this review yet.",
+  "limits": [
+    "Known synthetic deterministic program only; numerical Jacobian/status is not causal identification, empirical law, Runtime admission or factual authority.",
+    "New internal producer does not close original B190 Scientist adoption/partial projection or all35 findings.",
+    "Operational metrics evaluator unchanged, cannot be labeled scientific response.",
+    "Composed Node adapter and full public surface inventory remain canonical-owner packets, not source acceptance or G closure.",
+    "Resource magnitude scaling is not physical unit conversion.",
+    "Missing new optional API on historical base is not product FAIL; inherited P41 requires exact slice-base/full denominator."
+  ],
+  "artifacts": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/b190-original-binding.txt",
+      "bytes": 3211,
+      "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/b190-preparation-receipt.json",
+      "bytes": 1177,
+      "sha256": "e9685f5de149a339fc172a70b941eac352a540d8200403c2c27e11c9f0c4279a"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/diff665.patch",
+      "bytes": 62189,
+      "sha256": "ba559cb82ce63ebbe5bfe2287a2aa681795a0f5fa3548a9d1562cd6fee2c0323"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/footprint665.json",
+      "bytes": 1386,
+      "sha256": "fa084153937a97539c84330d0886b5258ee7c23512329ba9601d04971223bc12"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/diff-e6-companion.patch",
+      "bytes": 5374,
+      "sha256": "2e41b72584c9c8ba5e1a2f261022f7a8dfb56bdbb0fcbe95d0420a5a4b205594"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665.py",
+      "bytes": 11281,
+      "sha256": "8876f8fee137d1caf26154a40576fa30eaa09e8b2b7d1bac15bf71e7403183e6"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665.stdout.attempt1",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665.stderr.attempt1",
+      "bytes": 2894,
+      "sha256": "337a12722bcc5ba444b25a50855cadca05dcc7ad0e5cc0170a8f5581d4aca941"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665-resource-closure.json",
+      "bytes": 163915,
+      "sha256": "5c9d8c7ba5374ca9234691c73e748c2639924bb9d1807c033516476f5f2413e7"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665.stdout",
+      "bytes": 8223,
+      "sha256": "85d130a08eaf9d105e479ffb6112eb066df2e1b9ed4dd1d352e441b8b7a61474"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665-report.json",
+      "bytes": 3939,
+      "sha256": "82f421377f2889b9a5ef3fb3a622ecb0814a303bae7b40be7a62502b20d8cdf6"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665-discriminators.json",
+      "bytes": 1491,
+      "sha256": "6200fd5bf65e0f0412e65e0cd51f6ea3b9c0e97b67e904a5277389bdf88331ae"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665-child.py",
+      "bytes": 850,
+      "sha256": "9bd73041f1973927d12b2617c64ec84a6164ac02d2d416094807d36cbea6ec19"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665-child-request.json",
+      "bytes": 1356,
+      "sha256": "86b820ce20cadace956f4fe3fa3c27a30849d6ebd8f925bf79e5667843fefb49"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665-child.stdout",
+      "bytes": 181,
+      "sha256": "ebebe467c111b85366fa23533889a1b976a218b7aa34e12da87d7464cab58c8b"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665-child.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/check665-nested-probe.json",
+      "bytes": 528,
+      "sha256": "a73bc9281a015bf338889930d3a8272b2ea7fe761fb3cee81ecce27922d3a752"
+    }
+  ],
+  "cleanup": "No deletion; scratch export and synthetic CAS retained with evidence."
+}

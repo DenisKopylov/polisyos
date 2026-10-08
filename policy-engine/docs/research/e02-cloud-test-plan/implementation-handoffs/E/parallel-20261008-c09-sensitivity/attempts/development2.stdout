@@ -1,0 +1,48 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_____________ test_fresh_reader_recomputes_actual_native_response ______________
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development2-tmp/test_fresh_reader_recomputes_a0')
+
+    def test_fresh_reader_recomputes_actual_native_response(tmp_path):
+        store, simulation_ref, parameter = _native_fixture(tmp_path)
+        diagnostic = _diagnostic(store, simulation_ref, parameter)
+>       payload = _load_execute_response_matrix(
+            FileSystemCAS(tmp_path / "cas"), diagnostic.sensitivity_matrix_ref,
+            source_ref=simulation_ref, response_slots={"balance": "government.balance"},
+            parameter_center={parameter: 0.5},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2, bootstrap_reps=0, profile_grid_size=0, seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f57d4879810>
+matrix_ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:7a46142e43a1531ce0b2608bf97b762ab28be5c63c4dde9343e8d59bcf5dd672'), kind='foundry.identifiability_sensitivity_matrix', media_type='application/json', manifest_profile_sha256=None)
+
+    def _load_execute_response_matrix(
+        store: FileSystemCAS, matrix_ref: ArtifactRef, *, source_ref: SimulationResultRef,
+        response_slots: Mapping[str, str], parameter_center: Mapping[str, float],
+        config: IdentifiabilityDiagnosticConfig,
+    ) -> dict[str, Any]:
+        """Recompute a local response's exact basis and Jacobian from persisted states.
+    
+        Internal companion for an upstream adapter; it issues no scientific authority.
+        The caller supplies the expected source, axes, units contract, and seed/config.
+        """
+        payload = from_canonical_bytes(store.get_bytes(matrix_ref))
+        basis = _ResponseBasis.model_validate(payload.get("response_basis"))
+        expected, source, bindings_ref, feedback_ref = _response_context(
+            store, source_ref, response_slots, parameter_center, tuple(response_slots), config
+        )
+        # RESPONSE_BASIS_GUARD: retained-marker control removes this runtime predicate.
+        if basis.model_copy(update={"replays": ()}) != expected:
+>           raise ValueError("response basis differs from expected source/axes/units/config")
+E           ValueError: response basis differs from expected source/axes/units/config
+
+policy-engine/src/polisyos/foundry/calibration/identifiability.py:1529: ValueError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_fresh_reader_recomputes_actual_native_response

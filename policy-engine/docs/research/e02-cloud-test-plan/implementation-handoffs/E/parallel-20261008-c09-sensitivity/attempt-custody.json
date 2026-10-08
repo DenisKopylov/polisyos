@@ -1,0 +1,80 @@
+{
+  "source_history": "G f00 base then uncommitted author development; exact per-attempt source trees were not captured and are not inferred",
+  "candidate": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+  "attempts": [
+    {
+      "label": "characterization",
+      "returncode": 1,
+      "qualifier": "fixture_setup_ERROR_CompileResult_missing_field; product_UNRUN",
+      "record": "attempts/characterization.json"
+    },
+    {
+      "label": "characterization2",
+      "returncode": 1,
+      "qualifier": "old_API_unavailable_for_new_requested_profile; not_old_B190_product_FAIL",
+      "record": "attempts/characterization2.json"
+    },
+    {
+      "label": "development1",
+      "returncode": 0,
+      "qualifier": "historical_uncommitted_development_attempt_not_frozen_candidate_verdict",
+      "record": "attempts/development1.json"
+    },
+    {
+      "label": "development2",
+      "returncode": 1,
+      "qualifier": "historical_uncommitted_development_attempt_not_frozen_candidate_verdict",
+      "record": "attempts/development2.json"
+    },
+    {
+      "label": "development3",
+      "returncode": 1,
+      "qualifier": "historical_uncommitted_development_attempt_not_frozen_candidate_verdict",
+      "record": "attempts/development3.json"
+    },
+    {
+      "label": "development4",
+      "returncode": 1,
+      "qualifier": "historical_uncommitted_development_attempt_not_frozen_candidate_verdict",
+      "record": "attempts/development4.json"
+    },
+    {
+      "label": "development5",
+      "returncode": 0,
+      "qualifier": "historical_uncommitted_development_attempt_not_frozen_candidate_verdict",
+      "record": "attempts/development5.json"
+    },
+    {
+      "label": "prefreeze",
+      "returncode": 0,
+      "qualifier": "historical_uncommitted_development_attempt_not_frozen_candidate_verdict",
+      "record": "attempts/prefreeze.json"
+    },
+    {
+      "label": "prefreeze2",
+      "returncode": 0,
+      "qualifier": "historical_uncommitted_development_attempt_not_frozen_candidate_verdict",
+      "record": "attempts/prefreeze2.json"
+    },
+    {
+      "label": "prefreeze3",
+      "returncode": 1,
+      "qualifier": "new_reader_genuine_selected_output_view_false_refusal; fixed_in665; not_old_backend_FAIL",
+      "record": "attempts/prefreeze3.json"
+    },
+    {
+      "label": "prefreeze4",
+      "returncode": 0,
+      "qualifier": "historical_uncommitted_development_attempt_not_frozen_candidate_verdict",
+      "record": "attempts/prefreeze4.json"
+    },
+    {
+      "label": "nested-development",
+      "returncode": 0,
+      "qualifier": "targeted uncommitted forward-development19PASS, not final frozen candidate verdict",
+      "record": "attempts/nested-development.json"
+    }
+  ],
+  "final_reviewed_checks": "Final exact c91249PASS and retained1positivePASS/1expectedFAIL; reviewGOc912. Earlier final-releaseFAIL preserved and superseded only for exact passive fragment by forward validator PASS.",
+  "independent_blocker_history": "665/e6 independent nested-state-byte probe ACCEPTED damaged initial NPZ; c912 forward finite closure repair pending delta review"
+}

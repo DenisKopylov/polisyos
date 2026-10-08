@@ -1,0 +1,217 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "original_unit": "E",
+  "bundle": "UQP-01",
+  "finding": "B190",
+  "canonical_writer": "/root/producer_packets",
+  "coordinator": "ORCH03 /root",
+  "topic": "codex/e02-E-c09-sensitivity-20261008",
+  "worktree": "/dev/shm/e02-orch03-20261008/c09-sensitivity",
+  "original_binding": {
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      4752,
+      4761
+    ],
+    "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+    "preserved_bytes": "B190.original.txt",
+    "scope": "real/declared response or dimensioned Jacobian; zero/nonzero baseline, true constant, partial known output and unknown refusal; surrogate is separate hypothesis, no fabricated full map"
+  },
+  "base": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+  },
+  "runtime_candidate": {
+    "sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "tree": "707e9dbb08dc69d465f87867e51766406aff4fb7",
+    "parent": "e6d76c534ee79efea5de38d9e383bbf0b67b1490",
+    "claims": "49 affected tests belong only to this exact runtime/test/README input; no whole-head packaging or authority PASS"
+  },
+  "implementation_commits": [
+    "665ea762c107a76cf06024934fb3e176b41ba043",
+    "e6d76c534ee79efea5de38d9e383bbf0b67b1490",
+    "c9125bc5e4d2992adeae468a79189d1fa535c88b"
+  ],
+  "passive_companion": {
+    "sha": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+    "tree": "ded11abdc70d4c91bf19cdf6f4a203acb83a3a46",
+    "parent": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json"
+    ],
+    "claims": "internal classification + exact existing Node path only; runtime/test/README blobs unchanged, no whole-head49PASS",
+    "check": "passive-companion-check.json; outputs/final-release-forward.json"
+  },
+  "full_source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json",
+      "source_blob": "611caea7143247f6f205e117386ffbaf62eb181c",
+      "source_content_sha256": "e0e0b138c3ebc25be01d144fbb43a6b305ac3d48b72f2885d808af33cf6baccd",
+      "owner": "E/C09 admitted local sensitivity lease"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+      "source_blob": "22b6144d1816976c7f972d0357b345a0c791f8c7",
+      "source_content_sha256": "47e0da9599f0050f0c3620d6c23fd833cecb305557d29d37261b5daaf90dd3f9",
+      "owner": "E/C09 admitted local sensitivity lease"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "source_blob": "cf521e93a4f52837a750d606f0a0e2d5919f6486",
+      "source_content_sha256": "016828f1cc4bfadc446d79e0af19053147999291cc749e498ec5dbc3dbe74e4f",
+      "owner": "E/C09 admitted local sensitivity lease"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "source_blob": "d0b90fd348a2556b5e23ae8e20409950ad9e712b",
+      "source_content_sha256": "453a9b79c8afe89c144ee5ba17519fa443586ca8790fc0b442ffb3bfc455a20d",
+      "owner": "E/C09 admitted local sensitivity lease"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "source_blob": "200bf2121e7c9d473740fe4d388a8e7d2d382605",
+      "source_content_sha256": "dbb0c2cec0b6a38ae3f9839f048647c5d59b91ba9f662d115021715ce4935231",
+      "owner": "E/C09 admitted local sensitivity lease"
+    }
+  ],
+  "source_reuse": {
+    "selected_G_blob": "aad1abdd89ac8dda43918981bc21f4a9755601a2",
+    "E_source_reference": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "E_identifiability_blob": "712bb1a7c8e0e72f418163a912eb6134bbf07b29",
+    "decision": "native response uses G source; unrelated E nullable-curvature patch and cumulative E carrier were not applied"
+  },
+  "chain": {
+    "producer": "registered mechanism.runtime.income_tax@1.0.0 via maintained compile\u2192execute; identifiability_diagnostic(response_slots) calls actual execute for center/plus/minus",
+    "artifact": "actual SimulationResult\u2192StateSnapshot2.2/NPZ and persisted ExecuteRequest/override; matrix response_basis + exact input manifests",
+    "bridge": "internal _load_execute_response_matrix recomputes expected finite source-state/model/registry/unit/axis/config basis, verifies all current selected snapshot leaves and every replay roster before state interpretation, then recomputes J/weighting/Fisher",
+    "consumer": "actual fresh FileSystemCAS reader and separate child interpreter; independent native/Fraction reader probe",
+    "surface": "internal local numerical sensitivity supplier only; existing Scientist Node adoption remains UNRUN"
+  },
+  "profile": {
+    "name": "execute_scalar_state_response_v1",
+    "gate_eligible": false,
+    "support": [
+      "explicit inline moments/center",
+      "registered node_id.parameter and global scalar state slots",
+      "explicit bound current StateSnapshot2.2 and selected NPZ/schema finite closure",
+      "persisted local Jacobian-only config; bootstrap_reps=0; profile_grid_size=0",
+      "actual default registered income-tax ratio/USD fixture; scientific law not inferred"
+    ],
+    "excluded": [
+      "unbound data-state fallback, legacy/inconsistent snapshot profiles, unknown/vector response slots",
+      "callback substituted for native state response",
+      "implicit units conversion, empirical parameter/noise/covariance authority",
+      "new Node adapter, IR/global registry/generator/lockfile/scheduler/service",
+      "universal nonlinear or source/causal/institutional authority"
+    ]
+  },
+  "oracles": {
+    "independent_native": "two active reported incomes[2,2], balance\u22122, rate r\u2192y=4r\u22122; r=.25/.5/.75 gives\u22121/0/1; native Jrows[4USD/ratio,0] for balance/natural tax_rate1/8",
+    "Fraction": "equal two-point Var(r)=1/16, J4 gives Var(y)=1; genuine constant reported incomes zero gives J0",
+    "resource_scaling": "same-USD amount scaling rescales J; not a unit conversion proof",
+    "callback": "y=x\u22122 at x0=2 gives J1 mathematical control only; not native execution or authority"
+  },
+  "checks": {
+    "affected": {
+      "state": "PASS",
+      "count": 49,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "selectors": [
+        "tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+        "tests/unit/foundry/calibration/test_identifiability.py"
+      ],
+      "output": "outputs/final-affected.stdout",
+      "junit": "outputs/final-affected.junit.xml",
+      "nodeids": "deciding-nodeids.json"
+    },
+    "retained_marker": {
+      "state": "expected_control_FAIL",
+      "positive_PASS": 1,
+      "negative_expected_FAIL": 1,
+      "unexpected_FAIL": 0,
+      "output": "outputs/retained-control.stdout",
+      "removed": "only runtime expected-basis predicate; enum/profile/units/non-gating/J markers remain",
+      "failure": "DID NOT RAISE ValueError on actual valid-new-CAS forged unit; ordinary native positive still PASS",
+      "harness_warning": "one pytest pre-import assert rewrite warning retained"
+    },
+    "Ruff": "PASS exact two authored Python files",
+    "format": "PASS exact two authored Python files",
+    "release_companion": {
+      "historical_state": "FAIL public-surface-review gate at c912; honest false marker preserved",
+      "current_state": "PASS exact f2c internal-class companion;1fragment/2compatibility rows/0errors/0findings",
+      "outputs": [
+        "outputs/final-release.stdout",
+        "outputs/final-release-forward.stdout"
+      ]
+    },
+    "installed_wheel_sdist": "UNRUN, portable C13/G freeze replay remains canonical partner",
+    "Node_adoption": "UNRUN outside lease",
+    "production_replay": "UNRUN; no production payload required for this generic synthetic supplier property"
+  },
+  "review": {
+    "reviewer": "/root/oracle_ir",
+    "initial": "independent-review/review665.json",
+    "initial_sha256": "d082326d64246245fea190cc4f50a05e57013a0f9c7b2b8706e11bca407506ee",
+    "initial_result": "BLOCKED: damaged initial nested NPZ accepted while wrapper/markers remained; positive numerical controls retained",
+    "source_GO": "independent-review/reviewc912.json",
+    "source_GO_sha256": "eca3bf291067b3104ca75020a52a4fec24477a765d335899ceedad8eb351ae11",
+    "source_result": "GO bounded finite closure/native reader; independent initial/replay byte negatives, native[4,0], child and8basis/roster controls passed",
+    "view_limit": "natural2.2 fixture selectors-none; actual Core selected-view repersistence control is separately mechanical, not scientific/current authority; harness mismatch preserved in independent review",
+    "passive_companion_review": {
+      "path": "independent-review/reviewf2-passive.json",
+      "sha256": "85e670b2abcc5a45afec32cc6c85a4ff521ec56b7bd10769a75d91fb4cf7c7c4",
+      "decision": "GO exact2-file passive internal-window/path correction; runtimec91249PASS and retained1expectedFAIL/1positive preserved; no new native wave or whole-head/G/finding closure"
+    }
+  },
+  "finding_decision": {
+    "technical_supplier_property": "code-ready bounded synthetic profile with independent review and actual persisted consumer proof",
+    "F_or_ORCH_recommendation": "do not issue whole B190 closure from this supplier alone",
+    "finding_outcome": "limited pending canonical actual Scientist adapter under its declared source/law/partial-output contract",
+    "G_code_acceptance": "not issued",
+    "G_formal_finding_closure": "not issued",
+    "F_original35_changes": [],
+    "next_result": "G routes sole canonical Node adapter lease; reuse exact internal reader and complete expected source/axes/unit/config packet; actual Node/CAS all-output and unknown-partial preservation; no new engine/authority"
+  },
+  "minimum_packets": {
+    "active_B190": "minimum-node-adoption-packet.json",
+    "historical_read_only_source_selection": "producer-preparation.json",
+    "B194_B197_B200_LA036": "supplier-packet-adjudication.json",
+    "independent_mathematical_preparation": "independent-oracles.json, not review of own new B190 source and not native PASS",
+    "authority_rule": "request actual verifier/custody/epoch facts only where the selected canonical consumer contract requires them; generic numerical/refusal mechanics do not require production authority"
+  },
+  "custody": {
+    "outputs": "artifact-transports.json contains byte hashes and complete moderate deciding logs/commands/env plus12historical attempts",
+    "attempts": "attempt-custody.json; all development/API/fixture/selected-view errors preserved, no old PASS transfer to current exact source",
+    "source_history": "append-only; no reset/rebase/force/main/integration write",
+    "admission": {
+      "create": "root coordination c09-sensitivity-create.json sha2561c33cd3a7fb00c331b112372cc6f693b575016fe089851f5bbf686c9edb1cfcc",
+      "resume": "root coordination c09-sensitivity-resume.json sha25657f910ea7015104dd1e1fb3637e6a01f8255d0f94e60c44d3fc0b2621fc6ea2b",
+      "full_JSON_owner": "root coordination publication, not duplicated"
+    },
+    "classification_scope": "Calibration window only. No generalization to uncertainty supported surfaces; no external/untracked/computed-caller zero claimed."
+  },
+  "cleanup": {
+    "action": "none; preserve source/docs/unique inputs/reviews/deciding outputs/active environments",
+    "candidates_for_later_inactive_review": [
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/characterization-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/characterization2-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development1-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development2-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development3-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development4-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development5-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-affected-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/nested-development-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/prefreeze-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/prefreeze2-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/prefreeze3-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/prefreeze4-tmp",
+      "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained-control-tmp"
+    ],
+    "native_trash": "not available; no permanent deletion/Trash clearing performed"
+  }
+}

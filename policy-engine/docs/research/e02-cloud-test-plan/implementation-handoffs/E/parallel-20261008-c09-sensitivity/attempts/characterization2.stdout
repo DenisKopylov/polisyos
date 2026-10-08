@@ -1,0 +1,39 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_native_zero_baseline_has_dimensioned_nonzero_response __________
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/characterization2-tmp/test_native_zero_baseline_has_0')
+
+    def test_native_zero_baseline_has_dimensioned_nonzero_response(tmp_path):
+        store, simulation_ref, parameter = _native_fixture(tmp_path)
+>       diagnostic = _diagnostic(store, simulation_ref, parameter)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f6adc4c7a10>
+simulation_ref = SimulationResultRef(artifact_id=ArtifactID(root='sha256:9102cb01b7f9f6fa177cf901c6e3fc8aa1ac2dca0501b5ede086badfc9e3b41e'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+parameter = 'tax.rate'
+
+    def _diagnostic(store, simulation_ref, parameter):
+>       return identifiability_diagnostic(
+            store, simulation_result_ref=simulation_ref,
+            observed_moment_bundle={"balance": 0.0}, parameter_center={parameter: 0.5},
+            response_slots={"balance": "government.balance"},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2, bootstrap_reps=0, profile_grid_size=0, seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )
+E       TypeError: identifiability_diagnostic() got an unexpected keyword argument 'response_slots'
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py:103: TypeError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:54:59 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-08 09:54:59 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-08 09:54:59 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-08 09:54:59 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-08 09:54:59 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_native_zero_baseline_has_dimensioned_nonzero_response

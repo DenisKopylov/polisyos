@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained_control.py",
+    "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_fresh_reader_recomputes_actual_native_response",
+    "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_forged_unit_with_retained_markers_is_rejected",
+    "-vv",
+    "-s",
+    "-rA",
+    "--basetemp=/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained-control-tmp"
+  ],
+  "cwd": "/dev/shm/e02-orch03-20261008/c09-sensitivity",
+  "returncode": 1,
+  "wall_s": 13.043137208005646,
+  "stdout": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained-control.stdout",
+  "stderr": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained-control.stderr"
+}

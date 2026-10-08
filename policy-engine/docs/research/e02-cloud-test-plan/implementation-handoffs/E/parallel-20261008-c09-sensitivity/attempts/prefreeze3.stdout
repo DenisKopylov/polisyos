@@ -1,0 +1,361 @@
+.F...........................FF.....                                     [100%]
+=================================== FAILURES ===================================
+_____________ test_fresh_reader_recomputes_actual_native_response ______________
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/prefreeze3-tmp/test_fresh_reader_recomputes_a0')
+
+    def test_fresh_reader_recomputes_actual_native_response(tmp_path):
+        store, simulation_ref, parameter = _native_fixture(tmp_path)
+        diagnostic = _diagnostic(store, simulation_ref, parameter)
+>       payload = _load_execute_response_matrix(
+            FileSystemCAS(tmp_path / "cas"),
+            diagnostic.sensitivity_matrix_ref,
+            source_ref=simulation_ref,
+            response_slots={"balance": "government.balance"},
+            parameter_center={parameter: 0.5},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fc3b12a1d10>
+matrix_ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:8a876162e5ad059de98ee8734adf1f925cc0c55bf89a7e6a987669c3919c20c7'), kind='foundry.identifiability_sensitivity_matrix', media_type='application/json', manifest_profile_sha256=None)
+
+    def _load_execute_response_matrix(
+        store: FileSystemCAS,
+        matrix_ref: ArtifactRef,
+        *,
+        source_ref: SimulationResultRef,
+        response_slots: Mapping[str, str],
+        parameter_center: Mapping[str, float],
+        config: IdentifiabilityDiagnosticConfig,
+    ) -> dict[str, Any]:
+        """Recompute a local response's exact basis and Jacobian from persisted states.
+    
+        Internal companion for an upstream adapter; it issues no scientific authority.
+        The caller supplies the expected source, axes, units contract, and seed/config.
+        """
+        payload = from_canonical_bytes(store.get_bytes(matrix_ref))
+        basis = _ResponseBasis.model_validate(payload.get("response_basis"))
+        expected, source, bindings_ref, feedback_ref = _response_context(
+            store, source_ref, response_slots, parameter_center, tuple(response_slots), config
+        )
+        # RESPONSE_BASIS_GUARD: retained-marker control removes this runtime predicate.
+        if basis.model_copy(update={"replays": ()}).model_dump(mode="json") != expected.model_dump(
+            mode="json"
+        ):
+            raise ValueError("response basis differs from expected source/axes/units/config")
+        if payload["moment_names"] != list(expected.moment_names) or payload["parameter_names"] != list(
+            expected.parameter_names
+        ):
+            raise ValueError("response matrix axis order differs from its basis")
+        expected_inputs = [item.model_dump(mode="json") for item in _response_basis_inputs(basis)]
+        actual_inputs = [item.model_dump(mode="json") for item in store.get_manifest(matrix_ref).inputs]
+        if sorted(actual_inputs, key=lambda item: item["role"]) != sorted(
+            expected_inputs, key=lambda item: item["role"]
+        ):
+            raise ValueError("response matrix manifest input roster differs from its basis")
+        seeds = _replicate_seeds(config)
+        evaluations = [(dict(parameter_center), seed) for seed in seeds]
+        steps = {}
+        for index, name in enumerate(expected.parameter_names):
+            step = config.finite_diff_rel_step * max(abs(parameter_center[name]), 1.0)
+            steps[name] = step
+            plus, minus = dict(parameter_center), dict(parameter_center)
+            plus[name] += step
+            minus[name] -= step
+            minus_seeds = (
+                seeds
+                if config.use_common_random_numbers
+                else tuple(
+                    (config.seed or 0) + 100_000 * (index + 1) + offset for offset in range(len(seeds))
+                )
+            )
+            evaluations.extend((plus, seed) for seed in seeds)
+            evaluations.extend((minus, seed) for seed in minus_seeds)
+        if len(evaluations) != len(basis.replays) or payload["finite_diff_steps"] != steps:
+            raise ValueError("response finite-difference evaluation roster mismatch")
+        replay_sources = []
+        for record, (theta, seed) in zip(basis.replays, evaluations, strict=True):
+            if record.theta != theta or record.seed != seed:
+                raise ValueError("response replay parameter/seed roster mismatch")
+            if _response_identity(store, record.result.ref).model_dump(
+                mode="json"
+            ) != record.result.model_dump(mode="json") or _response_identity(
+                store, record.override.ref
+            ).model_dump(mode="json") != record.override.model_dump(mode="json"):
+                raise ValueError("response replay content/manifest identity mismatch")
+            if _response_identity(store, record.request.ref).model_dump(
+                mode="json"
+            ) != record.request.model_dump(mode="json"):
+                raise ValueError("response replay request identity mismatch")
+            request = ExecuteRequest.model_validate(
+                from_canonical_bytes(store.get_bytes(record.request.ref))
+            )
+            expected_request = ExecuteRequest(
+                exec_plan_ref=source.exec_plan_ref,
+                input_bindings_ref=bindings_ref,
+                registry_bundle_ref=expected.source_inputs["registry"].ref,
+                feedback_config_ref=feedback_ref,
+                parameter_override_bundle_ref=ParameterOverrideBundleRef.model_validate(
+                    record.override.ref.model_dump(mode="python")
+                ),
+                exec_config=expected.execution_config.model_copy(update={"seed": seed}),
+            )
+            if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
+                raise ValueError("response replay request/config differs from its declared basis")
+            override = ParameterOverrideBundle.model_validate(
+                from_canonical_bytes(store.get_bytes(record.override.ref))
+            )
+            if _flatten_parameter_overrides(override.overrides) != theta:
+                raise ValueError("response replay override differs from finite-difference point")
+            manifest = store.get_manifest(record.result.ref)
+            output_roles = {"metrics", "state_delta", "state_snapshot"}
+            required = {
+                item.role: _response_input_ref(store, item)
+                for item in store.get_manifest(source_ref).inputs
+                if item.role not in output_roles | {"parameter_override_bundle"}
+            }
+            required["parameter_override_bundle"] = record.override.ref
+            if len(manifest.inputs) != len(required) + len(output_roles):
+                raise ValueError("response replay lineage mismatch: input roster")
+            if feedback_ref is not None:
+                required["input.feedback_config_ref"] = feedback_ref
+            for role, ref in required.items():
+                matches = [item for item in manifest.inputs if item.role == role]
+                if matches != [input_ref_from_artifact_ref(ref, role=role)]:
+                    raise ValueError(f"response replay lineage mismatch: {role}")
+            replay = SimulationResult.model_validate(
+                from_canonical_bytes(store.get_bytes(record.result.ref))
+            )
+            if replay.exec_plan_ref != source.exec_plan_ref:
+                raise ValueError("response replay has a different execution plan")
+            for role, ref in (
+                ("metrics", replay.metrics_ref),
+                ("state_snapshot", replay.state_snapshot_ref),
+            ):
+                if ref is None or [item for item in manifest.inputs if item.role == role] != [
+                    input_ref_from_artifact_ref(ref, role=role)
+                ]:
+>                   raise ValueError(f"response replay lineage mismatch: {role}")
+E                   ValueError: response replay lineage mismatch: metrics
+
+policy-engine/src/polisyos/foundry/calibration/identifiability.py:1715: ValueError
+_____________ test_actual_fresh_child_reads_persisted_native_basis _____________
+
+response_case = (PosixPath('/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/prefreeze3-tmp/response_case0'), <polisyos.core.artifa...999'), kind='foundry.identifiability_sensitivity_matrix', media_type='application/json', manifest_profile_sha256=None))
+
+    def test_actual_fresh_child_reads_persisted_native_basis(response_case):
+        import json
+        import os
+        import subprocess
+        import sys
+    
+        path, _, source, parameter, matrix = response_case
+        request = json.dumps(
+            {
+                "cas": str(path / "cas"),
+                "source": source.model_dump(mode="json"),
+                "matrix": matrix.model_dump(mode="json"),
+                "parameter": parameter,
+            }
+        )
+        child = r"""
+    import json, sys
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.contracts.foundry import SimulationResultRef
+    from polisyos.foundry.calibration.identifiability import _load_execute_response_matrix, IdentifiabilityDiagnosticConfig
+    request=json.loads(sys.argv[1])
+    payload=_load_execute_response_matrix(FileSystemCAS(request['cas']), ArtifactRef.model_validate(request['matrix']),
+        source_ref=SimulationResultRef.model_validate(request['source']), response_slots={'balance':'government.balance'},
+        parameter_center={request['parameter']:0.5}, config=IdentifiabilityDiagnosticConfig(
+        simulation_reps=2,bootstrap_reps=0,profile_grid_size=0,seed=29,finite_diff_rel_step=0.01))
+    print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_basis']['profile'],'gate_eligible':payload['response_basis']['gate_eligible']}))
+    """
+        result = subprocess.run(
+            [sys.executable, "-c", child, request],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            env=os.environ.copy(),
+        )
+>       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 8, in <module>
+E             payload=_load_execute_response_matrix(FileSystemCAS(request['cas']), ArtifactRef.model_validate(request['matrix']),
+E                 source_ref=SimulationResultRef.model_validate(request['source']), response_slots={'balance':'government.balance'},
+E                 parameter_center={request['parameter']:0.5}, config=IdentifiabilityDiagnosticConfig(
+E                 simulation_reps=2,bootstrap_reps=0,profile_grid_size=0,seed=29,finite_diff_rel_step=0.01))
+E           File "/dev/shm/e02-orch03-20261008/c09-sensitivity/policy-engine/src/polisyos/foundry/calibration/identifiability.py", line 1715, in _load_execute_response_matrix
+E             raise ValueError(f"response replay lineage mismatch: {role}")
+E         ValueError: response replay lineage mismatch: metrics
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python', '-c', "\nimport json, sys\...aise ValueError(f"response replay lineage mismatch: {role}")\nValueError: response replay lineage mismatch: metrics\n').returncode
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py:447: AssertionError
+_____________ test_axis_order_is_bound_on_actual_two_slot_response _____________
+
+response_case = (PosixPath('/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/prefreeze3-tmp/response_case0'), <polisyos.core.artifa...999'), kind='foundry.identifiability_sensitivity_matrix', media_type='application/json', manifest_profile_sha256=None))
+
+    def test_axis_order_is_bound_on_actual_two_slot_response(response_case):
+        _, store, source, parameter, _ = response_case
+        config = IdentifiabilityDiagnosticConfig(
+            simulation_reps=2, bootstrap_reps=0, profile_grid_size=0, seed=29, finite_diff_rel_step=0.01
+        )
+        slots = {"balance": "government.balance", "rate": "global.tax_rate"}
+        diagnostic = identifiability_diagnostic(
+            store,
+            simulation_result_ref=source,
+            observed_moment_bundle={"balance": 0.0, "rate": 0.125},
+            parameter_center={parameter: 0.5},
+            response_slots=slots,
+            config=config,
+        )
+>       payload = _load_execute_response_matrix(
+            store,
+            diagnostic.sensitivity_matrix_ref,
+            source_ref=source,
+            response_slots=slots,
+            parameter_center={parameter: 0.5},
+            config=config,
+        )
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py:480: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fc3b0673950>
+matrix_ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:69ab69549ffc154efec0a566be47f96f257c8fed51d0556e46547c80e8806a9f'), kind='foundry.identifiability_sensitivity_matrix', media_type='application/json', manifest_profile_sha256=None)
+
+    def _load_execute_response_matrix(
+        store: FileSystemCAS,
+        matrix_ref: ArtifactRef,
+        *,
+        source_ref: SimulationResultRef,
+        response_slots: Mapping[str, str],
+        parameter_center: Mapping[str, float],
+        config: IdentifiabilityDiagnosticConfig,
+    ) -> dict[str, Any]:
+        """Recompute a local response's exact basis and Jacobian from persisted states.
+    
+        Internal companion for an upstream adapter; it issues no scientific authority.
+        The caller supplies the expected source, axes, units contract, and seed/config.
+        """
+        payload = from_canonical_bytes(store.get_bytes(matrix_ref))
+        basis = _ResponseBasis.model_validate(payload.get("response_basis"))
+        expected, source, bindings_ref, feedback_ref = _response_context(
+            store, source_ref, response_slots, parameter_center, tuple(response_slots), config
+        )
+        # RESPONSE_BASIS_GUARD: retained-marker control removes this runtime predicate.
+        if basis.model_copy(update={"replays": ()}).model_dump(mode="json") != expected.model_dump(
+            mode="json"
+        ):
+            raise ValueError("response basis differs from expected source/axes/units/config")
+        if payload["moment_names"] != list(expected.moment_names) or payload["parameter_names"] != list(
+            expected.parameter_names
+        ):
+            raise ValueError("response matrix axis order differs from its basis")
+        expected_inputs = [item.model_dump(mode="json") for item in _response_basis_inputs(basis)]
+        actual_inputs = [item.model_dump(mode="json") for item in store.get_manifest(matrix_ref).inputs]
+        if sorted(actual_inputs, key=lambda item: item["role"]) != sorted(
+            expected_inputs, key=lambda item: item["role"]
+        ):
+            raise ValueError("response matrix manifest input roster differs from its basis")
+        seeds = _replicate_seeds(config)
+        evaluations = [(dict(parameter_center), seed) for seed in seeds]
+        steps = {}
+        for index, name in enumerate(expected.parameter_names):
+            step = config.finite_diff_rel_step * max(abs(parameter_center[name]), 1.0)
+            steps[name] = step
+            plus, minus = dict(parameter_center), dict(parameter_center)
+            plus[name] += step
+            minus[name] -= step
+            minus_seeds = (
+                seeds
+                if config.use_common_random_numbers
+                else tuple(
+                    (config.seed or 0) + 100_000 * (index + 1) + offset for offset in range(len(seeds))
+                )
+            )
+            evaluations.extend((plus, seed) for seed in seeds)
+            evaluations.extend((minus, seed) for seed in minus_seeds)
+        if len(evaluations) != len(basis.replays) or payload["finite_diff_steps"] != steps:
+            raise ValueError("response finite-difference evaluation roster mismatch")
+        replay_sources = []
+        for record, (theta, seed) in zip(basis.replays, evaluations, strict=True):
+            if record.theta != theta or record.seed != seed:
+                raise ValueError("response replay parameter/seed roster mismatch")
+            if _response_identity(store, record.result.ref).model_dump(
+                mode="json"
+            ) != record.result.model_dump(mode="json") or _response_identity(
+                store, record.override.ref
+            ).model_dump(mode="json") != record.override.model_dump(mode="json"):
+                raise ValueError("response replay content/manifest identity mismatch")
+            if _response_identity(store, record.request.ref).model_dump(
+                mode="json"
+            ) != record.request.model_dump(mode="json"):
+                raise ValueError("response replay request identity mismatch")
+            request = ExecuteRequest.model_validate(
+                from_canonical_bytes(store.get_bytes(record.request.ref))
+            )
+            expected_request = ExecuteRequest(
+                exec_plan_ref=source.exec_plan_ref,
+                input_bindings_ref=bindings_ref,
+                registry_bundle_ref=expected.source_inputs["registry"].ref,
+                feedback_config_ref=feedback_ref,
+                parameter_override_bundle_ref=ParameterOverrideBundleRef.model_validate(
+                    record.override.ref.model_dump(mode="python")
+                ),
+                exec_config=expected.execution_config.model_copy(update={"seed": seed}),
+            )
+            if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
+                raise ValueError("response replay request/config differs from its declared basis")
+            override = ParameterOverrideBundle.model_validate(
+                from_canonical_bytes(store.get_bytes(record.override.ref))
+            )
+            if _flatten_parameter_overrides(override.overrides) != theta:
+                raise ValueError("response replay override differs from finite-difference point")
+            manifest = store.get_manifest(record.result.ref)
+            output_roles = {"metrics", "state_delta", "state_snapshot"}
+            required = {
+                item.role: _response_input_ref(store, item)
+                for item in store.get_manifest(source_ref).inputs
+                if item.role not in output_roles | {"parameter_override_bundle"}
+            }
+            required["parameter_override_bundle"] = record.override.ref
+            if len(manifest.inputs) != len(required) + len(output_roles):
+                raise ValueError("response replay lineage mismatch: input roster")
+            if feedback_ref is not None:
+                required["input.feedback_config_ref"] = feedback_ref
+            for role, ref in required.items():
+                matches = [item for item in manifest.inputs if item.role == role]
+                if matches != [input_ref_from_artifact_ref(ref, role=role)]:
+                    raise ValueError(f"response replay lineage mismatch: {role}")
+            replay = SimulationResult.model_validate(
+                from_canonical_bytes(store.get_bytes(record.result.ref))
+            )
+            if replay.exec_plan_ref != source.exec_plan_ref:
+                raise ValueError("response replay has a different execution plan")
+            for role, ref in (
+                ("metrics", replay.metrics_ref),
+                ("state_snapshot", replay.state_snapshot_ref),
+            ):
+                if ref is None or [item for item in manifest.inputs if item.role == role] != [
+                    input_ref_from_artifact_ref(ref, role=role)
+                ]:
+>                   raise ValueError(f"response replay lineage mismatch: {role}")
+E                   ValueError: response replay lineage mismatch: metrics
+
+policy-engine/src/polisyos/foundry/calibration/identifiability.py:1715: ValueError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_fresh_reader_recomputes_actual_native_response
+FAILED policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_actual_fresh_child_reads_persisted_native_basis
+FAILED policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_axis_order_is_bound_on_actual_two_slot_response

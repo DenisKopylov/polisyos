@@ -1,0 +1,1455 @@
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json
+new file mode 100644
+index 000000000..611caea71
+--- /dev/null
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json
+@@ -0,0 +1,94 @@
++{
++  "schema": "policyos.e02.minimum_partner_packet.v1",
++  "state": "supplier_source_ready_pending_review_and_canonical_adoption",
++  "original_unit": "E",
++  "finding": "B190",
++  "bundle": "UQP-01",
++  "original_binding": {
++    "source": "198076863e143dea9f89f02734b13d50dae3eed5",
++    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
++    "lines": [
++      4752,
++      4761
++    ],
++    "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
++  },
++  "base": {
++    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
++    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
++  },
++  "source_selection": {
++    "selected": "G identifiability blob aad1abdd89ac8dda43918981bc21f4a9755601a2",
++    "other_E_blob": "712bb1a7c8e0e72f418163a912eb6134bbf07b29",
++    "other_E_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
++    "reason": "E nullable-curvature delta is unrelated to execute-state response; do not copy cumulative E carrier or that patch."
++  },
++  "producer": {
++    "fqn": "polisyos.foundry.calibration.identifiability.identifiability_diagnostic",
++    "argument": "response_slots",
++    "profile": "execute_scalar_state_response_v1",
++    "request": "inline observed moments and node_id.parameter center; registered global scalar state slots; persist sensitivity; bootstrap_reps=0; profile_grid_size=0; explicit bound initial StateSnapshot 2.2 with exact nested NPZ/schema refs and checksums",
++    "artifact": "foundry.identifiability_sensitivity_matrix with response_basis and exact manifest inputs",
++    "bridge": "internal _load_execute_response_matrix recomputes exact source/units/config/ordered axes and J/weighting/Fisher from persisted actual state replays",
++    "surface": "existing local identifiability diagnostic, non-gating"
++  },
++  "native_fixture": {
++    "method": "mechanism.runtime.income_tax@1.0.0",
++    "agents": 2,
++    "reported_income": [
++      2,
++      2
++    ],
++    "active": [
++      true,
++      true
++    ],
++    "initial_government_balance": -2,
++    "center_rate": 0.5,
++    "response_slot": "government.balance",
++    "unit": "USD",
++    "parameter_unit": "ratio",
++    "oracle": "y(r)=4r-2; independent Fraction J=4; Var(rate)=1/16 gives Var(y)=1",
++    "baseline": "zero response is not a zero sensitivity; constant reported incomes yield genuine J=0"
++  },
++  "partner_requirements": [
++    {
++      "owner": "canonical E uncertainty/Scientist Node adapter owner (G routes lease)",
++      "trigger": "a composed Node requests execute-produced sensitivity",
++      "fields": [
++        "exact producer source SHA/tree and matrix ref with selected manifest",
++        "expected SimulationResult source ref",
++        "ordered response_slots and parameter_center",
++        "exact diagnostic configuration and registry-bound units",
++        "declared input error law, covariance axes and dependence only when that downstream consumer requires them"
++      ],
++      "action": "reuse the internal recomputing reader; preserve unknown partial responses; separately validate law/target/context admission; do not infer authority from diagnostic IDENTIFIED or numerical rank",
++      "outside_lease": [
++        "polisyos.scientist.nodes.uncertainty",
++        "polisyos.calibration adapters",
++        "polisyos.ir"
++      ],
++      "status": "UNRUN composed Node adoption; no production data prerequisite for generic mechanics"
++    },
++    {
++      "owner": "canonical public-surface inventory owner (G routes lease)",
++      "trigger": "adopt or classify the additive package-specific response_slots keyword; existing root-stable Foundry supported_entrypoints does not list calibration",
++      "fields": [
++        "existing identifiability_diagnostic facade/FQN and additive keyword",
++        "internal response basis/reader scope",
++        "source-qualified release fragment and package README"
++      ],
++      "action": "canonical owner classifies the existing package-specific export and updates inventory/compatibility only where required; internal reader is not promoted to root-stable; no new facade or registry, historical callers unchanged",
++      "status": "dependency packet, not inventory completeness PASS"
++    }
++  ],
++  "limits": [
++    "local numerical diagnostic, always gate_eligible=false; no scientific/causal/Runtime admission",
++    "not empirical calibration, law inference, production fiscal suitability or universal nonlinear sensitivity",
++    "inline center/moments only; no bootstrap/profile basis or vector summaries",
++    "selected InputRef manifest views preserve selectors and verify type; differing-type selected views refuse rather than being flattened",
++    "persisted request/config records identify the actual caller invocation; they are not verifier-issued scientific authority",
++    "finite current StateSnapshot 2.2 source/replay leaf closure is verified; no generic recursive source/authority resolver or implicit unbound data-state fallback"
++  ],
++  "claim": "does not close original B190 or any all35 F finding; supplier property evidence and composed adoption are separate"
++}
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml b/policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml
+new file mode 100644
+index 000000000..22b6144d1
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml
+@@ -0,0 +1,40 @@
++id = "2026-10-08-c09-sensitivity-response-basis"
++title = "Bind local sensitivity to actual persisted Foundry state responses"
++type = "added"
++component = "foundry"
++owner = "team-policyos-runtime"
++summary = "Add an opt-in local Jacobian profile for registered scalar state slots, with exact source/model/input identities, axes, units, seeds, execute requests and persisted replay states. A fresh internal reader recomputes the basis and rejects changed units, source, order and lineage."
++compatibility = "The response_slots keyword is additive. Historical callback and operational-metrics diagnostic paths remain available. The new basis is internal, numerical, and non-gating; no Node adapter, authority admission, registry, scheduler or lockfile changes."
++surface_classification = "internal: package-specific calibration entrypoint, response basis and recomputing reader; no root-stable export promotion"
++change_class = "python-public-api"
++migration = "Existing callers need no migration. Opt-in callers use explicit inline moments/center, registered global scalar slots, an explicit bound StateSnapshot 2.2 and a persisted Jacobian-only profile. Nested initial/replay NPZ/schema bytes and exact selected leaf lineage are verified. Canonical cross-owner adapters must adopt the internal reader under their own law/target contract."
++limitations = "No callback authority, empirical calibration, stochastic law inference, vector summaries, profile/bootstrap basis, production data, or composed uncertainty/Scientist consumer admission. Shared public inventory and adapter adoption remain canonical-owner companions."
++evidence = ["tests/unit/foundry/calibration/test_identifiability_response_basis.py", "src/polisyos/foundry/calibration/README.md"]
++public_surface_inventory_reviewed = false
++generated_client_compatibility = "not_applicable"
++
++[[compatibility_change]]
++id = "execute-state-response-basis"
++change_class = "python-public-api"
++impact = "additive"
++surface = "internal: package-specific identifiability_diagnostic response_slots keyword"
++owner = "team-policyos-runtime"
++version_owner = "team-policyos-runtime"
++deprecation_window = "not_applicable"
++release_note = "Registered scalar state responses may opt into a content-bound local diagnostic; historical callbacks and metrics are preserved."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["src/polisyos/foundry/calibration/README.md"]
++runbook_docs = ["src/polisyos/foundry/calibration/README.md"]
++
++[[compatibility_change]]
++id = "local-response-basis-persistence"
++change_class = "persisted-artifact-format"
++impact = "additive"
++surface = "internal: optional execute_scalar_state_response_v1 basis on the existing local sensitivity matrix"
++owner = "team-policyos-runtime"
++version_owner = "team-policyos-runtime"
++deprecation_window = "not_applicable"
++release_note = "The opt-in internal response basis has an explicit v1 profile and exact replay lineage; historical 1.0 matrices without that basis stay on their old reader path."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["src/polisyos/foundry/calibration/README.md"]
++runbook_docs = ["src/polisyos/foundry/calibration/README.md"]
+diff --git a/policy-engine/src/polisyos/foundry/calibration/README.md b/policy-engine/src/polisyos/foundry/calibration/README.md
+index 4f747db5c..cf521e93a 100644
+--- a/policy-engine/src/polisyos/foundry/calibration/README.md
++++ b/policy-engine/src/polisyos/foundry/calibration/README.md
+@@ -109,3 +109,32 @@ uv run pytest tests/unit/foundry/calibration/test_identifiability.py \
+ - [docs/adr/0012-uncertainty-envelope-ir-contract.md](../../../../docs/adr/0012-uncertainty-envelope-ir-contract.md)
+ - [docs/adr/0013-uncertainty-propagation-pipeline.md](../../../../docs/adr/0013-uncertainty-propagation-pipeline.md)
+ - [docs/adr/0074-numpyro-bayesian-scm.md](../../../../docs/adr/0074-numpyro-bayesian-scm.md)
++
++## Execute-backed local response basis
++
++`identifiability_diagnostic(..., response_slots={"balance": "government.balance"})`
++can measure a local Jacobian from actual Foundry replays and persisted scalar
++state. Parameter keys are registered `node_id.parameter` entries. Moment and
++parameter units come from the exact bound registry; moment/parameter axis order,
++source/model/input references, initial and replay StateSnapshot 2.2 nested NPZ/schema
++bytes and selected manifests, finite-difference
++points, requested execution config, seeds, and actual replay artifacts remain in
++the matrix's `response_basis` and manifest lineage. The internal companion reader
++recomputes that basis and the Jacobian/weighting/Fisher matrices from fresh CAS
++states before returning them.
++
++This profile requires explicit inline observed moments and parameter center,
++registered global scalar response slots, an explicit current StateSnapshot 2.2
++initial state, a persisted sensitivity matrix, and
++zero bootstrap/profile repetitions. A callback, an unknown or vector response,
++an unbound unit, changed source/config/axis, or incomplete lineage cannot be
++substituted for this profile. The existing callback and operational-metrics
++paths retain their behavior and produce no execute-state basis.
++
++The basis describes a local numerical response and always has
++`gate_eligible=False`. It provides neither a measurement law nor causal,
++scientific, or Runtime admission. An uncertainty/Scientist adapter must select
++and validate its own source/law/target contract before consuming this internal
++basis; this producer does not implement that cross-owner adapter. Registered
++deterministic income tax is an available synthetic witness, not a calibrated
++fiscal model.
+diff --git a/policy-engine/src/polisyos/foundry/calibration/identifiability.py b/policy-engine/src/polisyos/foundry/calibration/identifiability.py
+index aad1abdd8..d0b90fd34 100644
+--- a/policy-engine/src/polisyos/foundry/calibration/identifiability.py
++++ b/policy-engine/src/polisyos/foundry/calibration/identifiability.py
+@@ -4,17 +4,24 @@ from __future__ import annotations
+ 
+ from collections.abc import Callable, Mapping, Sequence
+ from enum import Enum
++from hashlib import sha256
+ from math import isfinite
+ from numbers import Real
+-from typing import TYPE_CHECKING, Any
++from typing import TYPE_CHECKING, Any, Literal
+ 
+ import numpy as np
+ from pydantic import BaseModel, ConfigDict, Field, field_validator
+ 
+-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
++from polisyos.core.artifacts.manifest import (
++    ArtifactRef,
++    InputRef,
++    SchemaInfo,
++    input_ref_from_artifact_ref,
++)
+ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+ from polisyos.core.canon import CanonSpec, from_canonical_bytes
+ from polisyos.core.contracts.foundry import (
++    ExecPlan,
+     ExecuteRequest,
+     FeedbackConfigRef,
+     FoundryExecConfig,
+@@ -24,8 +31,10 @@ from polisyos.core.contracts.foundry import (
+     Metrics,
+     ParameterOverrideBundle,
+     ParameterOverrideBundleRef,
++    ProgramGraph,
+     SimulationResult,
+     SimulationResultRef,
++    StateSnapshot,
+ )
+ from polisyos.foundry.methods.catalog.simulation.dynamics import (
+     build_abm_result_from_simulation,
+@@ -227,16 +236,24 @@ def identifiability_diagnostic(
+     summary_evaluator: SummaryEvaluator | None = None,
+     moment_names: Sequence[str] | None = None,
+     parameter_bounds: Mapping[str, tuple[float, float]] | None = None,
++    response_slots: Mapping[str, str] | None = None,
+ ) -> IdentifiabilityDiagnosticResult:
+     """Compute and persist aggregate-moment identifiability diagnostics.
+ 
+     `summary_evaluator` maps a parameter vector plus optional seed to simulated
+     summary statistics. If it is omitted, the function attempts a conservative
+     execute-backed replay using `node_id.parameter` keys from `parameter_center`.
++    `response_slots` instead requests declared global scalar state slots from
++    real persisted replays; its Jacobian-only basis is local and non-gating.
++    This profile requires inline moments/center and zero bootstrap/profile reps.
+     """
+ 
+     sim_ref = SimulationResultRef.model_validate(simulation_result_ref.model_dump(mode="python"))
+-    simulation_result = _load_model(store, sim_ref, SimulationResult)
++    simulation_result = (
++        SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(sim_ref)))
++        if response_slots is not None
++        else _load_model(store, sim_ref, SimulationResult)
++    )
+     observed_ref = (
+         observed_moment_bundle if isinstance(observed_moment_bundle, ArtifactRef) else None
+     )
+@@ -276,6 +293,21 @@ def identifiability_diagnostic(
+             parameter_ref=parameter_ref,
+         )
+ 
++    response_evaluator = None
++    if response_slots is not None:
++        if observed_ref is not None or parameter_ref is not None or parameter_center is None:
++            raise ValueError(
++                "state response profile requires explicit inline moments and parameter center"
++            )
++        if summary_evaluator is not None:
++            raise ValueError("response_slots requires actual execute, not a callback")
++        if config.bootstrap_reps or config.profile_grid_size:
++            raise ValueError("state response basis supports local Jacobian only")
++        response_evaluator = _ExecuteResponseEvaluator(
++            store, sim_ref, response_slots, center, names, config
++        )
++        summary_evaluator = response_evaluator
++
+     if summary_evaluator is None:
+         try:
+             summary_evaluator = _build_execute_summary_evaluator(
+@@ -310,6 +342,7 @@ def identifiability_diagnostic(
+             config=config,
+             moment_classes=moment_classes,
+             parameter_bounds=parameter_bounds or {},
++            response_evaluator=response_evaluator,
+         )
+     except Exception as exc:
+         result = IdentifiabilityDiagnosticResult(
+@@ -448,6 +481,7 @@ def _compute_identifiability_diagnostic(
+     config: IdentifiabilityDiagnosticConfig,
+     moment_classes: tuple[IdentifiabilityMomentClass, ...],
+     parameter_bounds: Mapping[str, tuple[float, float]],
++    response_evaluator: _ExecuteResponseEvaluator | None = None,
+ ) -> IdentifiabilityDiagnosticResult:
+     moment_names = tuple(observed.keys())
+     parameter_names = tuple(center.keys())
+@@ -572,6 +606,7 @@ def _compute_identifiability_diagnostic(
+             fisher=fisher,
+             weighting_matrix=weighting_matrix,
+             steps=steps,
++            response_basis=(None if response_evaluator is None else response_evaluator.basis()),
+         )
+ 
+     profile_ref = None
+@@ -1008,6 +1043,7 @@ def _persist_sensitivity_matrix(
+     fisher: np.ndarray,
+     weighting_matrix: np.ndarray,
+     steps: Mapping[str, float],
++    response_basis: _ResponseBasis | None = None,
+ ) -> ArtifactRef:
+     payload = {
+         "schema_version": "1.0",
+@@ -1018,12 +1054,17 @@ def _persist_sensitivity_matrix(
+         "weighting_matrix": np.asarray(weighting_matrix, dtype=float).tolist(),
+         "finite_diff_steps": {name: float(step) for name, step in steps.items()},
+     }
++    inputs = []
++    if response_basis is not None:
++        payload["response_basis"] = response_basis.model_dump(mode="json")
++        inputs = _response_basis_inputs(response_basis)
+     return store.put_json(
+         payload,
+         PutOptions(
+             kind="foundry.identifiability_sensitivity_matrix",
+             media_type="application/json",
+             schema=SchemaInfo(name="polisyos.core.IdentifiabilitySensitivityMatrix", version="1.0"),
++            inputs=inputs,
+         ),
+         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+     )
+@@ -1279,3 +1320,485 @@ def _load_model[ModelT: BaseModel](
+ 
+ def _vector_to_mapping(names: Sequence[str], values: np.ndarray) -> dict[str, float]:
+     return {str(name): float(value) for name, value in zip(names, values, strict=True)}
++
++
++class _ResponseIdentity(BaseModel):
++    """Exact CAS bytes and selected manifest used by a local response diagnostic."""
++
++    model_config = ConfigDict(extra="forbid", frozen=True)
++    ref: ArtifactRef
++    content_sha256: str
++    manifest_sha256: str
++
++
++class _ResponseReplay(BaseModel):
++    model_config = ConfigDict(extra="forbid", frozen=True)
++    theta: dict[str, float]
++    seed: int
++    result: _ResponseIdentity
++    request: _ResponseIdentity
++    override: _ResponseIdentity
++
++
++class _ResponseBasis(BaseModel):
++    """Local numerical provenance, never scientific or runtime gate authority."""
++
++    model_config = ConfigDict(extra="forbid", frozen=True)
++    profile: Literal["execute_scalar_state_response_v1"] = "execute_scalar_state_response_v1"
++    gate_eligible: Literal[False] = False
++    source_inputs: dict[str, _ResponseIdentity]
++    parameter_names: tuple[str, ...]
++    moment_names: tuple[str, ...]
++    parameter_units: dict[str, dict[str, Any]]
++    moment_units: dict[str, dict[str, Any]]
++    response_slots: dict[str, str]
++    state_paths: dict[str, str]
++    center: dict[str, float]
++    config: IdentifiabilityDiagnosticConfig
++    execution_config: FoundryExecConfig = FoundryExecConfig()
++    replays: tuple[_ResponseReplay, ...] = ()
++
++
++def _response_identity(store: FileSystemCAS, ref: ArtifactRef) -> _ResponseIdentity:
++    return _ResponseIdentity(
++        ref=ref,
++        content_sha256="sha256:" + sha256(store.get_bytes(ref)).hexdigest(),
++        manifest_sha256="sha256:" + sha256(store.get_manifest_bytes(ref)).hexdigest(),
++    )
++
++
++def _response_input_ref(store: FileSystemCAS, item: InputRef) -> ArtifactRef:
++    # InputRef carries the selected view, not the artifact's type. Resolve the
++    # canonical type before preserving and verifying that exact selected view.
++    manifest = store.get_manifest(item.artifact_id)
++    ref = ArtifactRef(
++        artifact_id=item.artifact_id,
++        kind=manifest.kind,
++        media_type=manifest.media_type,
++        manifest_profile_sha256=item.manifest_profile_sha256,
++    )
++    store.get_manifest(ref)
++    return ref
++
++
++def _response_snapshot_inputs(store: FileSystemCAS, ref: ArtifactRef) -> dict[str, ArtifactRef]:
++    """Resolve the finite, maintained current StateSnapshot leaf contract."""
++    snapshot = StateSnapshot.model_validate(from_canonical_bytes(store.get_bytes(ref)))
++    manifest = store.get_manifest(ref)
++    if snapshot.schema_version != "2.2" or manifest.artifact_schema != SchemaInfo(
++        name="polisyos.core.StateSnapshot", version="2.2.0"
++    ):
++        raise ValueError("state response requires current exact-view StateSnapshot 2.2")
++    if (
++        snapshot.state_ref.kind != "foundry.state_blob"
++        or snapshot.state_ref.media_type != "application/x-npz"
++    ):
++        raise ValueError("state response has an unsupported state blob type")
++    expected_leaf = input_ref_from_artifact_ref(snapshot.state_ref, role="state_blob")
++    leaves = [item for item in manifest.inputs if item.role == "state_blob"]
++    if leaves != [expected_leaf] or snapshot.lineage_inputs != manifest.inputs:
++        raise ValueError("state response snapshot has missing/duplicate/contradictory leaf lineage")
++    identity = _response_identity(store, snapshot.state_ref)
++    if (
++        snapshot.checksum_sha256 is None
++        or identity.content_sha256 != "sha256:" + snapshot.checksum_sha256
++    ):
++        raise ValueError("state response snapshot checksum differs from declared bytes")
++    refs = {"state_blob": snapshot.state_ref}
++    if snapshot.schema_ref is not None:
++        _response_identity(store, snapshot.schema_ref)
++        refs["schema"] = snapshot.schema_ref
++    return refs
++
++
++def _response_context(
++    store: FileSystemCAS,
++    source_ref: SimulationResultRef,
++    slots: Mapping[str, str],
++    center: Mapping[str, float],
++    names: tuple[str, ...],
++    config: IdentifiabilityDiagnosticConfig,
++) -> tuple[_ResponseBasis, SimulationResult, FoundryInputBindingsRef, FeedbackConfigRef | None]:
++    from polisyos.core.registry import load_registry_bundle_content, load_registry_bundle_payload
++
++    if config.bootstrap_reps or config.profile_grid_size or not config.persist_sensitivity_matrix:
++        raise ValueError("state response basis requires a persisted local Jacobian-only profile")
++    if any(isinstance(value, bool) or not isfinite(float(value)) for value in center.values()):
++        raise ValueError("response center must contain finite numeric values")
++    if not names or len(set(names)) != len(names) or tuple(slots) != names:
++        raise ValueError("response slots must match the unique ordered moment axis")
++    if not center or len(set(center)) != len(center):
++        raise ValueError("response parameter axis must be nonempty and unique")
++    source = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(source_ref)))
++    manifest = store.get_manifest(source_ref)
++    roles = [item.role for item in manifest.inputs]
++    if len(set(roles)) != len(roles):
++        raise ValueError("duplicate source input role in response basis")
++    item = _find_input(manifest.inputs, "input.input_bindings_ref")
++    if item is None:
++        raise ValueError("response source has no input bindings")
++    bindings_ref = FoundryInputBindingsRef.model_validate(
++        _response_input_ref(store, item).model_dump(mode="python")
++    )
++    bindings = FoundryInputBindings.model_validate(
++        from_canonical_bytes(store.get_bytes(bindings_ref))
++    )
++    feedback = _find_input(manifest.inputs, "input.feedback_config_ref")
++    feedback_ref = (
++        None
++        if feedback is None
++        else FeedbackConfigRef.model_validate(
++            _response_input_ref(store, feedback).model_dump(mode="python")
++        )
++    )
++    plan = ExecPlan.model_validate(from_canonical_bytes(store.get_bytes(source.exec_plan_ref)))
++    program = ProgramGraph.model_validate(from_canonical_bytes(store.get_bytes(plan.program_ref)))
++    registry = load_registry_bundle_content(store, bindings.registry_bundle_ref)
++    registry_payload = load_registry_bundle_payload(store, bindings.registry_bundle_ref)
++    if registry.units_registry is None:
++        raise ValueError("state response requires a units registry")
++    refs: dict[str, ArtifactRef] = {
++        "source": source_ref,
++        "exec_plan": source.exec_plan_ref,
++        "program": plan.program_ref,
++        "model": program.ir_ref,
++        "bindings": bindings_ref,
++        "registry": bindings.registry_bundle_ref,
++        "data": bindings.data_snapshot_ref,
++    }
++    for optional_name, optional_ref in (
++        ("bound_state", bindings.bound_state_snapshot_ref),
++        ("lowered_model", program.lowered_ir_ref),
++        ("environment", plan.environment_ref),
++        ("feedback", feedback_ref),
++        ("quality", bindings.quality_report_ref),
++    ):
++        if optional_ref is not None:
++            refs[optional_name] = optional_ref
++    for name, value in registry_payload:
++        if value is not None:
++            refs[f"registry.{name}"] = value
++    for item in manifest.inputs:
++        refs[f"source.{item.role}"] = _response_input_ref(store, item)
++    if bindings.bound_state_snapshot_ref is None:
++        raise ValueError("state response requires an explicit bound initial state")
++    for role, ref in _response_snapshot_inputs(store, bindings.bound_state_snapshot_ref).items():
++        refs[f"source_state.{role}"] = ref
++    for node in program.nodes:
++        if node.params_ref is not None:
++            refs[f"params.{node.node_id}"] = node.params_ref
++    parameter_units = {}
++    nodes = {node.node_id: node for node in program.nodes}
++    for key in center:
++        node_id, separator, parameter = key.rpartition(".")
++        node = nodes.get(node_id)
++        if (
++            not separator
++            or node is None
++            or node.mechanism_type not in registry.mechanism_registry.mechanisms
++        ):
++            raise ValueError(f"unknown response parameter: {key}")
++        spec = registry.mechanism_registry.mechanisms[node.mechanism_type].params.get(parameter)
++        if spec is None or spec.unit_id not in registry.units_registry.units:
++            raise ValueError(f"response parameter has no declared unit: {key}")
++        parameter_units[key] = registry.units_registry.units[spec.unit_id].model_dump(mode="json")
++    paths = {}
++    units = {}
++    for name, slot_id in slots.items():
++        slot = registry.slot_registry.slots.get(slot_id)
++        if slot is None or slot.scope.value != "global" or not slot.state_path or slot.unit is None:
++            raise ValueError(f"unsupported scalar state response slot: {slot_id}")
++        unit = registry.units_registry.units.get(slot.unit.unit_id)
++        if unit is None:
++            raise ValueError(f"response slot has no declared unit: {slot_id}")
++        paths[name] = slot.state_path
++        units[name] = unit.model_dump(mode="json")
++    return (
++        _ResponseBasis(
++            source_inputs={role: _response_identity(store, ref) for role, ref in refs.items()},
++            parameter_names=tuple(center),
++            moment_names=names,
++            parameter_units=parameter_units,
++            moment_units=units,
++            response_slots=dict(slots),
++            state_paths=paths,
++            center=dict(center),
++            config=config,
++        ),
++        source,
++        bindings_ref,
++        feedback_ref,
++    )
++
++
++def _response_replay(store: FileSystemCAS, ref: ArtifactRef) -> SimulationResult:
++    replay = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(ref)))
++    manifest = store.get_manifest(ref)
++    updates = {}
++    # Legacy SimulationResult fields may carry bare refs even when its native
++    # manifest binds selected output views. Resolve the actual declared view;
++    # never flatten a selector that the payload explicitly supplied.
++    for role, field in (("metrics", "metrics_ref"), ("state_snapshot", "state_snapshot_ref")):
++        payload_ref = getattr(replay, field)
++        matches = [item for item in manifest.inputs if item.role == role]
++        if (
++            payload_ref is None
++            or len(matches) != 1
++            or matches[0].artifact_id != payload_ref.artifact_id
++        ):
++            raise ValueError(f"response replay lineage mismatch: {role}")
++        if (
++            payload_ref.manifest_profile_sha256 is not None
++            and payload_ref.manifest_profile_sha256 != matches[0].manifest_profile_sha256
++        ):
++            raise ValueError(f"response replay lineage mismatch: {role} selected view")
++        resolved = _response_input_ref(store, matches[0])
++        updates[field] = type(payload_ref).model_validate(resolved.model_dump(mode="python"))
++    normalized = replay.model_copy(update=updates)
++    _response_snapshot_inputs(store, normalized.state_snapshot_ref)
++    return normalized
++
++
++def _response_state_values(
++    store: FileSystemCAS, simulation: SimulationResult, paths: Mapping[str, str]
++) -> dict[str, float]:
++    from polisyos.foundry.execute.executor import load_state_snapshot
++
++    if simulation.state_snapshot_ref is None:
++        raise ValueError("response replay has no persisted state")
++    state = load_state_snapshot(store, snapshot_ref=simulation.state_snapshot_ref)
++    values = {}
++    for name, path in paths.items():
++        value = state
++        for component in path.split("."):
++            value = getattr(value, component)
++        array = np.asarray(value)
++        if array.shape != () or not np.isfinite(array).all():
++            raise ValueError(f"response slot is not a finite scalar: {name}")
++        values[name] = float(array)
++    return values
++
++
++class _ExecuteResponseEvaluator:
++    def __init__(
++        self,
++        store: FileSystemCAS,
++        source_ref: SimulationResultRef,
++        slots: Mapping[str, str],
++        center: Mapping[str, float],
++        names: tuple[str, ...],
++        config: IdentifiabilityDiagnosticConfig,
++    ) -> None:
++        self.store = store
++        self.context, self.source, self.bindings_ref, self.feedback_ref = _response_context(
++            store, source_ref, slots, center, names, config
++        )
++        self.records: list[_ResponseReplay] = []
++
++    def __call__(self, theta: Mapping[str, float], seed: int | None) -> Mapping[str, float]:
++        from polisyos.foundry.execute.api import execute
++
++        override = _persist_flat_parameter_overrides(self.store, theta)
++        request = ExecuteRequest(
++            exec_plan_ref=self.source.exec_plan_ref,
++            input_bindings_ref=self.bindings_ref,
++            registry_bundle_ref=self.context.source_inputs["registry"].ref,
++            feedback_config_ref=self.feedback_ref,
++            parameter_override_bundle_ref=override,
++            exec_config=FoundryExecConfig(seed=0 if seed is None else int(seed)),
++        )
++        request_ref = self.store.put_json(
++            request,
++            PutOptions(
++                kind="foundry.identifiability_replay_request",
++                media_type="application/json",
++                inputs=[
++                    input_ref_from_artifact_ref(
++                        self.context.source_inputs["source"].ref, role="response.source"
++                    ),
++                    input_ref_from_artifact_ref(override, role="response.override"),
++                ],
++            ),
++            canon_spec=CanonSpec(forbid_floats=False),
++        )
++        result = execute(self.store, request)
++        if not result.ok or result.simulation_result_ref is None:
++            raise ValueError(f"state response execute failed: {result.notes}")
++        replay = _response_replay(self.store, result.simulation_result_ref)
++        values = _response_state_values(self.store, replay, self.context.state_paths)
++        self.records.append(
++            _ResponseReplay(
++                theta=dict(theta),
++                seed=request.exec_config.seed,
++                result=_response_identity(self.store, result.simulation_result_ref),
++                request=_response_identity(self.store, request_ref),
++                override=_response_identity(self.store, override),
++            )
++        )
++        return values
++
++    def basis(self) -> _ResponseBasis:
++        return self.context.model_copy(update={"replays": tuple(self.records)})
++
++
++def _response_basis_inputs(basis: _ResponseBasis) -> list[InputRef]:
++    inputs = [
++        input_ref_from_artifact_ref(identity.ref, role=f"response.{role}")
++        for role, identity in sorted(basis.source_inputs.items())
++    ]
++    for index, replay in enumerate(basis.replays):
++        inputs.extend(
++            (
++                input_ref_from_artifact_ref(replay.result.ref, role=f"response.replay.{index}"),
++                input_ref_from_artifact_ref(replay.request.ref, role=f"response.request.{index}"),
++                input_ref_from_artifact_ref(replay.override.ref, role=f"response.override.{index}"),
++            )
++        )
++    return inputs
++
++
++def _load_execute_response_matrix(
++    store: FileSystemCAS,
++    matrix_ref: ArtifactRef,
++    *,
++    source_ref: SimulationResultRef,
++    response_slots: Mapping[str, str],
++    parameter_center: Mapping[str, float],
++    config: IdentifiabilityDiagnosticConfig,
++) -> dict[str, Any]:
++    """Recompute a local response's exact basis and Jacobian from persisted states.
++
++    Internal companion for an upstream adapter; it issues no scientific authority.
++    The caller supplies the expected source, axes, units contract, and seed/config.
++    """
++    payload = from_canonical_bytes(store.get_bytes(matrix_ref))
++    basis = _ResponseBasis.model_validate(payload.get("response_basis"))
++    expected, source, bindings_ref, feedback_ref = _response_context(
++        store, source_ref, response_slots, parameter_center, tuple(response_slots), config
++    )
++    # RESPONSE_BASIS_GUARD: retained-marker control removes this runtime predicate.
++    if basis.model_copy(update={"replays": ()}).model_dump(mode="json") != expected.model_dump(
++        mode="json"
++    ):
++        raise ValueError("response basis differs from expected source/axes/units/config")
++    if payload["moment_names"] != list(expected.moment_names) or payload["parameter_names"] != list(
++        expected.parameter_names
++    ):
++        raise ValueError("response matrix axis order differs from its basis")
++    expected_inputs = [item.model_dump(mode="json") for item in _response_basis_inputs(basis)]
++    actual_inputs = [item.model_dump(mode="json") for item in store.get_manifest(matrix_ref).inputs]
++    if sorted(actual_inputs, key=lambda item: item["role"]) != sorted(
++        expected_inputs, key=lambda item: item["role"]
++    ):
++        raise ValueError("response matrix manifest input roster differs from its basis")
++    seeds = _replicate_seeds(config)
++    evaluations = [(dict(parameter_center), seed) for seed in seeds]
++    steps = {}
++    for index, name in enumerate(expected.parameter_names):
++        step = config.finite_diff_rel_step * max(abs(parameter_center[name]), 1.0)
++        steps[name] = step
++        plus, minus = dict(parameter_center), dict(parameter_center)
++        plus[name] += step
++        minus[name] -= step
++        minus_seeds = (
++            seeds
++            if config.use_common_random_numbers
++            else tuple(
++                (config.seed or 0) + 100_000 * (index + 1) + offset for offset in range(len(seeds))
++            )
++        )
++        evaluations.extend((plus, seed) for seed in seeds)
++        evaluations.extend((minus, seed) for seed in minus_seeds)
++    if len(evaluations) != len(basis.replays) or payload["finite_diff_steps"] != steps:
++        raise ValueError("response finite-difference evaluation roster mismatch")
++    replay_sources = []
++    for record, (theta, seed) in zip(basis.replays, evaluations, strict=True):
++        if record.theta != theta or record.seed != seed:
++            raise ValueError("response replay parameter/seed roster mismatch")
++        if _response_identity(store, record.result.ref).model_dump(
++            mode="json"
++        ) != record.result.model_dump(mode="json") or _response_identity(
++            store, record.override.ref
++        ).model_dump(mode="json") != record.override.model_dump(mode="json"):
++            raise ValueError("response replay content/manifest identity mismatch")
++        if _response_identity(store, record.request.ref).model_dump(
++            mode="json"
++        ) != record.request.model_dump(mode="json"):
++            raise ValueError("response replay request identity mismatch")
++        request = ExecuteRequest.model_validate(
++            from_canonical_bytes(store.get_bytes(record.request.ref))
++        )
++        expected_request = ExecuteRequest(
++            exec_plan_ref=source.exec_plan_ref,
++            input_bindings_ref=bindings_ref,
++            registry_bundle_ref=expected.source_inputs["registry"].ref,
++            feedback_config_ref=feedback_ref,
++            parameter_override_bundle_ref=ParameterOverrideBundleRef.model_validate(
++                record.override.ref.model_dump(mode="python")
++            ),
++            exec_config=expected.execution_config.model_copy(update={"seed": seed}),
++        )
++        if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
++            raise ValueError("response replay request/config differs from its declared basis")
++        override = ParameterOverrideBundle.model_validate(
++            from_canonical_bytes(store.get_bytes(record.override.ref))
++        )
++        if _flatten_parameter_overrides(override.overrides) != theta:
++            raise ValueError("response replay override differs from finite-difference point")
++        manifest = store.get_manifest(record.result.ref)
++        output_roles = {"metrics", "state_delta", "state_snapshot"}
++        required = {
++            item.role: _response_input_ref(store, item)
++            for item in store.get_manifest(source_ref).inputs
++            if item.role not in output_roles | {"parameter_override_bundle"}
++        }
++        required["parameter_override_bundle"] = record.override.ref
++        if len(manifest.inputs) != len(required) + len(output_roles):
++            raise ValueError("response replay lineage mismatch: input roster")
++        if feedback_ref is not None:
++            required["input.feedback_config_ref"] = feedback_ref
++        for role, ref in required.items():
++            matches = [item for item in manifest.inputs if item.role == role]
++            if matches != [input_ref_from_artifact_ref(ref, role=role)]:
++                raise ValueError(f"response replay lineage mismatch: {role}")
++        replay = _response_replay(store, record.result.ref)
++        if replay.exec_plan_ref != source.exec_plan_ref:
++            raise ValueError("response replay has a different execution plan")
++        for role, ref in (
++            ("metrics", replay.metrics_ref),
++            ("state_snapshot", replay.state_snapshot_ref),
++        ):
++            if ref is None or [item for item in manifest.inputs if item.role == role] != [
++                input_ref_from_artifact_ref(ref, role=role)
++            ]:
++                raise ValueError(f"response replay lineage mismatch: {role}")
++        if len([item for item in manifest.inputs if item.role == "state_delta"]) != 1:
++            raise ValueError("response replay lineage mismatch: state_delta")
++        replay_sources.append(replay)
++    # Validate the admitted initial state through the maintained reader only
++    # after every source/replay leaf, basis and roster has passed.
++    from polisyos.foundry.execute.executor import load_state_snapshot
++
++    load_state_snapshot(store, snapshot_ref=expected.source_inputs["bound_state"].ref)
++    values = []
++    for replay in replay_sources:
++        replay_values = _response_state_values(store, replay, expected.state_paths)
++        values.append([replay_values[name] for name in expected.moment_names])
++    samples = np.asarray(values, dtype=float)
++    n = len(seeds)
++    jacobian = np.empty((len(expected.moment_names), len(expected.parameter_names)))
++    offset = n
++    for index, name in enumerate(expected.parameter_names):
++        plus, minus = samples[offset : offset + n], samples[offset + n : offset + 2 * n]
++        jacobian[:, index] = (plus.mean(axis=0) - minus.mean(axis=0)) / (2 * steps[name])
++        offset += 2 * n
++    weighting, _ = _weighting_matrix(samples[:n], config.ridge)
++    fisher = jacobian.T @ weighting @ jacobian
++    fisher = 0.5 * (fisher + fisher.T)
++    if not np.array_equal(
++        np.asarray(payload["weighting_matrix"], dtype=float), weighting
++    ) or not np.array_equal(np.asarray(payload["fisher_information"], dtype=float), fisher):
++        raise ValueError("response weighting/Fisher matrix differs from persisted states")
++    if not np.array_equal(np.asarray(payload["jacobian"], dtype=float), jacobian):
++        raise ValueError("response matrix differs from persisted-state finite differences")
++    return payload
+diff --git a/policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py b/policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py
+new file mode 100644
+index 000000000..200bf2121
+--- /dev/null
++++ b/policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py
+@@ -0,0 +1,640 @@
++"""Execute-backed local sensitivity binds real state, units, axes and CAS lineage."""
++
++from __future__ import annotations
++
++from decimal import Decimal
++from fractions import Fraction
++
++import jax.numpy as jnp
++import numpy as np
++import pytest
++
++from polisyos.core.artifacts.manifest import SchemaInfo
++from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
++from polisyos.core.canon import from_canonical_bytes
++from polisyos.core.contracts.fabric import DataSnapshot
++from polisyos.core.contracts.foundry import (
++    CompileRequest,
++    ExecPlan,
++    ExecuteRequest,
++    FoundryExecConfig,
++    FoundryInputBindings,
++    FoundryInputBindingsRef,
++    ProgramGraph,
++    SimulationResult,
++    StateSnapshotRef,
++)
++from polisyos.core.registry import build_default_registry_bundle
++from polisyos.foundry.calibration.identifiability import (
++    IdentifiabilityDiagnosticConfig,
++    _load_execute_response_matrix,
++    identifiability_diagnostic,
++)
++from polisyos.foundry.compile.api import compile as compile_foundry
++from polisyos.foundry.contracts.state import GlobalState
++from polisyos.foundry.execute.api import execute as execute_foundry
++from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
++from polisyos.ir.governance.policy_spec import PolicySpec
++from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
++from polisyos.ir.model_layer.model_spec import ModelSpec
++from polisyos.ir.trinity import TrinityBundle
++
++
++def _native_fixture(tmp_path, *, reported_income=(2.0, 2.0), store=None):
++    store = FileSystemCAS(tmp_path / "cas") if store is None else store
++    registry = build_default_registry_bundle(store)
++    policy = TrinityBundle(
++        problem_frame=ProblemFrame(problem_id="response", domain=ProblemDomain.FISCAL),
++        policy_spec=PolicySpec(
++            policy_id="response",
++            interventions=[
++                {
++                    "intervention_id": "tax",
++                    "kind": "income_tax",
++                    "target": {
++                        "kind": "predicate",
++                        "field": "id",
++                        "operator": "==",
++                        "value": "all",
++                    },
++                    "schedule": {"start_step": 0, "duration_steps": 1},
++                    "params": {"rate": Decimal("0.5")},
++                }
++            ],
++        ),
++        model_spec=ModelSpec(
++            model_id="response",
++            data_snapshot_ref="sha256:" + "0" * 64,
++            registry_bundle_ref=str(registry.bundle_ref.artifact_id),
++        ),
++    )
++    policy_ref = store.put_json(
++        policy,
++        PutOptions(
++            kind="ir.trinity_bundle",
++            media_type="application/json",
++            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy.schema_version),
++        ),
++    )
++    compiled = compile_foundry(
++        store,
++        CompileRequest(
++            input_kind="trinity",
++            policy_ref=policy_ref,
++            registry_bundle_ref=registry.bundle_ref,
++        ),
++    )
++    assert compiled.ok
++    plan = ExecPlan.model_validate(from_canonical_bytes(store.get_bytes(compiled.exec_plan_ref)))
++    program = ProgramGraph.model_validate(from_canonical_bytes(store.get_bytes(plan.program_ref)))
++    tax_node = next(node for node in program.nodes if node.mechanism_type == "income_tax")
++    state = GlobalState.empty(n_agents=2, n_firms=1)
++    state = state.replace(
++        agents=state.agents.replace(
++            active=jnp.asarray([True, True]),
++            income=jnp.asarray([10.0, 10.0]),
++            reported_income=jnp.asarray(reported_income),
++        ),
++        government_balance=jnp.asarray(-2.0),
++        tax_rate=jnp.asarray(0.125),
++    )
++    snapshot = put_state_snapshot(store, state=state, step=0)
++    state_ref = StateSnapshotRef(artifact_id=snapshot.artifact_id)
++    data_ref = store.put_json(
++        DataSnapshot(data_ref=state_ref),
++        PutOptions(
++            kind="fabric.data_snapshot",
++            media_type="application/json",
++        ),
++    )
++    bindings = store.put_json(
++        FoundryInputBindings(
++            data_snapshot_ref=data_ref,
++            registry_bundle_ref=registry.bundle_ref,
++            rules=[],
++            bound_state_snapshot_ref=state_ref,
++        ),
++        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
++    )
++    result = execute_foundry(
++        store,
++        ExecuteRequest(
++            exec_plan_ref=compiled.exec_plan_ref,
++            input_bindings_ref=FoundryInputBindingsRef(artifact_id=bindings.artifact_id),
++            registry_bundle_ref=registry.bundle_ref,
++            exec_config=FoundryExecConfig(seed=29),
++        ),
++    )
++    assert result.ok
++    simulation = SimulationResult.model_validate(
++        from_canonical_bytes(store.get_bytes(result.simulation_result_ref))
++    )
++    poststate = load_state_snapshot(store, snapshot_ref=simulation.state_snapshot_ref)
++    assert float(poststate.government_balance) == pytest.approx(sum(reported_income) / 2 - 2)
++    return store, result.simulation_result_ref, f"{tax_node.node_id}.rate"
++
++
++def _diagnostic(store, simulation_ref, parameter):
++    return identifiability_diagnostic(
++        store,
++        simulation_result_ref=simulation_ref,
++        observed_moment_bundle={"balance": 0.0},
++        parameter_center={parameter: 0.5},
++        response_slots={"balance": "government.balance"},
++        config=IdentifiabilityDiagnosticConfig(
++            simulation_reps=2,
++            bootstrap_reps=0,
++            profile_grid_size=0,
++            seed=29,
++            finite_diff_rel_step=0.01,
++        ),
++    )
++
++
++def test_native_zero_baseline_has_dimensioned_nonzero_response(tmp_path):
++    store, simulation_ref, parameter = _native_fixture(tmp_path)
++    diagnostic = _diagnostic(store, simulation_ref, parameter)
++    assert diagnostic.sensitivity_matrix_ref is not None
++    payload = from_canonical_bytes(store.get_bytes(diagnostic.sensitivity_matrix_ref))
++    np.testing.assert_allclose(payload["jacobian"], [[4.0]], rtol=2e-5)
++    assert diagnostic.fitted_moments["balance"] == pytest.approx(0.0)
++    assert payload["response_basis"]["parameter_units"][parameter]["kind"] == "rate"
++    assert payload["response_basis"]["moment_units"]["balance"]["currency"] == "USD"
++    # Independent exact law, not the finite-difference implementation.
++    variance = Fraction(4) ** 2 * Fraction(1, 16)
++    assert variance == 1
++    assert payload["response_basis"]["gate_eligible"] is False
++
++
++def test_fresh_reader_recomputes_actual_native_response(tmp_path):
++    store, simulation_ref, parameter = _native_fixture(tmp_path)
++    diagnostic = _diagnostic(store, simulation_ref, parameter)
++    payload = _load_execute_response_matrix(
++        FileSystemCAS(tmp_path / "cas"),
++        diagnostic.sensitivity_matrix_ref,
++        source_ref=simulation_ref,
++        response_slots={"balance": "government.balance"},
++        parameter_center={parameter: 0.5},
++        config=IdentifiabilityDiagnosticConfig(
++            simulation_reps=2,
++            bootstrap_reps=0,
++            profile_grid_size=0,
++            seed=29,
++            finite_diff_rel_step=0.01,
++        ),
++    )
++    np.testing.assert_allclose(payload["jacobian"], [[4.0]], rtol=2e-5)
++
++
++@pytest.fixture(scope="module")
++def response_case(tmp_path_factory):
++    path = tmp_path_factory.mktemp("response_case")
++    store, source, parameter = _native_fixture(path)
++    diagnostic = _diagnostic(store, source, parameter)
++    assert diagnostic.sensitivity_matrix_ref is not None
++    return path, store, source, parameter, diagnostic.sensitivity_matrix_ref
++
++
++def _read(case, *, matrix=None, **updates):
++    path, _, source, parameter, original = case
++    kwargs = dict(
++        source_ref=source,
++        response_slots={"balance": "government.balance"},
++        parameter_center={parameter: 0.5},
++        config=IdentifiabilityDiagnosticConfig(
++            simulation_reps=2,
++            bootstrap_reps=0,
++            profile_grid_size=0,
++            seed=29,
++            finite_diff_rel_step=0.01,
++        ),
++    )
++    kwargs.update(updates)
++    return _load_execute_response_matrix(FileSystemCAS(path / "cas"), matrix or original, **kwargs)
++
++
++def _changed_matrix(case, change, *, inputs=None):
++    _, store, _, _, original = case
++    payload = from_canonical_bytes(store.get_bytes(original))
++    change(payload)
++    from polisyos.core.canon import CanonSpec
++
++    return store.put_json(
++        payload,
++        PutOptions(
++            kind=original.kind,
++            media_type=original.media_type,
++            schema=store.get_manifest(original).artifact_schema,
++            inputs=store.get_manifest(original).inputs if inputs is None else inputs,
++        ),
++        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
++    )
++
++
++@pytest.mark.parametrize(
++    "mutation",
++    [
++        "unit",
++        "parameter_unit",
++        "missing_input",
++        "extra_input",
++        "wrong_hash",
++        "wrong_manifest",
++        "fake_ref",
++        "changed_source",
++        "slot",
++        "model",
++        "axis",
++        "jacobian",
++        "fisher",
++        "seed",
++        "missing_replay",
++    ],
++)
++def test_actual_cas_basis_mutations_refuse_before_state_load(response_case, monkeypatch, mutation):
++    def change(payload):
++        basis = payload["response_basis"]
++        source = basis["source_inputs"]
++        if mutation == "unit":
++            basis["moment_units"]["balance"]["currency"] = "UAH"
++        elif mutation == "parameter_unit":
++            basis["parameter_units"][basis["parameter_names"][0]]["base"] = "percent"
++        elif mutation == "missing_input":
++            del source["bound_state"]
++        elif mutation == "extra_input":
++            source["unexpected"] = source["source"]
++        elif mutation == "wrong_hash":
++            source["source"]["content_sha256"] = "sha256:" + "f" * 64
++        elif mutation == "wrong_manifest":
++            source["source"]["manifest_sha256"] = "sha256:" + "f" * 64
++        elif mutation == "fake_ref":
++            source["source"]["ref"]["artifact_id"] = "sha256:" + "f" * 64
++        elif mutation == "changed_source":
++            source["source"]["ref"] = source["model"]["ref"]
++        elif mutation == "slot":
++            basis["response_slots"]["balance"] = "global.tax_rate"
++        elif mutation == "model":
++            source["model"] = source["data"]
++        elif mutation == "axis":
++            payload["moment_names"] = ["unrelated"]
++        elif mutation == "jacobian":
++            payload["jacobian"] = [[999.0]]
++        elif mutation == "fisher":
++            payload["fisher_information"] = [[999.0]]
++        elif mutation == "seed":
++            basis["replays"][0]["seed"] += 1
++        elif mutation == "missing_replay":
++            basis["replays"].pop()
++
++    matrix = _changed_matrix(response_case, change)
++    # Basis/roster failures happen before protected state consumption. Numerical
++    # matrix changes require reading the genuine states to recompute the oracle.
++    if mutation not in {"jacobian", "fisher"}:
++
++        def no_state(*args, **kwargs):
++            pytest.fail("unvalidated response basis reached state loading")
++
++        monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
++    with pytest.raises(ValueError):
++        _read(response_case, matrix=matrix)
++
++
++def test_forged_unit_with_retained_markers_is_rejected(response_case):
++    def forged(payload):
++        payload["response_basis"]["moment_units"]["balance"]["currency"] = "UAH"
++
++    matrix = _changed_matrix(response_case, forged)
++    payload = from_canonical_bytes(response_case[1].get_bytes(matrix))
++    assert payload["response_basis"]["profile"] == "execute_scalar_state_response_v1"
++    assert payload["response_basis"]["gate_eligible"] is False
++    assert payload["jacobian"][0][0] == pytest.approx(4.0, rel=2e-5)
++    with pytest.raises(ValueError, match="basis differs"):
++        _read(response_case, matrix=matrix)
++
++
++@pytest.mark.parametrize("mutation", ["missing", "extra", "duplicate"])
++def test_manifest_exact_input_roster_is_consumed(response_case, mutation):
++    _, store, _, _, original = response_case
++    inputs = list(store.get_manifest(original).inputs)
++    from polisyos.core.artifacts.manifest import InputRef
++
++    if mutation == "missing":
++        inputs.pop()
++    elif mutation == "extra":
++        inputs.append(inputs[0].model_copy(update={"role": "response.extra"}))
++    else:
++        inputs.append(InputRef(artifact_id=inputs[1].artifact_id, role=inputs[0].role))
++    matrix = _changed_matrix(response_case, lambda payload: None, inputs=inputs)
++    with pytest.raises(ValueError, match="manifest input roster"):
++        _read(response_case, matrix=matrix)
++
++
++@pytest.mark.parametrize("update", ["center", "config", "slot"])
++def test_caller_expected_contract_is_recomputed(response_case, update):
++    parameter = response_case[3]
++    kwargs = {}
++    if update == "center":
++        kwargs["parameter_center"] = {parameter: 0.4}
++    elif update == "config":
++        kwargs["config"] = IdentifiabilityDiagnosticConfig(
++            simulation_reps=2,
++            bootstrap_reps=0,
++            profile_grid_size=0,
++            seed=30,
++            finite_diff_rel_step=0.01,
++        )
++    else:
++        kwargs["response_slots"] = {"balance": "global.tax_rate"}
++    with pytest.raises(ValueError, match="basis differs"):
++        _read(response_case, **kwargs)
++
++
++def test_real_changed_source_ref_is_not_old_response_basis(response_case, tmp_path):
++    _, other, _ = _native_fixture(tmp_path, reported_income=(1.0, 1.0), store=response_case[1])
++    with pytest.raises((ValueError, FileNotFoundError)):
++        _read(response_case, source_ref=other)
++
++
++def test_unknown_partial_response_refuses_without_dropping_known_slots(response_case, monkeypatch):
++    _, store, source, parameter, _ = response_case
++
++    def no_execute(*args, **kwargs):
++        pytest.fail("unknown response slot reached execute")
++
++    monkeypatch.setattr("polisyos.foundry.execute.api.execute", no_execute)
++    with pytest.raises(ValueError, match="unsupported scalar"):
++        identifiability_diagnostic(
++            store,
++            simulation_result_ref=source,
++            observed_moment_bundle={"balance": 0.0, "unknown": 0.0},
++            parameter_center={parameter: 0.5},
++            response_slots={"balance": "government.balance", "unknown": "not.registered"},
++            config=IdentifiabilityDiagnosticConfig(bootstrap_reps=0, profile_grid_size=0),
++        )
++
++
++def test_native_constant_response_is_not_invented(tmp_path):
++    store, source, parameter = _native_fixture(tmp_path, reported_income=(0.0, 0.0))
++    diagnostic = _diagnostic(store, source, parameter)
++    payload = from_canonical_bytes(store.get_bytes(diagnostic.sensitivity_matrix_ref))
++    assert payload["jacobian"] == [[0.0]]
++    assert "zero_summary_sensitivity" in diagnostic.blocking_reasons
++    assert payload["response_basis"]["gate_eligible"] is False
++
++
++def test_original_affine_callback_zero_baseline_is_separate_math_control(response_case):
++    _, store, source, _, _ = response_case
++    diagnostic = identifiability_diagnostic(
++        store,
++        simulation_result_ref=source,
++        observed_moment_bundle={"y": 0.0},
++        parameter_center={"x": 2.0},
++        summary_evaluator=lambda theta, seed: {"y": theta["x"] - 2},
++        config=IdentifiabilityDiagnosticConfig(
++            simulation_reps=2, bootstrap_reps=0, profile_grid_size=0
++        ),
++    )
++    payload = from_canonical_bytes(store.get_bytes(diagnostic.sensitivity_matrix_ref))
++    np.testing.assert_allclose(payload["jacobian"], [[1.0]])
++    assert "response_basis" not in payload
++
++
++def test_native_state_response_resource_scaling_keeps_declared_units(tmp_path):
++    store, source, parameter = _native_fixture(tmp_path, reported_income=(2000.0, 2000.0))
++    diagnostic = _diagnostic(store, source, parameter)
++    payload = from_canonical_bytes(store.get_bytes(diagnostic.sensitivity_matrix_ref))
++    assert payload["jacobian"][0][0] == pytest.approx(4000.0, rel=2e-5)
++    assert payload["response_basis"]["moment_units"]["balance"]["currency"] == "USD"
++    # Changing numerical currency amounts rescales derivative, not its unit tag.
++    assert Fraction(4000, 4) == 1000
++
++
++def test_actual_fresh_child_reads_persisted_native_basis(response_case):
++    import json
++    import os
++    import subprocess
++    import sys
++
++    path, _, source, parameter, matrix = response_case
++    request = json.dumps(
++        {
++            "cas": str(path / "cas"),
++            "source": source.model_dump(mode="json"),
++            "matrix": matrix.model_dump(mode="json"),
++            "parameter": parameter,
++        }
++    )
++    child = r"""
++import json, sys
++from polisyos.core.artifacts.store import FileSystemCAS
++from polisyos.core.artifacts.manifest import ArtifactRef
++from polisyos.core.contracts.foundry import SimulationResultRef
++from polisyos.foundry.calibration.identifiability import _load_execute_response_matrix, IdentifiabilityDiagnosticConfig
++request=json.loads(sys.argv[1])
++payload=_load_execute_response_matrix(FileSystemCAS(request['cas']), ArtifactRef.model_validate(request['matrix']),
++    source_ref=SimulationResultRef.model_validate(request['source']), response_slots={'balance':'government.balance'},
++    parameter_center={request['parameter']:0.5}, config=IdentifiabilityDiagnosticConfig(
++    simulation_reps=2,bootstrap_reps=0,profile_grid_size=0,seed=29,finite_diff_rel_step=0.01))
++print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_basis']['profile'],'gate_eligible':payload['response_basis']['gate_eligible']}))
++"""
++    result = subprocess.run(
++        [sys.executable, "-c", child, request],
++        capture_output=True,
++        text=True,
++        timeout=60,
++        env=os.environ.copy(),
++    )
++    assert result.returncode == 0, result.stdout + result.stderr
++    answer = json.loads(result.stdout.strip().splitlines()[-1])
++    assert answer["jacobian"][0][0] == pytest.approx(4.0, rel=2e-5)
++    assert answer["gate_eligible"] is False
++    print("FRESH_CHILD_REQUEST=" + request)
++    print(
++        "FRESH_CHILD_RESULT="
++        + json.dumps(
++            {
++                "returncode": result.returncode,
++                "stdout": result.stdout,
++                "stderr": result.stderr,
++                "executable": sys.executable,
++            }
++        )
++    )
++    print("FRESH_CHILD_RESPONSE=" + json.dumps(answer))
++
++
++def test_axis_order_is_bound_on_actual_two_slot_response(response_case):
++    _, store, source, parameter, _ = response_case
++    config = IdentifiabilityDiagnosticConfig(
++        simulation_reps=2, bootstrap_reps=0, profile_grid_size=0, seed=29, finite_diff_rel_step=0.01
++    )
++    slots = {"balance": "government.balance", "rate": "global.tax_rate"}
++    diagnostic = identifiability_diagnostic(
++        store,
++        simulation_result_ref=source,
++        observed_moment_bundle={"balance": 0.0, "rate": 0.125},
++        parameter_center={parameter: 0.5},
++        response_slots=slots,
++        config=config,
++    )
++    payload = _load_execute_response_matrix(
++        store,
++        diagnostic.sensitivity_matrix_ref,
++        source_ref=source,
++        response_slots=slots,
++        parameter_center={parameter: 0.5},
++        config=config,
++    )
++    np.testing.assert_allclose(payload["jacobian"], [[4.0], [0.0]], rtol=2e-5)
++    with pytest.raises(ValueError, match="basis differs"):
++        _load_execute_response_matrix(
++            store,
++            diagnostic.sensitivity_matrix_ref,
++            source_ref=source,
++            response_slots=dict(reversed(list(slots.items()))),
++            parameter_center={parameter: 0.5},
++            config=config,
++        )
++
++
++def test_actual_altered_source_bytes_refuse_before_state_load(response_case, tmp_path, monkeypatch):
++    import shutil
++
++    from polisyos.core.artifacts.store import ArtifactIntegrityError
++
++    path, _, source, parameter, matrix = response_case
++    copied = tmp_path / "cas"
++    shutil.copytree(path / "cas", copied)
++    store = FileSystemCAS(copied)
++    blob, _ = store._paths(source.artifact_id)
++    blob.write_bytes(blob.read_bytes() + b" ")
++
++    def no_state(*args, **kwargs):
++        pytest.fail("altered CAS source reached state load")
++
++    monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
++    with pytest.raises(ArtifactIntegrityError):
++        _load_execute_response_matrix(
++            store,
++            matrix,
++            source_ref=source,
++            response_slots={"balance": "government.balance"},
++            parameter_center={parameter: 0.5},
++            config=IdentifiabilityDiagnosticConfig(
++                simulation_reps=2,
++                bootstrap_reps=0,
++                profile_grid_size=0,
++                seed=29,
++                finite_diff_rel_step=0.01,
++            ),
++        )
++
++
++@pytest.mark.parametrize("mutation", ["missing", "wrong", "duplicate", "extra"])
++def test_actual_replay_manifest_lineage_is_verified(response_case, monkeypatch, mutation):
++    from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
++    from polisyos.core.canon import CanonSpec
++    from polisyos.foundry.calibration.identifiability import (
++        _response_basis_inputs,
++        _response_identity,
++        _ResponseBasis,
++    )
++
++    _, store, source, _, matrix = response_case
++    payload = from_canonical_bytes(store.get_bytes(matrix))
++    record = payload["response_basis"]["replays"][-1]
++    result_ref = ArtifactRef.model_validate(record["result"]["ref"])
++    result_payload = from_canonical_bytes(store.get_bytes(result_ref))
++    result_manifest = store.get_manifest(result_ref)
++    inputs = [item for item in result_manifest.inputs if item.role != "input.input_bindings_ref"]
++    if mutation == "wrong":
++        inputs.append(InputRef(artifact_id=source.artifact_id, role="input.input_bindings_ref"))
++    elif mutation in {"duplicate", "extra"}:
++        inputs.extend(
++            item for item in result_manifest.inputs if item.role == "input.input_bindings_ref"
++        )
++        inputs.append(
++            InputRef(
++                artifact_id=source.artifact_id,
++                role="input.input_bindings_ref" if mutation == "duplicate" else "unexpected.extra",
++            )
++        )
++    corrupt_result = store.put_json(
++        result_payload,
++        PutOptions(
++            kind=result_ref.kind,
++            media_type=result_ref.media_type,
++            schema=result_manifest.artifact_schema,
++            inputs=inputs,
++        ),
++        canon_spec=CanonSpec(forbid_floats=False),
++    )
++    record["result"] = _response_identity(store, corrupt_result).model_dump(mode="json")
++    basis = _ResponseBasis.model_validate(payload["response_basis"])
++    corrupt_matrix = store.put_json(
++        payload,
++        PutOptions(
++            kind=matrix.kind,
++            media_type=matrix.media_type,
++            schema=store.get_manifest(matrix).artifact_schema,
++            inputs=_response_basis_inputs(basis),
++        ),
++        canon_spec=CanonSpec(forbid_floats=False),
++    )
++
++    def no_state(*args, **kwargs):
++        pytest.fail("forged native replay lineage reached state load")
++
++    monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
++    with pytest.raises(ValueError, match="lineage mismatch"):
++        _read(response_case, matrix=corrupt_matrix)
++
++
++@pytest.mark.parametrize("target", ["initial", "replay"])
++def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
++    response_case, tmp_path, monkeypatch, target
++):
++    import shutil
++
++    from polisyos.core.artifacts.manifest import ArtifactRef
++    from polisyos.core.artifacts.store import ArtifactIntegrityError
++    from polisyos.core.contracts.foundry import StateSnapshot
++
++    path, _, source, parameter, matrix = response_case
++    copied = tmp_path / "cas"
++    shutil.copytree(path / "cas", copied)
++    store = FileSystemCAS(copied)
++    payload = from_canonical_bytes(store.get_bytes(matrix))
++    if target == "initial":
++        wrapper_ref = ArtifactRef.model_validate(
++            payload["response_basis"]["source_inputs"]["bound_state"]["ref"]
++        )
++    else:
++        result_ref = ArtifactRef.model_validate(
++            payload["response_basis"]["replays"][-1]["result"]["ref"]
++        )
++        result = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(result_ref)))
++        wrapper_ref = result.state_snapshot_ref
++    wrapper = StateSnapshot.model_validate(from_canonical_bytes(store.get_bytes(wrapper_ref)))
++    blob, _ = store._paths(wrapper.state_ref.artifact_id)
++    blob.write_bytes(blob.read_bytes() + b" ")
++
++    def no_state(*args, **kwargs):
++        pytest.fail("unverified nested state blob reached state interpretation")
++
++    monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
++    with pytest.raises(ArtifactIntegrityError):
++        _load_execute_response_matrix(
++            store,
++            matrix,
++            source_ref=source,
++            response_slots={"balance": "government.balance"},
++            parameter_center={parameter: 0.5},
++            config=IdentifiabilityDiagnosticConfig(
++                simulation_reps=2,
++                bootstrap_reps=0,
++                profile_grid_size=0,
++                seed=29,
++                finite_diff_rel_step=0.01,
++            ),
++        )

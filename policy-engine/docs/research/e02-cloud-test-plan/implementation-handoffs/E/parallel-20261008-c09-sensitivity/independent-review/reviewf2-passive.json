@@ -1,0 +1,308 @@
+{
+  "schema": "policyos.e02.independent_passive_companion_review.v1",
+  "reviewer": "/root/oracle_ir",
+  "writer": "/root/producer_packets",
+  "finding": "B190",
+  "unit": "E",
+  "decision": "GO_passive_companion_exact_delta",
+  "source_runtime": {
+    "sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "tree": "707e9dbb08dc69d465f87867e51766406aff4fb7"
+  },
+  "passive_companion": {
+    "sha": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+    "tree": "ded11abdc70d4c91bf19cdf6f4a203acb83a3a46",
+    "parent": "c9125bc5e4d2992adeae468a79189d1fa535c88b"
+  },
+  "full_diff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json",
+    "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml"
+  ],
+  "diff_sha256": "03366a31bb8fe8eed2adc55cf40cd295542c5b8ee612290e8f56e77e03b66cf3",
+  "unchanged_blobs": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "blob": "d0b90fd348a2556b5e23ae8e20409950ad9e712b"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "blob": "200bf2121e7c9d473740fe4d388a8e7d2d382605"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+      "blob": "f62fcab38427f2266311c0281c1195548ded1df0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "blob": "cf521e93a4f52837a750d606f0a0e2d5919f6486"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/__init__.py",
+      "blob": "d663620e99bb1e5434ac9a12a69e9541dd797ada"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/api.py",
+      "blob": "ffee9f251bc9cd363c9cf89a3ce569914b04bdac"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/README.md",
+      "blob": "e2ad30f7a316d58969d06930420b652fd581d8e2"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "blob": "7c91d9d6ea92b65c0e0696ecccbed54f6c45214a"
+    },
+    {
+      "path": "policy-engine/architecture/gates/compatibility_release.toml",
+      "blob": "c146111155f3be917cc34f107522deecf6529024"
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+      "blob": "bf4b94548619f4dcce395806a5ec70ea54b4847a"
+    }
+  ],
+  "classification_basis": {
+    "contract_path": "policy-engine/architecture/public_surface/contract.toml",
+    "foundry_contract": {
+      "module": "polisyos.foundry",
+      "classification": "public_stable",
+      "facade_mode": "lazy_facade",
+      "owner": "team-polisyos",
+      "readme": "src/polisyos/foundry/README.md",
+      "reference_doc": "docs/reference/public-surface.md",
+      "supported_entrypoints": [
+        "polisyos.foundry",
+        "polisyos.foundry.api",
+        "polisyos.foundry.compile",
+        "polisyos.foundry.execute",
+        "polisyos.foundry.uncertainty"
+      ],
+      "major_subsystem": true,
+      "notes": "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml."
+    },
+    "root_facade_denominator": {
+      "policy-engine/src/polisyos/foundry/__init__.py": {
+        "__all__": [
+          "DependencyProfileResolutionFailure",
+          "EmbedderProtocol",
+          "LegalCorrespondenceRequest",
+          "LegalCorrespondenceResult",
+          "LegalSubjectAnnotationSource",
+          "LegalSubjectIdentity",
+          "LegalSubjectMembership",
+          "LegalSubjectMembershipSource",
+          "MethodCatalogDependencyAuthorityRequest",
+          "MethodRouteConstraint",
+          "InputContractMethodSelection",
+          "select_method_for_input_contract",
+          "SentenceTransformerEmbedder",
+          "TFIDFEmbedder",
+          "bind_legal_subject_annotations",
+          "build_method_catalog_provenance_manifest",
+          "build_method_catalog_runtime_identity",
+          "causal_worker_execution_context",
+          "compile",
+          "compile_program",
+          "execute",
+          "method_accepts_input_contract",
+          "persist_legal_correspondence_result",
+          "persist_legal_subject_annotations",
+          "persist_legal_subject_membership_source",
+          "produce_legal_subject_spine",
+          "recognize_legal_correspondence",
+          "select_method_candidates_for_requirements",
+          "validate_source_bound_causal_estimator_interval",
+          "validate_source_bound_causal_worker_response",
+          "validate_source_bound_gcm_spec"
+        ],
+        "lazy_keys": [
+          "causal_worker_execution_context",
+          "validate_source_bound_causal_estimator_interval",
+          "validate_source_bound_causal_worker_response",
+          "validate_source_bound_gcm_spec",
+          "InputContractMethodSelection",
+          "select_method_for_input_contract",
+          "DependencyProfileResolutionFailure",
+          "EmbedderProtocol",
+          "LegalCorrespondenceRequest",
+          "LegalCorrespondenceResult",
+          "LegalSubjectAnnotationSource",
+          "LegalSubjectIdentity",
+          "LegalSubjectMembership",
+          "LegalSubjectMembershipSource",
+          "MethodCatalogDependencyAuthorityRequest",
+          "MethodRouteConstraint",
+          "SentenceTransformerEmbedder",
+          "TFIDFEmbedder",
+          "bind_legal_subject_annotations",
+          "build_method_catalog_provenance_manifest",
+          "build_method_catalog_runtime_identity",
+          "compile",
+          "compile_program",
+          "execute",
+          "method_accepts_input_contract",
+          "persist_legal_correspondence_result",
+          "persist_legal_subject_annotations",
+          "persist_legal_subject_membership_source",
+          "produce_legal_subject_spine",
+          "recognize_legal_correspondence",
+          "select_method_candidates_for_requirements"
+        ]
+      },
+      "policy-engine/src/polisyos/foundry/api.py": {
+        "__all__": [
+          "compile",
+          "compile_program",
+          "execute"
+        ],
+        "lazy_keys": []
+      }
+    },
+    "README_lines": [
+      123,
+      125
+    ],
+    "finding": "Calibration is not a supported contract entrypoint, and neither existing function nor new internal reader is a root facade export. Existing Foundry README calls calibration an implementation surface unless root-exported. Therefore the internal keyword/reader classification follows the existing supported window, not a marker bypass.",
+    "important_scope": "This review is solely calibration. Contract separately lists polisyos.foundry.uncertainty as supported; README wording is not used to reclassify that module or any other surface. Unknown external/computed/deep imports are not claimed absent.",
+    "fragment_classes": [
+      "internal",
+      "persisted-artifact-format"
+    ],
+    "inventory_reviewed": false,
+    "inventory_completeness": "not_claimed"
+  },
+  "actual_Node_locator": {
+    "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "blob": "ef85325624efa365cd716b9633dc7ed6f1fe4e56",
+    "class": "PropagateUncertaintyNode",
+    "contract": "canonical downstream reader adoption/law/partial projection remain UNRUN; correcting its path does not implement the consumer"
+  },
+  "source_qualified_final_native_wave": {
+    "source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "checks": {
+      "tests": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "returncode": 0,
+    "mode": "Reviewed full actual deciding stdout/stderr/JUnit/commands, no replay by this reviewer. f2 runtime/test/README/dependency blobs equal c912, so these executed inputs carry only by exact unchanged identity.",
+    "new_native_wave_on_f2": "UNRUN_not_needed_for_two_passive_files",
+    "unexpected_fail_error_skip": 0
+  },
+  "retained_marker_control": {
+    "source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "result": "1 expected property-removal FAIL + 1 native positive PASS; one disclosed pytest rewrite warning",
+    "removed_predicate": "if basis.model_copy(update={\"replays\": ()}).model_dump(mode=\"json\") != expected.model_dump(\n        mode=\"json\"\n    ):\n        raise ValueError(\"response basis differs from expected source/axes/units/config\")",
+    "markers_kept": [
+      "execute_scalar_state_response_v1",
+      "gate_eligible=False",
+      "units",
+      "exact CAS matrix and response numerical result"
+    ],
+    "failure": "forged-unit negative DID NOT RAISE after expected-basis guard removal, while actual native positive passes",
+    "classification": "Expected discriminator failure, not unexpected product suite FAIL"
+  },
+  "release_gate": {
+    "historical_c912": "FAIL_public_api_review_required_preserved_separately",
+    "forward_f2": "PASS_one_fragment_two_compatibility_rows_no_errors_no_findings",
+    "commands_and_outputs": [
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-affected.json",
+        "bytes": 788,
+        "sha256": "b098097894d28d60b27a437602e0f9f96015e2fcd612e18180a98997d205d4b7"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-affected.stdout",
+        "bytes": 18394,
+        "sha256": "090df333dcdbcca38aff7c95adfeecb516e1e9b07dc4477c895de10b14352f8c"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-affected.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-affected.junit.xml",
+        "bytes": 8490,
+        "sha256": "3d6581d8e918b9c13324340b0e662905036b5313c2de4729d8938d9701a8507b"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained_control.py",
+        "bytes": 1547,
+        "sha256": "c14ca987e48ed17073ed8f2bd5f459ff12642a36fa4401c88c5cbe87d463c1c7"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained-control.json",
+        "bytes": 874,
+        "sha256": "43cd88a14276837f74bd80381759780068f8b9ca7c952b857b7e3b408fdf3746"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained-control.stdout",
+        "bytes": 5956,
+        "sha256": "0778934230625ce594e438ab8125b3723682a65e7fcfbdc2ee97feb1ff6563f9"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/retained-control.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-environment.stdout",
+        "bytes": 679,
+        "sha256": "8101dbe28ff4567f11e67ca47da5e62b40326c55cc0b32547e318f4e25332ab3"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-release.json",
+        "bytes": 456,
+        "sha256": "8a9ec72109484f2b9a624c1e6a306f583d2f12be9b3308228ba58ecabf2707c6"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-release.stdout",
+        "bytes": 674,
+        "sha256": "2a629dc9a924bd3a998acbabac81718ebf8ca14ee8ed376341c089984909b3bd"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-release.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/release_check.py",
+        "bytes": 1028,
+        "sha256": "136370b098504531af1d904d7a47e1786bdd9f6bb2dd0ef83b1663380c556844"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-release-forward.json",
+        "bytes": 472,
+        "sha256": "b5143840ac86668aa32287b2f5a4579ec82e55efc576db2da9880d4d30a3a3de"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-release-forward.stdout",
+        "bytes": 418,
+        "sha256": "4c311c49433df8894c75afebd2b0af96e182bcf9110222ebf633ccc189c8e2f7"
+      },
+      {
+        "path": "/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/final-release-forward.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "limits": [
+    "No broad external-client zero or complete public inventory claim.",
+    "No new native/backend wave executed for f2; c91249PASSevidence stays source-qualified.",
+    "Only local synthetic numerical producer, gate_eligible false; actual Scientist adoption and scientific/Runtime/production authority unestablished.",
+    "Prior review665 BLOCKED and all original harness errors remain preserved, not relabeled.",
+    "No original B190 closure or G source/finding acceptance assigned."
+  ],
+  "previous_review": {
+    "path": "/dev/shm/e02-orch03-20261008/oracle-ir/reviewc912.json",
+    "sha256": "eca3bf291067b3104ca75020a52a4fec24477a765d335899ceedad8eb351ae11"
+  },
+  "cleanup": "No cleanup performed."
+}

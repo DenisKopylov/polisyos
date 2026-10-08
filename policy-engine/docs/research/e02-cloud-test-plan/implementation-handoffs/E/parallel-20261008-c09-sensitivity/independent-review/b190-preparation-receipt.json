@@ -1,0 +1,32 @@
+{
+  "schema": "policyos.e02.independent_preparation_receipt.v1",
+  "reviewer": "/root/oracle_ir",
+  "finding": "B190",
+  "status": "ready_for_writer_preparation_only",
+  "artifacts": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/b190-original-binding.txt",
+      "bytes": 3211,
+      "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/b190-fraction-oracle.json",
+      "bytes": 5579,
+      "sha256": "fc49dff16ad5677297af4aa6ee325b485dc89535805e4dfb3a39eaf0916819a6"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/b190-independent-matrix.json",
+      "bytes": 8354,
+      "sha256": "45ac200180b03fbbb36d970557cf5c7da849a9cbaa1f3fba4ce84f68bec86fcf"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/b190-independent-preparation.md",
+      "bytes": 3630,
+      "sha256": "e79dc4b2eb8cc7b82cfaad3483fa62f5eea7ca61e1806627d80d157e86898751"
+    }
+  ],
+  "math_check": "PASS_exact_Fraction",
+  "product_check": "UNRUN_pending_frozen_source",
+  "source_review": "UNRUN_author_source_not_frozen",
+  "authority": "UNRUN_not_self_issued"
+}

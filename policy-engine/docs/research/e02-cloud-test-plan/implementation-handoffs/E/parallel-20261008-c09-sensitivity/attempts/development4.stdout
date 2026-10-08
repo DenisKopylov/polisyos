@@ -1,0 +1,88 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_____________ test_fresh_reader_recomputes_actual_native_response ______________
+
+tmp_path = PosixPath('/dev/shm/e02-orch03-20261008/c09-sensitivity-checks/development4-tmp/test_fresh_reader_recomputes_a0')
+
+    def test_fresh_reader_recomputes_actual_native_response(tmp_path):
+        store, simulation_ref, parameter = _native_fixture(tmp_path)
+        diagnostic = _diagnostic(store, simulation_ref, parameter)
+>       payload = _load_execute_response_matrix(
+            FileSystemCAS(tmp_path / "cas"), diagnostic.sensitivity_matrix_ref,
+            source_ref=simulation_ref, response_slots={"balance": "government.balance"},
+            parameter_center={parameter: 0.5},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2, bootstrap_reps=0, profile_grid_size=0, seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )
+
+policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f693cea51d0>
+matrix_ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:e36b4b0900ede46edac0c882f8cefef508066bf977e0781a62e2081669d9196a'), kind='foundry.identifiability_sensitivity_matrix', media_type='application/json', manifest_profile_sha256=None)
+
+    def _load_execute_response_matrix(
+        store: FileSystemCAS, matrix_ref: ArtifactRef, *, source_ref: SimulationResultRef,
+        response_slots: Mapping[str, str], parameter_center: Mapping[str, float],
+        config: IdentifiabilityDiagnosticConfig,
+    ) -> dict[str, Any]:
+        """Recompute a local response's exact basis and Jacobian from persisted states.
+    
+        Internal companion for an upstream adapter; it issues no scientific authority.
+        The caller supplies the expected source, axes, units contract, and seed/config.
+        """
+        payload = from_canonical_bytes(store.get_bytes(matrix_ref))
+        basis = _ResponseBasis.model_validate(payload.get("response_basis"))
+        expected, source, bindings_ref, feedback_ref = _response_context(
+            store, source_ref, response_slots, parameter_center, tuple(response_slots), config
+        )
+        # RESPONSE_BASIS_GUARD: retained-marker control removes this runtime predicate.
+        if basis.model_copy(update={"replays": ()}).model_dump(mode="json") != expected.model_dump(mode="json"):
+            raise ValueError("response basis differs from expected source/axes/units/config")
+        if payload["moment_names"] != list(expected.moment_names) or payload["parameter_names"] != list(expected.parameter_names):
+            raise ValueError("response matrix axis order differs from its basis")
+        expected_inputs = [item.model_dump(mode="json") for item in _response_basis_inputs(basis)]
+        actual_inputs = [item.model_dump(mode="json") for item in store.get_manifest(matrix_ref).inputs]
+        if sorted(actual_inputs, key=lambda item: item["role"]) != sorted(expected_inputs, key=lambda item: item["role"]):
+            raise ValueError("response matrix manifest input roster differs from its basis")
+        seeds = _replicate_seeds(config)
+        evaluations = [(dict(parameter_center), seed) for seed in seeds]
+        steps = {}
+        for index, name in enumerate(expected.parameter_names):
+            step = config.finite_diff_rel_step * max(abs(parameter_center[name]), 1.0)
+            steps[name] = step
+            plus, minus = dict(parameter_center), dict(parameter_center)
+            plus[name] += step
+            minus[name] -= step
+            minus_seeds = seeds if config.use_common_random_numbers else tuple(
+                (config.seed or 0) + 100_000 * (index + 1) + offset for offset in range(len(seeds))
+            )
+            evaluations.extend((plus, seed) for seed in seeds)
+            evaluations.extend((minus, seed) for seed in minus_seeds)
+        if len(evaluations) != len(basis.replays) or payload["finite_diff_steps"] != steps:
+            raise ValueError("response finite-difference evaluation roster mismatch")
+        values = []
+        for record, (theta, seed) in zip(basis.replays, evaluations, strict=True):
+            if record.theta != theta or record.seed != seed:
+                raise ValueError("response replay parameter/seed roster mismatch")
+            if _response_identity(store, record.result.ref).model_dump(mode="json") != record.result.model_dump(mode="json") or _response_identity(store, record.override.ref).model_dump(mode="json") != record.override.model_dump(mode="json"):
+                raise ValueError("response replay content/manifest identity mismatch")
+            if _response_identity(store, record.request.ref).model_dump(mode="json") != record.request.model_dump(mode="json"):
+                raise ValueError("response replay request identity mismatch")
+            request = ExecuteRequest.model_validate(from_canonical_bytes(store.get_bytes(record.request.ref)))
+>           expected_request = ExecuteRequest(
+                exec_plan_ref=source.exec_plan_ref, input_bindings_ref=bindings_ref,
+                registry_bundle_ref=expected.source_inputs["registry"].ref,
+                feedback_config_ref=feedback_ref, parameter_override_bundle_ref=record.override.ref,
+                exec_config=expected.execution_config.model_copy(update={"seed": seed}),
+            )
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for ExecuteRequest
+E           parameter_override_bundle_ref
+E             Input should be a valid dictionary or instance of ParameterOverrideBundleRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E               For further information visit https://errors.pydantic.dev/2.12/v/model_type
+
+policy-engine/src/polisyos/foundry/calibration/identifiability.py:1576: ValidationError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_fresh_reader_recomputes_actual_native_response

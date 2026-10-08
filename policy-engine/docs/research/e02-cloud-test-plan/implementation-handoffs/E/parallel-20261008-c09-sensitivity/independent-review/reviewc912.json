@@ -1,0 +1,475 @@
+{
+  "schema": "policyos.e02.immutable_independent_review.v1",
+  "reviewer": "/root/oracle_ir",
+  "writer": "/root/producer_packets",
+  "unit": "E",
+  "finding": "B190",
+  "bundle": "UQP-01",
+  "decision": "GO_bounded_internal_numerical_producer_delta_for_final_affected_wave",
+  "runtime_candidate": {
+    "sha": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+    "tree": "707e9dbb08dc69d465f87867e51766406aff4fb7",
+    "parent": "e6d76c534ee79efea5de38d9e383bbf0b67b1490"
+  },
+  "slice_base": {
+    "sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767"
+  },
+  "reviewed_delta": {
+    "from": "e6d76c534ee79efea5de38d9e383bbf0b67b1490",
+    "full_paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json",
+        "blob": "611caea7143247f6f205e117386ffbaf62eb181c",
+        "bytes": 5088,
+        "sha256": "e0e0b138c3ebc25be01d144fbb43a6b305ac3d48b72f2885d808af33cf6baccd"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+        "blob": "22b6144d1816976c7f972d0357b345a0c791f8c7",
+        "bytes": 3180,
+        "sha256": "47e0da9599f0050f0c3620d6c23fd833cecb305557d29d37261b5daaf90dd3f9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+        "blob": "cf521e93a4f52837a750d606f0a0e2d5919f6486",
+        "bytes": 6728,
+        "sha256": "016828f1cc4bfadc446d79e0af19053147999291cc749e498ec5dbc3dbe74e4f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "blob": "d0b90fd348a2556b5e23ae8e20409950ad9e712b",
+        "bytes": 73455,
+        "sha256": "453a9b79c8afe89c144ee5ba17519fa443586ca8790fc0b442ffb3bfc455a20d"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+        "blob": "200bf2121e7c9d473740fe4d388a8e7d2d382605",
+        "bytes": 25409,
+        "sha256": "dbb0c2cec0b6a38ae3f9839f048647c5d59b91ba9f662d115021715ce4935231"
+      }
+    ],
+    "class": "finite maintained StateSnapshot2.2 initial/every-replay NPZ/schema identity+checksum+exact selected-leaf lineage; explicit bound state required; no generic recursive resolver; controlled byte validation before state interpretation",
+    "full_slice_footprint": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09-sensitivity/minimum-node-adoption-packet.json",
+        "added": "94",
+        "removed": "0",
+        "blob": "611caea7143247f6f205e117386ffbaf62eb181c"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+        "added": "40",
+        "removed": "0",
+        "blob": "22b6144d1816976c7f972d0357b345a0c791f8c7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+        "added": "29",
+        "removed": "0",
+        "blob": "cf521e93a4f52837a750d606f0a0e2d5919f6486"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "added": "526",
+        "removed": "3",
+        "blob": "d0b90fd348a2556b5e23ae8e20409950ad9e712b"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+        "added": "640",
+        "removed": "0",
+        "blob": "200bf2121e7c9d473740fe4d388a8e7d2d382605"
+      }
+    ]
+  },
+  "previous_review": {
+    "path": "/dev/shm/e02-orch03-20261008/oracle-ir/review665.json",
+    "sha256": "d082326d64246245fea190cc4f50a05e57013a0f9c7b2b8706e11bca407506ee",
+    "state": "preserved_original_BLOCKED_nested_state_probe_ACCEPTED; not retroactively relabeled_PASS"
+  },
+  "independent_defining_checks": {
+    "native_exact_Fraction_response": {
+      "actual_points": [
+        {
+          "rate": "1/4",
+          "actual_balance": -1.0,
+          "expected_fraction": "-1",
+          "actual_tax_rate": 0.125
+        },
+        {
+          "rate": "1/2",
+          "actual_balance": 0.0,
+          "expected_fraction": "0",
+          "actual_tax_rate": 0.125
+        },
+        {
+          "rate": "3/4",
+          "actual_balance": 1.0,
+          "expected_fraction": "1",
+          "actual_tax_rate": 0.125
+        }
+      ],
+      "ordered_jacobian": [
+        [
+          4.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "variance_fraction_oracle": [
+        [
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0"
+        ]
+      ],
+      "check": "PASS_known_synthetic_program_only"
+    },
+    "actual_fresh_child": {
+      "returncode": 0,
+      "stdout_path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-child.stdout",
+      "stderr_path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-child.stderr",
+      "check": "PASS_actual_CAS_reader_new_process"
+    },
+    "initial_nested_state_regression": {
+      "case": "altered_initial_nested_state_blob",
+      "result": "REFUSED",
+      "exception_type": "ArtifactIntegrityError",
+      "message": "Blob sha256 mismatch for sha256:70b01657158f3d0e6160e3e6eda975730aef9bd49bb53f2c2915f7393920cfbf: aa708978fd530383b85bc13b1b03cf7403f7106f4936709d97e4d343aaf2ac02"
+    },
+    "independent_late_replay_nested_state_before_interpretation": {
+      "check": "independent_actual_replay_nested_byte_refusal_before_interpretation",
+      "result": "PASS_REFUSAL",
+      "exception_type": "ArtifactIntegrityError",
+      "message": "Blob sha256 mismatch for sha256:a5b45a6e6ba1200e40a98cb2690cad752c76b93e5bc13f98801ff0d80f6d9975: 5af3b1098c72d0e8cbaa2e935ebe58a4540d6bd604df626c471e71e115d36bfb",
+      "chosen_actual_leaf": {
+        "theta": {
+          "tax.rate": 0.25
+        },
+        "seed": 30,
+        "result_ref": {
+          "artifact_id": "sha256:d972cb5c69d543e6074151f44f45024669d266f9fd22fe34bbe8cf85b16ec0c5",
+          "kind": "foundry.simulation_result",
+          "media_type": "application/json"
+        },
+        "payload_state_snapshot_ref": {
+          "artifact_id": "sha256:3a18be62c2fc21d60f672f35d35502f9253485a10460d8c856cd9b31182a827b",
+          "kind": "foundry.state_snapshot",
+          "media_type": "application/json"
+        },
+        "actual_manifest_state_snapshot_ref": {
+          "artifact_id": "sha256:3a18be62c2fc21d60f672f35d35502f9253485a10460d8c856cd9b31182a827b",
+          "kind": "foundry.state_snapshot",
+          "media_type": "application/json"
+        },
+        "wrapper_schema": "2.2",
+        "nested_leaf": {
+          "artifact_id": "sha256:a5b45a6e6ba1200e40a98cb2690cad752c76b93e5bc13f98801ff0d80f6d9975",
+          "kind": "foundry.state_blob",
+          "media_type": "application/x-npz"
+        },
+        "nested_leaf_input": {
+          "artifact_id": "sha256:a5b45a6e6ba1200e40a98cb2690cad752c76b93e5bc13f98801ff0d80f6d9975",
+          "role": "state_blob"
+        },
+        "checksum_sha256": "a5b45a6e6ba1200e40a98cb2690cad752c76b93e5bc13f98801ff0d80f6d9975"
+      }
+    },
+    "wrong_basis_roster_units_order_newCAS_matrix_controls": [
+      {
+        "case": "reversed_order",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response basis differs from expected source/axes/units/config"
+      },
+      {
+        "case": "foreign_center",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response basis differs from expected source/axes/units/config"
+      },
+      {
+        "case": "foreign_config",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response basis differs from expected source/axes/units/config"
+      },
+      {
+        "case": "valid_new_CAS_false_J",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response matrix differs from persisted-state finite differences"
+      },
+      {
+        "case": "forged_unit_markers_kept",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response basis differs from expected source/axes/units/config"
+      },
+      {
+        "case": "roster_missing",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response matrix manifest input roster differs from its basis"
+      },
+      {
+        "case": "roster_extra",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response matrix manifest input roster differs from its basis"
+      },
+      {
+        "case": "roster_duplicate",
+        "result": "PASS_REFUSAL",
+        "exception_type": "ValueError",
+        "message": "response matrix manifest input roster differs from its basis"
+      }
+    ],
+    "selected_output_mechanical_control": {
+      "result": "PASS_exact_selected_view_mechanical_control",
+      "source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+      "scope": "Genuine native replay output bytes re-persisted with explicit synthetic custody metadata; actual Core-returned selected view reflected in rebound native result manifest; not a new native execution or authority/admission.",
+      "old_wrapper_ref": {
+        "artifact_id": "sha256:3a18be62c2fc21d60f672f35d35502f9253485a10460d8c856cd9b31182a827b",
+        "kind": "foundry.state_snapshot",
+        "media_type": "application/json"
+      },
+      "selected_wrapper_ref": {
+        "artifact_id": "sha256:3a18be62c2fc21d60f672f35d35502f9253485a10460d8c856cd9b31182a827b",
+        "kind": "foundry.state_snapshot",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:829cf3ce0973ca4a5870f7cb612340b1e35d82261e660c0beb1270d1bec4a3cc"
+      },
+      "legacy_result_payload_state_ref": {
+        "artifact_id": "sha256:3a18be62c2fc21d60f672f35d35502f9253485a10460d8c856cd9b31182a827b",
+        "kind": "foundry.state_snapshot",
+        "media_type": "application/json"
+      },
+      "selected_result_ref": {
+        "artifact_id": "sha256:d972cb5c69d543e6074151f44f45024669d266f9fd22fe34bbe8cf85b16ec0c5",
+        "kind": "foundry.simulation_result",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:05aa1355400dd4318584a1506400b219a00d704cc2b5f82e33c10171d42016e2"
+      },
+      "new_matrix_ref": {
+        "artifact_id": "sha256:924a69a9c700192fccb9be75583d4fd027da50b59fcbb0bd4b0b91d295b1c77a",
+        "kind": "foundry.identifiability_sensitivity_matrix",
+        "media_type": "application/json"
+      },
+      "jacobian": [
+        [
+          4.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "gate_eligible": false
+    },
+    "natural_fixture_selected_output_denominator": {
+      "actual_replays": 6,
+      "selected_state_wrapper_views": 0,
+      "scope": "Current2.2 lineage embedded in distinct wrapper payloads. This fixture does not itself exercise naturally selected output views; no such native authority claim. Separate genuine-output CAS metadata-view repersistence control is explicitly mechanical."
+    }
+  },
+  "attempts": [
+    {
+      "id": "original665_attempt1",
+      "status": "ERROR_setup/FileNotFoundError_before_product_execution",
+      "retained_under_previous_review": true
+    },
+    {
+      "id": "original665_attempt2",
+      "status": "native_positives_and_controls_PASS_plus_independent_nested_input_counterexample_ACCEPTED",
+      "retained_under_previous_review": true
+    },
+    {
+      "id": "c912_native_repaired_probe",
+      "returncode": 0,
+      "status": "PASS_positive_reader_child_eight_refusals_and_initial_nested_refusal",
+      "source": "c9125bc5e4d2992adeae468a79189d1fa535c88b"
+    },
+    {
+      "id": "c912_leaf_attempt1",
+      "returncode": 1,
+      "status": "reviewer_harness_profile_mismatch_assertion",
+      "reason": "Assumed the exact native2.2 fixture must automatically create selected output StateSnapshot views; observed denominator zero. No corruption product check reached in that attempt. Preserved entire script/stdout/stderr; not a product FAIL."
+    },
+    {
+      "id": "c912_leaf_attempt2",
+      "returncode": 0,
+      "status": "PASS_actual_native_replay_leaf_corruption_before_interpretation",
+      "source": "c9125bc5e4d2992adeae468a79189d1fa535c88b"
+    },
+    {
+      "id": "c912_selected_view_fixture",
+      "returncode": 0,
+      "status": "PASS_actual_Core_selected_view_preservation_on_rebound_genuine_output_bytes",
+      "source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+      "limitation": "Synthetic custody metadata; not a new native execution, factual/scientific authority or Runtime admission."
+    }
+  ],
+  "runtime_origin": {
+    "runtime_origin": "/dev/shm/e02-orch03-20261008/oracle-ir/sourcec912/policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+    "runtime_sha256": "453a9b79c8afe89c144ee5ba17519fa443586ca8790fc0b442ffb3bfc455a20d",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "dependencies": {
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "jax": "0.8.2",
+      "pytest": "9.0.2"
+    }
+  },
+  "release_and_companion_review": {
+    "e6": "Earlier companion-only correction reviewed: python-public-api and persisted-artifact-format/additive, internal package-specific API/reader, inventory classification pending canonical owner.",
+    "c912": "README/release/ownpacket explicitly restrict StateSnapshot2.2 bound initial state and finite NPZ/schema closure; inherited callback/operational-metrics path unchanged.",
+    "schema_facades_generators": "No schema/facade/export generator mutations. Internal basis profile remains execute_scalar_state_response_v1, non-gating. No canonical inventory completeness PASS claimed.",
+    "nonblocking_packet_locator_clarification": "Actual downstream source is policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py (PropagateUncertaintyNode, _build_propagation_fn/_resolve_sensitivity_map); generic outside_lease label polisyos.scientist.nodes.uncertainty is not an existing module. Writer/root informed to use actual path in final forward documentation/handoff."
+  },
+  "retained_marker_controls": "Final author affected/removal wave pending after this independent GO. Keep the schema/profile/unit axes/diagnostics/gate_false markers; report matched expected control failures separately. This review does not fabricate their final output.",
+  "production_and_authority_limits": [
+    "Native synthetic deterministic local Jacobian only. Exact numeric response does not establish empirical population law, causal identification, Runtime authority, production calibration or conservative uncertainty boundary.",
+    "Basis gate_eligible is literally false; local diagnostic IDENTIFIED rank/status is not scientific identification admission.",
+    "B190 original Scientist consumer adoption/partial outputs unresolved-addressed handling is outside source lease and remains UNRUN. New producer alone does not close original B190 or all35 F findings.",
+    "Historical callbacks and operational metrics remain readable, but the old operational Metrics evaluator alone is not a scientific response.",
+    "No vector or arbitrary source profile, old StateSnapshot2.0/2.1, implicit data-state fallback, bootstrap/profile basis, production data or new scheduler introduced.",
+    "Money magnitude scaling is not currency/unit conversion; native parameter unit is registered ratio.",
+    "Existing authority acceptance and G formal closure remain separate and unestablished.",
+    "New API absence on historical slice-base is not historical product FAIL; no inherited P41 claim or full E wave made."
+  ],
+  "artifacts": [
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/review665.json",
+      "bytes": 13359,
+      "sha256": "d082326d64246245fea190cc4f50a05e57013a0f9c7b2b8706e11bca407506ee"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/diff-c912.patch",
+      "bytes": 13621,
+      "sha256": "1c46ebe91c4aa7d3f7a96a4b0a3cbe6e7e96ca3c91b92bf058d733dffb6c2c3e"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/footprint-c912.json",
+      "bytes": 1673,
+      "sha256": "8232bbaa09a5ea412aa706c6fb8865ec2e014c69fa28e795b279a8805f2666af"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912.py",
+      "bytes": 11335,
+      "sha256": "c07f48c22ba34de1ba2506211f2fef4cfc83331608493f62a4699ee09a271468"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912.stdout",
+      "bytes": 8028,
+      "sha256": "c56b6b79bfb03e1dfd7273b89176c396685af020c8a29522286edfe6a2c2f6ed"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-report.json",
+      "bytes": 3692,
+      "sha256": "00f1d9e15271f3ff7d28117638651ded95ec10bdd7255a7d1e25d05eda1e6402"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-discriminators.json",
+      "bytes": 1491,
+      "sha256": "6200fd5bf65e0f0412e65e0cd51f6ea3b9c0e97b67e904a5277389bdf88331ae"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-child.py",
+      "bytes": 850,
+      "sha256": "9bd73041f1973927d12b2617c64ec84a6164ac02d2d416094807d36cbea6ec19"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-child-request.json",
+      "bytes": 1357,
+      "sha256": "4e04f307b5afb603aaa99d15d9dc63943586c60fa3911587ebd3c3ffcea5cae5"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-child.stdout",
+      "bytes": 182,
+      "sha256": "8602dd6e9cfc9b270027466de5f13c47c73cddf8a5af50848f6757e50c00d17c"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-child.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-nested-probe.json",
+      "bytes": 298,
+      "sha256": "fb4129942f1b52605fe7493891bd4a7d14cb1dad44f6b63905091683f84bb2a3"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-leaves.py.attempt1",
+      "bytes": 3795,
+      "sha256": "de7ae61b03ff41966abb10b37fd8e32c9cfcfaca2304970b1e3444c506251f0a"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-leaves.stdout.attempt1",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-leaves.stderr.attempt1",
+      "bytes": 441,
+      "sha256": "0daa8f444b6f59e85438d29586e289ae37bf2595f804a0a2e075ee1ca9b655a2"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-leaves.py",
+      "bytes": 3414,
+      "sha256": "0cf7711ef0be13100d364a861ee1cd01d29d262b58544809a7267f0cccfcb4cf"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-leaves.stdout",
+      "bytes": 7569,
+      "sha256": "f8ea643224e697d759065f8ef12586eda118497c68a3cee981957c5c0a3f901c"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-leaves.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-selected-output-closure.json",
+      "bytes": 7171,
+      "sha256": "bfe1e9c8c77d7892e2f08b17f4f16b7fa6832949229d167f071794752b1adee4"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-replay-probe.json",
+      "bytes": 1555,
+      "sha256": "0010657245001af36cf2672b2add5bcd90009d9ec103beeb36fb24e5caa810bf"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-selected-view.py",
+      "bytes": 4063,
+      "sha256": "af377aee4f9dce194ace7069a9e62228f55a13f91dd80a94ff530900bb45adb4"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-selected-view.stdout",
+      "bytes": 1543,
+      "sha256": "e174b8b42f61e7fa2a4b9a9a1a778f534ee45f9acad8717f0de608cc7e937382"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-selected-view.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-orch03-20261008/oracle-ir/checkc912-selected-view.json",
+      "bytes": 1689,
+      "sha256": "edcec20463d53ab3fa778da38d07c57f329df81bfc8d3dee02bb16336fc8bb91"
+    }
+  ],
+  "cleanup": "No deletion; source exports/synthetic CAS/unique deciding evidence retained."
+}

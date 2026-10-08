@@ -1,0 +1,38 @@
+{
+  "runtime_source": "c9125bc5e4d2992adeae468a79189d1fa535c88b",
+  "passive_companion": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0",
+  "runtime_test_readme_blobs_unchanged": true,
+  "actual_consumer_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+  "path_exists": true,
+  "classification_basis": "foundry README123-125 internal implementation unless root exported; root __init__/api no identifiability_diagnostic or internal reader export; contract lists narrow root compile/execute/uncertainty entrypoints, not calibration",
+  "classification": "internal additive local package-specific profile; no new root-stable export",
+  "inventory_reviewed_flag": false,
+  "external_unknown": "No universal external/dynamic caller census or repository-wide zero claimed",
+  "evidence": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/README.md",
+      "blob": "e2ad30f7a316d58969d06930420b652fd581d8e2",
+      "sha256": "05399f18ea677713279b4ff4e9c6a3100ba00c8c4670dbdbb3ac7a2af32f8b72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/__init__.py",
+      "blob": "d663620e99bb1e5434ac9a12a69e9541dd797ada",
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/api.py",
+      "blob": "ffee9f251bc9cd363c9cf89a3ce569914b04bdac",
+      "sha256": "e0b6d24717028a59ff53a184e064e0f53b5eb726f3e868deec67aed006e6e35a"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "blob": "7c91d9d6ea92b65c0e0696ecccbed54f6c45214a",
+      "sha256": "93a37fc07dd2c58c8bb76c268718790e476290e70ca3f6181cdf1ddad0fe9a84"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "candidate": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+  "tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932/run_exact_pytest.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932/C09-exact-source",
+    "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932/C09-exact-source/policy-engine",
+  "returncode": 0,
+  "interrupted": null,
+  "wall_seconds": 29.611893708992284,
+  "max_rss_bytes_Darwin": 585105408,
+  "local_numeric_threads": 1,
+  "production_data": false,
+  "dependency_install": false
+}

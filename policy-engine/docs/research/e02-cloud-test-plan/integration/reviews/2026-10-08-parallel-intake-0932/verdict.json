@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.G_parallel_intake.v1",
+  "base_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "code_acceptance": {
+    "C09": "HOLD; affected direct tests PASS, actual same-class sibling consumer escape reproduced",
+    "C07": "not_requested; dependency packet only",
+    "C08": "not_requested; dependency packet only",
+    "ORCH03": "metadata identity verified, no source acceptance inferred"
+  },
+  "C09_source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+  "C09_source_tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+  "C09_receipt_head": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+  "dependency_packet_heads": {
+    "C07": "7147ef63886dd95fb20cdb8ebb939d93663ca10d",
+    "C08": "3a7355e684f2916f22bafe58afe8ec0ffbdb9e34"
+  },
+  "ORCH03_evidence_carrier": "de7b08ebbac72232c98d96ea74c3c0410864a7ba",
+  "original_source_history": "preserved; C09 code not merged; carrier not wholesale-merged",
+  "formal_closure_ids": [],
+  "B172_B173": "limited author proposals / G not_adjudicated; original implementation unchanged, no new neutral/equivalence/trust profile ratification",
+  "checks": {
+    "G_affected": "77 PASS /0FAIL/0ERROR/0SKIP on isolated exact source; complete stdout/stderr/JUnit",
+    "G_consumer_probe": "FAIL actual assertion on temporal public builder -> persisted CAS -> fresh reader; fixture-only",
+    "matrix_score": "1.0 on real limited scenario; full leaderboard promotion pipeline UNRUN",
+    "forecast_reconciliation": "1/1 from evaluated intervals with no reconciliation issues; full usable_for_calibration/S10 gate UNRUN",
+    "loaded_module_identity": {
+      "affected_file_backed_polisyos_denominator": 850,
+      "probe_file_backed_polisyos_denominator": 864,
+      "mismatches": 0
+    },
+    "ETS": "cloud2PASS source-bound receipt reviewed; G local backend unavailable, no new ETS run"
+  },
+  "harness_attempts": [
+    "Probe attempt1 ERROR nonexistent private helper import; property not reached. Corrected helper after reading exact source; attempt2 property assertion FAIL. Source candidate untouched.",
+    "pytest cache provider disabled; resulting unknown cache_dir option warning is a harness warning, not a product defect."
+  ],
+  "consumer_bucket": "P40 same interval-admission/status propagation class. One producer/authority-consumer invariant required; not a new list of one-off named cases.",
+  "next_owner_paths": {
+    "C09_existing": [
+      "scientist/methods/backtesting/evaluator.py",
+      "scientist/methods/backtesting/orchestrator.py",
+      "scientist/methods/backtesting/temporal.py"
+    ],
+    "C09_additional_exact_lease": [
+      "calibration/forecast_bridge.py",
+      "scientist/governance/backtest_matrix.py",
+      "scientist/governance/calibration_validation.py",
+      "scientist/governance/calibration_leaderboard.py"
+    ],
+    "C10": [
+      "actual Runtime/S10 consumer and public decision-packet projection only if typed upstream contract changes"
+    ],
+    "C07": [
+      "IR artifact/ref/schema source companions if changed"
+    ],
+    "G": [
+      "generated outputs/lock/shared inventory"
+    ]
+  },
+  "lease_qualification": "C09 additional lease only interval evidence/admissibility propagation and focused mirrored tests; no global trust/scientific/causal law change. Current dispatch source scopes for peers do not cover these paths.",
+  "inputs_unavailable_or_unrun": [
+    "actual production-backed C10 supplier/authority and served consumer",
+    "full calibration evidence gate/promotion pipeline counterexample",
+    "G local statsmodels ETS backend",
+    "broad replay; installed package checks; unmeasured optional profiles"
+  ],
+  "P41": "global/inherited-red attribution not_established; no broad base replay",
+  "cleanup": {
+    "free_GiB": 45.50463104248047,
+    "threshold_GiB": 18,
+    "new_environment": false,
+    "new_Git_worktree": false,
+    "isolated_input_archive": true,
+    "trash_cleanup": false,
+    "permanent_deletion": false
+  },
+  "raw_origins": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932/C09-loaded-origins.json",
+      "sha256": "5d12a34f82648e7816b2907b71a4f57fd24223b65a6626750afa0c63070d4485"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932/C09-consumer-probe-origins.json",
+      "sha256": "617c1ba8dc25dde9f79c636c8f9d9b351c7608ff303c400582297d5c0ac0e11d"
+    }
+  ],
+  "verification_harness_delivery": "Recorded scratch harnesses as Markdown reproduction recipes; no new runnable product/quality-tool Python modules introduced."
+}

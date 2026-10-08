@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932/C09-consumer-probe.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932/C09-exact-source",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+  ],
+  "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+  "returncode": 1,
+  "wall_seconds": 23.75469441700261,
+  "expected_property": "limited intervals cannot reappear as trusted complete temporal report",
+  "property_reached": true,
+  "outcome": "FAIL",
+  "prior_attempt": "ERROR nonexistent private helper import; no product result"
+}

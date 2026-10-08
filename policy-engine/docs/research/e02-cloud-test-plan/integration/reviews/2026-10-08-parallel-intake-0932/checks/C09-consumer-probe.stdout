@@ -1,0 +1,76 @@
+{
+  "source": "ee0b2c85289d8c5537ba4e01713d9be71e2f557e",
+  "tree": "072e8906ac69f5b3589550a8bd9d57b4cb41b4a3",
+  "fixture_only": true,
+  "production_authority_claim": false,
+  "main_report": {
+    "requested_intervals": 3,
+    "evaluated_intervals": 1,
+    "conditional_coverage": 1.0,
+    "admission": {
+      "basis": "recomputed",
+      "coverage_scope": "evaluated_pairs_only",
+      "evaluated_count": 1,
+      "limitations": [
+        {
+          "metric_name": "metric",
+          "reason": "missing_interval",
+          "time_index": 1
+        },
+        {
+          "metric_name": "metric",
+          "reason": "missing_interval",
+          "time_index": 2
+        }
+      ],
+      "requested_count": 3,
+      "status": "limited"
+    },
+    "degraded": true,
+    "trust_eligible": false,
+    "degraded_reasons": [
+      "partial-interval: interval_admission_limited"
+    ]
+  },
+  "matrix_scoring": {
+    "conditional_limited_scenario_score": 1.0,
+    "full_leaderboard_pipeline_executed": false
+  },
+  "temporal_public_builder_and_fresh_reader": {
+    "admission": {
+      "basis": "recomputed",
+      "coverage_scope": "evaluated_pairs_only",
+      "evaluated_count": 1,
+      "limitations": [
+        {
+          "metric_name": "metric",
+          "reason": "missing_interval",
+          "time_index": 1
+        },
+        {
+          "metric_name": "metric",
+          "reason": "missing_interval",
+          "time_index": 2
+        }
+      ],
+      "requested_count": 3,
+      "status": "limited"
+    },
+    "degraded": false,
+    "trust_eligible": true,
+    "report_persisted_and_fresh_loaded": true,
+    "upstream_trajectory_producer_executed": false
+  },
+  "forecast_observation_reconciliation_only": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    []
+  ],
+  "usable_for_calibration_or_S10_gate_executed": false,
+  "loaded_file_backed_polisyos_modules": 864,
+  "source_mismatches": 0
+}

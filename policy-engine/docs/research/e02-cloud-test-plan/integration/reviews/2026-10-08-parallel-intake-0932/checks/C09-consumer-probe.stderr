@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261008-0932/C09-consumer-probe.py", line 37, in <module>
+    assert not temporal_fresh.trust_eligible and temporal_fresh.degraded, 'C09 interval limitation escaped the public temporal persisted-report builder'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: C09 interval limitation escaped the public temporal persisted-report builder

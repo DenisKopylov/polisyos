@@ -1,0 +1,26 @@
+# C09 original-criterion/status audit — 2026-10-08
+
+**Verdict:** the `paired-backtest-interval-admission` candidate supports a bounded interval-input property. It does not close B172 or B173 and does not admit TrustScorer authority. I reviewed the committed handoff at HEAD `514f90058104f7dd8ada1c83b8bf5f62bfc33b88` (E topic); the handoff identifies candidate `ee0b2c85289d8c5537ba4e01713d9be71e2f557e`, based on G pin `fe5ccf9ce90c336fff749da48bd0138d321baf23`. The candidate is an ancestor of the recorded E HEAD but is not in the pinned G head's ancestry.
+
+## Original criteria
+
+- **B172 — «Постоянная ненулевая ошибка исчезает из диагностики систематического смещения»** (“A constant nonzero error disappears from systematic-bias diagnostics”). The original card requires descriptive preservation of a constant nonzero residual, separate zero-error handling, and no fabricated significance or inference of neutrality from an unavailable test. It explicitly leaves trust-profile treatment and any causal/population interpretation unresolved.
+- **B173 — «Недоступность SciPy меняет статистический тест, но отчёт продолжает называть его t-test»** (“SciPy unavailability changes the statistical test while the report still calls it a t-test”). Its bounded requirement is to avoid silent normal substitution: make inference unavailable/degraded or use an explicitly selected, checked equivalent method. It does not establish residual independence, effective sample size, or multiple-testing policy.
+
+The exact original-card line ranges and their SHA-256 bindings match the E handoff's embedded text and the original BKT-03 bundle. The current status records still say `author_proposal=limited`, historical and Appendix C status `partial`, and `G_closure=not_adjudicated` for both IDs. The C09 handoff separately states `source_acceptance_G=not_issued`, `formal_finding_closure=not_issued`, and `closed_ids=[]`. Its `admission.status=admitted` is worktree admission, not source acceptance or finding closure.
+
+## What this source evidence supports
+
+The E-slice diff adds finite ordered-pair admission, reports malformed/missing/extra interval evidence with counts and recomputed limitations, preserves point comparisons, and has the persisted report consume a limited interval as degraded/nontrusteligible. It keeps `coverage_probability` conditional on evaluated pairs and preserves the existing point-only profile. This is not a new significance threshold, equivalence margin, positive “no bias” test, or interval-request obligation. The original B172/B173 methods are unchanged from pinned G: `_detect_systematic_biases` and `_two_sided_ttest_pvalue` have identical method bodies; `TrustScorer` and the existing `test_bkt_03.py` are byte-identical at G and candidate. The added interval tests establish only interval admission and limitation behavior.
+
+The pinned affected JUnit XML records the existing constant-residual, zero-residual, SciPy-reference, and SciPy-unavailable BKT-03 cases passing; this audit read the receipt and did not run tests. A separate existing BKT-03 test still grants `trust_eligible=True` and grade `A` for balanced nonzero errors with `p=1`. E-M6 explicitly cautions that `p > alpha` is not proof of no meaningful bias. Treat that grade as the unchanged historical heuristic under an unadjudicated trust profile—not as neutrality, equivalence, or empirical/scientific authority. It remains a separate G decision before any original-finding closure.
+
+## Evidence pointers
+
+- Original source: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#L4388-L4411`; BKT-03 bundle `.../bundles/BKT-03.md@9ece85fc6001c194322e7235a5eb23b375393c09#L46-L82`.
+- Original status rows: `policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf` (B172/B173); current routed status `.../integration/connected-closeout-plan-2026-10-08/findings.json@f9beb4db06c6e269c51e8a3f931a1902dde0fb6e` (same two IDs).
+- Criterion decision: `.../closure-decisions/E.md@97b9045108d9aa6c3b0c557cecbbf2af74fd574b` and `.../closure-decisions/method-decisions.md@8a3c23e48bf1defbbc3d5da3b364e49fa7ca4aea` (E-M6, especially the p>alpha limitation).
+- Candidate receipt and status axes: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission.json@93d544989a30ba262e764038b5dfcca141cdec3f`; report `.../REPORT.md@a01c171cb8b9199007da3e1da69b1d7e94b47bf9`; affected JUnit `.../interval-admission/affected.junit.xml@414e548bcd22103101a2ed2457c3ee30b343007f`.
+- Source comparison: G/candidate `orchestrator.py` blobs `e949618799124abbbd80f1dc486fd6a7d5188802` / `6dadf837033e0234f0e5c8070b331e29daed765a`; unchanged `trust_scorer.py` blob `5f992719cd610d350ce76b71f1bd9f60cbe9ceb8`; unchanged BKT-03 test blob `08ee59c3fe61ae625863055f7e6845e54a6d36ae`.
+
+No source/ref/test/environment writes or test runs were performed. P14/P35/P36 were checked: these synthetic controls do not establish independence or population claims; set-level status is tied to the two named finding rows and their JSON file denominator.

@@ -637,11 +637,6 @@
       "sha256": "665b96828b4d08a0ce0e6a3d02ced1cef8a61f9fdf2bc9eb6e163e327645ae31"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/native-evidence/removals/dfk-old-classifier.patch",
-      "bytes": 516,
-      "sha256": "d878aefa9edd23ebf91cfdb3d3f6ac89727c641d701adc642e1a8dba2d8e13ef"
-    },
-    {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/native-evidence/removals/manifest.json",
       "bytes": 2742,
       "sha256": "a48badb517013beba73b58ab70a570a7b3301f4e92c5d6e34f4649232e15176f"
@@ -658,13 +653,13 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/native-publication-audit.json",
-      "bytes": 3184,
-      "sha256": "c6caa208a6ad2a555f0f47828ce83fa4f8d6424e2428d9f717cbcf221574eef6"
+      "bytes": 3674,
+      "sha256": "92868d4cf2d4616c85cc36aa505d14e57e253f4e7aace2079ed6c4e4c9a8d487"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/removal-source-reconstruction.json",
-      "bytes": 925,
-      "sha256": "7ceb5ffe6f54b0baca74ff40ffc017a3cecc2f55d0cc2d3e63df84528ca65a82"
+      "bytes": 1203,
+      "sha256": "4439616829f0d8a18c97ea9b03d1987d0ba4138354b1e9f2b2568387bffa9f21"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/required-gates/architecture/command.json",

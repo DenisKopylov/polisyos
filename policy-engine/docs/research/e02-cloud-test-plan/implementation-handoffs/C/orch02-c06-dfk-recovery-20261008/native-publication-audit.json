@@ -46,13 +46,16 @@
       "raw_mutant_bytes": 31687,
       "canonical_source": "policy-engine/tools/quality/validation/schema_fqn_census.py",
       "canonical_source_commit": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
-      "delta_publication_path": "native-evidence/removals/dfk-old-classifier.patch",
-      "delta_sha256": "d878aefa9edd23ebf91cfdb3d3f6ac89727c641d701adc642e1a8dba2d8e13ef",
-      "reconstruction": "git show <canonical_source_commit>:<canonical_source> then apply this unified delta at that source path; exact resulting bytes match raw_mutant_sha256",
+      "delta_publication_path": "native-evidence/removals/dfk-old-classifier.diff",
+      "delta_sha256": "665b96828b4d08a0ce0e6a3d02ced1cef8a61f9fdf2bc9eb6e163e327645ae31",
+      "reconstruction": "Read frozen canonical Git blob into fresh scratch, decode complete native delta, replace ONLY its two absolute filename header lines with a/<canonical_source> and b/<canonical_source>, and git apply there; exact result must match raw_mutant_sha256. Never apply absolute native headers to a working lane.",
       "reason": "AGENTS receipt rule: cite canonical tracked source plus minimal delta rather than duplicate complete source.",
-      "exact_reconstruction_verified": true
+      "exact_reconstruction_verified": true,
+      "delta_encoding": "utf8",
+      "decoded_delta_sha256": "665b96828b4d08a0ce0e6a3d02ced1cef8a61f9fdf2bc9eb6e163e327645ae31"
     }
   ],
   "exact_copy_except_reproducible_removal_source_replaced_with_delta": true,
-  "authentic_text_lossless_map": "lossless-byte-artifact-map.json"
+  "authentic_text_lossless_map": "lossless-byte-artifact-map.json",
+  "minimal_delta_storage": "Original complete independent native .diff only; duplicate header-normalized patch view omitted. Reconstruction header normalization is mechanical and verified in fresh scratch."
 }

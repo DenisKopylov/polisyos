@@ -1,0 +1,17 @@
+{
+  "label": "root-exact-origin-fetch",
+  "argv": [
+    "git",
+    "fetch",
+    "--no-write-fetch-head",
+    "origin",
+    "e2122918ad4aed97bdf1dccd2fd6e96e3ff26248:refs/recovery/ORCH04-custody-20261008/root-exact"
+  ],
+  "cwd": "/workspace/polisyos",
+  "pid": 1421,
+  "start_utc": "2026-10-08T15:41:51.600007+00:00",
+  "end_utc": "2026-10-08T15:41:52.035147+00:00",
+  "exit_code": 128,
+  "stdout": "",
+  "stderr": "fatal: remote error: upload-pack: not our ref e2122918ad4aed97bdf1dccd2fd6e96e3ff26248\n"
+}

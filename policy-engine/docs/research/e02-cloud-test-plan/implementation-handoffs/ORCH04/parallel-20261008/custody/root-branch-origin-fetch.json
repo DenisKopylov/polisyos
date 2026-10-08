@@ -1,0 +1,17 @@
+{
+  "label": "root-branch-origin-fetch",
+  "argv": [
+    "git",
+    "fetch",
+    "--no-write-fetch-head",
+    "origin",
+    "refs/heads/codex/e02-ORCH04-parallel-20261008:refs/recovery/ORCH04-custody-20261008/root-branch"
+  ],
+  "cwd": "/workspace/polisyos",
+  "pid": 1452,
+  "start_utc": "2026-10-08T15:41:53.276808+00:00",
+  "end_utc": "2026-10-08T15:41:53.634131+00:00",
+  "exit_code": 128,
+  "stdout": "",
+  "stderr": "fatal: couldn't find remote ref refs/heads/codex/e02-ORCH04-parallel-20261008\n"
+}

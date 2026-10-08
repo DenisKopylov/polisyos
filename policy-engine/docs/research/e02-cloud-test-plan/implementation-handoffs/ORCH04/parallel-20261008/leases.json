@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.orch04.actual_lease_board.v1",
+  "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "dispatch": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json@0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "one_level_helpers": true,
+  "available_agent_slots": 7,
+  "coordinator": "root; own coordination documentation only",
+  "roles": {
+    "C10": {
+      "branch": "codex/e02-C10-recovery-20261008",
+      "path": "/workspace/ORCH04-C10",
+      "source_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "mode": "owned_source_writer",
+      "actual_admission": "admission/C10-resume.json",
+      "status": "independent_preparation",
+      "independent_reviewer": "review_c10"
+    },
+    "C11": {
+      "branch": "codex/e02-C11-recovery-20261008",
+      "path": "/workspace/ORCH04-C11",
+      "source_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "mode": "owned_source_writer",
+      "actual_admission": "admission/C11-resume.json",
+      "status": "independent_preparation",
+      "independent_reviewer": "review_c11"
+    },
+    "C13": {
+      "branch": "codex/e02-C13-recovery-20261008",
+      "path": "/workspace/ORCH04-C13",
+      "source_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "mode": "readonly_verification",
+      "actual_admission": "admission/C13-resume.json",
+      "status": "independent_preparation",
+      "independent_reviewer": null
+    }
+  },
+  "immutable_reviewers": [
+    "review_c10",
+    "review_c11"
+  ],
+  "custody_helper": "custody; read-only Git/object/access diagnostics",
+  "exclusions": [
+    "Core",
+    "IR",
+    "engine registry",
+    "generated families",
+    "shared pyproject.toml",
+    "uv.lock",
+    "main/integration publication"
+  ],
+  "lease_detail": "Exact selected file lease is reported by each source writer before mutation; test-start paths alone are not ownership"
+}

@@ -1,0 +1,116 @@
+{
+  "schema": "policyos.e02.available-input-objects.v1",
+  "source_dispatch": {
+    "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json"
+  },
+  "objects": [
+    {
+      "pin_key": "A",
+      "reported": {
+        "sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+        "tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+        "kind": "commit",
+        "in_G_ancestry": false
+      },
+      "ref": "refs/recovery/ORCH04-custody-20261008/supplier-A",
+      "object_available": true,
+      "actual_sha": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "actual_tree": "fef42aadf2bf58ed5cc97ec827be99245a154253",
+      "actual_parents": [
+        "34b211268fc70f5e98e06b9f6c26922bc46f8093"
+      ],
+      "tree_matches_reported": true,
+      "in_current_G_ancestry": false
+    },
+    {
+      "pin_key": "B_prepared_source",
+      "reported": {
+        "sha": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+        "kind": "commit",
+        "in_G_ancestry": false
+      },
+      "ref": "refs/recovery/ORCH04-custody-20261008/supplier-B_prepared_source",
+      "object_available": true,
+      "actual_sha": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "actual_tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+      "actual_parents": [
+        "c924f045459ac670cc2accd2a2fa8bbd5da6088c"
+      ],
+      "tree_matches_reported": true,
+      "in_current_G_ancestry": false
+    },
+    {
+      "pin_key": "D_source",
+      "reported": {
+        "sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+        "kind": "commit",
+        "in_G_ancestry": false
+      },
+      "ref": "refs/recovery/ORCH04-custody-20261008/supplier-D_source",
+      "object_available": true,
+      "actual_sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "actual_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+      "actual_parents": [
+        "d23b603f31bef9a2038bae8933402eda75f6c3a2"
+      ],
+      "tree_matches_reported": true,
+      "in_current_G_ancestry": false
+    },
+    {
+      "pin_key": "D",
+      "reported": {
+        "sha": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+        "tree": "10efc41e7a2d792f42bce59af5b87816843df07e",
+        "kind": "commit",
+        "in_G_ancestry": false
+      },
+      "ref": "refs/recovery/ORCH04-custody-20261008/supplier-D",
+      "object_available": true,
+      "actual_sha": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "actual_tree": "10efc41e7a2d792f42bce59af5b87816843df07e",
+      "actual_parents": [
+        "20677e0535e0103db129c8620412458d233f991d"
+      ],
+      "tree_matches_reported": true,
+      "in_current_G_ancestry": false
+    },
+    {
+      "pin_key": "E_source",
+      "reported": {
+        "sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+        "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+        "kind": "commit",
+        "in_G_ancestry": false
+      },
+      "ref": "refs/recovery/ORCH04-custody-20261008/supplier-E_source",
+      "object_available": true,
+      "actual_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "actual_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+      "actual_parents": [
+        "e4b97c15196d8e276745f55a4367da83586511d9"
+      ],
+      "tree_matches_reported": true,
+      "in_current_G_ancestry": false
+    },
+    {
+      "pin_key": "B_prepared_receipt",
+      "reported": {
+        "sha": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+        "tree": "677257974c442ba878a6bf4dba6686ae854b2e67"
+      },
+      "ref": "refs/recovery/ORCH04-custody-20261008/supplier-B_prepared_receipt",
+      "object_available": true,
+      "actual_sha": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+      "actual_tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+      "actual_parents": [
+        "1e18a965b4334331dc3d5542b609f8a00bb35c6d"
+      ],
+      "tree_matches_reported": true,
+      "in_current_G_ancestry": false
+    }
+  ],
+  "limitation": "Initial supplier carriers are available bytes where verified, not G-selected composition, applied recovery, source acceptance, or transferred PASS."
+}

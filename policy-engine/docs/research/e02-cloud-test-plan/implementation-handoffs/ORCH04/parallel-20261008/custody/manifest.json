@@ -1,0 +1,208 @@
+{
+  "schema": "policyos.e02.custody-diagnostic.v1",
+  "host": "9065c0936350",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "observed_repository": "/workspace/polisyos",
+  "canonical_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "old_claimed_objects": {
+    "root": "e2122918ad4aed97bdf1dccd2fd6e96e3ff26248",
+    "C10": "a92f57932385d5b3e34063c3d38a6db68c4a6084",
+    "C11": "f9903d8e803c17743554a58d3f45c6c66d686191",
+    "C13": "996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda"
+  },
+  "records": [
+    {
+      "label": "host-git-admission",
+      "path": "/workspace/ORCH04-evidence/custody/host-git-admission.json",
+      "exit_code": 0,
+      "start_utc": "2026-10-08T15:41:50.995155+00:00",
+      "end_utc": "2026-10-08T15:41:51.051491+00:00",
+      "pid": 1391
+    },
+    {
+      "label": "remote",
+      "path": "/workspace/ORCH04-evidence/custody/remote.json",
+      "exit_code": 0,
+      "start_utc": "2026-10-08T15:41:51.051764+00:00",
+      "end_utc": "2026-10-08T15:41:51.054003+00:00",
+      "pid": 1412
+    },
+    {
+      "label": "worktrees",
+      "path": "/workspace/ORCH04-evidence/custody/worktrees.json",
+      "exit_code": 0,
+      "start_utc": "2026-10-08T15:41:51.054154+00:00",
+      "end_utc": "2026-10-08T15:41:51.056391+00:00",
+      "pid": 1413
+    },
+    {
+      "label": "refs-before",
+      "path": "/workspace/ORCH04-evidence/custody/refs-before.json",
+      "exit_code": 0,
+      "start_utc": "2026-10-08T15:41:51.056551+00:00",
+      "end_utc": "2026-10-08T15:41:51.059235+00:00",
+      "pid": 1414
+    },
+    {
+      "label": "remote-ORCH04-refs",
+      "path": "/workspace/ORCH04-evidence/custody/remote-ORCH04-refs.json",
+      "exit_code": 0,
+      "start_utc": "2026-10-08T15:41:51.059438+00:00",
+      "end_utc": "2026-10-08T15:41:51.594436+00:00",
+      "pid": 1415
+    },
+    {
+      "label": "root-local-before",
+      "path": "/workspace/ORCH04-evidence/custody/root-local-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:51.594738+00:00",
+      "end_utc": "2026-10-08T15:41:51.597573+00:00",
+      "pid": 1419
+    },
+    {
+      "label": "root-recovery-ref-before",
+      "path": "/workspace/ORCH04-evidence/custody/root-recovery-ref-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:51.597802+00:00",
+      "end_utc": "2026-10-08T15:41:51.599863+00:00",
+      "pid": 1420
+    },
+    {
+      "label": "root-exact-origin-fetch",
+      "path": "/workspace/ORCH04-evidence/custody/root-exact-origin-fetch.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:51.600007+00:00",
+      "end_utc": "2026-10-08T15:41:52.035147+00:00",
+      "pid": 1421
+    },
+    {
+      "label": "root-local-after",
+      "path": "/workspace/ORCH04-evidence/custody/root-local-after.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.035486+00:00",
+      "end_utc": "2026-10-08T15:41:52.038178+00:00",
+      "pid": 1425
+    },
+    {
+      "label": "C10-local-before",
+      "path": "/workspace/ORCH04-evidence/custody/C10-local-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.041007+00:00",
+      "end_utc": "2026-10-08T15:41:52.043311+00:00",
+      "pid": 1427
+    },
+    {
+      "label": "C10-recovery-ref-before",
+      "path": "/workspace/ORCH04-evidence/custody/C10-recovery-ref-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.043608+00:00",
+      "end_utc": "2026-10-08T15:41:52.045930+00:00",
+      "pid": 1428
+    },
+    {
+      "label": "C10-exact-origin-fetch",
+      "path": "/workspace/ORCH04-evidence/custody/C10-exact-origin-fetch.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.046104+00:00",
+      "end_utc": "2026-10-08T15:41:52.439355+00:00",
+      "pid": 1429
+    },
+    {
+      "label": "C10-local-after",
+      "path": "/workspace/ORCH04-evidence/custody/C10-local-after.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.439647+00:00",
+      "end_utc": "2026-10-08T15:41:52.442385+00:00",
+      "pid": 1433
+    },
+    {
+      "label": "C11-local-before",
+      "path": "/workspace/ORCH04-evidence/custody/C11-local-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.445123+00:00",
+      "end_utc": "2026-10-08T15:41:52.447626+00:00",
+      "pid": 1435
+    },
+    {
+      "label": "C11-recovery-ref-before",
+      "path": "/workspace/ORCH04-evidence/custody/C11-recovery-ref-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.447784+00:00",
+      "end_utc": "2026-10-08T15:41:52.450187+00:00",
+      "pid": 1436
+    },
+    {
+      "label": "C11-exact-origin-fetch",
+      "path": "/workspace/ORCH04-evidence/custody/C11-exact-origin-fetch.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.450507+00:00",
+      "end_utc": "2026-10-08T15:41:52.852483+00:00",
+      "pid": 1437
+    },
+    {
+      "label": "C11-local-after",
+      "path": "/workspace/ORCH04-evidence/custody/C11-local-after.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.852781+00:00",
+      "end_utc": "2026-10-08T15:41:52.855628+00:00",
+      "pid": 1441
+    },
+    {
+      "label": "C13-local-before",
+      "path": "/workspace/ORCH04-evidence/custody/C13-local-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.858337+00:00",
+      "end_utc": "2026-10-08T15:41:52.861043+00:00",
+      "pid": 1443
+    },
+    {
+      "label": "C13-recovery-ref-before",
+      "path": "/workspace/ORCH04-evidence/custody/C13-recovery-ref-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.861197+00:00",
+      "end_utc": "2026-10-08T15:41:52.863434+00:00",
+      "pid": 1444
+    },
+    {
+      "label": "C13-exact-origin-fetch",
+      "path": "/workspace/ORCH04-evidence/custody/C13-exact-origin-fetch.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:52.863717+00:00",
+      "end_utc": "2026-10-08T15:41:53.267784+00:00",
+      "pid": 1445
+    },
+    {
+      "label": "C13-local-after",
+      "path": "/workspace/ORCH04-evidence/custody/C13-local-after.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:53.268427+00:00",
+      "end_utc": "2026-10-08T15:41:53.271232+00:00",
+      "pid": 1449
+    },
+    {
+      "label": "root-branch-recovery-ref-before",
+      "path": "/workspace/ORCH04-evidence/custody/root-branch-recovery-ref-before.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:53.274226+00:00",
+      "end_utc": "2026-10-08T15:41:53.276658+00:00",
+      "pid": 1451
+    },
+    {
+      "label": "root-branch-origin-fetch",
+      "path": "/workspace/ORCH04-evidence/custody/root-branch-origin-fetch.json",
+      "exit_code": 128,
+      "start_utc": "2026-10-08T15:41:53.276808+00:00",
+      "end_utc": "2026-10-08T15:41:53.634131+00:00",
+      "pid": 1452
+    },
+    {
+      "label": "refs-after",
+      "path": "/workspace/ORCH04-evidence/custody/refs-after.json",
+      "exit_code": 0,
+      "start_utc": "2026-10-08T15:41:53.634423+00:00",
+      "end_utc": "2026-10-08T15:41:53.636896+00:00",
+      "pid": 1460
+    }
+  ],
+  "interpretation": "Object/fetch observations are scoped to this host and these times; failed exact fetch does not establish global absence. No source reconstruction, source acceptance, native PASS, production claim, or old-byte export is inferred."
+}

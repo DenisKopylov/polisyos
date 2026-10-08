@@ -668,7 +668,7 @@ def test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_wor
     )
 
 
-def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
+def test_run_policy_blueprint_execute_refuses_without_typed_owner_commit_bridge(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -686,10 +686,10 @@ def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
 
     assert outcome.status == "ok"
     assert harness["backend_calls"] == ["full"]
-    assert harness["runner_calls"] == ["runner"]
-    assert harness["owner_checks"] == [True, False]
+    assert harness["runner_calls"] == []
+    assert harness["owner_checks"] == []
     assert harness["promotion_writes"] == []
-    assert outcome.state.params["policy_promotion_result"]["reason"] == (
-        "promotion_owner_recheck_failed"
-    )
+    assert "policy_promotion_result" not in outcome.state.params
+    level6 = outcome.state.params["_funnel_outcome"]["stage_results"]["6"]
+    assert level6["feedback"]["promotion_admission_status"] == "bridge_missing"
     assert outcome.state.params["_funnel_outcome"]["final_action"] == "defer_to_human"

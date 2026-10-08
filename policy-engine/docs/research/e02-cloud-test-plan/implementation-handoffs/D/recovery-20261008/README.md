@@ -45,3 +45,12 @@ an issuer/verifier/commit bridge; it now asserts zero effects/bridge_missing.
 These are candidate-local proxy-test corrections, not original B161 or B164
 positive acceptance. Both original required owner positives remain held/UNRUN.
 No inherited-red waiver is taken for the previous assertions.
+
+Complete FUN-03 diagnosis at immutable26eaf5c ran all18 cases:17 passed, one
+failed (ordinary node execute still expected callback/boolean commit checks).
+Full stdout/JUnit is retained; this is our affected expectation, not inherited
+red. The final companion now proves the actual node still performs full L4 work
+while producing bridge_missing/zero effects before the unsupported callback.
+Its old revoke-at-extraction hook is never reached in this profile, so it is not
+claimed as a real authorized commit/revocation positive. The held input packet
+still requires that actual typed owner bridge and corresponding positive/control.

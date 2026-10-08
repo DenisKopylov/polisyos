@@ -179,6 +179,8 @@ _FQN_PATTERNS = {
     target: re.compile(rf"(?<![A-Za-z0-9_]){re.escape(target)}(?![A-Za-z0-9_])")
     for target in TARGETS
 }
+
+
 def _module_relative_path(target: str) -> str:
     """Return the package-relative path represented by one exact FQN."""
     return target.removeprefix("polisyos.").replace(".", "/")
@@ -247,9 +249,7 @@ def _resource_patterns_for_target(target: str) -> tuple[re.Pattern[str], ...]:
     )
 
 
-_RESOURCE_PATTERNS = {
-    target: _resource_patterns_for_target(target) for target in TARGETS
-}
+_RESOURCE_PATTERNS = {target: _resource_patterns_for_target(target) for target in TARGETS}
 
 
 def _git_paths(root: Path, *args: str) -> tuple[list[str], dict[str, Any]]:
@@ -419,7 +419,9 @@ def _import_from_hits(path: str, node: ast.ImportFrom) -> list[dict[str, Any]]:
     return hits
 
 
-def _call_path(node: ast.expr, module_aliases: dict[str, str], imported_aliases: dict[str, str]) -> str:
+def _call_path(
+    node: ast.expr, module_aliases: dict[str, str], imported_aliases: dict[str, str]
+) -> str:
     if isinstance(node, ast.Name):
         return imported_aliases.get(node.id, node.id)
     if isinstance(node, ast.Attribute):
@@ -434,12 +436,17 @@ def _literal_target(node: ast.expr | None) -> str | None:
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return node.value
     if isinstance(node, ast.JoinedStr):
-        if all(isinstance(value, ast.Constant) and isinstance(value.value, str) for value in node.values):
+        if all(
+            isinstance(value, ast.Constant) and isinstance(value.value, str)
+            for value in node.values
+        ):
             return "".join(str(value.value) for value in node.values)  # type: ignore[attr-defined]
     return None
 
 
-def _scan_python(path: str, text: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str]]:
+def _scan_python(
+    path: str, text: str
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str]]:
     imports: list[dict[str, Any]] = []
     loader_sites: list[dict[str, Any]] = []
     parse_errors: list[str] = []
@@ -490,7 +497,12 @@ def _scan_python(path: str, text: str) -> tuple[list[dict[str, Any]], list[dict[
         if not isinstance(node, ast.Call):
             continue
         call_name = _call_path(node.func, module_aliases, imported_aliases)
-        if call_name in {"__import__", "builtins.__import__", "importlib.import_module", "pkgutil.resolve_name"}:
+        if call_name in {
+            "__import__",
+            "builtins.__import__",
+            "importlib.import_module",
+            "pkgutil.resolve_name",
+        }:
             kind = "dynamic_module_loader"
         elif call_name in {
             "importlib.util.find_spec",
@@ -513,7 +525,9 @@ def _scan_python(path: str, text: str) -> tuple[list[dict[str, Any]], list[dict[
                 "loader": call_name,
                 "loader_kind": kind,
                 "literal_target": literal,
-                "status": "literal_target" if literal is not None else "unresolved_nonliteral_target",
+                "status": "literal_target"
+                if literal is not None
+                else "unresolved_nonliteral_target",
             }
         )
     return imports, loader_sites, parse_errors
@@ -524,7 +538,9 @@ def _package_metadata(root: Path, selected_text: dict[str, str]) -> dict[str, An
     hatch = selected_text.get("hatch.toml")
     metadata: dict[str, Any] = {
         "configuration_inputs": [
-            name for name in ("pyproject.toml", "hatch.toml", "MANIFEST.in") if name in selected_text
+            name
+            for name in ("pyproject.toml", "hatch.toml", "MANIFEST.in")
+            if name in selected_text
         ],
         "wheel": "UNRUN",
         "sdist": "UNRUN",
@@ -540,14 +556,25 @@ def _package_metadata(root: Path, selected_text: dict[str, str]) -> dict[str, An
     if hatch is not None:
         lines = hatch.splitlines()
         relevant["hatch_build_targets"] = [
-            line.strip() for line in lines if any(token in line.lower() for token in ("[build", "packages", "include", "exclude"))
+            line.strip()
+            for line in lines
+            if any(token in line.lower() for token in ("[build", "packages", "include", "exclude"))
         ]
     if pyproject is not None:
         lines = pyproject.splitlines()
         relevant["pyproject_build_system_and_scripts"] = [
             line.strip()
             for line in lines
-            if any(token in line.lower() for token in ("[build-system]", "build-backend", "requires =", "[project.scripts]", "polisyos"))
+            if any(
+                token in line.lower()
+                for token in (
+                    "[build-system]",
+                    "build-backend",
+                    "requires =",
+                    "[project.scripts]",
+                    "polisyos",
+                )
+            )
         ]
     metadata["configuration_observation"] = relevant
     metadata["selection_status"] = "configuration_bytes_read; archive membership unverified"
@@ -558,12 +585,17 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
     root = repo_root.resolve()
     tracked, tracked_receipt = _git_paths(root, "ls-files", "--cached")
     untracked, untracked_receipt = _git_paths(root, "ls-files", "--others", "--exclude-standard")
-    ignored, ignored_receipt = _git_paths(root, "ls-files", "--others", "--ignored", "--exclude-standard")
+    ignored, ignored_receipt = _git_paths(
+        root, "ls-files", "--others", "--ignored", "--exclude-standard"
+    )
     changed, status_receipt = _git_status_paths(root)
-    git_ok = all(
-        receipt["returncode"] == 0
-        for receipt in (tracked_receipt, untracked_receipt, ignored_receipt, status_receipt)
-    ) and status_receipt.get("prefix_returncode") == 0
+    git_ok = (
+        all(
+            receipt["returncode"] == 0
+            for receipt in (tracked_receipt, untracked_receipt, ignored_receipt, status_receipt)
+        )
+        and status_receipt.get("prefix_returncode") == 0
+    )
 
     tracked = sorted(set(tracked))
     untracked = sorted(set(untracked))
@@ -572,7 +604,9 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
     selected_ignored = sorted(path for path in ignored if _is_selected_text(path))
     excluded = sorted(
         {
-            path: "known_binary_suffix" if Path(path).suffix.lower() in KNOWN_BINARY_SUFFIXES else "unsupported_filename_or_suffix"
+            path: "known_binary_suffix"
+            if Path(path).suffix.lower() in KNOWN_BINARY_SUFFIXES
+            else "unsupported_filename_or_suffix"
             for path in set(tracked) | set(untracked)
             if not _is_selected_text(path)
         }.items()
@@ -668,11 +702,11 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
         )
 
     for import_hit in all_imports:
-        matched_value = import_hit.get(
-            "imported_module_candidate", import_hit["imported_module"]
-        )
+        matched_value = import_hit.get("imported_module_candidate", import_hit["imported_module"])
         all_matches.append({**import_hit, "matched_value": matched_value})
-    all_matches.sort(key=lambda hit: (hit["target"], hit["path"], hit["line"], hit["evidence_kind"]))
+    all_matches.sort(
+        key=lambda hit: (hit["target"], hit["path"], hit["line"], hit["evidence_kind"])
+    )
     all_loader_sites.sort(key=lambda site: (site["path"], site["line"], site["loader"]))
 
     try:
@@ -702,7 +736,9 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
     unresolved = [
         {
             "class": "unresolved_runtime_dispatch",
-            "status": "present" if any(site["status"] == "unresolved_nonliteral_target" for site in all_loader_sites) else "not_established",
+            "status": "present"
+            if any(site["status"] == "unresolved_nonliteral_target" for site in all_loader_sites)
+            else "not_established",
             "detail": "Static AST inspection cannot resolve runtime-computed module names, loader arguments, or effects of arbitrary code.",
         },
         {
@@ -769,7 +805,8 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
         "read_receipt": read_receipt,
         "unreadable_paths": sorted(unreadable),
         "rejected_outside_root_paths": sorted(rejected_paths),
-        "unsupported_or_ambiguous_inputs": unsupported + [
+        "unsupported_or_ambiguous_inputs": unsupported
+        + [
             {"path": "<python-ast>", "class": "unsupported_syntax_or_ast", "detail": error}
             for error in parse_errors
         ],
@@ -786,10 +823,18 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
                 "fqn": target,
                 "source_candidates": _observed_source_candidates(target, read_paths),
                 "role": {
-                    TARGETS[0]: "internal early DTO module selected for retirement; do not move or duplicate its fields",
-                    TARGETS[1]: "empty tombstone already absent; retain exact negative checks and canonical mechanism owners",
-                    TARGETS[2]: "unused descriptor placeholder selected for retirement; no generator/codegen role is inferred",
-                    TARGETS[3]: "identity-preserving compatibility alias to canonical kernel.schemas; sunset notice is pending publication",
+                    TARGETS[
+                        0
+                    ]: "internal early DTO module selected for retirement; do not move or duplicate its fields",
+                    TARGETS[
+                        1
+                    ]: "empty tombstone already absent; retain exact negative checks and canonical mechanism owners",
+                    TARGETS[
+                        2
+                    ]: "unused descriptor placeholder selected for retirement; no generator/codegen role is inferred",
+                    TARGETS[
+                        3
+                    ]: "identity-preserving compatibility alias to canonical kernel.schemas; sunset notice is pending publication",
                 }[target],
                 "matches": [hit for hit in all_matches if hit["target"] == target],
             }
@@ -800,7 +845,9 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
         "package_artifacts": package_artifacts,
         "unresolved_by_construction": unresolved,
         "interpretation_boundary": {
-            "criterion_verdict": "partial_coverage" if any_incomplete else "local_static_census_only",
+            "criterion_verdict": "partial_coverage"
+            if any_incomplete
+            else "local_static_census_only",
             "complete_verdict_scope": "enumerated Git-visible, nonignored UTF-8 text inputs only",
             "not_a_retirement_authorization": True,
         },

@@ -49,7 +49,9 @@ CENSUS_SCRIPT = REPO_ROOT / "tools/quality/validation/schema_fqn_census.py"
 def _init_census_repository(root: Path, files: dict[str, str]) -> None:
     """Create a small Git-visible repository for the census CLI's input contract."""
     subprocess.run(["git", "init", "--quiet"], cwd=root, check=True)
-    subprocess.run(["git", "config", "user.email", "dfk-test@example.invalid"], cwd=root, check=True)
+    subprocess.run(
+        ["git", "config", "user.email", "dfk-test@example.invalid"], cwd=root, check=True
+    )
     subprocess.run(["git", "config", "user.name", "DFK test"], cwd=root, check=True)
     for relative_path, content in files.items():
         path = root / relative_path
@@ -328,9 +330,7 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
             "def load_schema():\n"
             '    return load_module("polisyos.foundry.domain.schema")\n'
         ),
-        "src/polisyos/data_forge/kernel/schemas/codegen.py": (
-            "class GeneratedSchemaModule: ...\n"
-        ),
+        "src/polisyos/data_forge/kernel/schemas/codegen.py": ("class GeneratedSchemaModule: ...\n"),
         "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py": (
             "from polisyos.data_forge.kernel.schemas import SchemaRegistry\n"
         ),
@@ -347,9 +347,7 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
     )
     ignored = tmp_path / "ignored" / "outside.json"
     ignored.parent.mkdir()
-    ignored.write_text(
-        '{"module": "polisyos.foundry.domain.mechanisms"}\n', encoding="utf-8"
-    )
+    ignored.write_text('{"module": "polisyos.foundry.domain.mechanisms"}\n', encoding="utf-8")
 
     completed, receipt = _run_census(tmp_path)
 
@@ -425,9 +423,7 @@ def test_dfk_01_census_resolves_importfrom_package_children_and_removal(
             "from . import codegen as relative_codegen\n"
             "from polisyos.data_forge.kernel.schemas import codegen as absolute_codegen\n"
         ),
-        "src/polisyos/data_forge/kernel/schemas/codegen.py": (
-            "class GeneratedSchemaModule: ...\n"
-        ),
+        "src/polisyos/data_forge/kernel/schemas/codegen.py": ("class GeneratedSchemaModule: ...\n"),
         "src/polisyos/data_forge/kernel/schemas/subpackage/__init__.py": "",
         nested_caller: (
             "from .. import codegen as parent_codegen\n"
@@ -444,7 +440,8 @@ def test_dfk_01_census_resolves_importfrom_package_children_and_removal(
     imports = [
         hit
         for hit in receipt["matches"]
-        if hit["evidence_kind"] in {
+        if hit["evidence_kind"]
+        in {
             "absolute_import",
             "relative_import",
             "absolute_import_child_candidate",
@@ -461,13 +458,9 @@ def test_dfk_01_census_resolves_importfrom_package_children_and_removal(
         )
         for hit in imports
     }
-    child_candidates = [
-        hit for hit in imports if hit["evidence_kind"].endswith("_child_candidate")
-    ]
+    child_candidates = [hit for hit in imports if hit["evidence_kind"].endswith("_child_candidate")]
     assert child_candidates
-    assert {
-        hit["resolution"] for hit in child_candidates
-    } == {"child_module_or_package_attribute"}
+    assert {hit["resolution"] for hit in child_candidates} == {"child_module_or_package_attribute"}
     assert actual == {
         (
             "polisyos.data_forge.kernel.schemas.codegen",
@@ -537,12 +530,8 @@ def test_dfk_01_census_observes_module_and_package_source_variants(
     """The census sees both module files and restored package trees as source candidates."""
     package_init = "src/polisyos/foundry/domain/mechanisms/__init__.py"
     module_file = "src/polisyos/foundry/domain/schema.py"
-    codegen_package_init = (
-        "src/polisyos/data_forge/kernel/schemas/codegen/__init__.py"
-    )
-    pipeline_package_init = (
-        "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py"
-    )
+    codegen_package_init = "src/polisyos/data_forge/kernel/schemas/codegen/__init__.py"
+    pipeline_package_init = "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py"
     config_path = "configs/mechanism-resource.toml"
     files = {
         "src/polisyos/__init__.py": "",
@@ -610,18 +599,14 @@ def test_dfk_01_census_observes_module_and_package_source_variants(
             ],
         },
     ]
-    codegen_sources = targets["polisyos.data_forge.kernel.schemas.codegen"][
-        "source_candidates"
-    ]
+    codegen_sources = targets["polisyos.data_forge.kernel.schemas.codegen"]["source_candidates"]
     assert codegen_sources[0]["observed_paths"] == []
     assert codegen_sources[1]["observed_paths"] == [codegen_package_init]
     assert codegen_sources[2]["observed_paths"] == [
         codegen_package_init,
         "src/polisyos/data_forge/kernel/schemas/codegen/resources/schema.json",
     ]
-    pipeline_sources = targets["polisyos.data_forge.kernel.pipeline.schemas"][
-        "source_candidates"
-    ]
+    pipeline_sources = targets["polisyos.data_forge.kernel.pipeline.schemas"]["source_candidates"]
     assert pipeline_sources[1]["observed_paths"] == [pipeline_package_init]
     assert pipeline_sources[2]["observed_paths"] == [pipeline_package_init]
     assert any(
@@ -656,9 +641,7 @@ def test_dfk_01_census_observes_module_and_package_source_variants(
     assert "DID NOT RAISE" in negative_import_probe.stderr
 
     missing_initializer = tmp_path / package_init
-    preserved_initializer = missing_initializer.with_name(
-        f"{missing_initializer.name}.preserved"
-    )
+    preserved_initializer = missing_initializer.with_name(f"{missing_initializer.name}.preserved")
     initializer_bytes = missing_initializer.read_bytes()
     missing_initializer.rename(preserved_initializer)
     assert not missing_initializer.exists()
@@ -668,9 +651,9 @@ def test_dfk_01_census_observes_module_and_package_source_variants(
     assert missing_receipt["result"] == "partial_unreadable_input"
     missing_sources = {
         item["kind"]: item["observed_paths"]
-        for item in {
-            target["fqn"]: target for target in missing_receipt["targets"]
-        }["polisyos.foundry.domain.mechanisms"]["source_candidates"]
+        for item in {target["fqn"]: target for target in missing_receipt["targets"]}[
+            "polisyos.foundry.domain.mechanisms"
+        ]["source_candidates"]
     }
     assert missing_sources["package_initializer"] == []
 
@@ -760,9 +743,7 @@ def test_dfk_01_census_rejects_selected_symlink_outside_admitted_root(
     census_root.mkdir()
     _init_census_repository(census_root, files)
     outside = tmp_path / "dfk_external_schema_fqn.json"
-    outside.write_text(
-        '{"module": "polisyos.foundry.domain.schema"}\n', encoding="utf-8"
-    )
+    outside.write_text('{"module": "polisyos.foundry.domain.schema"}\n', encoding="utf-8")
     linked = census_root / "configs/linked.json"
     linked.unlink()
     linked.symlink_to(outside)
@@ -806,8 +787,7 @@ def test_dfk_01_census_digest_changes_when_a_selected_input_changes(tmp_path: Pa
     assert digest(first) != digest(second)
     assert "configs/legacy.json" in second["selection"]["working_tree_changes"]
     assert not any(
-        hit["target"] == "polisyos.foundry.domain.schema"
-        and hit["path"] == "configs/legacy.json"
+        hit["target"] == "polisyos.foundry.domain.schema" and hit["path"] == "configs/legacy.json"
         for hit in second["matches"]
     )
     assert any(

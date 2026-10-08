@@ -97,9 +97,7 @@ class LegalKnowledgeGraph:
             self._query_profile_error = LegalQueryProfileError("query_encoder_assets_unavailable")
             return None
         self._query_profile_error = None
-        return LegalQueryInput(
-            text=query, encoder=self._query_encoder, profile=self._query_profile
-        )
+        return LegalQueryInput(text=query, encoder=self._query_encoder, profile=self._query_profile)
 
     # ------------------------------------------------------------------
     # Search methods

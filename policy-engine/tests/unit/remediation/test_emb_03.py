@@ -573,18 +573,14 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
     try:
         assert (
             stale_reader.search_entities_by_vector(
-                LegalQueryInput(
-                    "Old entity", query_encoder, _legal_query_profile(tmp_path)
-                ),
-                min_similarity=0.0
+                LegalQueryInput("Old entity", query_encoder, _legal_query_profile(tmp_path)),
+                min_similarity=0.0,
             )
             == []
         )
         assert (
             stale_reader.search_facts_by_vector(
-                LegalQueryInput(
-                    "Old fact text", query_encoder, _legal_query_profile(tmp_path)
-                ),
+                LegalQueryInput("Old fact text", query_encoder, _legal_query_profile(tmp_path)),
                 min_similarity=0.0,
                 include_candidates=True,
             )
@@ -595,7 +591,7 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
                 LegalQueryInput(
                     "Old provision text", query_encoder, _legal_query_profile(tmp_path)
                 ),
-                min_similarity=0.0
+                min_similarity=0.0,
             )
             == []
         )
@@ -620,15 +616,13 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
                 LegalQueryInput(
                     "Changed entity text", query_encoder, _legal_query_profile(tmp_path)
                 ),
-                min_similarity=0.0
+                min_similarity=0.0,
             )
         ] == ["e-old"]
         assert [
             result.fact_id
             for result in reader.search_facts_by_vector(
-                LegalQueryInput(
-                    "Changed fact text", query_encoder, _legal_query_profile(tmp_path)
-                ),
+                LegalQueryInput("Changed fact text", query_encoder, _legal_query_profile(tmp_path)),
                 min_similarity=0.0,
                 include_candidates=True,
             )
@@ -639,7 +633,7 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
                 LegalQueryInput(
                     "Changed provision text", query_encoder, _legal_query_profile(tmp_path)
                 ),
-                min_similarity=0.0
+                min_similarity=0.0,
             )
         ] == ["p-old"]
     finally:
@@ -661,15 +655,13 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
                 LegalQueryInput(
                     "Changed entity text", query_encoder, _legal_query_profile(tmp_path)
                 ),
-                min_similarity=0.0
+                min_similarity=0.0,
             )
             == []
         )
         assert (
             withdrawn_reader.search_facts_by_vector(
-                LegalQueryInput(
-                    "Changed fact text", query_encoder, _legal_query_profile(tmp_path)
-                ),
+                LegalQueryInput("Changed fact text", query_encoder, _legal_query_profile(tmp_path)),
                 min_similarity=0.0,
                 include_candidates=True,
             )
@@ -680,7 +672,7 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
                 LegalQueryInput(
                     "Changed provision text", query_encoder, _legal_query_profile(tmp_path)
                 ),
-                min_similarity=0.0
+                min_similarity=0.0,
             )
             == []
         )
@@ -835,7 +827,7 @@ def test_legacy_entrypoint_uses_supported_encoder_and_legal_reader(
         results = reader.search_entities_by_vector(
             LegalQueryInput("recorded encoder target", encoder, _legal_query_profile(tmp_path)),
             top_k=1,
-            min_similarity=0.0
+            min_similarity=0.0,
         )
     finally:
         reader.close()
@@ -1221,7 +1213,9 @@ def test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back(
     assert calls == []
 
 
-@pytest.mark.parametrize("profile_case", ["missing", "foreign_table", "duplicate", "wrong_model", "malformed"])
+@pytest.mark.parametrize(
+    "profile_case", ["missing", "foreign_table", "duplicate", "wrong_model", "malformed"]
+)
 def test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1278,9 +1272,7 @@ def test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before
 
     monkeypatch.setattr(hnswlib.Index, "knn_query", record_knn)
     encoder = _DirectionalLegalEncoder(revision=0)
-    graph = LegalKnowledgeGraph(
-        db_path, tmp_path, query_encoder=encoder, query_profile=requested
-    )
+    graph = LegalKnowledgeGraph(db_path, tmp_path, query_encoder=encoder, query_profile=requested)
     try:
         with pytest.raises(LegalQueryProfileError, match=expected_code):
             graph.search_entities("target", top_k=1, min_similarity=0.0)
@@ -1324,9 +1316,10 @@ def test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_read
     previous_entity = next(p for p in previous if p.basis_kind == "legal_lex_entities_embedding")
     current_entity = next(p for p in current if p.basis_kind == previous_entity.basis_kind)
     assert previous_entity.generation_id != current_entity.generation_id
-    assert json.loads(previous_entity.inventory_bytes)["basis"] == json.loads(
-        current_entity.inventory_bytes
-    )["basis"]
+    assert (
+        json.loads(previous_entity.inventory_bytes)["basis"]
+        == json.loads(current_entity.inventory_bytes)["basis"]
+    )
 
     knn_calls = 0
     original_knn = hnswlib.Index.knn_query
@@ -1338,9 +1331,7 @@ def test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_read
 
     monkeypatch.setattr(hnswlib.Index, "knn_query", record_knn)
     encoder = _DirectionalLegalEncoder(revision=0)
-    stale = LegalKnowledgeGraph(
-        db_path, tmp_path, query_encoder=encoder, query_profile=previous
-    )
+    stale = LegalKnowledgeGraph(db_path, tmp_path, query_encoder=encoder, query_profile=previous)
     try:
         with pytest.raises(LegalQueryProfileError, match="query_profile_stale_or_mismatched"):
             stale.search_entities("target", top_k=1, min_similarity=0.0)
@@ -1419,7 +1410,7 @@ def test_request_snapshot_does_not_alias_selected_generation_inventory(
 
 
 @pytest.mark.parametrize(
-    "basis_kind,generation_id,inventory",
+    ("basis_kind", "generation_id", "inventory"),
     [
         ("legal_lex_entities_embedding", "generation", bytearray(b"{}")),
         ("", "generation", b"{}"),

@@ -1,0 +1,684 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "B29-nested-leaf-history-readback",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-05"
+  ],
+  "slice_base_sha": "4f53480daf94cb9a64ad0a3940fee50bd4a88469",
+  "implementation_commits": [
+    "8947449e7b1a69a5b3b286acd6f42779c10ca6c8"
+  ],
+  "candidate_tree_sha": "3cb89d4359ef3035541712c5f67f2ab546875401",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "check_id": "pre-fix-harness-404-81e93",
+      "name": "First maintained GET attempt reached an incorrect control-run identifier and failed before the history property",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-pre-fix-red/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-pre-fix-red/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "target_sha": "81e93ece67e35a3a47615f01846b64b1178f4e26",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-pre-fix-red:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "probe_environment": {}
+      },
+      "input_closure": {
+        "candidate_sha": "81e93ece67e35a3a47615f01846b64b1178f4e26",
+        "candidate_tree_sha": "c8371dbe1acdcfbdb706fab4a6a643aa13c8a2f0",
+        "source_blob": "6eca8ad38bdd7ff12d8593863114431d35c0af48",
+        "test_blob": "ec609b7c0853ddcd41d62a15f7838bd54a0ce213",
+        "slice_base_sha": "4f53480daf94cb9a64ad0a3940fee50bd4a88469",
+        "scope": "Exact pytest selectors in argv; complete output and six-file runner provenance are listed below."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "summary": "Harness/setup failure only. Fresh GET requested a control-* identifier and returned 404 before the nested-history assertion; do not count this as a product property red.",
+        "junit_summary": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "pytest_stdout_tail": "acaf620fc4a13e35ff31445f7c6a2571ecb37349e161f7de0d84350a299ca5a7\"}}\nE       assert 404 == 200\nE        +  where 404 = <Response [404 Not Found]>.status_code\n\ntests/integration/core_runtime/test_e02_recursive_partial_readback.py:384: AssertionError\n=========================== short test summary info ============================\nFAILED tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get\n1 failed in 15.72s\n",
+        "runner_wall_seconds": 19.74402533401735,
+        "exit_code": 1,
+        "artifacts": {
+          "receipt.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/receipt.json",
+            "bytes": 2694,
+            "sha256": "f390344a73ed3fc454f655a4b4abe550b43d5bfee4f9bafeaa522f29e676bdb0",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/receipt.json"
+          },
+          "stdout.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/stdout.txt",
+            "bytes": 23591,
+            "sha256": "e651a7f4d4f8b3d9fb0fd3c1daa90e05f1ef532cc43fdbaa755b3699c4227ef9",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/stdout.txt"
+          },
+          "stderr.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/stderr.txt"
+          },
+          "junit.xml": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/junit.xml",
+            "bytes": 24506,
+            "sha256": "e90e00a205773afbdb41a3b37fdb495f5509d4a45f469d19e83737aad3071204",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/junit.xml"
+          },
+          "origins.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/origins.json"
+          },
+          "e02_origin.py": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/e02_origin.py"
+          }
+        },
+        "workspace_dirty_before": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/"
+        ],
+        "workspace_dirty_after": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/"
+        ],
+        "shared_copy_status": "byte_exact_canonical_copy_retained"
+      }
+    },
+    {
+      "check_id": "pre-fix-real-consumer-red-92e5",
+      "name": "Corrected fresh-run index exposed the nested history projection defect before source repair",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-pre-fix-consumer-red/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-pre-fix-consumer-red/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "target_sha": "92e5ff3d170d37dbf1aae824175819ab30dac10b",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-pre-fix-consumer-red:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "probe_environment": {}
+      },
+      "input_closure": {
+        "candidate_sha": "92e5ff3d170d37dbf1aae824175819ab30dac10b",
+        "candidate_tree_sha": "4abc7be3f453abee0da9cd8c98811e7060b3454f",
+        "source_blob": "6eca8ad38bdd7ff12d8593863114431d35c0af48",
+        "test_blob": "51221f9ed1a50eb73cb162999606cd6fc47c3501",
+        "slice_base_sha": "4f53480daf94cb9a64ad0a3940fee50bd4a88469",
+        "scope": "Exact pytest selectors in argv; complete output and six-file runner provenance are listed below."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "summary": "Actual property red at unchanged source blob 6eca: a content-valid nested SearchIteration.status mutation survived fresh GET and the checkpoint remained projected. The candidate has the test correction but no production source fix.",
+        "junit_summary": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "pytest_stdout_tail": "> = {'capability_manifest_ref': None, 'cell_id': 'cell-a', 'control_job_id': 'a0a3341661c34460832f0a3acc838c1e', 'decision_review_required': False, ...}.get\n\ntests/integration/core_runtime/test_e02_recursive_partial_readback.py:395: AssertionError\n=========================== short test summary info ============================\nFAILED tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get\n1 failed in 15.53s\n",
+        "runner_wall_seconds": 19.44493345799856,
+        "exit_code": 1,
+        "artifacts": {
+          "receipt.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/receipt.json",
+            "bytes": 2721,
+            "sha256": "7ac45760463977cbf329401116eccf87dce792cb15dfde413afb7e7d0f9c4487",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/receipt.json"
+          },
+          "stdout.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/stdout.txt",
+            "bytes": 25248,
+            "sha256": "e8844628a2853209760100e78908024fa963b58cd4f368e4c619702fe71e698d",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/stdout.txt"
+          },
+          "stderr.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/stderr.txt"
+          },
+          "junit.xml": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/junit.xml",
+            "bytes": 26248,
+            "sha256": "feae5aea89a17b6badd5b8e74b23f90b1e736a703b750887b96d27dcea1f07de",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/junit.xml"
+          },
+          "origins.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/origins.json"
+          },
+          "e02_origin.py": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/e02_origin.py"
+          }
+        },
+        "workspace_dirty_before": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/"
+        ],
+        "workspace_dirty_after": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/"
+        ],
+        "shared_copy_status": "byte_exact_canonical_copy_retained"
+      }
+    },
+    {
+      "check_id": "affected-nested-history-wave-8947",
+      "name": "Frozen affected readback, nested mutations, sibling/partial controls and historical compatibility selectors",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-frozen-8947/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-frozen-8947/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+        "tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence",
+        "tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_allowlist_covers_tracked_sources",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_leaf_preserves_history_and_current_problem_binding",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_implicit_contract_testing_candidate_completes_without_n9_authority"
+      ],
+      "target_sha": "8947449e7b1a69a5b3b286acd6f42779c10ca6c8",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-frozen-8947:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "probe_environment": {}
+      },
+      "input_closure": {
+        "candidate_sha": "8947449e7b1a69a5b3b286acd6f42779c10ca6c8",
+        "candidate_tree_sha": "bebc86312f20624fb5eba9d34a25b3666e43a1da",
+        "source_blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5",
+        "test_blob": "51221f9ed1a50eb73cb162999606cd6fc47c3501",
+        "slice_base_sha": "4f53480daf94cb9a64ad0a3940fee50bd4a88469",
+        "scope": "Exact pytest selectors in argv; complete output and six-file runner provenance are listed below.",
+        "historical_compatibility": {
+          "legacy_v1_byte_exact_and_allowlist_selectors": "included in the exact argv",
+          "source_review_status": "not represented by this test receipt"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "summary": "Eight selectors passed on the implementation candidate. The integration case includes both valid-enum nested N6 mutations (SearchIteration.status and RefinementDecision.decision) with recomputed recursive/compiled hashes, a valid partial fresh-GET control, and the listed affected legacy/partial/history controls. This is bounded manual Core/CAS fixture evidence, not the ordinary two-child producer path.",
+        "junit_summary": {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "pytest_stdout_tail": "........                                                                 [100%]\n8 passed in 13.59s\n",
+        "runner_wall_seconds": 17.250516208994668,
+        "exit_code": 0,
+        "artifacts": {
+          "receipt.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/receipt.json",
+            "bytes": 3293,
+            "sha256": "9a4cf01bd18ed759d2ecd22cdee06460312b20fa964bd90eb245ab5679ed0d71",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/receipt.json"
+          },
+          "stdout.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/stdout.txt",
+            "bytes": 99,
+            "sha256": "6caea9b2d18be53cdf759d756dcae9235bff5e9be7209b4c1fb059f54e0fe2c5",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/stdout.txt"
+          },
+          "stderr.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/stderr.txt"
+          },
+          "junit.xml": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/junit.xml",
+            "bytes": 1632,
+            "sha256": "04ce51fd3bbdf2836853db41f8578791bfc5c975df23bfb80eba035a061b4ef0",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/junit.xml"
+          },
+          "origins.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/origins.json"
+          },
+          "e02_origin.py": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/e02_origin.py"
+          }
+        },
+        "workspace_dirty_before": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/"
+        ],
+        "workspace_dirty_after": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/"
+        ],
+        "shared_copy_status": "byte_exact_canonical_copy_retained"
+      }
+    },
+    {
+      "check_id": "nested-history-remove-property-r1-81aa",
+      "name": "Remove the recursive leaf history validator while retaining markers and valid outer hashes",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-R1-frozen/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-R1-frozen/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+      ],
+      "target_sha": "81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/nested-N6-history-R1-frozen:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "probe_environment": {
+          "POLISYOS_E02_NESTED_N6_HISTORY_REMOVAL": "1"
+        }
+      },
+      "input_closure": {
+        "candidate_sha": "81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf",
+        "candidate_tree_sha": "3cb89d4359ef3035541712c5f67f2ab546875401",
+        "source_blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5",
+        "test_blob": "21aff9b5d0041b0cd6a72d111a9947833b5103d3",
+        "slice_base_sha": "4f53480daf94cb9a64ad0a3940fee50bd4a88469",
+        "scope": "Exact pytest selectors in argv; complete output and six-file runner provenance are listed below.",
+        "property_removal": {
+          "target": "recursive_generation_cycle.validate_generation_cycle_run_history alias",
+          "probe_environment": {
+            "POLISYOS_E02_NESTED_N6_HISTORY_REMOVAL": "1"
+          },
+          "change": "only the history validator returns an empty issue tuple; test markers and recomputed outer/nested hashes remain in place"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "summary": "Expected falsifier. With POLISYOS_E02_NESTED_N6_HISTORY_REMOVAL=1, the exact SearchIteration.status mutation produced a checkpoint on fresh GET; the unchanged negative assertion failed. This demonstrates that the gate exercises the property rather than only markers/hash shape.",
+        "junit_summary": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "pytest_stdout_tail": "> = {'capability_manifest_ref': None, 'cell_id': 'cell-a', 'control_job_id': 'acb426087b0042d395bcbfe271095ee8', 'decision_review_required': False, ...}.get\n\ntests/integration/core_runtime/test_e02_recursive_partial_readback.py:409: AssertionError\n=========================== short test summary info ============================\nFAILED tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get\n1 failed in 14.08s\n",
+        "runner_wall_seconds": 17.71246345801046,
+        "exit_code": 1,
+        "artifacts": {
+          "receipt.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/receipt.json",
+            "bytes": 3730,
+            "sha256": "abf6f6521ef3fb05f0c529dc12c19aaf56e09fcab7c03f0d67cf4b4377bbad78",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/receipt.json"
+          },
+          "stdout.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/stdout.txt",
+            "bytes": 25707,
+            "sha256": "31ca4944430db722fe59d013454b46473d8cc3f72ed15e517172d5ee50342556",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/stdout.txt"
+          },
+          "stderr.txt": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/stderr.txt"
+          },
+          "junit.xml": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/junit.xml",
+            "bytes": 26710,
+            "sha256": "7c207915ac2b0478f9af1ac1eb11b710ba71e61427d2c83e4bbfd15e81a2efcb",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/junit.xml"
+          },
+          "origins.json": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/origins.json"
+          },
+          "e02_origin.py": {
+            "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/e02_origin.py"
+          }
+        },
+        "workspace_dirty_before": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B11-recorded-exhaustion.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-completion-retention.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-observer-producer-consumer-composition.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-caller-lexical-binding.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/"
+        ],
+        "workspace_dirty_after": [
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B11-recorded-exhaustion.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-completion-retention.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-observer-producer-consumer-composition.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-caller-lexical-binding.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/"
+        ],
+        "shared_copy_status": "byte_exact_canonical_copy_retained"
+      }
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/composed-A-G-affected-7818/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/composed-A-G-affected-7818/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+        "tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_leaf_preserves_history_and_current_problem_binding",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+        "tests/unit/remediation/test_req_01_compiler_caller_census.py"
+      ],
+      "target_sha": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/composed-A-G-affected-7818:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "tree": "95eb9affc1fdf67f418967eef71a035c8899b8ee",
+        "selectors": [
+          "tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+          "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+          "tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence",
+          "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_leaf_preserves_history_and_current_problem_binding",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+          "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+          "tests/integration/core_runtime/test_e02_monetary_budget_hold.py",
+          "tests/unit/remediation/test_req_01_compiler_caller_census.py"
+        ],
+        "scope": "Affected composed consumer test wave, source unchanged in six resolved conflict blobs; no broad regression claim."
+      },
+      "outcome": "PASS",
+      "output": {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/receipt.json",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/stdout.txt",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/junit.xml",
+        "result": "224 passed, 1 skipped",
+        "overlap": "Not additive with any prior suite."
+      }
+    }
+  ],
+  "property": {
+    "statement": "Before any recursive leaf cycle_run (typed object or persisted mapping) can enter a recursive checkpoint, recompute its intrinsic N6 history consistency. When a nested terminal-adjacent status diverges while the terminal marker and recursive/compiled content hashes remain valid, the existing fresh RunDetails GET must not project a recursive checkpoint.",
+    "runtime_path": [
+      "recursive fixture produces a budget-stopped partial V2 containing leaf GenerationCycleRun history",
+      "compiled recursive checkpoint is manually persisted through an owned Core job to CAS",
+      "RecursiveCycleNode canonical before-validator checks every typed or mapped leaf with validate_generation_cycle_run_history, then uses the existing persisted reader",
+      "fresh runtime/API context reopens Core/CAS and GET /api/v1/runs/{core_run_id} decides whether recursive_cycle_checkpoint is projected"
+    ],
+    "proxy_divergence": "Terminal marker and recomputed recursive/compiled hashes are adjacent proxies: the pre-fix 92e consumer run and the 81aa property-removal probe mutate valid-enum SearchIteration.status while retaining the terminal and recomputing both hashes; fresh GET still projects the checkpoint when the leaf-history validator is absent. The property is nested N6 coherence on every leaf, not marker/hash validity.",
+    "negative_controls": [
+      "The 81e93 attempt failed on an incorrect control-* run identifier (404) before reaching the property and is retained only as a harness failure.",
+      "At 92e5, source stayed at the base blob while corrected GET identity made the valid-hash SearchIteration.status mutation reach the consumer; GET still projected a checkpoint (genuine pre-fix property failure).",
+      "At 894, both valid-enum SearchIteration.status and RefinementDecision.decision mutations with recomputed hashes were refused by the fresh GET projection; valid partial readback and listed legacy controls passed.",
+      "At 81aa with the history-validator alias removed, SearchIteration.status drift projected the checkpoint and failed the unchanged negative assertion; expected property-removal falsifier."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "verification_missing",
+  "limitations_and_next_owner": [
+    "B29 remains limited and closure_ids remains empty. The current A root adjudication records no B29 outcome/closure change; this packet is a bounded nested-leaf readback update, not a B29 owner closure decision.",
+    "The checkpoint path is real and the fresh Core/CAS GET is exercised, but the fixture manually persists the partial artifact for an owned job. It does not establish an ordinary A-owned two-distinct-child recursive producer. That producer gap is tracked separately under B15; do not relabel this checkpoint consumer as surface_missing or promote manual persistence into ordinary producer evidence.",
+    "B29 still lacks the original full status/readback/Atlas mapping scope, including genuine recursive run enumeration/Atlas status mapping. The current root row records the manual partial Core GET as bounded and G generated snapshot as pending. No generated API file or DTO field changed in this two-path slice; no API authority is claimed.",
+    "The ordinary positive GET selector was run 8/8 at source 894/test blob 51221 before the optional R1-only test hook. Its normal-mode run on test blob 21aff9 at 81aa is UNRUN pending the ordinary G merge; do not promote the ancestor 8/8 to the exact final test blob.",
+    "The bounded fixture is contract_testing: root N9 and publication are not run, and no scientific, causal, or publication authority is established."
+  ],
+  "candidate_sha": "81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf",
+  "slice_base_tree_sha": "e0b4384ea159275fc56e9aec351ea18179f1cea9",
+  "finding_ids": [
+    "B29"
+  ],
+  "finding_outcome": {
+    "B29": "limited"
+  },
+  "source_pin": {
+    "criterion": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "section": "B29. Нормальная остановка превращается в abstained в другом представлении",
+      "lines": "565-578",
+      "criterion_span_sha256": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4"
+    },
+    "related_separate_finding": {
+      "id": "B15",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": "375-386",
+      "criterion_span_sha256": "aee22bfdeaa32d69566dcb038984da712ead8849f625524bc4e6eb7e535fa3b1",
+      "boundary": "A-owned parent→two-child producer gap; retained as a separate row/finding."
+    },
+    "implementation_commit": "8947449e7b1a69a5b3b286acd6f42779c10ca6c8",
+    "implementation_parent": "92e5ff3d170d37dbf1aae824175819ab30dac10b",
+    "implementation_tree": "bebc86312f20624fb5eba9d34a25b3666e43a1da",
+    "implementation_source_blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5",
+    "test_commits": [
+      "81e93ece67e35a3a47615f01846b64b1178f4e26",
+      "92e5ff3d170d37dbf1aae824175819ab30dac10b",
+      "81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf"
+    ],
+    "final_test_blob": "21aff9b5d0041b0cd6a72d111a9947833b5103d3",
+    "candidate_tree": "3cb89d4359ef3035541712c5f67f2ab546875401",
+    "current_branch_head_at_authoring": "f7e9dea1b7f5ec61b0c42f64637265e577a71d03",
+    "candidate_note": "The receipts target immutable candidate 81aa, not the later docs-only branch head."
+  },
+  "test_companion_commits": [
+    "81e93ece67e35a3a47615f01846b64b1178f4e26",
+    "92e5ff3d170d37dbf1aae824175819ab30dac10b",
+    "81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf"
+  ],
+  "source_test_footprint": {
+    "denominator": "Complete git diff --name-status --no-renames 4f53480daf94cb9a64ad0a3940fee50bd4a88469 81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf path set read from immutable Git objects.",
+    "path_count": 2,
+    "counts_by_kind": {
+      "source": 1,
+      "test": 1,
+      "documentation": 0,
+      "generated_api": 0
+    },
+    "range_numstat": {
+      "source_additions": 17,
+      "source_deletions": 4,
+      "test_additions": 141,
+      "test_deletions": 6,
+      "total_additions": 158,
+      "total_deletions": 10
+    },
+    "full_path_blob_manifest": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "base_blob": "6eca8ad38bdd7ff12d8593863114431d35c0af48",
+        "candidate_blob": "f21c3fa9b2eb9735b6503f442c0db0ac70ff21f5",
+        "kind": "source",
+        "changed_by": [
+          "8947449e7b1a69a5b3b286acd6f42779c10ca6c8"
+        ]
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+        "base_blob": "02b7e91e4b30f14a09c5b0ad71532e96e16d4ba6",
+        "candidate_blob": "21aff9b5d0041b0cd6a72d111a9947833b5103d3",
+        "kind": "test",
+        "changed_by": [
+          "81e93ece67e35a3a47615f01846b64b1178f4e26",
+          "92e5ff3d170d37dbf1aae824175819ab30dac10b",
+          "81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf"
+        ]
+      }
+    ],
+    "source_owner_delta": "The 17+/4- source change is at RecursiveCycleNode._load_persisted_leaf_run: typed GenerationCycleRun and Mapping payloads both pass the same intrinsic N6 history validator before the persisted parser path; it does not add fields or alter recursive checkpoint/API DTO schema.",
+    "test_scope": "One maintained integration test path adds real Core/CAS fresh GET positive and two status-drift negatives with recomputed hashes plus the opt-in R1 property-removal probe; existing sibling/legacy selectors are in the exact affected command.",
+    "companion_scope": "No additional tracked companion path. No generated API or public DTO change is in the complete two-path diff."
+  },
+  "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a#B29 (B15 is cross-referenced separately; no closure inheritance).",
+  "evidence_record": {
+    "runs": [
+      "nested-N6-history-pre-fix-red",
+      "nested-N6-history-pre-fix-consumer-red",
+      "nested-N6-history-frozen-8947",
+      "nested-N6-history-R1-frozen"
+    ],
+    "canonical_evidence_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence",
+    "copy_status": "byte_exact_canonical_copy_retained",
+    "raw_receipts_are_local_ignored": true,
+    "current_root_b29_adjudication": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json@3bbebc438e989b58be07584cf5823611847d66bd#/current_root_adjudication_20261008/rows/B29",
+    "current_root_file_sha256": "c70f498ea39c1b9d2f6bb7c25da844feb5f28081dd714375bc0a951657c1b83b",
+    "current_root_disposition": "limited; closure change none; ordinary producer and full status/Atlas residual remain separate from this bounded checkpoint consumer."
+  },
+  "followup_test_candidate": {
+    "status": "UNRUN",
+    "test_selector": "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get",
+    "reason": "Normal-mode readback on the R1-modified test blob 21aff9 is deferred until after the ordinary G merge. The existing 8/8 candidate 894 run targets test blob 51221 and is not a substitute.",
+    "target_candidate_sha": "not_yet_established_after_G_merge"
+  },
+  "coverage_boundary": {
+    "b29": "B29 limited: intrinsic nested leaf history validation and bounded manual Core/CAS fresh-GET behavior are exercised; full terminal/status matrix and genuine recursive enumeration/Atlas mapping remain open.",
+    "b15": "Separate B15 producer gap: ordinary A-owned decomposition into two distinct scoped children is not shown here; do not count manual test callback as that producer.",
+    "surface": "The existing GET consumer was exercised and refuses to project malformed nested checkpoint state; this is not surface_missing. No API/OpenAPI schema or generated surface changed in this exact slice.",
+    "authority": "contract_testing only; no N9 run, publication, scientific meaning, or public authority."
+  },
+  "changed_paths_scope": {
+    "slice_base": "4f53480daf94cb9a64ad0a3940fee50bd4a88469",
+    "candidate": "81aa7cbb9ed01fee0eb41c3e2ca4269c04e28cbf",
+    "complete_path_count": 2,
+    "paths": [
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+    ]
+  },
+  "documentation_companions": [],
+  "foreign_assembly_companion_commits": [],
+  "review_decisions": [],
+  "historical_unfrozen_reviews": [],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P10",
+      "P29",
+      "P31",
+      "P33",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "existing_antipatterns": [
+      "P04/P10: a valid-enum nested status projection can diverge from the terminal while hashes and marker remain valid.",
+      "P38: terminal/hash validity is a proxy for nested N6 coherence and diverges in the SearchIteration.status mutation.",
+      "P01/P02: bounded Core/CAS consumer path exists, but ordinary A two-child producer is the separate B15 gap.",
+      "P40: this is the same N6 projection/history class one level deeper, not a new HTTP-only class."
+    ],
+    "target_pattern": "Validate every typed or mapped recursive leaf at the canonical recursive-node intake using the existing intrinsic N6 history owner; preserve the existing persisted reader and GET contract.",
+    "missing_capability_labels": [
+      "verification_missing for full B29 status/readback/Atlas criterion; separate B15 producer gap remains outside this slice."
+    ],
+    "acceptance_signal": "On exact immutable candidate, normal 8-selector bounded suite at 894 passes; R1 removal at 81aa produces the expected checkpoint projection failure; B29 remains limited and closure_ids empty. Normal-mode GET rerun on the new test blob after G merge remains UNRUN."
+  },
+  "api_surface_note": "The full 4f5348..81aa diff has exactly source+test paths; existing checkpoint DTO fields are unchanged. This is not a new API/authority surface handoff.",
+  "post_merge_verification": {
+    "candidate_sha": "7818f314450349cecfee4bc6f070e4ba41433a7f",
+    "candidate_tree": "95eb9affc1fdf67f418967eef71a035c8899b8ee",
+    "check_state": "PASS",
+    "cases": 225,
+    "passed": 224,
+    "skipped": 1,
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/receipt.json",
+    "wall_s": 31.659773542021867,
+    "scope": "Affected composed source consumers; not broad regression or ordinary two-child producer proof. Counts overlap prior waves and are not additive."
+  }
+}

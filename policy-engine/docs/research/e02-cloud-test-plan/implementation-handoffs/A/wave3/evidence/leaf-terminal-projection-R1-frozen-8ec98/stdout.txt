@@ -1,0 +1,327 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get ___
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-R1-frozen-8ec98/pytest-basetemp/test_partial_checkpoint_surviv0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10df67820>
+
+    @pytest.mark.asyncio
+    async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Fresh GET preserves a partial checkpoint without manufacturing a root terminal."""
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import dev_identity_middleware
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import build_fixture_identity_claims
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION,
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality import recursive_generation_cycle, substrate_registry
+        from polisyos.runtime.quality.generation_cycle import (
+            validate_generation_cycle_run_history,
+        )
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveGenerationCyclePartialRunV2,
+        )
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.integration.runtime_quality.test_e02_recursive_budget_frontier import (
+            _recursive_fixture,
+            _run_recursive_fixture,
+        )
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+    
+        if os.environ.get("POLISYOS_E02_NESTED_N6_HISTORY_REMOVAL") == "1":
+    
+            def removed_recursive_history_check(
+                _payload: object,
+            ) -> tuple[dict[str, Any], ...]:
+                return ()
+    
+            monkeypatch.setattr(
+                recursive_generation_cycle,
+                "validate_generation_cycle_run_history",
+                removed_recursive_history_check,
+            )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    
+        # App startup reads the substrate catalog even though this checkpoint path
+        # does not acquire data. Give startup its own real, bounded Slice 0 catalog.
+        catalog_root = tmp_path / "recursive-partial-catalog"
+        catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+        curated_root = tmp_path / "recursive-partial-curated"
+        curated_root.mkdir()
+        monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+        monkeypatch.setattr(
+            catalog_api,
+            "default_acquisition_overlay_path",
+            lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+        )
+        default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+        repo_root = Path(__file__).resolve().parents[3]
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda root: (
+                replace(
+                    default_catalog_paths(root),
+                    l1_dcat_path=catalog_root / "catalog.duckdb",
+                )
+                if Path(root).resolve() == repo_root
+                else default_catalog_paths(root)
+            ),
+        )
+    
+        root_ref, _child_refs, problems, _request, _graph = _recursive_fixture()
+        problem = problems[root_ref]
+        partial_result, _partial_children, _partial_request, _factory = (
+            await _run_recursive_fixture(
+                budget_state=BudgetState(
+                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("0"))}
+                )
+            )
+        )
+        assert type(partial_result) is RecursiveGenerationCyclePartialRunV2
+        assert partial_result.authority_scope == "contract_testing"
+        assert partial_result.terminal is None
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        assert partial_result.root_design_problem_ref == problem_ref
+    
+        compiled_payload = {
+            "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION,
+            "design_problem_ref": problem_ref,
+            "design_problem": problem.model_dump(mode="json"),
+            "cycle_substrate_context_ref": None,
+            "recursive_run": partial_result.model_dump(mode="json", exclude={"leaf_nodes"}),
+        }
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
+        )
+        compiled_wire = compiled.model_dump(mode="json")
+        leaf_promotion_statuses = {
+            node.node_ref: node.cycle_run.promotion_port.status
+            for node in partial_result.leaf_nodes
+            if node.cycle_run is not None
+        }
+    
+        cas_root = tmp_path / ".polisyos"
+        first_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        first_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=first_context),
+            allow_fixture_identity=True,
+        )
+        with TestClient(first_app) as client:
+            accepted_response = client.post(
+                "/api/v1/control/runs/nl",
+                json={
+                    "request": "Record a bounded recursive checkpoint for inspection.",
+                    "llm_model": "simulated-qwen",
+                    "context": {
+                        "evaluation_safety_attempt": _valid_intake_for_mode(
+                            "simulate_only"
+                        ).model_dump(mode="json")
+                    },
+                },
+            )
+            assert accepted_response.status_code == 200, accepted_response.text
+            accepted = accepted_response.json()
+            assert accepted["status"] == "accepted"
+            service = first_app.state._control_service
+            compiled_refs: dict[str, ArtifactRef] = {}
+            observed_job_scopes: dict[str, tuple[str | None, str | None]] = {}
+    
+            def persist_manual_partial_for_owned_job(
+                owner_service: Any,
+                *,
+                expected_job_id: str,
+                expected_tenant_id: str,
+                expected_cell_id: str,
+                artifact_payload: dict[str, Any] | None = None,
+            ) -> None:
+                admission = owner_service._control_store.current_execution_job_admission()
+                job = admission.job
+                scope = admission.scope
+                assert job.job_id == expected_job_id
+                assert scope.status == "established"
+                assert (scope.tenant_id, scope.cell_id) == (
+                    expected_tenant_id,
+                    expected_cell_id,
+                )
+                observed_job_scopes[job.job_id] = (scope.tenant_id, scope.cell_id)
+    
+                with owner_service._install_execution_scope(scope):
+                    core_run_id, core_context = owner_service._start_generation_run_context(
+                        job=job,
+                        execution_scope=scope,
+                    )
+                    compiled_ref = owner_service._put_json_artifact_ref(
+                        compiled_wire if artifact_payload is None else artifact_payload,
+                        kind="runtime.compiled_recursive_generation_cycle",
+                        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    )
+                    core_manifest_ref = owner_service._publish_generation_run(
+                        job=job,
+                        payload={},
+                        execution_scope=scope,
+                        core_run_id=core_run_id,
+                        run_context=core_context,
+                        compiled_run_ref=compiled_ref,
+                    )
+                    progress: dict[str, Any] = {
+                        "state": "completed",
+                        "phase": "natural_language_run",
+                        "status": "recursive_checkpoint_partial",
+                        "execution_band": "candidate",
+                        "candidate_computation_status": "completed",
+                        "execution_intent_band": "simulate_only",
+                        "run_id": job.run_id,
+                        "compiled_recursive_generation_cycle_ref": str(compiled_ref.artifact_id),
+                        "compiled_recursive_generation_cycle_artifact_ref": (
+                            compiled_ref.model_dump(mode="json")
+                        ),
+                        "n5_status": "not_run_for_budget_stopped_leaf",
+                        "n8_status": "not_run",
+                        "root_n9_status": "not_run",
+                        "leaf_promotion_statuses": leaf_promotion_statuses,
+                        "publication_status": "not_run",
+                        **owner_service._core_run_progress_fields(
+                            job=job,
+                            core_run_id=core_run_id,
+                            manifest_ref=core_manifest_ref,
+                        ),
+                    }
+                    owner_service._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=job.run_id,
+                        capability_manifest_ref=job.capability_manifest_ref,
+                        progress=progress,
+                    )
+                    compiled_refs[job.job_id] = compiled_ref
+    
+            assert (
+                dispatch_one_control_job(
+                    store=service._control_store,
+                    handler=lambda _snapshot: persist_manual_partial_for_owned_job(
+                        service,
+                        expected_job_id=accepted["job_id"],
+                        expected_tenant_id=TENANT_ID,
+                        expected_cell_id=CELL_ID,
+                    ),
+                    expected_job_id=accepted["job_id"],
+                )
+                == accepted["job_id"]
+            )
+            completed = service._control_store.get_job(accepted["job_id"])
+            assert completed is not None and completed.state == "completed"
+            compiled_ref = compiled_refs[accepted["job_id"]]
+            core_run_id = str(completed.progress["core_run_id"])
+    
+        # Reopen both CAS and control state in a fresh runtime/API context. The
+        # GET consumer must follow Core's owned output ref, not a mutable progress
+        # projection, and must preserve V2's no-terminal semantics.
+        fresh_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        fresh_app = create_runtime_api_app(
+            cas_root=cas_root,
+            container_overrides=RuntimeContainerOverrides(runtime_api_context=fresh_context),
+            allow_fixture_identity=True,
+        )
+        with TestClient(fresh_app) as fresh_client:
+            if os.environ.get("POLISYOS_E02_LEAF_TERMINAL_PROJECTION_REMOVAL") == "1":
+                import ast
+                import inspect
+                import textwrap
+                from types import MethodType
+    
+                service = fresh_app.state._control_service
+                resolver_function = type(service).resolve_recursive_cycle_checkpoint
+                resolver_tree = ast.parse(textwrap.dedent(inspect.getsource(resolver_function)))
+    
+                class _RemoveLeafTerminalProjection(ast.NodeTransformer):
+                    removed_count = 0
+    
+                    def visit_Call(self, node: ast.Call) -> ast.Call:
+                        self.generic_visit(node)
+                        if (
+                            isinstance(node.func, ast.Name)
+                            and node.func.id == "RecursiveCycleCheckpoint"
+                        ):
+                            kept_keywords = []
+                            for keyword in node.keywords:
+                                if keyword.arg == "leaf_terminal_kinds":
+                                    self.removed_count += 1
+                                else:
+                                    kept_keywords.append(keyword)
+                            node.keywords = kept_keywords
+                        return node
+    
+                remover = _RemoveLeafTerminalProjection()
+                resolver_tree = remover.visit(resolver_tree)
+                if remover.removed_count != 1:
+                    raise AssertionError(
+                        "leaf-terminal projection removal probe is blocked: expected exactly "
+                        f"one RecursiveCycleCheckpoint.leaf_terminal_kinds keyword, found "
+                        f"{remover.removed_count}"
+                    )
+                ast.fix_missing_locations(resolver_tree)
+                resolver_namespace = dict(resolver_function.__globals__)
+                exec(  # noqa: S102 - opt-in AST removal probe in copied resolver globals only
+                    compile(resolver_tree, resolver_function.__code__.co_filename, "exec"),
+                    resolver_namespace,
+                )
+                monkeypatch.setattr(
+                    service,
+                    "resolve_recursive_cycle_checkpoint",
+                    MethodType(resolver_namespace[resolver_function.__name__], service),
+                )
+            response = fresh_client.get(f"/api/v1/runs/{core_run_id}")
+            assert response.status_code == 200, response.text
+            run = response.json()["run"]
+            checkpoint = run["recursive_cycle_checkpoint"]
+            assert checkpoint["schema_version"] == "policyos.runtime.recursive_cycle_checkpoint.v1"
+            assert checkpoint["status"] == "partial"
+            assert checkpoint["pending_frontier"] == list(partial_result.frontier_node_refs)
+            assert checkpoint["completed_design_refs"] == [
+                node.node_ref for node in partial_result.leaf_nodes
+            ]
+>           assert checkpoint["leaf_terminal_kinds"] == {
+                node.node_ref: node.terminal.kind.value for node in partial_result.leaf_nodes
+            }
+E           AssertionError: assert {} == {'design://e0...et_exhausted'}
+E             
+E             Right contains 1 more item:
+E             {'design://e02/recursive-budget/child-a': 'budget_exhausted'}
+E             Use -v to get more diff
+
+tests/integration/core_runtime/test_e02_recursive_partial_readback.py:336: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_get
+1 failed in 14.45s

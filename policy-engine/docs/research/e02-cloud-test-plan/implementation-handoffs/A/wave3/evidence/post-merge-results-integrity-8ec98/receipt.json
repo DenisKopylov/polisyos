@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "python3",
+    "docs/research/e02-cloud-test-plan/results/import_results.py",
+    "--check"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+  "candidate_tree": "c644eb74aca98215b247df1638854490d66715b7",
+  "workspace_dirty_before": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/"
+  ],
+  "workspace_dirty_after": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.3223572080023587,
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_command.py",
+    "sha256": "ef58301dceda92cf4a17214fd281cfcb3f6f50ba98480533bc0b191878a43798"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

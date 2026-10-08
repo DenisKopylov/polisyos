@@ -1,0 +1,71 @@
+{
+  "workspace_dirty_before": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/"
+  ],
+  "workspace_dirty_after": [
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/composed-A-G-affected-7818/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-R1-frozen/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-frozen-8947/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-consumer-red/",
+    "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/wave3/evidence/nested-N6-history-pre-fix-red/"
+  ],
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98/pytest-basetemp",
+    "tests/integration/core_runtime/test_e02_recursive_partial_readback.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "8ec98ad5208a01006e07d31c60db7f827375ca54",
+  "candidate_tree": "c644eb74aca98215b247df1638854490d66715b7",
+  "exit_code": 0,
+  "wall_s": 20.449764958000742,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/leaf-terminal-projection-frozen-8ec98:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 99,
+      "sha256": "82cb9ecb7a2cafcee3a4dfd8970c2bd21beefeb286995a6d231cfa3ee556091a"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 446,
+      "sha256": "58c02555bf26c583fae04794d60dd979704faf50bdb64d573f216c2ac142e182"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.orch02.coordinator-preimage-matrix-independent-review.v1",
+  "reviewer": "/root/recovery_review",
+  "timestamp_utc": "2026-10-08T16:20:19.200573+00:00",
+  "matrix_path": "/workspace/orch02-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/selected-G-preimage-reconciliation.json",
+  "matrix_sha256": "19e23364db1e60b6e76412e7fe47186f3708d2e99196d03946b915e8536af7cb",
+  "matrix_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "counts": [
+    {
+      "role": "C05",
+      "source_paths": 10,
+      "existing_preimage_differences": 8,
+      "new_paths": 2
+    },
+    {
+      "role": "C06-DFK",
+      "source_paths": 4,
+      "existing_preimage_differences": 3,
+      "new_paths": 1
+    },
+    {
+      "role": "C06-CAN",
+      "source_paths": 4,
+      "existing_preimage_differences": 0,
+      "new_paths": 1
+    },
+    {
+      "role": "C12",
+      "source_paths": 6,
+      "existing_preimage_differences": 4,
+      "new_paths": 2
+    }
+  ],
+  "complete_path_preimage_absence_and_postimage_Gitobject_size_SHA256_source_tree_commit_denominator_reconciled": true,
+  "scope": "Complete own source footprints only; no replacement for per-role source/test/dependency DAG review or source acceptance. CAN3matching existing preimages is not Core/IR composition authorization.",
+  "verdict": "GO for truthful readonly coordinator transport/source-selection requirement publication; no composedPASS/sourceacceptance/closure"
+}

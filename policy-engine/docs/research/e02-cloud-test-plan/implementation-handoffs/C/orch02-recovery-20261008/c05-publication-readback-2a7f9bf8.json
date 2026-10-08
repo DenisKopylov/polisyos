@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.orch02.c05.topic_publication_readback.v1",
+  "recorded_at_utc": "2026-10-08T16:29:55.529341+00:00",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "normal_push": {
+    "command": [
+      "git",
+      "push",
+      "origin",
+      "HEAD:refs/heads/codex/e02-C-orch02-c05-recovery"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "To https://github.com/DenisKopylov/polisyos.git\n   66151f3b7..2a7f9bf8f  HEAD -> codex/e02-C-orch02-c05-recovery\n"
+  },
+  "normal_fetch": {
+    "command": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/heads/codex/e02-C-orch02-c05-recovery:refs/remotes/origin/codex/e02-C-orch02-c05-recovery"
+    ],
+    "exit_code": 0
+  },
+  "fetched_ref": "refs/remotes/origin/codex/e02-C-orch02-c05-recovery",
+  "fetched_sha": "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+  "fetched_tree": "fe3e10ca4e87ef13e07390dfadc1dff0ecfbc80b",
+  "source_sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+  "source_is_ancestor": true,
+  "source_tests_release_unchanged_since_native_freeze": true,
+  "handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008.json",
+    "git_blob": "efa3af6759985e07470681a69dd6d91b6464a42b",
+    "bytes": 63251,
+    "sha256": "67a31b4897b034d19c21018fbc399530dd445bc9aba25220c138b32b7f003be5"
+  },
+  "tracked_docs_count": 123,
+  "all_native_artifact_rows_readback_verified": 102,
+  "lossless_gzip_rows_verified": 2,
+  "native_receipt_sha256": "93046f021642ff7dd51b31c4cd38209477cfffcf5765de604b44c6d1f65425ec",
+  "worktree_clean": true,
+  "source_to_handoff_diff_check_exit_code": 0,
+  "independent_publication_review": {
+    "path": "/workspace/orch02-recovery/reviews/c05-independent-final-handoff-review-2a7f9bf8.json",
+    "decision": "GO",
+    "source_qualified": true
+  },
+  "publication_readback_outcome": "PASS",
+  "acceptance_limits": [
+    "G source composition held",
+    "Ruff99 FAIL",
+    "targeted mypy14 FAIL",
+    "limited architecture FAIL; generated freshness UNRUN",
+    "static production_invocation UNRESOLVED gate FAIL",
+    "P41 inherited gate not established",
+    "no formal closure or served production acceptance"
+  ]
+}

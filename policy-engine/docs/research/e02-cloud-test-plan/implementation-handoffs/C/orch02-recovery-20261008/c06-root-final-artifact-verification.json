@@ -1,0 +1,53 @@
+{
+  "mode": "Independent root complete artifact byte/hash/roundtrip verification; bounded final technical review separate; no native replay",
+  "roles": [
+    {
+      "manifest": "dfk-final-manifest.json",
+      "sha256": "ce4b126763e3b5489da95c77d913ab1e26f0a84c7b11a6b55e007b2cb29bbadf",
+      "source": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "complete_moderate_outputs": 122,
+      "complete_lossless_outputs": 4,
+      "all_bytes_verified": true,
+      "all_roundtrips_exact": true,
+      "native_runs": 17,
+      "package_closure": {
+        "wheel_member_denominator": 3454,
+        "sdist_member_denominator": 8505,
+        "all_source_owned_member_bytes_match_frozen_git_archive": true,
+        "direct_rebuilt_member_names_and_bytes_equal": true,
+        "wheel_RECORD_complete_and_hashes_valid": true,
+        "all_source_owned_wheel_members_bind_exact_git_blobs_count": 3449,
+        "retired_DFK_exact_member_prefixes_absent": [
+          "polisyos/foundry/domain/schema.py",
+          "polisyos/foundry/domain/schema/",
+          "polisyos/foundry/domain/mechanisms/",
+          "polisyos/data_forge/kernel/schemas/codegen.py",
+          "polisyos/data_forge/kernel/schemas/codegen/"
+        ],
+        "no_source_or_editable_overlay": true,
+        "fresh_process_each_install": true
+      }
+    },
+    {
+      "manifest": "can-final-manifest.json",
+      "sha256": "ad7d758fe8cb56e55eb3f2c38f262c8439fe59d1ff4ffb8427f5b352259e37fb",
+      "source": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "complete_moderate_outputs": 87,
+      "complete_lossless_outputs": 2,
+      "all_bytes_verified": true,
+      "all_roundtrips_exact": true,
+      "native_runs": 16,
+      "package_closure": {
+        "wheel_member_denominator": 3469,
+        "sdist_member_denominator": 15829,
+        "all_source_owned_member_bytes_match_frozen_git_archive": true,
+        "direct_rebuilt_member_names_and_bytes_equal": true,
+        "wheel_RECORD_complete_and_hashes_valid": true,
+        "all_source_owned_wheel_members_bind_exact_git_blobs_count": 3464,
+        "retired_DFK_exact_member_prefixes_absent": null,
+        "no_source_or_editable_overlay": true,
+        "fresh_process_each_install": true
+      }
+    }
+  ]
+}

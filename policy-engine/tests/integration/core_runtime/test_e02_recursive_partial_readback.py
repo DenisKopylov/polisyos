@@ -54,7 +54,6 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         validate_generation_cycle_run_history,
     )
     from polisyos.runtime.quality.recursive_generation_cycle import (
-        RecursiveCycleNode,
         RecursiveGenerationCyclePartialRunV2,
     )
     from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -271,9 +270,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         assert checkpoint["status"] == "partial"
         assert checkpoint["pending_frontier"] == list(partial_result.frontier_node_refs)
         assert checkpoint["completed_design_refs"] == [
-            node.node_ref
-            for node in partial_result.nodes
-            if isinstance(node, RecursiveCycleNode)
+            node.node_ref for node in partial_result.leaf_nodes
         ]
         assert checkpoint["stop_node_ref"] == partial_result.budget_stop_node_ref
         assert checkpoint["root_design_problem_ref"] == problem_ref
@@ -380,13 +377,25 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
             negative_job = negative_service._control_store.get_job(negative_job_id)
             assert negative_job is not None and negative_job.state == "completed"
             negative_run_id = str(negative_job.progress["core_run_id"])
-            negative_get = fresh_client.get(f"/api/v1/runs/{negative_run_id}")
-            assert negative_get.status_code == 200, negative_get.text
-            negative_run = negative_get.json()["run"]
-            assert negative_run.get("recursive_cycle_checkpoint") is None, (
-                f"fresh GET projected a checkpoint after nested {projection_name} "
-                "diverged while outer and recursive hashes remained valid"
+            negative_readback_context = build_runtime_api_context(
+                cas_root=cas_root,
+                core_runs_root=cas_root / "runs",
             )
+            negative_readback_app = create_runtime_api_app(
+                cas_root=cas_root,
+                container_overrides=RuntimeContainerOverrides(
+                    runtime_api_context=negative_readback_context
+                ),
+                allow_fixture_identity=True,
+            )
+            with TestClient(negative_readback_app) as negative_client:
+                negative_get = negative_client.get(f"/api/v1/runs/{negative_run_id}")
+                assert negative_get.status_code == 200, negative_get.text
+                negative_run = negative_get.json()["run"]
+                assert negative_run.get("recursive_cycle_checkpoint") is None, (
+                    f"fresh GET projected a checkpoint after nested {projection_name} "
+                    "diverged while outer and recursive hashes remained valid"
+                )
 
         persist_corrupt_projection(
             projection_name="SearchIteration.status",

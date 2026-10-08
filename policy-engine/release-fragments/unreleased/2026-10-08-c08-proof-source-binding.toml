@@ -4,11 +4,24 @@ type = "fixed"
 component = "foundry"
 owner = "team-foundry"
 summary = "Persist and freshly resolve the original finite-profile graph and exact causal_graph lineage for common and conditional proof artifacts."
-change_class = "internal"
-surface_classification = "internal: scoped causal proof and native query behavior"
+change_class = "persisted-artifact-format"
+surface_classification = "internal: finite static CPDAG persisted proof profile in existing IR proof helpers"
 compatibility = "No DTO, schema, public signature or export change. Historical partial_graph_query proofs missing original graph/ref/lineage now refuse; unrelated legacy proofs retain their existing behavior."
 migration = "Re-persist old finite-profile proofs from their exact original graph before current readback; C11 supplies its own Level2 producer companion."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
 runbook_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
 evidence = ["tests/unit/ir/analytics/test_causal_proof_graph_binding.py", "tests/unit/foundry/methods/catalog/causal/test_partial_graph_query_consumer.py"]
+public_surface_inventory_reviewed = false
+
+[[compatibility_change]]
+id = "finite-cpdag-original-graph-read-binding"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: finite static CPDAG partial_graph_query ProofBundle read profile; existing IR helper signatures and DTO/schema unchanged"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "Current source-bound readers refuse unbound finite-profile proofs immediately; historical bytes remain preserved. Re-persist from the original graph before current readback. No retirement of unrelated legacy proofs."
+release_note = "Both common and conditional finite-profile proofs require resolved original graph bytes, graph_ref and exact causal_graph InputRef. Historical proofs missing that binding refuse instead of being treated as source-bound positives; ordinary legacy proof read behavior remains supported."
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]

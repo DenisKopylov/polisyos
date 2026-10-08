@@ -12,3 +12,16 @@ generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
 runbook_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
 evidence = ["tests/unit/foundry/methods/catalog/causal/test_id_engine_native_query_marginal.py"]
+public_surface_inventory_reviewed = false
+
+[[compatibility_change]]
+id = "native-complete-observed-dag-query-result"
+change_class = "internal"
+impact = "changed"
+surface = "internal: native complete observed static DAG estimand AST and IDC proof-step snapshot"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "No public entrypoint or schema retirement. Recompute affected native full-observed DAG results on the corrected exact source; existing internal snapshot reflects an unsimplified exact IDC denominator."
+release_note = "Existing truncated factorization now precedes recursive ancestral shortcuts for the declared top-level full-observed static DAG profile, retaining the original query and treatment and marginalizing outcome parents. Latent, partial-observation and temporal/PAG profiles are not promoted."
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]

@@ -13,11 +13,14 @@
   "branch": "codex/e02-F-c08-20261008",
   "predicate_basis": "not_established",
   "state": "actual_shared_workload_input_unavailable",
+  "capability_state": "bridge_missing",
+  "route_qualification": "implemented_but_not_orchestrated: source-composed possible pool route, not an established shared Runtime admission bridge",
+  "criterion_scope": "Original B56 permits an explicitly configured synthetic/non-secret competing workload using the actual selected Runtime admission route. Its full admitted-run roster is the denominator; production data or a production roster are not mandatory. L01 protected-input handling applies only if the selected profile requires protected payloads.",
   "canonical_partners": [
     "C01 Runtime admission",
     "Runtime/Scientist shared study owner",
-    "L01 local input admission",
-    "G local read-only measurements"
+    "C08/G selected configured-profile measurements",
+    "L01 local read-only input admission only if the selected profile requires protected payloads"
   ],
   "source_paths": [
     {
@@ -50,34 +53,38 @@
     }
   ],
   "existing_route": [
-    "LocalWorkerPool.submit(NodeTask) priority queue and max_workers permit",
-    "run_node_in_worker actualNode dispatch",
-    "RunCausalEvaluationNode executes configured MethodJob",
-    "MethodBackend native TMLE fit, serial folds within admitted job",
-    "CAS method_result/method_evidence; fresh CausalEffectReport reader"
+    "Possible source-composed path only: LocalWorkerPool.submit(NodeTask) priority queue and max_workers node-count permit; the existing witness constructs this pool in a test",
+    "run_node_in_worker provides Node dispatch; cited sources do not establish one shared Runtime owner/API/cap for the causal workflow and competing jobs",
+    "Separately, the maintained causal workflow uses synchronous WorkflowExecutor.execute and RunCausalEvaluationNode executes configured MethodJob",
+    "MethodBackend native TMLE fit keeps serial folds within its outer Scientist job; common admission bridge to this pool remains unestablished",
+    "CAS method_result/method_evidence and fresh CausalEffectReport reader are existing consumers, not proof of the missing shared-admission bridge"
   ],
-  "observed_source_boundary": "LocalWorkerPool counts active Node tasks. NodeTask.resource_requirements declares cpu_cores/memory_mb/gpu but this pool does not admit by those values or propagate them in its worker payload. Fold executor is serial and does not request nested permits. Source review is not actual workload measurement.",
+  "observed_source_boundary": "LocalWorkerPool counts active Node tasks. NodeTask.resource_requirements declares cpu_cores/memory_mb/gpu but this pool does not admit by those values or propagate them in its worker payload. Fold executor is serial and does not request nested permits. The cited pool/TaskRouter definitions and test construction do not establish that the synchronous causal workflow shares this pool or name a common Runtime permit owner for competing studies. Source review is not actual workload measurement.",
   "minimum_packet": {
     "C01": [
-      "exact canonical shared Runtime/study pool identity and configuration revision",
+      "exact canonical selected Runtime/shared-workload admission owner, source/API identity and configuration revision",
       "selected admission API/permit contract and effective shared cap; resource unit and scaling/cancel semantics",
-      "complete roster of admitted competing jobs and named study owners; placement/admission order",
-      "how RunCausalEvaluationNode/MethodJob shares this pool with every roster item"
+      "complete explicitly configured measured-run roster of competing jobs and named study owners; placement/admission order, without requiring all production jobs",
+      "actual RunCausalEvaluationNode/MethodJob bridge to that same owner/API/cap for every roster item; if unwired, publish bridge_missing/implemented_but_not_orchestrated"
     ],
-    "L01": [
-      "per study actual admitted non-secret source/CAS refs and content/manifest identities (payload local read-only)",
-      "models/backend/effective model params, folds/repeats/seed manifests, row/split identity",
-      "competing stages resource requirements and full job/slot roster",
-      "effective shared capacity profile revision and permitted measurement window"
+    "configured_workload": [
+      "one selected explicitly configured synthetic/non-secret workload and exact input/source/CAS identities; protected payload is not a prerequisite",
+      "complete competing stages/tasks/studies/job-slot roster with source/config/backend/model params and every fold/repeat/seed/split identity",
+      "same complete scientific task set and seed/split/result-provenance denominator under two admitted profile settings; no silent fold/repeat reduction",
+      "effective shared capacity profile revision, resource unit, placement/admission order and permitted measurement window"
+    ],
+    "L01_if_protected_profile_selected": [
+      "only when that chosen workload requires protected inputs: retain payload local/read-only and return exact allowed source/CAS/content/manifest identities",
+      "the same configured-run roster and permitted measurements; no blanket production roster requirement"
     ],
     "measurement": [
       "exact G composed candidate SHA/tree",
-      "active/wait/queue snapshots for whole admitted roster, wall time and peak RSS",
+      "active/wait/queue snapshots and admitted work against the selected cap for the complete configured-run roster, wall time and peak RSS",
       "all job results, all folds/repeats and split/seed provenance reopen through CAS",
-      "parallelism metamorphism under two admitted profile settings, same scientific tasks and agreeing numeric/uncertainty output"
+      "parallelism metamorphism under two admitted profile settings with the identical full jobs/folds/repeats/seeds/splits denominator and agreeing numeric/uncertainty plus provenance output"
     ]
   },
-  "available_portable_witness": "Existing test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout[1|2] has4 synthetic StudyNodes/24native fold fits and actual pool/worker/CAS path. Its roster is fixture-only and carries on unchanged source; it is not the actual admitted workload denominator.",
+  "available_portable_witness": "Existing test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout[1|2] has4 synthetic custom StudyNodes/24native fold fits and actual test-constructed pool/worker/CAS path. It proves this fixture node-count cap/wait/results/serial-fold property on unchanged source. It does not traverse RunCausalEvaluationNode/configured MethodJob or prove their common Runtime admission owner; it is not the selected shared Runtime workload witness.",
   "negative_discriminators": [
     "unchanged declared cap with more active admitted jobs must fail actual capacity assertion",
     "waiting jobs lost/replaced/fewer folds must fail complete all-results/provenance assertion",
@@ -91,7 +98,12 @@
     "monetary ledger interpreted as CPU permit",
     "repeat unchanged TMLE method numerical suite"
   ],
-  "next_concrete_result": "C01 publishes exact existing shared admission/permit/source contract; L01 supplies actual local roster packet; C08/G runs only composed workload/readback/parallelism consumer checks on that candidate. Generic serial-fold property remains maintained.",
+  "next_concrete_result": "C01 binds the actual selected shared admission owner/API/cap and RunCausalEvaluationNode/MethodJob bridge; then C08/G measures one complete explicitly configured synthetic/non-secret competing workload under two settings with all-results/folds/seeds/provenance and fresh CAS readback. L01 is required only for a selected protected-input profile. Generic serial-fold property remains maintained; no new scheduler or cloud quota follows.",
+  "G_dependency_review": {
+    "sha": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C08-packet.md",
+    "scope": "static dependency/navigation input review; seven source blobs confirmed, no runtime measurement or code/finding acceptance"
+  },
   "G_acceptance": "not_adjudicated",
   "formal_finding_closure": "not_adjudicated"
 }

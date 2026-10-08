@@ -340,17 +340,28 @@
       "bundle": "FIT-01",
       "original_unit": "F",
       "check": "UNRUN",
-      "technical_result": "unchanged serial folds and synthetic four-study route carry only unchanged F852/G source witnesses",
-      "F_recommendation": "limited; actual admitted shared-study roster/cap unavailable",
+      "technical_result": "unchanged serial folds and synthetic four-custom-StudyNode/24-fit pool witness carry only unchanged F852/G inputs; that fixture does not exercise RunCausalEvaluationNode/configured MethodJob or establish their common Runtime admission bridge",
+      "F_recommendation": "limited; selected common Runtime admission bridge and complete configured workload measurement remain not_established",
       "code_ready": "dependency_packet_only",
       "code_acceptance_G": "not_adjudicated",
       "formal_finding_closure_G": "not_adjudicated",
-      "actual_consumer": "existing LocalWorkerPool→RunCausalEvaluationNode→MethodJob→native TMLE→CAS",
+      "actual_consumer": "historical 4/24 fixture: test-constructed LocalWorkerPool→custom StudyNode→native TMLE folds→CAS; separately RunCausalEvaluationNode→MethodJob→TMLE→CAS exists, but their common shared Runtime admission bridge is bridge_missing/implemented_but_not_orchestrated",
       "deciding_output": "B56-runtime-workload-packet.json; no actual workload measurement",
-      "limitation": "no actual complete workload/slot roster or canonical shared admission profile",
-      "next_owner": "C01 publishes exact existing admission/cap; L01 supplies actual local roster; G local all-results/wait/active/wall/RSS measurement"
+      "limitation": "C01 has not bound the actual selected shared owner/API/cap and causal MethodJob bridge; no complete configured-run workload measurement. Synthetic/non-secret workload is allowed; production roster is not mandatory",
+      "next_owner": "C01 binds actual selected admission owner/API/cap and bridge; C08/G measures the identical complete configured jobs/folds/repeats/seeds/splits under two settings with all-results/provenance/fresh CAS/wait/active/wall/RSS. L01 applies only if that selected profile needs protected inputs"
     }
   ],
+  "B56_P36_supersession": {
+    "G_review_sha": "71ec2e0758cd7cd93423d3a91afe1a07cef61401",
+    "G_review_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-0932/reviews/C08-packet.md",
+    "current_packet": "B56-runtime-workload-packet.json",
+    "correction": "B56 allows an explicitly configured synthetic/non-secret shared-workload witness. The complete admitted-run roster, not all production jobs, is the measurement denominator. The cited pool and causal workflow components are a possible composition; common Runtime owner/API/cap and actual MethodJob bridge remain missing until C01 binds them. L01/local protected handling is conditional on the chosen profile requiring protected inputs.",
+    "historical_byte_bindings": "Source2dd whole_source_test_companion_footprint remains frozen; its packet blob and full_diff identify historical candidate inputs, not the corrected current dependency text. Preserve outputs/B56-published-readback.json, outputs/independent-review/preparation-receipt.json and outputs/independent-review/candidate-review-output.json byte-for-byte; their old unconditional L01/actual-route captions are superseded only by this passive qualification. No source2dd/TMLE/cache/CPDAG check is rerun or relabelled.",
+    "capability_state": "bridge_missing/implemented_but_not_orchestrated; verification_missing",
+    "predicate_basis": "not_established",
+    "runtime_check": "UNRUN configured shared Runtime workload",
+    "G_acceptance": "dependency/navigation input only; code acceptance and formal finding closure not_adjudicated"
+  },
   "scoped_supplier_requirements": "scoped-supplier-requirements.json; exact B19/B20/B33 original A and LA-036 original C bindings with smallest existing capability choices, paths, triggers and falsifiers; composed positives UNRUN until selected contracts",
   "unchanged_carry": {
     "F852_source": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
@@ -380,6 +391,7 @@
     "P29",
     "P32",
     "P35",
+    "P36",
     "P37",
     "P38",
     "P40",

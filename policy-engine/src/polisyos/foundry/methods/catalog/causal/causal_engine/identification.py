@@ -2287,6 +2287,39 @@ class CausalEngineIdentificationMixin:
         z_int = z_interventions or frozenset()
         cond = conditions or frozenset()
 
+        from polisyos.ir.analytics.causal_graph import GraphType
+
+        if graph.graph_type is GraphType.CPDAG:
+            from polisyos.foundry.methods.catalog.causal._partial_graph_queries import (
+                _identify_partial_cpdag,
+            )
+
+            return _identify_partial_cpdag(
+                treatment=tx,
+                outcome=oy,
+                graph=graph,
+                dataset_ref=dataset_ref,
+                unsupported_query=bool(
+                    source_domains
+                    or s_nodes
+                    or z_int
+                    or cond
+                    or mgraph_meta is not None
+                    or counterfactual_query is not None
+                    or distribution_query is not None
+                    or effective_intervention_query is not None
+                    or policy is not None
+                    or condition_vars
+                    or treatment_sequence
+                    or time_points
+                    or outcomes
+                    or proxy_map
+                    or measurement_model != "unknown"
+                    or proximal_annotation is not None
+                    or oracle != "none"
+                ),
+            )
+
         try:
             if mgraph_meta is None and graph.graph_type is GraphType.MGRAPH:
                 from polisyos.ir.analytics.mgraph import extract_mgraph_metadata

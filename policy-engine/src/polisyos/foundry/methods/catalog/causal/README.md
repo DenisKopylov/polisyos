@@ -264,3 +264,21 @@ runtime default provides RBC or finite-sample coverage.
 - Last updated: 2026-05-06
 - Files: 98 Python files
 - Exports: 164
+
+`CausalEngine.identify` additionally supports a finite, causally sufficient
+static CPDAG query profile with at most four observed nodes, one treatment and
+one disjoint outcome. It exhausts every orientation of tail-tail edges, retains
+known arrows (including their reverse storage encoding), rejects cycles and new
+unshielded colliders, and evaluates each admitted extension with the existing
+DAG g-formula. A common canonical functional, or a recomputed no-directed-effect
+criterion in every extension, can produce a bounded common functional. Otherwise
+completion-specific functionals remain conditional under the existing
+`pag_ambiguous` status and persist through the ordinary proof/audit CAS route.
+The status name does not promise PAG support. Different symbolic forms do not
+prove numerical nonequivalence; agreement of sampled answers does not prove
+completeness. PAG, temporal, latent/bidirected, parallel-edge, MGraph-contradicting,
+and larger CPDAG profiles remain outside this adapter, as do conditional,
+transport, policy, counterfactual and oracle-backed queries. The original graph
+is preserved, and graph/source assumptions and protected causal admission remain
+separate from this mathematical query result. Reconciliation still supports
+only its declared static DAG/ADMG profiles.

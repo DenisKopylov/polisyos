@@ -1,0 +1,183 @@
+{
+  "schema": "policyos.e02.scoped_supplier_requirements.v1",
+  "role": "C08",
+  "source_sha": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "source_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "findings": [
+    {
+      "finding_id": "B19",
+      "original_unit": "A",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "blob": "c8c933ee8c1ea7b8ae6e7f60de0d29e8005e672a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+          "blob": "5c87f7122a5eb816187eb05054d155dde81a802b"
+        }
+      ],
+      "actual_contract": "_baseline_value refuses absent/nonfinite outcome baseline; _effective_evidence_state declares explicit vs legacy compatibility source; comparator_refs_status remains not_established. Existing CausalContrastSpec separates target/comparator, and SCM query binds contrast to one declared model.",
+      "smallest_existing_option": "C10 resolve a model/horizon/population/selected-outcome-bound comparator artifact plus separately resolved factual EvidenceStateRef, then reuse existing paired Monte-Carlo/SCM contrast path. C08 supplies the exact SCM/query model/source profile only if selected by C10.",
+      "minimum_packet": [
+        "selected comparator/evidence artifact kinds and resolver owner",
+        "same exact model/source content, source/target regime, physical grid/horizon, population, row/seed-coupling identity",
+        "C10 canonical consumer path/lease and wanted observable"
+      ],
+      "discriminator": "Y0=YA=YB=YAB=100 gives0individual/joint/interactions; absent comparator refuses rather thanzero; change comparator alone leaves factual evidence unchanged.",
+      "write_owner": "C10 consumer; Runtime joint simulation/atom producer owner requires G exact path lease",
+      "predicate_basis": "not_established",
+      "composed_positive": "UNRUN until exact selected upstream packet",
+      "scope": "source research/decision requirement, not a fresh runtime acceptance or formal finding closure",
+      "original_criterion_bindings": [
+        {
+          "criterion_id": "B19",
+          "document": "B_r19",
+          "lines": [
+            425,
+            438
+          ],
+          "sha256": "db1ff4d20be85b6c4370b73aecc9f8f68ac09568e7e98163e639f67c2f15a733",
+          "card": "SIM-03"
+        }
+      ]
+    },
+    {
+      "finding_id": "B20",
+      "original_unit": "A",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "blob": "c8c933ee8c1ea7b8ae6e7f60de0d29e8005e672a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+          "blob": "d775ab73429e8c668aa99b91af070e6ef92ad46a"
+        }
+      ],
+      "actual_contract": "_ncm_intervention rejects differing assignments on one mapped variable; _program_parameter_overrides and _coupled_params_for_subset still consume sequences through updates. JointSimulationRequest existing selected route has no declared sequential operation/order/dependency contract. Static simultaneous do assignments do not implement temporal sequence.",
+      "smallest_existing_option": "G/C10 name existing atom-operation producer and sequential semantics/identity carrier before accepting sequential execution. Keep unordered compatible same assignments and typed conflict refusal; do not reinterpret array order as sequence. C08 existing causal graph/query paths accept only their declared simultaneous do/ordinary profile until supplied order contract.",
+      "minimum_packet": [
+        "exact existing atom/operation/slot/merge owner paths and writer lease",
+        "declared simultaneous vs sequential execution semantics, dependency DAG or explicit ordered operator identity",
+        "physical grid/horizon and model backend supporting the requested sequential operation"
+      ],
+      "discriminator": "Permutation of unordered equal assignments unchanged; conflictingx=1/x=2refuses; sequentialx→x² thenx→x+1 differs from reverse and identity must bind declaredorder, neither may collapse tolast-wins map.",
+      "write_owner": "C08 only named graph/method paths; Runtime atom producer/C10 consumer outside current lease",
+      "predicate_basis": "not_established",
+      "composed_positive": "UNRUN until exact selected upstream packet",
+      "scope": "source research/decision requirement, not a fresh runtime acceptance or formal finding closure",
+      "original_criterion_bindings": [
+        {
+          "criterion_id": "B20",
+          "document": "B_r19",
+          "lines": [
+            439,
+            450
+          ],
+          "sha256": "ed3aedc0aa1d801dff49f931a0789190350d32f64039e946c5dc4468469b7838",
+          "card": "SIM-02"
+        }
+      ]
+    },
+    {
+      "finding_id": "B33",
+      "original_unit": "A",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+          "blob": "1a4edaa03a316028b45a9eed9311636cb8481255"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+          "blob": "f2635665550259d20323d29a784faf11dc8896b7"
+        }
+      ],
+      "actual_contract": "_build_candidate_selection_diagram currently refuses because the generation-cycle boundary lacks ArtifactStore/CausalGraphModelRef verifier bridge; it does not still infer topology from treatment/covariate names. Existing SelectionDiagram embeds an explicit base_graph and source/target ContextProfiles; SNode carries paired source_ref/target_ref.",
+      "smallest_existing_option": "C10 inject existing CAS graph resolver/current source/target context verifier, resolve admitted model/identification plan and build existing SelectionDiagram from thatgraph. F owns supplied graph/query/model semantics; C10 owns authority projection and generation-cycle bridge. No new template graph/registry.",
+      "minimum_packet": [
+        "selected immutable graph CAS ref/manifest/content and identification-plan basis",
+        "source/target scope/domain/valid-time/schema/model epochs and existing verifier provenance",
+        "measured SNode source/target refs and mechanism-shift meaning",
+        "exact C10 resolver/consumer lease and admitted purpose"
+      ],
+      "discriminator": "Same variable names and marginals with T→Y vsY→T givesdifferentmodel/topology-bound transport basis; missing structure typedlimited; observedcontext differences cannotmake knownarrows.",
+      "write_owner": "C08 graph/model supplier; C10 actual generation-cycle consumer; shared runtime file outside current lease",
+      "predicate_basis": "not_established",
+      "composed_positive": "UNRUN until exact selected upstream packet",
+      "scope": "source research/decision requirement, not a fresh runtime acceptance or formal finding closure",
+      "original_criterion_bindings": [
+        {
+          "criterion_id": "B33",
+          "document": "B_r19",
+          "lines": [
+            621,
+            634
+          ],
+          "sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+          "card": "EMP-01"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-036",
+      "original_unit": "C",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+          "blob": "31d3a9093cc5927d360f680da811e2a33b222239"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+          "blob": "cd6a59856b9bcc5e06446283b5287c4ba0f66a15"
+        },
+        {
+          "path": "policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+          "blob": "d2a598b5a03f6f2ea24f67a024ae7d056e2ba6d2"
+        }
+      ],
+      "actual_contract": "GCM _prepare_linear_gaussian_abduction/_linear_gaussian_posterior condition exogenous noises under a declared structural model. Its posterior parameter/noise rows are not an admitted observed-feature conditional law or general BERL sampler.",
+      "smallest_existing_option": "C09 emits maintained observed-feature conditional law/sampler with admitted model/source/support/order/time binding. C08 provides exact supported SCM model and mechanism/source identity if thatroute is chosen; C10 explanation_reliability/C11 preflight consume only matching producer profile, C07 exports current canonical IR companions.",
+      "minimum_packet": [
+        "law producer chosen profile and sampler API under C09 lease",
+        "ordered observed features, conditioning/support, model/schema epoch and resolved source/model content refs",
+        "population/cohort/time and verifier provenance; declared error/seed/bound if approximate",
+        "C10/C11 consumer contract requiring model/law equality"
+      ],
+      "discriminator": "CorrelatedGaussianrho=.8,f=x1,x=(1,1) conditionalShapley(.6,.4) vs marginal(1,0); rho0(1,0); changinglabel or injecting posteriorrows cannotestablish conditionallaw.",
+      "write_owner": "C09 observed law; C08 selected SCM model; C10/C11 consumers; no BERL writes by C08",
+      "predicate_basis": "not_established",
+      "composed_positive": "UNRUN until exact selected upstream packet",
+      "scope": "source research/decision requirement, not a fresh runtime acceptance or formal finding closure",
+      "original_criterion_bindings": [
+        {
+          "criterion_id": "LA-036",
+          "document": "LA_r09",
+          "lines": [
+            2103,
+            2145
+          ],
+          "sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+          "card": "BER-01"
+        }
+      ]
+    }
+  ],
+  "G_acceptance": "not_adjudicated",
+  "pattern_ids": [
+    "P01",
+    "P02",
+    "P05",
+    "P27",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "no_parallel_authority_or_engine": true
+}

@@ -1,0 +1,13 @@
+PT006 Wrong type passed to first argument of `pytest.mark.parametrize`; expected `tuple`
+    --> tests/unit/remediation/test_emb_03.py:1422:5
+     |
+1421 | @pytest.mark.parametrize(
+1422 |     "basis_kind,generation_id,inventory",
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1423 |     [
+1424 |         ("legal_lex_entities_embedding", "generation", bytearray(b"{}")),
+     |
+help: Use a `tuple` for the first argument
+
+Found 1 error.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

@@ -1,0 +1,21 @@
+src/polisyos/lex/knowledge/store.py:341: error: "object" has no attribute "__iter__"; maybe "__dir__" or "__str__"? (not iterable)  [attr-defined]
+src/polisyos/lex/knowledge/store.py:388: error: Returning Any from function declared to return "bytes"  [no-any-return]
+src/polisyos/lex/knowledge/store.py:391: error: Name "epoch_contract.LegalAmendmentWindowResolutionQuery" is not defined  [name-defined]
+src/polisyos/lex/knowledge/store.py:392: error: Name "epoch_contract.LegalAmendmentWindowDenominatorReceipt" is not defined  [name-defined]
+src/polisyos/lex/knowledge/store.py:413: error: Name "epoch_contract.LegalAmendmentWindowAssessment" is not defined  [name-defined]
+src/polisyos/lex/knowledge/store.py:423: error: "object" has no attribute "__iter__"; maybe "__dir__" or "__str__"? (not iterable)  [attr-defined]
+src/polisyos/lex/knowledge/store.py:566: error: Name "epoch_contract.LegalAmendmentWindowDenominatorReceipt" is not defined  [name-defined]
+src/polisyos/lex/knowledge/store.py:609: error: Value of type "tuple[Any, ...] | None" is not indexable  [index]
+src/polisyos/lex/knowledge/store.py:744: error: Missing type parameters for generic type "tuple"  [type-arg]
+src/polisyos/lex/knowledge/store.py:984: error: Argument 1 to "_parse_numeric_values" of "LegalKnowledgeStore" has incompatible type "float | None"; expected "str"  [arg-type]
+src/polisyos/lex/knowledge/store.py:1019: error: Library stubs not installed for "hnswlib"  [import-untyped]
+src/polisyos/lex/knowledge/store.py:1019: note: Hint: "python3 -m pip install types-hnswlib"
+src/polisyos/lex/knowledge/store.py:1019: note: (or run "mypy --install-types" to install all missing stub packages)
+src/polisyos/lex/knowledge/store.py:1019: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+src/polisyos/lex/knowledge/store.py:1215: error: No overload variant of "int" matches argument type "object"  [call-overload]
+src/polisyos/lex/knowledge/store.py:1215: note: Possible overload variants:
+src/polisyos/lex/knowledge/store.py:1215: note:     def __new__(cls, str | Buffer | SupportsInt | SupportsIndex = ..., /) -> int
+src/polisyos/lex/knowledge/store.py:1215: note:     def __new__(cls, str | bytes | bytearray, /, base: SupportsIndex) -> int
+src/polisyos/lex/knowledge/store.py:1286: error: Returning Any from function declared to return "ndarray[tuple[Any, ...], dtype[Any]]"  [no-any-return]
+src/polisyos/lex/knowledge/store.py:1288: error: Missing type parameters for generic type "tuple"  [type-arg]
+Found 14 errors in 1 file (checked 2 source files)

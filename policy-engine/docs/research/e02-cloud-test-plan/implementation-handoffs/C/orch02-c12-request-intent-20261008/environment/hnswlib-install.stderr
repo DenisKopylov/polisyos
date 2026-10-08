@@ -1,0 +1,8 @@
+Using Python 3.14.2 environment at: orch02-native-c05-c12/venv
+Resolved 2 packages in 2.79s
+   Building hnswlib==0.8.0
+      Built hnswlib==0.8.0
+Prepared 1 package in 36.34s
+Installed 2 packages in 33ms
+ + hnswlib==0.8.0
+ + numpy==2.5.3

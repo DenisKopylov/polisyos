@@ -1,0 +1,212 @@
+{
+  "schema": "policyos.e02.orch02.independent-source-binding.v1",
+  "reviewer": "/root/recovery_review",
+  "timestamp_utc": "2026-10-08T15:46:30.080497+00:00",
+  "role": "C12",
+  "source": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+  "tree": "682d90b2dbd19acc0aaae5ee12cd67046beddb8a",
+  "parents": [
+    "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2"
+  ],
+  "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+  "G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "patch_blob": "a8869a2adaa29f249378e4041f03f06b322e4480",
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "kind": "source",
+      "declared_base": "95c2ab216c5c4bd60c71bf13eb1e0c1596d8df8a",
+      "actual_base": "95c2ab216c5c4bd60c71bf13eb1e0c1596d8df8a",
+      "declared_post": "5831a8c63410a1b002970e7cd82e43b780f92342",
+      "actual_post": "5831a8c63410a1b002970e7cd82e43b780f92342",
+      "G_blob": "9a01a6c2cd2baa0ae29736b526153046ae2e822a",
+      "base_matches": true,
+      "post_matches": true,
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+      "kind": "source",
+      "declared_base": "a25674788cf0d7305cbb60db5172aa113fd5c8cf",
+      "actual_base": "a25674788cf0d7305cbb60db5172aa113fd5c8cf",
+      "declared_post": "986534c4873fb38870d66ef86cb5d5d4e23760a8",
+      "actual_post": "986534c4873fb38870d66ef86cb5d5d4e23760a8",
+      "G_blob": "ed7710c10a76913b0f0e209481baf65129943270",
+      "base_matches": true,
+      "post_matches": true,
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+      "kind": "test",
+      "declared_base": "27f18067fc33723a4d147df1f1bff2d5c1dcece5",
+      "actual_base": "27f18067fc33723a4d147df1f1bff2d5c1dcece5",
+      "declared_post": "6a4706ae444345c548d88b5ed7f6f9ff32cf599c",
+      "actual_post": "6a4706ae444345c548d88b5ed7f6f9ff32cf599c",
+      "G_blob": "0267e54b7143b862b703a3b99aa24e383ea490a2",
+      "base_matches": true,
+      "post_matches": true,
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+      "kind": "doc_companion",
+      "declared_base": "58b9f6782d3592f1d49fd2b1d28b02acec1c6232",
+      "actual_base": "58b9f6782d3592f1d49fd2b1d28b02acec1c6232",
+      "declared_post": "15ef2244c71a5162e2772127eb56fdabbf57fd18",
+      "actual_post": "15ef2244c71a5162e2772127eb56fdabbf57fd18",
+      "G_blob": "5bb71b6fc1a5229dfee5fe0043afdd8d0763622c",
+      "base_matches": true,
+      "post_matches": true,
+      "G_matches_base": false
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-legal-request-generation-intent.toml",
+      "kind": "release_companion",
+      "declared_base": null,
+      "actual_base": null,
+      "declared_post": "34d2476c3ab6f5faac8e62a99d3b05bae4b10c55",
+      "actual_post": "34d2476c3ab6f5faac8e62a99d3b05bae4b10c55",
+      "G_blob": null,
+      "base_matches": true,
+      "post_matches": true,
+      "G_matches_base": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-c12-request-intent.md",
+      "kind": "doc_companion",
+      "declared_base": null,
+      "actual_base": null,
+      "declared_post": "3a9e4fb39e262bf34feaf58851ae94798db8e95f",
+      "actual_post": "3a9e4fb39e262bf34feaf58851ae94798db8e95f",
+      "G_blob": null,
+      "base_matches": true,
+      "post_matches": true,
+      "G_matches_base": true
+    }
+  ],
+  "dependency_denominator": "Every unchanged_inputs item from exact final proposal packet (11 rows); no dynamic/external full-closure claim.",
+  "dependencies": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+      "declared_blob": "48c6f4e1e899613962e984ffd25d4bd7baa8230e",
+      "base_blob": "48c6f4e1e899613962e984ffd25d4bd7baa8230e",
+      "source_blob": "48c6f4e1e899613962e984ffd25d4bd7baa8230e",
+      "G_blob": "02f47ec1dc17eab658849a764cc43a90cf419857",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+      "declared_blob": "ee526dd88b8acf41931793010ac7a81b7b64329c",
+      "base_blob": "ee526dd88b8acf41931793010ac7a81b7b64329c",
+      "source_blob": "ee526dd88b8acf41931793010ac7a81b7b64329c",
+      "G_blob": null,
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "declared_blob": "0e1d2a5229b3167c7a3d211386f6e7607b9d30a3",
+      "base_blob": "0e1d2a5229b3167c7a3d211386f6e7607b9d30a3",
+      "source_blob": "0e1d2a5229b3167c7a3d211386f6e7607b9d30a3",
+      "G_blob": "7f90187b92f632e540326d8efe997f510b4f0c15",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "declared_blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+      "base_blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+      "source_blob": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+      "G_blob": "19ca41eead188afac99ed21cca386c460763e15d",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": false
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "declared_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "base_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "source_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "G_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "declared_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "base_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "source_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "G_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": true
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "declared_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "base_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "source_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "G_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/types.py",
+      "declared_blob": "7668844f547a18c21be978316b1451db436f8981",
+      "base_blob": "7668844f547a18c21be978316b1451db436f8981",
+      "source_blob": "7668844f547a18c21be978316b1451db436f8981",
+      "G_blob": "7668844f547a18c21be978316b1451db436f8981",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/__init__.py",
+      "declared_blob": "8b7dd8350ad0947a9bcba7f3e2b96bc8af57ea3c",
+      "base_blob": "8b7dd8350ad0947a9bcba7f3e2b96bc8af57ea3c",
+      "source_blob": "8b7dd8350ad0947a9bcba7f3e2b96bc8af57ea3c",
+      "G_blob": "8b7dd8350ad0947a9bcba7f3e2b96bc8af57ea3c",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": true
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "declared_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "base_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "source_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "G_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": true
+    },
+    {
+      "path": "policy-engine/architecture/imports/policy.toml",
+      "declared_blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+      "base_blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+      "source_blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+      "G_blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+      "declared_matches": true,
+      "unchanged_from_base": true,
+      "G_matches_source": true
+    }
+  ],
+  "full_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-c12-request-intent.md",
+    "policy-engine/release-fragments/unreleased/2026-10-08-legal-request-generation-intent.toml",
+    "policy-engine/src/polisyos/lex/knowledge/README.md",
+    "policy-engine/src/polisyos/lex/knowledge/search.py",
+    "policy-engine/src/polisyos/lex/knowledge/store.py",
+    "policy-engine/tests/unit/remediation/test_emb_03.py"
+  ],
+  "source_only": true,
+  "runtime": "UNRUN by this reviewer; independent tester wave pending",
+  "composition_acceptance": "not_established"
+}

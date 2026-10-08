@@ -1,0 +1,6 @@
+2026-10-08 15:50:23.570 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: entities=2 (skipped=0)
+2026-10-08 15:50:23.610 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: facts=2 (skipped=0)
+2026-10-08 15:50:23.668 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: provisions=2 (skipped=0)
+2026-10-08 15:50:23.736 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: entities=2 (skipped=0)
+2026-10-08 15:50:23.778 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: facts=2 (skipped=0)
+2026-10-08 15:50:23.839 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: provisions=2 (skipped=0)

@@ -1,0 +1,43 @@
+{
+  "verdict": "DECLARED_RESIDUAL_REPRODUCED",
+  "identity_unchanged": true,
+  "generation_profile_preserved": true,
+  "encoder_and_membership_guards_preserved": true,
+  "substituted_result": [
+    "entity-decoy"
+  ],
+  "restored_result": [
+    "entity-target"
+  ],
+  "encoded_texts": [
+    "target",
+    "target"
+  ],
+  "native_knn_calls": [
+    {
+      "labels": [
+        [
+          0
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    },
+    {
+      "labels": [
+        [
+          1
+        ]
+      ],
+      "distances": [
+        [
+          0.0
+        ]
+      ]
+    }
+  ],
+  "boundary": "asset/config/tokenizer identity does not attest replaced executable encode behavior"
+}

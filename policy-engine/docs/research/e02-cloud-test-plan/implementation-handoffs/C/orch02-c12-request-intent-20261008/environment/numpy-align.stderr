@@ -1,0 +1,9 @@
+Using Python 3.14.2 environment at: orch02-native-c05-c12/venv
+Resolved 1 package in 412ms
+Downloading numpy (15.8MiB)
+ Downloaded numpy
+Prepared 1 package in 711ms
+Uninstalled 1 package in 19ms
+Installed 1 package in 24ms
+ - numpy==2.5.3
+ + numpy==2.3.5

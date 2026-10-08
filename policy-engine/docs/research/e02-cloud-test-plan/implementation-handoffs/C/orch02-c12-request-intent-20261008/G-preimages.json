@@ -1,0 +1,38 @@
+[
+  {
+    "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+    "base_blob": "95c2ab216c5c4bd60c71bf13eb1e0c1596d8df8a",
+    "G_blob": "9a01a6c2cd2baa0ae29736b526153046ae2e822a",
+    "G_matches_preimage": false
+  },
+  {
+    "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+    "base_blob": "a25674788cf0d7305cbb60db5172aa113fd5c8cf",
+    "G_blob": "ed7710c10a76913b0f0e209481baf65129943270",
+    "G_matches_preimage": false
+  },
+  {
+    "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+    "base_blob": "27f18067fc33723a4d147df1f1bff2d5c1dcece5",
+    "G_blob": "0267e54b7143b862b703a3b99aa24e383ea490a2",
+    "G_matches_preimage": false
+  },
+  {
+    "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+    "base_blob": "58b9f6782d3592f1d49fd2b1d28b02acec1c6232",
+    "G_blob": "5bb71b6fc1a5229dfee5fe0043afdd8d0763622c",
+    "G_matches_preimage": false
+  },
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-08-legal-request-generation-intent.toml",
+    "base_blob": null,
+    "G_blob": null,
+    "G_matches_preimage": false
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-c12-request-intent.md",
+    "base_blob": null,
+    "G_blob": null,
+    "G_matches_preimage": false
+  }
+]

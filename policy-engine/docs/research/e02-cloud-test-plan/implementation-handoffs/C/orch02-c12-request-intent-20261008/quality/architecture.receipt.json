@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "target_sha": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+  "wall_seconds": 320.50578236579895,
+  "maxrss_kib": 1124260,
+  "exit_code": 2,
+  "timeout_seconds": null,
+  "timeout_basis": "first wall measurement; no timeout kill",
+  "stdout": "/workspace/orch02-recovery/c12-checks/architecture.stdout.txt",
+  "stderr": "/workspace/orch02-recovery/c12-checks/architecture.stderr.txt"
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "orch02.native-command.v1",
+  "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "branch": "codex/e02-C-orch02-c12-recovery",
+  "repo": "/workspace/orch02-c12",
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-native-c05-c12/raw/c12-membership-native-v2/basetemp",
+    "--junitxml",
+    "/workspace/orch02-native-c05-c12/raw/c12-membership-native-v2/junit.xml",
+    "-q",
+    "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership"
+  ],
+  "timeout_seconds": null,
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine/tests:/workspace/orch02-native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-native-c05-c12/raw/c12-membership-native-v2/cas"
+  },
+  "source_status_before": "",
+  "exit_code": 0,
+  "wall_seconds": 3.785772397999949,
+  "source_status_after": "",
+  "source_sha_after": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "outputs": {
+    "junit.xml": {
+      "bytes": 399,
+      "sha256": "b8c6c55ff6f9c432435779b8413af8e10f51ffe225e4b4a7f5ae1d47ba4276a5"
+    },
+    "stdout.txt": {
+      "bytes": 559,
+      "sha256": "9da8df0a92552757f713a7fa237f5e84006178f499fa58c7d29441255ba640d0"
+    },
+    "runtime-origins.json": {
+      "bytes": 5847,
+      "sha256": "3867b10cc67a83057c33e8d841144fffd3ea5138d9ad793ba75a14ea974b3292"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "resource.json": {
+      "bytes": 286,
+      "sha256": "85d233b3592226c10517d7b686ec1add2517f5ff77e9998fde0c7b055c5c93d3"
+    }
+  }
+}

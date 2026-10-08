@@ -1,0 +1,180 @@
+{
+  "schema": "orch02.C12.independent-native.v1",
+  "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "verdict": "PASS bounded generic request-generation/profile/native consumer",
+  "production": "not_established; C10/L01/L02 separate",
+  "checks": [
+    {
+      "name": "c12-membership-native-v2",
+      "command_receipt": "/workspace/orch02-native-c05-c12/raw/c12-membership-native-v2/command.json",
+      "exit_code": 0,
+      "wall_seconds": 3.785772397999949,
+      "RSS_KiB": 198788,
+      "outputs": {
+        "junit.xml": {
+          "bytes": 399,
+          "sha256": "b8c6c55ff6f9c432435779b8413af8e10f51ffe225e4b4a7f5ae1d47ba4276a5"
+        },
+        "stdout.txt": {
+          "bytes": 559,
+          "sha256": "9da8df0a92552757f713a7fa237f5e84006178f499fa58c7d29441255ba640d0"
+        },
+        "runtime-origins.json": {
+          "bytes": 5847,
+          "sha256": "3867b10cc67a83057c33e8d841144fffd3ea5138d9ad793ba75a14ea974b3292"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "resource.json": {
+          "bytes": 286,
+          "sha256": "85d233b3592226c10517d7b686ec1add2517f5ff77e9998fde0c7b055c5c93d3"
+        }
+      },
+      "cases_by_file": {
+        "tests.unit.remediation.test_emb_03": 1
+      }
+    },
+    {
+      "name": "c12-full-native",
+      "command_receipt": "/workspace/orch02-native-c05-c12/raw/c12-full-native/command.json",
+      "exit_code": 0,
+      "wall_seconds": 29.37854561000006,
+      "RSS_KiB": 285060,
+      "outputs": {
+        "junit.xml": {
+          "bytes": 5790,
+          "sha256": "647da7e3400fbd46ccad91f4a979c9f4eedbf3290b7f6723b05853e7d3fc342e"
+        },
+        "stdout.txt": {
+          "bytes": 559,
+          "sha256": "8f758b0c2f726a250a3599a1d82d6d8eafd90824ec183c50eabe3bc7b8bbf87d"
+        },
+        "runtime-origins.json": {
+          "bytes": 9805,
+          "sha256": "ec662d79270604178b52fddb7c5d8d95d270e2ed319c4a7021e31ea0a84d890e"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "resource.json": {
+          "bytes": 290,
+          "sha256": "0c3625708756cab7af61ef942ac8a77560594ac698b2eeb449a50bf723929431"
+        }
+      },
+      "cases_by_file": {
+        "tests.unit.remediation.test_emb_03": 31,
+        "tests.unit.data_forge.kernel.test_embeddings": 5
+      }
+    },
+    {
+      "name": "c12-intent-semantic",
+      "command_receipt": "/workspace/orch02-native-c05-c12/raw/c12-intent-semantic/command.json",
+      "exit_code": 0,
+      "wall_seconds": 3.627445325999929,
+      "RSS_KiB": 168252,
+      "outputs": {
+        "semantic.json": {
+          "bytes": 4840,
+          "sha256": "b28341fc6cdc232c43e50b5c6c0be5bf18e5dcdd70aafa670be36c11fd0e544c"
+        },
+        "stdout.txt": {
+          "bytes": 4840,
+          "sha256": "b28341fc6cdc232c43e50b5c6c0be5bf18e5dcdd70aafa670be36c11fd0e544c"
+        },
+        "stderr.txt": {
+          "bytes": 670,
+          "sha256": "7c1039e05940f1a4fe0faa07491a169ac7a9d45b7ceae1ac8fae8f78ce5af7ae"
+        },
+        "resource.json": {
+          "bytes": 285,
+          "sha256": "0909ab2ad8ba5e0824b63e0866a2b2248c43ab0ac19f25f025d78ae6abb44e20"
+        }
+      },
+      "semantic_verdict": "PASS"
+    },
+    {
+      "name": "c12-callable-residual",
+      "command_receipt": "/workspace/orch02-native-c05-c12/raw/c12-callable-residual/command.json",
+      "exit_code": 0,
+      "wall_seconds": 2.863473321000015,
+      "RSS_KiB": 162020,
+      "outputs": {
+        "semantic.json": {
+          "bytes": 719,
+          "sha256": "0d7cafbf25a6efb68720a7a772b77382c58fcfd5a54d753b402858155b92e600"
+        },
+        "stdout.txt": {
+          "bytes": 719,
+          "sha256": "0d7cafbf25a6efb68720a7a772b77382c58fcfd5a54d753b402858155b92e600"
+        },
+        "stderr.txt": {
+          "bytes": 335,
+          "sha256": "d43401c739a0c16f6f586fdc60f1dadd54a7125981171fabc6fec194e13d7729"
+        },
+        "resource.json": {
+          "bytes": 295,
+          "sha256": "1eb120bbae7f8fecb2835e67de04634bca1d983ee8375a3d78e05953a9088ec4"
+        }
+      },
+      "semantic_verdict": "DECLARED_RESIDUAL_REPRODUCED"
+    }
+  ],
+  "harnesses": {
+    "orch02_capture.py": {
+      "path": "/workspace/orch02-native-c05-c12/orch02_capture.py",
+      "sha256": "ed201e8fca7a985b282b9f659dea8da9b6607b6dbe12eb98501c736a1823e51c",
+      "preserved_exact_executed_path": "/workspace/orch02-native-c05-c12/orch02_capture-c12-executed.py"
+    },
+    "run_gate.py": {
+      "path": "/workspace/orch02-native-c05-c12/run_gate.py",
+      "sha256": "1acd0bcf556e3a2f46a3f6ee54a36416660090cdc3c112991d3432b9e22ce8e7",
+      "preserved_exact_executed_path": "/workspace/orch02-native-c05-c12/run_gate-c12-executed.py"
+    },
+    "encoder_residual.py": {
+      "path": "/workspace/orch02-native-c05-c12/encoder_residual.py",
+      "sha256": "2610c94ca646ca2c961f4e585b7fb85ed173f518ff17dacbdff7d310e7468b71"
+    },
+    "semantic_collect.py": {
+      "path": "/workspace/orch02-native-c05-c12/semantic_collect.py",
+      "sha256": "794af6f103834d7673b89c34a052f75a0ceef480c94309e00603ee213dee762e",
+      "preserved_exact_executed_path": "/workspace/orch02-native-c05-c12/semantic_collect-c12-executed.py"
+    }
+  },
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.3.5",
+    "duckdb": "1.4.3",
+    "hnswlib": "0.8.0",
+    "pytest": "9.0.2",
+    "shared_environment_mutated": false,
+    "setup_outputs": [
+      "raw/hnswlib-install.stdout",
+      "raw/hnswlib-install.stderr",
+      "raw/numpy-align.stdout",
+      "raw/numpy-align.stderr"
+    ],
+    "cache_relocation": "only hypothesis database to external run scratch",
+    "warnings": "unknown cache_dir pytest option because cacheprovider deliberately disabled; no test failures/skips",
+    "native_extension_origins_supplement": {
+      "path": "/workspace/orch02-native-c05-c12/c12-native-origins-supplement.json",
+      "sha256": "87e361afc3f054b61188f534248ea0f74904d3e00812ae73223f72bd10be9aee",
+      "time_scope": "post-run supplementary import readback same unmodified isolated environment; full-suite runtime origins separate"
+    }
+  },
+  "source_preservation": {
+    "tracked_clean_before_after": true,
+    "origins": "Every filesystem origin in the complete declared filtered polisyos prefix subset belongs to /workspace/orch02-c12/policy-engine/src; full-source Git DAG preservation is separate from filtered runtime evidence",
+    "origin_denominator": "Complete loaded sys.modules subset matching declared C12-run prefixes polisyos.data_forge.domains.catalog.batch, polisyos.data_forge.kernel, polisyos.fabric.retrieval, polisyos.lex.knowledge, polisyos.data_forge.domains.legal, polisyos.fabric.connectors.profiles plus numpy/duckdb/hnswlib/pytest wrappers; no claim all loaded polisyos/tools or unexecuted modules"
+  },
+  "deciding_property": {
+    "stale_G0_same_assets_G1": "encode0/knn0 refusal; differing generation IDs equal basis",
+    "only_guard_removal": "actual encode target + native entity-target knn1; existing encoder/index/membership remain",
+    "restore": "stale refuses; knn remains1",
+    "fresh_G1_reader": "entity-target knn2",
+    "callable_limit": "same hashed identity + substituted executableencode retrieves decoy; restoring encode retrieves target; declared residual reproduced"
+  }
+}

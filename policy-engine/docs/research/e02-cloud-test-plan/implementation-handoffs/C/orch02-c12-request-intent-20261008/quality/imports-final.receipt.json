@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+    "-c",
+    "import hashlib,importlib,json,sys\nfrom pathlib import Path\nmodules=['polisyos.lex.knowledge.store','polisyos.lex.knowledge.search','polisyos.data_forge.domains.legal.batch.embedder','polisyos.data_forge.domains.legal.embedding_projection','polisyos.data_forge.kernel.embeddings','polisyos.data_forge.kernel.io.generation_basis']\nout=[]\nfor name in modules:\n m=importlib.import_module(name);path=Path(m.__file__).resolve();assert path.is_relative_to('/workspace/orch02-c12/policy-engine/src'),(name,path);out.append({'module':name,'origin':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'modules':out},indent=2))"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "wall_seconds": 1.9017360210418701,
+  "maxrss_kib": 80568,
+  "exit_code": 0,
+  "timeout_seconds": null,
+  "timeout_basis": "no timeout enforced; actual measured wall retained",
+  "stdout": "/workspace/orch02-recovery/c12-checks/imports-final.stdout.txt",
+  "stderr": "/workspace/orch02-recovery/c12-checks/imports-final.stderr.txt"
+}

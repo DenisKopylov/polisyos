@@ -1,0 +1,537 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "date": "2026-10-08",
+  "unit": "C",
+  "original_owner": "C",
+  "execution_role": "C12",
+  "slice": "legal-request-generation-intent-recovery",
+  "task": "I4:Legal",
+  "bundle_ids": [
+    "EMB-03"
+  ],
+  "finding_ids": [
+    "LA-040"
+  ],
+  "related_unchanged_criterion": [
+    "LA-042"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+  "slice_base_tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+  "implementation_commits": [
+    "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+    "192c8b935b824e2e4d38276f10d3061877207e9f"
+  ],
+  "candidate_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "candidate_tree_sha": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "branch": "codex/e02-C-orch02-c12-recovery",
+  "host_branch_path": "/workspace/orch02-c12",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-c12-request-intent.md",
+    "policy-engine/release-fragments/unreleased/2026-10-08-legal-request-generation-intent.toml",
+    "policy-engine/src/polisyos/lex/knowledge/README.md",
+    "policy-engine/src/polisyos/lex/knowledge/search.py",
+    "policy-engine/src/polisyos/lex/knowledge/store.py",
+    "policy-engine/tests/unit/remediation/test_emb_03.py"
+  ],
+  "complete_source_footprint": {
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "policy-engine/src/polisyos/lex/knowledge/search.py"
+    ],
+    "test": "policy-engine/tests/unit/remediation/test_emb_03.py",
+    "owned_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-c12-request-intent.md",
+      "policy-engine/release-fragments/unreleased/2026-10-08-legal-request-generation-intent.toml",
+      "policy-engine/src/polisyos/lex/knowledge/README.md"
+    ],
+    "faithful_patch_commit": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+    "faithful_patch_blob": "a8869a2adaa29f249378e4041f03f06b322e4480",
+    "proposal_sha256": "3cdfb778f4fd1e39c92bf0547950c0be849d0435c03f32b53e486e33e9bc3295",
+    "exact6_postimages_verified": true,
+    "forward_delta": "192c adds only equivalent pytest parametrization-name tuple and Ruff formatting in search/test; independent AST reconciliation confirmed"
+  },
+  "source_input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json",
+  "G_preimage_comparison": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/G-preimages.json",
+  "G_comparison_pin": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "source_lineage": {
+    "own_base": "c60",
+    "complete_ancestor_method": "git rev-list --parents candidate --not 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63; every tree and parent resolved",
+    "complete_ancestor_count": 26,
+    "range_refs": [
+      {
+        "label": "DFI",
+        "base": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+        "head": "ab44166335130463178e65dfc29a252c96afe479",
+        "complete_changed_path_count": 30
+      },
+      {
+        "label": "CAT",
+        "base": "ab44166335130463178e65dfc29a252c96afe479",
+        "head": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "complete_changed_path_count": 36
+      },
+      {
+        "label": "Legal_carried",
+        "base": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+        "head": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "complete_changed_path_count": 10
+      },
+      {
+        "label": "C12_proposal",
+        "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "head": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+        "complete_changed_path_count": 6
+      },
+      {
+        "label": "C12_style",
+        "base": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+        "head": "192c8b935b824e2e4d38276f10d3061877207e9f",
+        "complete_changed_path_count": 2
+      }
+    ],
+    "DFI_CAT_Legal_upstream": "Carried original DFI -> CAT -> Legal DAG remains in topic ancestry. Final C05 V5 leaf4df4a942553603746d349dd82c5f22eaaad7e062 is a separate supplier; superseded nested9bc5/V1 not consumed. G must select and refresh relevant upstream source before composed acceptance."
+  },
+  "admission": {
+    "coordinator_commit": "329f81e7e1f431f010bb8193ade522a4c37f276c",
+    "coordinator_branch": "codex/e02-C-orch02-recovery-coordination",
+    "create": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/c12-create.json",
+    "resume": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/admission/c12-resume.json",
+    "actual_exact_pair": "codex/e02-C-orch02-c12-recovery + /workspace/orch02-c12",
+    "verdict": "admitted",
+    "writer": "/root/c12_writer",
+    "overlapping_writes": false
+  },
+  "baseline_cells": [],
+  "baseline_results": "No Fxx/baseline PASS adopted; results importer/query not used to decide this candidate. Original criterion and source-qualified prior receipts were navigation only.",
+  "checks": [
+    {
+      "name": "c12-full-native",
+      "command": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "orch02_capture",
+        "--basetemp",
+        "/workspace/orch02-native-c05-c12/raw/c12-full-native/basetemp",
+        "--junitxml",
+        "/workspace/orch02-native-c05-c12/raw/c12-full-native/junit.xml",
+        "-q",
+        "tests/unit/remediation/test_emb_03.py",
+        "tests/unit/data_forge/kernel/test_embeddings.py"
+      ],
+      "cwd": "/workspace/orch02-c12/policy-engine",
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "environment": "Linux Python3.14.2 NumPy2.3.5 DuckDB1.4.3 nativehnswlib0.8.0; isolatedfixtureenv",
+      "outcome": "PASS",
+      "property_outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 29.37854561000006,
+      "maxrss_kib": 285060,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt",
+      "stdout_alias": null,
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json",
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/command.json"
+    },
+    {
+      "name": "c12-intent-semantic",
+      "command": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "/workspace/orch02-native-c05-c12/semantic_collect.py",
+        "--repo",
+        "/workspace/orch02-c12",
+        "--kind",
+        "c12-intent"
+      ],
+      "cwd": "/workspace/orch02-c12/policy-engine",
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "environment": "Linux Python3.14.2 NumPy2.3.5 DuckDB1.4.3 nativehnswlib0.8.0; isolatedfixtureenv",
+      "outcome": "PASS",
+      "property_outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 3.627445325999929,
+      "maxrss_kib": 168252,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/semantic.json",
+      "stdout_alias": "semantic.json equals original complete stdout byte-for-byte",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json",
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/command.json"
+    },
+    {
+      "name": "c12-callable-residual",
+      "command": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "/workspace/orch02-native-c05-c12/encoder_residual.py",
+        "/workspace/orch02-c12"
+      ],
+      "cwd": "/workspace/orch02-c12/policy-engine",
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "environment": "Linux Python3.14.2 NumPy2.3.5 DuckDB1.4.3 nativehnswlib0.8.0; isolatedfixtureenv",
+      "outcome": "PASS",
+      "property_outcome": "DECLARED_RESIDUAL_REPRODUCED",
+      "exit_code": 0,
+      "wall_seconds": 2.863473321000015,
+      "maxrss_kib": 162020,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/semantic.json",
+      "stdout_alias": "semantic.json equals original complete stdout byte-for-byte",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json",
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/command.json"
+    },
+    {
+      "name": "c12-membership-native-v2",
+      "command": [
+        "/workspace/orch02-native-c05-c12/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "orch02_capture",
+        "--basetemp",
+        "/workspace/orch02-native-c05-c12/raw/c12-membership-native-v2/basetemp",
+        "--junitxml",
+        "/workspace/orch02-native-c05-c12/raw/c12-membership-native-v2/junit.xml",
+        "-q",
+        "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership"
+      ],
+      "cwd": "/workspace/orch02-c12/policy-engine",
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "environment": "Linux Python3.14.2 NumPy2.3.5 DuckDB1.4.3 nativehnswlib0.8.0; isolatedfixtureenv",
+      "outcome": "PASS",
+      "property_outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 3.785772397999949,
+      "maxrss_kib": 198788,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt",
+      "stdout_alias": null,
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json",
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/command.json"
+    },
+    {
+      "name": "ruff-final",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/lex/knowledge/store.py",
+        "src/polisyos/lex/knowledge/search.py",
+        "tests/unit/remediation/test_emb_03.py"
+      ],
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.08130025863647461,
+      "maxrss_kib": 14720,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.stderr.txt",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json"
+    },
+    {
+      "name": "format-final",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/lex/knowledge/store.py",
+        "src/polisyos/lex/knowledge/search.py",
+        "tests/unit/remediation/test_emb_03.py"
+      ],
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.09566736221313477,
+      "maxrss_kib": 18432,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format-final.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format-final.stderr.txt",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json"
+    },
+    {
+      "name": "imports-final",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+        "-c",
+        "import hashlib,importlib,json,sys\nfrom pathlib import Path\nmodules=['polisyos.lex.knowledge.store','polisyos.lex.knowledge.search','polisyos.data_forge.domains.legal.batch.embedder','polisyos.data_forge.domains.legal.embedding_projection','polisyos.data_forge.kernel.embeddings','polisyos.data_forge.kernel.io.generation_basis']\nout=[]\nfor name in modules:\n m=importlib.import_module(name);path=Path(m.__file__).resolve();assert path.is_relative_to('/workspace/orch02-c12/policy-engine/src'),(name,path);out.append({'module':name,'origin':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'modules':out},indent=2))"
+      ],
+      "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 1.9017360210418701,
+      "maxrss_kib": 80568,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/imports-final.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/imports-final.stderr.txt",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json"
+    },
+    {
+      "name": "mypy",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+        "-m",
+        "mypy",
+        "--no-incremental",
+        "--cache-dir",
+        "/workspace/orch02-recovery/c12-mypy-cache",
+        "--follow-imports",
+        "silent",
+        "src/polisyos/lex/knowledge/store.py",
+        "src/polisyos/lex/knowledge/search.py"
+      ],
+      "target_sha": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 32.20997357368469,
+      "maxrss_kib": 616984,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.stderr.txt",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json"
+    },
+    {
+      "name": "architecture",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "wall_seconds": 320.50578236579895,
+      "maxrss_kib": 1124260,
+      "timeout_seconds": null,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stderr.txt",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json"
+    }
+  ],
+  "native_denominator": {
+    "source_file": "tests/unit/remediation/test_emb_03.py",
+    "source_file_cases": 31,
+    "actual_encoder_membership_consumer": "tests/unit/data_forge/kernel/test_embeddings.py",
+    "consumer_cases": 5,
+    "total_cases": 36,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "basis": "Complete committed JUnit parsed independently; no collection/import-only PASS"
+  },
+  "independent_review": {
+    "reviewer": "/root/recovery_review",
+    "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+    "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-source-review-192c8b93.md",
+    "binding": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-source-binding-677e6098.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-source-binding-192c8b93.json"
+    ],
+    "outcome": "bounded own-base SOURCE-ONLY GO; not G composition acceptance"
+  },
+  "independent_native": {
+    "tester": "/root/native_c05_c12",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/independent-native-receipt.json",
+    "origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/runtime-origins.json",
+    "author_readback": "All declared output byte lengths/SHA256 recomputed; JUnit36/0bad/0skip parsed; every recorded relevant polisyos origin resolves own lane and origin hashes match.",
+    "native_origins_postrun_supplement": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native-origins-postrun-supplement.json",
+    "supplement_boundary": "Additional _duckdb.so and NumPy core .so origins were read after suite from unchanged environment; supplement is explicitly postrun, not suite-time capture."
+  },
+  "property": {
+    "statement": "Actual request intent is frozen from retained existing selected generation refs; the reader requires exactly one expected snapshot for the queried table, compares it against freshly resolved complete inventory, verifies real owner membership/assets, encodes actual query text, and invokes the corresponding native HNSW snapshot.",
+    "runtime_path": [
+      "request provider retains selected EmbeddingGenerationRef snapshots (controlled fixture here)",
+      "LegalQueryProfile.from_generation freezes canonical immutable inventory bytes",
+      "LegalKnowledgeGraph passes retained intent through LegalQueryInput",
+      "Store independently resolves selected relevant table, verifies current membership/matrix/index, compares exactly one requested snapshot",
+      "existing live encoder weights/tokenizer identity, actual text encode, normalization and post-encode identity",
+      "corresponding native HNSW reader returns typed Legal result"
+    ],
+    "proxy_divergence": "Same corpus/assets/dimension in G0 and G1 yield equal basis and different generation IDs. A request still expecting G0 can encode a compatible vector but asks for a different selection; the shared request guard refuses it before encode/knn.",
+    "negative_controls": [
+      "missing,foreign-table-only,duplicate,malformed,wrong-model request zero encode/knn refusal",
+      "staleG0 same-assetsG1 zero encode/knn refusal",
+      "remove only _require_query_profile, keep profile objects/markers/encoder/membership/index: actual targetencode + entity-target nativeknn1",
+      "restore shared guard: stale refusal, knn remains1",
+      "fresh retainedG1 and reopened reader: entity-target nativeknn2",
+      "same-dimension wrong loadedweights/tokenizer and pre/postencode mutation checks retained",
+      "same-assets substituted encode executable retrieves decoy, restoring executable retrieves target: declared callable residual reproduced"
+    ],
+    "index_IO_limit": "Per-table index loading/validation can occur before request guard. Zero effects means zero query encode and nativeknn, not no filesystem/index I/O.",
+    "desired_model": "embedding_model inside retained immutable expected inventory; deprecated Graph.embedding_model label remains ignored",
+    "sibling_tables": "Only queried table requires exactly one snapshot; irrelevant/missing sibling generation is not an all-of barrier."
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_classification": {
+    "request_intent": "consumer_asserted desired selection, never authority",
+    "selected_generation_current_inventory": "recomputed",
+    "actual_projected_membership_matrix_index": "recomputed",
+    "encoder_assets_and_pre_post_identity": "recomputed within controlled/trusted canonical encoder boundary",
+    "production_corpus_model_legal_authority": "not_established"
+  },
+  "quality_limitations": [
+    {
+      "gate": "mypy",
+      "outcome": "FAIL",
+      "details": "Scoped strict source check at faithful677e reports14store errors, including pre-existing-looking chronology typing/aliases, missing hnswlib stubs, generic ndarray typing and int(object). No exact-base replay with complete zero input intersection; P41 attribution not_established, never inherited-green. Store bytes unchanged in final192; search AST unchanged by style. No type debt waiver or unrelated cleanup."
+    },
+    {
+      "gate": "architecture guardrails",
+      "outcome": "UNRUN",
+      "details": "Default check at677e exit2 after320.51s; required API-client/dashboard generators unavailable (Node24 vs declared22, node_modules/openapi-typescript absent); partial deep-import/global generated drift printed. Complete119972byte stdout retained. It cannot establish a complete architecture verdict; no P41 inherited or accepted baseline claim. G/C13 rerun on selected composition with frozen Node22 dependencies."
+    },
+    {
+      "gate": "imports",
+      "outcome": "PASS import readiness only",
+      "details": "Final192 six key actual modules resolve own src; this is separate from native property proof."
+    },
+    {
+      "gate": "pytest warning",
+      "outcome": "PASS with warning",
+      "details": "Unknown cache_dir option because cacheprovider disabled for source-clean external scratch; no missing backend, failures or skips."
+    }
+  ],
+  "source_acceptance": "not_admitted_by_G",
+  "technical_proposal": "bounded own-base controlled fixture/native request-generation pairing demonstrated",
+  "capability_state_or_finding_state": "generic runtime mechanism verified; authentic served bridge_missing; production facts not_established; original LA-040 held, related LA-042 limited/unchanged, no formal retirement/current-law claim",
+  "formal_G_closure": false,
+  "supported_profile_limits": [
+    "Controlled finite Legal fixtures or trusted canonical encoder/library/config; assets/tokenizer/config digests do not attest arbitrary replaced executable encode behavior. Falsifier reproduced this residual; smallest closing capability trusted/attested callable/library provenance, no new subsystem authored.",
+    "Direct vector query on missing/empty/unavailable selected relevant generation refuses; text/hybrid fallback semantics remain. Current owner withdrawal and all three selected readers are retained in full native file.",
+    "No production corpus, confidential rows, history or embedding assets uploaded, requested or modified.",
+    "In-tree source/test direct-symbol denominator and three declared Graph callers were inspected; dynamic/external caller closure is not_established.",
+    "Historical faithful prepared Markdown/release fragment remains exact preserved proposal history; this JSON carries current execution outcomes."
+  ],
+  "partner_requirements": [
+    {
+      "owner": "C10/A",
+      "minimum": "Actual incoming request/effective purpose/profile -> retained expected relevant Legal generation snapshot(s) -> matching trusted canonical query encoder -> fresh reader. Never derive expected intent from a later changed reader selector; text-only current callers do not establish served vector bridge.",
+      "scope": "specific I4Legal invocation, no wholeI1 barrier"
+    },
+    {
+      "owner": "G",
+      "minimum": "Select original DFI -> CAT -> Legal source composition; refresh changed basis/dependencies only and independently review new delta. LegalQueryProfile is required public stable Graph type dependency: shared facade, public API/generated inventory/reference and migration companions are G-owned.",
+      "scope": "source acceptance, public companions and formal closure stay separate"
+    },
+    {
+      "owner": "L01/L02",
+      "minimum": "Local read-only actualrequestpurpose/effectiveprofile -> logicalDB/index pair -> selected complete relevant-table generation/basis/outputs -> matching canonicalprovider/library/config/weights/tokenizer/model/device/dimension/rule -> actualorderedprojectedmembership and fresh native query. Source-law authority separately only for production claim. No payload/assets upload.",
+      "scope": "authentic supported-profile and production law only"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G selected upstream/composed source+publictype/API/generatedcompanions before composed acceptance",
+    "C10/A actual served request snapshot/encoder provider",
+    "L01/L02 authentic local tuple and source-law facts; boundedfixturePASS does not close them",
+    "G/C13 type/architecture affected checks on selected supported environment; no broad per-commit replay"
+  ],
+  "shared_harness_custody": [
+    {
+      "commit": "02191b909d87c5346d8fd9f6feaae66a441aaeba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/run_gate.py",
+      "blob": "b45dcc618e6862c2fe017dbe1d4c576e13192766"
+    },
+    {
+      "commit": "02191b909d87c5346d8fd9f6feaae66a441aaeba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/orch02_capture.py",
+      "blob": "088cc0b7f323f06ada02100b9cbd48cc478f8317"
+    },
+    {
+      "commit": "02191b909d87c5346d8fd9f6feaae66a441aaeba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/encoder_residual.py",
+      "blob": "471a4da63e25795e2779f49d5dde3fad06267498"
+    },
+    {
+      "commit": "02191b909d87c5346d8fd9f6feaae66a441aaeba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/semantic_collect-c12-executed.py",
+      "blob": "0188211ab28ee583cddf8b8f669654435ee85c09"
+    },
+    {
+      "commit": "02191b909d87c5346d8fd9f6feaae66a441aaeba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/verification-contract.json",
+      "blob": "ec55dbfbf83a31fe8521bd5ad5e7865bacf0497e"
+    },
+    {
+      "commit": "02191b909d87c5346d8fd9f6feaae66a441aaeba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/native-harness-c05-c12/manifest.json",
+      "blob": "eeda5d8a189736df88fbc8d5419cdfa81e81fdc5"
+    }
+  ],
+  "reproduction": "Use exact source192 with declared locked Python3.14 app profile and native hnswlib0.8.0/NumPy2.3.5. Export shared scripts from coordinator02191 to isolated scratch; preserve historical semantic_collect-c12-executed.py as semantic_collect.py for C12 recipe, recreate scratch/venv/bin/python through ordinary uv tooling. Original command.json records actual argv/cwd/isolated DB,CAS/basetemp and origins; no environment/assets copy. Default full wave was first wall measurement with no timeout; any repeat can select timeout from29.38s measured suite cost.",
+  "evidence_aliases": {
+    "c12-intent-semantic/stdout.txt": "native/c12-intent-semantic/semantic.json same complete bytes @b28341fc6cdc232c43e50b5c6c0be5bf18e5dcdd70aafa670be36c11fd0e544c",
+    "c12-callable-residual/stdout.txt": "native/c12-callable-residual/semantic.json same complete bytes @0d7cafbf25a6efb68720a7a772b77382c58fcfd5a54d753b402858155b92e600"
+  },
+  "cleanup": "No permanent cleanup; unique source/outputs preserved; no venv/nativefixtureDB/index/assets copied to Git.",
+  "receipt_footprint": {
+    "complete_new_path_count": 54,
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/G-preimages.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/environment/hnswlib-install.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/environment/hnswlib-install.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/environment/numpy-align.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/environment/numpy-align.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/independent-native-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native-origins-postrun-supplement.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/command.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/resource.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/semantic.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-callable-residual/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/command.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/resource.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/runtime-origins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-full-native/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/command.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/resource.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/semantic.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-intent-semantic/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/command.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/resource.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/runtime-origins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/native/c12-membership-native-v2/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/architecture.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format-final.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format-final.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format-final.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/format.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/imports-final.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/imports-final.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/imports-final.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/mypy.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff-final.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/ruff.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-source-review-192c8b93.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-source-binding-192c8b93.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-source-binding-677e6098.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/source-input-closure.json"
+    ],
+    "scope": "Separate handoff/evidence commit; candidate source footprint above remains exactly6. No fixture DB, array, HNSW asset, venv or confidential payload included."
+  }
+}

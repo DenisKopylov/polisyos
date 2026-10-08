@@ -1,0 +1,43 @@
+{
+  "schema": "orch02.native-command.v1",
+  "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "branch": "codex/e02-C-orch02-c12-recovery",
+  "repo": "/workspace/orch02-c12",
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "/workspace/orch02-native-c05-c12/encoder_residual.py",
+    "/workspace/orch02-c12"
+  ],
+  "timeout_seconds": null,
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c12/policy-engine/src:/workspace/orch02-c12/policy-engine/tests:/workspace/orch02-native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-native-c05-c12/raw/c12-callable-residual/cas"
+  },
+  "source_status_before": "",
+  "exit_code": 0,
+  "wall_seconds": 2.863473321000015,
+  "source_status_after": "",
+  "source_sha_after": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "outputs": {
+    "semantic.json": {
+      "bytes": 719,
+      "sha256": "0d7cafbf25a6efb68720a7a772b77382c58fcfd5a54d753b402858155b92e600"
+    },
+    "stdout.txt": {
+      "bytes": 719,
+      "sha256": "0d7cafbf25a6efb68720a7a772b77382c58fcfd5a54d753b402858155b92e600"
+    },
+    "stderr.txt": {
+      "bytes": 335,
+      "sha256": "d43401c739a0c16f6f586fdc60f1dadd54a7125981171fabc6fec194e13d7729"
+    },
+    "resource.json": {
+      "bytes": 295,
+      "sha256": "1eb120bbae7f8fecb2835e67de04634bca1d983ee8375a3d78e05953a9088ec4"
+    }
+  }
+}

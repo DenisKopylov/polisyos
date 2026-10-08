@@ -1,0 +1,157 @@
+{
+  "kind": "c12-intent",
+  "removal": {
+    "kind": "none",
+    "quantity": null,
+    "held_markers": true,
+    "source_files_changed": false
+  },
+  "owned_fixture_source": "/workspace/orch02-c12/policy-engine/tests/unit/remediation/test_emb_03.py",
+  "source_sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c",
+  "oracle": "literal actual SQL/benchmark/native outputs; assertion observations continue beyond digest failures",
+  "verdict": "PASS",
+  "error": null,
+  "events": [
+    {
+      "line": 1318,
+      "expression": "previous_entity.generation_id != current_entity.generation_id",
+      "holds": true,
+      "actual_left": "556c1135ef33461790274f69e96f22d4",
+      "expected_right": "f5704bf0661147108f91c8f44069f430"
+    },
+    {
+      "line": 1319,
+      "expression": "json.loads(previous_entity.inventory_bytes)['basis'] == json.loads(current_entity.inventory_bytes)['basis']",
+      "holds": true,
+      "actual_left": {
+        "basis_digest": "sha256:c519379d4eda00c6af3b2cf822d40af113fc6c28fd34a9ed3df939331c934a5a",
+        "basis_kind": "legal_lex_entities_embedding",
+        "generator_rule_version": "policyos.legal.embedding.v2|model=legal-fixture-model|device=cpu|dimension=4|encoder=sha256:c5a01de83fceedd2f4e55dca5ab9a7a47e59e326b8e1dcb7696821c50bb9ffe4",
+        "members": [
+          {
+            "content_identity": "sha256:bd2c800736a6fa4b7c52b7ce8d60dd52c8f511b59e4c476329f661489bb0a736",
+            "identifier": "entity-decoy"
+          },
+          {
+            "content_identity": "sha256:2bf14546adec0a18cd8cd1567a2d7c2ca549f432730304596d09727fb61d34b5",
+            "identifier": "entity-target"
+          }
+        ],
+        "schema_version": "policyos.generation_basis.v1"
+      },
+      "expected_right": {
+        "basis_digest": "sha256:c519379d4eda00c6af3b2cf822d40af113fc6c28fd34a9ed3df939331c934a5a",
+        "basis_kind": "legal_lex_entities_embedding",
+        "generator_rule_version": "policyos.legal.embedding.v2|model=legal-fixture-model|device=cpu|dimension=4|encoder=sha256:c5a01de83fceedd2f4e55dca5ab9a7a47e59e326b8e1dcb7696821c50bb9ffe4",
+        "members": [
+          {
+            "content_identity": "sha256:bd2c800736a6fa4b7c52b7ce8d60dd52c8f511b59e4c476329f661489bb0a736",
+            "identifier": "entity-decoy"
+          },
+          {
+            "content_identity": "sha256:2bf14546adec0a18cd8cd1567a2d7c2ca549f432730304596d09727fb61d34b5",
+            "identifier": "entity-target"
+          }
+        ],
+        "schema_version": "policyos.generation_basis.v1"
+      }
+    },
+    {
+      "line": 1338,
+      "expression": "encoder.encoded_texts == []",
+      "holds": true,
+      "actual_left": [],
+      "expected_right": [],
+      "knn_calls": 0,
+      "encoder_encoded_texts": []
+    },
+    {
+      "line": 1339,
+      "expression": "knn_calls == 0",
+      "holds": true,
+      "actual_left": 0,
+      "expected_right": 0,
+      "knn_calls": 0,
+      "encoder_encoded_texts": []
+    },
+    {
+      "line": 1349,
+      "expression": "[result.entity_id for result in stale.search_entities('target', top_k=1, min_similarity=0.0)] == ['entity-target']",
+      "holds": true,
+      "actual_left": [
+        "entity-target"
+      ],
+      "expected_right": [
+        "entity-target"
+      ],
+      "knn_calls": 1,
+      "encoder_encoded_texts": [
+        "target"
+      ]
+    },
+    {
+      "line": 1353,
+      "expression": "encoder.encoded_texts == ['target']",
+      "holds": true,
+      "actual_left": [
+        "target"
+      ],
+      "expected_right": [
+        "target"
+      ],
+      "knn_calls": 1,
+      "encoder_encoded_texts": [
+        "target"
+      ]
+    },
+    {
+      "line": 1354,
+      "expression": "knn_calls == 1",
+      "holds": true,
+      "actual_left": 1,
+      "expected_right": 1,
+      "knn_calls": 1,
+      "encoder_encoded_texts": [
+        "target"
+      ]
+    },
+    {
+      "line": 1360,
+      "expression": "knn_calls == 1",
+      "holds": true,
+      "actual_left": 1,
+      "expected_right": 1,
+      "knn_calls": 1,
+      "encoder_encoded_texts": [
+        "target"
+      ]
+    },
+    {
+      "line": 1368,
+      "expression": "[result.entity_id for result in fresh.search_entities('target', top_k=1, min_similarity=0.0)] == ['entity-target']",
+      "holds": true,
+      "actual_left": [
+        "entity-target"
+      ],
+      "expected_right": [
+        "entity-target"
+      ],
+      "knn_calls": 2,
+      "encoder_encoded_texts": [
+        "target"
+      ]
+    },
+    {
+      "line": 1372,
+      "expression": "knn_calls == 2",
+      "holds": true,
+      "actual_left": 2,
+      "expected_right": 2,
+      "knn_calls": 2,
+      "encoder_encoded_texts": [
+        "target"
+      ]
+    }
+  ],
+  "marker_and_fixture_outputs": "/workspace/orch02-native-c05-c12/raw/c12-intent-semantic/semantic-u9i8cjf0"
+}

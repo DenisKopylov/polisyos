@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/lex/knowledge/store.py",
+    "src/polisyos/lex/knowledge/search.py",
+    "tests/unit/remediation/test_emb_03.py"
+  ],
+  "cwd": "/workspace/orch02-c12/policy-engine",
+  "target_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "wall_seconds": 0.09566736221313477,
+  "maxrss_kib": 18432,
+  "exit_code": 0,
+  "timeout_seconds": null,
+  "timeout_basis": "no timeout enforced; actual measured wall retained",
+  "stdout": "/workspace/orch02-recovery/c12-checks/format-final.stdout.txt",
+  "stderr": "/workspace/orch02-recovery/c12-checks/format-final.stderr.txt"
+}

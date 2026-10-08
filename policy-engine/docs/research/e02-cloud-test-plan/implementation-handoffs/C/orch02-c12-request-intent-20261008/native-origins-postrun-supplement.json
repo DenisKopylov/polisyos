@@ -1,0 +1,41 @@
+{
+  "schema": "orch02.native-origin-supplement.v1",
+  "source_sha": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "profile": "same isolated venv as full native suite; no package mutation since run",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "interpreter": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "origins": {
+    "_duckdb": {
+      "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_duckdb.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "a2b1ae52d4116fc609184d407e11a8d15465da34095341e08c53847d752fb5fc"
+    },
+    "numpy._core._multiarray_umath": {
+      "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+    },
+    "hnswlib": {
+      "path": "/workspace/orch02-native-c05-c12/venv/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "a610bcdb0465ee4559a4f88e42926d0df80992bbc1cf3ee5c05e4ec646ca4dfd"
+    },
+    "polisyos.lex.knowledge.store": {
+      "path": "/workspace/orch02-c12/policy-engine/src/polisyos/lex/knowledge/store.py",
+      "sha256": "7027efe1b04286f3fc9b07f8ab42f1a410e0cfbbd7938771469487b604b2d481"
+    },
+    "polisyos.lex.knowledge.search": {
+      "path": "/workspace/orch02-c12/policy-engine/src/polisyos/lex/knowledge/search.py",
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    },
+    "polisyos.data_forge.domains.legal.batch.embedder": {
+      "path": "/workspace/orch02-c12/policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+      "sha256": "c131c2ccc6351d23d88807bdb89f443e211c7932f63fea374c91ec1c308233e3"
+    },
+    "polisyos.data_forge.kernel.embeddings": {
+      "path": "/workspace/orch02-c12/policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "sha256": "b774a86cb9b7741aed97297670781653d97d7fe65a7a53ae8f718281bdeaf86f"
+    },
+    "polisyos.data_forge.kernel.io.generation_basis": {
+      "path": "/workspace/orch02-c12/policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412"
+    }
+  }
+}

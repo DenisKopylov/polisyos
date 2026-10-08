@@ -1,0 +1,36 @@
+{
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/polisyos/policy-engine/.venv/bin/python3.14",
+  "modules": [
+    {
+      "module": "polisyos.lex.knowledge.store",
+      "origin": "/workspace/orch02-c12/policy-engine/src/polisyos/lex/knowledge/store.py",
+      "sha256": "7027efe1b04286f3fc9b07f8ab42f1a410e0cfbbd7938771469487b604b2d481"
+    },
+    {
+      "module": "polisyos.lex.knowledge.search",
+      "origin": "/workspace/orch02-c12/policy-engine/src/polisyos/lex/knowledge/search.py",
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    },
+    {
+      "module": "polisyos.data_forge.domains.legal.batch.embedder",
+      "origin": "/workspace/orch02-c12/policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+      "sha256": "c131c2ccc6351d23d88807bdb89f443e211c7932f63fea374c91ec1c308233e3"
+    },
+    {
+      "module": "polisyos.data_forge.domains.legal.embedding_projection",
+      "origin": "/workspace/orch02-c12/policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+      "sha256": "de61daaa01231282185e8947d6848b94bf6c9c6473ae709397eea138c510efa9"
+    },
+    {
+      "module": "polisyos.data_forge.kernel.embeddings",
+      "origin": "/workspace/orch02-c12/policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "sha256": "b774a86cb9b7741aed97297670781653d97d7fe65a7a53ae8f718281bdeaf86f"
+    },
+    {
+      "module": "polisyos.data_forge.kernel.io.generation_basis",
+      "origin": "/workspace/orch02-c12/policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412"
+    }
+  ]
+}

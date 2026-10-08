@@ -1,0 +1,31 @@
+{
+  "schema": "policyos.e02.l01.delivery.v1",
+  "source_commit": "72b9a568fc53dfb89c364749d94b1519648c55af",
+  "source_tree": "e916c747c3599a45ba2ab83e907c8a4f72637c59",
+  "product_source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "product_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+  "source_footprint": "30docs/evidence; zero production/test/config/lock/generated changes",
+  "leaf_handoffs": {
+    "A": "../A/parallel-20261008-l01-inputs.json",
+    "B": "../B/parallel-20261008-l01-inputs.json",
+    "C": "../C/parallel-20261008-l01-inputs.json",
+    "D": "../D/parallel-20261008-l01-inputs.json",
+    "E": "../E/parallel-20261008-l01-inputs.json",
+    "F": "../F/parallel-20261008-l01-inputs.json"
+  },
+  "independent_reviews": {
+    "bounded_runtime": "evidence/independent-runtime-review.md",
+    "frozen_packet": "evidence/independent-packet-review.md",
+    "disclosure": "evidence/independent-disclosure-review.md"
+  },
+  "review_disposition": "GO bounded non-secret factual packets; no G source acceptance or finding closure",
+  "traceability_caveat": "Local scratch paths in frozen source are local provenance locators only. Portable F deciding evidence is evidence/F-light-selector.json; the S1 probe is reproduced byte-for-byte in evidence/s1-discriminator-recipes.md. Remote readers need no access to those scratch files to inspect these captured bounded checks. Private production evidence remains opaque/local.",
+  "canonical_leaf_schema_validation": "6leafs:17required literal keys,4exact property keys,6exact check keys; existing sourceSHA/tree validationPASS",
+  "declared_supported_profile": "macOS/app Python3.14 bounded fixtures and source/config metadata; authentic input/profile positivesUNRUN; no Linux/DoWhy/search_bo/fullData or broad replay claim",
+  "current_fetched_G": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+  "current_fetched_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "publication": "own codex/e02-L01-custody-20261008 topic only; exact remote readback retained separately after push",
+  "code_acceptance": "no product code written; component acceptance remains G",
+  "formal_G_closure": "not_adjudicated",
+  "cleanup": "Unique deciding outputs, private owner metadata and valuable worktree retained. Only independently verified inactive reproducible fixtures may move to nativeTrash; no permanent cleanup or Trash emptying."
+}

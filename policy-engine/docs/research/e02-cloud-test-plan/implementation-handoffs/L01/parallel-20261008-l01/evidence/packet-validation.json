@@ -1,0 +1,93 @@
+{
+  "source_candidate": "72b9a568fc53dfb89c364749d94b1519648c55af",
+  "source_tree": "e916c747c3599a45ba2ab83e907c8a4f72637c59",
+  "full_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/api-census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/F-light-selector.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-recipe.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-source-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/independent-runtime-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la032-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la032-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/s1-discriminator-recipes.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/host-inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/A.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/B.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/C.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/E.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/F.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/s1-source-facts.json"
+  ],
+  "code_test_config_lock_generated_changes": [],
+  "explicit_source_ref_pairs_verified": 136,
+  "explicit_source_ref_mismatches": 0,
+  "implicit_ref_contexts_not_claimed_complete": 47,
+  "deciding_stdout_stderr_bytes": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-stdout.txt",
+      "sha256": "603bb5f55ef1af691a1ca9ca4a8349497bf56efdbdc15757ee412326730dd652",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-stdout.txt",
+      "sha256": "b2b7cee4bc18c338944784a41511b25c02379452255a98e8f0f90629391ee80b",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-removal-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stdout.txt",
+      "sha256": "abfa65ed355cabf6880180baa4b1e7999e35a898a384583bf3ba0862569eb95f",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/ddm-fresh-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la032-stdout.txt",
+      "sha256": "0238e13f82e530d65323524d67d5baa3ff4a65d6bb8470e91e60e88b4e1686e8",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la032-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-stdout.txt",
+      "sha256": "52a5c719b5b7a6d9dcbbf0566b9f5b97ef918ea1413591393111131ce6c615db",
+      "byte_exact": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/evidence/la036-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_exact": true
+    }
+  ],
+  "verdict": "PASS docs-only footprint and explicit ref/byte validation; not authority or product closure"
+}

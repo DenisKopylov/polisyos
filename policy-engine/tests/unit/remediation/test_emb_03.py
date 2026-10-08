@@ -1429,3 +1429,130 @@ def test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot(
             generation_id=generation_id,
             inventory_bytes=cast("bytes", inventory),
         )
+
+
+@pytest.mark.parametrize("table_name", ["lex_entities", "lex_facts", "lex_provisions"])
+@pytest.mark.parametrize("request_case", ["missing", "stale", "mixed_generation"])
+def test_reopened_consumer_uses_saved_request_intent_before_encode_and_index(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    table_name: str,
+    request_case: str,
+) -> None:
+    """The persisted reader consumes saved intent, including content/generation pairing."""
+    import hnswlib
+
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(
+        db_path,
+        entities=[("entity-target", "target entity"), ("entity-decoy", "decoy entity")],
+    )
+    _prepare_legal_search_rows(db_path)
+    producer = _DirectionalLegalEncoder(revision=0)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=producer,
+    )
+    saved_intent = _legal_query_profile(tmp_path)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=producer,
+    )
+    fresh_intent = _legal_query_profile(tmp_path)
+    basis_kind = f"legal_{table_name}_embedding"
+    saved = next(item for item in saved_intent if item.basis_kind == basis_kind)
+    fresh = next(item for item in fresh_intent if item.basis_kind == basis_kind)
+    assert saved.generation_id != fresh.generation_id
+    assert json.loads(saved.inventory_bytes)["basis"] == json.loads(fresh.inventory_bytes)["basis"]
+
+    requested: tuple[LegalQueryProfile, ...] | None
+    if request_case == "missing":
+        requested = None
+        expected_code = "query_profile_unavailable"
+    elif request_case == "stale":
+        requested = saved_intent
+        expected_code = "query_profile_stale_or_mismatched"
+    else:
+        requested = (
+            LegalQueryProfile(
+                basis_kind=basis_kind,
+                generation_id=fresh.generation_id,
+                inventory_bytes=saved.inventory_bytes,
+            ),
+        )
+        expected_code = "query_profile_stale_or_mismatched"
+
+    knn_calls = 0
+    original_knn = hnswlib.Index.knn_query
+
+    def record_knn(index: object, *args: object, **kwargs: object) -> object:
+        nonlocal knn_calls
+        knn_calls += 1
+        return original_knn(index, *args, **kwargs)
+
+    monkeypatch.setattr(hnswlib.Index, "knn_query", record_knn)
+
+    def consume(graph: LegalKnowledgeGraph) -> list[str]:
+        if table_name == "lex_entities":
+            return [
+                row.entity_id
+                for row in graph.search_entities("target", top_k=1, min_similarity=0.0)
+            ]
+        if table_name == "lex_facts":
+            return [
+                row.fact_id
+                for row in graph.search_facts(
+                    "target",
+                    top_k=1,
+                    min_similarity=0.0,
+                    trust_tier=None,
+                    include_candidates=True,
+                )
+            ]
+        return [
+            row.provision_id
+            for row in graph.search_provisions("target", top_k=1, min_similarity=0.0)
+        ]
+
+    encoder = _DirectionalLegalEncoder(revision=0)
+    rejected = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=encoder,
+        query_profile=requested,
+        embedding_model="compatibility-label-cannot-reselect-request-intent",
+    )
+    try:
+        with pytest.raises(LegalQueryProfileError, match=expected_code):
+            consume(rejected)
+        assert encoder.encoded_texts == []
+        assert knn_calls == 0
+    finally:
+        rejected.close()
+
+    # A new request keeps its own matching snapshot while a new graph/store
+    # independently reopens the persisted DuckDB and selected native index.
+    matching_encoder = _DirectionalLegalEncoder(revision=0)
+    reopened = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=matching_encoder,
+        query_profile=fresh_intent,
+    )
+    try:
+        expected_id = {
+            "lex_entities": "entity-target",
+            "lex_facts": "fact-target",
+            "lex_provisions": "provision-target",
+        }[table_name]
+        assert consume(reopened) == [expected_id]
+        assert matching_encoder.encoded_texts == ["target"]
+        assert knn_calls == 1
+    finally:
+        reopened.close()

@@ -10,15 +10,17 @@ import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime
+from decimal import Decimal
 from pathlib import Path
 from threading import Lock
-from typing import Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import duckdb
 import numpy as np
 
 from polisyos.common.logger import get_logger
-from polisyos.core import artifacts, contracts
+from polisyos.core import artifacts
+from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.data_forge.domains.legal.embedding_projection import (
     LEGAL_EMBEDDING_PROJECTION_RULE_VERSION,
     entity_embedding_text,
@@ -46,10 +48,12 @@ from polisyos.lex.knowledge.types import (
     LegalThresholdEvaluation,
 )
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
 logger = get_logger(__name__)
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
-epoch_contract = contracts.epoch
 
 _FACT_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
     ("fact_id", "''"),
@@ -330,18 +334,25 @@ class LegalKnowledgeStore:
         return frozenset(unresolved)
 
     @classmethod
+    def _amendment_scope_values(cls, value: object) -> tuple[tuple[str, str], ...]:
+        """Normalize DuckDB's LIST(STRUCT(jurisdiction, domain)) owner column."""
+        if value is None:
+            return ()
+        if not isinstance(value, (list, tuple)):
+            raise ValueError("amendment_scope_rows_malformed")
+        scopes: set[tuple[str, str]] = set()
+        for item in value:
+            if not isinstance(item, dict):
+                raise ValueError("amendment_scope_rows_malformed")
+            scopes.add((str(item.get("jurisdiction") or ""), str(item.get("domain") or "")))
+        return tuple(sorted(scopes))
+
+    @classmethod
     def _amendment_source_mapping(cls, row: tuple[object, ...]) -> dict[str, object]:
         effective_from = cls._parse_amendment_date(row[3])
         effective_to = cls._parse_amendment_date(row[4])
         created_datetime = cls._parse_amendment_datetime(row[5])
-        scope_values = tuple(
-            sorted(
-                {
-                    (str(value.get("jurisdiction") or ""), str(value.get("domain") or ""))
-                    for value in (row[6] or ())
-                }
-            )
-        )
+        scope_values = cls._amendment_scope_values(row[6])
         return {
             "amendment_id": str(row[0]),
             "amended_doc_id": str(row[1] or ""),
@@ -416,15 +427,16 @@ class LegalKnowledgeStore:
             effective_from = self._parse_amendment_date(row[3])
             effective_to = self._parse_amendment_date(row[4])
             created_at = row[5]
-            scope_values = tuple(
-                sorted(
-                    {
-                        (str(value.get("jurisdiction") or ""), str(value.get("domain") or ""))
-                        for value in (row[6] or ())
-                    }
-                )
-            )
-            failure_code: str | None = None
+            scope_values = self._amendment_scope_values(row[6])
+            failure_code: (
+                Literal[
+                    "amendment_scope_unresolved",
+                    "amendment_scope_ambiguous",
+                    "amendment_knowledge_cutoff_unresolved",
+                    "amendment_valid_effect_window_unresolved",
+                ]
+                | None
+            ) = None
             resolved_scope_ref: str | None = None
             if not scope_values:
                 failure_code = "amendment_scope_unresolved"
@@ -488,6 +500,7 @@ class LegalKnowledgeStore:
             )
             if valid_effect_window_unresolved:
                 failure_code = "amendment_valid_effect_window_unresolved"
+            disposition: Literal["applicable", "not_applicable", "unresolved"]
             if failure_code is not None:
                 disposition = "unresolved"
             elif scope_matches and in_valid_window and visible:
@@ -605,12 +618,11 @@ class LegalKnowledgeStore:
         cached = self._table_exists_cache.get(table_name)
         if cached is not None:
             return cached
-        exists = bool(
-            self._con.execute(
-                "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?",
-                [table_name],
-            ).fetchone()[0]
-        )
+        row = self._con.execute(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?",
+            [table_name],
+        ).fetchone()
+        exists = bool(row and row[0])
         self._table_exists_cache[table_name] = exists
         return exists
 
@@ -741,7 +753,14 @@ class LegalKnowledgeStore:
             include_candidates=False,
         )
 
-    def _to_rule_threshold_row(self, row: tuple) -> LegalRuleThresholdRow:
+    @staticmethod
+    def _numeric_row_value(value: object) -> float:
+        """Decode the scalar SQL numeric/text values accepted by Legal rows."""
+        if not isinstance(value, (str, int, float, Decimal)):
+            raise TypeError("legal_row_numeric_value_malformed")
+        return float(value)
+
+    def _to_rule_threshold_row(self, row: tuple[object, ...]) -> LegalRuleThresholdRow:
         provision_ref = ""
         doc_id = str(row[8] or "")
         provision_anchor = str(row[11] or "")
@@ -752,7 +771,7 @@ class LegalKnowledgeStore:
             fact_id=str(row[1] or ""),
             metric=str(row[2] or ""),
             operator=str(row[3] or ""),
-            value_decimal=None if row[4] is None else float(row[4]),
+            value_decimal=None if row[4] is None else self._numeric_row_value(row[4]),
             value_text=str(row[5] or ""),
             unit=str(row[6] or ""),
             applies_to=str(row[7] or ""),
@@ -957,7 +976,7 @@ class LegalKnowledgeStore:
         }
 
     @staticmethod
-    def _parse_numeric_values(*values: str) -> tuple[float, ...]:
+    def _parse_numeric_values(*values: str | float | None) -> tuple[float, ...]:
         parsed: list[float] = []
         for value in values:
             token = str(value or "").replace(",", ".")
@@ -1192,7 +1211,7 @@ class LegalKnowledgeStore:
         generation: EmbeddingGenerationRef | None,
         *,
         table_name: str,
-    ) -> np.ndarray:
+    ) -> NDArray[np.float32]:
         """Encode a query only after binding its live encoder to the selected basis."""
         if not isinstance(query, LegalQueryInput):
             raise LegalQueryProfileError("unbound_query_vector")
@@ -1212,7 +1231,10 @@ class LegalKnowledgeStore:
         try:
             embedding_model = str(inventory["embedding_model"])
             embedding_device = str(inventory["embedding_device"])
-            embedding_dimension = int(inventory["embedding_dimension"])
+            dimension_value = inventory["embedding_dimension"]
+            if not isinstance(dimension_value, (str, int, float)):
+                raise TypeError("generation dimension is not a JSON numeric scalar")
+            embedding_dimension = int(dimension_value)
             basis = inventory["basis"]
         except (KeyError, TypeError, ValueError) as exc:
             raise LegalQueryProfileError("generation_profile_unavailable") from exc
@@ -1279,62 +1301,62 @@ class LegalKnowledgeStore:
             raise LegalQueryProfileError("query_encoder_changed_during_encode")
         if encoded.shape != (1, embedding_dimension) or not np.isfinite(encoded).all():
             raise LegalQueryProfileError("query_vector_shape_or_values_invalid")
-        vector = encoded[0]
+        vector: NDArray[np.float32] = encoded[0]
         norm = float(np.linalg.norm(vector))
         if not np.isfinite(norm) or not np.isclose(norm, 1.0, rtol=1e-5, atol=1e-6):
             raise LegalQueryProfileError("query_vector_not_normalized")
         return vector
 
-    def _to_fact_result(self, row: tuple, *, similarity: float) -> LegalFactResult:
+    def _to_fact_result(self, row: tuple[object, ...], *, similarity: float) -> LegalFactResult:
         return LegalFactResult(
-            fact_id=row[0],
-            subject_name=row[1] or "",
-            predicate=row[2],
-            object_name=row[3] or "",
-            fact_text=row[4],
-            confidence=float(row[5]),
-            norm_type=row[6] or "",
-            action_canon=row[7] or "",
-            norm_type_canon=row[8] or "",
-            condition_text_uk=row[9] or "",
-            exception_text_uk=row[10] or "",
-            procedure_text_uk=row[11] or "",
-            thresholds_json=row[12] or "",
-            source_quote_uk=row[13] or "",
-            trust_tier=row[14] or "search_candidate",
-            grounding_status=row[15] or "missing_quote",
-            canonical_status=row[16] or "raw",
-            reference_resolution_status=row[17] or "not_applicable",
-            structure_quality=row[18] or "",
-            constraint_type_canon=row[19] or "",
-            legal_unit_subtype=row[20] or "",
-            route_class=row[21] or "",
+            fact_id=str(row[0]),
+            subject_name=str(row[1] or ""),
+            predicate=str(row[2]),
+            object_name=str(row[3] or ""),
+            fact_text=str(row[4]),
+            confidence=self._numeric_row_value(row[5]),
+            norm_type=str(row[6] or ""),
+            action_canon=str(row[7] or ""),
+            norm_type_canon=str(row[8] or ""),
+            condition_text_uk=str(row[9] or ""),
+            exception_text_uk=str(row[10] or ""),
+            procedure_text_uk=str(row[11] or ""),
+            thresholds_json=str(row[12] or ""),
+            source_quote_uk=str(row[13] or ""),
+            trust_tier=str(row[14] or "search_candidate"),
+            grounding_status=str(row[15] or "missing_quote"),
+            canonical_status=str(row[16] or "raw"),
+            reference_resolution_status=str(row[17] or "not_applicable"),
+            structure_quality=str(row[18] or ""),
+            constraint_type_canon=str(row[19] or ""),
+            legal_unit_subtype=str(row[20] or ""),
+            route_class=str(row[21] or ""),
             empty_spo_retry_eligible=bool(row[22]),
             audit_miss_prone=bool(row[23]),
             reference_bearing=bool(row[24]),
             threshold_bearing=bool(row[25]),
-            fused_confidence=float(row[26]) if row[26] is not None else None,
-            confidence_breakdown_json=row[27] or "",
-            consistency_score=float(row[28]) if row[28] is not None else None,
-            hallucination_flags_json=row[29] or "",
-            quality_band=row[30] or "",
-            doc_id=row[31] or "",
-            doc_family_id=row[32] or "",
-            version_id=row[33] or "",
-            jurisdiction=row[34] or "UA",
-            top_domain=row[35] or "",
-            effective_from=row[36] or "",
-            effective_to=row[37] or "",
-            temporal_state=row[38] or "",
-            temporal_resolution_status=row[39] or "unknown",
-            temporal_source_scope=row[40] or "",
-            temporal_source_kind=row[41] or "",
-            temporal_confidence=float(row[42]) if row[42] is not None else None,
-            temporal_provenance_json=row[43] or "{}",
-            doc_name=row[44] or "",
-            doc_reestr_code=row[45] or "",
-            provision_anchor=row[46] or "",
-            provision_citation=row[47] or "",
+            fused_confidence=self._numeric_row_value(row[26]) if row[26] is not None else None,
+            confidence_breakdown_json=str(row[27] or ""),
+            consistency_score=self._numeric_row_value(row[28]) if row[28] is not None else None,
+            hallucination_flags_json=str(row[29] or ""),
+            quality_band=str(row[30] or ""),
+            doc_id=str(row[31] or ""),
+            doc_family_id=str(row[32] or ""),
+            version_id=str(row[33] or ""),
+            jurisdiction=str(row[34] or "UA"),
+            top_domain=str(row[35] or ""),
+            effective_from=str(row[36] or ""),
+            effective_to=str(row[37] or ""),
+            temporal_state=str(row[38] or ""),
+            temporal_resolution_status=str(row[39] or "unknown"),
+            temporal_source_scope=str(row[40] or ""),
+            temporal_source_kind=str(row[41] or ""),
+            temporal_confidence=self._numeric_row_value(row[42]) if row[42] is not None else None,
+            temporal_provenance_json=str(row[43] or "{}"),
+            doc_name=str(row[44] or ""),
+            doc_reestr_code=str(row[45] or ""),
+            provision_anchor=str(row[46] or ""),
+            provision_citation=str(row[47] or ""),
             similarity=similarity,
         )
 

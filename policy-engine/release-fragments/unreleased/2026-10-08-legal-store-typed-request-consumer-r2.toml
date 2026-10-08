@@ -1,0 +1,14 @@
+id = "2026-10-08-legal-store-typed-request-consumer-r2"
+title = "Type Legal store bindings and persisted request consumers"
+type = "fixed"
+component = "lex"
+owner = "team-polisyos"
+summary = "Legal store uses the existing canonical epoch window contracts, typed DuckDB row decoding and float32 query vectors; portable graph consumers pin saved request intent across reopened persisted readers."
+evidence = ["tests/unit/remediation/test_emb_03.py", "tests/unit/lex/test_knowledge_store_filters.py"]
+compatibility = "Immutable requested generation/model/profile and canonical encoder checks remain required; missing, stale or mixed generation/inventory intent refuses before encoding and native HNSW query."
+change_class = "internal"
+limitations = "Generic portable consumer and typing repair; no served HTTP, production corpus/model, current-law authority, current-G source acceptance or formal closure claim. Trusted canonical encoder scope retains the arbitrary replaced-callable residual."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/lex/knowledge/README.md"]
+runbook_docs = []

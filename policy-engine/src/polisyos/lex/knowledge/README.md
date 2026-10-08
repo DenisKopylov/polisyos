@@ -55,6 +55,21 @@ canonical trusted encoder/library/config; digest weights/tokenizer не удос
 произвольно подменённый `encode` callable. Production caller должен локально связать
 actual effective request profile, generation/assets и live encoder provider.
 
+Portable consumer `test_reopened_consumer_uses_saved_request_intent_before_encode_and_index`
+exercises the existing graph API on entities, facts and provisions after reopening the
+persisted DuckDB/index reader. It keeps the requested snapshot across a same-assets new
+generation: missing intent, an old generation, or a new generation ID paired with old
+inventory bytes refuses before query encoding and the native HNSW query. A fresh matching
+request returns the target through the existing canonical encoder. The matched guard-only
+removal is an independent falsifier of these actual consumer assertions, not a new producer
+or a served HTTP positive.
+
+Store row decoding uses the existing canonical `core.contracts.epoch` window DTOs and
+normalizes the actual DuckDB `LIST(STRUCT)` scope and scalar numeric/text columns.
+It does not substitute receipt shape or transaction time for amendment semantics.
+The shared Data Forge read API and served caller companions remain separate owner proposals;
+portable checks do not establish current-G composition or authentic local production pairing.
+
 Поколения
 с rule version `policyos.legal.embedding.v1` не допускаются к vector search;
 их нужно заново построить, чтобы записать текущую query-совместимость.

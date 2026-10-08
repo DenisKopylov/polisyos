@@ -1,0 +1,60 @@
+{
+  "schema": "orch04.root_independent_deciding_output_check.v1",
+  "time_utc": "2026-10-08T17:17:02.510535+00:00",
+  "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "native_addendum_sha256": "9e766b505e59cefe86af2d6f6e2ade1943c715b8e86bc4682049a94e1048c6d2",
+  "full_fresh_output_files": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/execution.json",
+      "sha256": "21a7702ab6c6071f23bb03817662f92868a7ed3eeb911c2d093672653d9c3042",
+      "bytes": 5109
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/stdout.txt",
+      "sha256": "05e1128cd82465a3bc4bf8d9609a42591cca4e38800bae947b995d4eabbe2ba0",
+      "bytes": 655
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/environment-origins.stdout.txt",
+      "sha256": "57553465915969db4b2ed1cd66ec28148852ddae3682d5b746bc3335d881354c",
+      "bytes": 11159
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/environment-origins.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head.xml",
+      "sha256": "e7dfed7fa9b0fa7969d2e4e4c4608f621969ce1a90ac64329e43a11e1d93bce7",
+      "bytes": 423
+    }
+  ],
+  "junit": {
+    "file": {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head.xml",
+      "sha256": "e7dfed7fa9b0fa7969d2e4e4c4608f621969ce1a90ac64329e43a11e1d93bce7",
+      "bytes": 423
+    },
+    "counts": {
+      "PASS": 1
+    },
+    "cases": [
+      {
+        "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+        "name": "test_non_simulation_leaf_requires_current_eval_safety_head",
+        "result": "PASS"
+      }
+    ]
+  },
+  "execution_wall_seconds": 67.88637827399998,
+  "exit_code": 0,
+  "errors": [],
+  "outcome": "PASS of receipt and exact fresh selector evidence; no whole-native/product/served/browser acceptance"
+}

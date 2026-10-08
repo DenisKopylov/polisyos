@@ -1,0 +1,57 @@
+refs/heads/codex/e02-ORCH04-recovery-20261008
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/receipt-commit/stderr.txt:10: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/receipt-commit/stderr.txt:12: trailing whitespace.
++summary: (done in 0.26 seconds)       
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/topic-push/stderr.txt:3: trailing whitespace.
++remote: 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/topic-push/stderr.txt:4: trailing whitespace.
++remote: Create a pull request for 'codex/e02-C11-recovery-20261008' on GitHub by visiting:        
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/topic-push/stderr.txt:5: trailing whitespace.
++remote:      https://github.com/DenisKopylov/polisyos/pull/new/codex/e02-C11-recovery-20261008        
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/topic-push/stderr.txt:6: trailing whitespace.
++remote: 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/topic-push/stdout.txt:4: trailing whitespace.
++┃  typecheck ❯ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/topic-push/stdout.txt:13: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C11/topic-push/stdout.txt:15: trailing whitespace.
++summary: (done in 37.58 seconds)      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C13/ordinary-topic-push.log:6: trailing whitespace.
++┃  typecheck ❯ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C13/ordinary-topic-push.log:15: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C13/ordinary-topic-push.log:17: trailing whitespace.
++summary: (done in 43.48 seconds)      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C13/ordinary-topic-push.log:19: trailing whitespace.
++remote: 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C13/ordinary-topic-push.log:20: trailing whitespace.
++remote: Create a pull request for 'codex/e02-C13-recovery-20261008' on GitHub by visiting:        
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C13/ordinary-topic-push.log:21: trailing whitespace.
++remote:      https://github.com/DenisKopylov/polisyos/pull/new/codex/e02-C13-recovery-20261008        
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C13/ordinary-topic-push.log:22: trailing whitespace.
++remote: 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/custody-final-commit/stderr.txt:10: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/custody-final-commit/stderr.txt:12: trailing whitespace.
++summary: (done in 0.33 seconds)       
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/frontend-install/stderr.txt:21: trailing whitespace.
++    [cause]: AggregateError [ECONNREFUSED]: 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-commit/stderr.txt:10: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-commit/stderr.txt:12: trailing whitespace.
++summary: (done in 0.22 seconds)       
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-push/stderr.txt:3: trailing whitespace.
++remote: 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-push/stderr.txt:4: trailing whitespace.
++remote: Create a pull request for 'codex/e02-ORCH04-recovery-20261008' on GitHub by visiting:        
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-push/stderr.txt:5: trailing whitespace.
++remote:      https://github.com/DenisKopylov/polisyos/pull/new/codex/e02-ORCH04-recovery-20261008        
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-push/stderr.txt:6: trailing whitespace.
++remote: 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-push/stdout.txt:4: trailing whitespace.
++┃  typecheck ❯ 
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-push/stdout.txt:13: trailing whitespace.
++                                      
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root/initial-push/stdout.txt:15: trailing whitespace.
++summary: (done in 82.95 seconds)      

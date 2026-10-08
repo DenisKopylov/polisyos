@@ -1,0 +1,472 @@
+{
+  "schema": "policyos.e02.l02.qualified_restart_preparation.v1",
+  "raw_report_ref": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/data-readiness.json",
+  "raw_bytes": 33170,
+  "raw_sha256": "8ee798d2bb604ef843ed9830f6bb8b186f7f748dfae03be08dfa2091efc00fe6",
+  "qualifications": [],
+  "payload": {
+    "schema": "policyos.e02.l02.data_readiness.v1",
+    "role": "L02",
+    "helper": "l02_ingestion",
+    "prepared_at": "2026-10-08",
+    "status": "prepared_read_only_unrun",
+    "scope": {
+      "mode": "source_and_configuration_read_only",
+      "runtime_tests_run": false,
+      "production_or_private_payload_reads": false,
+      "shared_scratch_reads": false,
+      "installs_or_checkout_changes": false,
+      "source_test_config_or_lock_writes": false,
+      "authorized_write": ".tmp/l02-restart-20261008/prepared/data-readiness.json",
+      "claim_boundary": "No authentic positive, production input admission, source acceptance, or formal G closure is claimed."
+    },
+    "decision": {
+      "ready_authentic_pair": false,
+      "state": "not_established",
+      "meaning": "No exact source-owned input tuple and consumer profile/caller pair is identified by the selected current-G source/config or published L01 packet. This is not a claim that data is globally absent or unavailable.",
+      "specific_production_pair_pointer": null,
+      "reason": "L01 C packet reports production_input_admission=not_established, input_path_and_recipe_status=not_established, Legal_current_pair=not_established; host inventory says no exact pair configuration was named and only opaque root-directory metadata was checked. No production payload was opened, enumerated, or hashed."
+    },
+    "frozen_references": {
+      "admitted_checkout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+        "head": "0cc9df727c2c921d64815e452a9b08681807ce13",
+        "tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+        "branch": "codex/e02-L02-authentic-20261008",
+        "status_at_read_start": "clean",
+        "current_G_was_read_via_git_show_without_switching": true
+      },
+      "current_G": {
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e"
+      },
+      "previous_G_for_delta_only": {
+        "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+        "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25"
+      },
+      "current_G_input_documents": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/COMMON.md",
+          "blob": "9f4fff6450d0fc6babf3c28457f3387136a2228f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/L02.md",
+          "blob": "21f0f5fd04557d37a087871061032b73a15b742b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08/inputs.json",
+          "blob": "a2eddda7928dc599bfe3c4ad993a14bfb1dc603c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+          "blob": "749255cd37f93955b176c748d63b2a3a7b7ee214"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+          "blob": "f9beb4db06c6e269c51e8a3f931a1902dde0fb6e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf"
+        }
+      ],
+      "original_criterion_documents": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "B_r19_original": {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+        },
+        "LA_r09_original": {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+        },
+        "coverage_source_commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+        "coverage_source_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf"
+      },
+      "published_L01": {
+        "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+        "tree": "31198f8d6e8268db5eab7e89169c351741161d21",
+        "in_current_G_ancestry": true,
+        "packet_C": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/C.json",
+          "blob": "ef0a4f87fac08b9b0d58044176a9e79274a1a9de",
+          "bytes": 29831
+        },
+        "host_inventory": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/host-inventory.json",
+          "blob": "f0561284148d10caa342081c96fd6b782d3ca216",
+          "bytes": 5300
+        },
+        "s1_source_facts": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/s1-source-facts.json",
+          "blob": "ade3547eaff26ac6b4acaca861e4e92becaeae74",
+          "bytes": 19963
+        }
+      },
+      "historical_scoped_receipts_not_transferred": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_ingestion.json",
+          "blob_in_current_G": "138a7aa983d7065e774930524f3f732efe2ed96a",
+          "checked_source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "checked_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+          "scope_note": "Prepared recipe only; no authentic current-G positive or formal closure."
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l02-authentic-source-qualified.json",
+          "blob_in_current_G": "7d470d1f65c12d3761c499b92a2bc9cd4359ef93",
+          "checked_tree": "d9a4e73a0e85fa11f865bf643c1b63fbe66c2767",
+          "formal_G_closure": "not_adjudicated"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l02-late-input-qualification.json",
+          "blob_in_current_G": "88121196c622014107f58ee7bf1936e68d0daa9d",
+          "checked_source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "latest_G_at_receipt": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-authentic-source-qualified.json",
+          "blob_in_current_G": "3fc9f98f5b899c5cd6ac2df0af05127a98ca686f",
+          "checked_source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "formal_G_closure": "not_adjudicated"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-late-input-qualification.json",
+          "blob_in_current_G": "c529245c4bf2867e887a4a3382372a22d301fbb5",
+          "checked_source": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+          "latest_G_at_receipt": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a"
+        }
+      ]
+    },
+    "selected_rows_and_criteria": [
+      {
+        "finding": "B79",
+        "connected_findings_row": 129,
+        "current_connected_pointer": "/rows/129",
+        "coverage_pointer": "/findings/204",
+        "criterion_pointer": "/findings/204/criterion_refs/0",
+        "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "original_lines": [
+          2153,
+          2166
+        ],
+        "criterion_sha256": "27bcd616e4c3651c5234684c5f00bfc90929f35b417c71f57e4740fa2afb567d",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability": "bridge_missing",
+        "C_author_proposal": "limited",
+        "missing_exact_input": [
+          "source_dataset_ref",
+          "source-owned ingestion_run_id",
+          "source cursor/ETag/revision",
+          "resolved persisted evidence content_identity",
+          "verifier binding content to that dataset and run"
+        ],
+        "supplier": "B connector/cursor evidence owner for the admitted source; no named dataset/run/content tuple is in L01 packet C.",
+        "current_G_behavior": "The batch_incremental path injects a stored DataVersion into FetchRequest.incremental_since; CursorState has optional ingestion_run_id/evidence_bundle_ref, but _save_confirmed_cursors remains fail-closed/no-op without a verifier resolving and content-binding evidence to the confirmed dataset/run.",
+        "selected_runtime_dependency": "Coverage says R13 must bind the runtime-supplied tenant CursorStore to the actually served lifecycle; this is separate from the missing source binder.",
+        "minimal_consumer_recipe_when_input_is_admitted": {
+          "positive": "POST /api/v1/control/data/ingest with execution_mode=batch_incremental on the named source. Independently compute expected rows at its exact persisted ETag/revision; record the actual connector FetchRequest.incremental_since and returned rows; read the persisted evidence content; reopen that same tenant CursorStore and compare cursor bytes with the source-confirmed boundary.",
+          "independent_negative": "Submit absent, forged, stale, wrong-dataset, wrong-run, or content-mismatched evidence; no hint/promotion. Remove cursor injection while retaining route markers; the positive must stop working.",
+          "existing_current_G_selectors_only_fixture_or_negative": [
+            "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_native_rest_version_requires_persisted_evidence",
+            "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_rejects_unverified_evidence_reference",
+            "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_advances_only_confirmed_dataset_boundaries"
+          ],
+          "authentic_positive_selector": "not_established"
+        },
+        "B83_is_not_a_prerequisite": true
+      },
+      {
+        "finding": "B80",
+        "connected_findings_row": 130,
+        "current_connected_pointer": "/rows/130",
+        "coverage_pointer": "/findings/205",
+        "criterion_pointer": "/findings/205/criterion_refs/0",
+        "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "original_lines": [
+          2167,
+          2180
+        ],
+        "criterion_sha256": "4c1a2181de7a1faab9b419139aacb69af646339f4920a172f21dbe2c4d0cbdad",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability": "semantic_test_missing",
+        "C_author_proposal": "held",
+        "missing_exact_input": [
+          "source-owned confirmed dataset/run/cursor/content tuple for source A",
+          "separate tuple for source B",
+          "independent A/B source event logs with boundaries and event times"
+        ],
+        "supplier": "B connector/cursor evidence owner for each selected source; no named pair or source logs are in L01 packet C.",
+        "minimal_consumer_recipe_when_input_is_admitted": {
+          "positive": "Use two named admitted sources: A confirms cursor 9; B starts at 4 and fails; include a late B event whose event-time is earlier than local now. Compare independent source logs and reopened per-source cursor records; after failure B stays 4 and the late row remains eligible; retry B and promote only after B's own dataset/run/cursor/content binder verifies.",
+          "independent_negative": "Inject global-success/local-now progress; it must either advance B on failure or lose the late row and fail the oracle. Repeat absent/forged/mismatched/wrong-run B evidence.",
+          "existing_current_G_selectors_only_fixture_or_negative": [
+            "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_does_not_advance_incomplete_result",
+            "tests/unit/fabric/data_plane/test_incremental.py::test_incremental_advances_only_confirmed_dataset_boundaries"
+          ],
+          "authentic_positive_selector": "not_established"
+        },
+        "B83_is_not_a_prerequisite": true
+      },
+      {
+        "finding": "B83",
+        "connected_findings_row": 133,
+        "current_connected_pointer": "/rows/133",
+        "coverage_pointer": "/findings/208",
+        "criterion_pointer": "/findings/208/criterion_refs/0",
+        "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "original_lines": [
+          2209,
+          2222
+        ],
+        "criterion_sha256": "33f33619aeda80550a33302bfc571497c218ec5f0f6ea09fa22d447e74d58441",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability": "semantic_test_missing",
+        "C_author_proposal": "held",
+        "missing_exact_input": [
+          "typed source-owned event/version key",
+          "source+dataset+partition scope",
+          "source UTC ingestion timestamp",
+          "durable 86,400-second replay/window binding",
+          "connector owner contract for absent/ambiguous-key refusal"
+        ],
+        "supplier": "Selected streaming connector/source owner for the event/version key contract; no source-specific owner/key packet is named in L01 C.",
+        "current_G_behavior": "The current stream path bounds membership with a deque/set using max_dedupe_keys and checkpoints the retained key tail; its helper removes evicted keys from the live set. The declared dedupe_window_seconds=86400 is not consulted by the stream eviction path, so the present witness is count-horizon restart behavior, not a UTC 24-hour horizon. The default key list includes _message_id/message_id/id and missing_key_action=hash_payload; EventStreamConnector synthesizes _message_id as dataset_id:index, which is not a source-owned event/version key. This describes current G source, not an inherited old B/C runtime outcome.",
+        "minimal_consumer_recipe_when_input_is_admitted": {
+          "positive": "On the admitted streaming source through ConnectionPool and StreamingSourceSession.create/poll, persist raw chunk/window evidence and atomic cursor+StreamCheckpoint via CursorStore.commit_stream_progress; close/release and reopen a fresh CursorStore on the same CAS/index. With independent UTC map and source keys a,b,c,a at cap=2, all inside 86,400 seconds, uninterrupted and crash-after-c/resume both suppress final a; expire exactly at 86,400 seconds after restart; preserve partition isolation and distinct source versions for a reused entity ID.",
+          "independent_negative": "Remove, fake, or make the source key ambiguous: typed unsupported before any progress write. Supply a count-only eviction, corrupt/remove timestamp index, or overflow live keys: durable spill or refusal before evicting a live key. Keep route/field markers while removing key binding; restart parity must fail.",
+          "current_G_fixture_selector": "tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_dedupe_count_horizon_is_restart_invariant",
+          "authentic_positive_selector": "not_established"
+        },
+        "relation_to_B79_B80": "B83 is independent; it is not a prerequisite for B79 or B80. Any R2 involvement is only as the actual supplier of a selected source's progress or event/version identity, not a general all-of barrier.",
+        "current_G_source_evidence": {
+          "processing_guarantees_blob": "3074055a1cdac38d7031f36158a2a0b33b54620b",
+          "streaming_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+          "event_stream_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c",
+          "source_regions": [
+            "processing_guarantees.py:78-83",
+            "event_stream.py:123-125",
+            "streaming.py:1586-1599, 1805-1808, 1864-1868, 1998-2029"
+          ],
+          "time_policy_observation": "dedupe_window_seconds appears in the policy contract, not in the stream eviction logic"
+        }
+      },
+      {
+        "finding": "LA-028",
+        "connected_findings_row": 111,
+        "current_connected_pointer": "/rows/111",
+        "coverage_pointer": "/findings/252",
+        "criterion_pointer": "/findings/252/criterion_refs/0",
+        "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "original_lines": [
+          1466,
+          1517
+        ],
+        "criterion_sha256": "ca582afd9387c0ba6c4c4bbc9278a6da82d00d06d347269c089531d12355b2f6",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability": "bridge_missing",
+        "C_author_proposal": "held",
+        "missing_exact_input": [
+          "I1 acceptance for the selected catalog source",
+          "actual enabled/seed/profile selection context",
+          "same explicit profile context delivered to the serving RetrievalService caller"
+        ],
+        "current_G_state": "Coverage-selected planned paths catalog/source_registry.py and catalog/selection.py are absent. Current G has catalog/batch/source_registry.py plus catalog/source_registry.yaml, separate catalog/knowledge registry and fabric/retrieval/service.py; there is no single versioned CatalogSourceRegistry wired to batch and RetrievalService with the actual serving profile context.",
+        "minimal_consumer_recipe_when_input_and_bridge_are_ready": {
+          "positive": "Using the admitted catalog/profile, compare identical enabled/seed/profile selection across batch source selection and the HTTP RetrievalService caller against independently derived ordered IDs/dependency closure.",
+          "independent_negative": "None inherits the documented default; explicit [] remains empty; disabled/missing required seed and cycles return typed reasons. Strip the profile context while keeping request markers and require the served result to diverge/fail.",
+          "existing_current_G_fixture_selectors": [
+            "tests/unit/fabric/test_retrieval_service_catalog.py::test_catalog_resolution_uses_request_dataset_id",
+            "tests/unit/fabric/test_retrieval_service_catalog.py::test_catalog_resolution_preserves_none_profile_id",
+            "tests/unit/fabric/test_retrieval_service_catalog.py::test_fetch_executor_uses_injected_registry_profiles_and_observability"
+          ],
+          "authentic_positive_selector": "not_established"
+        }
+      },
+      {
+        "finding": "LA-032",
+        "connected_findings_row": 115,
+        "current_connected_pointer": "/rows/115",
+        "coverage_pointer": "/findings/256",
+        "criterion_pointer": "/findings/256/criterion_refs/0",
+        "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "original_lines": [
+          1668,
+          1715
+        ],
+        "criterion_sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability": "bridge_missing",
+        "C_author_proposal": "held",
+        "missing_separate_source_inventory_fields": [
+          "ordered state IDs and source mapping",
+          "target/entrant definitions and source-member refs",
+          "prior axes/derivation/time",
+          "donor presence versus intentional absence and member mapping",
+          "producer/source profile/schema/rule version/epoch/time and content-bound member refs"
+        ],
+        "current_G_state": "Separate Ukraine demographic reader/input issue; existing assets/builders/read_api and generation_basis mechanics do not yet establish one versioned source-to-state inventory consumed by composite, target, prior, and optional donor readers.",
+        "smallest_existing_capability_option": "Reuse Ukraine manifest/CAS/read_api and existing generation_basis owner after C05's exact C-W19 producer proposal and G lease. Do not merge this inventory with Legal generation/encoder binding."
+      },
+      {
+        "finding": "LA-040",
+        "connected_findings_row": 120,
+        "current_connected_pointer": "/rows/120",
+        "coverage_pointer": "/findings/264",
+        "criterion_pointer": "/findings/264/criterion_refs/0",
+        "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "original_lines": [
+          2556,
+          2594
+        ],
+        "criterion_sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a",
+        "current_G_closure": "not_adjudicated",
+        "current_G_capability": "producer_missing",
+        "C_author_proposal": "held",
+        "missing_exact_input": [
+          "current persisted legal generation_ref and basis",
+          "current member/membership and withdrawal set",
+          "immutable model/weights/tokenizer/normalization assets identity",
+          "projection/rule version",
+          "actual live query encoder identity",
+          "request-to-serving-profile binding",
+          "fresh reader ref for same generation"
+        ],
+        "current_G_state": "Tracked legal batch config declares model label intfloat/multilingual-e5-large, dimension 1024 and device mps, but these are not model asset bytes or a selected generation. The current HTTP lex_pipeline constructs LegalKnowledgeGraph(db_path,index_dir) without query_encoder and uses text_search; no matched vector-serving profile is released by current config.",
+        "minimum_supplier_fact": "L01/source owner must identify one current admitted generation + exact member set/content and immutable producer/query encoder assets/profile. No production bytes, vectors, membership, or digest are claimed in this receipt.",
+        "minimal_existing_capability_option": "Extend the existing generation_basis + legal batch embedder and LegalKnowledgeStore with one shared versioned projection and content-derived encoder identity; then wire the real serving caller's query encoder/profile and fresh-reader binding. Candidate c60 sketches the mechanism but is not current-G-selected.",
+        "candidate_fixture_selectors_not_run": [
+          "candidate-only tests in c60e37e: test_live_query_encoder_must_match_selected_generation_before_knn; test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating; test_encoder_asset_change_during_query_encode_is_rejected_before_knn"
+        ]
+      },
+      {
+        "finding": "LA-046",
+        "connected_findings_row": 33,
+        "current_connected_pointer": "/rows/33",
+        "coverage_pointer": "/findings/270",
+        "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "original_source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "original_lines": [
+          3034,
+          3068
+        ],
+        "criterion_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+        "criterion_occurrences": [
+          "/findings/270/criterion_refs/0 (REQ-01)",
+          "/findings/270/criterion_refs/1 (ACQ-01)"
+        ],
+        "current_G_closure": "not_adjudicated",
+        "current_G_state": "The two same-source occurrences stay separate. REQ-01 needs an explicit named pilot profile with opaque scenario IDs, request/text, scope/date/jurisdiction, and negation; ACQ-01 needs exact supported L1 canonical_variable_observations:<variable>, source-owner permission and accepted observation that changes WMR. A capability-index configuration alone is neither permission nor accepted source evidence."
+      }
+    ],
+    "current_G_source_test_config_blobs": {
+      "i3_source_and_tests_unchanged_from_d23": {
+        "policy-engine/src/polisyos/runtime/http/routes/control.py": "b525f2601a311f1b47fd97ae429e1647a6c5d993",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "policy-engine/src/polisyos/fabric/data_plane/modes.py": "198ca13aac6a3edf29120f530b155cb9139d38da",
+        "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py": "31525859297cf05d5c190db00e5389ab0c61b0ff",
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py": "40fa241d849e41839436723d74feaaef751e8811",
+        "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py": "572366d6ab84a331b45aecaa4b55c7c5426dafbc",
+        "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c",
+        "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py": "3074055a1cdac38d7031f36158a2a0b33b54620b",
+        "policy-engine/src/polisyos/core/contracts/cursor.py": "0e5e772008545beab99ef5ea9c489d0febed406e",
+        "policy-engine/tests/unit/runtime/http/test_e2e_ingestion.py": "667956e458397d4211c3d2c71e0fb5f82bc7da54",
+        "policy-engine/tests/unit/fabric/data_plane/test_incremental.py": "bbdcedfb8a0f0341d463e4d953f2665f7cdeee49",
+        "policy-engine/tests/unit/fabric/data_plane/test_processing_guarantees.py": "840833bc9c7dc796caa1ecc2d9fa41a4d8486cff",
+        "policy-engine/tests/unit/fabric/data_plane/test_cursor_store.py": "035ccd38c5e6448f5bb9db14c507fc12c96c5b30",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py": "d7913c3de3ba60d96f5ad7f66e70311641e95633"
+      },
+      "i4_catalog_source_config_and_tests_unchanged_from_d23": {
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py": "e03e3650e4be407d5a43eb2ce3acae0dd39a5744",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py": "142040537e37167e9f97955d4f19cbcaf76002c6",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/registry.py": "09e13991a358179bc8ee6bbd4fee16944304d1a3",
+        "policy-engine/src/polisyos/fabric/retrieval/service.py": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+        "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py": "4d752c653fbd43fd30c3120ead94e0ff643ac7ec"
+      },
+      "i4_legal_config_sources_caller_and_tests_unchanged_from_d23": {
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/config.py": "5c537ebcf8f90817a8c825a8eb8cceb8806b4a45",
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py": "02f47ec1dc17eab658849a764cc43a90cf419857",
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py": "7f90187b92f632e540326d8efe997f510b4f0c15",
+        "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py": "19ca41eead188afac99ed21cca386c460763e15d",
+        "policy-engine/src/polisyos/lex/knowledge/store.py": "9a01a6c2cd2baa0ae29736b526153046ae2e822a",
+        "policy-engine/src/polisyos/lex/knowledge/search.py": "ed7710c10a76913b0f0e209481baf65129943270",
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py": "5c1f8bba235764741a64aca54f953846bccddc25",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py": "6f535450430812a72cd0527536f087dadb0a8184",
+        "policy-engine/tests/unit/remediation/test_emb_03.py": "0267e54b7143b862b703a3b99aa24e383ea490a2"
+      },
+      "la032_separate_ukraine_paths_unchanged_from_d23": {
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/assets.py": "e4777998cda09a03d07de261c73835b4433df83d",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py": "e22295965423ce472babfe2171b6bd883c1dd537",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py": "97c1f1dca8db13dc6409919ca2cf81feea43d997",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py": "32d925f0d443ea61c08b16986b87ed053dd8c9a8",
+        "policy-engine/src/polisyos/data_forge/read_api/ukraine.py": "061441cccf7f52e8fdea33a4c63b47dd95372dad",
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py": "6105b5626a3845dc846e2063e4548178a42d958f"
+      },
+      "coverage_planned_paths_absent_in_current_G": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal_batch/embed_local.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py"
+      ],
+      "selected_source_test_config_result": "Every listed I3/I4/LA032 source, test, and config blob above is identical in d23 and G032. The only checked release-fragment / package-config companion delta d23→G032 is A policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml; there is no selected I3/I4 config or caller companion delta."
+    },
+    "new_legal_topic_identity": {
+      "actual_L01_source_pin": {
+        "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+        "subject": "Bind Legal vector queries to selected generation",
+        "in_G_ancestry": false
+      },
+      "fetched_topic_handoff_commit": {
+        "commit": "51609922447716115c22287ac79c218d13cd9067",
+        "tree": "bc8b7ac5989b71aba55d1b4cc646589e85daf0a2",
+        "subject": "Record Legal query profile handoff",
+        "parent": "9e779ec32d42dec9a3859d26334eefb2147f60cc",
+        "in_G_ancestry": false,
+        "L01_role": "handoff/report commit; it names c60e37e as the C_Legal_source pin"
+      },
+      "candidate_only_changed_blobs_vs_current_G": {
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py": "48c6f4e1e899613962e984ffd25d4bd7baa8230e",
+        "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py": "ee526dd88b8acf41931793010ac7a81b7b64329c",
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py": "0e1d2a5229b3167c7a3d211386f6e7607b9d30a3",
+        "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py": "b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac",
+        "policy-engine/src/polisyos/lex/knowledge/store.py": "95c2ab216c5c4bd60c71bf13eb1e0c1596d8df8a",
+        "policy-engine/src/polisyos/lex/knowledge/search.py": "a25674788cf0d7305cbb60db5172aa113fd5c8cf",
+        "policy-engine/tests/unit/remediation/test_emb_03.py": "27f18067fc33723a4d147df1f1bff2d5c1dcece5"
+      },
+      "candidate_unchanged_blobs_vs_current_G": {
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/config.py": "5c537ebcf8f90817a8c825a8eb8cceb8806b4a45",
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py": "5c1f8bba235764741a64aca54f953846bccddc25",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py": "6f535450430812a72cd0527536f087dadb0a8184"
+      },
+      "candidate_scope": "c60 adds a shared versioned legal text projection and generation/query binding derived from loaded encoder state/assets. 516 adds no selected source/test changes relative to c60. These fixture-oriented candidate changes are unselected by current G and do not identify actual generation bytes, membership, model assets, served profile, or a current caller pair.",
+      "serving_caller_fact_in_current_G_and_candidate": "lex_pipeline.py constructs LegalKnowledgeGraph(db_path=db_path, index_dir=Path(request.output_dir)) without query_encoder and calls text_search. The source file is byte-identical in G, c60 and 516.",
+      "candidate_fixture_controls_not_run": [
+        "test_live_query_encoder_must_match_selected_generation_before_knn",
+        "test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+        "test_encoder_asset_change_during_query_encode_is_rejected_before_knn"
+      ]
+    },
+    "configuration_readiness": {
+      "Catalog": {
+        "tracked_config": "policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml@0321633c0e6d9a87bccfbbe889a4998934c52dd3:0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+        "interpretation": "Existing batch SourceRegistry YAML profile declarations are not an admitted selected dataset/run/content tuple nor a shared actual serving profile passed to RetrievalService.",
+        "missing_supplier": "I1/source owner must provide accepted source plus selected enabled/seed/profile context; canonical catalog owner must wire the same versioned selection into batch and serving caller."
+      },
+      "Legal": {
+        "tracked_config": "policy-engine/src/polisyos/data_forge/domains/legal/batch/config.py@0321633c0e6d9a87bccfbbe889a4998934c52dd3:5c537ebcf8f90817a8c825a8eb8cceb8806b4a45",
+        "interpretation": "Config declares model label, device and vector dimension only; it is not immutable model/weights/tokenizer identity or a selected generation/profile pairing.",
+        "missing_supplier": "Source owner/L01 must identify the actual admitted persisted generation, membership/content and immutable encoder assets/profile; serving owner must pass the compatible query encoder and profile into the real caller."
+      }
+    },
+    "smallest_next_action": "Route only the exact per-finding missing tuple to its actual supplier: B connector/cursor evidence owner for B79/B80; selected stream connector owner for B83; catalog source owner plus I1 acceptance for LA-028; separate Ukraine source inventory/C05 producer for LA-032; Legal generation owner plus served query-profile caller for LA-040. If R2 owns the selected source progress or event/version identity, request that exact fact only. No named current production pair is available for a bounded read, so this receipt supplies no production path; it does not say host data is unavailable."
+  },
+  "temporal_boundary": "Helper observations precede root five-file L6 reconciliation. Any host-input-not-assessed statement remains historical to that report; new specific observations are in l6.stdout, not a global host census."
+}

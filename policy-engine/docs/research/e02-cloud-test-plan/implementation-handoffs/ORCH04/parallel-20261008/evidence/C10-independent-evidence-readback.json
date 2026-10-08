@@ -1,0 +1,21 @@
+{
+  "schema": "orch04.root_independent_c10_remote_evidence_check.v1",
+  "time_utc": "2026-10-08T17:26:16.731504+00:00",
+  "readback_ref": "refs/recovery/ORCH04-coordinator-readback-20261008/C10",
+  "identity": {
+    "commit": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+    "tree": "124dc6e5746716ade61e5d9d6d8633009db48315",
+    "parents": [
+      "e5310c8e75147ab6c5124784ae859e4a1d30490c"
+    ]
+  },
+  "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "source_tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "remote_indexed_outputs_denominator": 350,
+  "complete_source_footprint_paths": 15,
+  "complete_implementation_lineage_records": 5,
+  "complete_receipt_footprint_paths": 357,
+  "errors": [],
+  "outcome": "PASS",
+  "qualification": "Normal remote fetch to a new coordinator ref; shared content-addressed ODB, not a claimed empty-ODB fetch. Independent exact byte hashes and complete source/receipt footprint verification; no source acceptance."
+}

@@ -1,0 +1,101 @@
+{
+  "schema": "policyos.e02.l02.frozen_delivery_independent_review.v1",
+  "role": "delta_only_frozen_receipt_reviewer",
+  "verdict": {
+    "frozen_document_delivery": "GO",
+    "l6_selected_manifest_identity": "NOT_RECONCILED",
+    "runtime_result": "UNRUN",
+    "runtime_pass_or_fail": "not_established",
+    "authority_or_protected_effect_admission": "not_established",
+    "formal_G_closure": "not_adjudicated"
+  },
+  "frozen_binding": {
+    "branch": "codex/e02-L02-authentic-20261008",
+    "commit": "6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+    "tree": "be4e0bebbecab328d84009628120f64144559f4b",
+    "parent": "0cc9df727c2c921d64815e452a9b08681807ce13",
+    "G_commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "G_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+    "G_L6_loader_blob": "4fbc772508cc7183a95301556608a6c7101b2f15",
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/manifest.json",
+      "sha256": "bef49cdde9cfa9a9dc7a8fbb7571aee97b6db3511836a5e4d0dfc272d0467a75",
+      "payload_count": 21,
+      "unique_payload_paths": true,
+      "payloads_matching_declared_bytes_and_sha256": 21,
+      "gzip_expanded_bytes_and_sha256_match": true,
+      "commit_changed_paths": 22,
+      "changed_paths_equal_manifest_entries_plus_manifest": true,
+      "changed_path_scope": "handoff documentation and receipts only; no source, test, configuration, lock, or production payload paths"
+    },
+    "README_sha256": "6fa568688cf0ca2a200d3113f53d60850540357c6702a555b25e685003b17f12"
+  },
+  "readback_bindings": {
+    "L6_command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.command.json",
+      "bytes": 4922,
+      "sha256": "21a3a45e8bc62381b9db72228fc0c0a1da78d646239423c1860e86300038c583",
+      "exit_code": 0,
+      "meaning": "Observer completed; exit status is not a Runtime outcome."
+    },
+    "L6_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.stdout",
+      "bytes": 1236,
+      "sha256": "09987fd27d5ecfa9fe59eff085128e8dfd120b47fa9803108f133597d36f297f"
+    },
+    "L6_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "prior_ignored_reviews": {
+      "readiness_sha256": "189295c05046478097a5c7558ab8a391738ea5ca2a95c35c8bf980c45a5455e3",
+      "readiness_bytes": 8120,
+      "L6_sha256": "69197fb1e0cb3de0a60fecd635f7f8f28281fc5d7dd864ba7baa26ec87ddec96",
+      "L6_bytes": 7785,
+      "frozen_wrapper_raw_refs_match": true,
+      "prior_files_modified": false
+    }
+  },
+  "scope_findings": {
+    "L6_identity": {
+      "selected_file_denominator": 5,
+      "root_to_bundle_manifest_checksum": "match",
+      "selected_payload_paths": "3_of_3_match",
+      "knob_dictionary": "declared size and SHA-256 mismatch observed bytes",
+      "lex_map": "declared size and SHA-256 mismatch observed bytes",
+      "observation_contract": "declared size and SHA-256 match observed bytes",
+      "conclusion": "The selected manifest-to-payload identity check is red. Do not infer that the manifest is stale versus the files being unintended; the evidence does not decide which source identity is authoritative."
+    },
+    "runtime_binding_limit": {
+      "status": "not_established",
+      "detail": "The observer command hardcodes the primary checkout as its repository/data root; the frozen G source is being reviewed from a separate L02 worktree. G's loader uses repo_root plus its default repo-relative L6 path mapping, but the observer did not bind the absolute repo_root used by a Runtime consumer. It proves the bounded identity observation under the primary checkout root, not that a G worktree consumer resolves those exact absolute files.",
+      "effect": "This does not invalidate the metadata observation. The README correctly marks Runtime and authentic source/profile/context execution UNRUN; preserve that boundary."
+    },
+    "temporal_boundary": "Wrapper reports explicitly state their helper observations precede the five-file L6 check. The L6 observation supersedes only the earlier no-read/not-assessed statement for those selected files. It does not establish host-wide availability, other input tuples, a profile/context binding, or a source-authorized pair.",
+    "other_scope": {
+      "B190": "G acceptance remains an internal non-authority supplier/CAS scope. No general production law is required for the local-Jacobian/declared-affine criterion; variance requires its exact law. The current G Node bridge remains absent.",
+      "E_topic": "The bb78 Node bridge is available as a topic candidate but outside G ancestry and without an updated Node-specific deciding receipt; no consumer closure is implied.",
+      "permission_and_law": "The package preserves existing minimal read-only authorization and does not create a new permission, all-law, all-profile, or global freeze prerequisite.",
+      "closure": "Manifest closure_ids is empty; documentation does not promote G findings to formal closure."
+    }
+  },
+  "parser_and_confidentiality_limits": {
+    "record_matching": "The observer requires one resolved bundle-manifest candidate, confines that manifest pointer to the selected data root, requires one manifest record for each selected basename, and then compares the exact resolved path. It is scoped to the three named payloads, not complete L6 admission.",
+    "known_bounded_limits": [
+      "Default json.loads does not reject duplicate object keys.",
+      "The selected payload paths are compared to expected resolved paths, but the observer has no separate resolved-root containment assertion for each payload.",
+      "Before/after and post-set stat checks are enforced by the command, but only post-read stat snapshots are retained; the observation is marked non-atomic.",
+      "The G loader reads fixed JSON paths and hashes parsed objects but does not verify raw file bytes against root/final manifest declarations; the identity mismatch is not a demonstrated Runtime failure."
+    ],
+    "public_metadata_boundary": "The committed stdout contains no payload bytes or individual payload hashes. It contains an absolute local reference to the ignored metadata-only report and the report's aggregate SHA-256. The committed L6 review records this as a bounded disclosure and recommends redaction before any wider export under a strict no-private-path/no-hash rule."
+  },
+  "work_performed": {
+    "manifest_payloads_read_from_git_objects": 21,
+    "production_payloads_read_by_reviewer": false,
+    "runtime_or_tests_executed": false,
+    "source_test_configuration_or_production_files_written": false,
+    "prior_reviews_modified": false,
+    "review_scope": "Frozen receipt binding and scope only; no full matrix or C54 recount."
+  }
+}

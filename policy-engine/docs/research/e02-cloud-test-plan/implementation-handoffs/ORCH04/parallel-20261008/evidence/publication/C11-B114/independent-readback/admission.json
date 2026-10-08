@@ -1,0 +1,15 @@
+{
+  "schema": "orch04.C11.independent-empty-ODB-admission.v1",
+  "utc": "2026-10-08T19:12:36.628687+00:00",
+  "remote_db": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/remote.git",
+  "objects": "count: 0\nsize: 0\nin-pack: 0\npacks: 0\nsize-pack: 0\nprune-packable: 0\ngarbage: 0\nsize-garbage: 0\n",
+  "refs": "",
+  "alternates_present": false,
+  "intended_new_ref": "refs/recovery/ORCH04-C11-independent-final-20261008/receipt-f425407e",
+  "local_cwd": "/workspace/ORCH04-C11",
+  "branch": "codex/e02-C11-recovery-20261008",
+  "head": "f425407e9f2228300905831d44bf179bb797e69d",
+  "status": "",
+  "status_result": "PASS empty separate ODB and unused new ref before remote fetch",
+  "config": "file:/home/agent/.gitconfig\tcore.pager=cat\nfile:/home/agent/.gitconfig\tuser.name=\u0414\u0435\u043d\u0438\u0441 \u041a\u043e\u043f\u044b\u043b\u043e\u0432\nfile:/home/agent/.gitconfig\tuser.email=skvidvard167m@gmail.com\nfile:config\tcore.repositoryformatversion=0\nfile:config\tcore.filemode=true\nfile:config\tcore.bare=true\n"
+}

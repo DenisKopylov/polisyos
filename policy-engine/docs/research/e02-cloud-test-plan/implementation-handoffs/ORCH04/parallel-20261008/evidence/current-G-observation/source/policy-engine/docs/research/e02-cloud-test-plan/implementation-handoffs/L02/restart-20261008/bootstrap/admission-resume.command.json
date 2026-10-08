@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-L02-authentic-20261008",
+    "--path",
+    "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+  "exit_code": 0,
+  "utc": "2026-10-08T15:41:38.474797+00:00"
+}

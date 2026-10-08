@@ -1,0 +1,16 @@
+{
+  "schema": "orch04.root_independent_final_gp_deciding_check.v1",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+  "native_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+  "expected_Git_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+  "full_deciding_file_denominator": 8,
+  "errors": [],
+  "positive_comparisons": 7,
+  "negative_comparison_count": 1,
+  "same_basis_restored_append_extra_fit_calls": 0,
+  "post_condition_checkpoint_second_append_extra_fits": 0,
+  "scheduled_due_extra_fits": 1,
+  "outcome": "PASS bounded original actual Gaussian posterior/NumPy covariance and affected checkpoint path",
+  "qualification": "Synthetic engineering fixture; exact dependency/model/transform/kernel/input/harness source pins in independent GP receipt. No generic numerical acquisition/full workflow/production/installed-GP claim."
+}

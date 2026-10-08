@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.l02.restart_unit_handoff.v1",
+  "unit": "E",
+  "execution_role": "L02",
+  "mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "slice_base_sha": "0cc9df727c2c921d64815e452a9b08681807ce13",
+  "slice_base_tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+  "implementation_commits": [
+    "6e9eed27c41a488c33b6be510b1b4c89a4152f7b"
+  ],
+  "implementation_role": "Own evidence docs only; no product/test/config/lock/generated writes",
+  "candidate_tree_sha": "be4e0bebbecab328d84009628120f64144559f4b",
+  "runtime_contract_target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "runtime_contract_target_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "runtime_execution": "UNRUN; source/config examination and input identity observer only",
+  "prior_original_criterion_and_owner_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l02-late-input-qualification.json",
+    "commit": "0cc9df727c2c921d64815e452a9b08681807ce13",
+    "bytes": 3793,
+    "sha256": "9304b9db6949041959ddd6a293c55174be31af2050ac122b8ab56df460a6cb92",
+    "use": "Original criterion/owner status unchanged; this is a scoped continuation, no whole-row reaccounting."
+  },
+  "evidence_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/science-rights-readiness.json",
+      "commit": "6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "bytes": 17401,
+      "sha256": "8bdb452101ae6cbf3ddcfb06c487468920250eb5fcb3cee55870eec42e98aa84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/source/current-source-identities.json",
+      "commit": "6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "bytes": 1449,
+      "sha256": "d9554d4add66e12eedd46bab9c64bb02f7cea3e543bb5c3cd165fbc831d91495"
+    }
+  ],
+  "outcome": "G B190 internal non-authority supplier accepted; current G Node does not use its matrix reader. Later bb78 Node candidate exists but outside G and without new Node-specific deciding receipt. No new numerical/consumer PASS.",
+  "minimum_next_tuple_or_action": "E/C09 completed Node source-qualified receipt/review/affected tests, G composition, C13 portable new Node producer/CAS/fresh-reader controls. No law prerequisite for Jacobian/declared affine basis; exact law needed only for variance/SD or true conditional SHAP. B194/B197 actual evaluator/fit tuples remain separate.",
+  "predicate_basis": "recomputed document/file identities; actual profile/context/law/issuer facts not_established where specifically named, no metadata authority",
+  "production_read_scope": "Root read exactly five selected L6 files: two metadata manifests and three binary-hashed payloads. All per-input identities remain ignored. No production data writes/exports; other task payloads unassessed.",
+  "root_binding_limit": "Observed primary input root is not an executed G Runtime repo_root binding; that must be established before a consumer claim.",
+  "closure_ids": [],
+  "formal_G_closure_updates": "none by L02; existing G decisions remain separate",
+  "created_at_utc": "2026-10-08T16:30:33.590395+00:00"
+}

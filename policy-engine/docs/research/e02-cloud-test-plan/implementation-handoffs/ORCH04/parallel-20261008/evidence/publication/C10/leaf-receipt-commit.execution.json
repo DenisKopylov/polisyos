@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "git",
+    "commit",
+    "-m",
+    "docs(e02): preserve source-qualified ORCH04 C10 recovery receipt"
+  ],
+  "cwd": "/workspace/ORCH04-C10",
+  "started_utc": "2026-10-08T17:18:32.928385+00:00",
+  "python_executable": "/workspace/.polisyos-environment/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": "1",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "npm_config_store_dir": "/workspace/.polisyos-environment/cache/pnpm"
+  },
+  "pid": 22911,
+  "finished_utc": "2026-10-08T17:18:33.945033+00:00",
+  "elapsed_seconds": 1.0166856199994072,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 63960,
+      "sha256": "f6e2a37dbdd4366a778f21c2f4659da3067e619ec90079fd24defde4b010e1e4"
+    },
+    ".stderr": {
+      "bytes": 831,
+      "sha256": "89d9ce810f3fd571a5aec9401bc687e1431ee01e03c3effef19f1a6ad820a752"
+    }
+  }
+}

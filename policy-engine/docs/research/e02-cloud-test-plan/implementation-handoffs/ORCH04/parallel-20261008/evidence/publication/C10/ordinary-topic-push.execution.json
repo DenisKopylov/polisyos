@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "git",
+    "push",
+    "--set-upstream",
+    "origin",
+    "codex/e02-C10-recovery-20261008"
+  ],
+  "cwd": "/workspace/ORCH04-C10",
+  "started_utc": "2026-10-08T17:21:01.809186+00:00",
+  "python_executable": "/workspace/.polisyos-environment/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": "1",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "npm_config_store_dir": "/workspace/.polisyos-environment/cache/pnpm"
+  },
+  "pid": 23710,
+  "finished_utc": "2026-10-08T17:21:47.964720+00:00",
+  "elapsed_seconds": 46.15558358399994,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 990,
+      "sha256": "5ca56b0b584ae8d609558e4e4e9e6e65b18645a17ff8f369676d768f1c8d296e"
+    },
+    ".stderr": {
+      "bytes": 538,
+      "sha256": "30524ffa77373cecf3f1358e6d02a48e8cba73a78329e812001e3866ce08a123"
+    }
+  }
+}

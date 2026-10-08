@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "product_source_ref": "../source.json#/inspected_G",
+  "finding_adjudication": "unchanged; formal G closure not_adjudicated",
+  "authentic_consumer_check": "UNRUN; execution belongs to L02",
+  "private_digests": "withheld; no custodian disclosure admission",
+  "publication_scope": "Nonsecret aliases only; exact private locators/metadata/byte digests stay in ignored local receipt.",
+  "task": "I4 facts / Legal and Catalog profile",
+  "original_unit": "C",
+  "criterion_ids": [
+    "LA-040"
+  ],
+  "criterion_scope": "Original LA-040 is content/model/projection-bound incremental reuse and membership. The I4 served pair is a connected consumer prerequisite, not a replacement criterion or proof of the entire original matrix.",
+  "tuple": {
+    "source_alias": "L01_CONFIGURED_LEX_DB_01",
+    "manifest_alias": "L01_ROOT_MANIFEST_20261008",
+    "bundle_version_alias": "L01_LEX_VERSION_01",
+    "profile": "root research default; selected/effective Catalog request profile not_established",
+    "purpose": "Existing Legal transport-constraint structured/text retrieval",
+    "source_to_consumer": "root bundles.lex.legal_kg_db_path→production_data defaults→nl_pipeline params→resolve_transport→lex.evaluate_transport_constraints→LegalConstraintBridge read-only DuckDB retrieval",
+    "named_bundle_and_db_present": true
+  },
+  "served_vector_boundary": "On inspected G, LexSearchRequest query/top_k/output_dir→search_lex_graph constructs LegalKnowledgeGraph without openai_api_key and calls text_search (DuckDB ILIKE). It does not invoke a vector encoder or bind output_dir to the nominated manifest bundle.",
+  "bounded_metadata_probe": "Only source-derived per-projection embedding_generation.json and flat reader filenames at the manifest-nominated Lex bundle root and DB parent were stat-checked. None was present there. No inventory, database rows, vectors or model assets were opened; no global absence claim.",
+  "minimum_next_input": {
+    "C12": [
+      "selected generation/selector/inventory refs",
+      "current membership/withdrawal and projection-rule binding",
+      "paired vector/index and immutable model/tokenizer/weights identity",
+      "actual matching live query encoder/provider"
+    ],
+    "C05": [
+      "effective versioned Catalog request profile and ordered source selection"
+    ],
+    "G/C12": [
+      "selected same-profile vector serving composition"
+    ],
+    "L02": [
+      "authentic same-profile consumer and missing/stale/foreign/mismatched negatives"
+    ]
+  },
+  "predicates": {
+    "manifest bundle/version/database relationship": "owner_supplied",
+    "exact named path stats and current G caller/reader content": "recomputed",
+    "generation/member/model/encoder provenance, effective request profile, currentness and authentic result": "not_established"
+  },
+  "held_transition": "Proposed authentic profile-bound Legal vector transition only; independent structured/text paths keep their own scope.",
+  "local_receipts": [
+    "policy-engine/_build/e02-L01-restart-20261008/agents/legal/private.json"
+  ],
+  "falsifier": "A text-search result with a present DB can coexist with no selected vector generation/provider; it cannot establish the I4 vector property."
+}

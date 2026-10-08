@@ -1,0 +1,488 @@
+{
+  "schema": "policyos.orch04.gp.required_transfer.v1",
+  "root": "/workspace/ORCH04-evidence/gp",
+  "no_oldbytes_reconstructed": true,
+  "scope": "ordinaryexport exactnewsourceinputarchives, scripts/manifests, complete deciding stdout/stderr/JUnit/JSON, synthetic rawstateassets; omit disposableexportdirs/caches. Existing canonicalGitobjects/rootbundleprovide branchsourcecustody separately.",
+  "files": [
+    {
+      "path": "/workspace/ORCH04-evidence/gp/FINAL-036.md",
+      "sha256": "58370ac43e466325717625ec6a48a332dbc4ebae3249a64723026d5d7a38083b",
+      "bytes": 2140,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/FINAL-DELTA.md",
+      "sha256": "340aa8a16cdfc8817348d5ed81f84aba5dda95eb655bfbce41f2bd201fe9ee06",
+      "bytes": 2599,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/REPORT.md",
+      "sha256": "d71e4737d115fb1eb01596031d808eb6309703b0f6ee35085a6f3973c75a7172",
+      "bytes": 2981,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic_posterior.py",
+      "sha256": "972d5629a86c9ea6a29977933e6b69cc32d3d8a8e2072c76689e722324937f63",
+      "bytes": 11592,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic_posterior_v2.py",
+      "sha256": "e0b16820946a76599315ac988f4b03c7027a4e857e6b31dba3bffe527d3b1638",
+      "bytes": 14079,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/baseline-receipt.json",
+      "sha256": "e808e3b696b4d8fcca7f2fe2b2d872e28d976e5a85a9cea68853653bb4af0613",
+      "bytes": 14142,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/conditioning-removal-input.tar",
+      "sha256": "8f224edcd9142bd63fc7cd6a2b77640ade86995b38222500ed9d13ae0f45da40",
+      "bytes": 93235200,
+      "disposition": "raw inputarchive preserveinordinaryexport, notlargeGitdocscommit"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/conditioning-removal-manifest.json",
+      "sha256": "0338a12f00cc838a1397f23604985fc0b329bae9bb70cd520c12f41e0ca99623",
+      "bytes": 789,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/conditioning-removal.patch",
+      "sha256": "1c0c084097f655b5685ba578d5acdc707c5017177eae6429c916c02489c3ce2e",
+      "bytes": 751,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/criterion-inputs.json",
+      "sha256": "48415e8cfb8da4944d6f2bc9f1302d04d19c59c7522d0ad0e06f8c68ea415734",
+      "bytes": 12075,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/environment-profile.json",
+      "sha256": "e864e522edeaaf3924c795d9e73ed0247499a47a73a75e7e58cc8cd9b5cc22b2",
+      "bytes": 3680,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-036-gp-receipt.json",
+      "sha256": "1b6143ebb8f5850c748ec2b573759890abbc064da8d5d88d6e56823da6d417ac",
+      "bytes": 10098,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-036-readback.json",
+      "sha256": "86e31341b5fdfc2f40423752ca5b0c2b1da2a5e93a83b1fd330a33f71cfc3d50",
+      "bytes": 338,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-036-source-manifest.json",
+      "sha256": "9f36547663814244a18bc69fad3668fe56c95e0874e1c124302da254971bd839",
+      "bytes": 11734,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-036-source.tar",
+      "sha256": "70deb2ba0fe6e5831df6b3d86f72d06d35acf94d71aa294ce006e3b7b3c2e0cb",
+      "bytes": 58234880,
+      "disposition": "raw inputarchive preserveinordinaryexport, notlargeGitdocscommit"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-baseline-readback.json",
+      "sha256": "4712ba6e9df9978f6567e0be721b0da7aaafd337ee79ccbd6fea3fce70977813",
+      "bytes": 10438,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-bdc-source-manifest.json",
+      "sha256": "ab8a86f990c6261d3986a62251fcf90ac92d3698bd9df1ec690117bff195ea51",
+      "bytes": 1322,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-bdc-source.tar",
+      "sha256": "5c4bed068d676035277a290c74aa25180f9564ad0c2727b08c7fc572cd86a16e",
+      "bytes": 93265920,
+      "disposition": "raw inputarchive preserveinordinaryexport, notlargeGitdocscommit"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-counter-removal-manifest.json",
+      "sha256": "64c6600a86d1e6be96fa2aa4373992f138fcf230e9cc3a50a9016a20acae6e90",
+      "bytes": 714,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-counter-removal.patch",
+      "sha256": "c40bf9e1e4bd8ef81b82a7d70a7fff1762a5b2b306ac6dc4cbb8901a99526afc",
+      "bytes": 661,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-gp-receipt.json",
+      "sha256": "4b8fcaa3af11cc475b961527f056eaf290425d27c6a6e5c1586041d0730d88fa",
+      "bytes": 30343,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/latest-c1b-GP-input-equality.json",
+      "sha256": "aac6f7f06bb6ee407d92ed226797d16628da3c68edc5aa9e5392717e3a604207",
+      "bytes": 8889,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/source-manifest.json",
+      "sha256": "d0ed31d68cdceead90ccb37090fe184afd0c2ab99827de654b57229d4e4835c8",
+      "bytes": 11640,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/test_public_restored_append.py",
+      "sha256": "d41f1068a5e7a68b63a86f9ec8b6ec41987487dea74814e7b0dd830d82f9f989",
+      "bytes": 3081,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-scoped/execution.json",
+      "sha256": "e39a40d5629d5f96fd7580337a702125d545219b20da9b783e61f7916265f6c7",
+      "bytes": 3830,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-scoped/results.xml",
+      "sha256": "f45fce591a208d2b306b75803de01e140fc8b9436858d3010388a2f6dfba281a",
+      "bytes": 5084,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-scoped/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-scoped/stdout.txt",
+      "sha256": "4f914691c2149d7e4ab1e6fb26379cadf5121e1cdca2669f0e374dfcb7d4980e",
+      "bytes": 2390,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-original/execution.json",
+      "sha256": "8d4e353482d04725dc5a73488fcb616ff41a6ce6d892fcd1e30fa00ab32b4e5b",
+      "bytes": 3494,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-original/initial-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-original/post-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-original/report.json",
+      "sha256": "760b825f4a94033343047d4a970046b5b6c59cce714e35cab24ff274f236ed60",
+      "bytes": 15439,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-original/stderr.txt",
+      "sha256": "cd2d235311b539dc4b34d78f5d6db715054837624cccfb1864260eade39cc8ba",
+      "bytes": 949,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-original/stdout.txt",
+      "sha256": "2aeb55caad18cd8e0fa71ecb8ab3a2f598fd587e59c14579fe5c8d13935681e5",
+      "bytes": 7886,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-removal/execution.json",
+      "sha256": "fd56f4469b3fd312daad83cf68f623bb7b41459d0100b817eee271876b52b240",
+      "bytes": 3592,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-removal/initial-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-removal/report.json",
+      "sha256": "43f2d4a75e22fa7448a3b8e57afb72ff853b909e9cdeb0229e2b395d5c0f717b",
+      "bytes": 9636,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-removal/stderr.txt",
+      "sha256": "efae62d94693a868c80ce984d87f122fcfc1cba852c6114710488586b59da02b",
+      "bytes": 611,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-removal/stdout.txt",
+      "sha256": "768f194ff993ab32fb50163a6f2b9d7a87ca43abdace24ba0f4197f2f9b387a6",
+      "bytes": 3983,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-conditioning-removal/execution.json",
+      "sha256": "60770c5c1ca0bfe0a4a47a5c28951c9acdfc51788b358b50fe23ea6090ba2659",
+      "bytes": 3766,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-conditioning-removal/results.xml",
+      "sha256": "39bc31f7bf60627ec0cdfc77a715315fdd8b0af9e0cfe12acf3823f76e586068",
+      "bytes": 3918,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-conditioning-removal/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-conditioning-removal/stdout.txt",
+      "sha256": "6c822a051a585723fcaafc433e63cf4e9c0a2326d3ea577d29d0ea7f8efcf38c",
+      "bytes": 5464,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/public-restored-append/execution.json",
+      "sha256": "e39555c22fcbffcd9e108b72b5b24454b97e3bab99830d16a70b6f93db7182d7",
+      "bytes": 3616,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/public-restored-append/report.json",
+      "sha256": "245cd87c33ff29da6cf4f17da9f5b99dca98657d866cb3f711dc4b3da97625c2",
+      "bytes": 223325,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/public-restored-append/results.xml",
+      "sha256": "f4598be3626ab9e37184af1043394bc8ee922fb66872c0a286b445496c544341",
+      "bytes": 3719,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/public-restored-append/stderr.txt",
+      "sha256": "5118d6d4ac07ffd0d69b5cc3398c315701a45cbe65a36bb8b1ee066e77eca4fc",
+      "bytes": 475,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/public-restored-append/stdout.txt",
+      "sha256": "22b232ad7bcaca202635bffbddd5b5165aeb852a68c7d9b4381c616cccd8b904",
+      "bytes": 5070,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/checkpoint-metadata.json",
+      "sha256": "a30b9fcfe3d9d96fe69133dee2328db13b8005fc82de32e8ae5c969cf9fe1a26",
+      "bytes": 2372,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/execution.json",
+      "sha256": "b56e34c4921f45399cec04e13dbb9ab86185f5ce28d59dc05e7f1158870a4c8c",
+      "bytes": 3571,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/initial-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/post-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/report.json",
+      "sha256": "32b8e5327363acd8aad58f830c625e03d3f62820d1c1fb8851f40566c0265851",
+      "bytes": 19518,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/second-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/stderr.txt",
+      "sha256": "4d36184d4cc2a684aa94fe649274ec86a32fdc4d7e2e9e4dd38f87abd960c280",
+      "bytes": 949,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/stdout.txt",
+      "sha256": "f5ce5642b2b0db0f2e4c4de19f44b29566c3210cd2d5925d29e8a87f00ab1e70",
+      "bytes": 10501,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-final-bdc/execution.json",
+      "sha256": "469c30321caf3975b4ba30444701d4fc2d43dc8b8dbc817896e3c0658464b3d5",
+      "bytes": 4120,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-final-bdc/results.xml",
+      "sha256": "9c8bcdccadfb345976609c129d5c750fb2d3c5abd7b444df1d8eaa5c9ca845f6",
+      "bytes": 896,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-final-bdc/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-final-bdc/stdout.txt",
+      "sha256": "6dbc33a3d7733a83b3997dab5f9e516896c334aa328474520851f6b2f5009133",
+      "bytes": 2462,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/execution.json",
+      "sha256": "80fd679d7a57d73632bce960654c82d7276738f4696beabde5792b0fa06161c7",
+      "bytes": 3597,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/initial-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/post-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/report.json",
+      "sha256": "903d2d98c217a78e34451b5a58a558e355879c7668b0d645a8ab3e9e12573619",
+      "bytes": 15514,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/stderr.txt",
+      "sha256": "e8713a75c6de399f8618e3a73b49ac29a64468d3a6e152e59068661710853f87",
+      "bytes": 949,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/stdout.txt",
+      "sha256": "2aeb55caad18cd8e0fa71ecb8ab3a2f598fd587e59c14579fe5c8d13935681e5",
+      "bytes": 7886,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/execution.json",
+      "sha256": "33398111c8928a0779a09f0df744ceea5841540950663db499111459b15058ce",
+      "bytes": 3772,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/results.xml",
+      "sha256": "1fec2c6478142cc049c4d8b95197ae7638dca60bb478e0e9a810c4ff44de33f2",
+      "bytes": 2876,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/stdout.txt",
+      "sha256": "2c78125d04df22d0797222e6ad88ba326c5623f47685e70750ffcfc0dce51bdd",
+      "bytes": 4518,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/checkpoint-metadata.json",
+      "sha256": "8b5d5cbab00f56bed278e0515c7db169f7d54dcf1a5e987b386fa9fbb5f424e1",
+      "bytes": 2464,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/execution.json",
+      "sha256": "b12b7e293f56b4f2491e0284bbcecff3e72c4bafe8e9da58855e253c8637b03f",
+      "bytes": 3592,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/initial-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/post-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/report.json",
+      "sha256": "4ff9a6aea9982e6b41c55a7c820e41b510f285a7d517f1c732521c78abe47d81",
+      "bytes": 19518,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/second-append-model-state.pt",
+      "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+      "bytes": 6576,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/stderr.txt",
+      "sha256": "3623e42220fa0f67abbf8162d0bc4626e1e414bb3c75f5fca18dedf6d5fbcd04",
+      "bytes": 949,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/stdout.txt",
+      "sha256": "f5ce5642b2b0db0f2e4c4de19f44b29566c3210cd2d5925d29e8a87f00ab1e70",
+      "bytes": 10501,
+      "disposition": "moderate decidingfile/rawsyntheticstate asset; include accordingtoreceiptdelivery"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-036-gp-receipt-before-bound-clarification.json",
+      "sha256": "d448b46cdd5d235b8afb107bf96265fd53a16fc3d4fb7f93d5d2db07b82d419b",
+      "bytes": 8760,
+      "disposition": "moderate receipt/index; historical exact deciding receipt retained separately"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/receipt-history-index.json",
+      "sha256": "e1578e73230f6dcf921344014574057a3872d9dea5280804625d1fab6ebd8c23",
+      "bytes": 610,
+      "disposition": "moderate receipt/index; historical exact deciding receipt retained separately"
+    }
+  ]
+}

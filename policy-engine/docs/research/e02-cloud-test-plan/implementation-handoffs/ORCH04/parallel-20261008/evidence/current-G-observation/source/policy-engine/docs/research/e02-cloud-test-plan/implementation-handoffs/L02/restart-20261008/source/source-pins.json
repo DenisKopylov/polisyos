@@ -1,0 +1,42 @@
+{
+  "schema": "policyos.e02.l02.restart_source_pin.v1",
+  "utc": "2026-10-08T15:47:16.516600+00:00",
+  "checked_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "current_after_fetch": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "refs": [
+    {
+      "ref": "origin/codex/e02-integration",
+      "exit_code": 0,
+      "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "stderr": ""
+    },
+    {
+      "ref": "origin/codex/e02-L01-custody-20261008",
+      "exit_code": 0,
+      "sha": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+      "stderr": ""
+    },
+    {
+      "ref": "origin/codex/e02-L02-authentic-20261008",
+      "exit_code": 0,
+      "sha": "0cc9df727c2c921d64815e452a9b08681807ce13",
+      "stderr": ""
+    },
+    {
+      "ref": "origin/codex/e02-E-c09-sensitivity-20261008",
+      "exit_code": 0,
+      "sha": "bb78b2b60dae0ed51e300f9369c580c622fe64d6",
+      "stderr": ""
+    },
+    {
+      "ref": "origin/codex/e02-C-legal-query-20261007",
+      "exit_code": 0,
+      "sha": "51609922447716115c22287ac79c218d13cd9067",
+      "stderr": ""
+    }
+  ],
+  "predecessor": "0cc9df727c2c921d64815e452a9b08681807ce13",
+  "predecessor_tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+  "initial_clean_attached": true,
+  "navigation_error": "Earlier guessed intake1300 README lookup was absent; full actualdelta resolved1052/1120/1159. Not an unavailable source or product result."
+}

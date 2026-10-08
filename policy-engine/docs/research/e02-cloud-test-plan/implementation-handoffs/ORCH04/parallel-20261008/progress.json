@@ -1,6 +1,6 @@
 {
   "schema": "policyos.e02.orch04.recovery_progress.v1",
-  "time_utc": "2026-10-08T16:54:31.425661+00:00",
+  "time_utc": "2026-10-08T19:15:45.015415+00:00",
   "role": "coordinator",
   "coordination_branch": "codex/e02-ORCH04-recovery-20261008",
   "coordination_path": "/workspace/ORCH04-recovery",
@@ -12,70 +12,76 @@
     "C10": {
       "branch": "codex/e02-C10-recovery-20261008",
       "path": "/workspace/ORCH04-C10",
-      "source_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
       "mode": "owned_source_writer",
-      "actual_admission": "admission/C10-resume.json",
-      "status": "owned_test_companion_repair_after_fresh_native_diagnostics; runtime_reviewed03a7",
-      "independent_reviewer": "review_c10",
       "source": {
-        "sha": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
-        "tree": "46aab0ec802b239da47d4fab5ee1d7e1f616045a",
+        "sha": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+        "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
         "parents": [
-          "b6c3201aca6f8a94f05479269e13cde2dd3e7119"
+          "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
         ]
       },
-      "historical_falsifier": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.execution.json",
-      "historical_source_hold": {
-        "sha": "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
-        "tree": "c23929bdd3f28fee4074123ceb4f29a60f0a6630",
+      "receipt": {
+        "sha": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+        "tree": "124dc6e5746716ade61e5d9d6d8633009db48315",
         "parents": [
-          "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+          "e5310c8e75147ab6c5124784ae859e4a1d30490c"
         ]
       },
-      "native_final": "03a7 firstwave51cases:44PASS6FAIL1UNRUN; finalaffectedtestcompanionwavepending",
-      "leaf_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/HANDOFF.json",
-      "native_evidence": "/workspace/ORCH04-evidence/native-tester/C10-independent-native-receipt-03a7c5d5-v2.json",
-      "property_controls": "6matchedremovals/9expectedassertionreds; sourcequalified03a7; no globalnativePASS",
-      "fresh_capsule": "syntheticproducer+freshreaderPASS completecontext/current/historical/foreign-child controls; no ordinaryservedpositive",
-      "shared_companions": "CoreTask44exportcensus; completeconstructorcensus docs/acquisition/tools; activei18ncensus; CoreDTO/facade/validator/replay"
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+        "path_count": 15,
+        "manifest_in_leaf": "source-manifest.json"
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/HANDOFF.json",
+        "at_commit": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+        "sha256": "0d75c023f18d653bb264427cec40b8809d0855ed94a578590da9028b57861bb2",
+        "bytes": 13331
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/HANDOFF.json@8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "actual_admission": "admission/C10-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
     },
     "C11": {
       "branch": "codex/e02-C11-recovery-20261008",
       "path": "/workspace/ORCH04-C11",
-      "source_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
       "mode": "owned_source_writer",
-      "actual_admission": "admission/C11-resume.json",
-      "status": "scoped_review_native_delta_complete; normal_topic_push_and_empty_ODB_byte_readback_PASS",
-      "independent_reviewer": "review_c11",
-      "historical_candidate": "76f262402cbb4da18888482529d86582c409a7f8",
-      "historical_tree": "e74696ce654bcd52464ee000b21107bb4e9753d1",
-      "native_final": "53 fresh PASS +73 exact-input qualified prior cases =126 scoped coverage; not126fresh",
       "source": {
-        "sha": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
-        "tree": "605764d3afec7ba005bd891530ee074df5811497",
+        "sha": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
         "parents": [
-          "bdc94a82d2bc911f61e729635ebe2eb03774848f"
+          "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7"
         ]
       },
       "receipt": {
-        "sha": "4810a9c4eb4e2a3dc4bdaa946483fe93e86e8067",
-        "tree": "bd027e5f5e1a8c7924682f08ede4559bc61a47fd",
+        "sha": "f425407e9f2228300905831d44bf179bb797e69d",
+        "tree": "85c1e39a351cde922f3af3c5a220eab6cad84e72",
         "parents": [
-          "c1bffbd531b9b2c4339f073416c95d42d90ee317"
+          "03698439abfb1cb59f763397a182d8e0e393d40d"
         ]
       },
-      "GP": "separate bounded numerical oracle +4affectednative PASS",
-      "leaf_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/HANDOFF.json",
-      "publication_evidence": "/workspace/ORCH04-evidence/c11/publication-readback.json@sha256:d1a512badafbc1bd5907943b50369f897d110cca02b6edd25006c9bbdd2a54fb"
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "path_count": 271,
+        "manifest_in_leaf": "evidence/author/b114/source-freeze-final.json",
+        "qualification": "Complete271path Git footprint includes earlier inherited receipt bytes. Final owned implementation/test/docs delta is4paths versus published4810; earlier c1 complete own footprint27paths remains source-qualified. See exact leaf source freeze classification."
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/HANDOFF.json",
+        "at_commit": "f425407e9f2228300905831d44bf179bb797e69d",
+        "sha256": "f75be85c117d88aa7c9c97dc315b80c389756fd37d7052332376b223042b20d8",
+        "bytes": 21592
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/HANDOFF.json@f425407e9f2228300905831d44bf179bb797e69d",
+      "actual_admission": "admission/C11-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
     },
     "C13": {
       "branch": "codex/e02-C13-recovery-20261008",
       "path": "/workspace/ORCH04-C13",
-      "source_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
       "mode": "readonly_verification",
-      "actual_admission": "admission/C13-resume.json",
-      "status": "G_scoped_native_installed_frontend_PASS_packaging_diagnostic_FAIL; normal_push_readback_PASS",
-      "independent_reviewer": null,
       "source": {
         "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
         "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
@@ -90,7 +96,21 @@
           "c30cb5c9c36915c16511ba6a3b908e977fe78d9c"
         ]
       },
-      "leaf_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008/HANDOFF.json"
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "path_count": 0,
+        "manifest_in_leaf": "evidence/c13/source-manifest.json"
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008/HANDOFF.json",
+        "at_commit": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+        "sha256": "90b015b3b7e8d2f8e8a4f5c7fde3f61745f824288bacac77ed7dc7a3e3d442ab",
+        "bytes": 14619
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008/HANDOFF.json@1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+      "actual_admission": "admission/C13-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
     }
   },
   "old_claimed_refs": {
@@ -109,5 +129,9 @@
     "tree": "a0b3e8a60482cb74d68bca5c71389ec2fd36419d",
     "normal_push": "PASS",
     "remote_byte_readback": "PASS"
-  }
+  },
+  "status": "source-qualified leaf continuation published; final coordinator receipt construction",
+  "remaining_mechanisms": "HANDOFF.json#/remaining_mechanisms",
+  "remaining_inputs": "HANDOFF.json#/remaining_inputs",
+  "remaining_companions": "HANDOFF.json#/remaining_companions"
 }

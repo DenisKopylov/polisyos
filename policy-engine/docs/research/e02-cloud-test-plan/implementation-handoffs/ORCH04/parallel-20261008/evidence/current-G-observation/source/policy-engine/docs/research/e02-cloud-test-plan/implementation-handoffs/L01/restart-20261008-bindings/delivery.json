@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.l01.binding-delivery.v1",
+  "slice_base": {
+    "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+    "tree": "31198f8d6e8268db5eab7e89169c351741161d21"
+  },
+  "facts_commits": [
+    "66f1b9dc3adb336ce39f255c1bffa6e4f65a643b",
+    "621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd"
+  ],
+  "facts_candidate": {
+    "commit": "621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+    "tree": "44ce244676e9de74aec215397a1b790c51674cdd"
+  },
+  "inspected_G": {
+    "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e"
+  },
+  "handoffs": {
+    "A": "handoffs/A.json",
+    "C": "handoffs/C.json",
+    "E": "handoffs/E.json",
+    "F": "handoffs/F.json"
+  },
+  "complete_facts_footprint": "git diff --name-only 5c3afde4833e8ee0314fe6e003070a29b649ad5b 621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd (9newdocs; no product/test/config/lock/generated)",
+  "mandatory_companions": "handoffs/A,C,E,F.json; this delivery; evidence/independent-reviews.md,receipt-validation.md,receipt-validation-stdout.txt",
+  "checks": {
+    "receipt_source_criterion_readback": "PASS (mechanical integrity only)",
+    "root_to_bundle_manifest_bytes": "PASS",
+    "L6_selected_members": "FAIL:2mismatch/1match on the exact3control inputs",
+    "authentic_consumers": "UNRUN (L02)",
+    "portable_compute_and_broad_replay": "UNRUN (cloud/C13 frozen composition)"
+  },
+  "finding_outcomes": "No finding outcome updated; historical states retained in each original-unit handoff. Formal G closure not_adjudicated.",
+  "source_acceptance": "Bounded independent facts reviews GO; G intake/composition/closure separate.",
+  "private_local_binding": "Referenced ignored receipt files and alias index; raw locators/digests remain local. Remote packet is nonsecret and cannot itself resolve confidential inputs.",
+  "remaining_inputs": {
+    "L6": "Existing matched pair or legitimate versioned replacement manifest/custodian/currentness reference (one human locator question pending)",
+    "I3": "One source-owned dataset/run/cursor/content/event/version/replay tuple and exact readiness ref; catalog custodian/B→C04",
+    "Legal": "Selected generation/member/model/live encoder plus effective profile; C12/C05→L02",
+    "B194": "Actual evaluator/law/source-model and draw denominator/outcome tuple; C09/C08/C10/C11→L02",
+    "B56": "Named admitted workload/shared permit/cap/unit/full roster/Runtime recipe; C01/F/C08/C10→L02"
+  },
+  "unchanged_original_units": [
+    "B",
+    "D"
+  ],
+  "LA032_LA036_scope": "residual-scope.md; original criteria retained, no old probe rerun",
+  "publication": "own codex/e02-L01-custody-20261008 only; exact remote HEAD/tree/bytes readback captured locally after ordinary push",
+  "remote_readback_local_receipt": "policy-engine/_build/e02-L01-restart-20261008/remote-readback.json",
+  "operations": "Existing matching lane; no new checkout or reset/rebase/switch. No data/rights/mount changes, no permanent cleanup.",
+  "unchanged_unit_note": "No new factual slices for these units; previous committed packets remain navigation, not fresh positives."
+}

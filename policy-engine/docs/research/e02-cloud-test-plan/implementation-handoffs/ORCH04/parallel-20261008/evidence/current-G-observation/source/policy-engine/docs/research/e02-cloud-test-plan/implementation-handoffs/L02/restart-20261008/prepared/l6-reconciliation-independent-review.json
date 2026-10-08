@@ -1,0 +1,111 @@
+{
+  "schema": "policyos.e02.l02.qualified_restart_preparation.v1",
+  "raw_report_ref": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/l02-restart-20261008/prepared/l6-reconciliation-independent-review.json",
+  "raw_bytes": 7785,
+  "raw_sha256": "69197fb1e0cb3de0a60fecd635f7f8f28281fc5d7dd864ba7baa26ec87ddec96",
+  "qualifications": [],
+  "payload": {
+    "schema": "policyos.e02.l02.l6_reconciliation_independent_review.v1",
+    "role": "independent_receipt_and_scope_review",
+    "verdict": {
+      "identity_outcome": "INPUT_IDENTITY_NOT_RECONCILED",
+      "manifest_identity_gate": "red_for_the_two_mismatched_payload_entries",
+      "runtime_outcome": "UNRUN",
+      "runtime_pass_or_fail": "not_established",
+      "authority_admission": "not_established",
+      "formal_G_closure": "not_adjudicated"
+    },
+    "bindings": {
+      "l02_commit": "0cc9df727c2c921d64815e452a9b08681807ce13",
+      "l02_tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+      "G_commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "G_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+      "G_L6_loader": {
+        "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+        "blob": "4fbc772508cc7183a95301556608a6c7101b2f15",
+        "relevant_symbols": [
+          "DEFAULT_L6_BUNDLE_ROOT",
+          "default_l6_bundle_paths",
+          "load_l6_intervention_substrate",
+          "_read_json_object",
+          "_repo_ref"
+        ]
+      }
+    },
+    "observation_readback": {
+      "command_receipt": {
+        "path": ".tmp/l02-restart-20261008/checks/l6.command.json",
+        "bytes": 4922,
+        "sha256": "21a3a45e8bc62381b9db72228fc0c0a1da78d646239423c1860e86300038c583",
+        "exit_code": 0,
+        "timeout_seconds": 30,
+        "interpretation": "Observer completed; this exit code is not a Runtime result."
+      },
+      "public_stdout": {
+        "path": ".tmp/l02-restart-20261008/checks/l6.stdout",
+        "bytes": 1236,
+        "sha256": "09987fd27d5ecfa9fe59eff085128e8dfd120b47fa9803108f133597d36f297f",
+        "reported_outcome": "INPUT_IDENTITY_NOT_RECONCILED",
+        "runtime_authentic_outcome": "UNRUN"
+      },
+      "stderr": {
+        "path": ".tmp/l02-restart-20261008/checks/l6.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "private_metadata_report": {
+        "path": ".tmp/l02-restart-20261008/raw/deciding-l6-private-identity.json",
+        "reviewed_as": "metadata_only; original input paths and per-input hashes were not copied into this review"
+      }
+    },
+    "identity_findings": {
+      "selected_denominator": 5,
+      "root_to_bundle_manifest_checksum": "match",
+      "selected_payload_entry_paths": "3_of_3_match_the_selected_exact_paths",
+      "selected_payload_entry_content_identity": {
+        "knob_dictionary": "size_and_sha256_mismatch",
+        "lex_map": "size_and_sha256_mismatch",
+        "observation_contract": "size_and_sha256_match"
+      },
+      "interpretation": "The root manifest resolves to the selected bundle manifest, whose own declared checksum matches. Two selected payload entries do not reconcile to the observed files by size and SHA-256. The evidence does not determine whether the manifest declaration is stale, the selected files are an unintended version, or another source-selection issue caused the mismatch."
+    },
+    "parser_and_scope_review": {
+      "unique_record_resolution": "The observer deduplicates candidate bundle-manifest paths by resolved path and requires exactly one existing candidate; it rejects a manifest pointer resolving outside the selected data root. For each selected payload it searches the full manifest files list, requires exactly one basename candidate, then requires the candidate's resolved path to equal the selected expected path. Missing or duplicate basename records fail closed.",
+      "genericity_boundary": "Record lookup iterates manifest file records, but the check is intentionally limited to one named bundle and three hard-coded selected payloads; it is not a whole-directory or complete-L6-bundle admission check. Duplicate JSON object keys are not rejected by the default json.loads parser, so a malformed manifest with repeated keys could be interpreted last-value-wins. No such ambiguity is established by this observation; the current payload mismatch already prevents a green identity result.",
+      "payload_path_boundary": "The bundle-manifest pointer has an explicit resolved-root check. Each selected payload is compared to its expected resolved path, but the observer does not separately assert every selected payload's resolved path is beneath the resolved data root. No path escape is established here; this is a bounded path-scope limitation.",
+      "stability_boundary": "The command compares device, inode, size, and mtime_ns before/after each read and checks post-read stats again after the selected set. The private receipt preserves only post-read stat snapshots, not the before snapshots or equality booleans. The receipt marks the observation non-atomic, so it is not a simultaneous filesystem snapshot.",
+      "proxy_gate_assessment": "The measured property is selected input identity against manifest-declared path, size, and bytes; the outcome is derived from those comparisons rather than exit code alone. The command explicitly reports the mismatch and leaves the Runtime consumer unrun, so it does not proxy observer success into a Runtime PASS or authority decision."
+    },
+    "G_runtime_binding": {
+      "configured_pointer": "G's default L6 path mapping in intervention_substrate.py points at the same three selected artifact locations used by the observer.",
+      "loader_behavior": "load_l6_intervention_substrate reads those fixed JSON objects and computes local content hashes. It does not load the root or bundle manifest or compare the raw selected file bytes against their manifest declarations. The observer's two metadata mismatches therefore establish input identity non-reconciliation, not a Runtime failure.",
+      "consumer_boundary": "No current source/profile/context join, N5 Runtime execution, POST persistence, history check, or fresh GET was exercised by this identity observation. No issuer or effect authority is established by paths, hashes, or source markers."
+    },
+    "confidentiality_review": {
+      "payload_export": "No payload bytes or individual payload hashes are printed in public stdout; the private report contains metadata only and remains under ignored scratch.",
+      "public_output_caveat": "Public stdout includes an absolute local reference to the private metadata report and a SHA-256 of that report. It does not reveal the per-input hashes directly, but under a strict no-private-path/no-hash-output rule these two fields should be redacted before any wider export. No wider publication was observed in this review.",
+      "review_output": "This review intentionally omits private input paths, sizes, and per-input digests."
+    },
+    "classification": {
+      "blocking_for_claiming_selected_L6_manifest_identity": true,
+      "runtime_failure_finding": false,
+      "authority_finding": false,
+      "bounded_limitations": [
+        "Two selected payload size/hash pairs mismatch the selected manifest.",
+        "The observation is not an atomic multi-file snapshot and does not retain before-stat values.",
+        "Default JSON parsing does not reject duplicate object member names.",
+        "The check is scoped to a fixed three-payload set and does not establish the full L6 context or Runtime consumer.",
+        "Public stdout carries an aggregate digest and local path for the private metadata receipt."
+      ],
+      "next_evidence_boundary": "Resolve the two exact manifest-to-payload identity mismatches against the selected source owner; separately establish the criterion-bound profile/context and run the actual owned-context Runtime/served consumer before making a Runtime or authority claim."
+    },
+    "work_performed_by_reviewer": {
+      "production_payloads_read": false,
+      "tests_or_runtime_executed": false,
+      "install_or_environment_change": false,
+      "source_test_config_or_production_files_written": false,
+      "prior_readiness_review_modified": false
+    }
+  },
+  "temporal_boundary": "Helper observations precede root five-file L6 reconciliation. Any host-input-not-assessed statement remains historical to that report; new specific observations are in l6.stdout, not a global host census."
+}

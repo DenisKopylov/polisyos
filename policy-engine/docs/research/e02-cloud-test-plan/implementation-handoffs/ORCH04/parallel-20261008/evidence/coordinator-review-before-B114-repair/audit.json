@@ -1,0 +1,145 @@
+{
+  "schema": "ORCH04.independent-coordinator-packet-snapshot-audit.v1",
+  "reviewer": "/root/review_c11",
+  "mode": "readonly coordinator packet/source identities/deciding receipts; no worktree edits or product reruns",
+  "acknowledgment_time_utc": "2026-10-08T17:33:18.647945+00:00",
+  "audited_packet_time_utc": "2026-10-08T17:27:01.765696+00:00",
+  "source_packet_path": "/workspace/ORCH04-recovery/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008",
+  "coordinator_pre_handoff_commit": {
+    "sha": "62fc8eeebf9e90cedb2cb773a3578b14e63ef12c",
+    "tree": "89f561fb74fb32e10214bd23e2b15a571d1bef48",
+    "parents": [
+      "0ff2fc38a04ae679f545bba5711bf9844889a92a"
+    ]
+  },
+  "HANDOFF_sha256": "1e38389f76a2393be2ca0cffdb1a1df4a379f5afb5765e59ec866a66fec234c7",
+  "packet_manifest_sha256": "62db378d308a0207b9b957c4250bcf89f9a5f849cea2d2b286656d844dead16e",
+  "manifest_files": 99,
+  "every_file_hash_size_match": true,
+  "missing_or_extra_files": [],
+  "leaf_source_receipt_identities": {
+    "C10": {
+      "branch": "codex/e02-C10-recovery-20261008",
+      "path": "/workspace/ORCH04-C10",
+      "mode": "owned_source_writer",
+      "source": {
+        "sha": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+        "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+        "parents": [
+          "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
+        ]
+      },
+      "receipt": {
+        "sha": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+        "tree": "124dc6e5746716ade61e5d9d6d8633009db48315",
+        "parents": [
+          "e5310c8e75147ab6c5124784ae859e4a1d30490c"
+        ]
+      },
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+        "path_count": 15,
+        "manifest_in_leaf": "source-manifest.json"
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/HANDOFF.json",
+        "at_commit": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+        "sha256": "0d75c023f18d653bb264427cec40b8809d0855ed94a578590da9028b57861bb2",
+        "bytes": 13331
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/HANDOFF.json@8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "actual_admission": "admission/C10-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
+    },
+    "C11": {
+      "branch": "codex/e02-C11-recovery-20261008",
+      "path": "/workspace/ORCH04-C11",
+      "mode": "owned_source_writer",
+      "source": {
+        "sha": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+        "tree": "605764d3afec7ba005bd891530ee074df5811497",
+        "parents": [
+          "bdc94a82d2bc911f61e729635ebe2eb03774848f"
+        ]
+      },
+      "receipt": {
+        "sha": "4810a9c4eb4e2a3dc4bdaa946483fe93e86e8067",
+        "tree": "bd027e5f5e1a8c7924682f08ede4559bc61a47fd",
+        "parents": [
+          "c1bffbd531b9b2c4339f073416c95d42d90ee317"
+        ]
+      },
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+        "path_count": 27,
+        "manifest_in_leaf": "evidence/author/freeze-final.json"
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/HANDOFF.json",
+        "at_commit": "4810a9c4eb4e2a3dc4bdaa946483fe93e86e8067",
+        "sha256": "aa57953583fc3c2c356bf339b1dad8a8e449d75325a17691f3d71bee551a8a7a",
+        "bytes": 16846
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/HANDOFF.json@4810a9c4eb4e2a3dc4bdaa946483fe93e86e8067",
+      "actual_admission": "admission/C11-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
+    },
+    "C13": {
+      "branch": "codex/e02-C13-recovery-20261008",
+      "path": "/workspace/ORCH04-C13",
+      "mode": "readonly_verification",
+      "source": {
+        "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+        "parents": [
+          "f1f99ba5d040e138e3b3b0849d53c9df17d1f437"
+        ]
+      },
+      "receipt": {
+        "sha": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+        "tree": "010cec28d2884d626ba7e7ed5ef101fcbacc2ccf",
+        "parents": [
+          "c30cb5c9c36915c16511ba6a3b908e977fe78d9c"
+        ]
+      },
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "path_count": 0,
+        "manifest_in_leaf": "evidence/c13/source-manifest.json"
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008/HANDOFF.json",
+        "at_commit": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+        "sha256": "90b015b3b7e8d2f8e8a4f5c7fde3f61745f824288bacac77ed7dc7a3e3d442ab",
+        "bytes": 14619
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008/HANDOFF.json@1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+      "actual_admission": "admission/C13-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
+    }
+  },
+  "git_identities_parents_ancestry_leaf_handoff_hashes_and_source_footprint_counts_verified": true,
+  "source_footprint_denominator": {
+    "C10": 15,
+    "C11": 27,
+    "C13": 0
+  },
+  "verified_bounds": {
+    "G_source_acceptance": "not_claimed;G reserved",
+    "formal_closure": "none claimed",
+    "G_selected_composition_freeze": null,
+    "portable_replay": "UNRUN awaiting explicitGfreeze/reviews only",
+    "production_payload": "L01/L02local;no transfer",
+    "old_unavailable_bytes": "host/time/checked-channel availability only; no global absence or oldSHA/PASS reconstruction",
+    "source_and_receipts": "separate exactsource+tree+parents and actualpublishedreceipt pins",
+    "check_qualifiers": "C10fresh strict1/earlierwaves/raw diagnosticFAIL distinct; C11fresh53+qualified73,GPboundedseparate;C13testedG/installedconsumerPASS/packageFAIL distinct",
+    "future_publication_export": "postcommit proof explicitly pending;no fictitious selfSHA"
+  },
+  "snapshot_verdict": "PACKET_BYTE_IDENTITY_AND_DECLARED_BOUNDARY_AUDIT_PASS",
+  "subsequent_source_decision": "OriginalB114 warm_start rejected-history explanation requirement independently confirmed as ownedc1 gap; native-presentv2 ASSERTFAIL. Rootfinalizationhold pending C11append-onlyrepair/newreview/test/normalpublication and finalcoordinatorrebuild. This snapshotPASS does not authorize stalefinal receipt or Gsource acceptance.",
+  "subsequent_finding_input": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2",
+  "new_authority_or_criterion": "none; exact B114original2991/2995, broader joinedNumericTransferBasis/API/profile incompatibility remains separate"
+}

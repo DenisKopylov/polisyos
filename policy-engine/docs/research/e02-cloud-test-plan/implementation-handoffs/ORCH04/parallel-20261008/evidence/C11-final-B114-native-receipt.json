@@ -1,0 +1,1009 @@
+{
+  "schema": "orch04.C11.independent-B114-final.v1",
+  "utc": "2026-10-08T18:04:21.345181+00:00",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+  "parents": [
+    "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7"
+  ],
+  "coordinator_and_G_acceptance": "separate; no formal closure/production claim from this receipt",
+  "source_review": {
+    "path": "/workspace/ORCH04-evidence/review-c11/03698439/static-result.json",
+    "sha256": "404ab34147088ff8d3a57b51344967512f37941a3c79df23ac09b76daab547d7",
+    "bytes": 3345
+  },
+  "input_closure": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-input-closure.json",
+    "sha256": "88ee7d1b9d043725f2ead462ea39081b022033efa311b5c140f82c7876674da9",
+    "bytes": 6835
+  },
+  "criterion": "Original OPT03 B114: same eligible corpus whole or warm+new yields coherent training sample/plan; rejected rows retain reasons; identical artifacts dedup; explicit independent repeats retained. No named joined-transfer class chain added to original criterion.",
+  "result": "PASS only the declared bounded original B114 affected scope; joined selected-receiver/full transfer and production law remain separately held",
+  "fresh_native": {
+    "execution": {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_permitted_acquisition_plan",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_state_roundtrip_without_deps",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_restored_append_preserves_actual_full_refit_boundary_and_learned_basis",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/junit.xml"
+      ],
+      "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+      "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+      "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+      "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+      "pid": 29321,
+      "start_utc": "2026-10-08T17:56:18.469166+00:00",
+      "finish_utc": "2026-10-08T17:56:47.365736+00:00",
+      "exit_code": 0,
+      "wall_seconds": 27.211634246999893,
+      "max_rss_kib": 1395828,
+      "source_delta_before": [],
+      "source_delta_after": []
+    },
+    "qualification": "11fresh PASS: retained five-cause/six-occurrence public state artifact; whole/split acquisition4 route spies (not numerical fit/acquisition PASS); actual cold Sobol2; real native warm training1; lightweight state1; native restored GP1; native no-refit1. Ordinary committed tests/conftest, source unchanged.",
+    "files": [
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/environment-origins.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/execution.json",
+        "sha256": "5051e0d8b04da74729dec1f9789d1304fef3d641822f9f26f089c3d628de6aa9",
+        "bytes": 5874
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/junit.xml",
+        "sha256": "72e59c53822074c64e014695fba69d75a88b6eaa8240d1ac1cb010a3aa49c015",
+        "bytes": 2107
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/stdout.txt",
+        "sha256": "30412ee2faa30a13a0a64c047f422cfc1709547aaab1becefd9b7a6f5be6bcd2",
+        "bytes": 3011
+      }
+    ],
+    "environment_origins": {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "cases": [
+      {
+        "name": "test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-False]",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-True]",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-False]",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-True]",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[False]",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[True]",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_bayesian_state_roundtrip_without_deps",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_restored_append_preserves_actual_full_refit_boundary_and_learned_basis",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      },
+      {
+        "name": "test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "PASS",
+        "message": null,
+        "deciding_output": null
+      }
+    ],
+    "counts": {
+      "PASS": 11,
+      "FAILURE": 0,
+      "ERROR": 0,
+      "SKIPPED": 0
+    }
+  },
+  "original_falsifier_replay": [
+    {
+      "execution": {
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_final.py",
+          "--source",
+          "03698439abfb1cb59f763397a182d8e0e393d40d",
+          "--out",
+          "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary-packet"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+        "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+        "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+        "pid": 29359,
+        "start_utc": "2026-10-08T17:57:13.577236+00:00",
+        "finish_utc": "2026-10-08T17:57:24.441922+00:00",
+        "exit_code": 0,
+        "wall_seconds": 9.822794739999154,
+        "max_rss_kib": 1314648,
+        "source_delta_before": [],
+        "source_delta_after": []
+      },
+      "qualification": "Original c1 refused3-row visibility falsifier nowPASS. Exact committed input prefix; owner warm_start ready backend; no fit.",
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/environment-origins.stdout.txt",
+          "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/execution.json",
+          "sha256": "748d242d1348dc65bbb671585ac11eb8d72b398cf310b55a53f3e1b462ac8a17",
+          "bytes": 5288
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/stderr.txt",
+          "sha256": "84f3b2cb73d0b2327fda6893f78e9cc02f09fe31ce78f48b3d0605f1cf035ea7",
+          "bytes": 1657
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/stdout.txt",
+          "sha256": "863f0607ef8a9375e162bacbd4a7785498f7cab062bfcb818bda9d1d9594792f",
+          "bytes": 79733
+        }
+      ],
+      "environment_origins": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n"
+    },
+    {
+      "execution": {
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "/workspace/ORCH04-evidence/native-tester/b114_whole_split_boundary_final.py",
+          "--source",
+          "03698439abfb1cb59f763397a182d8e0e393d40d",
+          "--out",
+          "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary-packet",
+          "--reverse-warm"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+        "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+        "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+        "pid": 29412,
+        "start_utc": "2026-10-08T17:57:25.432395+00:00",
+        "finish_utc": "2026-10-08T17:57:36.711996+00:00",
+        "exit_code": 0,
+        "wall_seconds": 10.089513139999326,
+        "max_rss_kib": 1314324,
+        "source_delta_before": [],
+        "source_delta_after": []
+      },
+      "qualification": "Original c1 reversed same-row adaptive route/corpus/plan falsifier nowPASS UCB/UCB. Local fit/acquisition observations; no numerical claim.",
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/environment-origins.stdout.txt",
+          "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/execution.json",
+          "sha256": "b539cfc03d4f6a3b62e41b938160e72054d228190dc25a6f4342c51d38d4996e",
+          "bytes": 5325
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/stderr.txt",
+          "sha256": "84a2730f5249c93191bd483b22546b633dcb96fc9052a1bfd0ee863ea1e2bdb5",
+          "bytes": 949
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/stdout.txt",
+          "sha256": "95f1f2195d92e789cd4f5e08d043efa1c324481e9e7b26602e2a3cb35b3da14a",
+          "bytes": 3346
+        }
+      ],
+      "environment_origins": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n"
+    },
+    {
+      "execution": {
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "/workspace/ORCH04-evidence/native-tester/b114_cold_plan_boundary_final.py",
+          "--source",
+          "03698439abfb1cb59f763397a182d8e0e393d40d",
+          "--out",
+          "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary-packet"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+        "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+        "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+        "pid": 29447,
+        "start_utc": "2026-10-08T17:57:37.694141+00:00",
+        "finish_utc": "2026-10-08T17:57:48.057272+00:00",
+        "exit_code": 0,
+        "wall_seconds": 9.29539124800067,
+        "max_rss_kib": 1317528,
+        "source_delta_before": [],
+        "source_delta_after": []
+      },
+      "qualification": "Original c1 below-threshold actual single/batch Sobol falsifier nowPASS. Real supported sampler; no stubs/GP fit.",
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/environment-origins.stdout.txt",
+          "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/execution.json",
+          "sha256": "d5ce7256a7801bd261db222572df128b4485952469553dcefc7513669b9b3a68",
+          "bytes": 5288
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/stderr.txt",
+          "sha256": "6f3673840f2ecdeb49f403598f4ca7b21e122ab202dbd15f4a3750310dbde274",
+          "bytes": 1761
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/stdout.txt",
+          "sha256": "34236350b478b1a1e1c2e6cb565e6f01d3ba4e05d48d543b45a060359231b9fa",
+          "bytes": 2908
+        }
+      ],
+      "environment_origins": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n"
+    }
+  ],
+  "matched_property_removals": [
+    {
+      "execution": {
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "/workspace/ORCH04-evidence/native-tester/b114_property_removal.py",
+          "--source",
+          "03698439abfb1cb59f763397a182d8e0e393d40d",
+          "--kind",
+          "ledger_append",
+          "--out",
+          "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append-packet",
+          "--",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/junit.xml"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+        "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+        "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+        "pid": 29484,
+        "start_utc": "2026-10-08T17:58:21.026099+00:00",
+        "finish_utc": "2026-10-08T17:58:32.899972+00:00",
+        "exit_code": 1,
+        "wall_seconds": 10.807351538000148,
+        "max_rss_kib": 1323936,
+        "source_delta_before": [],
+        "source_delta_after": []
+      },
+      "qualification": "remove retained full rejected record, keep five cause gates/per-record logs/counts/state version+complete marker; EXPECTED SEMANTIC ASSERTIONFAIL",
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/environment-origins.stdout.txt",
+          "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/execution.json",
+          "sha256": "340f16ca3e1063cc522f18a424ce5aaf590dbcfdc80b9800ce34843c12d48eba",
+          "bytes": 5580
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/junit.xml",
+          "sha256": "51676f64993e14655088018a3c05cccd79e2f64b17b00ac912c63b7dcfb2c4c0",
+          "bytes": 4363
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/stdout.txt",
+          "sha256": "6f89671427471001a6400ab9791ef7554a69d4b27720ff8ebb8106a837438c02",
+          "bytes": 6868
+        }
+      ],
+      "environment_origins": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cases": [
+        {
+          "name": "test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "FAILURE",
+          "message": "AssertionError: assert [] == [{'evaluation...venance_ref'}]\n  \n  Right contains 6 more items, first extra item: {'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [1]}, 'replicate_id': '...s_satisfied': True, 'name': 'score', 'raw_value': 1.0, ...}], 'params': {'x': -1.0}, ...}, 'reason': 'invalid outcome'}\n  Use -v to get more diff",
+          "deciding_output": "simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])\n\n    def test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus(\n        simple_space: SearchSpace,\n    ) -> None:\n        strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=19))\n        compatibility = {\n            \"search_space_fingerprint\": simple_space.sobol_space_fingerprint(),\n            \"input_transform_fingerprint\": \"Normalize[0,1]\",\n            \"outcome_transform_fingerprint\": \"Standardize[m=1]\",\n            \"noise_model_fingerprint\": \"GaussianLikelihood[inferred]\",\n            \"objective_fingerprint\": \"scalar_score[minimize]\",\n            \"context_fingerprint\": \"context/rejection-audit\",\n        }\n        records = [\n            make_evaluation(\n                candidate_id=f\"full-record-identity/{index}\",\n                params={\"x\": float(index - 2)},\n                score=float(index),\n                space=simple_space,\n            )\n            for index in range(6)\n        ]\n        for index, evaluation in enumerate(records):\n            evaluation.provenance_ref = f\"origin/rejection-audit/{index}\"\n            evaluation.metadata = {\n                \"replicate_id\": f\"replica-{index}\",\n                \"seed\": index,\n                \"warm_start_compatibility\": dict(compatibility),\n                \"payload\": {\"retained\": [index]},\n            }\n        accepted, *rejected = records\n        rejected[0].stage_a_passed = False\n        rejected[1].provenance_ref = None\n        rejected[2].params_normalized = (0.25, 0.75)\n        rejected[3].metadata.pop(\"warm_start_compatibility\")\n        rejected[4].metadata[\"warm_start_compatibility\"][\"context_fingerprint\"] = \"foreign\"\n        reasons = [\n            \"invalid outcome\",\n            \"missing provenance_ref\",\n            \"incompatible normalized parameters\",\n            \"missing or incompatible warm-start fingerprint\",\n            \"incompatible context fingerprint\",\n        ]\n        expected = json.loads(\n            json.dumps(\n                [\n                    {\"reason\": reason, \"evaluation\": asdict(evaluation)}\n                    for reason, evaluation in zip(reasons, rejected, strict=True)\n                ],\n                default=str,\n            )\n        )\n        assert strategy.warm_start(records) is None\n        assert strategy._select_training_subset([]) == [accepted]\n        # Retain each rejected occurrence, including repeated complete record identities.\n        strategy.warm_start([rejected[1]])\n        expected.append(expected[1])\n        rejected[0].metadata[\"payload\"][\"retained\"].append(\"changed by caller\")\n        state = StrategyState.from_artifact(strategy.get_state().to_artifact())\n        history = state.metadata[\"warm_start_rejections\"]\n        assert history[\"version\"] == 1\n        assert history[\"complete\"] is True\n>       assert history[\"records\"] == expected\nE       AssertionError: assert [] == [{'evaluation...venance_ref'}]\nE         \nE         Right contains 6 more items, first extra item: {'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [1]}, 'replicate_id': '...s_satisfied': True, 'name': 'score', 'raw_value': 1.0, ...}], 'params': {'x': -1.0}, ...}, 'reason': 'invalid outcome'}\nE         Use -v to get more diff\n\ntests/unit/scientist/search/strategies/test_bayesian.py:128: AssertionError"
+        }
+      ],
+      "counts": {
+        "PASS": 0,
+        "FAILURE": 1,
+        "ERROR": 0,
+        "SKIPPED": 0
+      }
+    },
+    {
+      "execution": {
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "/workspace/ORCH04-evidence/native-tester/b114_property_removal_v2.py",
+          "--source",
+          "03698439abfb1cb59f763397a182d8e0e393d40d",
+          "--kind",
+          "ledger_restore",
+          "--out",
+          "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2-packet",
+          "--",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/junit.xml"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+        "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+        "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+        "pid": 29741,
+        "start_utc": "2026-10-08T18:01:55.015722+00:00",
+        "finish_utc": "2026-10-08T18:02:07.174217+00:00",
+        "exit_code": 1,
+        "wall_seconds": 11.008572306000133,
+        "max_rss_kib": 1326380,
+        "source_delta_before": [],
+        "source_delta_after": []
+      },
+      "qualification": "remove only restored ledger assignment; original class closure preserved; state input version+complete/full records retained; EXPECTED SEMANTIC ASSERTIONFAIL",
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/environment-origins.stdout.txt",
+          "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/execution.json",
+          "sha256": "4cb1324a63d43ef7f226e4009578ac0a4f261bbe9be5ad62826bab98e13a100f",
+          "bytes": 5595
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/junit.xml",
+          "sha256": "98d76d7886eb62ee6805f245c6e26e3f40420487e630ef501a253100cab2eaf8",
+          "bytes": 4857
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/stdout.txt",
+          "sha256": "9ff512a90f07aeda90ec15d2c68f0efe024ca739962767c2bae8905d0403e843",
+          "bytes": 7318
+        }
+      ],
+      "environment_origins": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cases": [
+        {
+          "name": "test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "FAILURE",
+          "message": "AssertionError: assert {'complete': ... 'version': 1} == {'complete': ... 'version': 1}\n  \n  Omitting 2 identical items, use -vv to show\n  Differing items:\n  {'records': []} != {'records': [{'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [...]}, 'r...ied': True, 'name': 'score', 'raw_value': 2.0, ...}], 'params': {'x': 0.0}, ...}, 'reason': 'missing provenance_ref'}]}\n  Use -v to get more diff",
+          "deciding_output": "simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])\n\n    def test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus(\n        simple_space: SearchSpace,\n    ) -> None:\n        strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=19))\n        compatibility = {\n            \"search_space_fingerprint\": simple_space.sobol_space_fingerprint(),\n            \"input_transform_fingerprint\": \"Normalize[0,1]\",\n            \"outcome_transform_fingerprint\": \"Standardize[m=1]\",\n            \"noise_model_fingerprint\": \"GaussianLikelihood[inferred]\",\n            \"objective_fingerprint\": \"scalar_score[minimize]\",\n            \"context_fingerprint\": \"context/rejection-audit\",\n        }\n        records = [\n            make_evaluation(\n                candidate_id=f\"full-record-identity/{index}\",\n                params={\"x\": float(index - 2)},\n                score=float(index),\n                space=simple_space,\n            )\n            for index in range(6)\n        ]\n        for index, evaluation in enumerate(records):\n            evaluation.provenance_ref = f\"origin/rejection-audit/{index}\"\n            evaluation.metadata = {\n                \"replicate_id\": f\"replica-{index}\",\n                \"seed\": index,\n                \"warm_start_compatibility\": dict(compatibility),\n                \"payload\": {\"retained\": [index]},\n            }\n        accepted, *rejected = records\n        rejected[0].stage_a_passed = False\n        rejected[1].provenance_ref = None\n        rejected[2].params_normalized = (0.25, 0.75)\n        rejected[3].metadata.pop(\"warm_start_compatibility\")\n        rejected[4].metadata[\"warm_start_compatibility\"][\"context_fingerprint\"] = \"foreign\"\n        reasons = [\n            \"invalid outcome\",\n            \"missing provenance_ref\",\n            \"incompatible normalized parameters\",\n            \"missing or incompatible warm-start fingerprint\",\n            \"incompatible context fingerprint\",\n        ]\n        expected = json.loads(\n            json.dumps(\n                [\n                    {\"reason\": reason, \"evaluation\": asdict(evaluation)}\n                    for reason, evaluation in zip(reasons, rejected, strict=True)\n                ],\n                default=str,\n            )\n        )\n        assert strategy.warm_start(records) is None\n        assert strategy._select_training_subset([]) == [accepted]\n        # Retain each rejected occurrence, including repeated complete record identities.\n        strategy.warm_start([rejected[1]])\n        expected.append(expected[1])\n        rejected[0].metadata[\"payload\"][\"retained\"].append(\"changed by caller\")\n        state = StrategyState.from_artifact(strategy.get_state().to_artifact())\n        history = state.metadata[\"warm_start_rejections\"]\n        assert history[\"version\"] == 1\n        assert history[\"complete\"] is True\n        assert history[\"records\"] == expected\n        assert strategy._select_training_subset([]) == [accepted]\n        restored = BayesianOptimizer(simple_space, BayesianConfig(seed=19))\n        restored.set_state(state)\n        restored_state = StrategyState.from_artifact(restored.get_state().to_artifact())\n>       assert restored_state.metadata[\"warm_start_rejections\"] == history\nE       AssertionError: assert {'complete': ... 'version': 1} == {'complete': ... 'version': 1}\nE         \nE         Omitting 2 identical items, use -vv to show\nE         Differing items:\nE         {'records': []} != {'records': [{'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [...]}, 'r...ied': True, 'name': 'score', 'raw_value': 2.0, ...}], 'params': {'x': 0.0}, ...}, 'reason': 'missing provenance_ref'}]}\nE         Use -v to get more diff\n\ntests/unit/scientist/search/strategies/test_bayesian.py:133: AssertionError"
+        }
+      ],
+      "counts": {
+        "PASS": 0,
+        "FAILURE": 1,
+        "ERROR": 0,
+        "SKIPPED": 0
+      }
+    },
+    {
+      "execution": {
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "/workspace/ORCH04-evidence/native-tester/b114_property_removal.py",
+          "--source",
+          "03698439abfb1cb59f763397a182d8e0e393d40d",
+          "--kind",
+          "adaptive_corpus",
+          "--out",
+          "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus-packet",
+          "--",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_permitted_acquisition_plan",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/junit.xml"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+        "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+        "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+        "pid": 29526,
+        "start_utc": "2026-10-08T17:58:48.580465+00:00",
+        "finish_utc": "2026-10-08T17:59:07.823263+00:00",
+        "exit_code": 1,
+        "wall_seconds": 18.067061182000543,
+        "max_rss_kib": 1376652,
+        "source_delta_before": [],
+        "source_delta_after": []
+      },
+      "qualification": "restore raw caller acquisition argument, keep effective training corpus/model constructors/config/refs; EXPECTED SEMANTIC ASSERTIONFAIL",
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/environment-origins.stdout.txt",
+          "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/execution.json",
+          "sha256": "ec1a087edc77bc34e142d47ca25f41381cf88006c483fbfedbe11247387db68b",
+          "bytes": 5571
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/junit.xml",
+          "sha256": "3e34fe68b6125385632efc73846a201f1211d254d127123702b97c145dcfd9d4",
+          "bytes": 10367
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/stdout.txt",
+          "sha256": "7284b4052fa81fee5c900c80ef53e888823e51682ec8b0a4508c27f451f3b648",
+          "bytes": 13767
+        }
+      ],
+      "environment_origins": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cases": [
+        {
+          "name": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-False]",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "FAILURE",
+          "message": "AssertionError: assert [['warm-0', '...warm-5', ...]] == [['current-0']]\n  \n  At index 0 diff: ['warm-0', 'warm-1', 'warm-2', 'warm-3', 'warm-4', 'warm-5', 'warm-2', 'warm-2-replica', 'current-0'] != ['current-0']\n  Use -v to get more diff",
+          "deciding_output": "simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc3c72ccfc0>\nreverse = False, batch = False\n\n    @pytest.mark.skipif(fit_gpytorch_mll is None, reason=\"BoTorch stack not installed\")\n    @pytest.mark.parametrize(\"reverse\", [False, True])\n    @pytest.mark.parametrize(\"batch\", [False, True])\n    def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(\n        simple_space: SearchSpace, monkeypatch: pytest.MonkeyPatch, reverse: bool, batch: bool\n    ) -> None:\n        \"\"\"Actual caller/selector/constructor routing; fit and optimization are controlled.\"\"\"\n        warm, current = _warm_planning_records(simple_space)\n        if reverse:\n            warm.reverse()\n        config = BayesianConfig(\n            n_initial=6, seed=21, adaptive_acquisition=True, fallback_on_failure=False\n        )\n        whole = BayesianOptimizer(simple_space, config)\n        split = BayesianOptimizer(simple_space, config)\n        split.warm_start(warm)\n        expected = whole._effective_training_corpus([*warm, *current])\n        assert len(expected) == 8\n        assert sum(e.candidate_id == \"warm-2\" for e in expected) == 1\n        assert any(e.candidate_id == \"warm-2-replica\" for e in expected)\n    \n        def observe_run(strategy, evaluations):\n            observed = {\"training\": [], \"planning\": [], \"fit\": [], \"routes\": []}\n            prepare = strategy._prepare_training_data\n            select = strategy._select_acquisition\n    \n            def observe_prepare(records):\n                observed[\"training\"].append([e.candidate_id for e in records])\n                return prepare(records)\n    \n            def controlled_fit(x, y_bo):\n                observed[\"fit\"].append((x.tolist(), y_bo.tolist()))\n                strategy._model = bayesian_module.SingleTaskGP(\n                    train_X=x,\n                    train_Y=y_bo,\n                    input_transform=bayesian_module.Normalize(d=x.shape[-1]),\n                    outcome_transform=bayesian_module.Standardize(m=1),\n                )\n    \n            def observe_select(records, y_bo):\n                observed[\"planning\"].append([e.candidate_id for e in records])\n                return select(records, y_bo)\n    \n            def controlled_optimize(**kwargs):\n                observed[\"routes\"].append(type(kwargs[\"acq_function\"]).__name__)\n                q = kwargs[\"q\"]\n                candidates = strategy._torch.linspace(0.61, 0.71, q, dtype=strategy._torch.float64)\n                return candidates.reshape(q, 1), strategy._torch.tensor(1.0)\n    \n            monkeypatch.setattr(strategy, \"_prepare_training_data\", observe_prepare)\n            monkeypatch.setattr(strategy, \"_fit_gp\", controlled_fit)\n            monkeypatch.setattr(strategy, \"_select_acquisition\", observe_select)\n            monkeypatch.setattr(bayesian_module, \"optimize_acqf\", controlled_optimize)\n            result = (\n                strategy.suggest_batch(evaluations, batch_size=2)\n                if batch\n                else [strategy.suggest(evaluations)]\n            )\n            assert all(c.source_strategy in {\"bayesian_acquisition\", \"batch_qei\"} for c in result)\n            assert strategy._iteration == (0 if batch else len(evaluations))\n            return observed\n    \n        whole_result = observe_run(whole, [*warm, *current])\n        split_result = observe_run(split, current)\n        expected_ids = [e.candidate_id for e in expected]\n        assert whole_result[\"training\"] == split_result[\"training\"] == [expected_ids]\n        assert whole_result[\"fit\"] == split_result[\"fit\"]\n        if batch:\n            assert whole_result[\"planning\"] == split_result[\"planning\"] == []\n            assert whole_result[\"routes\"] == split_result[\"routes\"] == [\"qExpectedImprovement\"]\n        else:\n>           assert whole_result[\"planning\"] == split_result[\"planning\"] == [expected_ids]\nE           AssertionError: assert [['warm-0', '...warm-5', ...]] == [['current-0']]\nE             \nE             At index 0 diff: ['warm-0', 'warm-1', 'warm-2', 'warm-3', 'warm-4', 'warm-5', 'warm-2', 'warm-2-replica', 'current-0'] != ['current-0']\nE             Use -v to get more diff\n\ntests/unit/scientist/search/strategies/test_bayesian.py:269: AssertionError"
+        },
+        {
+          "name": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-True]",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "FAILURE",
+          "message": "AssertionError: assert [['warm-2-rep...warm-2', ...]] == [['current-0']]\n  \n  At index 0 diff: ['warm-2-replica', 'warm-2', 'warm-5', 'warm-4', 'warm-3', 'warm-2', 'warm-1', 'warm-0', 'current-0'] != ['current-0']\n  Use -v to get more diff",
+          "deciding_output": "simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc3c72cc3e0>\nreverse = True, batch = False\n\n    @pytest.mark.skipif(fit_gpytorch_mll is None, reason=\"BoTorch stack not installed\")\n    @pytest.mark.parametrize(\"reverse\", [False, True])\n    @pytest.mark.parametrize(\"batch\", [False, True])\n    def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(\n        simple_space: SearchSpace, monkeypatch: pytest.MonkeyPatch, reverse: bool, batch: bool\n    ) -> None:\n        \"\"\"Actual caller/selector/constructor routing; fit and optimization are controlled.\"\"\"\n        warm, current = _warm_planning_records(simple_space)\n        if reverse:\n            warm.reverse()\n        config = BayesianConfig(\n            n_initial=6, seed=21, adaptive_acquisition=True, fallback_on_failure=False\n        )\n        whole = BayesianOptimizer(simple_space, config)\n        split = BayesianOptimizer(simple_space, config)\n        split.warm_start(warm)\n        expected = whole._effective_training_corpus([*warm, *current])\n        assert len(expected) == 8\n        assert sum(e.candidate_id == \"warm-2\" for e in expected) == 1\n        assert any(e.candidate_id == \"warm-2-replica\" for e in expected)\n    \n        def observe_run(strategy, evaluations):\n            observed = {\"training\": [], \"planning\": [], \"fit\": [], \"routes\": []}\n            prepare = strategy._prepare_training_data\n            select = strategy._select_acquisition\n    \n            def observe_prepare(records):\n                observed[\"training\"].append([e.candidate_id for e in records])\n                return prepare(records)\n    \n            def controlled_fit(x, y_bo):\n                observed[\"fit\"].append((x.tolist(), y_bo.tolist()))\n                strategy._model = bayesian_module.SingleTaskGP(\n                    train_X=x,\n                    train_Y=y_bo,\n                    input_transform=bayesian_module.Normalize(d=x.shape[-1]),\n                    outcome_transform=bayesian_module.Standardize(m=1),\n                )\n    \n            def observe_select(records, y_bo):\n                observed[\"planning\"].append([e.candidate_id for e in records])\n                return select(records, y_bo)\n    \n            def controlled_optimize(**kwargs):\n                observed[\"routes\"].append(type(kwargs[\"acq_function\"]).__name__)\n                q = kwargs[\"q\"]\n                candidates = strategy._torch.linspace(0.61, 0.71, q, dtype=strategy._torch.float64)\n                return candidates.reshape(q, 1), strategy._torch.tensor(1.0)\n    \n            monkeypatch.setattr(strategy, \"_prepare_training_data\", observe_prepare)\n            monkeypatch.setattr(strategy, \"_fit_gp\", controlled_fit)\n            monkeypatch.setattr(strategy, \"_select_acquisition\", observe_select)\n            monkeypatch.setattr(bayesian_module, \"optimize_acqf\", controlled_optimize)\n            result = (\n                strategy.suggest_batch(evaluations, batch_size=2)\n                if batch\n                else [strategy.suggest(evaluations)]\n            )\n            assert all(c.source_strategy in {\"bayesian_acquisition\", \"batch_qei\"} for c in result)\n            assert strategy._iteration == (0 if batch else len(evaluations))\n            return observed\n    \n        whole_result = observe_run(whole, [*warm, *current])\n        split_result = observe_run(split, current)\n        expected_ids = [e.candidate_id for e in expected]\n        assert whole_result[\"training\"] == split_result[\"training\"] == [expected_ids]\n        assert whole_result[\"fit\"] == split_result[\"fit\"]\n        if batch:\n            assert whole_result[\"planning\"] == split_result[\"planning\"] == []\n            assert whole_result[\"routes\"] == split_result[\"routes\"] == [\"qExpectedImprovement\"]\n        else:\n>           assert whole_result[\"planning\"] == split_result[\"planning\"] == [expected_ids]\nE           AssertionError: assert [['warm-2-rep...warm-2', ...]] == [['current-0']]\nE             \nE             At index 0 diff: ['warm-2-replica', 'warm-2', 'warm-5', 'warm-4', 'warm-3', 'warm-2', 'warm-1', 'warm-0', 'current-0'] != ['current-0']\nE             Use -v to get more diff\n\ntests/unit/scientist/search/strategies/test_bayesian.py:269: AssertionError"
+        },
+        {
+          "name": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-False]",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "PASS",
+          "message": null,
+          "deciding_output": null
+        },
+        {
+          "name": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-True]",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "PASS",
+          "message": null,
+          "deciding_output": null
+        }
+      ],
+      "counts": {
+        "PASS": 2,
+        "FAILURE": 2,
+        "ERROR": 0,
+        "SKIPPED": 0
+      }
+    },
+    {
+      "execution": {
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "/workspace/ORCH04-evidence/native-tester/b114_property_removal.py",
+          "--source",
+          "03698439abfb1cb59f763397a182d8e0e393d40d",
+          "--kind",
+          "cold_index",
+          "--out",
+          "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet",
+          "--",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/junit.xml"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+        "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+        "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+        "pid": 29555,
+        "start_utc": "2026-10-08T17:59:09.568881+00:00",
+        "finish_utc": "2026-10-08T17:59:24.183271+00:00",
+        "exit_code": 1,
+        "wall_seconds": 13.52761688099963,
+        "max_rss_kib": 1329928,
+        "source_delta_before": [],
+        "source_delta_after": []
+      },
+      "qualification": "restore raw caller Sobol index, keep effective cold threshold/corpus/real sampler; EXPECTED SEMANTIC ASSERTIONFAIL",
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/environment-origins.stdout.txt",
+          "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/execution.json",
+          "sha256": "7596406192146051ad6db6c58085982ad07142beb5d491cb6ef5db943dfa8422",
+          "bytes": 5546
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/junit.xml",
+          "sha256": "d694e8d9c7f9701c8ee8d2521538fef957959204debafe36e99f9683587f4242",
+          "bytes": 4418
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/stdout.txt",
+          "sha256": "92bec7811dc134b8736d3b07c12bbf8c86569875578f33c35a86ad73ed5edc32",
+          "bytes": 7663
+        }
+      ],
+      "environment_origins": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cases": [
+        {
+          "name": "test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[False]",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "FAILURE",
+          "message": "AssertionError: assert [{'x': -2.696235328912735}] == [{'x': 4.9451446533203125}]\n  \n  At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}\n  Use -v to get more diff",
+          "deciding_output": "simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])\nbatch = False\n\n    @pytest.mark.parametrize(\"batch\", [False, True])\n    def test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan(\n        simple_space: SearchSpace, batch: bool\n    ) -> None:\n        \"\"\"Actual sampler inputs/parameters agree; current-request iteration stays separate.\"\"\"\n        warm, current = _warm_planning_records(simple_space)\n        warm = warm[:2]\n        config = BayesianConfig(n_initial=6, seed=21)\n        whole = BayesianOptimizer(simple_space, config)\n        split = BayesianOptimizer(simple_space, config)\n        split.warm_start(warm)\n        corpus = whole._effective_training_corpus([*warm, *current])\n        assert len(corpus) == 3 < config.n_initial\n        whole_candidates = (\n            whole.suggest_batch([*warm, *current], batch_size=2)\n            if batch\n            else [whole.suggest([*warm, *current])]\n        )\n        split_candidates = (\n            split.suggest_batch(current, batch_size=2) if batch else [split.suggest(current)]\n        )\n        assert all(c.source_strategy == \"sobol_init\" for c in [*whole_candidates, *split_candidates])\n>       assert [c.params for c in whole_candidates] == [c.params for c in split_candidates]\nE       AssertionError: assert [{'x': -2.696235328912735}] == [{'x': 4.9451446533203125}]\nE         \nE         At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}\nE         Use -v to get more diff\n\ntests/unit/scientist/search/strategies/test_bayesian.py:296: AssertionError"
+        },
+        {
+          "name": "test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[True]",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "FAILURE",
+          "message": "AssertionError: assert [{'x': -2.696...996102333069}] == [{'x': 4.9451...921211242676}]\n  \n  At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}\n  Use -v to get more diff",
+          "deciding_output": "simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])\nbatch = True\n\n    @pytest.mark.parametrize(\"batch\", [False, True])\n    def test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan(\n        simple_space: SearchSpace, batch: bool\n    ) -> None:\n        \"\"\"Actual sampler inputs/parameters agree; current-request iteration stays separate.\"\"\"\n        warm, current = _warm_planning_records(simple_space)\n        warm = warm[:2]\n        config = BayesianConfig(n_initial=6, seed=21)\n        whole = BayesianOptimizer(simple_space, config)\n        split = BayesianOptimizer(simple_space, config)\n        split.warm_start(warm)\n        corpus = whole._effective_training_corpus([*warm, *current])\n        assert len(corpus) == 3 < config.n_initial\n        whole_candidates = (\n            whole.suggest_batch([*warm, *current], batch_size=2)\n            if batch\n            else [whole.suggest([*warm, *current])]\n        )\n        split_candidates = (\n            split.suggest_batch(current, batch_size=2) if batch else [split.suggest(current)]\n        )\n        assert all(c.source_strategy == \"sobol_init\" for c in [*whole_candidates, *split_candidates])\n>       assert [c.params for c in whole_candidates] == [c.params for c in split_candidates]\nE       AssertionError: assert [{'x': -2.696...996102333069}] == [{'x': 4.9451...921211242676}]\nE         \nE         At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}\nE         Use -v to get more diff\n\ntests/unit/scientist/search/strategies/test_bayesian.py:296: AssertionError"
+        }
+      ],
+      "counts": {
+        "PASS": 0,
+        "FAILURE": 2,
+        "ERROR": 0,
+        "SKIPPED": 0
+      }
+    },
+    {
+      "execution": {
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "/workspace/ORCH04-evidence/native-tester/b114_property_removal.py",
+          "--source",
+          "03698439abfb1cb59f763397a182d8e0e393d40d",
+          "--kind",
+          "corpus_union",
+          "--out",
+          "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet",
+          "--",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/junit.xml"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+        "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+        "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+        "pid": 29579,
+        "start_utc": "2026-10-08T17:59:25.724112+00:00",
+        "finish_utc": "2026-10-08T17:59:39.028712+00:00",
+        "exit_code": 1,
+        "wall_seconds": 12.230437673999404,
+        "max_rss_kib": 1326576,
+        "source_delta_before": [],
+        "source_delta_after": []
+      },
+      "qualification": "remove only warm corpus union, keep warm admission/report/count markers/compatibility/reference rules; EXPECTED SEMANTIC ASSERTIONFAIL",
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/environment-origins.stdout.txt",
+          "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/execution.json",
+          "sha256": "118dc509dd31cdc8225d646d51b7391a9bb449f23f5c6597eb48f271f152b63e",
+          "bytes": 5572
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/junit.xml",
+          "sha256": "ac2c71f4ee48f54196270d87c69768ec56165b450f6d3f3792cd118f64ea7442",
+          "bytes": 6858
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/stdout.txt",
+          "sha256": "c1109a9844ded6324aae92819c6008845ef9104dd696a9cb3988df2fdb7906ce",
+          "bytes": 9616
+        }
+      ],
+      "environment_origins": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "cases": [
+        {
+          "name": "test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+          "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+          "status": "FAILURE",
+          "message": "assert 0 == 1\n +  where 0 = len([])",
+          "deciding_output": "simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2ad7b19220>\n\n    @pytest.mark.skipif(fit_gpytorch_mll is None, reason=\"BoTorch stack not installed\")\n    def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(\n        simple_space: SearchSpace,\n        monkeypatch: pytest.MonkeyPatch,\n    ) -> None:\n        \"\"\"Warm history and current observations form one compatible GP corpus.\"\"\"\n        strategy = BayesianOptimizer(\n            simple_space,\n            BayesianConfig(n_initial=6, num_restarts=3, raw_samples=32, seed=21),\n        )\n        compatibility = {\n            \"search_space_fingerprint\": simple_space.sobol_space_fingerprint(),\n            \"input_transform_fingerprint\": \"Normalize[0,1]\",\n            \"outcome_transform_fingerprint\": \"Standardize[m=1]\",\n            \"noise_model_fingerprint\": \"GaussianLikelihood[inferred]\",\n            \"objective_fingerprint\": \"scalar_score[minimize]\",\n            \"context_fingerprint\": \"context/run-1\",\n        }\n        warm = [\n            make_evaluation(\n                candidate_id=f\"warm-{index}\",\n                params={\"x\": -3.5 + index},\n                score=float(index),\n                space=simple_space,\n            )\n            for index in range(6)\n        ]\n        for index, evaluation in enumerate(warm):\n            evaluation.provenance_ref = f\"origin/run-1/evaluation-{index}\"\n            evaluation.metadata = {\n                \"replicate_id\": f\"replica-{index}\",\n                \"seed\": index,\n                \"warm_start_compatibility\": dict(compatibility),\n            }\n        warm[2].provenance_ref = \"origin/run-1/evaluation-2\"\n        warm[2].metadata = {\n            \"replicate_id\": \"replica-1\",\n            \"seed\": 1,\n            \"warm_start_compatibility\": dict(compatibility),\n        }\n        duplicate = make_evaluation(\n            candidate_id=\"warm-2\",\n            params={\"x\": -1.5},\n            score=2.0,\n            space=simple_space,\n        )\n        duplicate.provenance_ref = \"origin/run-1/evaluation-2\"\n        duplicate.metadata = {\n            \"replicate_id\": \"replica-1\",\n            \"seed\": 1,\n            \"warm_start_compatibility\": dict(compatibility),\n        }\n        independent_replica = make_evaluation(\n            candidate_id=\"warm-2-replica\",\n            params={\"x\": -1.5},\n            score=2.25,\n            space=simple_space,\n        )\n        independent_replica.provenance_ref = \"origin/run-1/evaluation-2\"\n        independent_replica.metadata = {\n            \"replicate_id\": \"replica-2\",\n            \"seed\": 2,\n            \"warm_start_compatibility\": dict(compatibility),\n        }\n        warm.extend([duplicate, independent_replica])\n        malformed = make_evaluation(\n            candidate_id=\"warm-foreign-basis\",\n            params={\"x\": 4.5},\n            score=7.0,\n            space=simple_space,\n        )\n        malformed.provenance_ref = \"origin/run-1/foreign-basis\"\n        malformed.metadata = {\"replicate_id\": \"foreign-basis\", \"seed\": 99}\n        malformed.params_normalized = (0.25, 0.75)\n        warm.append(malformed)\n        incompatible_context = make_evaluation(\n            candidate_id=\"warm-incompatible-context\",\n            params={\"x\": 3.75},\n            score=7.25,\n            space=simple_space,\n        )\n        incompatible_context.provenance_ref = \"origin/run-1/incompatible-context\"\n        incompatible_context.metadata = {\n            \"replicate_id\": \"incompatible-context\",\n            \"seed\": 98,\n            \"warm_start_compatibility\": {\n                **compatibility,\n                \"context_fingerprint\": \"context/foreign\",\n            },\n        }\n        warm.append(incompatible_context)\n        unbound = make_evaluation(\n            candidate_id=\"warm-unbound\",\n            params={\"x\": 4.25},\n            score=7.5,\n            space=simple_space,\n        )\n        unbound.metadata = {\"replicate_id\": \"unbound\", \"seed\": 100}\n        warm.append(unbound)\n        current = [\n            make_evaluation(\n                candidate_id=\"current-0\",\n                params={\"x\": 4.0},\n                score=8.0,\n                space=simple_space,\n            )\n        ]\n        current[0].provenance_ref = \"origin/run-2/evaluation-0\"\n        current[0].metadata = {\n            \"replicate_id\": \"current-0\",\n            \"seed\": 101,\n            \"warm_start_compatibility\": dict(compatibility),\n        }\n    \n        strategy.warm_start(warm)\n        history = StrategyState.from_artifact(strategy.get_state().to_artifact()).metadata[\n            \"warm_start_rejections\"\n        ]\n        assert history[\"complete\"] is True\n        assert [record[\"evaluation\"][\"candidate_id\"] for record in history[\"records\"]] == [\n            \"warm-foreign-basis\",\n            \"warm-incompatible-context\",\n            \"warm-unbound\",\n        ]\n        assert [record[\"reason\"] for record in history[\"records\"]] == [\n            \"incompatible normalized parameters\",\n            \"incompatible context fingerprint\",\n            \"missing provenance_ref\",\n        ]\n        observed_corpus: list[tuple[tuple[tuple[float, ...], ...], tuple[float, ...]]] = []\n        observed_ids: list[tuple[str, ...]] = []\n        original_prepare = strategy._prepare_training_data\n    \n        def observe_prepare(evaluations):\n            observed_ids.append(tuple(evaluation.candidate_id for evaluation in evaluations))\n            return original_prepare(evaluations)\n    \n        original_fit = strategy._fit_gp\n    \n        def observe_fit(x, y_bo):\n            x_rows = tuple(tuple(float(value) for value in row) for row in x.detach().cpu().tolist())\n            y_rows = tuple(float(row[0]) for row in y_bo.detach().cpu().tolist())\n            observed_corpus.append((x_rows, y_rows))\n            return original_fit(x, y_bo)\n    \n        monkeypatch.setattr(strategy, \"_prepare_training_data\", observe_prepare)\n        monkeypatch.setattr(strategy, \"_fit_gp\", observe_fit)\n        candidate = strategy.suggest(current)\n    \n>       assert len(observed_ids) == 1\nE       assert 0 == 1\nE        +  where 0 = len([])\n\ntests/unit/scientist/search/strategies/test_bayesian.py:539: AssertionError"
+        }
+      ],
+      "counts": {
+        "PASS": 0,
+        "FAILURE": 1,
+        "ERROR": 0,
+        "SKIPPED": 0
+      }
+    }
+  ],
+  "property_summary": {
+    "valid_process_scopes": 5,
+    "cases": 9,
+    "semantic_assertion_failure": 7,
+    "unaffected_batch_pass": 2,
+    "not_counted_as_product_native_fail": "Expected property-loss controls on process-only scratch methods; source files unchanged."
+  },
+  "retained_invalid_attempt": {
+    "execution": {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/b114_property_removal.py",
+        "--source",
+        "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "--kind",
+        "ledger_restore",
+        "--out",
+        "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet",
+        "--",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/junit.xml"
+      ],
+      "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+      "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+      "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+      "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+      "pid": 29505,
+      "start_utc": "2026-10-08T17:58:34.196181+00:00",
+      "finish_utc": "2026-10-08T17:58:47.121247+00:00",
+      "exit_code": 1,
+      "wall_seconds": 11.785484821000864,
+      "max_rss_kib": 1326128,
+      "source_delta_before": [],
+      "source_delta_after": []
+    },
+    "qualification": "ERROR/invalid removal harness: zero-argument super lost __class__ cell in initial standalone scratch compile. JUnit reports failure, but RuntimeError occurs before semantic comparison and is NOT a property-removal red. Corrected v2 only reruns this one case.",
+    "files": [
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/environment-origins.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/execution.json",
+        "sha256": "1a89397bddbd03760aa057714f86badf8766d4fb297f21d616b03aac9f20abcb",
+        "bytes": 5583
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/junit.xml",
+        "sha256": "df32761f94dff230330dd71b1d862ade2a79aa3c6c457959bfd8795f3003f8d8",
+        "bytes": 7040
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/stdout.txt",
+        "sha256": "0912eb7f2facb64d491a882699f2b6300446080a9e26ac6683eb03416fadf0ab",
+        "bytes": 9727
+      }
+    ],
+    "environment_origins": {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "cases": [
+      {
+        "name": "test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+        "classname": "tests.unit.scientist.search.strategies.test_bayesian",
+        "status": "FAILURE",
+        "message": "RuntimeError: super(): __class__ cell not found",
+        "deciding_output": "simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])\n\n    def test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus(\n        simple_space: SearchSpace,\n    ) -> None:\n        strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=19))\n        compatibility = {\n            \"search_space_fingerprint\": simple_space.sobol_space_fingerprint(),\n            \"input_transform_fingerprint\": \"Normalize[0,1]\",\n            \"outcome_transform_fingerprint\": \"Standardize[m=1]\",\n            \"noise_model_fingerprint\": \"GaussianLikelihood[inferred]\",\n            \"objective_fingerprint\": \"scalar_score[minimize]\",\n            \"context_fingerprint\": \"context/rejection-audit\",\n        }\n        records = [\n            make_evaluation(\n                candidate_id=f\"full-record-identity/{index}\",\n                params={\"x\": float(index - 2)},\n                score=float(index),\n                space=simple_space,\n            )\n            for index in range(6)\n        ]\n        for index, evaluation in enumerate(records):\n            evaluation.provenance_ref = f\"origin/rejection-audit/{index}\"\n            evaluation.metadata = {\n                \"replicate_id\": f\"replica-{index}\",\n                \"seed\": index,\n                \"warm_start_compatibility\": dict(compatibility),\n                \"payload\": {\"retained\": [index]},\n            }\n        accepted, *rejected = records\n        rejected[0].stage_a_passed = False\n        rejected[1].provenance_ref = None\n        rejected[2].params_normalized = (0.25, 0.75)\n        rejected[3].metadata.pop(\"warm_start_compatibility\")\n        rejected[4].metadata[\"warm_start_compatibility\"][\"context_fingerprint\"] = \"foreign\"\n        reasons = [\n            \"invalid outcome\",\n            \"missing provenance_ref\",\n            \"incompatible normalized parameters\",\n            \"missing or incompatible warm-start fingerprint\",\n            \"incompatible context fingerprint\",\n        ]\n        expected = json.loads(\n            json.dumps(\n                [\n                    {\"reason\": reason, \"evaluation\": asdict(evaluation)}\n                    for reason, evaluation in zip(reasons, rejected, strict=True)\n                ],\n                default=str,\n            )\n        )\n        assert strategy.warm_start(records) is None\n        assert strategy._select_training_subset([]) == [accepted]\n        # Retain each rejected occurrence, including repeated complete record identities.\n        strategy.warm_start([rejected[1]])\n        expected.append(expected[1])\n        rejected[0].metadata[\"payload\"][\"retained\"].append(\"changed by caller\")\n        state = StrategyState.from_artifact(strategy.get_state().to_artifact())\n        history = state.metadata[\"warm_start_rejections\"]\n        assert history[\"version\"] == 1\n        assert history[\"complete\"] is True\n        assert history[\"records\"] == expected\n        assert strategy._select_training_subset([]) == [accepted]\n        restored = BayesianOptimizer(simple_space, BayesianConfig(seed=19))\n>       restored.set_state(state)\n\ntests/unit/scientist/search/strategies/test_bayesian.py:131: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7fa796ecee90>\nstate = StrategyState(strategy_name='BayesianOptimizer', iteration=0, rng_state={'python': {'codec': 'python_random', 'codec_v...': '2026-10-08 17:58:43.563847+00:00', 'wall_time_seconds': 0.0}, 'reason': 'missing provenance_ref'}], 'version': 1}})\n\n    def set_state(self, state: StrategyState) -> None:\n        \"\"\"Restore a recorded GP basis and its actual full-refit boundary.\n    \n        Legacy model snapshots lack enough information for append continuation;\n        reject them explicitly rather than invent the missing fitting history.\n        \"\"\"\n        rejection_history = state.metadata.get(\"warm_start_rejections\")\n        if rejection_history is None:\n            rejection_records: list[dict[str, Any]] = []\n            rejection_history_complete = False\n        else:\n            if (\n                not isinstance(rejection_history, Mapping)\n                or type(rejection_history.get(\"version\")) is not int\n                or rejection_history.get(\"version\") != 1\n                or type(rejection_history.get(\"complete\")) is not bool\n                or not isinstance(rejection_history.get(\"records\"), list)\n            ):\n                raise ValueError(\"Warm-start rejection history is malformed or unsupported\")\n            for record in rejection_history[\"records\"]:\n                if (\n                    not isinstance(record, Mapping)\n                    or not isinstance(record.get(\"reason\"), str)\n                    or record.get(\"reason\") not in _WARM_REJECTION_REASONS\n                    or not isinstance(record.get(\"evaluation\"), Mapping)\n                    or not isinstance(record[\"evaluation\"].get(\"candidate_id\"), str)\n                ):\n                    raise ValueError(\"Warm-start rejection record or reason is malformed\")\n            rejection_records = deepcopy(rejection_history[\"records\"])\n            rejection_history_complete = rejection_history[\"complete\"]\n        continuation = state.metadata.get(\"gp_continuation\")\n        if state.model_state is not None:\n            if not isinstance(continuation, Mapping) or continuation.get(\"version\") != \"1.0\":\n                raise ValueError(\"GP continuation basis/refit history not established in snapshot\")\n            if continuation.get(\"space_fingerprint\") != self._space.sobol_space_fingerprint():\n                raise ValueError(\"GP continuation search space differs from the snapshot\")\n            last_iteration = continuation.get(\"last_refit_iteration\")\n            last_size = continuation.get(\"last_train_size\")\n            if (\n                type(last_iteration) is not int\n                or type(last_size) is not int\n                or last_iteration < 0\n                or last_iteration > state.iteration\n                or last_size < 1\n            ):\n                raise ValueError(\"GP continuation has invalid full-refit counters\")\n>       super().set_state(state)\n    ^^^^^^^\nE       RuntimeError: super(): __class__ cell not found\n\n../../C11-03698439-B114-removal-ledger_restore-packet/set_state.postimage.py:47: RuntimeError"
+      }
+    ],
+    "counts": {
+      "PASS": 0,
+      "FAILURE": 1,
+      "ERROR": 0,
+      "SKIPPED": 0
+    }
+  },
+  "actual_origins": {
+    "execution": {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/inspect_origins.py",
+        "polisyos.scientist.methods.search.strategies.bayesian",
+        "polisyos.scientist.methods.search.strategies.base",
+        "polisyos.scientist.methods.search.strategies.space",
+        "polisyos.scientist.methods.search.strategies.types",
+        "polisyos.scientist.methods.search.strategies.runtime",
+        "polisyos.scientist.methods.search.strategies.resource_arbiter",
+        "polisyos.scientist.methods.search.strategies._deps",
+        "numpy",
+        "scipy",
+        "torch",
+        "gpytorch",
+        "botorch",
+        "botorch.models.gp_regression"
+      ],
+      "cwd": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine",
+      "source_commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "source_tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+      "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+      "source_manifest_sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+      "pid": 29675,
+      "start_utc": "2026-10-08T18:00:21.109113+00:00",
+      "finish_utc": "2026-10-08T18:00:31.589471+00:00",
+      "exit_code": 0,
+      "wall_seconds": 9.203678062000108,
+      "max_rss_kib": 1301396,
+      "source_delta_before": [],
+      "source_delta_after": []
+    },
+    "qualification": "Actual13 imports:7 selected-source modules and6 installed backend modules, verified by SHA. Import readiness only, no new installed-candidate consumer claim.",
+    "files": [
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/environment-origins.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/environment-origins.stdout.txt",
+        "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+        "bytes": 11198
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/execution.json",
+        "sha256": "e0f5f8cd6c28d756470f37c6b80503247aa8bca676e97608eea42d7749c3c165",
+        "bytes": 5611
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/stdout.txt",
+        "sha256": "284969e34cd1571ad010fa62f89f363ad5911fd3d7516a2f20aba6a2825271f1",
+        "bytes": 5644
+      }
+    ],
+    "environment_origins": {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origins/environment-origins.stdout.txt",
+      "sha256": "80b68134d7af75a4ae8121a71448704e13a5b673b1f24af5648deef34e88456f",
+      "bytes": 11198
+    },
+    "cgroup_oom_counters_before": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "cgroup_oom_counters_after": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n"
+  },
+  "origin_verification": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origin-verification.json",
+    "sha256": "fd49c619fc7abae3129cb0fae66af457dc4b8bacbb6a78af9e115e37370179bb",
+    "bytes": 7084
+  },
+  "old_lineage_diagnostics": {
+    "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+    "rejection_original_FAIL": {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-rejection-finding.json",
+      "sha256": "ece7fa8410c0b71b54632604c839a0975e434005a9654e6e1903154b1220dc90",
+      "bytes": 8599
+    },
+    "planning_original_FAIL": {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-planning-finding.json",
+      "sha256": "218ae644ab72d593c264677dc385b2a11fddfa09c0fd9f293fe4af3566278c4a",
+      "bytes": 10038
+    },
+    "cold_original_FAIL": {
+      "path": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/owned-cold-planning-finding.json",
+      "sha256": "6c2ae36f29e967fbc263f2a119d086e6697e818e24b5e5e06bb7f18fbc8f95dd",
+      "bytes": 8419
+    },
+    "v1_datetime_serialization": "ERROR retained; not a semantic result",
+    "prior_funnel_native": "Earlier53fresh plus73 source-qualified prior c1 cases remain prior bounded evidence, not rerun or counted as fresh036."
+  },
+  "separate_remaining_boundaries": {
+    "joined_transfer": "Canonical current receiver does not select supplier D8e864f4 transfer admission/numeric basis/bridge-generator-optimizer pairing or two connected consumer files. Exact supplied bounded CAS fixture is available; no absent production law assumed. Not an original B114 class-chain bar.",
+    "native_vector_profile": "hnswlib0.8.0 supported vector-search extra is absent in current app profile; measured separately, no installation performed.",
+    "B131_B137_B157_B161_B164": "Five minimal owner inputs/issuer-refinement law positives remain held per finalD packet.",
+    "B108": "fiscal law limitation remains.",
+    "numerical_oracle": "Independent GP oracle on036 is separate and pending its own deciding receipt, no transfer of old analytic proof by module equality."
+  },
+  "source_package_and_hooks": "No source/test/Core/lock/config edit, dependency installation, CPU/thread quota, hook disabling/bypass, production packet/export or authority-rule change by independent tester."
+}

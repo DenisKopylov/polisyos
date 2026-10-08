@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "product_source_ref": "../source.json#/inspected_G",
+  "finding_adjudication": "unchanged; formal G closure not_adjudicated",
+  "authentic_consumer_check": "UNRUN; execution belongs to L02",
+  "private_digests": "withheld; no custodian disclosure admission",
+  "publication_scope": "Nonsecret aliases only; exact private locators/metadata/byte digests stay in ignored local receipt.",
+  "task": "I3 facts / Catalog snapshot",
+  "original_unit": "C",
+  "criterion_ids": [
+    "B79",
+    "B80",
+    "B83"
+  ],
+  "tuple": {
+    "source_alias": "DATASET_CATALOG_01",
+    "manifest_alias": "DATASET_CATALOG_MANIFEST_01",
+    "version_alias": "DATASET_CATALOG_VERSION_01",
+    "role": "dataset_catalog_snapshot",
+    "readiness": "ready_with_partial_sources",
+    "root_default_profile": "research",
+    "snapshot_run_profile": "prod_full",
+    "purpose": "datasets publish snapshot",
+    "published_at": "2026-03-31T06:59:32.752266+00:00",
+    "observed_at": "2026-10-08T15:41:45.962265+00:00",
+    "catalog_db_alias": "L01_CATALOG_DB_01",
+    "catalog_db_named_path_present": true,
+    "promoted_sources": []
+  },
+  "consumer": "production_data defaults catalog_db_path→datasets_db_path/dataset_registry_db_path; NL params promote them. C04 source progress/cursor/replay consumer is separate. No inspected metadata joins this snapshot to a live connector/run.",
+  "missing_fields": {
+    "dataset/run/cursor/content": "One connector_id/dataset_id/ingestion_run_id/confirmed-cursor/resolved-content binding",
+    "event/version": "Stable source-owned event/version key, not event_stream synthetic index",
+    "replay": "Effective source profile/window; 86400 seconds is the C runtime default, not measured production configuration",
+    "named_readiness_ref": "The snapshot consumer_readiness_manifest and root configuration_source references are unavailable at their exact nominated locators; no fallback search.",
+    "verifier": "Source-evidence binder and validity/replay scope for a protected progress claim"
+  },
+  "suppliers": {
+    "metadata": "Dataset catalog custodian supplies the exact lane-resolvable readiness reference",
+    "progress": "B connector/cursor evidence and source-contract owners supply one dataset/run/content/event tuple; C04 consumes it; G scopes admission",
+    "execution": "L02 authentic replay/progress; C13 portable replay"
+  },
+  "predicates": {
+    "profile/version/time/readiness/promoted_sources": "owner_supplied",
+    "exact metadata files and named DB stat": "recomputed",
+    "live source/run/cursor/event mapping, effective replay and currentness/verifier": "not_established"
+  },
+  "held_transition": "Authentic source progress/replay promotion for this tuple; no global dataset absence claim.",
+  "independent_continuation": "Bounded cursor and unsupported-key/replay mechanisms continue. An empty promoted_sources list is a statement in this snapshot, not a corpus census.",
+  "local_receipts": [
+    "policy-engine/_build/e02-L01-restart-20261008/agents/i3/private.json",
+    "policy-engine/_build/e02-L01-restart-20261008/private/catalog-selected-binding.json"
+  ],
+  "falsifier": "Keep prod_full and manifest presence while supplying a cursor for another dataset/run: profile presence cannot content-bind the progress claim."
+}

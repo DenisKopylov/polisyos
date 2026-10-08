@@ -1,0 +1,176 @@
+{
+  "schema": "policyos.e02.l02.qualified_restart_preparation.v1",
+  "raw_report_ref": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/docs/research/e02-cloud-test-plan/.tmp/l02-restart-20261008/prepared/input-release-check.json",
+  "raw_bytes": 8277,
+  "raw_sha256": "3fe8f07f0b7e2a1a35d4c7de4b289a21de9eb2a154a3ae5fb51bef58f376c7b3",
+  "qualifications": [],
+  "payload": {
+    "schema": "policyos.e02.l02.input_release_check.v1",
+    "observed_at_utc": "2026-10-08T15:50:14Z",
+    "scope": {
+      "purpose": "Compare the published L01 packet objects with current G and check only the d23ea5e-to-0321633 tracked delta for a newly declared authentic input release.",
+      "limits": [
+        "Read-only Git refs, tracked metadata and source/schema facts only; no production payload, raw secrets or production directory census was read.",
+        "No tests were run. No source, runtime, test, or maintained configuration files were written."
+      ]
+    },
+    "refs": {
+      "L02_checkout": {
+        "commit": "0cc9df727c2c921d64815e452a9b08681807ce13",
+        "tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+        "branch": "codex/e02-L02-authentic-20261008"
+      },
+      "G_current": {
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e"
+      },
+      "L01_topic": {
+        "commit": "5c3afde4833e8ee0314fe6e003070a29b649ad5b",
+        "tree": "31198f8d6e8268db5eab7e89169c351741161d21"
+      },
+      "G_delta_base": {
+        "commit": "d23ea5e9dd252214fc9e0c5c941a8a3789cead0a",
+        "tree": "2239b2c97f840ab28ee4b921e964618548dd2c25"
+      }
+    },
+    "L01_packet_comparison": {
+      "result": "All six tracked L01 packet files are present at the same path in L01 topic and current G and have identical Git blob IDs and byte lengths.",
+      "identity_note": "These are tracked-document Git blob identities, not production payload hashes and not authority evidence.",
+      "packets": [
+        {
+          "unit": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/A.json",
+          "L01_blob": "b5f9840ecaad86ff502628843490f91af01c567c",
+          "G_blob": "b5f9840ecaad86ff502628843490f91af01c567c",
+          "bytes": 38339
+        },
+        {
+          "unit": "B",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/B.json",
+          "L01_blob": "ed44337f41241a893c6baab7aad8a64e835da59c",
+          "G_blob": "ed44337f41241a893c6baab7aad8a64e835da59c",
+          "bytes": 20818
+        },
+        {
+          "unit": "C",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/C.json",
+          "L01_blob": "ef0a4f87fac08b9b0d58044176a9e79274a1a9de",
+          "G_blob": "ef0a4f87fac08b9b0d58044176a9e79274a1a9de",
+          "bytes": 29831
+        },
+        {
+          "unit": "D",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json",
+          "L01_blob": "72e308ddcb908233e1104ae3e584cdca4340b8a0",
+          "G_blob": "72e308ddcb908233e1104ae3e584cdca4340b8a0",
+          "bytes": 48923
+        },
+        {
+          "unit": "E",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/E.json",
+          "L01_blob": "f231760f768124688854f904c69ab0fe434b61e5",
+          "G_blob": "f231760f768124688854f904c69ab0fe434b61e5",
+          "bytes": 32418
+        },
+        {
+          "unit": "F",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/F.json",
+          "L01_blob": "a468c484aa5016eb5d378074523b121639f56413",
+          "G_blob": "a468c484aa5016eb5d378074523b121639f56413",
+          "bytes": 18574
+        }
+      ]
+    },
+    "current_G_qualification_records": {
+      "schema": "policyos.e02.l02.late_input_unit_qualification.v1",
+      "records": [
+        {
+          "unit": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/parallel-20261008-l02-late-input-qualification.json",
+          "blob": "a3d111bc5f6d34c2fd6aac9243eba6d03713d1d4",
+          "bytes": 3793
+        },
+        {
+          "unit": "B",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l02-late-input-qualification.json",
+          "blob": "88121196c622014107f58ee7bf1936e68d0daa9d",
+          "bytes": 3453
+        },
+        {
+          "unit": "C",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-late-input-qualification.json",
+          "blob": "c529245c4bf2867e887a4a3382372a22d301fbb5",
+          "bytes": 4110
+        },
+        {
+          "unit": "D",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/parallel-20261008-l02-late-input-qualification.json",
+          "blob": "bf2c6a63ae3c8b916666542f8db82183163a7414",
+          "bytes": 3507
+        },
+        {
+          "unit": "E",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l02-late-input-qualification.json",
+          "blob": "80f0627d14281b6596b449c9d6710b15f9ed646a",
+          "bytes": 3793
+        },
+        {
+          "unit": "F",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-l02-late-input-qualification.json",
+          "blob": "dc211b40c20c199a6c669e61dbb272db86789f8b",
+          "bytes": 3586
+        }
+      ],
+      "recorded_finding": "Each states the L01 packet is accepted as qualified metadata only; matching authentic task-bound profile/law/evaluator/issuer tuples are not established; bounded fixture observations remain fixture-bound; formal_G_closure is not_adjudicated.",
+      "interpretation": "The current G packet match confirms published-document availability. It does not release an actual task-bound source/profile tuple, and issuer strings or metadata hashes do not confer authority."
+    },
+    "d23_to_current_G_tracked_delta": {
+      "path_count": 144,
+      "file_type_denominator": {
+        ".gz": 31,
+        ".json": 69,
+        ".md": 34,
+        ".py": 7,
+        ".stdout": 2,
+        ".toml": 1
+      },
+      "maintained_config_environment_or_dependency_manifest_changes": [],
+      "non_E02_changed_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+        "policy-engine/src/polisyos/foundry/calibration/README.md",
+        "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py"
+      ],
+      "interpretation": "No new actual declared input release was found in maintained tracked configuration in this delta. The new release fragment and calibration API/schema describe an internal optional, non-gating numerical profile; they do not declare a production task/source/profile tuple or admit it to a consumer."
+    },
+    "scoped_profile_schema_refs": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "G_blob": "d0b90fd348a2556b5e23ae8e20409950ad9e712b",
+        "bytes": 73455,
+        "lines": "239-248, 1343-1359, 1362-1367",
+        "fact": "response_slots is optional; execute_scalar_state_response_v1 has gate_eligible=false. Content/manifest SHA fields bind artifact bytes for integrity, not issuer authority."
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-08-c09-sensitivity-response-basis.toml",
+        "G_blob": "b2fbee3228228f5ec621e25f816227f1c18fefdd",
+        "bytes": 3162,
+        "lines": "6-11, 33-37",
+        "fact": "The fragment labels the basis internal, numerical and non-gating; it excludes production data and composed consumer admission."
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+        "G_blob": "cf521e93a4f52837a750d606f0e2d5919f6486",
+        "bytes": 6728,
+        "lines": "113-140",
+        "fact": "The response path is opt-in, uses persisted Foundry replay state, and is explicitly local/non-gating."
+      }
+    ],
+    "availability_boundary": {
+      "pinned_G_tracked_config": "No new maintained configuration declaration of an actual authentic task-bound source/profile tuple was found in the inspected d23ea5e-to-0321633 delta.",
+      "actual_host_input_availability": "not_assessed; no production directory or payload was inspected. Do not convert absence of a tracked release declaration into a claim that the real host lacks inputs.",
+      "actual_source_profile_tuple_status": "not_established"
+    }
+  },
+  "temporal_boundary": "Helper observations precede root five-file L6 reconciliation. Any host-input-not-assessed statement remains historical to that report; new specific observations are in l6.stdout, not a global host census."
+}

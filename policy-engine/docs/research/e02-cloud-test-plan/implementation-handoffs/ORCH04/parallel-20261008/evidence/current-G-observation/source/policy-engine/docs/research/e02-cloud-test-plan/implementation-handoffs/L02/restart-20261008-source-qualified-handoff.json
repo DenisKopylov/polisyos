@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.l02.restart_source_qualified_handoff.v1",
+  "unit": "L02",
+  "mode": "read_only_verification",
+  "branch": "codex/e02-L02-authentic-20261008",
+  "slice_base_sha": "0cc9df727c2c921d64815e452a9b08681807ce13",
+  "slice_base_tree": "e68bb3b32ff5d7b93818569a793f9594a4afa811",
+  "implementation_commits": [
+    "6e9eed27c41a488c33b6be510b1b4c89a4152f7b"
+  ],
+  "candidate_tree_sha": "be4e0bebbecab328d84009628120f64144559f4b",
+  "implementation_role": "Evidence/receipt documentation only",
+  "source_test_config_lock_generated_changed_paths": [],
+  "runtime_contract_target_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "runtime_contract_target_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "actual_observer_execution": "Exact stdlib command and full stdout/stderr in restart-20261008/checks@6e9; no PolicyOS Runtime or numerical producer was executed",
+  "checks": [
+    {
+      "kind": "workspace_resume",
+      "command": "bootstrap/admission-resume.command.json@6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "output": "bootstrap/admission-resume.stdout.gz@6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "outcome": "admitted complete; snapshot not reservation"
+    },
+    {
+      "kind": "baseline_import",
+      "command": "baseline/import.command.json@6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "output": "baseline/import.stdout@6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "outcome": "PASS transfer integrity only; verification read, raw archives0, no product PASS"
+    },
+    {
+      "kind": "selected_L6_input_identity",
+      "command": "checks/l6.command.json@6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "stdout": "checks/l6.stdout@6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "stderr": "checks/l6.stderr@6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+      "observer_exit": 0,
+      "outcome": "INPUT_IDENTITY_NOT_RECONCILED: root\u2192bundle checksum matches; two selected size/hash pairs mismatch; observation contract matches",
+      "runtime_or_authentic_outcome": "UNRUN"
+    }
+  ],
+  "property": "Selected declared manifest identity versus actual read bytes, not file/marker presence, not a Runtime admission or scientific/issuer claim",
+  "independent_oracle": "stdlib SHA-256/size of three fixed selected files against unique exact-path records in content-bound bundle metadata; root-to-bundle metadata checksum independently checked",
+  "negative": "Actual knob/lex bytes differ while root/final metadata remain mutually consistent; would pass a marker/presence-only proxy. No Runtime/backend removal tested.",
+  "limitations": [
+    "Input root is the primary checkout; mapping its absolute files into an isolated G Runtime repo_root/context was not exercised.",
+    "Only five selected files observed, no directory/corpus/history census.",
+    "Default JSON parser duplicate members not rejected; sequential stats non-atomic; no general future-input admission gate claimed.",
+    "Helper host-not-assessed snapshots predate root L6 observation; new existence/binding facts apply only to those five selected inputs.",
+    "Installed/native/actual scientific/issuer tuples remain per-task not_established; no boilerplate all-input/global-law barrier."
+  ],
+  "source_acceptance": {
+    "B190": "G accepted f2/c912 bounded supplier only; G technical finding decision limited at intake1052",
+    "E_Node_candidate": "bb78b2b60dae0ed51e300f9369c580c622fe64d6 available outside G, current deciding receipts still producer-only",
+    "root_verdict": "No new source admission or closure asserted by L02"
+  },
+  "unit_handoffs": [
+    {
+      "unit": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/restart-20261008-l02-source-qualified.json",
+      "bytes": 3472,
+      "sha256": "3b7824b33864af0b1d9063998c3e5690200e46c3a50d3f1f76673d019f911157"
+    },
+    {
+      "unit": "B",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/restart-20261008-l02-source-qualified.json",
+      "bytes": 2983,
+      "sha256": "93838653177fd5eeecb58d0b7ab67e474cd6e7f01bf79c95d63d1f2aea9f7ec0"
+    },
+    {
+      "unit": "C",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/restart-20261008-l02-source-qualified.json",
+      "bytes": 2862,
+      "sha256": "3c83685984437e90bb7e4534175ccb0359a79eb75e34e342d2ded623ffc4527e"
+    },
+    {
+      "unit": "D",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/restart-20261008-l02-source-qualified.json",
+      "bytes": 2699,
+      "sha256": "b96e0277d737cd25d652730143675c31fde873e080fb28f9cf9ee65c61feb357"
+    },
+    {
+      "unit": "E",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/restart-20261008-l02-source-qualified.json",
+      "bytes": 3262,
+      "sha256": "83cdbda2aee7cec7e852c430eed34df5ceb672af86a97d0a080f70287c7fb382"
+    },
+    {
+      "unit": "F",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/restart-20261008-l02-source-qualified.json",
+      "bytes": 3100,
+      "sha256": "e799bc71bf86f88a2f69d4cb834893c829bf62bf3ca88a8ab580f402e9c5d65d"
+    }
+  ],
+  "independent_frozen_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/frozen-delivery-review.json",
+    "bytes": 7051,
+    "sha256": "0303aad10583af68d71dda0dc3c81539cccef23fc000c1993726ffbbdc5eb6c9",
+    "target": "6e9eed27c41a488c33b6be510b1b4c89a4152f7b",
+    "scope": "21 payload identities + README/command/output/current scoped boundaries; no Runtime or payload read by reviewer"
+  },
+  "observer_profile_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/observer-profile.json",
+  "private_input_identity": "Ignored local path and aggregate report SHA in committed l6.stdout; no per-input digest/payload transferred to Git/cloud. G local can resolve deciding identity report.",
+  "resource": "No heavy slot, numerical/full-data run or install; no new reusable env/store created; all own ignored audit reports retained; no cleanup needed/performed",
+  "publication": "Own append-only topic only, normal hooks;6e9 remote SHA/tree/all21payloads verified. Final handoff remote readback follows. Main/integration untouched by L02.",
+  "closure_ids": [],
+  "formal_G_closure_updates": "none",
+  "created_at_utc": "2026-10-08T16:30:33.611303+00:00"
+}

@@ -1,0 +1,122 @@
+{
+  "schema": "policyos.e02.l02.restart_evidence_manifest.v1",
+  "role": "L02",
+  "predecessor": "0cc9df727c2c921d64815e452a9b08681807ce13",
+  "G_source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "G_tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "runtime_execution": "UNRUN",
+  "production_read_scope": "Five selected files; two metadata parses, three binary hashes; actual identities retained ignored, no raw payload export.",
+  "source_test_config_lock_generated_writes": [],
+  "closure_ids": [],
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/README.md",
+      "bytes": 4548,
+      "sha256": "6fa568688cf0ca2a200d3113f53d60850540357c6702a555b25e685003b17f12"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.command.json",
+      "bytes": 233,
+      "sha256": "8cd071c64b8b25150fd6fd1ca6c2e3389e50580767c6a102d32357cbd0c657bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.stdout",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.command.json",
+      "bytes": 458,
+      "sha256": "2cfd28582af1c278a83f7bcc173e27571abe82ca2121a4ad5ed4d82b682e6055"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.stdout.gz",
+      "bytes": 7015,
+      "sha256": "f06ef7650cc089e94e557cef1107bede784bdb6b068bdf66f3fa19e58189223b",
+      "compression": "gzip",
+      "uncompressed_bytes": 95616,
+      "uncompressed_sha256": "f813235aaaa971b5d9bd72aca45ba130ff8faf12ca3a880fc835486711b895c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/identity-resource-readback.json",
+      "bytes": 1550,
+      "sha256": "4a970ab4462fd1de9d7bafa3255ad82c6cefc2d112392b9acffd68024e8ae5c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.command.json",
+      "bytes": 4922,
+      "sha256": "21a3a45e8bc62381b9db72228fc0c0a1da78d646239423c1860e86300038c583"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.stdout",
+      "bytes": 1236,
+      "sha256": "09987fd27d5ecfa9fe59eff085128e8dfd120b47fa9803108f133597d36f297f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/data-readiness.json",
+      "bytes": 34690,
+      "sha256": "3ca893aed4f2fe9ddebc53524fbb54fa7dc453cd7d4b3eab53c39053bcc086b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/input-release-check.json",
+      "bytes": 9257,
+      "sha256": "61d4c77afb346981ec45f5a0e214c08d4c6841f9851056321781dcb153bc8651"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/l6-reconciliation-independent-review.json",
+      "bytes": 8604,
+      "sha256": "5daf68fff29f5d41e455a5566a47cc5cdcd05dcae4425c3628dc72bd508217cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/mac-permission-qualification.json",
+      "bytes": 3543,
+      "sha256": "ec2fdc10981a313d6a766537ed84db901dab043f64e4e2a7f979322577dad167"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/mac-profile-readiness.json",
+      "bytes": 14984,
+      "sha256": "12cbc0f9d48cd2eb32eff2136bf2276fdc60d5e938ddd4023378749c257c6ab7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/readiness-independent-review.json",
+      "bytes": 8973,
+      "sha256": "e430e7da70c242ce4f825ab2b89a954d1bb8c20fe945402d6b9d29a5ec81dee8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/science-rights-readiness.json",
+      "bytes": 17401,
+      "sha256": "8bdb452101ae6cbf3ddcfb06c487468920250eb5fcb3cee55870eec42e98aa84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/served-readiness.json",
+      "bytes": 24614,
+      "sha256": "a59c3199d68960a657fe754ce08d150f9ec5c64e5ee6768d2d4d9d5f52454063"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/source/current-source-identities.json",
+      "bytes": 1449,
+      "sha256": "d9554d4add66e12eedd46bab9c64bb02f7cea3e543bb5c3cd165fbc831d91495"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/source/source-pins.json",
+      "bytes": 1397,
+      "sha256": "cf21bec7a8e3e5ef5d6c2149d1e14d73890ce779a2996f6c7619718c0b4f499c"
+    }
+  ],
+  "created_at_utc": "2026-10-08T16:15:43.178789+00:00"
+}

@@ -1,0 +1,371 @@
+{
+  "schema": "orch04.current-G.source-qualified-observation.v1",
+  "utc": "2026-10-08T19:14:22.612752+00:00",
+  "ref": "refs/recovery/ORCH04-final-observed-G-20261008-1913/integration",
+  "identity": {
+    "sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+    "parents": [
+      "e01d15c71a46c129805ab8e9f5310b53cad6efdc"
+    ]
+  },
+  "tested_source_base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "changed_paths": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/G-DEVX.md",
+      "git_blob": "250a8760889404dfdd4e97d92daea7d6c5b4520d",
+      "bytes": 6200,
+      "sha256": "579d10f1d0b927f31bdd5d763b8071ae3c9d38b0f3e11d53e4d10e1a4a6080f5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/L01.md",
+      "git_blob": "718402ada56e283ee0e6c30bdd04893db6cb6fe1",
+      "bytes": 6899,
+      "sha256": "7101f1ce1770f6d7462c3b1971f1f03aafd5a54404728215e507be5b6b1faf08"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/L02.md",
+      "git_blob": "e68a8434a89e23d06709ac6a2c4c43f7b5bc1e8a",
+      "bytes": 8072,
+      "sha256": "5b1514eb03e6cd3845abdaf7312bb5f66455f3774d9c644ab93e492ff15dcc2b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/ORCH02.md",
+      "git_blob": "e03ab44e7336308ee7b5b98d2e551ee1b1c48eb2",
+      "bytes": 17056,
+      "sha256": "0ad4e177deba77d0f4c0a0d04e6dbb043ad5a12f2cba8d4a6b6d5ab0a0b41c25"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/ORCH03.md",
+      "git_blob": "83cf8f4997bf0e4e8a9d142e4da0dcb2f13732dd",
+      "bytes": 12112,
+      "sha256": "ee946781cc80dac4f562a9b1a6692a1cdb6c0a805416671ae6dba36adfcb776e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/README.md",
+      "git_blob": "b6a89c2e6f1d30c3391bf838580069957afe296a",
+      "bytes": 9094,
+      "sha256": "899f182af688ab13050db142532a309f946ce28bb7c9acc26472e9bf0b710755"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/analysis-receipt.json",
+      "git_blob": "5cd415dd89a60ef0a9764af788be0e6ae0f36b28",
+      "bytes": 3830,
+      "sha256": "f9a997d1394a985a3ff64415c3aab091032470ea37f2973bdb2512f3a6a1e550"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/continuation-leases.json",
+      "git_blob": "0a9418ab89079b9cfde9dfc7580762c560452298",
+      "bytes": 4568,
+      "sha256": "e24b593e66d1fadd6a4a330dfc41a4f776064afe9e2c15c1404263eb7ea44e34"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/inputs.json",
+      "git_blob": "3d209f21dea1fc37b6e2bb5d6a11e0d2c005f9a3",
+      "bytes": 5954,
+      "sha256": "02b4b9bed46a6f4253d1f387be7fec4852926900d8a997e1ce8b687020bce070"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/reviews/gates.md",
+      "git_blob": "aafb0d160b0b8e3214b014169627096a55b743af",
+      "bytes": 4074,
+      "sha256": "b02ef0a5cc4fdab09e8c48752e9c11c161be9501373d0afccc5d07f9ccb1c1c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/restart-2026-10-08-r2/reviews/organization.md",
+      "git_blob": "5f5d0df3368ababaaa14fa7e82a6243121197732",
+      "bytes": 4635,
+      "sha256": "fb6dd803f064effc2fe344a14455814c2f62007ffd78ab9b9a9dcca095deaef2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/restart-20261008-l02-source-qualified.json",
+      "git_blob": "8601a3e8d98b5ff2a8dab68c02d618c7a9c9d5c0",
+      "bytes": 3472,
+      "sha256": "3b7824b33864af0b1d9063998c3e5690200e46c3a50d3f1f76673d019f911157"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/restart-20261008-l02-source-qualified.json",
+      "git_blob": "7e861270023c35a87c07b03a491fb15d0175ea2c",
+      "bytes": 2983,
+      "sha256": "93838653177fd5eeecb58d0b7ab67e474cd6e7f01bf79c95d63d1f2aea9f7ec0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/restart-20261008-l02-source-qualified.json",
+      "git_blob": "1a8f508e2decad19164fca341624aaa16b644175",
+      "bytes": 2862,
+      "sha256": "3c83685984437e90bb7e4534175ccb0359a79eb75e34e342d2ded623ffc4527e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/restart-20261008-l02-source-qualified.json",
+      "git_blob": "46c49f7bcb5bac1daf49c84c2313397c0f1cc60f",
+      "bytes": 2699,
+      "sha256": "b96e0277d737cd25d652730143675c31fde873e080fb28f9cf9ee65c61feb357"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/restart-20261008-l02-source-qualified.json",
+      "git_blob": "3171f1ff6034db18626f9ea49272caece0f6c871",
+      "bytes": 3262,
+      "sha256": "83cdbda2aee7cec7e852c430eed34df5ceb672af86a97d0a080f70287c7fb382"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/restart-20261008-l02-source-qualified.json",
+      "git_blob": "c6858f19219e1e9ac513ccb583fdf1a0ef171d3e",
+      "bytes": 3100,
+      "sha256": "e799bc71bf86f88a2f69d4cb834893c829bf62bf3ca88a8ab580f402e9c5d65d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/README.md",
+      "git_blob": "17749d56719281d1256d38fe2a26ad24ae51a23a",
+      "bytes": 2892,
+      "sha256": "ce49f90277e0571695a10e67ec647fe27b7230f6427df07f53ebb203ee3dca31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/delivery.json",
+      "git_blob": "3209b5362eb416658b6ad260ee96f582fc276029",
+      "bytes": 3123,
+      "sha256": "e069f2b44b2b14d5ca97dcddaf2235fc1bae95c6bfaf4944b3bcf159ff51f081"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/evidence/binding-readback.json",
+      "git_blob": "f1999b322de0ae95100470aa860172111d6751fc",
+      "bytes": 1737,
+      "sha256": "d3c8e15fa6a76e93703db0e38e837c7c1b5597674e0716943de04a29f7025e43"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/evidence/independent-reviews.md",
+      "git_blob": "b959620bd16d086b1f08296900587592496f3995",
+      "bytes": 8291,
+      "sha256": "37ae7b786c1e561e1430ad6531a47b2df28dd707cdb210da8e408d72770b5265"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/evidence/receipt-validation-stdout.txt",
+      "git_blob": "4245c2e95ed0db2d1b73fc4a7894bf38e5c5c228",
+      "bytes": 907,
+      "sha256": "9c908df0458587a80f15d8fb1dd6dd23f101dd6ac839adb60588ac79fbab55fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/evidence/receipt-validation.md",
+      "git_blob": "d9dbe392fa17cb779772cb571075009358039e7e",
+      "bytes": 2274,
+      "sha256": "72bde28440186b380a089830570dd05ba1a48f2834df0b0d3505046a075acd78"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/A.json",
+      "git_blob": "b6197f2b0c7b67357ffc8aeb7fccf4c2842838c8",
+      "bytes": 8031,
+      "sha256": "a36a0b838b3f077c947c0003ff3a2457fcaecc9ea269fb2a10626535dd0aaa24"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/C.json",
+      "git_blob": "8122825d3f38b3b813d2ab03748c9d5c4300199e",
+      "bytes": 7602,
+      "sha256": "f898c90d7c30ccf787ee384015dbc1172ba9d54416c54c3e140f7e6d561e1212"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/E.json",
+      "git_blob": "d5ff6e23fe4ce3eb985f3b34ae19166d771c7083",
+      "bytes": 6540,
+      "sha256": "a18eba10006cd681794b7fc259f0ecdb7e1c65a677917ecc430024caf1ea6f39"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/handoffs/F.json",
+      "git_blob": "0ebebc3702e357c08aac628d33e4b496e8c9670d",
+      "bytes": 6539,
+      "sha256": "ef58d766fdb5c6869a55a728cd601b5fe989118aaa119aac1612c607ccbb5ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/A-l6.json",
+      "git_blob": "6aefcd34a5e12b3bc07500c1c0278861f58e6545",
+      "bytes": 4299,
+      "sha256": "c6ab16fa192483dbfaccca6b634e79129709e6d2ba6f7b05d9e152090a3bf61f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/C-i3.json",
+      "git_blob": "2b3d2538f40bc312f43326b5ba99fa12500eb9f3",
+      "bytes": 3358,
+      "sha256": "ec312c283981b9718dfa5fff46609063909ddc00428e1475a103a523a1d410fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/C-legal.json",
+      "git_blob": "7ef1babbce8c51fff0a71428c2b4fe9255dbd22e",
+      "bytes": 3310,
+      "sha256": "06e8f1a2d1a234948e11d426e57545104640c5fad3932ab8f6b1bdeb7f3d7dad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/E-b194.json",
+      "git_blob": "15bab17a0349dff95bbcc359d871765b86db2166",
+      "bytes": 3506,
+      "sha256": "d9b7d322f6fd206f8435d84dbc6fe69cdc5a0467aed3a2e0a5d8867516e83e09"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/packets/F-b56.json",
+      "git_blob": "e29cd055a78aaf3c965d98b781723c617e054e5a",
+      "bytes": 3400,
+      "sha256": "3588c9a323552fcb95c6e56c1e8991a19d1b18d72e09d03858bc59caf0b9d1ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/residual-scope.md",
+      "git_blob": "e41104aab6cd1f72318577921902d810b70c75f1",
+      "bytes": 1419,
+      "sha256": "09eeefdd81179a1ed65aa39a34676cf58727294916f267b248a229d6c93468c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/restart-20261008-bindings/source.json",
+      "git_blob": "96ec386cd60b0295b634acdc2f42f302c99e51e9",
+      "bytes": 15195,
+      "sha256": "5092071cf08f36358a3eb00b77e3169ea5dbf47a02e4141fcca5bf75baf38d38"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008-source-qualified-handoff.json",
+      "git_blob": "743df99e32dce509f8cea7227d96885132ad10f2",
+      "bytes": 6494,
+      "sha256": "2523cc2d8e671c5eb9c610df7a9480f88abbcfbf8106e73afe172004c103cf5f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/README.md",
+      "git_blob": "191ab6a520f6be33d0e5ade11faea0e594a98963",
+      "bytes": 4548,
+      "sha256": "6fa568688cf0ca2a200d3113f53d60850540357c6702a555b25e685003b17f12"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.command.json",
+      "git_blob": "034b281ab9eedba8f4fd846e2e1d315a17c1235b",
+      "bytes": 233,
+      "sha256": "8cd071c64b8b25150fd6fd1ca6c2e3389e50580767c6a102d32357cbd0c657bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.stderr",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/baseline/import.stdout",
+      "git_blob": "4b77a2bc39db327d4a0589d0613bd93b280ce634",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.command.json",
+      "git_blob": "efe2f5e03cd014b773bb42b09d6958c91fd843b9",
+      "bytes": 458,
+      "sha256": "2cfd28582af1c278a83f7bcc173e27571abe82ca2121a4ad5ed4d82b682e6055"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.stderr",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/admission-resume.stdout.gz",
+      "git_blob": "c3ddc0a6d8f5c5aec47f88a360aa541545db81dd",
+      "bytes": 7015,
+      "sha256": "f06ef7650cc089e94e557cef1107bede784bdb6b068bdf66f3fa19e58189223b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/bootstrap/identity-resource-readback.json",
+      "git_blob": "6d2c4255fe7a369d2783f6c403775bb8251e9e89",
+      "bytes": 1550,
+      "sha256": "4a970ab4462fd1de9d7bafa3255ad82c6cefc2d112392b9acffd68024e8ae5c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.command.json",
+      "git_blob": "4273302480b8ada662691f2bee8f6c81fc7f6d4b",
+      "bytes": 4922,
+      "sha256": "21a3a45e8bc62381b9db72228fc0c0a1da78d646239423c1860e86300038c583"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.stderr",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/checks/l6.stdout",
+      "git_blob": "853a39eb54f06fbfe89e1550ed624de435c00cb4",
+      "bytes": 1236,
+      "sha256": "09987fd27d5ecfa9fe59eff085128e8dfd120b47fa9803108f133597d36f297f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/frozen-delivery-review.json",
+      "git_blob": "258aaac1d2dfe77ef03f933fbf5f52cdb5f217c6",
+      "bytes": 7051,
+      "sha256": "0303aad10583af68d71dda0dc3c81539cccef23fc000c1993726ffbbdc5eb6c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/manifest.json",
+      "git_blob": "fb17b9a3dff6511bf895bd210f33a425ffeda59b",
+      "bytes": 6167,
+      "sha256": "bef49cdde9cfa9a9dc7a8fbb7571aee97b6db3511836a5e4d0dfc272d0467a75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/observer-profile.json",
+      "git_blob": "d6005f49cabf58e5a8bc0a631a6fe06f30726ef0",
+      "bytes": 1044,
+      "sha256": "b87013668131600a751fd7e9af00f1f8430acbc5caddc3208dbf87fbd1f4e393"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/data-readiness.json",
+      "git_blob": "92982efe5f749948e4aa8fccb77d140d6fd9b626",
+      "bytes": 34690,
+      "sha256": "3ca893aed4f2fe9ddebc53524fbb54fa7dc453cd7d4b3eab53c39053bcc086b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/input-release-check.json",
+      "git_blob": "8e432e212334d903f393e8b7682412b4d2aed9d6",
+      "bytes": 9257,
+      "sha256": "61d4c77afb346981ec45f5a0e214c08d4c6841f9851056321781dcb153bc8651"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/l6-reconciliation-independent-review.json",
+      "git_blob": "33905dd5b710698d2599ddda1222e50f9aaf2931",
+      "bytes": 8604,
+      "sha256": "5daf68fff29f5d41e455a5566a47cc5cdcd05dcae4425c3628dc72bd508217cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/mac-permission-qualification.json",
+      "git_blob": "1024d717a5a8a3cf2cc4fe71ff08efc27d1ccb56",
+      "bytes": 3543,
+      "sha256": "ec2fdc10981a313d6a766537ed84db901dab043f64e4e2a7f979322577dad167"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/mac-profile-readiness.json",
+      "git_blob": "bc22885a3d43a3bbdc9268c7bd3112f9881b78da",
+      "bytes": 14984,
+      "sha256": "12cbc0f9d48cd2eb32eff2136bf2276fdc60d5e938ddd4023378749c257c6ab7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/readiness-independent-review.json",
+      "git_blob": "65e95914b57c5996d4759b930d8a71544a1f3557",
+      "bytes": 8973,
+      "sha256": "e430e7da70c242ce4f825ab2b89a954d1bb8c20fe945402d6b9d29a5ec81dee8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/science-rights-readiness.json",
+      "git_blob": "777b4da8cc6f5653ddfe46641f424831d05b57c7",
+      "bytes": 17401,
+      "sha256": "8bdb452101ae6cbf3ddcfb06c487468920250eb5fcb3cee55870eec42e98aa84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/served-readiness.json",
+      "git_blob": "a6561869c0470f66fcfdc32aab3f3ef5d0ef50b5",
+      "bytes": 24614,
+      "sha256": "a59c3199d68960a657fe754ce08d150f9ec5c64e5ee6768d2d4d9d5f52454063"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/source/current-source-identities.json",
+      "git_blob": "1ed3dfc5db6a3f574363b20ca385f34adc6a9a69",
+      "bytes": 1449,
+      "sha256": "d9554d4add66e12eedd46bab9c64bb02f7cea3e543bb5c3cd165fbc831d91495"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/source/source-pins.json",
+      "git_blob": "795cbdcc45210af10c8b4affe28b869dc4f24b25",
+      "bytes": 1397,
+      "sha256": "cf21bec7a8e3e5ef5d6c2149d1e14d73890ce779a2996f6c7619718c0b4f499c"
+    }
+  ],
+  "product_test_config_lock_delta": [],
+  "qualification": "Current G added59 qualified documentation/evidence/continuation files. Product source/tests/config/locks remain byte-identical to tested G032. New L01/L02 custody is metadata-only; authentic inputs/runtime remain criterion-specific held/UNRUN. No G selection of ORCH04 final composition or portable freeze is issued here. C10 new source is explicitly not_accepted_new_source_queue. Independent ORCH04 source candidates and receipts remain pinned; no automatic transplant or composition claim."
+}

@@ -1,0 +1,23 @@
+# E02 restart r2 — final prompt review
+
+**Verdict: GO to execute the four continuations.** Reviewed the completed README, ORCH02/03, L01/L02, G-DEVX, continuation-leases, inputs manifest, plus the frozen predecessor evidence needed to distinguish reported ORCH03 results from G's later findings. This is a prompt/ownership review only; no tests, installs, refs, source, or tracked files were changed.
+
+## ORCH03 evidence is now correctly separated
+
+The prompt identifies C08's 123 PASS and removal controls as source-reported results on the uncommitted `3de5411…` tested tree, and states that they are not G acceptance. The predecessor thread report confirms that result. It separately identifies G's `a5e0d30…` as 121 PASS / 2 FAIL and HOLD on the two proof-trace expectations. These are different source trees and findings; the prompt no longer conflates them.
+
+It also accurately keeps the C09 results distinct: G's old `b3df9b6…` remains BLOCKED by the actual forged empty required-kind partition; the uncommitted `89bbbc…` is a separate source-reported attempted generic repair, not accepted by G. Its ordinary 127 PASS / 2 FAIL are the earlier time-index importer selectors; the 24 semantic-oracle passes, three fresh-reader passes, and matched removal are separate bounded evidence. C07's time-index test companion, C09's Monte Carlo precision companion, C08's conditional causal import repair, and the existing C09 required-basis repair remain distinct tasks. B190's combined 145/1 FAIL and separate x64/float32 runs are not combined into a PASS.
+
+The initial stale-state issues are resolved: `G-DEVX.md` and `continuation-leases.json` now exist in the pack; the lease file names exact paths, preimages, owners, conditions and exclusions. It explicitly preserves the existing C08 and C09 test leases, limits C08 source repair to a reproduced causal-namespace traceback, and makes test-start selectors non-authorizing. The two new C07/C09 test paths have no writer conflicts in the checked dispatch. Nothing in the grant claims source acceptance or product authority.
+
+## Execution and custody boundaries
+
+ORCH03 preserves the real staged lanes and archive, requires actual-host branch/path/status admission, forbids resets, history rewrites and hook bypass, and allows independent owned diagnostics while G/DevX repairs the genuine publication blockers. G-DEVX assigns concrete owner work and acceptance signals; it states those repairs are not yet done. The README keeps ordinary publication contingent on required hooks while directing the four roots to continue independent work and save a precise handoff if a gate remains red. That is an actual gate dependency, not an all-G prerequisite.
+
+ORCH02 gives C05, C06-DFK, C06-CAN and C12 concrete scoped tasks, checks existing worktrees before reuse, separates source writers from reviewers, and allows current-G proposals without representing them as accepted. Its source/ref pins and handoff hashes match the inputs manifest and are present as local Git objects/remote-tracking refs. It avoids repeating completed censuses and broad verification where the source is unchanged.
+
+L01 and L02 retain their existing local lanes. L01 resolves one nominated source/release tuple first and then sends each ready I3, Legal, B194 and B56 fact separately; it permits a configured synthetic workload and does not wait for all five. L02 can trace and exercise the read-only loader/preflight now without an issuer or protected effect, routes the property gap to C10/G, and lets other ready criteria proceed. Both keep production bytes local and read-only, distinguish factual evidence from authority, and allow normal own-topic receipt delivery.
+
+The inputs manifest separates the `0321633…` analysis source from the `e01d15…` metadata-only composition, pins ORCH02 and L01/L02 remote heads with qualification, and labels ORCH03's unpublished tree/profile results as predecessor-reported rather than fetchable commits or G acceptance. It marks C10's newer handoff as a navigation/source queue, not accepted source. The README consistently describes all four roots as independently executable, without a shared cloud quota or an all-input/all-production barrier; it keeps the measured local heavy-work slot and the shared owners visible.
+
+The remaining limitation is explicit and operational: native DevX gates still need their canonical owners' repairs before normal publication. The prompts preserve the hooks and tell the authors how to continue product work, retain exact outputs, and hand off the unresolved gate without waiting for unrelated inputs or claiming a PASS.

@@ -1,0 +1,393 @@
+{
+  "schema": "policyos.e02.ORCH04.coordinator-recovery-handoff.v1",
+  "role": "coordinator; no second product source writer",
+  "time_utc": "2026-10-08T19:15:45.015415+00:00",
+  "branch": "codex/e02-ORCH04-recovery-20261008",
+  "actual_path": "/workspace/ORCH04-recovery",
+  "canonical_source_base": {
+    "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+    "parents": [
+      "f1f99ba5d040e138e3b3b0849d53c9df17d1f437"
+    ]
+  },
+  "analysis_G_slice": "f1f99ba5d040e138e3b3b0849d53c9df17d1f437",
+  "coordinator_pre_handoff_commit": {
+    "sha": "62fc8eeebf9e90cedb2cb773a3578b14e63ef12c",
+    "tree": "89f561fb74fb32e10214bd23e2b15a571d1bef48",
+    "parents": [
+      "0ff2fc38a04ae679f545bba5711bf9844889a92a"
+    ]
+  },
+  "coordinator_footprint": "Own implementation-handoffs/ORCH04/parallel-20261008 docs only; complete final changed-path/byte readback in post-commit publication result.",
+  "actual_admission": "admission/root-resume.json +eight complete root/C10/C11/C13 create/resume outputs",
+  "custody": {
+    "old_packet_recovered": false,
+    "status": "unavailable on tested new host/time/Git+GitHub channels; not global absence",
+    "old_refs": [
+      {
+        "role": "root",
+        "reported_sha": "e2122918ad4aed97bdf1dccd2fd6e96e3ff26248",
+        "local_before_exit": 128,
+        "exact_origin_fetch_exit": 128,
+        "exact_origin_fetch_stderr": "fatal: remote error: upload-pack: not our ref e2122918ad4aed97bdf1dccd2fd6e96e3ff26248\n",
+        "local_after_exit": 128,
+        "fetch_start_utc": "2026-10-08T15:41:51.600007+00:00",
+        "fetch_end_utc": "2026-10-08T15:41:52.035147+00:00",
+        "fetch_pid": 1421,
+        "availability": "unavailable_on_current_host_by_tested_git_and_github_api_channels",
+        "global_absence_claim": false
+      },
+      {
+        "role": "C10",
+        "reported_sha": "a92f57932385d5b3e34063c3d38a6db68c4a6084",
+        "local_before_exit": 128,
+        "exact_origin_fetch_exit": 128,
+        "exact_origin_fetch_stderr": "fatal: remote error: upload-pack: not our ref a92f57932385d5b3e34063c3d38a6db68c4a6084\n",
+        "local_after_exit": 128,
+        "fetch_start_utc": "2026-10-08T15:41:52.046104+00:00",
+        "fetch_end_utc": "2026-10-08T15:41:52.439355+00:00",
+        "fetch_pid": 1429,
+        "availability": "unavailable_on_current_host_by_tested_git_and_github_api_channels",
+        "global_absence_claim": false
+      },
+      {
+        "role": "C11",
+        "reported_sha": "f9903d8e803c17743554a58d3f45c6c66d686191",
+        "local_before_exit": 128,
+        "exact_origin_fetch_exit": 128,
+        "exact_origin_fetch_stderr": "fatal: remote error: upload-pack: not our ref f9903d8e803c17743554a58d3f45c6c66d686191\n",
+        "local_after_exit": 128,
+        "fetch_start_utc": "2026-10-08T15:41:52.450507+00:00",
+        "fetch_end_utc": "2026-10-08T15:41:52.852483+00:00",
+        "fetch_pid": 1437,
+        "availability": "unavailable_on_current_host_by_tested_git_and_github_api_channels",
+        "global_absence_claim": false
+      },
+      {
+        "role": "C13",
+        "reported_sha": "996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda",
+        "local_before_exit": 128,
+        "exact_origin_fetch_exit": 128,
+        "exact_origin_fetch_stderr": "fatal: remote error: upload-pack: not our ref 996dea4e17ff1acbdb2d0ef0d90e81956f6d4eda\n",
+        "local_after_exit": 128,
+        "fetch_start_utc": "2026-10-08T15:41:52.863717+00:00",
+        "fetch_end_utc": "2026-10-08T15:41:53.267784+00:00",
+        "fetch_pid": 1445,
+        "availability": "unavailable_on_current_host_by_tested_git_and_github_api_channels",
+        "global_absence_claim": false
+      }
+    ],
+    "old_unavailable_bytes": [
+      "root/leaf commit objects, trees, parents and original branch names beyond reported root name",
+      "implementation-handoffs/ORCH04/parallel-20261008/HANDOFF.json",
+      "old progress/source/lease packets and leaf handoffs",
+      "unique unapplied UI patch with exact pre/postimages/source manifest",
+      "exact original canonical DTO validator/intake file from recovered UI patch",
+      "old deciding outputs/reviews and needed ignored receipts"
+    ],
+    "report": "custody/custody-recovery-report.json",
+    "available_supplier_refs": "custody/supplier-objects.json",
+    "lineage": "Fresh reimplementation/scoped exact supplier adoption from G032; never old SHA/PASS reconstruction from narrative"
+  },
+  "leaf_sources_and_receipts": {
+    "C10": {
+      "branch": "codex/e02-C10-recovery-20261008",
+      "path": "/workspace/ORCH04-C10",
+      "mode": "owned_source_writer",
+      "source": {
+        "sha": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+        "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+        "parents": [
+          "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
+        ]
+      },
+      "receipt": {
+        "sha": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+        "tree": "124dc6e5746716ade61e5d9d6d8633009db48315",
+        "parents": [
+          "e5310c8e75147ab6c5124784ae859e4a1d30490c"
+        ]
+      },
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+        "path_count": 15,
+        "manifest_in_leaf": "source-manifest.json"
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/HANDOFF.json",
+        "at_commit": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+        "sha256": "0d75c023f18d653bb264427cec40b8809d0855ed94a578590da9028b57861bb2",
+        "bytes": 13331
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/HANDOFF.json@8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "actual_admission": "admission/C10-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
+    },
+    "C11": {
+      "branch": "codex/e02-C11-recovery-20261008",
+      "path": "/workspace/ORCH04-C11",
+      "mode": "owned_source_writer",
+      "source": {
+        "sha": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+        "parents": [
+          "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7"
+        ]
+      },
+      "receipt": {
+        "sha": "f425407e9f2228300905831d44bf179bb797e69d",
+        "tree": "85c1e39a351cde922f3af3c5a220eab6cad84e72",
+        "parents": [
+          "03698439abfb1cb59f763397a182d8e0e393d40d"
+        ]
+      },
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "03698439abfb1cb59f763397a182d8e0e393d40d",
+        "path_count": 271,
+        "manifest_in_leaf": "evidence/author/b114/source-freeze-final.json",
+        "qualification": "Complete271path Git footprint includes earlier inherited receipt bytes. Final owned implementation/test/docs delta is4paths versus published4810; earlier c1 complete own footprint27paths remains source-qualified. See exact leaf source freeze classification."
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/HANDOFF.json",
+        "at_commit": "f425407e9f2228300905831d44bf179bb797e69d",
+        "sha256": "f75be85c117d88aa7c9c97dc315b80c389756fd37d7052332376b223042b20d8",
+        "bytes": 21592
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B114-rejection-retention/HANDOFF.json@f425407e9f2228300905831d44bf179bb797e69d",
+      "actual_admission": "admission/C11-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
+    },
+    "C13": {
+      "branch": "codex/e02-C13-recovery-20261008",
+      "path": "/workspace/ORCH04-C13",
+      "mode": "readonly_verification",
+      "source": {
+        "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+        "parents": [
+          "f1f99ba5d040e138e3b3b0849d53c9df17d1f437"
+        ]
+      },
+      "receipt": {
+        "sha": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+        "tree": "010cec28d2884d626ba7e7ed5ef101fcbacc2ccf",
+        "parents": [
+          "c30cb5c9c36915c16511ba6a3b908e977fe78d9c"
+        ]
+      },
+      "source_footprint": {
+        "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "target": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "path_count": 0,
+        "manifest_in_leaf": "evidence/c13/source-manifest.json"
+      },
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008/HANDOFF.json",
+        "at_commit": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+        "sha256": "90b015b3b7e8d2f8e8a4f5c7fde3f61745f824288bacac77ed7dc7a3e3d442ab",
+        "bytes": 14619
+      },
+      "inputs_profile_and_deciding_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008/HANDOFF.json@1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+      "actual_admission": "admission/C13-resume.json",
+      "source_acceptance": "Reserved to G; none claimed by ORCH04"
+    }
+  },
+  "checks": {
+    "C10": {
+      "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+      "final_affected_consumer": "Fresh strict protected-current-head/CAS forwarding selector PASS1/1, PID22389, wall67.88637827399998s; exact execution receipt in leaf outputs.",
+      "earlier_waves": [
+        "03a7 immutable51 cases:44PASS/6FAIL/1explicitUNRUN; complete raw deciding outputs retained",
+        "cfe immutable affected epoch37:34PASS/3FAIL; complete raw deciding outputs retained"
+      ],
+      "qualifications": "Earlier immutable component/property/fresh-reader results remain pinned to their tested source and exact dependency closure. No fresh whole51/37 or blanket final native PASS.",
+      "matched_removals": "Six semantic properties, nine expected assertion reds; full/partial parent, required modality, N4 semantic dedupe, capsule current job/reader binding and partial frontier. Separate assignment-alias helper removal is component evidence only.",
+      "fresh_capsule": "Actual synthetic CAS producer and separate fresh reader confirm full child/context binding, foreign-child refusal, changed-job current refusal and retained historical read; no ordinary served GET/browser claim.",
+      "frontend": "Candidate exact command52=51PASS/1censusFAIL, including4OverviewPASS and48parity=47PASS/1FAIL. Controlled admitted G-equivalent baseline49=48PASS/1FAIL; actual active leaves2907 vs frozen2879, candidate2923 after16keys. Typecheck/buildPASS on exact unchanged frontend inputs; mandatory own pre-push result is separate publication evidence."
+    },
+    "C11": {
+      "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "prior_native_at_c1": "At immutable c1:53freshPASS +73complete-input-qualified earlier cases =126scoped coverage; not126fresh, no automatic final-source transfer",
+      "final_B114_affected": "Fresh final036 native11PASS (PID29321, wall27.211634246999893s): rejection state/artifact1, acquisition planning4 with fit/optimization spies, actual cold Sobol2, real native warm1, lightweight state1 in installed profile, restored checkpoint1 and no-refit1. Three original c1 falsifier replays nowPASS on exact036. No blanket final53/73/126 claim.",
+      "controls": "Final five valid matched semantic removals yield seven assertion reds and two unaffected batch positives across nine cases. Initial ledger_restore control lost __class__ closure and is retained as invalid ERROR; corrected v2 retains the original closure and gives the deciding records[] vs six expected assertion failure. Earlier source-qualified five semantic removals, synthetic producer/four independent current/history CAS readers and B156 allowed mocked callback on real orchestrator/cache remain distinct.",
+      "GP": "Fresh exact036 native numerical replay PID29820, wall7.641603372998361s: ten-point fit, conditioning to11, checkpoint restore and second append to12; four query points, seven positive mean/covariance comparisons and one independent10percent lengthscale negative. Max mean delta4.4408920985e-15/covariance1.580766767e-15. Zero extra MLL fits before scheduled interval; one due fit. Actual owner module hash checked against Git036. Bounded Gaussian/NumPy oracle, not a universal numerical or installed-GP/acquisition claim. Older4affectednative and counter-removal remain source-qualified historical evidence.",
+      "raw_history": "Old125cases124PASS/1FAIL, first invalid builtin mutation ERROR, three owned c1 rejection/adaptive/cold planning findings and invalid ledger_restore ERROR retained unchanged",
+      "ordinary_publication": "PASS final normal topic push, PID30278, wall42.31429556399962s; enabled mandatory pre-push typecheck39.23s. Complete final source/receipt remote byte proof and fresh empty ODB admission/fetch/fsck are in evidence/publication/C11-B114; earlier269-path c1 readback remains historical."
+    },
+    "C13": {
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "native": "GCM query/CAS1PASS; current DoWhy20PASS; genuine locked worker25PASS; Nodeclient9PASS; dashboardcontract1PASS; ordinary frontend typecheck/buildPASS",
+      "installed": "Fresh installed sourcewheel3PASS and rebuilt-sdistwheel3PASS;911observed product origins each entirely installed site,0violations; worker asset removal/restoration and actual MethodJob/freshCAS/GCM/Scientist consumers",
+      "packaging": "Native10cases6FAIL/4PASS; actual GCP archive constructionPASS but extracted wheel buildFAIL absent mandatory assets. Exact requirement retained; not accepted product package.",
+      "qualification": "Tested productG032. Receipt docs were added later and are not a new packaging-accepted source. Observed origins are bounded runtime denominator, not complete issuer/consumer API census.",
+      "portable": "UNRUN; explicit G-selected composition freeze/reviews required, not an all-production-input barrier"
+    }
+  },
+  "complete_deciding_outputs": "Source-qualified leaf handoffs/output indices +evidence/packet-manifest.json; all mandatory ignored/raw archives additionally preserved in ordinary export.",
+  "profiles": {
+    "app": "Locked app Python3.14.2 runtime/ml/analytics/search_bo/lint/test on writable /workspace; exact installed dependency origins and command environment per leaf execution receipts.",
+    "worker": "Separate frozen Python3.12.14/DoWhy0.14 genuine worker profile on writable volume.",
+    "packaging": "Separate hash-locked Hatchling tool profile; fresh -I installed consumers use exact harness/fixture bytes and installed-only origins.",
+    "frontend": "Node22.23.3; corepack pnpm frozen install in actual fresh workspaces before scanners; normal mandatory typecheck/build/hooks.",
+    "host": "C13 leaf evidence/host complete fs/inodes/tmpfs/cgroup/runtime/dependency observations; root latest-host and all deciding process PID/time/RSS/counters retained.",
+    "interpretation": "Old exit-9/137 cause unknown; observations do not diagnose product OOM. No tmpfs environment/storage, no added OMP/BLAS/thread caps, no test weakening."
+  },
+  "remaining_mechanisms": [
+    {
+      "role": "C10/G",
+      "mechanism": "Actual ordinary persisted served GET/browser and successful-simulation-survives-later-failure V6",
+      "state": "not_established on canonical G",
+      "next": "Select canonical DTO/intake and exact persisted replay/reader source with proper lease, actual CAS input resolver and current profile revalidation. Own capsule fresh reader is distinct."
+    },
+    {
+      "role": "C13/G",
+      "mechanism": "One portable final-composition replay",
+      "state": "UNRUN",
+      "next": "Explicit G freeze manifest + independent reviews; no root composition selection and no wait for every production input."
+    },
+    {
+      "role": "C13/G",
+      "mechanism": "Complete code/API issuer-consumer chain census",
+      "state": "not_established",
+      "next": "Named selected-chain denominator; bounded loaded-module/origin and constructor censuses do not settle T1."
+    },
+    {
+      "role": "C11/G",
+      "mechanism": "Selected broader WarmStartBridge to BayesianCandidateGenerator to SearchLoopRunner/CAS transfer consumer",
+      "state": "UNRUN selected connected-workflow coverage; distinct from original B114 direct consumer",
+      "next": "Exact supplied D_source joined consumer/fixture bytes exist, but current candidate lacks matching receiver APIs and the supported frozen vector-search profile is not installed. See evidence/B114-boundary/minimal-receiver-requirement.json for exact preimages/footprint/dependency. This is no missing production corpus/law or blanket G-freeze barrier, and does not strengthen original B114 acceptance."
+    }
+  ],
+  "remaining_inputs": [
+    {
+      "role": "C10/L02",
+      "input": "Authentic configured L6 control packet",
+      "state": "Three consumers executed and FAIL on missing input; no native positive",
+      "paths_under_local_production_data": [
+        "ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+        "ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+        "ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json"
+      ],
+      "evidence": "evidence/l6-input-research/tracked-input-availability.json +producer-source-evidence.json",
+      "next": "Source-qualified authentic consumer on local L02; production payload remains L01/L02. No c6a fixture substitution or invented law."
+    },
+    {
+      "role": "C10/G",
+      "input": "Actual configured child source/each child owner profile/budget selection",
+      "state": "held",
+      "next": "Exact actual typed N4 producer output compatible with declared operator/target; every complete child gets its own current configured context-job handoff; explicit supported at-most2candidate exploration budget. Ordinary default retains maxdepth0/maxnodes1."
+    },
+    {
+      "role": "C10/G",
+      "input": "N5/subdesign coupling/composition for positive parent",
+      "state": "held",
+      "next": "Exact producer-owned composition/coupling input and validation for a positive parent. Complete and partial uncomposed children retain the same conservative blocked-parent semantics."
+    },
+    {
+      "role": "C10/G",
+      "input": "B36 transformation producer/provenance",
+      "state": "held if requested modality needs transform",
+      "next": "Actual typed transform input/output/provenance. Consumer preserves required modality; available modality does not overwrite it."
+    },
+    {
+      "role": "C10/G",
+      "input": "Served owner catalog for explicit negative case",
+      "state": "one explicitUNRUN case",
+      "next": "Exact admitted catalog/source selection; do not label skipped testcase PASS."
+    },
+    {
+      "role": "C11",
+      "input": "B131/B137/B157/B161/B164",
+      "state": "five separately held minimal owner input packets",
+      "next": "Use six minimal packets in D leaf: institutional access/source; genuinely new authorized revalidation evidence/version/grounds/time; production effective counts; producer permitted refinement law; permission issuer/verifier/serialized commit. No invented issuer/refinement law."
+    },
+    {
+      "role": "C11/G+E/F",
+      "input": "Exact additional E/F extension registration packet beyond current existing consumers",
+      "state": "exact additional supplier packet unprovided/not_established",
+      "next": "Provide source SHA and node/module list selected by G+E/F. Existing Phase5 preflight/registered consumers were verified; no repository-wide module-absence or proven missing mechanism claim."
+    },
+    {
+      "role": "C11/C10/suppliers",
+      "input": "B108 fiscal unit/sign/alias law and LA036 observed-feature law/model binding",
+      "state": "not established",
+      "next": "Exact producer-owned scientific/unit/model contract; posterior rows/imports do not supply the law."
+    }
+  ],
+  "remaining_companions": [
+    {
+      "owner": "G/Core/generated ABI/intake",
+      "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/companion-requirements.json@8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "requirement": "RunDetails conditional_simulation_values/recursive_cycle_checkpoint + facade; actual validators.ts runDetailsSchemaInner preserves/validates fields; generated family G only. Old lost UI patch exact field/file remains unavailable; these exact current preimages are newly researched."
+    },
+    {
+      "owner": "G/shared Core API census",
+      "packet": "evidence/review-C10/test-companion-ownership.json",
+      "requirement": "Task44 complete selected decision_validity/control/Scientist facade/lazy owner/private exclusions: stale34 vs actual45,11existing supplier additions. C10 did not edit shared expected table; diagnosticFAIL remains."
+    },
+    {
+      "owner": "G/nonleased source owners",
+      "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/companion-requirements.json@8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "requirement": "Complete constructor guard census: three docs sites without promotion_runtime, acquisition_world_growth.resume **kwargs and tools verification session_factory mismatch. No executable source exclusion/table waiver; no demonstrated production authority escape."
+    },
+    {
+      "owner": "G/i18n quantitative metadata",
+      "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/orch04-recovery-20261008/companion-requirements.json@8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "requirement": "Reconcile actual entire active catalog denominator baseline2907+own16=2923 vs frozen2879; ru exact canonical legacy bytes unchanged. Affected census remains FAIL."
+    },
+    {
+      "owner": "G/F shared packaging",
+      "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C13/ORCH04-recovery-20261008/packaging-companion-requirement.json@1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+      "requirement": "test_hatch_packaging fixture and actual ops/cloud/gcp/package_repo.sh must carry existing eleven required force-include assets, retaining production exclusions. Re-run affected source/archive/package consumers on exact repaired source."
+    }
+  ],
+  "publication": {
+    "method": "Ordinary topic push with enabled native hooks; no force/no-verify/hook config relaxation. Only admitted topic refs.",
+    "leaf_evidence": [
+      "evidence/publication/C10",
+      "evidence/publication/C11/publication-readback.json",
+      "evidence/publication/C11-B114",
+      "evidence/publication/C13/publication.json"
+    ],
+    "coordinator_initial": {
+      "sha": "be3e513ed60dd13538c196c42761b95767f7d888",
+      "outcome": "normalpush+remote byte readbackPASS"
+    },
+    "this_receipt": "Its own final commit/tree/parents/full footprint, ordinary hook/push and remote byte readback are recorded after commit in /workspace/ORCH04-evidence/root/final-publication.json, included in the ordinary export. No future self-SHA invented."
+  },
+  "ordinary_export": {
+    "archive": "/workspace/ORCH04-export/ORCH04-recovery-20261008.tar.gz",
+    "result": "/workspace/ORCH04-export/EXPORT-RESULT.json",
+    "qualification": "Post-final-commit export proof; result created after exact four heads supplied, avoiding bundle/receipt self-reference.",
+    "contents": "All four named root/leaf branches and complete ancestry/trees; six recovered supplier refs; full unique deciding outputs/reviews/ignored receipt assets/source manifests/exact mutation pre-postimages/synthetic CAS and GP state; five C13 large archives/member map, four C11 declared old ignored inputs, all three actual GP source tar streams including final036, and current required-transfer manifests.",
+    "verification": "Ordinary bundle verify, empty bare import under new verification recovery refs, exact heads/commit/tree/parents/full recursive blob trees, fsck; archive every regular member hash/size integrity.",
+    "production": "No production_data transfer; no old unavailable objects fabricated; reconstructible expanded clones/envs/readback ODBs excluded with explicit inventory."
+  },
+  "boundaries": {
+    "G_source_acceptance": "Reserved to G; not claimed by ORCH04",
+    "formal_closure_ids": [],
+    "G_selected_final_composition_freeze": null,
+    "root_product_composition": "No C10/C11 carrier merge/selection; independent source candidates only",
+    "portable_broad_replay": "UNRUN pending explicit G freeze/reviews only",
+    "production_payload": "Local L01/L02; no production export",
+    "history": "Append-only; no history rewrite",
+    "main_integration": "No publication",
+    "new_authority_rules": "None"
+  },
+  "current_observed_G": {
+    "identity": {
+      "sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+      "parents": [
+        "e01d15c71a46c129805ab8e9f5310b53cad6efdc"
+      ]
+    },
+    "new_recovery_ref": "refs/recovery/ORCH04-final-observed-G-20261008-1913/integration",
+    "evidence": "evidence/current-G-observation/manifest.json",
+    "qualification": "Current G added59 qualified documentation/evidence/continuation files. Product source/tests/config/locks remain byte-identical to tested G032. New L01/L02 custody is metadata-only; authentic inputs/runtime remain criterion-specific held/UNRUN. No G selection of ORCH04 final composition or portable freeze is issued here. C10 new source is explicitly not_accepted_new_source_queue. Independent ORCH04 source candidates and receipts remain pinned; no automatic transplant or composition claim.",
+    "selection_or_acceptance": "No final ORCH04 composition/freeze/source acceptance inferred; current G selects any further composition."
+  }
+}

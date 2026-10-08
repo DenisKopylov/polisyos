@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "git",
+    "fetch",
+    "--no-tags",
+    "origin",
+    "refs/heads/codex/e02-C10-recovery-20261008:refs/recovery/ORCH04-published-20261008/C10-receipt-8997d7f5"
+  ],
+  "cwd": "/workspace/ORCH04-C10",
+  "started_utc": "2026-10-08T17:22:54.689226+00:00",
+  "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": null,
+    "COREPACK_HOME": null,
+    "npm_config_store_dir": null
+  },
+  "pid": 24100,
+  "finished_utc": "2026-10-08T17:22:55.105447+00:00",
+  "elapsed_seconds": 0.4162380750003649,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".stderr": {
+      "bytes": 167,
+      "sha256": "062e97bfd7b901074f74b1e1c9e7a608275a065cc4656d299363bb171c64fb9d"
+    }
+  }
+}

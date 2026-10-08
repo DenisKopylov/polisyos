@@ -1,0 +1,228 @@
+{
+  "schema": "policyos.orch04.gp-conformance-helper.affected-state-delta.v1",
+  "role": "C13 independent read-only directhelper",
+  "tested_source": {
+    "HEAD": "03698439abfb1cb59f763397a182d8e0e393d40d",
+    "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+    "parents": [
+      "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7"
+    ],
+    "branch": "refs/heads/codex/e02-C11-recovery-20261008",
+    "branch_HEAD": "03698439abfb1cb59f763397a182d8e0e393d40d",
+    "branch_status": ""
+  },
+  "source_input_manifest": "/workspace/ORCH04-evidence/gp/final-036-source-manifest.json",
+  "source_archive": {
+    "path": "/workspace/ORCH04-evidence/gp/final-036-source.tar",
+    "sha256": "70deb2ba0fe6e5831df6b3d86f72d06d35acf94d71aa294ce006e3b7b3c2e0cb",
+    "bytes": 58234880
+  },
+  "affected_scope": "NewB114rejectionhistory changesget_state/set_state; priorfit/math AST unchanged but freshstatecontinuation oracle wasrerun. Not a broadGP/native/planner/fullSearchacceptance.",
+  "review_and_resource_admission": "rootexplicitstaticreviewGO on036, then rootresourceRELEASEaftertesterallheavyworkcompleted; no overlappingheavyjob bythishelper",
+  "criterion_ids": [
+    "B114",
+    "B115"
+  ],
+  "criterion_manifest": "/workspace/ORCH04-evidence/gp/criterion-inputs.json",
+  "actual_library_origins": {
+    "numpy": {
+      "version": "2.3.5",
+      "file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/numpy/__init__.py"
+    },
+    "torch": {
+      "version": "2.10.0+cu128",
+      "file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/__init__.py"
+    },
+    "botorch": {
+      "version": "0.16.1",
+      "file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/__init__.py"
+    },
+    "gpytorch": {
+      "version": "1.15.1",
+      "file": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/gpytorch/__init__.py"
+    }
+  },
+  "actual_product_import": "/workspace/ORCH04-evidence/gp/final-036-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "environment_manifest": "/workspace/ORCH04-evidence/gp/environment-profile.json",
+  "check": {
+    "outcome": "PASS",
+    "command": [
+      "/workspace/ORCH04-environments/app/bin/python",
+      "/workspace/ORCH04-evidence/gp/analytic_posterior_v2.py",
+      "--source",
+      "/workspace/ORCH04-evidence/gp/final-036-source/policy-engine",
+      "--out",
+      "/workspace/ORCH04-evidence/gp/analytic-final-036"
+    ],
+    "cwd": "/workspace/ORCH04-evidence/gp/final-036-source/policy-engine",
+    "pid": 29820,
+    "exit_code": 0,
+    "wall_seconds": 7.641603372998361,
+    "max_rss_kib": 1173956,
+    "start_utc": "2026-10-08T18:03:10.465992+00:00",
+    "finish_utc": "2026-10-08T18:03:18.107886+00:00",
+    "deciding_evidence": [
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/stdout.txt",
+        "sha256": "f5ce5642b2b0db0f2e4c4de19f44b29566c3210cd2d5925d29e8a87f00ab1e70",
+        "bytes": 10501
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/stderr.txt",
+        "sha256": "3623e42220fa0f67abbf8162d0bc4626e1e414bb3c75f5fca18dedf6d5fbcd04",
+        "bytes": 949
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/execution.json",
+        "sha256": "b12b7e293f56b4f2491e0284bbcecff3e72c4bafe8e9da58855e253c8637b03f",
+        "bytes": 3592
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/report.json",
+        "sha256": "4ff9a6aea9982e6b41c55a7c820e41b510f285a7d517f1c732521c78abe47d81",
+        "bytes": 19518
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/checkpoint-metadata.json",
+        "sha256": "8b5d5cbab00f56bed278e0515c7db169f7d54dcf1a5e987b386fa9fbb5f424e1",
+        "bytes": 2464
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/initial-model-state.pt",
+        "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+        "bytes": 6576
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/post-append-model-state.pt",
+        "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+        "bytes": 6576
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/second-append-model-state.pt",
+        "sha256": "29ef4d655666ddc7d322981013ce4cc203685360ff14637fb530ee9679c40cdd",
+        "bytes": 6576
+      }
+    ]
+  },
+  "numeric_basis": {
+    "model": "botorch.models.gp_regression.SingleTaskGP",
+    "kernel": "RBFKernel(unit amplitude, scalar lengthscale)",
+    "mean_constant": -0.24872551896894568,
+    "lengthscale": 0.3194877716775756,
+    "noise_variance_standardized": 0.0011906509726475098,
+    "input_offset": 0.12999999999999998,
+    "input_coefficient": 0.73,
+    "outcome_mean": -2.0447351079318303,
+    "outcome_std": 0.7400270354806952,
+    "dtype": "torch.float64",
+    "device": "cpu"
+  },
+  "fixture": {
+    "authority": "synthetic engineering witness only",
+    "physical_space": [
+      -5.0,
+      5.0
+    ],
+    "coordinates": [
+      0.13,
+      0.2,
+      0.29,
+      0.37,
+      0.48,
+      0.56,
+      0.64,
+      0.73,
+      0.79,
+      0.86
+    ],
+    "scores_minimize": [
+      2.8155037396899503,
+      3.0254497299884604,
+      2.95440574115156,
+      2.598044341687276,
+      1.8793249196126205,
+      1.4098537112691942,
+      1.154881016774826,
+      1.2240113224517832,
+      1.4740340481230993,
+      1.911842508569531
+    ],
+    "queries": [
+      [
+        0.12
+      ],
+      [
+        0.31
+      ],
+      [
+        0.61
+      ],
+      [
+        0.9
+      ]
+    ],
+    "append": {
+      "x": 0.93,
+      "score": 2.4108749456715346
+    },
+    "warm_ids": [
+      "synthetic-0",
+      "synthetic-1",
+      "synthetic-2",
+      "synthetic-3",
+      "synthetic-4",
+      "synthetic-5"
+    ],
+    "current_ids": [
+      "synthetic-6",
+      "synthetic-7",
+      "synthetic-8",
+      "synthetic-9"
+    ],
+    "compatibility": {
+      "search_space_fingerprint": "e45591cd40bfcdb151e7e855a44f355f34490218b20616676edc92c9b1d9bd2d",
+      "input_transform_fingerprint": "Normalize[0,1]",
+      "outcome_transform_fingerprint": "Standardize[m=1]",
+      "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+      "objective_fingerprint": "scalar_score[minimize]",
+      "context_fingerprint": "synthetic/gp-oracle/v1"
+    }
+  },
+  "tolerance": {
+    "rtol": 2e-07,
+    "atol": 2e-08
+  },
+  "results": {
+    "passing_max_mean_absolute_error": 4.440892098500626e-15,
+    "passing_max_full_latent_covariance_absolute_error": 1.5807667674838655e-15,
+    "same_basis_restored_append_extra_fit_calls": 0,
+    "post_condition_checkpoint_second_append_matches": true,
+    "post_condition_checkpoint_second_append_extra_fits": 0,
+    "scheduled_due_extra_fits": 1,
+    "original_and_restored_and_nativeappend_and_postconditioncheckpoint_restore_second_append": "PASS",
+    "negative_same_native_model_different_independent_lengthscale_basis": "oraclecomparisonFAILasexpected; actualnativeparams/markersunchanged",
+    "new_ledger_in_this_numeric_fixture": {
+      "version": 1,
+      "complete": true,
+      "records": []
+    }
+  },
+  "native_scope": "No native4/32rerun byhelper; parentnative_tester owns affected11/fivenewrejection/planningremovals, not claimed bythisreceipt",
+  "previous_packets_preserved": [
+    "/workspace/ORCH04-evidence/gp/baseline-receipt.json",
+    "/workspace/ORCH04-evidence/gp/final-gp-receipt.json"
+  ],
+  "previous_scope_limits": "OldG032restorehidden-refitFAIL retained. Oldbdc/c1numericalPASS does notblankettransfer changedstatepath. Oldspecificcounter/conditioningremoval remains tiedtoits exactsource; fresh036independentlengthscale negative isincluded.",
+  "limitations": [
+    "1D scalar GaussianLikelihood/ConstantMean/unit-amplitude RBF, ten plus one synthetic unique points",
+    "actual native genuine MLL fit; frozen fitted parameters from this fixture, not calibration/scientific authority",
+    "NumPy Cholesky reference limited to nondegenerate positive definite finite fixture",
+    "no production data, cross-backend bit identity, acquisition-quality/general law, transfer CAS bridge or authority proof",
+    "Currentnumericfixture has emptycomplete rejectionledger; nonemptyreject-ledger/cold/adaptiveplanning semantics are separate nativeowner/tester evidence.",
+    "InstalledoptionalGP libraries genuine; productimport fromexactsourcearchive; no installedwheel/sdistGPconsumer claim.",
+    "Noproductionauthority/historyissuerlaw/portableGfreeze replay or formalclosure claimed."
+  ],
+  "source_test_mutations": [],
+  "formal_G_closure": "not_adjudicated",
+  "source_acceptance": "Gdecision"
+}

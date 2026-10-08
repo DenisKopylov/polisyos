@@ -1,0 +1,381 @@
+{
+  "schema": "orch04.final-host-observation.v1",
+  "time_utc": "2026-10-08T19:13:23.479111+00:00",
+  "pairs": {
+    "root": {
+      "path": "/workspace/ORCH04-recovery",
+      "branch": {
+        "argv": [
+          "git",
+          "branch",
+          "--show-current"
+        ],
+        "cwd": "/workspace/ORCH04-recovery",
+        "start_utc": "2026-10-08T19:13:22.926541+00:00",
+        "pid": 31199,
+        "finish_utc": "2026-10-08T19:13:22.929270+00:00",
+        "exit_code": 0,
+        "stdout": "codex/e02-ORCH04-recovery-20261008\n",
+        "stderr": ""
+      },
+      "HEAD": {
+        "argv": [
+          "git",
+          "show",
+          "-s",
+          "--format=%H %T %P",
+          "HEAD"
+        ],
+        "cwd": "/workspace/ORCH04-recovery",
+        "start_utc": "2026-10-08T19:13:22.929332+00:00",
+        "pid": 31200,
+        "finish_utc": "2026-10-08T19:13:22.936342+00:00",
+        "exit_code": 0,
+        "stdout": "62fc8eeebf9e90cedb2cb773a3578b14e63ef12c 89f561fb74fb32e10214bd23e2b15a571d1bef48 0ff2fc38a04ae679f545bba5711bf9844889a92a\n",
+        "stderr": ""
+      },
+      "status": {
+        "argv": [
+          "git",
+          "status",
+          "--porcelain"
+        ],
+        "cwd": "/workspace/ORCH04-recovery",
+        "start_utc": "2026-10-08T19:13:22.936357+00:00",
+        "pid": 31201,
+        "finish_utc": "2026-10-08T19:13:23.016074+00:00",
+        "exit_code": 0,
+        "stdout": " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/leases.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/progress.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/source.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/HANDOFF.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/README.md\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/B114-boundary/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/B114-initial-diagnostic/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C10-final-native-addendum.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C10-independent-deciding-output-check.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C10-independent-evidence-readback.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-GP-receipt-history-index.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-GP-required-transfer.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-final-B114-native-receipt.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-final-GP-independent-deciding-check.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-final-GP-readback.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-final-GP-receipt-before-bound-clarification.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-final-GP-receipt.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-final-GP-report.md\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/C11-final-affected-native-check.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/coordinator-review-before-B114-repair/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/latest-host-final.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/packet-manifest.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/publication/C10/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/review-C10/final-e6854a70-REPORT.md\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/review-C10/final-e6854a70-result.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/review-C11-final-03698439/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/ORCH04/parallel-20261008/evidence/root-commit-history/\n",
+        "stderr": ""
+      },
+      "remote": {
+        "argv": [
+          "git",
+          "remote",
+          "get-url",
+          "origin"
+        ],
+        "cwd": "/workspace/ORCH04-recovery",
+        "start_utc": "2026-10-08T19:13:23.016092+00:00",
+        "pid": 31222,
+        "finish_utc": "2026-10-08T19:13:23.020231+00:00",
+        "exit_code": 0,
+        "stdout": "https://github.com/DenisKopylov/polisyos.git\n",
+        "stderr": ""
+      }
+    },
+    "C10": {
+      "path": "/workspace/ORCH04-C10",
+      "branch": {
+        "argv": [
+          "git",
+          "branch",
+          "--show-current"
+        ],
+        "cwd": "/workspace/ORCH04-C10",
+        "start_utc": "2026-10-08T19:13:23.020270+00:00",
+        "pid": 31223,
+        "finish_utc": "2026-10-08T19:13:23.022654+00:00",
+        "exit_code": 0,
+        "stdout": "codex/e02-C10-recovery-20261008\n",
+        "stderr": ""
+      },
+      "HEAD": {
+        "argv": [
+          "git",
+          "show",
+          "-s",
+          "--format=%H %T %P",
+          "HEAD"
+        ],
+        "cwd": "/workspace/ORCH04-C10",
+        "start_utc": "2026-10-08T19:13:23.022665+00:00",
+        "pid": 31224,
+        "finish_utc": "2026-10-08T19:13:23.026367+00:00",
+        "exit_code": 0,
+        "stdout": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e 124dc6e5746716ade61e5d9d6d8633009db48315 e5310c8e75147ab6c5124784ae859e4a1d30490c\n",
+        "stderr": ""
+      },
+      "status": {
+        "argv": [
+          "git",
+          "status",
+          "--porcelain"
+        ],
+        "cwd": "/workspace/ORCH04-C10",
+        "start_utc": "2026-10-08T19:13:23.026385+00:00",
+        "pid": 31225,
+        "finish_utc": "2026-10-08T19:13:23.147519+00:00",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "remote": {
+        "argv": [
+          "git",
+          "remote",
+          "get-url",
+          "origin"
+        ],
+        "cwd": "/workspace/ORCH04-C10",
+        "start_utc": "2026-10-08T19:13:23.147538+00:00",
+        "pid": 31246,
+        "finish_utc": "2026-10-08T19:13:23.150928+00:00",
+        "exit_code": 0,
+        "stdout": "https://github.com/DenisKopylov/polisyos.git\n",
+        "stderr": ""
+      }
+    },
+    "C11": {
+      "path": "/workspace/ORCH04-C11",
+      "branch": {
+        "argv": [
+          "git",
+          "branch",
+          "--show-current"
+        ],
+        "cwd": "/workspace/ORCH04-C11",
+        "start_utc": "2026-10-08T19:13:23.150957+00:00",
+        "pid": 31247,
+        "finish_utc": "2026-10-08T19:13:23.153086+00:00",
+        "exit_code": 0,
+        "stdout": "codex/e02-C11-recovery-20261008\n",
+        "stderr": ""
+      },
+      "HEAD": {
+        "argv": [
+          "git",
+          "show",
+          "-s",
+          "--format=%H %T %P",
+          "HEAD"
+        ],
+        "cwd": "/workspace/ORCH04-C11",
+        "start_utc": "2026-10-08T19:13:23.153098+00:00",
+        "pid": 31248,
+        "finish_utc": "2026-10-08T19:13:23.158643+00:00",
+        "exit_code": 0,
+        "stdout": "f425407e9f2228300905831d44bf179bb797e69d 85c1e39a351cde922f3af3c5a220eab6cad84e72 03698439abfb1cb59f763397a182d8e0e393d40d\n",
+        "stderr": ""
+      },
+      "status": {
+        "argv": [
+          "git",
+          "status",
+          "--porcelain"
+        ],
+        "cwd": "/workspace/ORCH04-C11",
+        "start_utc": "2026-10-08T19:13:23.158654+00:00",
+        "pid": 31249,
+        "finish_utc": "2026-10-08T19:13:23.236795+00:00",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "remote": {
+        "argv": [
+          "git",
+          "remote",
+          "get-url",
+          "origin"
+        ],
+        "cwd": "/workspace/ORCH04-C11",
+        "start_utc": "2026-10-08T19:13:23.236812+00:00",
+        "pid": 31270,
+        "finish_utc": "2026-10-08T19:13:23.240026+00:00",
+        "exit_code": 0,
+        "stdout": "https://github.com/DenisKopylov/polisyos.git\n",
+        "stderr": ""
+      }
+    },
+    "C13": {
+      "path": "/workspace/ORCH04-C13",
+      "branch": {
+        "argv": [
+          "git",
+          "branch",
+          "--show-current"
+        ],
+        "cwd": "/workspace/ORCH04-C13",
+        "start_utc": "2026-10-08T19:13:23.240051+00:00",
+        "pid": 31271,
+        "finish_utc": "2026-10-08T19:13:23.242137+00:00",
+        "exit_code": 0,
+        "stdout": "codex/e02-C13-recovery-20261008\n",
+        "stderr": ""
+      },
+      "HEAD": {
+        "argv": [
+          "git",
+          "show",
+          "-s",
+          "--format=%H %T %P",
+          "HEAD"
+        ],
+        "cwd": "/workspace/ORCH04-C13",
+        "start_utc": "2026-10-08T19:13:23.242148+00:00",
+        "pid": 31272,
+        "finish_utc": "2026-10-08T19:13:23.246560+00:00",
+        "exit_code": 0,
+        "stdout": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c 010cec28d2884d626ba7e7ed5ef101fcbacc2ccf c30cb5c9c36915c16511ba6a3b908e977fe78d9c\n",
+        "stderr": ""
+      },
+      "status": {
+        "argv": [
+          "git",
+          "status",
+          "--porcelain"
+        ],
+        "cwd": "/workspace/ORCH04-C13",
+        "start_utc": "2026-10-08T19:13:23.246576+00:00",
+        "pid": 31273,
+        "finish_utc": "2026-10-08T19:13:23.413449+00:00",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "remote": {
+        "argv": [
+          "git",
+          "remote",
+          "get-url",
+          "origin"
+        ],
+        "cwd": "/workspace/ORCH04-C13",
+        "start_utc": "2026-10-08T19:13:23.413478+00:00",
+        "pid": 31294,
+        "finish_utc": "2026-10-08T19:13:23.415905+00:00",
+        "exit_code": 0,
+        "stdout": "https://github.com/DenisKopylov/polisyos.git\n",
+        "stderr": ""
+      }
+    },
+    "main": {
+      "path": "/workspace/polisyos",
+      "branch": {
+        "argv": [
+          "git",
+          "branch",
+          "--show-current"
+        ],
+        "cwd": "/workspace/polisyos",
+        "start_utc": "2026-10-08T19:13:23.415940+00:00",
+        "pid": 31295,
+        "finish_utc": "2026-10-08T19:13:23.419317+00:00",
+        "exit_code": 0,
+        "stdout": "work\n",
+        "stderr": ""
+      },
+      "HEAD": {
+        "argv": [
+          "git",
+          "show",
+          "-s",
+          "--format=%H %T %P",
+          "HEAD"
+        ],
+        "cwd": "/workspace/polisyos",
+        "start_utc": "2026-10-08T19:13:23.419332+00:00",
+        "pid": 31296,
+        "finish_utc": "2026-10-08T19:13:23.422313+00:00",
+        "exit_code": 0,
+        "stdout": "198076863e143dea9f89f02734b13d50dae3eed5 2b754a92c27959e2e747738d47ed0b419f3b6dd8 1ddcd7b3905e52c0d19db091823a64830139fa64\n",
+        "stderr": ""
+      },
+      "status": {
+        "argv": [
+          "git",
+          "status",
+          "--porcelain"
+        ],
+        "cwd": "/workspace/polisyos",
+        "start_utc": "2026-10-08T19:13:23.422325+00:00",
+        "pid": 31297,
+        "finish_utc": "2026-10-08T19:13:23.475767+00:00",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "remote": {
+        "argv": [
+          "git",
+          "remote",
+          "get-url",
+          "origin"
+        ],
+        "cwd": "/workspace/polisyos",
+        "start_utc": "2026-10-08T19:13:23.475788+00:00",
+        "pid": 31318,
+        "finish_utc": "2026-10-08T19:13:23.478851+00:00",
+        "exit_code": 0,
+        "stdout": "https://github.com/DenisKopylov/polisyos.git\n",
+        "stderr": ""
+      }
+    }
+  },
+  "G_remote": {
+    "argv": [
+      "git",
+      "ls-remote",
+      "--heads",
+      "origin",
+      "codex/e02-integration"
+    ],
+    "cwd": "/workspace/ORCH04-recovery",
+    "start_utc": "2026-10-08T19:13:23.479117+00:00",
+    "pid": 31319,
+    "finish_utc": "2026-10-08T19:13:23.802484+00:00",
+    "exit_code": 0,
+    "stdout": "dee58973f7673299070b7c7374f419b0adb8175c\trefs/heads/codex/e02-integration\n",
+    "stderr": ""
+  },
+  "writable_workspace": {
+    "available_bytes": 3779768320,
+    "available_inodes": 1279587,
+    "probe_path": "/workspace/ORCH04-evidence/root/writable-final-volume-probe",
+    "probe_readback": true
+  },
+  "mounts": {
+    "argv": [
+      "df",
+      "-h",
+      "/workspace",
+      "/tmp",
+      "/dev/shm"
+    ],
+    "cwd": "/workspace/ORCH04-recovery",
+    "start_utc": "2026-10-08T19:13:23.802523+00:00",
+    "pid": 31323,
+    "finish_utc": "2026-10-08T19:13:23.805257+00:00",
+    "exit_code": 0,
+    "stdout": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   27G  3.6G  89% /\nnone            8.8G   39M  8.8G   1% /tmp\nshm             8.8G     0  8.8G   0% /dev/shm\n",
+    "stderr": ""
+  },
+  "inodes": {
+    "argv": [
+      "df",
+      "-i",
+      "/workspace",
+      "/tmp",
+      "/dev/shm"
+    ],
+    "cwd": "/workspace/ORCH04-recovery",
+    "start_utc": "2026-10-08T19:13:23.805269+00:00",
+    "pid": 31324,
+    "finish_utc": "2026-10-08T19:13:23.806907+00:00",
+    "exit_code": 0,
+    "stdout": "Filesystem      Inodes  IUsed   IFree IUse% Mounted on\noverlay        2097152 817566 1279586   39% /\nnone           2305017   4462 2300555    1% /tmp\nshm            2305017      1 2305016    1% /dev/shm\n",
+    "stderr": ""
+  },
+  "cgroup": {
+    "memory.current": "15603130368\n",
+    "memory.max": "17179869184\n",
+    "memory.peak": "17180999680\n",
+    "memory.events": "low 0\nhigh 0\nmax 98425\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memory.stat": "anon 264753152\nfile 12902690816\nkernel 2434535424\nkernel_stack 557056\npagetables 2310144\nsec_pagetables 0\npercpu 14112\nsock 0\nvmalloc 0\nshmem 39878656\nfile_mapped 24576\nfile_dirty 413839360\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 478150656\nshmem_thp 0\ninactive_anon 279052288\nactive_anon 25513984\ninactive_file 1932455936\nactive_file 10930352128\nunevictable 0\nslab_reclaimable 2427279416\nslab_unreclaimable 4356280\nslab 2431635696\nworkingset_refault_anon 0\nworkingset_refault_file 463836\nworkingset_activate_anon 0\nworkingset_activate_file 275080\nworkingset_restore_anon 0\nworkingset_restore_file 951\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 4321570\npgsteal 4317613\npswpin 0\npswpout 0\npgscan_kswapd 28349\npgscan_direct 4293221\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 28349\npgsteal_direct 4289264\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 65052491\npgmajfault 377\npgrefill 18719\npgactivate 2304167\npgdeactivate 18719\npglazyfree 2222\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 73\nthp_collapse_alloc 10\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "86\n",
+    "pids.max": "max\n",
+    "cpu.max": "400000 100000\n"
+  },
+  "interpretation": "Current measured host counters and reclaimable file/slab occupancy do not diagnose prior product exits -9/137. Source selection/acceptance remains G responsibility."
+}

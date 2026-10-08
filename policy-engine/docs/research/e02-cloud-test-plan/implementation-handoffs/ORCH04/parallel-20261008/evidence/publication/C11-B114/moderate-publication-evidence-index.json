@@ -1,0 +1,168 @@
+{
+  "schema": "orch04.C11.final.moderate-publication-evidence-index.v1",
+  "root": "/workspace/ORCH04-evidence/c11/b114-publication",
+  "files": [
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/admission.json",
+      "relative_path": "independent-readback-20261008/admission.json",
+      "bytes": 1064,
+      "sha256": "a52616da8e84c5024da8bb448e04be16bb64387edf4df01cf097336873cb5405"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/byte-readback/execution.json",
+      "relative_path": "independent-readback-20261008/byte-readback/execution.json",
+      "bytes": 3752,
+      "sha256": "1ea1234a1b50662b6e37d329c06305ed3c7bd843e610079a2a79153e57129230"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/byte-readback/stderr.txt",
+      "relative_path": "independent-readback-20261008/byte-readback/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/byte-readback/stdout.txt",
+      "relative_path": "independent-readback-20261008/byte-readback/stdout.txt",
+      "bytes": 295,
+      "sha256": "b9a070cf31d7ab503f16667f7261c724bef22be7ea1cc42c8c72364f949ea730"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/fetch/execution.json",
+      "relative_path": "independent-readback-20261008/fetch/execution.json",
+      "bytes": 3600,
+      "sha256": "d07d6716fac14b9859b6524795edc50e0fa10d0e6e900c88a72541ee7a2efde7"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/fetch/stderr.txt",
+      "relative_path": "independent-readback-20261008/fetch/stderr.txt",
+      "bytes": 175,
+      "sha256": "052a8ba212af65bfbc8e56f6f69cf3d8b32a5156cd3d800ee510b212f7e922c0"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/fetch/stdout.txt",
+      "relative_path": "independent-readback-20261008/fetch/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/fsck/execution.json",
+      "relative_path": "independent-readback-20261008/fsck/execution.json",
+      "bytes": 3445,
+      "sha256": "ab86ed4521717eaa82ce15e04762f5aba8a5fa37e179a8add4570c2a92f0da6d"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/fsck/stderr.txt",
+      "relative_path": "independent-readback-20261008/fsck/stderr.txt",
+      "bytes": 49,
+      "sha256": "0c336371a0e24d5379aa140bf5ff55c1428e625ba9603446f4054ef4184a20ef"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/fsck/stdout.txt",
+      "relative_path": "independent-readback-20261008/fsck/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/independent-verification.json",
+      "relative_path": "independent-readback-20261008/independent-verification.json",
+      "bytes": 184696,
+      "sha256": "d077e16d73cb247715abb136f2cbcb84ddeb1db855424e9646607062d080de88"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/independent-verify/execution.json",
+      "relative_path": "independent-readback-20261008/independent-verify/execution.json",
+      "bytes": 3400,
+      "sha256": "7171a9ebfa7bac75e608674414b45ab6b44c662f2be324779fa9da17f1333788"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/independent-verify/stderr.txt",
+      "relative_path": "independent-readback-20261008/independent-verify/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/independent-verify/stdout.txt",
+      "relative_path": "independent-readback-20261008/independent-verify/stdout.txt",
+      "bytes": 511,
+      "sha256": "69b5284c71653635395e9a799e67234edda877fa5ed385f67cb56a5c4ade0748"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/init/execution.json",
+      "relative_path": "independent-readback-20261008/init/execution.json",
+      "bytes": 3406,
+      "sha256": "53b43eea03d6c911ad7ca96097e7826cf29247beaaa126d2ce3b1fb2518d3ce8"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/init/stderr.txt",
+      "relative_path": "independent-readback-20261008/init/stderr.txt",
+      "bytes": 586,
+      "sha256": "3e70934f1909b0f5a846d62237fcc1509d733b9fb0321187024723dfc67176d3"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/init/stdout.txt",
+      "relative_path": "independent-readback-20261008/init/stdout.txt",
+      "bytes": 126,
+      "sha256": "451e9affe0778b40e3d2ec9d92a9f94b2798485c537567e3675bba7a6f0cae87"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/publication-readback.json",
+      "relative_path": "independent-readback-20261008/publication-readback.json",
+      "bytes": 315668,
+      "sha256": "ecc3aa8c7a286cf8e38b396b33bc8c0a2895444bfae4500926c4ca2049522d35"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/independent-readback-20261008/verify_independent.py",
+      "relative_path": "independent-readback-20261008/verify_independent.py",
+      "bytes": 10443,
+      "sha256": "af42e1575980d16cc08195e4a530692c5516c893c3466ad94a2229707e0cf9c6"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/receipt-commit/execution.json",
+      "relative_path": "receipt-commit/execution.json",
+      "bytes": 3385,
+      "sha256": "fc9e1735e0b03e5b608a9efdab6c8d17dda75d845ce565907090d68f24e53060"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/receipt-commit/stderr.txt",
+      "relative_path": "receipt-commit/stderr.txt",
+      "bytes": 831,
+      "sha256": "496579baf5115ff4d8aafcbb0739f57528ef2f7140000644460bdcc6fcca81d9"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/receipt-commit/stdout.txt",
+      "relative_path": "receipt-commit/stdout.txt",
+      "bytes": 43723,
+      "sha256": "2c837988938ab1c85a0a9900aab0b6260ec79db726e1e3b330418111f0facfee"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/topic-push/execution.json",
+      "relative_path": "topic-push/execution.json",
+      "bytes": 3383,
+      "sha256": "ec45d3b6f05eb20c998aa92f336c2e211a3a4c26768d35f588240fc3d05f3f93"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/topic-push/stderr.txt",
+      "relative_path": "topic-push/stderr.txt",
+      "bytes": 318,
+      "sha256": "1a0c4be45492d6d264d08ca240d55d72a2688fd5f7ade53ddeaf1f7c975255da"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/topic-push/stdout.txt",
+      "relative_path": "topic-push/stdout.txt",
+      "bytes": 990,
+      "sha256": "8e720928c91245e7511750d8c9d762cbe8b12efc05f7c4987c4dff882f792029"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/c11/b114-publication/verify_readback.py",
+      "relative_path": "verify_readback.py",
+      "bytes": 3864,
+      "sha256": "5e11cc516e2714782fc58c374634301cd29f9eef176e453c595569e55cb3a1bc"
+    }
+  ],
+  "file_count": 26,
+  "total_bytes": 587710,
+  "exclusions": [
+    "Fresh remote.git ODB; ordinary bundle carries exact Git objects separately"
+  ],
+  "independent_verification_sha256": "d077e16d73cb247715abb136f2cbcb84ddeb1db855424e9646607062d080de88"
+}

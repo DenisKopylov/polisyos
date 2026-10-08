@@ -1,0 +1,60 @@
+{
+  "schema": "policyos.e02.continuation_leases.v1",
+  "issuer_role": "G integration coordinator",
+  "purpose": "Exact missing test companions and confirmation of an existing causal source lease; execution authorization is not source acceptance or product authority.",
+  "source_snapshot": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "metadata_composition_target": "e01d15c71a46c129805ab8e9f5310b53cad6efdc",
+  "prior_dispatch": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+  "prior_exact_test_leases_retained": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-08-parallel-intake-1159/continuation-leases.json",
+  "conflict_check": {
+    "roles": ["C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C10", "C11", "C12", "C13", "L01", "L02"],
+    "writer_fields": ["source_scopes", "companion_paths", "explicit_test_writer_paths"],
+    "new_test_paths_previous_writer_matches": 0,
+    "test_start_paths_are_not_write_leases": true,
+    "snapshot_is_not_live_reservation": true
+  },
+  "grants": [
+    {
+      "role": "C07",
+      "original_unit": "E",
+      "mode": "test_only_companion",
+      "path": "policy-engine/tests/unit/ir/observation/test_contract_compilers.py",
+      "preimage_git_blob_at_G_and_C07_and_C09": "20ddd48c1a7e8b3ad5a8b070f5e672ae9f46fa78",
+      "property": "Positive historical fixtures preserve their real compiled time_index and exercise existing downstream methods; absence still refuses.",
+      "required_checks": ["test_historical_validation_bundle_runs_through_scientist_matrix", "test_compile_all_and_downstream_methods_accept_compiled_contracts", "existing missing time-axis negative and affected compiler/masking consumers"],
+      "excluded_writers": ["C09", "B190 Node author"],
+      "exclusions": ["production compiler/schema/default changes", "weakening temporal or completeness guards"]
+    },
+    {
+      "role": "C09",
+      "original_unit": "E",
+      "mode": "test_only_companion",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "property": "Fixture precision/input law is explicit and independent of collection order; actual attempted draws and missing/invalid outcomes remain accounted for.",
+      "required_checks": ["declared float32 and x64 profiles individually", "configured combined entry if claimed", "independent attempted-record oracle", "matched removal of intended precision/accounting property"],
+      "excluded_writers": ["B190 Node author", "C08"],
+      "exclusions": ["changing the expected constant or skipping merely for green", "claiming 143 x64 plus 3 float32 as one combined PASS"]
+    },
+    {
+      "role": "C08",
+      "original_unit": "F",
+      "mode": "existing_source_scope_confirmed",
+      "source_scope": "policy-engine/src/polisyos/foundry/methods/catalog/causal/",
+      "condition": "Exact recovered-candidate full traceback/cold import identifies a runtime name/import/default binding defect in this already-owned namespace.",
+      "property": "Actual supported cold import and affected query/proof consumers execute with the existing canonical enum/artifact contracts.",
+      "test_companion_paths": ["policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py", "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"],
+      "test_companion_rule": "Reuse these already leased exact C08 paths for the smallest necessary cold-import/query regression; do not infer another test-write lease from test-start selectors.",
+      "exclusions": ["speculative enum/export repair without traceback", "new facade or duplicate enum", "DevX checker/global hook/policy changes", "adjacent IR owners"]
+    }
+  ],
+  "unchanged_ownership": {
+    "C05_C06_C12": "Existing dispatch source scopes and explicit test paths remain authorized for own quality repairs and current-G reconciliation proposals; missing input elsewhere is not an all-task barrier.",
+    "global_DevX_policy_lock_generator": "G/canonical DevX owner, separate checkpoint",
+    "Core_writer_CAN_compatibility": "C02/G; C06 reader writer stays separate",
+    "served_lifecycle_and_generation_cycle": "C10/A",
+    "production_custody_and_authentic_consumers": "L01 factual supplier; L02 read-only verifier"
+  },
+  "publication": "Normal commits and own topic push/readback. Native hooks remain applicable; no history rewrite or gate bypass.",
+  "formal_closure_ids": [],
+  "source_acceptance": "not_issued_by_this_lease"
+}

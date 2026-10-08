@@ -1,0 +1,347 @@
+{
+  "schema": "ORCH04.independent-c11-B114-deciding-evidence-ack.v1",
+  "reviewer": "/root/review_c11",
+  "utc": "2026-10-08T18:09:30.307501+00:00",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+  "parents": [
+    "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7"
+  ],
+  "verdict": "SCOPED_SOURCE_GO_AND_AFFECTED_EVIDENCE_ACKNOWLEDGED_WITH_NAMED_HOLDS",
+  "nonauthor_mode": "Readonly production/tests; reviewer authored no runtime/test changes and reran no suites. Independently read deciding outputs/receipts, verified artifact hashes, actual imported bytes and full immutable delta.",
+  "historical_static": "static-result.json remains sourceGO/affectedpending verbatim; REPORT-before-evidence-ack.md preserves original pending chronology. New acknowledgment does not backdate PASS.",
+  "native_receipt": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C11-independent-B114-final-03698439-receipt.json",
+    "sha256": "f036f7d0b58cd67bd027fce4df73ed45cc06161d088b202bbea4754372de1fdc",
+    "bytes": 84863
+  },
+  "native_references_verified": 68,
+  "fresh_native": {
+    "cases": 11,
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0,
+    "execution": {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-native/execution.json",
+      "sha256": "5051e0d8b04da74729dec1f9789d1304fef3d641822f9f26f089c3d628de6aa9",
+      "bytes": 5874
+    },
+    "pid": 29321,
+    "wall_seconds": 27.211634246999893,
+    "scope": "auditstateartifact1+controlledadaptive/fixedbatchqEI4+actualcoldSobol2+actualrealwarmtraining1+lightweightstate1+realrestoredappend1+actualnorefit1",
+    "qualification": "Installed supported native backend; name_without_deps lightweight state test does not exercise an actually dependency-absent environment. Four planning cases control fit/optimization and test actual tensor/selector/constructor routing, not numerical acquisition performance."
+  },
+  "original_falsifier_replays": [
+    {
+      "kind": "rejection",
+      "execution": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary/execution.json",
+        "sha256": "748d242d1348dc65bbb671585ac11eb8d72b398cf310b55a53f3e1b462ac8a17",
+        "bytes": 5288
+      },
+      "observations": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-rejection-boundary-packet/observations.json",
+        "sha256": "863f0607ef8a9375e162bacbd4a7785498f7cab062bfcb818bda9d1d9594792f",
+        "bytes": 79733
+      },
+      "summary": {
+        "accepted_occurrences": 8,
+        "rejected_ids_reasons": [
+          [
+            "warm-foreign-basis",
+            "incompatible normalized parameters"
+          ],
+          [
+            "warm-incompatible-context",
+            "incompatible context fingerprint"
+          ],
+          [
+            "warm-unbound",
+            "missing provenance_ref"
+          ]
+        ],
+        "fit_executed": false
+      }
+    },
+    {
+      "kind": "adaptive-plan",
+      "execution": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary/execution.json",
+        "sha256": "b539cfc03d4f6a3b62e41b938160e72054d228190dc25a6f4342c51d38d4996e",
+        "bytes": 5325
+      },
+      "observations": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-adaptive-plan-boundary-packet/observations.json",
+        "sha256": "95f1f2195d92e789cd4f5e08d043efa1c324481e9e7b26602e2a3cb35b3da14a",
+        "bytes": 3346
+      },
+      "summary": {
+        "whole": "upper_confidence_bound",
+        "warm_plus_new": "upper_confidence_bound",
+        "admitted_deduped_rows": 8,
+        "qualification": "Original B114 same eligible corpus whole-vs-warm+new, adaptive planning option; actual suggest route and native tensor preparation, local fit/acquisition spies; NO numerical fit/optimization or full-chain claim."
+      }
+    },
+    {
+      "kind": "cold-plan",
+      "execution": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary/execution.json",
+        "sha256": "d5ce7256a7801bd261db222572df128b4485952469553dcefc7513669b9b3a68",
+        "bytes": 5288
+      },
+      "observations": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-cold-plan-boundary-packet/observations.json",
+        "sha256": "34236350b478b1a1e1c2e6cb565e6f01d3ba4e05d48d543b45a060359231b9fa",
+        "bytes": 2908
+      },
+      "summary": {
+        "actual_normalized_candidates": {
+          "single_whole": [
+            [
+              0.2303764671087265
+            ]
+          ],
+          "single_warm_plus_new": [
+            [
+              0.2303764671087265
+            ]
+          ],
+          "batch_whole": [
+            [
+              0.2303764671087265
+            ],
+            [
+              0.06880038976669312
+            ]
+          ],
+          "batch_warm_plus_new": [
+            [
+              0.2303764671087265
+            ],
+            [
+              0.06880038976669312
+            ]
+          ]
+        },
+        "qualification": "Original B114 same below-threshold eligible corpus whole-vs-warm+new; actual supported Sobol candidates without fit/acquisition stubs or GP training; no request/refit counter equality imposed."
+      }
+    }
+  ],
+  "valid_removals": [
+    {
+      "kind": "ledger_append",
+      "execution": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/execution.json",
+        "sha256": "340f16ca3e1063cc522f18a424ce5aaf590dbcfdc80b9800ce34843c12d48eba",
+        "bytes": 5580
+      },
+      "manifest": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append-packet/removal-manifest.json",
+        "sha256": "b338dffd4502a730759b51a512e09e8da36e0ac10d245d6fefc85853fe31cadf",
+        "bytes": 2374
+      },
+      "junit": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/junit.xml",
+        "sha256": "51676f64993e14655088018a3c05cccd79e2f64b17b00ac912c63b7dcfb2c4c0",
+        "bytes": 4363
+      },
+      "cases": [
+        {
+          "case": "test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+          "status": "EXPECTED_SEMANTIC_RED",
+          "message": "AssertionError: assert [] == [{'evaluation...venance_ref'}]\n  \n  Right contains 6 more items, first extra item: {'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [1]}, 'replicate_id': '...s_satisfied': True, 'name': 'score', 'raw_value': 1.0, ...}], 'params': {'x': -1.0}, ...}, 'reason': 'invalid outcome'}\n  Use -v to get more diff"
+        }
+      ]
+    },
+    {
+      "kind": "ledger_restore-v2",
+      "execution": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/execution.json",
+        "sha256": "4cb1324a63d43ef7f226e4009578ac0a4f261bbe9be5ad62826bab98e13a100f",
+        "bytes": 5595
+      },
+      "manifest": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2-packet/removal-manifest.json",
+        "sha256": "ac8c8d8e429ba2a10dd51b31a60f33e662c227369e5c4c5b1cbf941da682ac5e",
+        "bytes": 2403
+      },
+      "junit": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-v2/junit.xml",
+        "sha256": "98d76d7886eb62ee6805f245c6e26e3f40420487e630ef501a253100cab2eaf8",
+        "bytes": 4857
+      },
+      "cases": [
+        {
+          "case": "test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+          "status": "EXPECTED_SEMANTIC_RED",
+          "message": "AssertionError: assert {'complete': ... 'version': 1} == {'complete': ... 'version': 1}\n  \n  Omitting 2 identical items, use -vv to show\n  Differing items:\n  {'records': []} != {'records': [{'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [...]}, 'r...ied': True, 'name': 'score', 'raw_value': 2.0, ...}], 'params': {'x': 0.0}, ...}, 'reason': 'missing provenance_ref'}]}\n  Use -v to get more diff"
+        }
+      ]
+    },
+    {
+      "kind": "adaptive_corpus",
+      "execution": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/execution.json",
+        "sha256": "ec1a087edc77bc34e142d47ca25f41381cf88006c483fbfedbe11247387db68b",
+        "bytes": 5571
+      },
+      "manifest": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus-packet/removal-manifest.json",
+        "sha256": "3040a119a98a5614f3e784c5bfc4f4c8b9d1e935320a3f7fb4cba1aa52749fc1",
+        "bytes": 2197
+      },
+      "junit": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-adaptive_corpus/junit.xml",
+        "sha256": "3e34fe68b6125385632efc73846a201f1211d254d127123702b97c145dcfd9d4",
+        "bytes": 10367
+      },
+      "cases": [
+        {
+          "case": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-False]",
+          "status": "EXPECTED_SEMANTIC_RED",
+          "message": "AssertionError: assert [['warm-0', '...warm-5', ...]] == [['current-0']]\n  \n  At index 0 diff: ['warm-0', 'warm-1', 'warm-2', 'warm-3', 'warm-4', 'warm-5', 'warm-2', 'warm-2-replica', 'current-0'] != ['current-0']\n  Use -v to get more diff"
+        },
+        {
+          "case": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-True]",
+          "status": "EXPECTED_SEMANTIC_RED",
+          "message": "AssertionError: assert [['warm-2-rep...warm-2', ...]] == [['current-0']]\n  \n  At index 0 diff: ['warm-2-replica', 'warm-2', 'warm-5', 'warm-4', 'warm-3', 'warm-2', 'warm-1', 'warm-0', 'current-0'] != ['current-0']\n  Use -v to get more diff"
+        },
+        {
+          "case": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-False]",
+          "status": "UNAFFECTED_BATCH_PASS",
+          "message": null
+        },
+        {
+          "case": "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-True]",
+          "status": "UNAFFECTED_BATCH_PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "kind": "cold_index",
+      "execution": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/execution.json",
+        "sha256": "7596406192146051ad6db6c58085982ad07142beb5d491cb6ef5db943dfa8422",
+        "bytes": 5546
+      },
+      "manifest": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index-packet/removal-manifest.json",
+        "sha256": "a85bf7b5c8d3ed5078aaa778d23e6eea499384e217a83db6d308e3cb3ee3af4f",
+        "bytes": 3133
+      },
+      "junit": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-cold_index/junit.xml",
+        "sha256": "d694e8d9c7f9701c8ee8d2521538fef957959204debafe36e99f9683587f4242",
+        "bytes": 4418
+      },
+      "cases": [
+        {
+          "case": "test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[False]",
+          "status": "EXPECTED_SEMANTIC_RED",
+          "message": "AssertionError: assert [{'x': -2.696235328912735}] == [{'x': 4.9451446533203125}]\n  \n  At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}\n  Use -v to get more diff"
+        },
+        {
+          "case": "test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[True]",
+          "status": "EXPECTED_SEMANTIC_RED",
+          "message": "AssertionError: assert [{'x': -2.696...996102333069}] == [{'x': 4.9451...921211242676}]\n  \n  At index 0 diff: {'x': -2.696235328912735} != {'x': 4.9451446533203125}\n  Use -v to get more diff"
+        }
+      ]
+    },
+    {
+      "kind": "corpus_union",
+      "execution": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/execution.json",
+        "sha256": "118dc509dd31cdc8225d646d51b7391a9bb449f23f5c6597eb48f271f152b63e",
+        "bytes": 5572
+      },
+      "manifest": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union-packet/removal-manifest.json",
+        "sha256": "dac5402bedb5cf51bff23b42fc73a5fb822e933f90f6dafdd34901b9a2170ae1",
+        "bytes": 2286
+      },
+      "junit": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-corpus_union/junit.xml",
+        "sha256": "ac2c71f4ee48f54196270d87c69768ec56165b450f6d3f3792cd118f64ea7442",
+        "bytes": 6858
+      },
+      "cases": [
+        {
+          "case": "test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+          "status": "EXPECTED_SEMANTIC_RED",
+          "message": "assert 0 == 1\n +  where 0 = len([])"
+        }
+      ]
+    }
+  ],
+  "removal_summary": {
+    "valid_process_scopes": 5,
+    "cases": 9,
+    "expected_semantic_red": 7,
+    "unaffected_batch_pass": 2,
+    "scope": "Matched named process-only method effect removals, full pre/postimages/identifiers/refs preserved; original tests/conftest and sourcefiles untouched. Not actual product regression results."
+  },
+  "retained_invalid_attempt": {
+    "path": "/workspace/ORCH04-evidence/review-c11/03698439/invalid-ledger-restore-removal-ack.json",
+    "sha256": "97021b55c52c86fae2751bbcfc8f89a5b6a18ba51f91e163808cbf4a3698a6dd",
+    "bytes": 2577
+  },
+  "actual_origin_verification": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-actual-origin-verification.json",
+    "sha256": "fd49c619fc7abae3129cb0fae66af457dc4b8bacbb6a78af9e115e37370179bb",
+    "bytes": 7084
+  },
+  "actual_origins_bound": "13 imported modules; seven selected-source modules directly compared by reviewer to immutable Git036. Six installed backend origins recorded by tester; no whole-import census or installed product wheel/sdist consumer claim.",
+  "independent_fresh_GP": {
+    "tester": "/root/gp_conformance",
+    "source_manifest": {
+      "path": "/workspace/ORCH04-evidence/gp/final-036-source-manifest.json",
+      "sha256": "9f36547663814244a18bc69fad3668fe56c95e0874e1c124302da254971bd839",
+      "bytes": 11734
+    },
+    "raw_report": {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/report.json",
+      "sha256": "4ff9a6aea9982e6b41c55a7c820e41b510f285a7d517f1c732521c78abe47d81",
+      "bytes": 19518
+    },
+    "execution": {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/execution.json",
+      "sha256": "b12b7e293f56b4f2491e0284bbcecff3e72c4bafe8e9da58855e253c8637b03f",
+      "bytes": 3592
+    },
+    "stdout": {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/stdout.txt",
+      "sha256": "f5ce5642b2b0db0f2e4c4de19f44b29566c3210cd2d5925d29e8a87f00ab1e70",
+      "bytes": 10501
+    },
+    "stderr": {
+      "path": "/workspace/ORCH04-evidence/gp/analytic-final-036/stderr.txt",
+      "sha256": "3623e42220fa0f67abbf8162d0bc4626e1e414bb3c75f5fca18dedf6d5fbcd04",
+      "bytes": 949
+    },
+    "actual_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+    "scratch_harness": {
+      "path": "/workspace/ORCH04-evidence/gp/analytic_posterior_v2.py",
+      "sha256": "e0b16820946a76599315ac988f4b03c7027a4e857e6b31dba3bffe527d3b1638"
+    },
+    "source_archive_verified": {
+      "sha256": "70deb2ba0fe6e5831df6b3d86f72d06d35acf94d71aa294ce006e3b7b3c2e0cb",
+      "bytes": 58234880
+    },
+    "result": "BOUNDED_FRESH_NUMERICAL_PASS",
+    "pid": 29820,
+    "wall_seconds": 7.641603372998361,
+    "max_rss_kib": 1173956,
+    "scope": "Actual genuine SingleTaskGP/MLL CPUfloat64: initial10→condition11→checkpointrestore→condition12; seven NumPyCholesky mean/full latentcovariance positivecomparisons and one actualnative-fixed independentlengthscale-substitutionnegative.",
+    "max_mean_absolute_error": 4.440892098500626e-15,
+    "max_full_latent_covariance_absolute_error": 1.5807667674838655e-15,
+    "extra_fit_same_basis": 0,
+    "extra_fit_postcondition_checkpoint": 0,
+    "scheduled_due_extra_fit": 1,
+    "rejection_ledger_in_numeric_fixture": "empty complete version1; nonemptyactualrejectionhistory separate native evidence",
+    "limitations": "Finite1D Gaussian/RBF scalar synthetic fixture10+twoappend rows/tolerances only; not production/calibration/generalrounding/acquisitionquality/crossbackendbit/transferCAS/originalissuerlaw/formalB114115closure. Currentproductfromexactsourcearchive, genuineinstalledlibraries; no installedwheel/sdistGPconsumer claim. Oldbdc/c1numericproof and counterremoval remain at oldpins; no blanket module equality transfer."
+  },
+  "prior_coverage": "Previous126=53freshc1+73qualifiedbdc selectedfunnel/Phase5 inputs remain exact unchanged callclosure-qualified prior evidence; none rerun/countedasfresh036. New11 separate strategy scope, no global137fresh claim.",
+  "remaining_boundaries": "B131/B137/B157/B161/B164 separatefive ownerinputs, B108fiscallaw,LA036conditionalproducerlaw,exactadditionalE/Fsupplierpacket; broaderselectedreceiver/joinedtransfer/HNSWprofile separatecompositiongap not strengthenedoriginalB114bar.",
+  "authority": "Gsourceacceptance/formalclosure/composition onlyexplicitGfreeze separate; no productionpayload/export/main/integration publication or hooksbypass claimed."
+}

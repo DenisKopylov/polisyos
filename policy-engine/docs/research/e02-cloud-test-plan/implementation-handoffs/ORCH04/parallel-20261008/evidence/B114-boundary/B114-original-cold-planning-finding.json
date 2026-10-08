@@ -1,0 +1,208 @@
+{
+  "schema": "ORCH04.independent-c11-B114-cold-planning-finding.v1",
+  "reviewer": "/root/review_c11",
+  "utc": "2026-10-08T17:45:44.864251+00:00",
+  "id": "C11-review-4-cold-batch",
+  "priority": "P2",
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "lines": [
+      2983,
+      2996
+    ],
+    "acceptance_line2995": "**Приёмка.** Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+    "recommended_line2991": "**Рекомендуемое решение.** Сформировать один эффективный training corpus из совместимых исторических и текущих оценок до решения о cold-start и ограничения `max_train_size`. Проверять пространство, исходы, data/context vintage, split/доступ и независимость. Существующий механизм подвыборки оставить, но применить к действительно разрешённому корпусу. Непригодную историю сохранять с объяснением, не насильно добавлять в fit."
+  },
+  "owned_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "source_lines": {
+    "single": [
+      161,
+      164
+    ],
+    "batch": [
+      207,
+      211
+    ]
+  },
+  "readonly_dependency": "BaseSearchStrategy._sobol_candidate lines213+ selects real index/cached supported prefix; no Base source writing",
+  "property": "Same admitted effective corpus whole vs warm+new yields coherent cold single and batch concrete plan",
+  "actual_predicate": "threshold bound to effective corpus, Sobol index bound to raw current-only caller count; cold concrete normalized candidates differ",
+  "observations": {
+    "observations": {
+      "single_whole": {
+        "corpus_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "below_initial_threshold": true,
+        "candidates": [
+          {
+            "params": {
+              "x": -2.696235328912735
+            },
+            "params_normalized": [
+              0.2303764671087265
+            ],
+            "source": "sobol_init"
+          }
+        ],
+        "cold_request_count": 3,
+        "fit_executed": false
+      },
+      "single_warm_plus_new": {
+        "corpus_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "below_initial_threshold": true,
+        "candidates": [
+          {
+            "params": {
+              "x": 4.9451446533203125
+            },
+            "params_normalized": [
+              0.9945144653320312
+            ],
+            "source": "sobol_init"
+          }
+        ],
+        "cold_request_count": 1,
+        "fit_executed": false
+      },
+      "batch_whole": {
+        "corpus_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "below_initial_threshold": true,
+        "candidates": [
+          {
+            "params": {
+              "x": -2.696235328912735
+            },
+            "params_normalized": [
+              0.2303764671087265
+            ],
+            "source": "sobol_init"
+          },
+          {
+            "params": {
+              "x": -4.311996102333069
+            },
+            "params_normalized": [
+              0.06880038976669312
+            ],
+            "source": "sobol_init"
+          }
+        ],
+        "cold_request_count": 3,
+        "fit_executed": false
+      },
+      "batch_warm_plus_new": {
+        "corpus_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "selected_ids": [
+          "warm-0",
+          "warm-1",
+          "current-0"
+        ],
+        "below_initial_threshold": true,
+        "candidates": [
+          {
+            "params": {
+              "x": 4.9451446533203125
+            },
+            "params_normalized": [
+              0.9945144653320312
+            ],
+            "source": "sobol_init"
+          },
+          {
+            "params": {
+              "x": 0.16040921211242676
+            },
+            "params_normalized": [
+              0.5160409212112427
+            ],
+            "source": "sobol_init"
+          }
+        ],
+        "cold_request_count": 1,
+        "fit_executed": false
+      }
+    },
+    "same_single_corpus": true,
+    "same_batch_corpus": true,
+    "same_single_plan": false,
+    "same_batch_plan": false,
+    "scope": "Original B114 same below-threshold eligible corpus whole-vs-warm+new; actual supported Sobol candidates without fit/acquisition stubs or GP training; no request/refit counter equality imposed."
+  },
+  "execution": {
+    "pid": 26714,
+    "exit_code": 1,
+    "wall_seconds": 10.101899050999236,
+    "max_rss_kib": 1316584,
+    "source_delta_before": [],
+    "source_delta_after": []
+  },
+  "P40": "same effective-corpus planning intake class as C11-review-4 adaptive branch; second same-class worked example requires canonical widening across cold single/batch/adaptive planning; no new refit law",
+  "minimal_owned_requirement": "Use effective eligible deduped corpus count at cold Sobol single/batch index and existing effective corpus for adaptive plan. Preserve current request/refit iteration semantics, batch qEI contract, accepted/rejected separation, duplicate/independent replica semantics.",
+  "qualification": "Actual supported Sobol normalized candidates from original fixture subset; no sampler spies, GP fit or acquisition optimization; not full chain or production/formal closure",
+  "source_disposition": "HOLD_FOR_OWNED_APPEND_ONLY_B114_REPAIR",
+  "evidence": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-packet/inputs.json",
+      "bytes": 5001,
+      "sha256": "6a669cf1fadb00d773d59feca17b8e16703a613ff6d64016ea6bbf64f05f3a34"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-packet/observations.json",
+      "bytes": 2910,
+      "sha256": "3f08fb6c4a40fb34082c8f233b452778ab703fc23a53bfb127ca28ec3a6c3604"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/execution.json",
+      "bytes": 5194,
+      "sha256": "8be7df11036754053ea0b63b0482ad5a74665f380787ecee83027aca62ee5caf"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/stdout.txt",
+      "bytes": 2910,
+      "sha256": "3f08fb6c4a40fb34082c8f233b452778ab703fc23a53bfb127ca28ec3a6c3604"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-cold-plan-boundary/stderr.txt",
+      "bytes": 2251,
+      "sha256": "62974866866aea268c8c5ed3219a9839bc568416abeb475448b69888a106b9a7"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/b114_cold_plan_boundary.py",
+      "bytes": 4219,
+      "sha256": "364988553eedf404ecf895090bf506759aef3548b67052b1081ac3ae85033815"
+    }
+  ]
+}

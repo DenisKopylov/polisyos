@@ -298,7 +298,7 @@ def _git_status_paths(root: Path) -> tuple[list[str], dict[str, Any]]:
         record = os.fsdecode(chunk)
         if len(record) >= 4:
             names.add(record[3:])
-        if record[:2] in {"R ", " R", "RM", "AM", " M", "M ", "C ", " C"}:
+        if any(status in {"R", "C"} for status in record[:2]):
             if i < len(chunks) and chunks[i]:
                 names.add(os.fsdecode(chunks[i]))
                 i += 1

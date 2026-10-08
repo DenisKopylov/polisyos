@@ -846,3 +846,223 @@ def test_dfk_01_real_foundry_runner_executes_canonical_mechanism() -> None:
     assert final_state.agents.income[:2].tolist() == pytest.approx([90.0, 180.0])
     assert float(metrics["taxation/total_tax_collected"][0]) == pytest.approx(30.0)
     assert int(final_state.time_step) == 1
+
+
+def _changed_git_paths_oracle(root: Path) -> set[str]:
+    """Derive changed names using independent index/worktree diff operations."""
+    commands = (
+        ["git", "diff", "--relative", "--name-only", "--no-renames", "-z", "--", "."],
+        ["git", "diff", "--cached", "--relative", "--name-only", "--no-renames", "-z", "--", "."],
+        ["git", "ls-files", "--others", "--exclude-standard", "-z", "--", "."],
+    )
+    paths: set[str] = set()
+    for command in commands:
+        output = subprocess.run(command, cwd=root, capture_output=True, check=True).stdout
+        paths.update(os.fsdecode(name) for name in output.split(b"\0") if name)
+    return paths
+
+
+@pytest.mark.parametrize("status_mode", ["staged", "unstaged", "added_then_modified"])
+@pytest.mark.parametrize("product_directory", ["", "policy-engine"])
+def test_dfk_01_census_preserves_two_ordinary_git_status_records(
+    tmp_path: Path, status_mode: str, product_directory: str
+) -> None:
+    """Each non-rename Git record contributes its own unquoted path."""
+    prefix = f"{product_directory}/" if product_directory else ""
+    relative_names = ("configs/01 path.json", "configs/02\nпуть.json")
+    files = {f"{prefix}{name}": "{}\n" for name in relative_names}
+    initial_files = (
+        {f"{prefix}base.json": "{}\n"} if status_mode == "added_then_modified" else files
+    )
+    if product_directory:
+        initial_files = {**initial_files, "outside.json": "{}\n"}
+    _init_census_repository(tmp_path, initial_files)
+    if status_mode == "added_then_modified":
+        for name, content in files.items():
+            path = tmp_path / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        subprocess.run(["git", "add", "--all"], cwd=tmp_path, check=True)
+    for name in files:
+        (tmp_path / name).write_text(
+            '{"module": "polisyos.foundry.domain.schema"}\n', encoding="utf-8"
+        )
+    if status_mode == "staged":
+        subprocess.run(["git", "add", "--all"], cwd=tmp_path, check=True)
+    product_root = tmp_path / product_directory if product_directory else tmp_path
+    if product_directory:
+        (tmp_path / "outside.json").write_text('{"outside": true}\n', encoding="utf-8")
+
+    completed, receipt = _run_census(product_root)
+
+    assert completed.returncode == 0
+    assert receipt["selection"]["working_tree_changes"] == sorted(relative_names)
+    assert set(receipt["selection"]["working_tree_changes"]) == _changed_git_paths_oracle(
+        product_root
+    )
+    selected_names = set(relative_names)
+    if status_mode == "added_then_modified":
+        selected_names.add("base.json")
+    assert set(receipt["selection"]["selected_paths"]) == selected_names
+    assert receipt["scanned_denominator"]["successful_byte_reads"] == len(selected_names)
+    assert receipt["read_receipt"]["complete_verdict"] is True
+    assert {hit["path"] for hit in receipt["matches"]} == set(relative_names)
+
+
+@pytest.mark.parametrize("product_directory", ["", "policy-engine"])
+@pytest.mark.parametrize("modify_destination", [False, True])
+def test_dfk_01_census_preserves_both_rename_paths_and_next_record(
+    tmp_path: Path, product_directory: str, modify_destination: bool
+) -> None:
+    """A real rename consumes exactly its source path, retaining the next record."""
+    from tools.quality.validation.schema_fqn_census import _git_status_paths
+
+    prefix = f"{product_directory}/" if product_directory else ""
+    source_name = "configs/01 old.json"
+    destination_name = "configs/02\nnew.json"
+    sibling_name = "configs/03 sibling.json"
+    files = {
+        f"{prefix}{source_name}": '{"module": "polisyos.foundry.domain.schema"}\n',
+        f"{prefix}{sibling_name}": "{}\n",
+    }
+    if product_directory:
+        files = {**files, "outside.json": "{}\n"}
+    _init_census_repository(tmp_path, files)
+    subprocess.run(["git", "config", "status.renames", "true"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "mv", "--", f"{prefix}{source_name}", f"{prefix}{destination_name}"],
+        cwd=tmp_path,
+        check=True,
+    )
+    (tmp_path / f"{prefix}{sibling_name}").write_text(
+        '{"module": "polisyos.data_forge.kernel.schemas.codegen"}\n', encoding="utf-8"
+    )
+    product_root = tmp_path / product_directory if product_directory else tmp_path
+    if modify_destination:
+        with (product_root / destination_name).open("a", encoding="utf-8") as stream:
+            stream.write("\n")
+    if product_directory:
+        (tmp_path / "outside.json").write_text('{"outside": true}\n', encoding="utf-8")
+
+    raw_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
+        cwd=tmp_path,
+        capture_output=True,
+        check=True,
+    ).stdout
+    expected_status = b"RM" if modify_destination else b"R "
+    expected_rename = (
+        expected_status
+        + b" "
+        + os.fsencode(prefix + destination_name)
+        + b"\0"
+        + os.fsencode(prefix + source_name)
+        + b"\0"
+    )
+    assert expected_rename in raw_status
+
+    changed_paths, status_receipt = _git_status_paths(product_root)
+    completed, receipt = _run_census(product_root)
+
+    assert status_receipt["returncode"] == status_receipt["prefix_returncode"] == 0
+    assert changed_paths == sorted([source_name, destination_name, sibling_name])
+    assert set(changed_paths) == _changed_git_paths_oracle(product_root)
+    assert completed.returncode == 0
+    assert receipt["selection"]["working_tree_changes"] == sorted([destination_name, sibling_name])
+    assert set(receipt["selection"]["working_tree_changes"]) == (
+        _changed_git_paths_oracle(product_root) & set(receipt["selection"]["selected_paths"])
+    )
+    assert set(receipt["selection"]["selected_paths"]) == {destination_name, sibling_name}
+    assert receipt["scanned_denominator"]["successful_byte_reads"] == 2
+    assert not any(hit["path"] == source_name for hit in receipt["matches"])
+    assert {hit["path"] for hit in receipt["matches"]} == {destination_name, sibling_name}
+
+
+@pytest.mark.parametrize("product_directory", ["", "policy-engine"])
+def test_dfk_01_census_reports_clean_real_git_input(tmp_path: Path, product_directory: str) -> None:
+    """Clean status leaves all declared selected files in the read denominator."""
+    prefix = f"{product_directory}/" if product_directory else ""
+    files = {
+        f"{prefix}configs/01 path.json": "{}\n",
+        f"{prefix}configs/02\nnext.json": "{}\n",
+    }
+    _init_census_repository(tmp_path, files)
+    product_root = tmp_path / product_directory if product_directory else tmp_path
+
+    completed, receipt = _run_census(product_root)
+
+    assert completed.returncode == 0
+    assert receipt["selection"]["working_tree_changes"] == []
+    assert _changed_git_paths_oracle(product_root) == set()
+    assert set(receipt["selection"]["selected_paths"]) == {
+        name.removeprefix(prefix) for name in files
+    }
+    assert receipt["scanned_denominator"]["successful_byte_reads"] == len(files)
+    assert receipt["read_receipt"]["complete_verdict"] is True
+
+
+@pytest.mark.parametrize("product_directory", ["", "policy-engine"])
+def test_dfk_01_census_preserves_both_copy_paths_and_next_record(
+    tmp_path: Path, product_directory: str
+) -> None:
+    """A real copy consumes its source path and retains ordinary records after it."""
+    from tools.quality.validation.schema_fqn_census import _git_status_paths
+
+    prefix = f"{product_directory}/" if product_directory else ""
+    source_name = "configs/01 source.json"
+    destination_name = "configs/02\nкопия.json"
+    sibling_name = "configs/03 sibling.json"
+    source_content = (
+        json.dumps(
+            {
+                "module": "polisyos.foundry.domain.schema",
+                "values": [f"value-{index}" for index in range(100)],
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+    files = {
+        f"{prefix}{source_name}": source_content,
+        f"{prefix}{sibling_name}": "{}\n",
+    }
+    if product_directory:
+        files["outside.json"] = "{}\n"
+    _init_census_repository(tmp_path, files)
+    subprocess.run(["git", "config", "status.renames", "copies"], cwd=tmp_path, check=True)
+    (tmp_path / f"{prefix}{destination_name}").write_text(source_content, encoding="utf-8")
+    (tmp_path / f"{prefix}{source_name}").write_text(source_content + "\n", encoding="utf-8")
+    (tmp_path / f"{prefix}{sibling_name}").write_text(
+        '{"module": "polisyos.data_forge.kernel.schemas.codegen"}\n', encoding="utf-8"
+    )
+    subprocess.run(["git", "add", "--all"], cwd=tmp_path, check=True)
+    product_root = tmp_path / product_directory if product_directory else tmp_path
+    if product_directory:
+        (tmp_path / "outside.json").write_text('{"outside": true}\n', encoding="utf-8")
+
+    raw_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
+        cwd=tmp_path,
+        capture_output=True,
+        check=True,
+    ).stdout
+    expected_copy = (
+        b"C  "
+        + os.fsencode(prefix + destination_name)
+        + b"\0"
+        + os.fsencode(prefix + source_name)
+        + b"\0"
+    )
+    assert expected_copy in raw_status
+
+    changed_paths, status_receipt = _git_status_paths(product_root)
+    completed, receipt = _run_census(product_root)
+    expected_paths = {source_name, destination_name, sibling_name}
+
+    assert status_receipt["returncode"] == status_receipt["prefix_returncode"] == 0
+    assert set(changed_paths) == expected_paths == _changed_git_paths_oracle(product_root)
+    assert completed.returncode == 0
+    assert set(receipt["selection"]["working_tree_changes"]) == expected_paths
+    assert set(receipt["selection"]["selected_paths"]) == expected_paths
+    assert receipt["scanned_denominator"]["successful_byte_reads"] == len(expected_paths)
+    assert {hit["path"] for hit in receipt["matches"]} == expected_paths

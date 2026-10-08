@@ -1,0 +1,17 @@
+id = "2026-10-08-e02-orch02-c06-dfk-census"
+title = "Schema census retains ordinary and rename/copy Git paths"
+type = "fixed"
+component = "data-forge"
+owner = "team-polisyos"
+summary = "The Git census consumes a second NUL path only for rename/copy records, retaining consecutive ordinary staged, unstaged and added-then-modified paths."
+evidence = [
+  "tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_two_ordinary_git_status_records",
+  "tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_both_rename_paths_and_next_record",
+  "tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_preserves_both_copy_paths_and_next_record",
+]
+compatibility = "No package addresses or stored objects are changed. The pipeline.schemas identity alias and its pending published-notice window remain in effect."
+change_class = "internal"
+surface_classification = "internal: tools.quality.validation.schema_fqn_census"
+migration = "No migration is required for the corrected selected-text census input reporting."
+limitations = "This repair does not establish computed-loader, installed-distribution, historical or external-client absence and grants no additional retirement authority."
+generated_client_compatibility = "not_applicable"

@@ -1681,6 +1681,7 @@ class RecursiveGenerationCycleController:
                             eval_safety_verifier=self._eval_safety_verifier,
                             repo_root=self._repo_root,
                             cycle_substrate_context=context,
+                            artifact_store=self._artifact_store,
                         )
                         if evaluation_context is not None
                         else None

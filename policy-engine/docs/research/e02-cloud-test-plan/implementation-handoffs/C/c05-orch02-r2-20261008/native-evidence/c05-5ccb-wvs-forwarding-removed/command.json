@@ -1,0 +1,86 @@
+{
+  "schema": "orch02r2.native-command.v1",
+  "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "repo": "/workspace/orch02-c05",
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp",
+    "--junitxml",
+    "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/junit.xml",
+    "-q",
+    "-p",
+    "orch02_c05_wvs_probe",
+    "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation"
+  ],
+  "timeout_seconds": null,
+  "executable_path": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "executable_resolved": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "executable_sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine/tests:/workspace/orch02-r2/native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/cas",
+    "ORCH02_OUTPUT_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed"
+  },
+  "explicit_external_plugins": {
+    "orch02_c05_wvs_probe": "9379492513946a020f1ff244c8157d53dd19ad59ea30649880b8b706dadea158"
+  },
+  "source_status_before": "",
+  "source_status_all_before": "",
+  "environment_profile": "/workspace/orch02-r2/native-c05-c12/environment-readiness.json",
+  "environment_profile_sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462",
+  "plugin_sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e",
+  "harness_sha256": "aa4271ce3e5ba3682c5ae81c3d539005095e13dcfb4e2c6ada7191037cc47fe4",
+  "command_python_input": {},
+  "disk_available_bytes_before": 11218169856,
+  "started_at_utc": "2026-10-08T19:54:25.057554+00:00",
+  "exit_code": 1,
+  "wall_seconds": 7.451565847000893,
+  "finished_at_utc": "2026-10-08T19:54:32.509140+00:00",
+  "source_status_after": "",
+  "source_sha_after": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_status_all_after": "",
+  "source_binding_intact": true,
+  "disk_available_bytes_after": 11218001920,
+  "outputs": {
+    "junit.xml": {
+      "bytes": 2765,
+      "sha256": "7c560775d11e9c81b718ac0ce038d5cf0aae466515ebbdeb387057e0125643a0"
+    },
+    "wvs-events.json": {
+      "bytes": 3221,
+      "sha256": "ce80fecd7e197a418fa93995d9d4e32e1dae7bdb7093c1cb22728be015c658d9"
+    },
+    "stdout.txt": {
+      "bytes": 2926,
+      "sha256": "d2801023bfe0f65648a31a85e508e65de4dddda786bc90092f0ddb2b1dc65b70"
+    },
+    "runtime-origins.json": {
+      "bytes": 91207,
+      "sha256": "f9147aa663542e0feb09f2899b50e411e35073ec0ef4b2606d1527feaaa394cb"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "selected-tests.json": {
+      "bytes": 527,
+      "sha256": "dcea33b33aad6ac089b1d4b63d3d76ae4cf7f8372c5c9f0666fb4088efa6c956"
+    },
+    "resource.json": {
+      "bytes": 282,
+      "sha256": "e48bf9e1c7e748617c3f04d26bd6d52569f134e036890891a4f465d2bfa69ae4"
+    }
+  }
+}

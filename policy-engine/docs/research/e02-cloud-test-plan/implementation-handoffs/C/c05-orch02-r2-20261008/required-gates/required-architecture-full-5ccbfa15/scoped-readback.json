@@ -1,0 +1,387 @@
+{
+  "schema": "policyos.e02.c05.full-default-architecture-readback.v1",
+  "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "outcome": "FAIL",
+  "actual_returncode": 1,
+  "wall_seconds": 375.6799151689993,
+  "max_rss_kib": 1111400,
+  "command": "command.json",
+  "all_default_families_enabled": true,
+  "stdout": {
+    "bytes": 122327,
+    "sha256": "65f31ce8dc308c2150809703c8075ef34f305c5d0865cbc61e28f89ee634065a"
+  },
+  "stderr": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout_line_count": 2120,
+  "source_clean_before_after": true,
+  "all_tracked_python_inputs_intact": true,
+  "private_copied_python_input_count": 5909,
+  "private_copied_python_mismatches": [],
+  "total_issue_rows": 160,
+  "baseline_drift_rows": [
+    "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline."
+  ],
+  "deep_import_count": 157,
+  "owned_deep_import_edges": [
+    "- New deep-import creep detected: polisyos.data_forge.domains.catalog.batch.config -> polisyos.fabric.connectors (src/polisyos/data_forge/domains/catalog/batch/config.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.data_forge.domains.catalog.batch.config -> polisyos.fabric.connectors.profiles (src/polisyos/data_forge/domains/catalog/batch/config.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.data_forge.domains.catalog.batch.config -> polisyos.fabric.connectors.profiles.resolver (src/polisyos/data_forge/domains/catalog/batch/config.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.data_forge.domains.catalog.batch.core_sources.loaders -> polisyos.ir.connectors (src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.fabric.retrieval.service -> polisyos.core.artifacts (src/polisyos/fabric/retrieval/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.fabric.retrieval.service -> polisyos.data_forge.domains.catalog (src/polisyos/fabric/retrieval/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception."
+  ],
+  "other_deep_import_edges": 151,
+  "all_other_issue_rows": [
+    "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline.",
+    "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/orch02-c05/policy-engine/schemas/runtime_api_v1.openapi.json.",
+    "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c05/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+  ],
+  "families": [
+    {
+      "family": "runtime-openapi-snapshot",
+      "status": "FAIL",
+      "unrun_rows": [],
+      "finding_rows": [
+        "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/orch02-c05/policy-engine/schemas/runtime_api_v1.openapi.json."
+      ],
+      "clean_rows": [],
+      "declared_outputs": [
+        "schemas/runtime_api_v1.openapi.json"
+      ],
+      "declared_output_probe_command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONNOUSERSITE=1",
+        "PYTHONHASHSEED=0",
+        "JAX_PLATFORMS=cpu",
+        "PYTHONPATH=src:.",
+        "uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "{output_root}/schemas/runtime_api_v1.openapi.json"
+      ],
+      "output_count": 1,
+      "outputs": [
+        {
+          "family": "runtime-openapi-snapshot",
+          "path": "schemas/runtime_api_v1.openapi.json",
+          "generated": {
+            "bytes": 2812414,
+            "sha256": "ea698f0ecd27151ec6e6cedf658e332c2777cbed9e6c0d82182db47d12d18a6d"
+          },
+          "current": {
+            "bytes": 2812414,
+            "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+          },
+          "matches_current": false
+        }
+      ]
+    },
+    {
+      "family": "runtime-api-client",
+      "status": "PASS",
+      "unrun_rows": [],
+      "finding_rows": [],
+      "clean_rows": [
+        "Generated artifact freshness clean: runtime-api-client (3 generator-observed outputs)."
+      ],
+      "declared_outputs": [
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "declared_output_probe_command": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-api-client",
+        "run",
+        "generate",
+        "--",
+        "--openapi",
+        "schemas/runtime_api_v1.openapi.json",
+        "--output-root",
+        "{output_root}"
+      ],
+      "output_count": 3,
+      "outputs": [
+        {
+          "family": "runtime-api-client",
+          "path": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "generated": {
+            "bytes": 31276,
+            "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+          },
+          "current": {
+            "bytes": 31276,
+            "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+          },
+          "matches_current": true
+        },
+        {
+          "family": "runtime-api-client",
+          "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "generated": {
+            "bytes": 108061,
+            "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+          },
+          "current": {
+            "bytes": 108061,
+            "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+          },
+          "matches_current": true
+        },
+        {
+          "family": "runtime-api-client",
+          "path": "packages/runtime-api-client/types.ts",
+          "generated": {
+            "bytes": 951543,
+            "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+          },
+          "current": {
+            "bytes": 951543,
+            "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+          },
+          "matches_current": true
+        }
+      ]
+    },
+    {
+      "family": "runtime-dashboard-api-types",
+      "status": "PASS",
+      "unrun_rows": [],
+      "finding_rows": [],
+      "clean_rows": [
+        "Generated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs)."
+      ],
+      "declared_outputs": [
+        "apps/runtime-dashboard/src/api/types.ts"
+      ],
+      "declared_output_probe_command": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "run",
+        "generate:api",
+        "--",
+        "--openapi",
+        "schemas/runtime_api_v1.openapi.json",
+        "--output-root",
+        "{output_root}"
+      ],
+      "output_count": 1,
+      "outputs": [
+        {
+          "family": "runtime-dashboard-api-types",
+          "path": "apps/runtime-dashboard/src/api/types.ts",
+          "generated": {
+            "bytes": 791736,
+            "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+          },
+          "current": {
+            "bytes": 791736,
+            "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+          },
+          "matches_current": true
+        }
+      ]
+    },
+    {
+      "family": "trust-claim-posture-register",
+      "status": "FAIL",
+      "unrun_rows": [],
+      "finding_rows": [
+        "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/orch02-c05/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+      ],
+      "clean_rows": [],
+      "declared_outputs": [
+        "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+      ],
+      "declared_output_probe_command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python",
+        "tools/quality/validation/check_trust_claim_posture.py",
+        "--repo-root",
+        ".",
+        "--write",
+        "--output-root",
+        "{output_root}"
+      ],
+      "output_count": 1,
+      "outputs": [
+        {
+          "family": "trust-claim-posture-register",
+          "path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "generated": {
+            "bytes": 2376644,
+            "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119"
+          },
+          "current": {
+            "bytes": 2365635,
+            "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+          },
+          "matches_current": false
+        }
+      ]
+    }
+  ],
+  "family_status_counts": {
+    "PASS": 2,
+    "FAIL": 2,
+    "UNRUN": 0,
+    "UNESTABLISHED": 0
+  },
+  "output_file_denominator": 6,
+  "full_default_UNRUN_rows": [],
+  "family_isolation_escape_rows": [],
+  "config_input_bindings": [
+    {
+      "path": "architecture/generated_artifacts.toml",
+      "current": {
+        "bytes": 253707,
+        "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+      },
+      "copied_source": {
+        "bytes": 253707,
+        "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+      },
+      "equal": true
+    },
+    {
+      "path": "architecture/public_surface/contract.toml",
+      "current": {
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+      },
+      "copied_source": {
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+      },
+      "equal": true
+    },
+    {
+      "path": "architecture/public_surface/inventory.json",
+      "current": {
+        "bytes": 220738,
+        "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d"
+      },
+      "copied_source": {
+        "bytes": 220738,
+        "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d"
+      },
+      "equal": true
+    },
+    {
+      "path": "architecture/baselines/imports/deep_import.json",
+      "current": {
+        "bytes": 947189,
+        "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7"
+      },
+      "copied_source": {
+        "bytes": 947189,
+        "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7"
+      },
+      "equal": true
+    },
+    {
+      "path": "architecture/exceptions/guardrails.toml",
+      "current": {
+        "bytes": 1500,
+        "sha256": "74ae792dcdf30f565b9ff2798519a89e6da048aeaf0f9e5426d600f8a3cc0274"
+      },
+      "copied_source": {
+        "bytes": 1500,
+        "sha256": "74ae792dcdf30f565b9ff2798519a89e6da048aeaf0f9e5426d600f8a3cc0274"
+      },
+      "equal": true
+    },
+    {
+      "path": "architecture/guardrail_exceptions_registry.md",
+      "current": {
+        "bytes": 693,
+        "sha256": "aaeebf20154db7724f3abc3af7d4be25539461c55d296b9eb3d8f9bc9f317650"
+      },
+      "copied_source": {
+        "bytes": 693,
+        "sha256": "aaeebf20154db7724f3abc3af7d4be25539461c55d296b9eb3d8f9bc9f317650"
+      },
+      "equal": true
+    },
+    {
+      "path": "pyproject.toml",
+      "current": {
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "copied_source": {
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "equal": true
+    },
+    {
+      "path": "uv.lock",
+      "current": {
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "copied_source": {
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "equal": true
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "current": {
+        "bytes": 482583,
+        "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+      },
+      "copied_source": {
+        "bytes": 482583,
+        "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+      },
+      "equal": true
+    },
+    {
+      "path": "package.json",
+      "current": {
+        "bytes": 802,
+        "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f"
+      },
+      "copied_source": {
+        "bytes": 802,
+        "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f"
+      },
+      "equal": true
+    },
+    {
+      "path": "tools/devx/architecture/guardrails.py",
+      "current": {
+        "bytes": 103077,
+        "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+      },
+      "copied_source": {
+        "bytes": 103077,
+        "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+      },
+      "equal": true
+    }
+  ],
+  "optional_or_standalone_Atlas_included": false,
+  "P41": "not_established; no inherited-green attribution",
+  "private_snapshots_and_generated_bytes_not_published": true,
+  "client_dashboard_qualification": "Successful generation compares each family to committed schema input; this is not a refreshed downstream chain from separately regenerated OpenAPI."
+}

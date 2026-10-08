@@ -1,0 +1,191 @@
+{
+  "schema": "orch02r2.actual-c05-session-probe.v1",
+  "mode": "remove_reuse",
+  "raw_pytest_exitstatus": 1,
+  "events": [
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "kind": "fixture_setup",
+      "mode": "remove_reuse",
+      "canonical_cache_origin": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "kind": "actual_canonical_cache_get",
+      "cache_id": 139728879902336,
+      "handle_id": 139728875416576,
+      "previous_handle_id": null,
+      "reuse_removed": true
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "kind": "actual_connector_session",
+      "connector": "worldbank",
+      "handle_id": 139728875416576,
+      "session_id": 139728879908384,
+      "native_type": "aiohttp.client.ClientSession",
+      "closed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "kind": "actual_canonical_cache_get",
+      "cache_id": 139728879902336,
+      "handle_id": 139728876406880,
+      "previous_handle_id": 139728875416576,
+      "reuse_removed": true
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "kind": "actual_connector_session",
+      "connector": "worldbank",
+      "handle_id": 139728876406880,
+      "session_id": 139728876011936,
+      "native_type": "aiohttp.client.ClientSession",
+      "closed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "kind": "actual_canonical_cache_close",
+      "cache_id": 139728879902336,
+      "all_observed_sessions_closed": true,
+      "observed_sessions": {
+        "139728875416576": {
+          "session_id": 139728879908384,
+          "closed": true
+        },
+        "139728876406880": {
+          "session_id": 139728876011936,
+          "closed": true
+        }
+      },
+      "deliberate_mutant_orphan_cleanup_handles": [
+        139728875416576
+      ],
+      "worldbank_session_state_none": true
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "kind": "actual_persisted_ingest",
+      "completed_shards": 2,
+      "failures": 0,
+      "observations": 2,
+      "actual_sql_values": [
+        [
+          2.5
+        ],
+        [
+          2.5
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "kind": "fixture_setup",
+      "mode": "remove_reuse",
+      "canonical_cache_origin": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "kind": "actual_canonical_cache_get",
+      "cache_id": 139728876150352,
+      "handle_id": 139728876954272,
+      "previous_handle_id": null,
+      "reuse_removed": true
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "kind": "actual_connector_session",
+      "connector": "worldbank",
+      "handle_id": 139728876954272,
+      "session_id": 139728879907376,
+      "native_type": "aiohttp.client.ClientSession",
+      "closed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "kind": "actual_canonical_cache_get",
+      "cache_id": 139728876150352,
+      "handle_id": 139728736414080,
+      "previous_handle_id": 139728876954272,
+      "reuse_removed": true
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "kind": "actual_connector_session",
+      "connector": "worldbank",
+      "handle_id": 139728736414080,
+      "session_id": 139728879907040,
+      "native_type": "aiohttp.client.ClientSession",
+      "closed": false
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "kind": "actual_canonical_cache_close",
+      "cache_id": 139728876150352,
+      "all_observed_sessions_closed": true,
+      "observed_sessions": {
+        "139728876954272": {
+          "session_id": 139728879907376,
+          "closed": true
+        },
+        "139728736414080": {
+          "session_id": 139728879907040,
+          "closed": true
+        }
+      },
+      "deliberate_mutant_orphan_cleanup_handles": [
+        139728876954272
+      ],
+      "worldbank_session_state_none": true
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "kind": "actual_persisted_ingest",
+      "completed_shards": 0,
+      "failures": 2,
+      "observations": 0,
+      "actual_sql_values": []
+    }
+  ],
+  "reports": [
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "when": "setup",
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "when": "call",
+      "outcome": "failed"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+      "when": "teardown",
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "when": "setup",
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "when": "call",
+      "outcome": "failed"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+      "when": "teardown",
+      "outcome": "passed"
+    }
+  ],
+  "removed_quantity": "Only worldbank existing-cache reuse; force canonical connect per request",
+  "actual_retained": [
+    "canonical cache class and original connect/get_session/fetch/disconnect",
+    "owned API dispatch/lifecycle",
+    "real ClientSession and DuckDB rows",
+    "unchanged owned assertions"
+  ],
+  "parallel_boundary": "Borrowed Eurostat async transport/capability callbacks controlled by its owned fixture; observe actual API cache-close/SQL/lease assertions, no claim an absent lazy HTTP session was created",
+  "source_files_changed": false
+}

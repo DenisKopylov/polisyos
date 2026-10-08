@@ -1,0 +1,812 @@
+{
+  "kind": "c05-seed",
+  "removal": {
+    "kind": "member",
+    "quantity": "freeze only seed_variable_alignments contribution bytes before first producer",
+    "held_markers": true,
+    "source_files_changed": false
+  },
+  "owned_fixture_source": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py",
+  "source_sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f",
+  "oracle": "literal actual SQL/benchmark/native outputs; assertion observations continue beyond digest failures",
+  "verdict": "DISCRIMINATING",
+  "error": null,
+  "events": [
+    {
+      "line": 1746,
+      "expression": "connector._base_url(handle) == url",
+      "holds": true,
+      "actual_left": "https://example.test/original",
+      "expected_right": "https://example.test/original",
+      "fetch_urls": []
+    },
+    {
+      "line": 1747,
+      "expression": "url in {'https://example.test/original', 'https://example.test/changed'}",
+      "holds": true,
+      "actual_left": "https://example.test/original",
+      "expected_right": "{'https://example.test/original', 'https://example.test/changed'}",
+      "fetch_urls": []
+    },
+    {
+      "line": 1760,
+      "expression": "initial.metrics['core_observations'] == 1",
+      "holds": true,
+      "actual_left": 1,
+      "expected_right": 1,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1761,
+      "expression": "fetch_urls == ['https://example.test/original']",
+      "holds": true,
+      "actual_left": [
+        "https://example.test/original"
+      ],
+      "expected_right": [
+        "https://example.test/original"
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1768,
+      "expression": "initial_rows == [('wb-gdp', 'NY.GDP.MKTP.CD', 'UA', 2020, 1.1)]",
+      "holds": true,
+      "actual_left": [
+        [
+          "wb-gdp",
+          "NY.GDP.MKTP.CD",
+          "UA",
+          2020,
+          1.1
+        ]
+      ],
+      "expected_right": [
+        [
+          "wb-gdp",
+          "NY.GDP.MKTP.CD",
+          "UA",
+          2020,
+          1.1
+        ]
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1769,
+      "expression": "initial_report['evaluation_mode'] == 'full-ready'",
+      "holds": true,
+      "actual_left": "full-ready",
+      "expected_right": "full-ready",
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1770,
+      "expression": "initial_report['diagnostic_context']['core_output_receipt_current'] is True",
+      "holds": true,
+      "actual_left": true,
+      "expected_right": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1771,
+      "expression": "_current_core_output_receipt_state(config).is_current",
+      "holds": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1772,
+      "expression": "_should_skip_stage(config, 'benchmark')",
+      "holds": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1778,
+      "expression": "initial_evidence == [('seed_worldbank_wdi;source=worldbank',)]",
+      "holds": true,
+      "actual_left": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "expected_right": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1791,
+      "expression": "config.run_signature == initial_signature",
+      "holds": true,
+      "actual_left": "bd8c1494902beae8c652e5efcbf40640e8a9231550ce50f67af4855cb8ca2148",
+      "expected_right": "bd8c1494902beae8c652e5efcbf40640e8a9231550ce50f67af4855cb8ca2148",
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1793,
+      "expression": "fetch_urls == ['https://example.test/original']",
+      "holds": true,
+      "actual_left": [
+        "https://example.test/original"
+      ],
+      "expected_right": [
+        "https://example.test/original"
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1813,
+      "expression": "seed_path.stat().st_size == previous_seed_stat.st_size",
+      "holds": true,
+      "actual_left": 170,
+      "expected_right": 170,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1815,
+      "expression": "seed_path.stat().st_mtime_ns == previous_seed_stat.st_mtime_ns",
+      "holds": true,
+      "actual_left": 1791489237066668850,
+      "expected_right": 1791489237066668850,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1819,
+      "expression": "registry_path.read_bytes() == registry_bytes",
+      "holds": true,
+      "actual_left": {
+        "bytes": 286,
+        "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b"
+      },
+      "expected_right": {
+        "bytes": 286,
+        "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b"
+      },
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1820,
+      "expression": "config.stage_state_path.read_bytes() == marker_bytes",
+      "holds": true,
+      "actual_left": {
+        "bytes": 20911,
+        "sha256": "dce8a35576fc8cb3afb4ffcf2cdf08586e8d5db4db3f165588f080eb15b9d963"
+      },
+      "expected_right": {
+        "bytes": 20911,
+        "sha256": "dce8a35576fc8cb3afb4ffcf2cdf08586e8d5db4db3f165588f080eb15b9d963"
+      },
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1821,
+      "expression": "config.observation_ingest_checkpoint_path.read_bytes() == checkpoint_bytes",
+      "holds": true,
+      "actual_left": {
+        "bytes": 4454,
+        "sha256": "4dadbf7578861d8ca20abd77bd26a92244040e2e6a59bb5eb98b41f5dc4a9df2"
+      },
+      "expected_right": {
+        "bytes": 4454,
+        "sha256": "4dadbf7578861d8ca20abd77bd26a92244040e2e6a59bb5eb98b41f5dc4a9df2"
+      },
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1822,
+      "expression": "config.benchmark_report_path.read_bytes() == report_bytes",
+      "holds": true,
+      "actual_left": {
+        "bytes": 25056,
+        "sha256": "effce930f465d519710dd89f3235d851f62adb9d6ed94474cb6a998cf0979e35"
+      },
+      "expected_right": {
+        "bytes": 25056,
+        "sha256": "effce930f465d519710dd89f3235d851f62adb9d6ed94474cb6a998cf0979e35"
+      },
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1823,
+      "expression": "config.run_signature != initial_signature",
+      "holds": false,
+      "actual_left": "bd8c1494902beae8c652e5efcbf40640e8a9231550ce50f67af4855cb8ca2148",
+      "expected_right": "bd8c1494902beae8c652e5efcbf40640e8a9231550ce50f67af4855cb8ca2148",
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1829,
+      "expression": "held_evidence == initial_evidence",
+      "holds": true,
+      "actual_left": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "expected_right": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1830,
+      "expression": "not _current_core_output_receipt_state(config).is_current",
+      "holds": false,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1831,
+      "expression": "not _should_skip_stage(config, 'benchmark')",
+      "holds": false,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1832,
+      "expression": "current_content_stage_receipt(config, 'benchmark') is None",
+      "holds": false,
+      "actual_left": {
+        "stage": "benchmark",
+        "input_basis": {
+          "basis_digest": "7974c2a9e06b59619e47437430e0318172135a73765ada22d76ebda65d9987bb",
+          "config": {
+            "active_countries": [
+              "UA"
+            ],
+            "active_year_window": [
+              2020,
+              2020
+            ],
+            "core_output_receipt_state": {
+              "expected": true,
+              "matches_checkpoint_and_stage": true,
+              "recomputed_receipt_digest": "sha256:5ef4e0811d9433fd7df6bd7a124f4d85aed5c3a8fb4418b19ea2f43dfa961c69"
+            },
+            "core_sources_ingest_stage_state": {
+              "input_fingerprint": "aa24364792840bd1d6645be4f7d3a07e3cf3d229eb4b1a6156992b1706971764:bd8c1494902beae8c652e5efcbf40640e8a9231550ce50f67af4855cb8ca2148",
+              "metadata": {
+                "async_jobs_open": 0,
+                "avg_rows_per_shard": 0.0,
+                "backfill_pending": 0,
+                "blocked_by_source": {},
+                "bytes_downloaded_by_source": {},
+                "capability_failures_by_source": {},
+                "completed_by_source": {},
+                "completed_shards": 0,
+                "core_output_receipt": {
+                  "backfill_pending": 0,
+                  "basis": {
+                    "basis_digest": "sha256:5ef4e0811d9433fd7df6bd7a124f4d85aed5c3a8fb4418b19ea2f43dfa961c69",
+                    "basis_kind": "catalog_core_ingest_output",
+                    "generator_rule_version": "policyos.catalog.core_ingest_output.v1",
+                    "members": [
+                      {
+                        "content_identity": "sha256:c6eb09be6a336934f988b7784ee22f1175dbaf54717728f9d0449fe84fb3774a",
+                        "identifier": "current_plan_and_ledger"
+                      },
+                      {
+                        "content_identity": "sha256:2acb1bbd2566ab2eb573fb198fc19d6276ebe403c5225c4f645461b051e24898",
+                        "identifier": "persisted_catalog_tables"
+                      }
+                    ],
+                    "schema_version": "policyos.generation_basis.v1"
+                  },
+                  "basis_digest": "sha256:5ef4e0811d9433fd7df6bd7a124f4d85aed5c3a8fb4418b19ea2f43dfa961c69",
+                  "completed_shards": 1,
+                  "publishable_core_complete": true,
+                  "publishable_core_pending": 0,
+                  "required_shards": 1,
+                  "schema": "policyos.catalog.core_ingest_output_receipt.v1",
+                  "selected_pending": 0,
+                  "selected_work_complete": true
+                },
+                "current_phase": "deferred",
+                "deferred_by_reason": {},
+                "deferred_ratio": 0.0,
+                "deferred_shards": 0,
+                "empty_fetch_ratio": 0.0,
+                "empty_ratio_by_source": {},
+                "failed_shards": 0,
+                "failures": 0,
+                "inflight_by_source": {},
+                "observation_mode": "core",
+                "observations": 0,
+                "planned_work_packages": 1,
+                "planner_phase": "deferred",
+                "planner_pruned_shards": 0,
+                "publishable_core_complete": true,
+                "publishable_core_pending": 0,
+                "queue_backlog_by_source": {},
+                "quota_wait_seconds_by_source": {},
+                "request_count_by_source": {},
+                "rows_per_request": 0.0,
+                "selected_work_pending": 0,
+                "source_core_completion_pct": {
+                  "worldbank": 100.0
+                },
+                "source_full_completion_pct": {
+                  "worldbank": 100.0
+                },
+                "subphases": {
+                  "long_tail_backfill": {
+                    "remaining": 0,
+                    "status": "skipped"
+                  },
+                  "publishable_core": {
+                    "remaining": 0,
+                    "status": "complete"
+                  },
+                  "support_sketch": {
+                    "count": 1,
+                    "status": "complete"
+                  }
+                },
+                "support_sketch_count": 1,
+                "time_to_full_backfill": 0.013,
+                "time_to_publishable_core": null,
+                "writer_backlog_rows": 0,
+                "writer_flush_count": 0,
+                "writer_flush_latency_ms": 0.0
+              },
+              "outputs": [
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/graph/dataset_catalog.duckdb"
+              ],
+              "status": "complete"
+            },
+            "date_end": null,
+            "date_start": null,
+            "effective_producer_config": {
+              "active_countries": [
+                "UA"
+              ],
+              "active_year_window": [
+                2020,
+                2020
+              ],
+              "cooldown_seconds": 300,
+              "country_scope": "core_blocking",
+              "date_end": null,
+              "date_start": null,
+              "defer_unsupported_observation_plans": true,
+              "embedding_batch_size": 32,
+              "embedding_device": "auto",
+              "embedding_dimension": 1024,
+              "embedding_model": "intfloat/multilingual-e5-large",
+              "fail_fast_qc": true,
+              "harvest_timeout": 60,
+              "is_sampled_run": true,
+              "max_datasets_per_source": 1,
+              "metrics_map_path": "/workspace/orch02-c05/policy-engine/data/dataset_catalog/metrics_map.yaml",
+              "observation_mode": "core",
+              "preflight_only": false,
+              "preflight_sources": [
+                "worldbank"
+              ],
+              "producer_material_input_basis": {
+                "basis_digest": "sha256:dacd4dd3b40282fcf827a97fc32216e2b8c8a48cfba2cd0ca0f44932e0cf4dcd",
+                "basis_kind": "catalog_producer_material_inputs",
+                "generator_rule_version": "policyos.catalog.producer_material_inputs.v1",
+                "members": [
+                  {
+                    "content_identity": "sha256:0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+                    "identifier": "metrics_map:/workspace/orch02-c05/policy-engine/data/dataset_catalog/metrics_map.yaml:present"
+                  },
+                  {
+                    "content_identity": "sha256:4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+                    "identifier": "proxy_metric_alignments:/workspace/orch02-c05/policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml:present"
+                  },
+                  {
+                    "content_identity": "sha256:9e104204c4bc2e1c63751fc613a855989f2fa6bbbd50ee335c899bf6a57e2e86",
+                    "identifier": "resolved_producer_runtime_policy"
+                  },
+                  {
+                    "content_identity": "sha256:9b42740319369ea11b3e7cd19b6017862a030a1dbe9524fdadc38603a5b127ae",
+                    "identifier": "resolved_profile_registry"
+                  },
+                  {
+                    "content_identity": "sha256:70a96fbe4883438e5f602e504a27eb864579863b65ad8b96c59d0d4cd570baeb",
+                    "identifier": "seed_variable_alignments:/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/seed_variable_alignments.yaml:present"
+                  },
+                  {
+                    "content_identity": "sha256:230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b",
+                    "identifier": "source_registry:/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/registry.yaml:present"
+                  },
+                  {
+                    "content_identity": "sha256:dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+                    "identifier": "wvs_indicator_registry_core:/workspace/orch02-c05/policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml:present"
+                  },
+                  {
+                    "content_identity": "sha256:dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+                    "identifier": "wvs_indicator_registry_harvest:/workspace/orch02-c05/policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml:present"
+                  },
+                  {
+                    "content_identity": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                    "identifier": "wvs_variable_catalog:/workspace/orch02-c05/policy-engine/data/raw/wvs/F00003844-WVS_Time_Series_List_of_Variables_and_equivalences_1981_2022_v3_1.xlsx:unselected"
+                  }
+                ],
+                "schema_version": "policyos.generation_basis.v1"
+              },
+              "promoted_sources": [
+                "worldbank"
+              ],
+              "registry_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/registry.yaml",
+              "resolved_active_countries": [
+                "UA"
+              ],
+              "resolved_embedding_device": "cpu",
+              "resolved_metrics_map_path": "/workspace/orch02-c05/policy-engine/data/dataset_catalog/metrics_map.yaml",
+              "resolved_registry_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/registry.yaml",
+              "resolved_year_window": [
+                2020,
+                2020
+              ],
+              "resume_mode": "force",
+              "run_profile": "preflight_core",
+              "snapshot_root": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot",
+              "thermal_profile": "server_cpx42",
+              "uses_custom_registry": true,
+              "wave": null
+            },
+            "embedding_model": "intfloat/multilingual-e5-large",
+            "harvest_receipt": null,
+            "max_datasets_per_source": 1,
+            "observation_mode": "core",
+            "promoted_sources": [
+              "worldbank"
+            ],
+            "registry_version": 1,
+            "run_profile": "preflight_core",
+            "run_signature": "bd8c1494902beae8c652e5efcbf40640e8a9231550ce50f67af4855cb8ca2148",
+            "selected_sources": [
+              {
+                "agency_allowlist": [],
+                "agency_prefix": "",
+                "allow_manual_backfill": false,
+                "connector_id": "worldbank.wdi",
+                "default_lookback_days": null,
+                "enabled": true,
+                "endpoint": "https://example.test/worldbank",
+                "exclude_agencies": [],
+                "execution_tier": "transport_ready",
+                "family": "worldbank",
+                "format_allowlist": [],
+                "format_denylist": [],
+                "history_policy": "full_snapshot",
+                "keyword_allowlist": [],
+                "keyword_denylist": [],
+                "max_bytes_per_snapshot": null,
+                "max_rows_per_snapshot": null,
+                "metrics_required": false,
+                "name": "worldbank",
+                "profile_id": "worldbank_wdi",
+                "publish_blocking": true,
+                "require_curated_resources": false,
+                "run_lane": "empirical",
+                "seed_from": "",
+                "update_frequency": "",
+                "wave": "A"
+              }
+            ],
+            "wave": null
+          },
+          "inputs": {
+            "core_ingest_report": {
+              "paths": [
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/core_sources_ingest.json"
+              ],
+              "records": [
+                {
+                  "exists": true,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/core_sources_ingest.json",
+                  "sha256": "e5c4a21249b0b28e069ffa747415140df87efff9482467c6fad7cedec238394d",
+                  "size": 999
+                }
+              ]
+            },
+            "duplicates_report": {
+              "paths": [
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/merged/duplicates_report.csv"
+              ],
+              "records": [
+                {
+                  "exists": false,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/merged/duplicates_report.csv"
+                }
+              ]
+            },
+            "embedding_generation": {
+              "paths": [],
+              "records": []
+            },
+            "graph_database": {
+              "paths": [
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/graph/dataset_catalog.duckdb"
+              ],
+              "records": [
+                {
+                  "exists": true,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/graph/dataset_catalog.duckdb",
+                  "sha256": "6e6d4925ab715b87a4e3ff50fcf69504d480f0a3a9b9caae4892944a4fca3db1",
+                  "size": 10235904
+                }
+              ]
+            },
+            "harvest_receipt_artifacts": {
+              "paths": [],
+              "records": []
+            },
+            "merged_records": {
+              "paths": [
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/merged/all_records.jsonl"
+              ],
+              "records": [
+                {
+                  "exists": false,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/merged/all_records.jsonl"
+                }
+              ]
+            },
+            "metrics_map": {
+              "paths": [
+                "/workspace/orch02-c05/policy-engine/data/dataset_catalog/metrics_map.yaml"
+              ],
+              "records": [
+                {
+                  "exists": true,
+                  "kind": "file",
+                  "path": "/workspace/orch02-c05/policy-engine/data/dataset_catalog/metrics_map.yaml",
+                  "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+                  "size": 2163
+                }
+              ]
+            },
+            "observation_manifests": {
+              "paths": [],
+              "records": []
+            },
+            "observation_progress": {
+              "paths": [
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/completed_observation_shards.json",
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/failed_observation_shards.json",
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/deferred_observation_plans.json",
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/observation_source_summary.json"
+              ],
+              "records": [
+                {
+                  "exists": true,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/completed_observation_shards.json",
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+                  "size": 2
+                },
+                {
+                  "exists": true,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/failed_observation_shards.json",
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+                  "size": 2
+                },
+                {
+                  "exists": true,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/deferred_observation_plans.json",
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+                  "size": 2
+                },
+                {
+                  "exists": true,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/manifests/observation_source_summary.json",
+                  "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "size": 2
+                }
+              ]
+            },
+            "raw_source_artifacts": {
+              "paths": [],
+              "records": []
+            },
+            "source_registry": {
+              "paths": [
+                "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/registry.yaml"
+              ],
+              "records": [
+                {
+                  "exists": true,
+                  "kind": "file",
+                  "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/registry.yaml",
+                  "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b",
+                  "size": 286
+                }
+              ]
+            }
+          },
+          "rule_version": "policyos.catalog.benchmark.v1",
+          "schema_version": "policyos.catalog_stage_basis.v1",
+          "stage": "benchmark"
+        },
+        "input_basis_digest": "7974c2a9e06b59619e47437430e0318172135a73765ada22d76ebda65d9987bb",
+        "output_inventory": {
+          "entries": [
+            {
+              "exists": true,
+              "kind": "file",
+              "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w/snapshot/datasets/benchmark_report.json",
+              "sha256": "effce930f465d519710dd89f3235d851f62adb9d6ed94474cb6a998cf0979e35",
+              "size": 25056
+            }
+          ],
+          "inventory_digest": "847c1714189c438017c12dedf065a0ed1d2e7687734ca6d1ce8686967ac6dc17",
+          "schema_version": "policyos.catalog_stage_outputs.v1"
+        },
+        "output_inventory_digest": "847c1714189c438017c12dedf065a0ed1d2e7687734ca6d1ce8686967ac6dc17"
+      },
+      "expected_right": null,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1837,
+      "expression": "'benchmark' not in stale.skipped_stages",
+      "holds": false,
+      "actual_left": "benchmark",
+      "expected_right": [
+        "benchmark"
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1838,
+      "expression": "fetch_urls == ['https://example.test/original']",
+      "holds": true,
+      "actual_left": [
+        "https://example.test/original"
+      ],
+      "expected_right": [
+        "https://example.test/original"
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1839,
+      "expression": "partial['evaluation_mode'] == 'partial-eval'",
+      "holds": false,
+      "actual_left": "full-ready",
+      "expected_right": "partial-eval",
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1840,
+      "expression": "partial['metrics']['benchmark_partial_eval'] == 1",
+      "holds": false,
+      "actual_left": 0,
+      "expected_right": 1,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1841,
+      "expression": "partial['diagnostic_context']['core_output_receipt_current'] is False",
+      "holds": false,
+      "actual_left": true,
+      "expected_right": false,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1842,
+      "expression": "not _should_skip_stage(benchmark_only, 'benchmark')",
+      "holds": false,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    }
+  ],
+  "marker_and_fixture_outputs": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic-e84fr76w"
+}

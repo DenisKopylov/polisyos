@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--skip-generated-checks"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "head": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "index_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "status": "",
+  "pythonpath": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine",
+  "exit_code": 1,
+  "wall_seconds": 46.341211689001284,
+  "max_rss_kib": 85924,
+  "user_seconds": 44.81309,
+  "system_seconds": 1.334801,
+  "stdout_sha256": "8813425889a4049972e176fed666b07a83438f6dff801d6e379bf716e0dec3c7",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "file_inputs": [
+    {
+      "path": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+      "sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f"
+    }
+  ]
+}

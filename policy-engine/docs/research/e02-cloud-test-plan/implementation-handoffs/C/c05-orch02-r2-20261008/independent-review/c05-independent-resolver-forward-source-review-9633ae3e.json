@@ -1,0 +1,127 @@
+{
+  "schema": "policyos.e02.orch02-r2.independent-C05-resolver-forward-review.v1",
+  "at_utc": "2026-10-08T19:48:30.765897+00:00",
+  "reviewer": "/root/recovery_review",
+  "verdict": "GO_SOURCE_ONLY_EXACT_STAGED_TREE_ORDINARY_FORWARD_COMMIT_THEN_AFFECTED_NATIVE_CRITERION",
+  "source_parent": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+  "staged_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py"
+  ],
+  "source_postimage": {
+    "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "bytes": 68045,
+    "SHA256": "77b96c01d3f05ee36132d801a87b2cfd6df9d4b3e786a25a219036995e74a6ab",
+    "Git_blob": "86a6ad3994823f27c7bf2fdec617b5c9982cd0c8"
+  },
+  "patch": {
+    "path": "/workspace/orch02-r2/c05/resolver-repair/resolver-dispatch-forward.patch",
+    "bytes": 1858,
+    "SHA256": "7be71a70f9aeda5ef507b9f762e0754c48276880710c396019abd17fde91ee72",
+    "Git_blob_identity": "a1ac5f625bdf25fbf63c77a6c786d317113ca459"
+  },
+  "P40_bucket": "NEW introduced resolver-dispatch class; two independent real failures expose the same underlying lost selection quantity, not two unrelated bugs",
+  "historical_RED": {
+    "receipt": {
+      "path": "/workspace/orch02-r2/native-c05-c12/c05-native-initial-receipt-2734ee49.json",
+      "bytes": 258029,
+      "SHA256": "10c9993e2d1c545aef53a50264959575525f0d49f6cadddfa17ef7e5f69be947",
+      "Git_blob_identity": "246301d15ea49685a8d7299cfac80c6069db0837"
+    },
+    "source_tree": "dac1d82c7761d0f8e11e19f1ee448133d606d73d",
+    "native_cases": 119,
+    "PASS": 117,
+    "FAIL": 2,
+    "errors": 0,
+    "skips": 0,
+    "all_full_deciding_output_hashes_verified": true,
+    "all_437_exact_Git_input_rows_verified": true,
+    "all_432_observed_owned_module_names_source_bound": true,
+    "failures": [
+      {
+        "name": "test_loader_resolves_transformer_dependency_without_facade_bootstrap",
+        "classname": "tests.unit.data_forge.domains.catalog.batch.core_sources.test_loaders",
+        "raw_body": "monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f021d572510>\n\n    def test_loader_resolves_transformer_dependency_without_facade_bootstrap(monkeypatch) -> None:\n        monkeypatch.delattr(loaders, \"_to_iso3\", raising=False)\n        monkeypatch.setattr(transformers, \"_to_iso3\", lambda _country_code: \"CANONICAL\")\n    \n>       assert loaders._bulk_country_values(\"ilo\", (\"UA\",)) == [\"CANONICAL\"]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py:14: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nsource = 'ilo', country_codes = ('UA',)\n\n    def _bulk_country_values(source: str, country_codes: tuple[str, ...]) -> list[str]:\n        normalized = [str(value).strip().upper() for value in country_codes if str(value).strip()]\n        if source == \"eurostat\":\n            return normalized\n        if source == \"ilo\":\n>           return [_to_iso3(code) for code in normalized]\n                    ^^^^^^^^\nE           NameError: name '_to_iso3' is not defined\n\nsrc/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py:1315: NameError"
+      },
+      {
+        "name": "test_actual_loader_resolves_owner_global_and_request_context",
+        "classname": "",
+        "raw_body": "monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f021d596c80>\n\n    def test_actual_loader_resolves_owner_global_and_request_context(monkeypatch):\n        calls = []\n        original_iso = transformers._to_iso3\n        original_float = transformers._as_float\n        observed = []\n    \n        def iso_spy(label):\n            def call(value):\n                calls.append([label, value])\n                return original_iso(value)\n            return call\n    \n        assert loaders._bulk_country_values(\"ilo\", (\"UA\",)) == [\"UKR\"]\n        monkeypatch.setattr(transformers, \"_to_iso3\", iso_spy(\"canonical_owner\"))\n        assert loaders._bulk_country_values(\"ilo\", (\"UA\",)) == [\"UKR\"]\n        assert calls == [[\"canonical_owner\", \"UA\"]]\n        monkeypatch.setattr(loaders, \"_to_iso3\", iso_spy(\"loader_override\"))\n        assert loaders._bulk_country_values(\"ilo\", (\"UA\",)) == [\"UKR\"]\n        context = CoreSourcesCompatibilityContext({\n            (transformers.__name__, \"_to_iso3\"): iso_spy(\"request_context\"),\n        })\n        with bind_core_sources_compatibility_context(context):\n            assert loaders._bulk_country_values(\"ilo\", (\"UA\",)) == [\"UKR\"]\n        assert loaders._bulk_country_values(\"ilo\", (\"UA\",)) == [\"UKR\"]\n>       assert calls == [\n            [\"canonical_owner\", \"UA\"], [\"loader_override\", \"UA\"],\n            [\"request_context\", \"UA\"], [\"loader_override\", \"UA\"],\n        ]\nE       AssertionError: assert [['canonical_...rride', 'UA']] == [['canonical_...rride', 'UA']]\nE         \nE         At index 2 diff: ['loader_override', 'UA'] != ['request_context', 'UA']\nE         Use -v to get more diff\n\n../../orch02-r2/native-c05-c12/test_c05_runtime_bindings.py:39: AssertionError"
+      }
+    ]
+  },
+  "structural_repair": {
+    "changed_functions": [
+      "_bulk_country_values",
+      "_fetch_who_observations",
+      "_fetch_uis_observations"
+    ],
+    "precise_Callable_contract": "Callable[[str], str]",
+    "resolution_quantity_old_RED_forward": {
+      "_bulk_country_values": {
+        "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e": [
+          [
+            "_to_iso3",
+            "transformers"
+          ]
+        ],
+        "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca": [],
+        "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09": [
+          [
+            "_to_iso3",
+            "transformers"
+          ]
+        ]
+      },
+      "_fetch_who_observations": {
+        "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e": [
+          [
+            "_to_iso3",
+            "transformers"
+          ]
+        ],
+        "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca": [],
+        "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09": [
+          [
+            "_to_iso3",
+            "transformers"
+          ]
+        ]
+      },
+      "_fetch_uis_observations": {
+        "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e": [
+          [
+            "_to_iso3",
+            "transformers"
+          ]
+        ],
+        "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca": [],
+        "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09": [
+          [
+            "_to_iso3",
+            "transformers"
+          ]
+        ]
+      }
+    },
+    "normalized_whole_AST_equals_RED_source_after_only3restoredresolvercalls": true,
+    "existing_canonical_precedence": "request context > explicit module override > canonical owner; missing exported globals resolve canonical owner",
+    "canonical_resolver_and_all_public_proxy_definitions_unchanged": true,
+    "other18previously_direct_calls_unchanged": true,
+    "no_parallel_registry_store_resolver_ladder": true,
+    "all_51_supplier_binding_rows_46declared_dependencies_checked_forward_tree": true
+  },
+  "native_criterion": {
+    "preexisting_owned_maintained_failure": "deleted loaders._to_iso3 resolves actual transformer owner through _bulk_country_values",
+    "independent_actualconsumer": "same actual bulk owner/global/request context/postcontext sequence must pass unchanged",
+    "whole_class": "three previously explicit resolver consumer sites bulk/WHO/UIS restored structurally; controlled real request parameter oracles may verify WHO/UIS dispatch without production remote claims",
+    "existing_session_and_WVS_removal_recipes": "canonical handle reuse-only plus actual orphan cleanup; response_type forwarding-only preserving realDuckDB/current snapshot reader are valid and retained",
+    "final_native_status": "UNRUN; source-only GO is not runtime PASS"
+  },
+  "quality_binding": "Fresh exact3site final file-hash-bound quality pending author; exploratory21site mypy/Ruff hashes do not qualify this immutable tree. No quality PASS inferred.",
+  "supersedes_prior_review_semantic_claim": "Earlier dac1 source-only review described supported context/monkeypatch seam. Actual native revealed direct consumers bypassed it; that interpretation is corrected here. Prior review remains historical, not final native GO.",
+  "source_accepted_by_G": false,
+  "P41": "not_established",
+  "formal_closure_ids": [],
+  "source_edits_or_native_replays_by_reviewer": false
+}

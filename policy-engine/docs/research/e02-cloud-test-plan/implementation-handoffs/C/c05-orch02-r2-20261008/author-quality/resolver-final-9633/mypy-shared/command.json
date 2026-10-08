@@ -1,0 +1,65 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "mypy",
+    "--config-file",
+    "architecture/tooling/mypy/generated.ini",
+    "--follow-imports=silent",
+    "--cache-dir",
+    "/workspace/orch02-r2/c05/resolver-final-9633/mypy-shared-cache",
+    "src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+    "src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "src/polisyos/fabric/retrieval/service.py"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "head": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+  "tree": "dac1d82c7761d0f8e11e19f1ee448133d606d73d",
+  "index_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "status": "M  policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py\n",
+  "pythonpath": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine",
+  "exit_code": 1,
+  "wall_seconds": 45.6048896150005,
+  "max_rss_kib": 682228,
+  "user_seconds": 42.993519,
+  "system_seconds": 2.552378,
+  "stdout_sha256": "d62d4e9f4971f9ae1491169dee5be6b72ae6fb4a8cb07f76f544fba694a104f1",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "file_inputs": [
+    {
+      "path": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+      "sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/architecture/tooling/mypy/generated.ini",
+      "sha256": "7861f98c2ab1c264740af40fcaa3c52ee632e26e01015ff9dfb9a585a800982a"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "sha256": "8c7de1ad05e53e192beddbe0c307951d12deb54ad3fa16af078de2d9af8d5583"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "sha256": "77b96c01d3f05ee36132d801a87b2cfd6df9d4b3e786a25a219036995e74a6ab"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "sha256": "0f3dc393ca07fb702db41a7e815d8b04218e275cfbc656c29641ad48edba7c66"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "sha256": "50a95bb57ccc7141bd2003b8939f2ec9ec6d8cdf0fd8b8312a76bba938255c6c"
+    }
+  ]
+}

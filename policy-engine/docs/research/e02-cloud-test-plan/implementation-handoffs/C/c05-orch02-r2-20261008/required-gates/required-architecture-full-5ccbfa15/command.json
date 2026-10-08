@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.c05.required-architecture-full-capture.v1",
+  "state": "COMPLETED",
+  "argv": [
+    "/workspace/.polisyos-environment/uv/bin/uv",
+    "run",
+    "--no-sync",
+    "python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/workspace/orch02-r2/c05/generated-freshness-5ccbfa15",
+    "--generated-freshness-uv-cache-dir",
+    "/workspace/.polisyos-environment/cache/uv"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "source_before": {
+    "sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+    "tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+    "status": ""
+  },
+  "generated_freshness_workspace": "/workspace/orch02-r2/c05/generated-freshness-5ccbfa15",
+  "all_default_families_enabled": true,
+  "parent_pid": 77668,
+  "start_utc": "2026-10-08T20:16:58.475645+00:00",
+  "harness_sha256": "b1a06dfb0486319d43f668fb014b1383d2e25f81110aa8711be96ced1de2cac1",
+  "harness_python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine",
+    "PATH": "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/workspace/.polisyos-environment/uv/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTHONHOME": null,
+    "UV_PROJECT_ENVIRONMENT": "/workspace/polisyos/policy-engine/.venv"
+  },
+  "timeout": null,
+  "worker_quota": null,
+  "resource_method": "os.wait4 exact direct child, Linux ru_maxrss KiB",
+  "origin_evidence": "Exact executable/PYTHONPATH and separate resolver probe. Architecture import-origin preflight is performed by canonical gate in private copied source. Separate outer resolver probe binds actual gate implementation. No product runtime invocation inferred.",
+  "phase": "architecture_full_default",
+  "child_pid": 77738,
+  "end_utc": "2026-10-08T20:23:19.548256+00:00",
+  "wall_seconds": 375.6799151689993,
+  "returncode": 1,
+  "wait_status": 256,
+  "signal": null,
+  "max_rss_kib": 1111400,
+  "user_seconds": 331.634645,
+  "system_seconds": 52.192202,
+  "source_after": {
+    "sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+    "tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+    "status": ""
+  },
+  "source_binding_intact": true,
+  "tracked_python_input_count": 5909,
+  "tracked_python_inputs_intact": true,
+  "runtime_invocation_established": false,
+  "outputs": {
+    "resolver-probe.stdout.txt": {
+      "bytes": 835,
+      "sha256": "c787544e075e730db65d209339f9009c2c1a6fc026e3c712a8bb955959d1850a"
+    },
+    "parent.stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "parent.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.txt": {
+      "bytes": 122327,
+      "sha256": "65f31ce8dc308c2150809703c8075ef34f305c5d0865cbc61e28f89ee634065a"
+    },
+    "resolver-probe.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "node.stdout.txt": {
+      "bytes": 521,
+      "sha256": "55400c08553e9fa9745859b07261d9d7cc239abdd590f3d7bd36fc8dab24b401"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "launch.json": {
+      "bytes": 296,
+      "sha256": "acba5130ab1f926b4c9796407ca2f61aa2f0ff526f28bc95131afbb3da5c6f1e"
+    },
+    "inputs-before.json": {
+      "bytes": 1068211,
+      "sha256": "107aee7f1e35bd9068a4cb8228460b780cadbb9fa071c2b85499fefe6f374f69"
+    },
+    "node-command.json": {
+      "bytes": 1064,
+      "sha256": "7c0cbb673ca4520fa8efa37077f80d5e5b5d56f4c4ebcf824ce99615c8e4421e"
+    },
+    "inputs-after.json": {
+      "bytes": 1068211,
+      "sha256": "107aee7f1e35bd9068a4cb8228460b780cadbb9fa071c2b85499fefe6f374f69"
+    },
+    "node.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

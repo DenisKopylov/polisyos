@@ -1,0 +1,430 @@
+{
+  "rows": [
+    {
+      "phase": "before",
+      "original_path": "/workspace/orch02-r2/c05/before/mypy/command.json",
+      "tracked_relative": "author-quality/before/mypy/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "before",
+      "original_path": "/workspace/orch02-r2/c05/before/mypy/stderr.txt",
+      "tracked_relative": "author-quality/before/mypy/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "before",
+      "original_path": "/workspace/orch02-r2/c05/before/mypy/stdout.txt",
+      "tracked_relative": "author-quality/before/mypy/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "before",
+      "original_path": "/workspace/orch02-r2/c05/before/ruff/command.json",
+      "tracked_relative": "author-quality/before/ruff/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "before",
+      "original_path": "/workspace/orch02-r2/c05/before/ruff/stderr.txt",
+      "tracked_relative": "author-quality/before/ruff/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "before",
+      "original_path": "/workspace/orch02-r2/c05/before/ruff/stdout.txt",
+      "tracked_relative": "author-quality/before/ruff/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-1",
+      "original_path": "/workspace/orch02-r2/c05/working-1/mypy/command.json",
+      "tracked_relative": "author-quality/working-1/mypy/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-1",
+      "original_path": "/workspace/orch02-r2/c05/working-1/mypy/stderr.txt",
+      "tracked_relative": "author-quality/working-1/mypy/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-1",
+      "original_path": "/workspace/orch02-r2/c05/working-1/mypy/stdout.txt",
+      "tracked_relative": "author-quality/working-1/mypy/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-1",
+      "original_path": "/workspace/orch02-r2/c05/working-1/ruff/command.json",
+      "tracked_relative": "author-quality/working-1/ruff/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-1",
+      "original_path": "/workspace/orch02-r2/c05/working-1/ruff/stderr.txt",
+      "tracked_relative": "author-quality/working-1/ruff/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-1",
+      "original_path": "/workspace/orch02-r2/c05/working-1/ruff/stdout.txt",
+      "tracked_relative": "author-quality/working-1/ruff/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-2",
+      "original_path": "/workspace/orch02-r2/c05/working-2/mypy/command.json",
+      "tracked_relative": "author-quality/working-2/mypy/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-2",
+      "original_path": "/workspace/orch02-r2/c05/working-2/mypy/stderr.txt",
+      "tracked_relative": "author-quality/working-2/mypy/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-2",
+      "original_path": "/workspace/orch02-r2/c05/working-2/mypy/stdout.txt",
+      "tracked_relative": "author-quality/working-2/mypy/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/mypy/command.json",
+      "tracked_relative": "author-quality/working-3/mypy/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/mypy/stderr.txt",
+      "tracked_relative": "author-quality/working-3/mypy/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/mypy/stdout.txt",
+      "tracked_relative": "author-quality/working-3/mypy/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/new-tests/command.json",
+      "tracked_relative": "author-quality/working-3/new-tests/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/new-tests/junit.xml",
+      "tracked_relative": "author-quality/working-3/new-tests/junit.xml.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/new-tests/stderr.txt",
+      "tracked_relative": "author-quality/working-3/new-tests/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/new-tests/stdout.txt",
+      "tracked_relative": "author-quality/working-3/new-tests/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/ruff/command.json",
+      "tracked_relative": "author-quality/working-3/ruff/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/ruff/stderr.txt",
+      "tracked_relative": "author-quality/working-3/ruff/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-3",
+      "original_path": "/workspace/orch02-r2/c05/working-3/ruff/stdout.txt",
+      "tracked_relative": "author-quality/working-3/ruff/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-4",
+      "original_path": "/workspace/orch02-r2/c05/working-4/architecture/command.json",
+      "tracked_relative": "author-quality/working-4/architecture/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-4",
+      "original_path": "/workspace/orch02-r2/c05/working-4/architecture/stderr.txt",
+      "tracked_relative": "author-quality/working-4/architecture/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-4",
+      "original_path": "/workspace/orch02-r2/c05/working-4/architecture/stdout.txt",
+      "tracked_relative": "author-quality/working-4/architecture/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-4",
+      "original_path": "/workspace/orch02-r2/c05/working-4/new-tests/command.json",
+      "tracked_relative": "author-quality/working-4/new-tests/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-4",
+      "original_path": "/workspace/orch02-r2/c05/working-4/new-tests/junit.xml",
+      "tracked_relative": "author-quality/working-4/new-tests/junit.xml.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-4",
+      "original_path": "/workspace/orch02-r2/c05/working-4/new-tests/stderr.txt",
+      "tracked_relative": "author-quality/working-4/new-tests/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "working-4",
+      "original_path": "/workspace/orch02-r2/c05/working-4/new-tests/stdout.txt",
+      "tracked_relative": "author-quality/working-4/new-tests/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "integer-boundary",
+      "original_path": "/workspace/orch02-r2/c05/integer-boundary/command.json",
+      "tracked_relative": "author-quality/integer-boundary/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "integer-boundary",
+      "original_path": "/workspace/orch02-r2/c05/integer-boundary/stderr.txt",
+      "tracked_relative": "author-quality/integer-boundary/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "integer-boundary",
+      "original_path": "/workspace/orch02-r2/c05/integer-boundary/stdout.txt",
+      "tracked_relative": "author-quality/integer-boundary/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/format/command.json",
+      "tracked_relative": "author-quality/final-typed/format/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/format/stderr.txt",
+      "tracked_relative": "author-quality/final-typed/format/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/format/stdout.txt",
+      "tracked_relative": "author-quality/final-typed/format/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-shared/command.json",
+      "tracked_relative": "author-quality/final-typed/mypy-shared/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-shared/stderr.txt",
+      "tracked_relative": "author-quality/final-typed/mypy-shared/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-shared/stdout.txt",
+      "tracked_relative": "author-quality/final-typed/mypy-shared/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-stubs/command.json",
+      "tracked_relative": "author-quality/final-typed/mypy-stubs/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-stubs/stderr.txt",
+      "tracked_relative": "author-quality/final-typed/mypy-stubs/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-stubs/stdout.txt",
+      "tracked_relative": "author-quality/final-typed/mypy-stubs/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/ruff/command.json",
+      "tracked_relative": "author-quality/final-typed/ruff/command.json",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/ruff/stderr.txt",
+      "tracked_relative": "author-quality/final-typed/ruff/stderr.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "final-typed",
+      "original_path": "/workspace/orch02-r2/c05/final-typed/ruff/stdout.txt",
+      "tracked_relative": "author-quality/final-typed/ruff/stdout.txt.gz",
+      "qualification": "Exact recorded command/input only; no output transfer to other source"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-shared/command.json",
+      "tracked_relative": "author-quality/resolver-repair/mypy-shared/command.json",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-shared/stderr.txt",
+      "tracked_relative": "author-quality/resolver-repair/mypy-shared/stderr.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-shared/stdout.txt",
+      "tracked_relative": "author-quality/resolver-repair/mypy-shared/stdout.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-stubs/command.json",
+      "tracked_relative": "author-quality/resolver-repair/mypy-stubs/command.json",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-stubs/stderr.txt",
+      "tracked_relative": "author-quality/resolver-repair/mypy-stubs/stderr.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-stubs/stdout.txt",
+      "tracked_relative": "author-quality/resolver-repair/mypy-stubs/stdout.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/ruff/command.json",
+      "tracked_relative": "author-quality/resolver-repair/ruff/command.json",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/ruff/stderr.txt",
+      "tracked_relative": "author-quality/resolver-repair/ruff/stderr.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-repair",
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/ruff/stdout.txt",
+      "tracked_relative": "author-quality/resolver-repair/ruff/stdout.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/architecture/command.json",
+      "tracked_relative": "author-quality/resolver-final-9633/architecture/command.json",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/architecture/stderr.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/architecture/stderr.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/architecture/stdout.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/architecture/stdout.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/format/command.json",
+      "tracked_relative": "author-quality/resolver-final-9633/format/command.json",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/format/stderr.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/format/stderr.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/format/stdout.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/format/stdout.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-shared/command.json",
+      "tracked_relative": "author-quality/resolver-final-9633/mypy-shared/command.json",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-shared/stderr.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/mypy-shared/stderr.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-shared/stdout.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/mypy-shared/stdout.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-stubs/command.json",
+      "tracked_relative": "author-quality/resolver-final-9633/mypy-stubs/command.json",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-stubs/stderr.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/mypy-stubs/stderr.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-stubs/stdout.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/mypy-stubs/stdout.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/ruff/command.json",
+      "tracked_relative": "author-quality/resolver-final-9633/ruff/command.json",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/ruff/stderr.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/ruff/stderr.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    },
+    {
+      "phase": "resolver-final-9633",
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/ruff/stdout.txt",
+      "tracked_relative": "author-quality/resolver-final-9633/ruff/stdout.txt.gz",
+      "qualification": "Final9633/5ccb only in resolver-final-9633; discarded21site exploratory outputs in resolver-repair are historical only"
+    }
+  ]
+}

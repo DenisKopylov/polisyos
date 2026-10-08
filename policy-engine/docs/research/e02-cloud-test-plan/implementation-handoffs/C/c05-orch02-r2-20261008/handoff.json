@@ -1,0 +1,159 @@
+{
+  "schema": "policyos.e02.original-C.c05.typed-r2.handoff.v1",
+  "original_unit": "C",
+  "role": "C05",
+  "source": {
+    "sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+    "tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+    "parent": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+    "initial_typed_commit": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+    "initial_parent": "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+    "base_CAT": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "predecessor_DFI": "ab44166335130463178e65dfc29a252c96afe479",
+    "branch": "codex/e02-C-orch02-c05-recovery",
+    "source_acceptance": "Independently source-reviewed own-base candidate; no integrated G acceptance"
+  },
+  "source_footprint": "Initial6owned paths; forward ONLY loaders.py3canonicalresolver consumers. No Core/shared API/generated/lock/C10 product changes.",
+  "dependency_manifest": {
+    "declared_suppliers": 46,
+    "all_binding_rows": 51,
+    "file": "final-source-freeze/source-binding.json.gz",
+    "complete_DFI_CAT_DAG": "source-DAG/c05-independent-source-DAG-66151f3b.json"
+  },
+  "changes": [
+    "Reuse canonical writers._ConnectorSessionCache annotations and actual lifecycle; typed callbacks/lazy contracts with existing context/global/owner resolver",
+    "Native integer DuckDB expressions and relation APIs preserve nullable/year range, parameter selection, quoted identifiers and literal inputs",
+    "Canonical retrieval registry/error objects and warm full-content cache invalidation retained",
+    "Precise forward3site restore of context-first/global/missing fallback after initial117PASS+2FAIL; no test or oracle weakening"
+  ],
+  "quality": {
+    "fresh_baseline_661": "Ruff99 loader, strict6-source mypy14=12source+2missingstubs; full command and outputs preserved",
+    "final_9633": "Ruff8PASS0, format8PASS; strict6-source isolated2stubprofilePASS0; same shared6sourceFAIL2yaml/pandasmissingstubs only",
+    "stubs": "Only isolated types-PyYAML6.0.12.20250915/pandas-stubs2.3.2.250926 provisioned; shared Python3.14.2/Pandas2.3.3/DuckDB1.4.3 unchanged",
+    "architecture": {
+      "status": "FAIL",
+      "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "scope": "FULL_DEFAULT_FOUR_GENERATED_FAMILIES; no --skip-generated-checks",
+      "actual_exit": 1,
+      "wall_seconds": 375.6799151689993,
+      "max_rss_kib": 1111400,
+      "total_issue_rows": 160,
+      "owned_import_edges": 6,
+      "deep_import_edges": 157,
+      "baseline_drift_issues": 1,
+      "family_status_counts": {
+        "PASS": 2,
+        "FAIL": 2,
+        "UNRUN": 0,
+        "UNESTABLISHED": 0
+      },
+      "output_file_denominator": 6,
+      "UNRUN_rows": [],
+      "full_stdout_sha256": "65f31ce8dc308c2150809703c8075ef34f305c5d0865cbc61e28f89ee634065a",
+      "source_and_5909_python_inputs_before_after_unchanged": true,
+      "command": "required-gates/required-architecture-full-5ccbfa15/command.json",
+      "complete_stdout": "required-gates/required-architecture-full-5ccbfa15/stdout.txt.gz",
+      "readback": "required-gates/required-architecture-full-5ccbfa15/scoped-readback.json",
+      "generated_snapshot_and_output_bytes_published": false,
+      "inputs_after_representation": "inputs-after.json is byte-identical to tracked inputs-before.json.gz; both actual external files bound in command outputs",
+      "capture_timing": "command start_utc is parent capture start before separate Node prerequisite; architecture wall_seconds is exact child wait4 interval after prerequisite",
+      "prior_nongenerated_measurement": {
+        "status": "FAIL",
+        "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+        "exit_code": 1,
+        "total_issues": 158,
+        "owned_import_edges": 6,
+        "other_edges": 151,
+        "baseline_drift_issues": 1,
+        "full_stdout_sha256": "8813425889a4049972e176fed666b07a83438f6dff801d6e379bf716e0dec3c7",
+        "generated_freshness": "SKIPPED_NOT_PASS",
+        "P41": "not_established; no inherited-green attribution or broad cleanup",
+        "scope": "NONGENERATED_ONLY: actual --skip-generated-checks; retained prior measurement, not full gate"
+      },
+      "P41": "not_established; no inherited-green attribution/global repair or waiver"
+    },
+    "invocation": {
+      "status": "FAIL_UNRESOLVED_PARTIAL_STATIC_MODEL",
+      "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "actual_exit": 3,
+      "wall_seconds": 500.1519627380003,
+      "max_rss_kib": 8369920,
+      "source_and_5909_python_inputs_before_after_unchanged": true,
+      "raw_ignored_receipt": "/workspace/orch02-c05/policy-engine/_build/orch02-r2-c05/5ccbfa15/production-invocation.json",
+      "raw_identity": {
+        "bytes": 170659452,
+        "sha256": "f649f40525bece3625668adaa5e96953ee443615c62bcf28b35909af58aa02f9"
+      },
+      "manual_trace": "manual-invocation-classification.json",
+      "runtime_invocation_established": false
+    },
+    "discarded21site_draft": "Only3explicit predecessor calls required restore; broader uncommitted21site draft was discarded. Its resolver-repair/mypy-* captures are historical, not final gates.",
+    "author_capture_custody": "run_check.py is exact final executed v2. v1 is reconstructed by removing the documented index_tree/file_inputs additions; prior outputs did not embed a harness hash, so independent exact-byte custody of v1 is not asserted."
+  },
+  "native": {
+    "final_source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+    "main_cases": 119,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "deciding_commands": 9,
+    "additional_commands": 8,
+    "receipt": "native-receipts/c05-native-final-receipt-5ccbfa15.json.gz",
+    "receipt_sha256": "76dd1fa4f704d07e0c09550d181e856b8d795303031a48c1356766969839d5f5",
+    "distinct_actual_Git_inputs": 437,
+    "foreign_or_mismatched_inputs": 0,
+    "bounded_properties": [
+      "Real native ClientSession reuse/normal+failed-fetch cleanup",
+      "Canonical deleted-global fallback and context-over-global priority",
+      "Actual loader SQL integer/NULL/identifier/value behavior and legacy/parallel consumers",
+      "Same-ID profiles/material currentness and seed None/explicit empty/disabled/missing behavior",
+      "Warm/fresh retrieval policy/selection and WVS policy cache/forwarded hotloop read count"
+    ],
+    "matched_removals": "Profile/seed/WVS controls PASS\u2192DISCRIMINATING with errorNone. Reuse removal preserves actual fetch/evaluation but2vs1handles causes raw2FAIL; WVS forwarding removal preserves aggregate but4vs1reads causes raw1FAIL. Expected negative raw failures are preserved, not counted as final main-case failures.",
+    "initial_red": "2734 initial119=117PASS+2resolverFAIL preserved in native-receipts; its PASS outputs are not transferred to finalsource.",
+    "old_r1_native112": "Remains source66151-qualified only; no unchanged r1 replay or evidence transfer"
+  },
+  "harness_custody": {
+    "new_executed_files": 4,
+    "exact_ledger": "native-receipts/c05-executed-harness-ledger.json",
+    "new_files_directory": "executed-harnesses",
+    "common_published_commit": "e5e32e19b69d1847b153efc0b83987fdd28e68c2",
+    "common_manifest": "common-harness-custody.json",
+    "historical_collector": "Byte-identical9585ce6f... at coordinator8170ff50337fcef96fff035f4ff3fca1321d35c3/native-harness-c05-c12/semantic_collect-c05-v2-executed.py; no third classifier variant"
+  },
+  "G_proposal": {
+    "branch": "codex/e02-C-orch02-c05-r2-gproposal",
+    "base": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/handoff.json",
+    "state": "UNAPPLIED_SUPPLIER_QUALIFIED_HELD",
+    "native_G_claim": false,
+    "formal_closure_ids": [],
+    "published_head": "42987be62c48356211e1ce4397ca67cd45249997",
+    "published_tree": "ab1aa6a9cfe98d4a613fe04f83cc4bd56124c628",
+    "normal_publication_readback": "publication/publication-gproposal-42987be6/receipt.json",
+    "published_docs": 31
+  },
+  "scoped_requirements": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/scoped-requirements.json",
+    "ref": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+    "blob": "625e56fbebe85564bd81a0f1cf67dca2d9c1030b",
+    "sha256": "8266e1ef68a1707744c78864c492b2094b6344cfebe41da6ffe789bb03e1c250",
+    "status": "Historical exact LA-032 existing L01 C-W19 producer/reader quantity and B19/B36 C10 requirements remain open. No second local producer or production positive."
+  },
+  "limits": [
+    "ALL headers including content negotiation/credentials/environment overlays excluded from finite material basis",
+    "Raw corpus/remote response versions/source membership/fullLA041output+resume closure remain bounded",
+    "Independent coherent concurrent atomic snapshot not established",
+    "Production source/profile acceptance requires C10+L01/L02 actual configured positive; fixtures cannot provide it",
+    "Shared missing stubs, architecture and invocation gates remain explicitFAIL; no formal G closure"
+  ],
+  "artifact_alias_manifest": "artifact-aliases.json",
+  "publication": "Separate original-C docs commit after implementation; normal own topic push/fresh fetch readback required",
+  "current_owner_requirements": "current-owner-requirements.json",
+  "presentation_gate_hold": {
+    "prior_verified_tree": "ef4899d508cfb261f2b06961dfb102515a2aaa90",
+    "prior_docs": 214,
+    "operation": "Exact214 new own docs moved outside lane and only new prefix unstaged to pin clean5ccb for full default gate; restored byte-identically after actualwait4 terminal. No source/history change.",
+    "receipt": "presentation/handoff-hold-receipt.json.gz"
+  }
+}

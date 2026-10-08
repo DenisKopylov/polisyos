@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.c05.resolver-forward-freeze.v1",
+  "source_parent": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+  "tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py"
+  ],
+  "patch_sha256": "7be71a70f9aeda5ef507b9f762e0754c48276880710c396019abd17fde91ee72",
+  "patch_bytes": 1858,
+  "precedence": "Existing canonical request-context > explicit-global > owner; missing globals resolve owner. No resolver, session/cache owner, or public proxy definition changes.",
+  "actual_call_count": 3,
+  "name_owner_denominator": 1,
+  "controls": [
+    {
+      "name": "_to_iso3",
+      "owner": "transformers",
+      "exact_callable_contract": "Callable[[str], str]",
+      "line": 1316
+    },
+    {
+      "name": "_to_iso3",
+      "owner": "transformers",
+      "exact_callable_contract": "Callable[[str], str]",
+      "line": 1874
+    },
+    {
+      "name": "_to_iso3",
+      "owner": "transformers",
+      "exact_callable_contract": "Callable[[str], str]",
+      "line": 1915
+    }
+  ],
+  "normalized_new_AST_equals2734_AST": true,
+  "resolution_quantity_equals_pre_typed_2a7_AST": true,
+  "supplier_binding_rows": 51,
+  "supplier_denominator": 46,
+  "native_initial_receipt": "/workspace/orch02-r2/native-c05-c12/c05-native-initial-receipt-2734ee49.json",
+  "required_invocation_new2734": "/workspace/orch02-r2/c05/required-invocation/command.json",
+  "native_forward_status": "UNRUN_PENDING_NONAUTHOR_GO"
+}

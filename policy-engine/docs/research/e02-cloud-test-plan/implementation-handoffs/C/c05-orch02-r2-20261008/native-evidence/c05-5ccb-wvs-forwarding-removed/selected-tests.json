@@ -1,0 +1,14 @@
+{
+  "schema": "orch02r2.selected-pytest-inputs.v1",
+  "denominator": "complete selected pytest items after collection and deselection; no unselected-suite claim",
+  "count": 1,
+  "nodeids": [
+    "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation"
+  ],
+  "physical_test_inputs": {
+    "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py": {
+      "bytes": 95092,
+      "sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f"
+    }
+  }
+}

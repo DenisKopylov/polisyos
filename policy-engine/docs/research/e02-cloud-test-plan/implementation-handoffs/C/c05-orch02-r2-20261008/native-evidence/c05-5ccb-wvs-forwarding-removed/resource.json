@@ -1,0 +1,10 @@
+{
+  "measurement": "Linux wait4 actual command child usage",
+  "user_seconds": 6.260841,
+  "system_seconds": 1.491947,
+  "maximum_resident_set_size_kib": 302420,
+  "input_blocks": 0,
+  "output_blocks": 336,
+  "voluntary_context_switches": 98,
+  "involuntary_context_switches": 75
+}

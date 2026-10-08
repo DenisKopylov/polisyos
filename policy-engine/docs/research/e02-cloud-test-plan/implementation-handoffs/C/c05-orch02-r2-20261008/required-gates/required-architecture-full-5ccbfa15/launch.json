@@ -1,0 +1,8 @@
+{
+  "parent_pid": 77668,
+  "harness": "/workspace/orch02-r2/c05/capture_required_architecture_full_5ccbfa15.py",
+  "harness_sha256": "b1a06dfb0486319d43f668fb014b1383d2e25f81110aa8711be96ced1de2cac1",
+  "launch_utc": "2026-10-08T20:16:57.736960+00:00",
+  "state": "LAUNCHED",
+  "timeout": null
+}

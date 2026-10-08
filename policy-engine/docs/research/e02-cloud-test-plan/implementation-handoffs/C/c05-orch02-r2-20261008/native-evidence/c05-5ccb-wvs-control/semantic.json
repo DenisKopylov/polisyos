@@ -1,0 +1,143 @@
+{
+  "kind": "c05-wvs",
+  "removal": {
+    "kind": "none",
+    "quantity": null,
+    "held_markers": true,
+    "source_files_changed": false
+  },
+  "owned_fixture_source": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py",
+  "source_sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f",
+  "oracle": "literal actual SQL/benchmark/native outputs; assertion observations continue beyond digest failures",
+  "verdict": "PASS",
+  "error": null,
+  "events": [
+    {
+      "line": 2164,
+      "expression": "len(initial_rows) == 1",
+      "holds": true,
+      "actual_left": 1,
+      "expected_right": 1
+    },
+    {
+      "line": 2165,
+      "expression": "initial_rows[0]['country_code'] == 'UA'",
+      "holds": true,
+      "actual_left": "UA",
+      "expected_right": "UA"
+    },
+    {
+      "line": 2166,
+      "expression": "initial_rows[0]['value'] == 1.0",
+      "holds": true,
+      "actual_left": 1.0,
+      "expected_right": 1.0
+    },
+    {
+      "line": 2167,
+      "expression": "initial_rows[0]['aggregation_method'] == 'weighted_mean'",
+      "holds": true,
+      "actual_left": "weighted_mean",
+      "expected_right": "weighted_mean"
+    },
+    {
+      "line": 2169,
+      "expression": "normalized is not None",
+      "holds": true,
+      "actual_left": [
+        "UA",
+        2020,
+        2020,
+        7,
+        1.0,
+        "{\"aggregation_method\":\"weighted_mean\",\"data_shape\":\"survey_repeated_cross_section\",\"observation_grain\":\"country_survey_year_wave\",\"sample_size\":1,\"sample_weight_field\":\"S017\",\"weighted_sample_size\":1.0}"
+      ],
+      "expected_right": null
+    },
+    {
+      "line": 2170,
+      "expression": "json.loads(normalized[-1])['aggregation_method'] == 'weighted_mean'",
+      "holds": true,
+      "actual_left": "weighted_mean",
+      "expected_right": "weighted_mean"
+    },
+    {
+      "line": 2171,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]['name'] == 'Fixture first'",
+      "holds": true,
+      "actual_left": "Fixture first",
+      "expected_right": "Fixture first"
+    },
+    {
+      "line": 2178,
+      "expression": "config.run_signature == signature",
+      "holds": true,
+      "actual_left": "64ec77fd6c2c5e706a95bb7d9de83bce38e7b6f6b61be5164ce23acf417fe766",
+      "expected_right": "64ec77fd6c2c5e706a95bb7d9de83bce38e7b6f6b61be5164ce23acf417fe766"
+    },
+    {
+      "line": 2184,
+      "expression": "len(changed) == len(original)",
+      "holds": true,
+      "actual_left": 143,
+      "expected_right": 143
+    },
+    {
+      "line": 2187,
+      "expression": "registry_path.stat().st_mtime_ns == previous_stat.st_mtime_ns",
+      "holds": true,
+      "actual_left": 1791489250326506098,
+      "expected_right": 1791489250326506098
+    },
+    {
+      "line": 2189,
+      "expression": "changed_rows[0]['aggregation_method'] == 'weighted_mode'",
+      "holds": true,
+      "actual_left": "weighted_mode",
+      "expected_right": "weighted_mode"
+    },
+    {
+      "line": 2190,
+      "expression": "changed_rows[0]['value'] == initial_rows[0]['value']",
+      "holds": true,
+      "actual_left": 1.0,
+      "expected_right": 1.0
+    },
+    {
+      "line": 2192,
+      "expression": "normalized is not None",
+      "holds": true,
+      "actual_left": [
+        "UA",
+        2020,
+        2020,
+        7,
+        1.0,
+        "{\"aggregation_method\":\"weighted_mode\",\"data_shape\":\"survey_repeated_cross_section\",\"observation_grain\":\"country_survey_year_wave\",\"sample_size\":1,\"sample_weight_field\":\"S017\",\"weighted_sample_size\":1.0}"
+      ],
+      "expected_right": null
+    },
+    {
+      "line": 2193,
+      "expression": "json.loads(normalized[-1])['aggregation_method'] == 'weighted_mode'",
+      "holds": true,
+      "actual_left": "weighted_mode",
+      "expected_right": "weighted_mode"
+    },
+    {
+      "line": 2194,
+      "expression": "catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]['name'] == 'Fixture later'",
+      "holds": true,
+      "actual_left": "Fixture later",
+      "expected_right": "Fixture later"
+    },
+    {
+      "line": 2198,
+      "expression": "config.run_signature != signature",
+      "holds": true,
+      "actual_left": "268e44ad96297c885eb352248c3c1652ecc7f45f938a308be3088e0c829118f1",
+      "expected_right": "64ec77fd6c2c5e706a95bb7d9de83bce38e7b6f6b61be5164ce23acf417fe766"
+    }
+  ],
+  "marker_and_fixture_outputs": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/semantic-q70gxh7b"
+}

@@ -1,0 +1,76 @@
+{
+  "schema": "orch02r2.actual-wvs-operation-policy-removal.v1",
+  "raw_pytest_exitstatus": 1,
+  "removed_quantity": "Only response_type forwarding; original normalizer reloads actual policy for each real SQL cell",
+  "retained": [
+    "real DuckDB CSV relation/filter/aggregation",
+    "actual current snapshot policy reader",
+    "unchanged source/test bytes/markers/owned assertions"
+  ],
+  "events": [
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+      "kind": "actual_policy_snapshot_read",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp/test_wvs_bulk_resolves_current0/wvs.yaml"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+      "kind": "actual_policy_snapshot_read",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp/test_wvs_bulk_resolves_current0/wvs.yaml"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+      "kind": "actual_normalizer_without_forwarding",
+      "indicator": "A165",
+      "raw_value": "2",
+      "omitted_response_type": "binary_12",
+      "actual_result": 0.0
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+      "kind": "actual_policy_snapshot_read",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp/test_wvs_bulk_resolves_current0/wvs.yaml"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+      "kind": "actual_normalizer_without_forwarding",
+      "indicator": "A165",
+      "raw_value": "2",
+      "omitted_response_type": "binary_12",
+      "actual_result": 0.0
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+      "kind": "actual_policy_snapshot_read",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp/test_wvs_bulk_resolves_current0/wvs.yaml"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+      "kind": "actual_normalizer_without_forwarding",
+      "indicator": "A165",
+      "raw_value": "2",
+      "omitted_response_type": "binary_12",
+      "actual_result": 0.0
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+      "kind": "actual_duckdb_bulk_result",
+      "actual_rows": {
+        "A165": [
+          {
+            "country_code": "UA",
+            "survey_year": 2020,
+            "wave": 7,
+            "value": 0.0,
+            "sample_size": 3,
+            "weighted_sample_size": 3.0,
+            "sample_weight_field": "S017",
+            "aggregation_method": "weighted_mean",
+            "data_shape": "survey_repeated_cross_section",
+            "observation_grain": "country_survey_year_wave"
+          }
+        ]
+      }
+    }
+  ]
+}

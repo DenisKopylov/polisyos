@@ -1,0 +1,213 @@
+{
+  "base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+  "denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5909,
+    "base_files": 5908,
+    "source_files": 2703,
+    "current_sha256": "140ff751fe0fa4968941a62560b1c531c0ebcec61db953375682f500eb7983c1",
+    "base_sha256": "20a50abdb5119f1add5cdbd6c4f80f28c2c7adda4c4052e9acad8e1d529e1834"
+  },
+  "regressions": [],
+  "coverage": "partial",
+  "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ],
+  "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+  "root_count": 401,
+  "predicate_provenance": "recomputed",
+  "runtime_invocation_established": false,
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "schema": "policyos.e02.c05.required-invocation-scoped-readback.v1",
+  "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "raw_receipt_path": "/workspace/orch02-c05/policy-engine/_build/orch02-r2-c05/5ccbfa15/production-invocation.json",
+  "raw_receipt_sha256": "f649f40525bece3625668adaa5e96953ee443615c62bcf28b35909af58aa02f9",
+  "new_unresolved_by_construction": {
+    "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.run_signature": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.run_signature",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 47,
+          "column": 1,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config",
+          "reason": "decorated_definition",
+          "expression": "dataclass"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 91,
+          "column": 38,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.component_dir",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 166,
+          "column": 15,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.load_registry",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 195,
+          "column": 57,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.resolved_active_countries",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 197,
+          "column": 43,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.resolved_active_countries",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 201,
+          "column": 31,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.resolved_year_window",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 208,
+          "column": 5,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig",
+          "reason": "decorated_definition",
+          "expression": "property"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 210,
+          "column": 74,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.run_signature",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 225,
+          "column": 19,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.is_sampled_run",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 225,
+          "column": 61,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.is_sampled_run",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 228,
+          "column": 22,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.__post_init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 231,
+          "column": 37,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.__post_init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "line": 254,
+          "column": 55,
+          "scope": "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.__post_init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    },
+    "polisyos.data_forge.domains.catalog.batch.material_inputs._MaterialFileSnapshot.generation_member": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.data_forge.domains.catalog.batch.material_inputs._MaterialFileSnapshot.generation_member",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+          "line": 13,
+          "column": 1,
+          "scope": "polisyos.data_forge.domains.catalog.batch.material_inputs",
+          "reason": "decorated_definition",
+          "expression": "dataclass(frozen=True)"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+          "line": 22,
+          "column": 32,
+          "scope": "polisyos.data_forge.domains.catalog.batch.material_inputs._MaterialFileSnapshot.generation_member",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+          "line": 22,
+          "column": 65,
+          "scope": "polisyos.data_forge.domains.catalog.batch.material_inputs._MaterialFileSnapshot.generation_member",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    },
+    "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties.load_proxy_metric_alignments": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [
+        "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties.metric_proxy_alignments"
+      ],
+      "test_callers": [
+        "tests.unit.data_forge.domains.catalog.knowledge.test_proxy_penalties.test_load_proxy_metric_alignments_reads_yaml"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.data_forge.domains.catalog.knowledge.registry.DatasetRegistry.compute_p_star_z",
+      "indirect_boundary_evidence": []
+    }
+  },
+  "unresolved_count": 9215,
+  "unresolved_receiver_calls_count": 139840,
+  "gate_classification": "FAIL_UNRESOLVED_PARTIAL_STATIC_MODEL",
+  "conclusion": "No runtime invocation or production gate substance established. Actual source-qualified native fixture witnesses are recorded separately."
+}

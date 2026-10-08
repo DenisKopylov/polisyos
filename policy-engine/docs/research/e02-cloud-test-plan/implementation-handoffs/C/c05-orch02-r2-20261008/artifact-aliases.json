@@ -1,0 +1,2317 @@
+{
+  "schema": "policyos.e02.c05.lossless-artifact-custody.v1",
+  "rows": [
+    {
+      "original_path": "/workspace/orch02-r2/c05/before/mypy/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/before/mypy/command.json",
+      "original_bytes": 1253,
+      "original_sha256": "06e7af26f8e269cbf623b064740458655ccbb70d84244ecf71d856dece9230e5",
+      "stored_bytes": 1253,
+      "stored_sha256": "06e7af26f8e269cbf623b064740458655ccbb70d84244ecf71d856dece9230e5",
+      "stored_git_blob": "c0f16065b717365e78cebae79f3d3a4f85d46d83",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/before/mypy/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/before/mypy/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/before/mypy/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/before/mypy/stdout.txt.gz",
+      "original_bytes": 2413,
+      "original_sha256": "abbcaaf2fee8e80e06001833f53923787bd7b6d7701b74fd3910ebb90dbb9a12",
+      "stored_bytes": 665,
+      "stored_sha256": "562cf2b8437549d3295e2a99fcb27c718778c2ead3d4cdf40dc49239b7759f5d",
+      "stored_git_blob": "83d6ea76cbc4a5901972f23969fd1ee892746b32",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/before/ruff/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/before/ruff/command.json",
+      "original_bytes": 1232,
+      "original_sha256": "93c1ebf563bfc4712e9bb85d80441aeae978ff75df8b801a6c8f0b5499e42813",
+      "stored_bytes": 1232,
+      "stored_sha256": "93c1ebf563bfc4712e9bb85d80441aeae978ff75df8b801a6c8f0b5499e42813",
+      "stored_git_blob": "6fb4b4c67873089e5e4478de381778a79eedf635",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/before/ruff/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/before/ruff/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/before/ruff/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/before/ruff/stdout.txt.gz",
+      "original_bytes": 77949,
+      "original_sha256": "27bff92ef4cac708857501ba87f8d306573ce8a37b159f869060c506c4abaac6",
+      "stored_bytes": 4133,
+      "stored_sha256": "b3d60d931402d5cf55ea4cb78680a81e4405400459cb0febb13b771bcbb9b25d",
+      "stored_git_blob": "6ad8c201500dadf0dc19664520f52b259df67138",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-1/mypy/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-1/mypy/command.json",
+      "original_bytes": 1470,
+      "original_sha256": "627d8230d86ec2d3482293f9b6a117a40909770193f7b2f8146b828ba4b6cded",
+      "stored_bytes": 1470,
+      "stored_sha256": "627d8230d86ec2d3482293f9b6a117a40909770193f7b2f8146b828ba4b6cded",
+      "stored_git_blob": "d261556ed99670b9574376b102aab590ebe43ae2",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-1/mypy/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-1/mypy/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-1/mypy/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-1/mypy/stdout.txt.gz",
+      "original_bytes": 983,
+      "original_sha256": "6e3d04954446ab9694d05f57de6ac28e0097a157a38d99bd2a9582ffc6b7c7cd",
+      "stored_bytes": 352,
+      "stored_sha256": "b0e0baeb73db2a5ae45c3678868c381f2b7d97a87d0aa7ab529aa62ced7ecc7f",
+      "stored_git_blob": "86f7593bf9296923b84b42675de25f4ca23d270e",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-1/ruff/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-1/ruff/command.json",
+      "original_bytes": 1442,
+      "original_sha256": "e7a3862859f7da217fb84ac0a021df290fcc2b58e03b453421f2fac7bde75417",
+      "stored_bytes": 1442,
+      "stored_sha256": "e7a3862859f7da217fb84ac0a021df290fcc2b58e03b453421f2fac7bde75417",
+      "stored_git_blob": "99f04121c2e762e00803a6a5ae9019dad1ca2d93",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-1/ruff/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-1/ruff/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-1/ruff/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-1/ruff/stdout.txt.gz",
+      "original_bytes": 2,
+      "original_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stored_bytes": 22,
+      "stored_sha256": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+      "stored_git_blob": "bd3af778f3075656289099ba41937e2355e7bc75",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-2/mypy/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-2/mypy/command.json",
+      "original_bytes": 1469,
+      "original_sha256": "444060e6d6436baac0e53ff0e35dc11495ff45c308203561db68ce2f0bbd245f",
+      "stored_bytes": 1469,
+      "stored_sha256": "444060e6d6436baac0e53ff0e35dc11495ff45c308203561db68ce2f0bbd245f",
+      "stored_git_blob": "b4772a943fcf7958a401c27fa2c6df0755cdcd66",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-2/mypy/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-2/mypy/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-2/mypy/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-2/mypy/stdout.txt.gz",
+      "original_bytes": 422,
+      "original_sha256": "74386b84372a498d4e28810a2a711827f21f19128eb0fa393353e94f9d86a395",
+      "stored_bytes": 208,
+      "stored_sha256": "51eae1588ff4b0c5560be8cdcc8be549494a53d33d8fd9a4cf23cf0841c8d2eb",
+      "stored_git_blob": "2b6f5204b9b9b3b02cd9d95445ac4a7a9821adbb",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/mypy/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/mypy/command.json",
+      "original_bytes": 1526,
+      "original_sha256": "941e67e8603f6d9275f1fd7d0f299fa2f46bedb7729305c976205d84cd48e748",
+      "stored_bytes": 1526,
+      "stored_sha256": "941e67e8603f6d9275f1fd7d0f299fa2f46bedb7729305c976205d84cd48e748",
+      "stored_git_blob": "80ccf87d24e07b286ff55c2fd9d6f4f261b7b696",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/mypy/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/mypy/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/mypy/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/mypy/stdout.txt.gz",
+      "original_bytes": 43,
+      "original_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff",
+      "stored_bytes": 63,
+      "stored_sha256": "6a9336c27dc45c47c050eb2e9d104f4bf91a7ecebc28720a22dd7bd69cfdc5ee",
+      "stored_git_blob": "afe8491bc5e2927455b7317d8c680a83fbad55fb",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/new-tests/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/new-tests/command.json",
+      "original_bytes": 1185,
+      "original_sha256": "5c6758f0207b73e7e548d23564ebca58007ee691eab7aa04f6327cf71807d0ab",
+      "stored_bytes": 1185,
+      "stored_sha256": "5c6758f0207b73e7e548d23564ebca58007ee691eab7aa04f6327cf71807d0ab",
+      "stored_git_blob": "469194aac30ec1f335f53345c7c13be4d834f710",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/new-tests/junit.xml",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/new-tests/junit.xml.gz",
+      "original_bytes": 5723,
+      "original_sha256": "dd1c2f2f04ebf74d56e2b8d4fa81d6ce777476d043b9295c4e70dfa4e1545b07",
+      "stored_bytes": 1517,
+      "stored_sha256": "44a59d2ccd0ca8abf7175c70b2c207a1ce0c89f2c1ae2cecf2ba58a17332755e",
+      "stored_git_blob": "3700e0b7b7a87047bb148aa03bf072e7ff71bb49",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/new-tests/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/new-tests/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/new-tests/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/new-tests/stdout.txt.gz",
+      "original_bytes": 5061,
+      "original_sha256": "2f8f3131268d4d5141856e7f73b4be407dfd3ab9ad4ef1f5204152587a88573d",
+      "stored_bytes": 1317,
+      "stored_sha256": "5320f76d151cf29a662dccaabe465d0c490d9c6f8224ddadff65b0e47d2c8866",
+      "stored_git_blob": "5f10097baed3bb311f01f0c537530eb4a7c741c3",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/ruff/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/ruff/command.json",
+      "original_bytes": 1510,
+      "original_sha256": "e68caff9c44c586089fc4a5bb5d2772af4ffcba1132aed20394757be9ad41f83",
+      "stored_bytes": 1510,
+      "stored_sha256": "e68caff9c44c586089fc4a5bb5d2772af4ffcba1132aed20394757be9ad41f83",
+      "stored_git_blob": "16ee535af65ade483a1ce1e89d56d40facc115c7",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/ruff/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/ruff/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-3/ruff/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-3/ruff/stdout.txt.gz",
+      "original_bytes": 2917,
+      "original_sha256": "8435cd7f3271ef0cf7a3ce03d84b2da47316e19ae32c6f8f70d3b21c79a8b8b4",
+      "stored_bytes": 362,
+      "stored_sha256": "8be869af65c74b7c9bede313ab3a07b18852812257c0e10b9a4c290240aa04aa",
+      "stored_git_blob": "165eb02d12382cac88a4aa0e96112a2b875602c3",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-4/architecture/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-4/architecture/command.json",
+      "original_bytes": 1045,
+      "original_sha256": "020edbbb566c160a5887a410036fbb007f9bed057ecb2623f738be3e0b7fed2a",
+      "stored_bytes": 1045,
+      "stored_sha256": "020edbbb566c160a5887a410036fbb007f9bed057ecb2623f738be3e0b7fed2a",
+      "stored_git_blob": "e4f32374367609fb8953a6739d5da8aec7d1112c",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-4/architecture/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-4/architecture/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-4/architecture/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-4/architecture/stdout.txt.gz",
+      "original_bytes": 121768,
+      "original_sha256": "8813425889a4049972e176fed666b07a83438f6dff801d6e379bf716e0dec3c7",
+      "stored_bytes": 8973,
+      "stored_sha256": "f30b6431e25f6f2a7dff03611cfda9f7bac3af385d0d434e813f4c0c6d042ee1",
+      "stored_git_blob": "1c5d8eb696b6155bf77d94e5967190ca90662c5f",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-4/new-tests/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-4/new-tests/command.json",
+      "original_bytes": 1187,
+      "original_sha256": "ae4474d38ba26e281d7646faa3f902588a7bbfb190ae7efe2846f20ff6e10ce0",
+      "stored_bytes": 1187,
+      "stored_sha256": "ae4474d38ba26e281d7646faa3f902588a7bbfb190ae7efe2846f20ff6e10ce0",
+      "stored_git_blob": "fb572db7d6983e8cbb49976f3e3621348a923c30",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-4/new-tests/junit.xml",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-4/new-tests/junit.xml.gz",
+      "original_bytes": 988,
+      "original_sha256": "6501eaa6b53c67881833c9dab2c60c57ece4338a20261d2bbb71efda11dd7ead",
+      "stored_bytes": 378,
+      "stored_sha256": "550f39c9febd983af54aad2f050b9de1bc5f4f06ebaa150064ccb923668741ca",
+      "stored_git_blob": "e23301764464d58d13d15fa09d7f250c616d5669",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-4/new-tests/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-4/new-tests/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/working-4/new-tests/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/working-4/new-tests/stdout.txt.gz",
+      "original_bytes": 80,
+      "original_sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5",
+      "stored_bytes": 33,
+      "stored_sha256": "52347f33687fddac22dcfb4e26df616635c193539e459d4659dc95b960a41a2b",
+      "stored_git_blob": "5ee366e43d1603da92c8779b4a41307c41be4b48",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/integer-boundary/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/integer-boundary/command.json",
+      "original_bytes": 937,
+      "original_sha256": "d3a976b3928e851c55e650c5cd0fc40790c07a81561f25d7c0d51a4f99a88b21",
+      "stored_bytes": 937,
+      "stored_sha256": "d3a976b3928e851c55e650c5cd0fc40790c07a81561f25d7c0d51a4f99a88b21",
+      "stored_git_blob": "63c934a31363a3417a4141cae5730d303b7b10bf",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/integer-boundary/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/integer-boundary/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/integer-boundary/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/integer-boundary/stdout.txt.gz",
+      "original_bytes": 4441,
+      "original_sha256": "142a3fb77c7caacbb5780f7178b30df670a14be617cacd6d052970cbff14b49f",
+      "stored_bytes": 429,
+      "stored_sha256": "b53a32756568d56c2f6f3d4d21c555bafaf9ec8aabc8c372d70ab811fa0bfe46",
+      "stored_git_blob": "eaa48e935387ef6aadb412a9f83e594f094c978b",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/format/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/format/command.json",
+      "original_bytes": 3566,
+      "original_sha256": "3abedf51304d676aade065fb5d3217e70c3e12b33fea432cb811d5f710b81313",
+      "stored_bytes": 3566,
+      "stored_sha256": "3abedf51304d676aade065fb5d3217e70c3e12b33fea432cb811d5f710b81313",
+      "stored_git_blob": "861f42e0a3d42c7c9a8470c836d44cf6bab6f3f7",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/format/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/format/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/format/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/format/stdout.txt.gz",
+      "original_bytes": 26,
+      "original_sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+      "stored_bytes": 46,
+      "stored_sha256": "837154397e0c114f710fe0366b52c5369639a194f97a63e7faa0921639b6f76a",
+      "stored_git_blob": "ce0b784ccfce23f24a73dc4920e3a04a42d9ff7b",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-shared/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/mypy-shared/command.json",
+      "original_bytes": 3432,
+      "original_sha256": "7783460bb28520c70e0404409bbca1ffd116b8779736475e3583d8c61548e1b8",
+      "stored_bytes": 3432,
+      "stored_sha256": "7783460bb28520c70e0404409bbca1ffd116b8779736475e3583d8c61548e1b8",
+      "stored_git_blob": "52c4d5ed9f6ad88d50b20ded09a346c34e4baf7e",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-shared/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/mypy-shared/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-shared/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/mypy-shared/stdout.txt.gz",
+      "original_bytes": 872,
+      "original_sha256": "d62d4e9f4971f9ae1491169dee5be6b72ae6fb4a8cb07f76f544fba694a104f1",
+      "stored_bytes": 329,
+      "stored_sha256": "0d622352129a922b870f6a71e298dff4531d3bbac27c296ef75f064320f9924a",
+      "stored_git_blob": "0a706a1f51d6e44f433bd36484cf7f992c528e4d",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-stubs/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/mypy-stubs/command.json",
+      "original_bytes": 3427,
+      "original_sha256": "15a4de9343c6b4452eee85cb4d0d42ecbbf9e71355523c52fd50da748833d3a9",
+      "stored_bytes": 3427,
+      "stored_sha256": "15a4de9343c6b4452eee85cb4d0d42ecbbf9e71355523c52fd50da748833d3a9",
+      "stored_git_blob": "6bb56078267c9880be8d17272689ba95f1b47e56",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-stubs/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/mypy-stubs/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/mypy-stubs/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/mypy-stubs/stdout.txt.gz",
+      "original_bytes": 43,
+      "original_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff",
+      "stored_bytes": 63,
+      "stored_sha256": "6a9336c27dc45c47c050eb2e9d104f4bf91a7ecebc28720a22dd7bd69cfdc5ee",
+      "stored_git_blob": "afe8491bc5e2927455b7317d8c680a83fbad55fb",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/ruff/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/ruff/command.json",
+      "original_bytes": 3574,
+      "original_sha256": "23adc9f89aecd5f1ca801bc12b7bd5f81e9c3fd4e16ae98e2cdab7cf2bbc5dca",
+      "stored_bytes": 3574,
+      "stored_sha256": "23adc9f89aecd5f1ca801bc12b7bd5f81e9c3fd4e16ae98e2cdab7cf2bbc5dca",
+      "stored_git_blob": "330283376f0c5f03adadef622139c395d6e9280f",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/ruff/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/ruff/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/final-typed/ruff/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/final-typed/ruff/stdout.txt.gz",
+      "original_bytes": 2,
+      "original_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stored_bytes": 22,
+      "stored_sha256": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+      "stored_git_blob": "bd3af778f3075656289099ba41937e2355e7bc75",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-shared/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/mypy-shared/command.json",
+      "original_bytes": 3082,
+      "original_sha256": "b1223a8b938c77dee874d38e341ae76f3b8d778dc830767973ebea03080c0f76",
+      "stored_bytes": 3082,
+      "stored_sha256": "b1223a8b938c77dee874d38e341ae76f3b8d778dc830767973ebea03080c0f76",
+      "stored_git_blob": "e5a78bb2be64955233e5e6aee7522f85951daf81",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-shared/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/mypy-shared/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-shared/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/mypy-shared/stdout.txt.gz",
+      "original_bytes": 872,
+      "original_sha256": "d62d4e9f4971f9ae1491169dee5be6b72ae6fb4a8cb07f76f544fba694a104f1",
+      "stored_bytes": 329,
+      "stored_sha256": "0d622352129a922b870f6a71e298dff4531d3bbac27c296ef75f064320f9924a",
+      "stored_git_blob": "0a706a1f51d6e44f433bd36484cf7f992c528e4d",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-stubs/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/mypy-stubs/command.json",
+      "original_bytes": 3075,
+      "original_sha256": "f4ab5a103da5c4d09b5ef1b0c7d4981c0ae0bf039d3d9afe8ab939700d0f8880",
+      "stored_bytes": 3075,
+      "stored_sha256": "f4ab5a103da5c4d09b5ef1b0c7d4981c0ae0bf039d3d9afe8ab939700d0f8880",
+      "stored_git_blob": "f6805585184ff48fd36a03580df20fb0b6f2d041",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-stubs/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/mypy-stubs/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/mypy-stubs/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/mypy-stubs/stdout.txt.gz",
+      "original_bytes": 43,
+      "original_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff",
+      "stored_bytes": 63,
+      "stored_sha256": "6a9336c27dc45c47c050eb2e9d104f4bf91a7ecebc28720a22dd7bd69cfdc5ee",
+      "stored_git_blob": "afe8491bc5e2927455b7317d8c680a83fbad55fb",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/ruff/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/ruff/command.json",
+      "original_bytes": 1358,
+      "original_sha256": "44ddf6d561601c8676ba78f1b25c8b192a30ee934c7c0fb87292257a8fb93fdb",
+      "stored_bytes": 1358,
+      "stored_sha256": "44ddf6d561601c8676ba78f1b25c8b192a30ee934c7c0fb87292257a8fb93fdb",
+      "stored_git_blob": "7bbc53fe1afb79dba7976b845daf247874f3578b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/ruff/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/ruff/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/ruff/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-repair/ruff/stdout.txt.gz",
+      "original_bytes": 2,
+      "original_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stored_bytes": 22,
+      "stored_sha256": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+      "stored_git_blob": "bd3af778f3075656289099ba41937e2355e7bc75",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/architecture/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/architecture/command.json",
+      "original_bytes": 1051,
+      "original_sha256": "9cbd8f8f65e3a6c323afb59978fe79fe2e40ebe25ec25c18e1158e6f5646a5bc",
+      "stored_bytes": 1051,
+      "stored_sha256": "9cbd8f8f65e3a6c323afb59978fe79fe2e40ebe25ec25c18e1158e6f5646a5bc",
+      "stored_git_blob": "dd56e00988d3b65c6529b79c63030cc459c1e6c3",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/architecture/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/architecture/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/architecture/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/architecture/stdout.txt.gz",
+      "original_bytes": 121768,
+      "original_sha256": "8813425889a4049972e176fed666b07a83438f6dff801d6e379bf716e0dec3c7",
+      "stored_bytes": 8973,
+      "stored_sha256": "f30b6431e25f6f2a7dff03611cfda9f7bac3af385d0d434e813f4c0c6d042ee1",
+      "stored_git_blob": "1c5d8eb696b6155bf77d94e5967190ca90662c5f",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/format/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/format/command.json",
+      "original_bytes": 3202,
+      "original_sha256": "504a275b56f1c144bfed221a26724f4c31373077060e95e3ec0d8343e8c29ca1",
+      "stored_bytes": 3202,
+      "stored_sha256": "504a275b56f1c144bfed221a26724f4c31373077060e95e3ec0d8343e8c29ca1",
+      "stored_git_blob": "808288be6b6c6a9b0c8627b0ff34ea249e920625",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/format/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/format/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/format/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/format/stdout.txt.gz",
+      "original_bytes": 26,
+      "original_sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+      "stored_bytes": 46,
+      "stored_sha256": "837154397e0c114f710fe0366b52c5369639a194f97a63e7faa0921639b6f76a",
+      "stored_git_blob": "ce0b784ccfce23f24a73dc4920e3a04a42d9ff7b",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-shared/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/mypy-shared/command.json",
+      "original_bytes": 3085,
+      "original_sha256": "b04636667a5f1adf5128635620aad64c5fec63cd902bb0f71928909110662b7f",
+      "stored_bytes": 3085,
+      "stored_sha256": "b04636667a5f1adf5128635620aad64c5fec63cd902bb0f71928909110662b7f",
+      "stored_git_blob": "9514406577b78416ac853cc551b1ece648706e7a",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-shared/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/mypy-shared/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-shared/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/mypy-shared/stdout.txt.gz",
+      "original_bytes": 872,
+      "original_sha256": "d62d4e9f4971f9ae1491169dee5be6b72ae6fb4a8cb07f76f544fba694a104f1",
+      "stored_bytes": 329,
+      "stored_sha256": "0d622352129a922b870f6a71e298dff4531d3bbac27c296ef75f064320f9924a",
+      "stored_git_blob": "0a706a1f51d6e44f433bd36484cf7f992c528e4d",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-stubs/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/mypy-stubs/command.json",
+      "original_bytes": 3081,
+      "original_sha256": "30a6aa392e0614d0beb0be775d7affd012a6e1cd7c4ed64b6636f973ad5f975a",
+      "stored_bytes": 3081,
+      "stored_sha256": "30a6aa392e0614d0beb0be775d7affd012a6e1cd7c4ed64b6636f973ad5f975a",
+      "stored_git_blob": "d0527b5abf3df936989e8e38a95ba3b06ac20771",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-stubs/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/mypy-stubs/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/mypy-stubs/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/mypy-stubs/stdout.txt.gz",
+      "original_bytes": 43,
+      "original_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff",
+      "stored_bytes": 63,
+      "stored_sha256": "6a9336c27dc45c47c050eb2e9d104f4bf91a7ecebc28720a22dd7bd69cfdc5ee",
+      "stored_git_blob": "afe8491bc5e2927455b7317d8c680a83fbad55fb",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/ruff/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/ruff/command.json",
+      "original_bytes": 3220,
+      "original_sha256": "1da5e8d619faacf1f3defb0fa6caaad745b555cddcb816a6ef3e54092cea5a26",
+      "stored_bytes": 3220,
+      "stored_sha256": "1da5e8d619faacf1f3defb0fa6caaad745b555cddcb816a6ef3e54092cea5a26",
+      "stored_git_blob": "b5126881e01500317b8511156016d53255a7c2d3",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/ruff/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/ruff/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-final-9633/ruff/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-quality/resolver-final-9633/ruff/stdout.txt.gz",
+      "original_bytes": 2,
+      "original_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stored_bytes": 22,
+      "stored_sha256": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+      "stored_git_blob": "bd3af778f3075656289099ba41937e2355e7bc75",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/frozen/c05-typed-r2.patch",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/initial-source-freeze/c05-typed-r2.patch.gz",
+      "original_bytes": 51657,
+      "original_sha256": "2f30ea6081ea71052628b34a3263d8119de1bb137d2eb9981bd42ca3637a9482",
+      "stored_bytes": 13490,
+      "stored_sha256": "8684038049a9785c4135e196153822300e0382e7a2fbae35c0ca81fce82e674f",
+      "stored_git_blob": "472c04a117418f90fa8102565d1202e321dd239b",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/frozen/source-freeze.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/initial-source-freeze/source-freeze.json.gz",
+      "original_bytes": 72958,
+      "original_sha256": "c63254fd3db31942759c367e78dbe6066001160ae045e67d1e4bf5d4ef840966",
+      "stored_bytes": 9085,
+      "stored_sha256": "78156ecc605c68995ecc39c390f455228a2353ebd70e37ad3aa2af326981cd90",
+      "stored_git_blob": "61b4b154344b5d085645c3fa2f7f6ab7c7dbce58",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/frozen/type-profile.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/initial-source-freeze/type-profile.json",
+      "original_bytes": 2213,
+      "original_sha256": "d52e0cb0df21e1c1672bb8f0248dc50f32d4f5369524b1bc9cd32d245aae671a",
+      "stored_bytes": 2213,
+      "stored_sha256": "d52e0cb0df21e1c1672bb8f0248dc50f32d4f5369524b1bc9cd32d245aae671a",
+      "stored_git_blob": "35521126db5ab5c57372663bd215ad33c1584e92",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/freeze.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/final-source-freeze/freeze.json",
+      "original_bytes": 1522,
+      "original_sha256": "db6da6f142240775d36cfb8b67e191bad4946fdf8f53a992f3e9ab851b87f01d",
+      "stored_bytes": 1522,
+      "stored_sha256": "db6da6f142240775d36cfb8b67e191bad4946fdf8f53a992f3e9ab851b87f01d",
+      "stored_git_blob": "c265acafc7ba11df29b89ad3fd84feabf6e08e68",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/source-binding.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/final-source-freeze/source-binding.json.gz",
+      "original_bytes": 84223,
+      "original_sha256": "993f8d92e38e8b231a7136a7dcfbef1c0a3bbf89419ced18ddc7aea5fff9dfde",
+      "stored_bytes": 9514,
+      "stored_sha256": "1fd6d4cf1a1d0193a5d5c694e67d506e8a6f5f41547de0d12029947cd847027f",
+      "stored_git_blob": "eb709173d09970673aa9a20d796caaa2621732b1",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/resolver-repair/resolver-dispatch-forward.patch",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/final-source-freeze/resolver-dispatch-forward.patch.gz",
+      "original_bytes": 1858,
+      "original_sha256": "7be71a70f9aeda5ef507b9f762e0754c48276880710c396019abd17fde91ee72",
+      "stored_bytes": 715,
+      "stored_sha256": "8ffbd631ab2383815e9087be863f4e13cda029d7e38b55eb482cb56456ceb893",
+      "stored_git_blob": "fd250795bb087e059bde19922907edab27b7a237",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-source-review-dac1d82c.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-review/c05-independent-source-review-dac1d82c.json.gz",
+      "original_bytes": 99796,
+      "original_sha256": "bede80acdf012650c1b510c1d893c3d25d522e52f8d6970d03ae9e02ec0c2184",
+      "stored_bytes": 13426,
+      "stored_sha256": "cc3603346098f360c9eddba8ed931c53ab0c2d9219bba0a55884a42448872ac6",
+      "stored_git_blob": "94c028a0ed50eab03fbb3d452e619b3ecb1d2fdc",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-source-review-dac1d82c.md",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-review/c05-independent-source-review-dac1d82c.md",
+      "original_bytes": 1322,
+      "original_sha256": "c7ebe8f69f642a2b8f9dda9fabdcb99c9ea919c50abc25eb2d1781232c9ff995",
+      "stored_bytes": 1322,
+      "stored_sha256": "c7ebe8f69f642a2b8f9dda9fabdcb99c9ea919c50abc25eb2d1781232c9ff995",
+      "stored_git_blob": "c55a88a2ad5f85dcba88699f9a3307ffe53be6c6",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-resolver-forward-source-review-9633ae3e.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-review/c05-independent-resolver-forward-source-review-9633ae3e.json",
+      "original_bytes": 8583,
+      "original_sha256": "cde9595f3e97ee724b2a6783d83246a667349f95b80fa1b8e7a4555ca1965ba5",
+      "stored_bytes": 8583,
+      "stored_sha256": "cde9595f3e97ee724b2a6783d83246a667349f95b80fa1b8e7a4555ca1965ba5",
+      "stored_git_blob": "2fd4c20f15c712190af0a8ddfb908ea5c919ad0c",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-resolver-forward-source-review-9633ae3e.md",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-review/c05-independent-resolver-forward-source-review-9633ae3e.md",
+      "original_bytes": 1352,
+      "original_sha256": "d6c60c5a283e6eb4c85235356432c7673e45df369b8e14199e4d982a141796b7",
+      "stored_bytes": 1352,
+      "stored_sha256": "d6c60c5a283e6eb4c85235356432c7673e45df369b8e14199e4d982a141796b7",
+      "stored_git_blob": "300a83c8f7921fc004d09da8c4185259e7fd7411",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-forward-source-quality-binding-5ccbfa15.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-review/c05-independent-forward-source-quality-binding-5ccbfa15.json",
+      "original_bytes": 16704,
+      "original_sha256": "18bd7a5771c07c3d2aac8d3129a2502376ca0849079367d3a053aec5db5e85b1",
+      "stored_bytes": 16704,
+      "stored_sha256": "18bd7a5771c07c3d2aac8d3129a2502376ca0849079367d3a053aec5db5e85b1",
+      "stored_git_blob": "d9f40b5190e97a215256cfcb713c2d05c7751883",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-final-native-review-5ccbfa15.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-review/c05-independent-final-native-review-5ccbfa15.json.gz",
+      "original_bytes": 66631,
+      "original_sha256": "07184d8625d77ea694b3cac4f9f1cf75b17bc3b33e3f048f7f9825fb55bf76e0",
+      "stored_bytes": 10187,
+      "stored_sha256": "3e050d9f6e042fe64a5eae9bcd471bef7d960bb73436a2e1c0edefeb7303bc28",
+      "stored_git_blob": "2907213bab9aa87fee61767b6bd5904f458040d3",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-final-native-review-5ccbfa15.md",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-review/c05-independent-final-native-review-5ccbfa15.md",
+      "original_bytes": 1447,
+      "original_sha256": "d151820fc689d04f88e5646ce8f73a3f839828269abb4ec32252e1ad4d2a1310",
+      "stored_bytes": 1447,
+      "stored_sha256": "d151820fc689d04f88e5646ce8f73a3f839828269abb4ec32252e1ad4d2a1310",
+      "stored_git_blob": "dccd2de0c7d103c66d533a9806954288a9ace459",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-recovery/reviews/c05-independent-source-DAG-66151f3b.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/source-DAG/c05-independent-source-DAG-66151f3b.json",
+      "original_bytes": 5627,
+      "original_sha256": "ecc127aca9ea23b0590c0a1917ece60c39344253983cb3edc17066b5b958d8a8",
+      "stored_bytes": 5627,
+      "stored_sha256": "ecc127aca9ea23b0590c0a1917ece60c39344253983cb3edc17066b5b958d8a8",
+      "stored_git_blob": "232bd7e2554b52b7c7815f475085b9b8bfc8a7ab",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source/fetch-readback.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source/fetch-readback.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source/push.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source/push.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source/push.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source/push.stderr.txt.gz",
+      "original_bytes": 140,
+      "original_sha256": "3f9ece1f48358d4619e8da42ff921accd55fdd14481f3ae182d70f1a45e0458f",
+      "stored_bytes": 127,
+      "stored_sha256": "280cc2798bae8d4804beee8d0ae48607da7e52ffa9567e33ed50bf163b682c79",
+      "stored_git_blob": "fae8ec640f11782c12b0f084d3242f6beb796f63",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source/fetch-readback.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source/fetch-readback.stderr.txt.gz",
+      "original_bytes": 150,
+      "original_sha256": "8878c3284db0e07eeedc186d7dcad4fd5f2a6128f022737cc33729e825fd4cad",
+      "stored_bytes": 145,
+      "stored_sha256": "59b16e1111121f91f89d927acb011c75856e9bcd34cb47511059c7ac5c1de901",
+      "stored_git_blob": "a98961ef2cc5bbacbb22aff9f021493764bfcac7",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source/receipt.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source/receipt.json",
+      "original_bytes": 14442,
+      "original_sha256": "d73f9db17a092e1e96c51522a73e94a785180eabc45123e068819b68aeb973c6",
+      "stored_bytes": 14442,
+      "stored_sha256": "d73f9db17a092e1e96c51522a73e94a785180eabc45123e068819b68aeb973c6",
+      "stored_git_blob": "645cfca988fae622eaa3cc0b52e8fbdb735f0cc5",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source-5ccbfa15/fetch-readback.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source-5ccbfa15/fetch-readback.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source-5ccbfa15/push.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source-5ccbfa15/push.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source-5ccbfa15/push.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source-5ccbfa15/push.stderr.txt.gz",
+      "original_bytes": 140,
+      "original_sha256": "e4a2f606d75605a23641aa0c73896c4dd491ce2ca244909287def8f954d4a289",
+      "stored_bytes": 126,
+      "stored_sha256": "222b8236f50b79b5d45c14c59c47e10ce16ce53a1f4040d13a45162ce426dc62",
+      "stored_git_blob": "cd0b33a4eebd495ba8580c7a9cbade537117dbf2",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source-5ccbfa15/fetch-readback.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source-5ccbfa15/fetch-readback.stderr.txt.gz",
+      "original_bytes": 150,
+      "original_sha256": "61744612eea66d850237be81619b4d664c1eafb05fc538a77977e2d08c3a043f",
+      "stored_bytes": 144,
+      "stored_sha256": "f906aee4e3888f535186f54065fb5f8d3318a0bc48d63ebc289fcae17e8c2b1b",
+      "stored_git_blob": "5449c9829f9e3ab6feda566c8dceb8eaba2c63f2",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-source-5ccbfa15/receipt.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-source-5ccbfa15/receipt.json",
+      "original_bytes": 14442,
+      "original_sha256": "6f8f65c2e699b51630a37802307762e3ee2eeae36dccc79b8d8ff3fcafe85d84",
+      "stored_bytes": 14442,
+      "stored_sha256": "6f8f65c2e699b51630a37802307762e3ee2eeae36dccc79b8d8ff3fcafe85d84",
+      "stored_git_blob": "58a2153d32489c9be9efa76f9791aa8949d71324",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c05-native-initial-receipt-2734ee49.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-receipts/c05-native-initial-receipt-2734ee49.json.gz",
+      "original_bytes": 258029,
+      "original_sha256": "10c9993e2d1c545aef53a50264959575525f0d49f6cadddfa17ef7e5f69be947",
+      "stored_bytes": 48483,
+      "stored_sha256": "24c55ddb1ba41052132cac648daff291ed11cf422c864d1093f305c3d6f403b0",
+      "stored_git_blob": "fc7b13d10479174abd1addc8effe0966b95327e9",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c05-native-final-receipt-5ccbfa15.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-receipts/c05-native-final-receipt-5ccbfa15.json.gz",
+      "original_bytes": 1212361,
+      "original_sha256": "76dd1fa4f704d07e0c09550d181e856b8d795303031a48c1356766969839d5f5",
+      "stored_bytes": 91084,
+      "stored_sha256": "bf1643341441bfb9e18286d5a26c905323561828c2d5f01847eaf4023f9108da",
+      "stored_git_blob": "0700261327be84b63ce3ba0ae6a2e07c5e5fc7fa",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c05-wave-definition-2734ee49.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-receipts/c05-wave-definition-2734ee49.json",
+      "original_bytes": 9401,
+      "original_sha256": "9fe6e8dec2f08c210853d8b7940aeadd88df2e3bc42154dd460f2d6173aa4b94",
+      "stored_bytes": 9401,
+      "stored_sha256": "9fe6e8dec2f08c210853d8b7940aeadd88df2e3bc42154dd460f2d6173aa4b94",
+      "stored_git_blob": "368fe170afe6b54ee5451e294d6276ea74282a59",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c05-wave-definition-5ccbfa15.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-receipts/c05-wave-definition-5ccbfa15.json",
+      "original_bytes": 10504,
+      "original_sha256": "17cf61d87fcc74056aa397987533ee76daba9055af7206566dfe48ddac447c9e",
+      "stored_bytes": 10504,
+      "stored_sha256": "17cf61d87fcc74056aa397987533ee76daba9055af7206566dfe48ddac447c9e",
+      "stored_git_blob": "0bee81b6e384ee60a5dd2884bff48b3f7ec41a55",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c05-executed-harness-ledger.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-receipts/c05-executed-harness-ledger.json",
+      "original_bytes": 3084,
+      "original_sha256": "f142967bc6dd34b85621c9ce3d9a072355e3f91a0de9eacb8bd9fc2a6990d9e0",
+      "stored_bytes": 3084,
+      "stored_sha256": "f142967bc6dd34b85621c9ce3d9a072355e3f91a0de9eacb8bd9fc2a6990d9e0",
+      "stored_git_blob": "c62f8d1667075ec45092f946be865c3189f5772b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/command.json",
+      "original_bytes": 5028,
+      "original_sha256": "b6bd1b81cbce12f89e547c7c75447b88c6b3b5c827d781a7eddd606d8faceea5",
+      "stored_bytes": 5028,
+      "stored_sha256": "b6bd1b81cbce12f89e547c7c75447b88c6b3b5c827d781a7eddd606d8faceea5",
+      "stored_git_blob": "381c335205d3da1de084d58ad6d63143ace921a8",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/junit.xml",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/junit.xml.gz",
+      "original_bytes": 20387,
+      "original_sha256": "ecca9de6dc6e48c9a09a2893d37174704605bed47567e936e4b4a64b483a041c",
+      "stored_bytes": 3460,
+      "stored_sha256": "43d04bbb188532b0936cdfbbec81816d80416bb857643aecfc31ee69b1bfeee2",
+      "stored_git_blob": "96022ecb6688f170f20ffee4c87b3c1188f2dc8e",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/session-events.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/session-events.json",
+      "original_bytes": 8581,
+      "original_sha256": "a318f03ac37d8bef70995bf81f042ea04aaa18adda1fbbe805b936fe9cc6b6b1",
+      "stored_bytes": 8581,
+      "stored_sha256": "a318f03ac37d8bef70995bf81f042ea04aaa18adda1fbbe805b936fe9cc6b6b1",
+      "stored_git_blob": "affc185da6ad596ca5f9134f644950e34abbef1b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/stdout.txt.gz",
+      "original_bytes": 639,
+      "original_sha256": "fa52396ca9044511fcdc741272442abcc2cfe8e40347de737cd49952ea71f6de",
+      "stored_bytes": 281,
+      "stored_sha256": "cc380499c2b78e8410a1e0ea9dce24951db68d84f95202cd9b2006d7ed1ef1fe",
+      "stored_git_blob": "b02f904f27effcca10fdecc6e721d898ef7a4f49",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/runtime-binding-events.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/runtime-binding-events.json",
+      "original_bytes": 549,
+      "original_sha256": "285f7460c0d4c5c1205faf367926dcd5bf7fdde9d55a073119dfaf2ffb0eccf9",
+      "stored_bytes": 549,
+      "stored_sha256": "285f7460c0d4c5c1205faf367926dcd5bf7fdde9d55a073119dfaf2ffb0eccf9",
+      "stored_git_blob": "ac6eb497244f4db78f82c1d63ee101436cbfb3e3",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/runtime-origins.json.gz",
+      "original_bytes": 104814,
+      "original_sha256": "53720865752a37ac303d0f94c797cb15dba23f9d8f26ca63467fdbe95edb0f15",
+      "stored_bytes": 24674,
+      "stored_sha256": "1ea3b82b9993a3817ba3aa15908d9fbe4e865185b40def3d10f4b84efa675bd6",
+      "stored_git_blob": "741080e26bd9134943c60be518bb71d303f35ba1",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/selected-tests.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/selected-tests.json",
+      "original_bytes": 17687,
+      "original_sha256": "0e6339ff2b886c386508d771a5955ba77f9b17e6911a92029462b34b08de4c02",
+      "stored_bytes": 17687,
+      "stored_sha256": "0e6339ff2b886c386508d771a5955ba77f9b17e6911a92029462b34b08de4c02",
+      "stored_git_blob": "23613f579b66a80fafe7ccf231557898d617e1a8",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-affected-native/resource.json",
+      "original_bytes": 293,
+      "original_sha256": "84dd0bc506d14e6b029148d4c7028688396901a1f5ca7d05e677500ab7603487",
+      "stored_bytes": 293,
+      "stored_sha256": "84dd0bc506d14e6b029148d4c7028688396901a1f5ca7d05e677500ab7603487",
+      "stored_git_blob": "5af834c015c35b82a2cd8b0dd3ac6382793e941d",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/semantic.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-control/semantic.json",
+      "original_bytes": 10258,
+      "original_sha256": "a021a717f5456706a427d9e607587cf71395ad9cda518a5735f2590ecd62909c",
+      "stored_bytes": 10258,
+      "stored_sha256": "a021a717f5456706a427d9e607587cf71395ad9cda518a5735f2590ecd62909c",
+      "stored_git_blob": "5754d66d21a1a69e0830a2c98c9c310820469b4d",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-control/command.json",
+      "original_bytes": 3258,
+      "original_sha256": "2b4168faee559e8deaf3c2e286bfae6b962cc75726fd0bf8639c723d9218b33c",
+      "stored_bytes": 3258,
+      "stored_sha256": "2b4168faee559e8deaf3c2e286bfae6b962cc75726fd0bf8639c723d9218b33c",
+      "stored_git_blob": "70af2a0059dbed91c55b7d35f3014c438060c8ed",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-control/stdout.txt.gz",
+      "original_bytes": 10258,
+      "original_sha256": "a021a717f5456706a427d9e607587cf71395ad9cda518a5735f2590ecd62909c",
+      "stored_bytes": 1607,
+      "stored_sha256": "0d807ecd378cdcc472bc2a16f63b2269b9d34841af77d51f1bc0af092e2c0666",
+      "stored_git_blob": "9acb78aad6f377680bc82cf650ca8882eea146c8",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-control/runtime-origins.json.gz",
+      "original_bytes": 92353,
+      "original_sha256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff",
+      "stored_bytes": 21684,
+      "stored_sha256": "a0243ccbedee53dae65ff8aeb1b75069462f737941039c5b62d04f3d42c4d96e",
+      "stored_git_blob": "b2de24258de6660d49f6d2a5916a133474589963",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-control/stderr.txt.gz",
+      "original_bytes": 189,
+      "original_sha256": "eb1b311b33bfa641b9e86170ca3a3dd8f459b02946b5d2a9dbd82676545d0a12",
+      "stored_bytes": 186,
+      "stored_sha256": "4872ba663841ed0dea1a49958ef1a9da998fa2bc3cd73594fe110b67659c29a3",
+      "stored_git_blob": "996a11b105d2dedf4060ff78f1b1a6173c696c02",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-control/resource.json",
+      "original_bytes": 289,
+      "original_sha256": "9042827daaa36f0715049ed09086c9d3d690750ad087970fe69fc3219b08f262",
+      "stored_bytes": 289,
+      "stored_sha256": "9042827daaa36f0715049ed09086c9d3d690750ad087970fe69fc3219b08f262",
+      "stored_git_blob": "12d06080a69a0bd9f9e5a891fd3f8a020fd88f9d",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/semantic.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-removed/semantic.json",
+      "original_bytes": 29550,
+      "original_sha256": "9fd9ef2b4c24c1427d65a0f8a3b5a92aadc3615d3e2a485a8f0caa860dfbf1e1",
+      "stored_bytes": 29550,
+      "stored_sha256": "9fd9ef2b4c24c1427d65a0f8a3b5a92aadc3615d3e2a485a8f0caa860dfbf1e1",
+      "stored_git_blob": "c2fcf345bf81284bf9bcf863863325b577627b93",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-removed/command.json",
+      "original_bytes": 3259,
+      "original_sha256": "1cab886c96016a3bab6b9df56c287d7d1b96adbd42f8b9edc4b3c0d98e351000",
+      "stored_bytes": 3259,
+      "stored_sha256": "1cab886c96016a3bab6b9df56c287d7d1b96adbd42f8b9edc4b3c0d98e351000",
+      "stored_git_blob": "fcaa224badec49fcf9d4788b49617b0d4dac1a96",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-removed/stdout.txt.gz",
+      "original_bytes": 29550,
+      "original_sha256": "9fd9ef2b4c24c1427d65a0f8a3b5a92aadc3615d3e2a485a8f0caa860dfbf1e1",
+      "stored_bytes": 4807,
+      "stored_sha256": "62231636285e4bafb20ccf258d6bbd46c5b490969b1bf374130cbda41fc2e89a",
+      "stored_git_blob": "97e6f8c40d2f8ce8f7fd70cb233f28ae59f7d454",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-removed/runtime-origins.json.gz",
+      "original_bytes": 92353,
+      "original_sha256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff",
+      "stored_bytes": 21684,
+      "stored_sha256": "a0243ccbedee53dae65ff8aeb1b75069462f737941039c5b62d04f3d42c4d96e",
+      "stored_git_blob": "b2de24258de6660d49f6d2a5916a133474589963",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-removed/stderr.txt.gz",
+      "original_bytes": 189,
+      "original_sha256": "6f73f270f4925de9107e02e414cbcacf34b095b928434471eaf599f3de60766f",
+      "stored_bytes": 187,
+      "stored_sha256": "458f4f1fb665a6ad9b024dfa7d047c2b6fd78898bb97aadcfde39332d87baaee",
+      "stored_git_blob": "4f71b910ddfcaebe754b5a13523a018c7b07eb9d",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-profile-removed/resource.json",
+      "original_bytes": 288,
+      "original_sha256": "bb05ae6e645a160b67a2aa206c00f34df9b0452a1c35c2e0b4b89b6161b1120f",
+      "stored_bytes": 288,
+      "stored_sha256": "bb05ae6e645a160b67a2aa206c00f34df9b0452a1c35c2e0b4b89b6161b1120f",
+      "stored_git_blob": "553ee2f0d188e7691f443429400095c776ef176a",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/semantic.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-control/semantic.json",
+      "original_bytes": 10806,
+      "original_sha256": "7767495ba6417daa54195281564fe4beb7ef0ff27d117fe911f30e3a1466574c",
+      "stored_bytes": 10806,
+      "stored_sha256": "7767495ba6417daa54195281564fe4beb7ef0ff27d117fe911f30e3a1466574c",
+      "stored_git_blob": "b1941c75e6cfc0d877c66b0f8a5d73711217c524",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-control/command.json",
+      "original_bytes": 3249,
+      "original_sha256": "86e6426f986b84749d3d979059dec5365b5241a1f9b332c393af1fb78c610fde",
+      "stored_bytes": 3249,
+      "stored_sha256": "86e6426f986b84749d3d979059dec5365b5241a1f9b332c393af1fb78c610fde",
+      "stored_git_blob": "ba8d56a135159d0b40b89286a64ed090fc14ba23",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-control/stdout.txt.gz",
+      "original_bytes": 10806,
+      "original_sha256": "7767495ba6417daa54195281564fe4beb7ef0ff27d117fe911f30e3a1466574c",
+      "stored_bytes": 1690,
+      "stored_sha256": "b4e432ddb31bd8e4d3afe86fd2157e6acb9e3d5a69f1390ad47370e3bb0db0ce",
+      "stored_git_blob": "172e2d26748dacb9e5e5a540df7da01aafcaf7bd",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-control/runtime-origins.json.gz",
+      "original_bytes": 92353,
+      "original_sha256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff",
+      "stored_bytes": 21684,
+      "stored_sha256": "a0243ccbedee53dae65ff8aeb1b75069462f737941039c5b62d04f3d42c4d96e",
+      "stored_git_blob": "b2de24258de6660d49f6d2a5916a133474589963",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-control/stderr.txt.gz",
+      "original_bytes": 189,
+      "original_sha256": "16b34ae43cd2b829230a3fe7c52b391013ad418f7e10feab3251532ed6b14bd0",
+      "stored_bytes": 187,
+      "stored_sha256": "a944a3c570616a3ce41532b3cfd83c1edbe2e1f786390b8437119cbbfd977c0f",
+      "stored_git_blob": "bb9b6912976403a9292f17ce8c9c184197b02336",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-control/resource.json",
+      "original_bytes": 299,
+      "original_sha256": "ee13497dfdca6412cb462aaeb71fc358243e126de2e572bc316e266a78635d3e",
+      "stored_bytes": 299,
+      "stored_sha256": "ee13497dfdca6412cb462aaeb71fc358243e126de2e572bc316e266a78635d3e",
+      "stored_git_blob": "700dac9550b1a53c9162ab668a0c0a1507b8b243",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-removed/semantic.json",
+      "original_bytes": 30021,
+      "original_sha256": "4953abd1540ba8cd98c6d23a1a4da4eac8831c82f6208bb4324b1d99d32f9bc5",
+      "stored_bytes": 30021,
+      "stored_sha256": "4953abd1540ba8cd98c6d23a1a4da4eac8831c82f6208bb4324b1d99d32f9bc5",
+      "stored_git_blob": "99cfe5ecf79b76c87517063a60377447058c6d36",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-removed/command.json",
+      "original_bytes": 3251,
+      "original_sha256": "923da30f94665ad75a4d96175bd3c6192739e5967e38e367f4b5d3f9e417312e",
+      "stored_bytes": 3251,
+      "stored_sha256": "923da30f94665ad75a4d96175bd3c6192739e5967e38e367f4b5d3f9e417312e",
+      "stored_git_blob": "6bb34ef5e6123794220964038509e636f805e698",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-removed/stdout.txt.gz",
+      "original_bytes": 30021,
+      "original_sha256": "4953abd1540ba8cd98c6d23a1a4da4eac8831c82f6208bb4324b1d99d32f9bc5",
+      "stored_bytes": 4879,
+      "stored_sha256": "88f1d67c94b5b21ff66e9d1c8d269cd885b4805837ee6ad1d86001d1358e1f4d",
+      "stored_git_blob": "141fe49dc5fa3d9ad585a2d60bbc63048e65434c",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-removed/runtime-origins.json.gz",
+      "original_bytes": 92353,
+      "original_sha256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff",
+      "stored_bytes": 21684,
+      "stored_sha256": "a0243ccbedee53dae65ff8aeb1b75069462f737941039c5b62d04f3d42c4d96e",
+      "stored_git_blob": "b2de24258de6660d49f6d2a5916a133474589963",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-removed/stderr.txt.gz",
+      "original_bytes": 189,
+      "original_sha256": "c5ca350cb33f0feda9329fabba6496a7b512bfe816dd6b34e619918c4029a7dd",
+      "stored_bytes": 187,
+      "stored_sha256": "ce17af79f174c0dfe86925789ee8b99910ed28e728fb821d5c6af92cada4e581",
+      "stored_git_blob": "f6df1dc5cf99d300b72d9dfadef05fe72c9faab9",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-seed-removed/resource.json",
+      "original_bytes": 290,
+      "original_sha256": "ad1e1baadc22de9daea0ed83431ca949e337a1517d917fd3ff21a9f298e502a4",
+      "stored_bytes": 290,
+      "stored_sha256": "ad1e1baadc22de9daea0ed83431ca949e337a1517d917fd3ff21a9f298e502a4",
+      "stored_git_blob": "521fc93ebaf3d15090cadef19182b5e8c648db23",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/semantic.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-control/semantic.json",
+      "original_bytes": 4547,
+      "original_sha256": "7419b84f8c88a2ea6fe74795237dedfdd3e154ed0e4df02adc407a3c5582db1e",
+      "stored_bytes": 4547,
+      "stored_sha256": "7419b84f8c88a2ea6fe74795237dedfdd3e154ed0e4df02adc407a3c5582db1e",
+      "stored_git_blob": "719c7725e550d608ca01cd5ae45941b102c04777",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-control/command.json",
+      "original_bytes": 3243,
+      "original_sha256": "525d108f256122bd4bca6781903483f4915b80509942686f86cf6699fe232333",
+      "stored_bytes": 3243,
+      "stored_sha256": "525d108f256122bd4bca6781903483f4915b80509942686f86cf6699fe232333",
+      "stored_git_blob": "c65fc7f90c955293ec502e9cd21757c7f1f84835",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-control/stdout.txt.gz",
+      "original_bytes": 4547,
+      "original_sha256": "7419b84f8c88a2ea6fe74795237dedfdd3e154ed0e4df02adc407a3c5582db1e",
+      "stored_bytes": 1131,
+      "stored_sha256": "e161c920a30da9cf373543869a253740e49c156299531cb05242142e6805951a",
+      "stored_git_blob": "820ec782cc1c41b46efff26658b22dca0f5051a1",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-control/runtime-origins.json.gz",
+      "original_bytes": 91207,
+      "original_sha256": "4dfbb006973406436d45aab5ef8ac456485ca936888f67e38c08cfa4a4d76491",
+      "stored_bytes": 21463,
+      "stored_sha256": "7e07f497b04bf3c8dab7f0ad1ff4bf16a7b66c49af58cd44ab5c3c8de2520e7c",
+      "stored_git_blob": "e98efeecd13f96ed1f505e5bf01f7d296ae1db7f",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-control/stderr.txt.gz",
+      "original_bytes": 220,
+      "original_sha256": "b12abe92051a873c467495aa67853858885dfd251f72f266778c602f4e3e2c7d",
+      "stored_bytes": 135,
+      "stored_sha256": "527daac014b2d6aab44f3e6da1d223ad0973557c81cf63b165fb9a1f1e71fbcd",
+      "stored_git_blob": "41c1eeba2f10cbf1c4ad168c861c4db07e720190",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-control/resource.json",
+      "original_bytes": 282,
+      "original_sha256": "bc76a39338dc307dab2e8ad6921577fc9da016f5f7a9346acc272c90d8845162",
+      "stored_bytes": 282,
+      "stored_sha256": "bc76a39338dc307dab2e8ad6921577fc9da016f5f7a9346acc272c90d8845162",
+      "stored_git_blob": "715626d9ddcd3cf1d25ed21be8b153fcb074d83d",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/semantic.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-removed/semantic.json",
+      "original_bytes": 4649,
+      "original_sha256": "b025d0ec80588ae108842a7d27cc49b9e4082ac35a22fa35f264b7b804ed9083",
+      "stored_bytes": 4649,
+      "stored_sha256": "b025d0ec80588ae108842a7d27cc49b9e4082ac35a22fa35f264b7b804ed9083",
+      "stored_git_blob": "1f8643b344cf1a2a364db9b91279f169cb0b2fb7",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-removed/command.json",
+      "original_bytes": 3248,
+      "original_sha256": "145c143ed4c07f0ebd5093cecbf5f2c37fdffd6789eb74706f930c86aa02cb18",
+      "stored_bytes": 3248,
+      "stored_sha256": "145c143ed4c07f0ebd5093cecbf5f2c37fdffd6789eb74706f930c86aa02cb18",
+      "stored_git_blob": "56749417b3096dbda5adafdf7c441ba81998f778",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-removed/stdout.txt.gz",
+      "original_bytes": 4649,
+      "original_sha256": "b025d0ec80588ae108842a7d27cc49b9e4082ac35a22fa35f264b7b804ed9083",
+      "stored_bytes": 1202,
+      "stored_sha256": "709422f50565ee75b08aba5757e07cc4e5c190aa1d873d3651228894e47cf65b",
+      "stored_git_blob": "4fce0b3859c0c117fc342f2b2ca0bd112d301d68",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-removed/runtime-origins.json.gz",
+      "original_bytes": 91207,
+      "original_sha256": "4dfbb006973406436d45aab5ef8ac456485ca936888f67e38c08cfa4a4d76491",
+      "stored_bytes": 21463,
+      "stored_sha256": "7e07f497b04bf3c8dab7f0ad1ff4bf16a7b66c49af58cd44ab5c3c8de2520e7c",
+      "stored_git_blob": "e98efeecd13f96ed1f505e5bf01f7d296ae1db7f",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-removed/stderr.txt.gz",
+      "original_bytes": 220,
+      "original_sha256": "8b5226cc62f93e85738a152d86023e881848bb1cc1e4b91ba01ec416eab9145b",
+      "stored_bytes": 134,
+      "stored_sha256": "4ccbe3a2e355d611d44d7d280f96fc11400216d7e1274cefa3f1267f04de0b8f",
+      "stored_git_blob": "6d91bff7bd746ab8a65d8144d4e4c56e69642bbb",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-removed/resource.json",
+      "original_bytes": 282,
+      "original_sha256": "0787dfccd85433425fda0d26b49388c3a0d99cb49e97e8834be21cf7839ca3b5",
+      "stored_bytes": 282,
+      "stored_sha256": "0787dfccd85433425fda0d26b49388c3a0d99cb49e97e8834be21cf7839ca3b5",
+      "stored_git_blob": "e741805752ca27806202df831fae7b8a0d668ad0",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-session-reuse-removed/command.json",
+      "original_bytes": 3622,
+      "original_sha256": "2085142aba4a35030209337ae4700106831f6840a3c2a515a88a0ad77371d7e3",
+      "stored_bytes": 3622,
+      "stored_sha256": "2085142aba4a35030209337ae4700106831f6840a3c2a515a88a0ad77371d7e3",
+      "stored_git_blob": "5a72de09e5f9054fd07adb31c7d809376a7fc23b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/junit.xml",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-session-reuse-removed/junit.xml.gz",
+      "original_bytes": 10612,
+      "original_sha256": "090fe350f64d7089bb840f1f98151962b238e3d72c48d10e6301baf8b2d44ede",
+      "stored_bytes": 2028,
+      "stored_sha256": "c702fbcadad60c6fb50c7fa680954b36dd203c4720160149ec3cd5d73c00d136",
+      "stored_git_blob": "7b876dc415977efa6d694e8b1746fc58c559e2f1",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/session-events.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-session-reuse-removed/session-events.json",
+      "original_bytes": 7173,
+      "original_sha256": "f29a9f6f23c984db476d0d65d9243fd4e3053f32d91290fb3b5ba02bfe630192",
+      "stored_bytes": 7173,
+      "stored_sha256": "f29a9f6f23c984db476d0d65d9243fd4e3053f32d91290fb3b5ba02bfe630192",
+      "stored_git_blob": "6c85c309918293a22435d8343811dd7e20bae988",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-session-reuse-removed/stdout.txt.gz",
+      "original_bytes": 10479,
+      "original_sha256": "28fa581e6c24ade17162428bd012bab67e461f09d32bb6f3a8c9ded61d9f7460",
+      "stored_bytes": 2064,
+      "stored_sha256": "4473bb73e8619b1b41d3da63cec3f879ef410217b89e986a938859a1239c5cb4",
+      "stored_git_blob": "3b553fa475e8369d4bbbbccda709e571a8b0963e",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-session-reuse-removed/runtime-origins.json.gz",
+      "original_bytes": 91791,
+      "original_sha256": "4760a6b0f2dc2bb5208f98b99b3ec960603c7b77b3f1bdf196496d261b0b2511",
+      "stored_bytes": 21556,
+      "stored_sha256": "e7585ba61a293e01861123bc1054cdeb08882c485f1d1451a29647fd3585d3d6",
+      "stored_git_blob": "bb359267234c348021a0c5d49ca9a70e632f975e",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-session-reuse-removed/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/selected-tests.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-session-reuse-removed/selected-tests.json",
+      "original_bytes": 651,
+      "original_sha256": "9060dcb7198094de02e3cad59ae32bb340b84a5b7eae8c4e5bda722ff08b1fd4",
+      "stored_bytes": 651,
+      "stored_sha256": "9060dcb7198094de02e3cad59ae32bb340b84a5b7eae8c4e5bda722ff08b1fd4",
+      "stored_git_blob": "283c2e1af1bcb9f8dd0b179c67e41eadff51072b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-session-reuse-removed/resource.json",
+      "original_bytes": 286,
+      "original_sha256": "cadf390d4bd6562b27d2706889bb7fc08a35a22469a742de3d64870d98ed9e85",
+      "stored_bytes": 286,
+      "stored_sha256": "cadf390d4bd6562b27d2706889bb7fc08a35a22469a742de3d64870d98ed9e85",
+      "stored_git_blob": "4334201d3115a7b8814466464d9fb1f6afd58da3",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-forwarding-removed/command.json",
+      "original_bytes": 3566,
+      "original_sha256": "61095fe590695de24787a30bcbc82cc7596f8b0f0a156aa63804bd491e8d73bd",
+      "stored_bytes": 3566,
+      "stored_sha256": "61095fe590695de24787a30bcbc82cc7596f8b0f0a156aa63804bd491e8d73bd",
+      "stored_git_blob": "21759331d3584252ee02b7e131aa320f3cb226ab",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/junit.xml",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-forwarding-removed/junit.xml.gz",
+      "original_bytes": 2765,
+      "original_sha256": "7c560775d11e9c81b718ac0ce038d5cf0aae466515ebbdeb387057e0125643a0",
+      "stored_bytes": 1066,
+      "stored_sha256": "9884f267d914e26ac0f6ab027e895f5c2e9196b4a92e2778f669ee9e9cbadae5",
+      "stored_git_blob": "301c400843798a1b897902a866652bae7ab87bb1",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/wvs-events.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-forwarding-removed/wvs-events.json",
+      "original_bytes": 3221,
+      "original_sha256": "ce80fecd7e197a418fa93995d9d4e32e1dae7bdb7093c1cb22728be015c658d9",
+      "stored_bytes": 3221,
+      "stored_sha256": "ce80fecd7e197a418fa93995d9d4e32e1dae7bdb7093c1cb22728be015c658d9",
+      "stored_git_blob": "06319e471cdde13b4d22d484ac03251f74654f74",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-forwarding-removed/stdout.txt.gz",
+      "original_bytes": 2926,
+      "original_sha256": "d2801023bfe0f65648a31a85e508e65de4dddda786bc90092f0ddb2b1dc65b70",
+      "stored_bytes": 1108,
+      "stored_sha256": "be41799d0dc558ff27d82b769e80dddd55cbe2a46b79c0d5ec9dbcb830181d3a",
+      "stored_git_blob": "ac9442fa14387b42ce10eea15a8ccad8627eb9ff",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-forwarding-removed/runtime-origins.json.gz",
+      "original_bytes": 91207,
+      "original_sha256": "f9147aa663542e0feb09f2899b50e411e35073ec0ef4b2606d1527feaaa394cb",
+      "stored_bytes": 21450,
+      "stored_sha256": "428ba118b7914c08a090e968fd8a80f4262ca8e3f1ea7fd7b33456daa50b4d24",
+      "stored_git_blob": "f87329ee51cb743e7eb8ee5eba48afa28eba56b1",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-forwarding-removed/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/selected-tests.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-forwarding-removed/selected-tests.json",
+      "original_bytes": 527,
+      "original_sha256": "dcea33b33aad6ac089b1d4b63d3d76ae4cf7f8372c5c9f0666fb4088efa6c956",
+      "stored_bytes": 527,
+      "stored_sha256": "dcea33b33aad6ac089b1d4b63d3d76ae4cf7f8372c5c9f0666fb4088efa6c956",
+      "stored_git_blob": "15ec9477602753f8f41de721867c645908d51444",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-5ccb-wvs-forwarding-removed/resource.json",
+      "original_bytes": 282,
+      "original_sha256": "e48bf9e1c7e748617c3f04d26bd6d52569f134e036890891a4f465d2bfa69ae4",
+      "stored_bytes": 282,
+      "stored_sha256": "e48bf9e1c7e748617c3f04d26bd6d52569f134e036890891a4f465d2bfa69ae4",
+      "stored_git_blob": "4aeb0eb08220c4f9bcef7eafbdf68935b85f7bf3",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-2734-affected-native/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-2734-affected-native/command.json",
+      "original_bytes": 4882,
+      "original_sha256": "40455dc4b45b71428c35ec03368628197263366a4e9bb556580196c5a57795f5",
+      "stored_bytes": 4882,
+      "stored_sha256": "40455dc4b45b71428c35ec03368628197263366a4e9bb556580196c5a57795f5",
+      "stored_git_blob": "3776ce0ba22a72716e8bd402876805c60eaa57d3",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-2734-affected-native/junit.xml",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-2734-affected-native/junit.xml.gz",
+      "original_bytes": 23622,
+      "original_sha256": "1dbc3c2c21629a0b89e60cafd8c01882d88874b3a04e771d64d46e0e5474bda2",
+      "stored_bytes": 4314,
+      "stored_sha256": "60eb251de5620169c152ad1125280bd24650044044105cc21daa6c9e7c8d86e6",
+      "stored_git_blob": "4bdb685d70e091ef91adfd24d0fab78a651fbcb4",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-2734-affected-native/session-events.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-2734-affected-native/session-events.json",
+      "original_bytes": 8581,
+      "original_sha256": "d010e4bbcb68ee760ca5de63b28fffc85cef85a368ad36782fb8eca7e8b90ada",
+      "stored_bytes": 8581,
+      "stored_sha256": "d010e4bbcb68ee760ca5de63b28fffc85cef85a368ad36782fb8eca7e8b90ada",
+      "stored_git_blob": "bb13f2e642b15a1652a378cea6246155177a1735",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-2734-affected-native/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-2734-affected-native/stdout.txt.gz",
+      "original_bytes": 4087,
+      "original_sha256": "5a16ef587999e8b2216624c95c7a54cc5d794307bd091389c6cccdccdd6b1c54",
+      "stored_bytes": 1257,
+      "stored_sha256": "496fdb5b47aea2b63730c37211c11e7de5f966d92be391d2fd8d0b281e0a43ef",
+      "stored_git_blob": "153a04142c6f3a3a5d50059919e758bbc06d289e",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-2734-affected-native/runtime-origins.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-2734-affected-native/runtime-origins.json.gz",
+      "original_bytes": 104814,
+      "original_sha256": "9ccc06980d2a7b27d6c69610c7b7273de072711446d6770e7d3d51986b6c7a47",
+      "stored_bytes": 24675,
+      "stored_sha256": "ff27746f1a711d2dea44ff039cf0dced285f0f0c12dd9dd61db9cf1af961b1cd",
+      "stored_git_blob": "69181cb36c5d0e530eaf9e7661ea5ff7b410de37",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-2734-affected-native/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-2734-affected-native/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-2734-affected-native/selected-tests.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-2734-affected-native/selected-tests.json",
+      "original_bytes": 17687,
+      "original_sha256": "0e6339ff2b886c386508d771a5955ba77f9b17e6911a92029462b34b08de4c02",
+      "stored_bytes": 17687,
+      "stored_sha256": "0e6339ff2b886c386508d771a5955ba77f9b17e6911a92029462b34b08de4c02",
+      "stored_git_blob": "23613f579b66a80fafe7ccf231557898d617e1a8",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c05-2734-affected-native/resource.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/native-evidence/c05-2734-affected-native/resource.json",
+      "original_bytes": 295,
+      "original_sha256": "21371f07641190065ac61e9525915897046699de8c8da6a403aabea47eeb5052",
+      "stored_bytes": 295,
+      "stored_sha256": "21371f07641190065ac61e9525915897046699de8c8da6a403aabea47eeb5052",
+      "stored_git_blob": "d84f576f7c9153140a0a4a2b890737d7036874b7",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/run_gate_c05_r2.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/executed-harnesses/run_gate_c05_r2.py",
+      "original_bytes": 6527,
+      "original_sha256": "aa4271ce3e5ba3682c5ae81c3d539005095e13dcfb4e2c6ada7191037cc47fe4",
+      "stored_bytes": 6527,
+      "stored_sha256": "aa4271ce3e5ba3682c5ae81c3d539005095e13dcfb4e2c6ada7191037cc47fe4",
+      "stored_git_blob": "2d370661e4d14ed66e68f3ba3c379e804f40f221",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/orch02_c05_session_probe.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/executed-harnesses/orch02_c05_session_probe.py",
+      "original_bytes": 6183,
+      "original_sha256": "905a40f25946ddd1d9e1e4392b678dd6e6123fe44b59a5f7023061af1d4fd7d9",
+      "stored_bytes": 6183,
+      "stored_sha256": "905a40f25946ddd1d9e1e4392b678dd6e6123fe44b59a5f7023061af1d4fd7d9",
+      "stored_git_blob": "69a56c216ea2c10979d5379fd5219fa9f0bab5d1",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/orch02_c05_wvs_probe.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/executed-harnesses/orch02_c05_wvs_probe.py",
+      "original_bytes": 2764,
+      "original_sha256": "9379492513946a020f1ff244c8157d53dd19ad59ea30649880b8b706dadea158",
+      "stored_bytes": 2764,
+      "stored_sha256": "9379492513946a020f1ff244c8157d53dd19ad59ea30649880b8b706dadea158",
+      "stored_git_blob": "f35a8aeb5aff4ba0f09d418c5de5dae20f0e201b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/test_c05_runtime_bindings.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/executed-harnesses/test_c05_runtime_bindings.py",
+      "original_bytes": 2491,
+      "original_sha256": "bc1855bcc07218e0d301c2e0bdb5524cb2eef01cad787f913ab56a5eb0487abf",
+      "stored_bytes": 2491,
+      "stored_sha256": "bc1855bcc07218e0d301c2e0bdb5524cb2eef01cad787f913ab56a5eb0487abf",
+      "stored_git_blob": "84e530414b0256f12c2b250a6f9ca297e213ae42",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/native-c05-c12/build_c05_final_receipt.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/postprocessing/build_c05_final_receipt.py",
+      "original_bytes": 14987,
+      "original_sha256": "3f6d35a676a81da2b2f63d2da61a7237920cc5755e8d378c8371e41076e93994",
+      "stored_bytes": 14987,
+      "stored_sha256": "3f6d35a676a81da2b2f63d2da61a7237920cc5755e8d378c8371e41076e93994",
+      "stored_git_blob": "cae4ba15aa02bba74641c0763b7afc8fcd5528aa",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/coordination-inputs-commit.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/common-harness-custody.json",
+      "original_bytes": 2122,
+      "original_sha256": "b7135ae4d4fe2435877666db03ebb4112cbccd479a5108feea71d8e5c9389901",
+      "stored_bytes": 2122,
+      "stored_sha256": "b7135ae4d4fe2435877666db03ebb4112cbccd479a5108feea71d8e5c9389901",
+      "stored_git_blob": "c58de74ad149b9afb8aeafc5355cdada86af9541",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/command.json",
+      "original_bytes": 4264,
+      "original_sha256": "646e609a3434a0a92f24ddaf74b98b0ff9417c601909117dfb5364e2a00b4024",
+      "stored_bytes": 4264,
+      "stored_sha256": "646e609a3434a0a92f24ddaf74b98b0ff9417c601909117dfb5364e2a00b4024",
+      "stored_git_blob": "ed2e14885ef2ef8e3727b9dd14fe62006e9078ea",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/resolver-probe.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/resolver-probe.stdout.txt.gz",
+      "original_bytes": 851,
+      "original_sha256": "1f9769684f192277e9640d8895f2e95f771d7586a6dba93e7a384810acb62b5b",
+      "stored_bytes": 348,
+      "stored_sha256": "b41fc2a90b7799ac7bc390e57cfd7617896dc09a03bf46498854354fb7145724",
+      "stored_git_blob": "aa2864095ec6f41c3e72d0c9cc3823e213adab56",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/parent.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/parent.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/capture-metadata-note.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/capture-metadata-note.json",
+      "original_bytes": 664,
+      "original_sha256": "353cd601772a2f2440345326ba1eddb5b0b62de6e5315d998246fcbe3162bd7d",
+      "stored_bytes": 664,
+      "stored_sha256": "353cd601772a2f2440345326ba1eddb5b0b62de6e5315d998246fcbe3162bd7d",
+      "stored_git_blob": "bf853a35dc7034d28938fdc194317fe7bb0269bb",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/parent.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/parent.stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/stdout.txt.gz",
+      "original_bytes": 1650,
+      "original_sha256": "4548248ce8d28b8550c7e11b6af8b9eef76abf681cc0299bd8eef3371138bac6",
+      "stored_bytes": 699,
+      "stored_sha256": "2d772726963b92884e05ddf2ecaa94189391b7680795159a243b9d168c0136ba",
+      "stored_git_blob": "7f998f008292bf4aa1bd4de7375736539e0b1394",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/resolver-probe.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/resolver-probe.stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/launch.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/launch.json",
+      "original_bytes": 102,
+      "original_sha256": "18d1d4bb486e347e02b068a13e091898957a315deab0cdd4ef4172cfd4334012",
+      "stored_bytes": 102,
+      "stored_sha256": "18d1d4bb486e347e02b068a13e091898957a315deab0cdd4ef4172cfd4334012",
+      "stored_git_blob": "27918885e3ef6d47eaef60eaa45a5518d24ffb67",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/inputs-before.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/inputs-before.json.gz",
+      "original_bytes": 1068211,
+      "original_sha256": "029b282eeee53856ab644248d158c557984860754c94226b6043d04e719568cf",
+      "stored_bytes": 314006,
+      "stored_sha256": "17b9a2574acdde74ee55f74f436b0fe54622cc5f40a0597f50bbbfeaeb4dbc09",
+      "stored_git_blob": "ddde2f925b59dd82b21b4574269efcc2dbe087f2",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation/inputs-after.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation/inputs-before.json.gz",
+      "original_bytes": 1068211,
+      "original_sha256": "029b282eeee53856ab644248d158c557984860754c94226b6043d04e719568cf",
+      "stored_bytes": 314006,
+      "stored_sha256": "17b9a2574acdde74ee55f74f436b0fe54622cc5f40a0597f50bbbfeaeb4dbc09",
+      "stored_git_blob": "ddde2f925b59dd82b21b4574269efcc2dbe087f2",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/command.json",
+      "original_bytes": 4169,
+      "original_sha256": "901c49f26da40782c043c0a3f3794617a5acb069e2562e9f73ee8854a1852164",
+      "stored_bytes": 4169,
+      "stored_sha256": "901c49f26da40782c043c0a3f3794617a5acb069e2562e9f73ee8854a1852164",
+      "stored_git_blob": "72ac55cd0c07dd9dfbc79d9eee9253cf0e035d4d",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/resolver-probe.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/resolver-probe.stdout.txt.gz",
+      "original_bytes": 851,
+      "original_sha256": "1f9769684f192277e9640d8895f2e95f771d7586a6dba93e7a384810acb62b5b",
+      "stored_bytes": 348,
+      "stored_sha256": "b41fc2a90b7799ac7bc390e57cfd7617896dc09a03bf46498854354fb7145724",
+      "stored_git_blob": "aa2864095ec6f41c3e72d0c9cc3823e213adab56",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/parent.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/parent.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/scoped-readback.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/scoped-readback.json",
+      "original_bytes": 9658,
+      "original_sha256": "ad1aca85115d96a9cef7e7e4ef8b6e4925757a985d2c736963730a6c896899d4",
+      "stored_bytes": 9658,
+      "stored_sha256": "ad1aca85115d96a9cef7e7e4ef8b6e4925757a985d2c736963730a6c896899d4",
+      "stored_git_blob": "3dd950cf97d8df6e973ae77ea04463916a76b75b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/parent.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/parent.stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/stdout.txt.gz",
+      "original_bytes": 1659,
+      "original_sha256": "599db879e14f5a07bb6713a525a4a3cb6070deeeb6135fac43dcca0de5927d67",
+      "stored_bytes": 706,
+      "stored_sha256": "39b09559df24b2f7792ed92af9d1e60677047fe575da7c42da0fa4d14cd71eb5",
+      "stored_git_blob": "a9bca48d1a59b8893428c6161f6b15d6935beaaa",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/resolver-probe.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/resolver-probe.stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/launch.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/launch.json",
+      "original_bytes": 102,
+      "original_sha256": "637bf1285d914d9259a04dfa7b15fc6c08b094e62727feee0c5475a9de7ec9f1",
+      "stored_bytes": 102,
+      "stored_sha256": "637bf1285d914d9259a04dfa7b15fc6c08b094e62727feee0c5475a9de7ec9f1",
+      "stored_git_blob": "4721b8b7c42c437a9ae44f96be35ce17607aa342",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/inputs-before.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/inputs-before.json.gz",
+      "original_bytes": 1068211,
+      "original_sha256": "107aee7f1e35bd9068a4cb8228460b780cadbb9fa071c2b85499fefe6f374f69",
+      "stored_bytes": 314009,
+      "stored_sha256": "3d1d92c51f8730e4fe5dd1b4d839d26c3b1be092346caf528ec34347de4254b2",
+      "stored_git_blob": "ae568b66e55b2d25f2ea930104c683fc9b0a79be",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-invocation-5ccbfa15/inputs-after.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-invocation-5ccbfa15/inputs-before.json.gz",
+      "original_bytes": 1068211,
+      "original_sha256": "107aee7f1e35bd9068a4cb8228460b780cadbb9fa071c2b85499fefe6f374f69",
+      "stored_bytes": 314009,
+      "stored_sha256": "3d1d92c51f8730e4fe5dd1b4d839d26c3b1be092346caf528ec34347de4254b2",
+      "stored_git_blob": "ae568b66e55b2d25f2ea930104c683fc9b0a79be",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/run_check.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/run_check.py",
+      "original_bytes": 1805,
+      "original_sha256": "bcefd7cb141784db57a0d8fd4f8b4353e9dbc52283e36a6da061659350d1d621",
+      "stored_bytes": 1805,
+      "stored_sha256": "bcefd7cb141784db57a0d8fd4f8b4353e9dbc52283e36a6da061659350d1d621",
+      "stored_git_blob": "b0a31ad07a6f8c474254f6a4b1c5426efd941e7a",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/capture_required_invocation.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/capture_required_invocation.py",
+      "original_bytes": 4995,
+      "original_sha256": "38904ef2495cc2af8e993a57b6be7d2d97378cbcc9bc062c5d87be0698d65428",
+      "stored_bytes": 4995,
+      "stored_sha256": "38904ef2495cc2af8e993a57b6be7d2d97378cbcc9bc062c5d87be0698d65428",
+      "stored_git_blob": "f857ccd99aec246c87f633f5d9995a9ac2163b89",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/capture_required_invocation_5ccbfa15.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/capture_required_invocation_5ccbfa15.py",
+      "original_bytes": 5013,
+      "original_sha256": "348f3f04f4b775a8108d3eae17bbed602989c74ff95f365b93df9b8372124f76",
+      "stored_bytes": 5013,
+      "stored_sha256": "348f3f04f4b775a8108d3eae17bbed602989c74ff95f365b93df9b8372124f76",
+      "stored_git_blob": "cdf5deb9d6329ade61033577214179ef1a7d1742",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/duckdb_integer_boundary.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/duckdb_integer_boundary.py",
+      "original_bytes": 1649,
+      "original_sha256": "fa624137aeb46560ae24ae15b9b028ce0bad195ce9f0d2c74978778e6e6fcb70",
+      "stored_bytes": 1649,
+      "stored_sha256": "fa624137aeb46560ae24ae15b9b028ce0bad195ce9f0d2c74978778e6e6fcb70",
+      "stored_git_blob": "2b22714a785d7c89238cd75f09ebad62c2944137",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/freeze_source.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/freeze_source.py",
+      "original_bytes": 4691,
+      "original_sha256": "73d5ed5ad3f35170b168b5f945846c7efebb3d038e467f472cf1df318ea9e8a1",
+      "stored_bytes": 4691,
+      "stored_sha256": "73d5ed5ad3f35170b168b5f945846c7efebb3d038e467f472cf1df318ea9e8a1",
+      "stored_git_blob": "ed65740453bcbe68c30f4e655c3886f93bfc2dc5",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/freeze_resolver_repair.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/freeze_resolver_repair.py",
+      "original_bytes": 4010,
+      "original_sha256": "3f9b9237bbbd893423bf3f312d0f79d623fae52ab50729eca52720f8dfa54343",
+      "stored_bytes": 4010,
+      "stored_sha256": "3f9b9237bbbd893423bf3f312d0f79d623fae52ab50729eca52720f8dfa54343",
+      "stored_git_blob": "812b2772452037830965fdfacae0ddc351e287a7",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publish_source.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/publish_source.py",
+      "original_bytes": 2532,
+      "original_sha256": "ee07740fa6fb7df924cbb21447a9f9e8bc670ebfbb1b61f142afd55a24464206",
+      "stored_bytes": 2532,
+      "stored_sha256": "ee07740fa6fb7df924cbb21447a9f9e8bc670ebfbb1b61f142afd55a24464206",
+      "stored_git_blob": "bc2b2c0009069dcb1042cf08e4f189f5d2368599",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publish_source_5ccbfa15.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/publish_source_5ccbfa15.py",
+      "original_bytes": 2564,
+      "original_sha256": "47f6be7bd78ca8e2e464703b6df0258e3ac5581de3f111ac219d915ffc74f251",
+      "stored_bytes": 2564,
+      "stored_sha256": "47f6be7bd78ca8e2e464703b6df0258e3ac5581de3f111ac219d915ffc74f251",
+      "stored_git_blob": "c0ea8a1f99eb740e4742f6fdbcb05eb61d120997",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/run_check-v1-reconstructed.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/run_check-v1-reconstructed.py",
+      "original_bytes": 1514,
+      "original_sha256": "608d100ebe633d3b5bd83a2db7fdb7e028ccb7bc5c9cab816bbbef5713c22ef3",
+      "stored_bytes": 1514,
+      "stored_sha256": "608d100ebe633d3b5bd83a2db7fdb7e028ccb7bc5c9cab816bbbef5713c22ef3",
+      "stored_git_blob": "a03e542742162dff39081b507be1eec85e7d5245",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/admission/c05-resume.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/admission/c05-resume.json",
+      "original_bytes": 36332,
+      "original_sha256": "2f4e81a4eb262d9026202f7f2b2102249a41916deda2dfff5547851c4d5c3d3a",
+      "stored_bytes": 36332,
+      "stored_sha256": "2f4e81a4eb262d9026202f7f2b2102249a41916deda2dfff5547851c4d5c3d3a",
+      "stored_git_blob": "34d75adcf7a4db0a085b49ee03b843644f56f153",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/admission/c05-resume.command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/admission/c05-resume.command.json",
+      "original_bytes": 498,
+      "original_sha256": "240a9aaf4e3bfa7b7ee7dd6db1b9ea38ce408363466a0505b6b1fa8d1a12d911",
+      "stored_bytes": 498,
+      "stored_sha256": "240a9aaf4e3bfa7b7ee7dd6db1b9ea38ce408363466a0505b6b1fa8d1a12d911",
+      "stored_git_blob": "f9b4a159a2e8e586a555382f9683608d65dd5149",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/command.json",
+      "original_bytes": 4575,
+      "original_sha256": "1f38738288a34de1311cbe257448ab04df1dbee80cbb12a5606476c8f3b0ae83",
+      "stored_bytes": 4575,
+      "stored_sha256": "1f38738288a34de1311cbe257448ab04df1dbee80cbb12a5606476c8f3b0ae83",
+      "stored_git_blob": "bc297d53b16754bdbce9c57d08cacc11f8b0ff7f",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/inputs-before.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/inputs-before.json.gz",
+      "original_bytes": 1068211,
+      "original_sha256": "107aee7f1e35bd9068a4cb8228460b780cadbb9fa071c2b85499fefe6f374f69",
+      "stored_bytes": 314009,
+      "stored_sha256": "3d1d92c51f8730e4fe5dd1b4d839d26c3b1be092346caf528ec34347de4254b2",
+      "stored_git_blob": "ae568b66e55b2d25f2ea930104c683fc9b0a79be",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/launch.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/launch.json",
+      "original_bytes": 296,
+      "original_sha256": "acba5130ab1f926b4c9796407ca2f61aa2f0ff526f28bc95131afbb3da5c6f1e",
+      "stored_bytes": 296,
+      "stored_sha256": "acba5130ab1f926b4c9796407ca2f61aa2f0ff526f28bc95131afbb3da5c6f1e",
+      "stored_git_blob": "b3610d1939da6e24b9c411366e9d67100714a940",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/node-command.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/node-command.json",
+      "original_bytes": 1064,
+      "original_sha256": "7c0cbb673ca4520fa8efa37077f80d5e5b5d56f4c4ebcf824ce99615c8e4421e",
+      "stored_bytes": 1064,
+      "stored_sha256": "7c0cbb673ca4520fa8efa37077f80d5e5b5d56f4c4ebcf824ce99615c8e4421e",
+      "stored_git_blob": "1c21ddfd66ee8300aa5d6291d24e4013f204a80f",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/node.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/node.stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/node.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/node.stdout.txt.gz",
+      "original_bytes": 521,
+      "original_sha256": "55400c08553e9fa9745859b07261d9d7cc239abdd590f3d7bd36fc8dab24b401",
+      "stored_bytes": 202,
+      "stored_sha256": "2c2d06ac2f2ee3dff7d573fb6162450bd30fbf703d0ff21eea8e8e775f57635e",
+      "stored_git_blob": "97a25c5d955daa6e955c71d188beffd2bd13238a",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/parent.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/parent.stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/parent.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/parent.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/resolver-probe.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/resolver-probe.stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/resolver-probe.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/resolver-probe.stdout.txt.gz",
+      "original_bytes": 835,
+      "original_sha256": "c787544e075e730db65d209339f9009c2c1a6fc026e3c712a8bb955959d1850a",
+      "stored_bytes": 342,
+      "stored_sha256": "55b8c2ee6d4206dadec4bc87e8621c08206a3169cbd705af6795efbd5df19eb2",
+      "stored_git_blob": "81139774ab3273dfd48b0cb80f5b435aa0dee07d",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/scoped-readback.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/scoped-readback.json",
+      "original_bytes": 14188,
+      "original_sha256": "ad860182d5fc7c3825106d325bacf2f39735d1621c99c998cbd78b1656fe0202",
+      "stored_bytes": 14188,
+      "stored_sha256": "ad860182d5fc7c3825106d325bacf2f39735d1621c99c998cbd78b1656fe0202",
+      "stored_git_blob": "64538179844da2e6ccf4902ce954cbb8b0051264",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/required-gates/required-architecture-full-5ccbfa15/stdout.txt.gz",
+      "original_bytes": 122327,
+      "original_sha256": "65f31ce8dc308c2150809703c8075ef34f305c5d0865cbc61e28f89ee634065a",
+      "stored_bytes": 9156,
+      "stored_sha256": "d81c6eb40cddc60275c5d855e45f8c73e5f37ce3b79331e4313a9569fa0f8188",
+      "stored_git_blob": "18bc437ea544a7cdca252658f9760c8a66db7394",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/capture_required_architecture_full_5ccbfa15.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/capture_required_architecture_full_5ccbfa15.py",
+      "original_bytes": 6996,
+      "original_sha256": "b1a06dfb0486319d43f668fb014b1383d2e25f81110aa8711be96ced1de2cac1",
+      "stored_bytes": 6996,
+      "stored_sha256": "b1a06dfb0486319d43f668fb014b1383d2e25f81110aa8711be96ced1de2cac1",
+      "stored_git_blob": "178a1b3b109b6d2169d2542ff45076ceaf11c9cf",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/summarize_full_architecture_5ccbfa15.py",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/author-harnesses/summarize_full_architecture_5ccbfa15.py",
+      "original_bytes": 5387,
+      "original_sha256": "f17b694971d01ba58cd73c2593b7333b7211b5482a2b0c976c7dba724a6fc356",
+      "stored_bytes": 5387,
+      "stored_sha256": "f17b694971d01ba58cd73c2593b7333b7211b5482a2b0c976c7dba724a6fc356",
+      "stored_git_blob": "5a9a68ca79f30e14d0b17ef9e01b2fc0f458c890",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/handoff-hold-receipt.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/presentation/handoff-hold-receipt.json.gz",
+      "original_bytes": 37240,
+      "original_sha256": "98448ac313524c62ae7c72c5528971bc7eca4a0683b4b2f21bd58bad393a60c7",
+      "stored_bytes": 9137,
+      "stored_sha256": "5effb1f84568ef9244bf09471ff10d1f5e64c72b377576fe33f16b1aa48b17d1",
+      "stored_git_blob": "0aa146c721fadfafb3aed0f675792c3e94628025",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-gproposal-42987be6/fetch-readback.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-gproposal-42987be6/fetch-readback.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-gproposal-42987be6/push.stdout.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-gproposal-42987be6/push.stdout.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "stored_git_blob": "86e43ea3218b5890302b754bbf8927f94e79f7ee",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-gproposal-42987be6/push.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-gproposal-42987be6/push.stderr.txt.gz",
+      "original_bytes": 376,
+      "original_sha256": "d4e4e09227a65baeb38aa300e373e202913dc78c4ac79a91391fa2d619e4f290",
+      "stored_bytes": 190,
+      "stored_sha256": "78d5fc8cbe166f3af98495b1066e57c711fd136a976b3484313ab03d2769be49",
+      "stored_git_blob": "0cbc1e24041f9ed73975959f653574f564895501",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-gproposal-42987be6/fetch-readback.stderr.txt",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-gproposal-42987be6/fetch-readback.stderr.txt.gz",
+      "original_bytes": 157,
+      "original_sha256": "dbef9f63b1cba08eeadd062a74ed9dafe99a9ac9a35f254d906f17da5619d4c0",
+      "stored_bytes": 146,
+      "stored_sha256": "e193e5213f5d9dce9ed40161d1c19f9492beb5e95e38a4144f97eec7443317c3",
+      "stored_git_blob": "ef22751657b814ec929e2b11cd9bad308fd421db",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/c05/publication-gproposal-42987be6/receipt.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/publication/publication-gproposal-42987be6/receipt.json",
+      "original_bytes": 11734,
+      "original_sha256": "90c398d15761112d61032bdf7f382b560eac9fea16dd45addb11e59e989aa4c5",
+      "stored_bytes": 11734,
+      "stored_sha256": "90c398d15761112d61032bdf7f382b560eac9fea16dd45addb11e59e989aa4c5",
+      "stored_git_blob": "3ca36bfa1dcbb3ccba56d32f147722bee414f6bb",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-final-static-quality-review-5ccbfa15.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-reviews/c05-independent-final-static-quality-review-5ccbfa15.json.gz",
+      "original_bytes": 19718,
+      "original_sha256": "b1683bd661c18432bfc6405a903ff44b5312d63029a18677c23b5d9dd713e550",
+      "stored_bytes": 4043,
+      "stored_sha256": "84d91505dc088314c6afa0dcc31beb12a2fe63e448eef223a2a506e0bb50b096",
+      "stored_git_blob": "7ad0b19286e5b8a3f12757ff0752ce30b4997f9b",
+      "encoding": "gzip"
+    },
+    {
+      "original_path": "/workspace/orch02-r2/reviews/c05-independent-held-handoff-custody-review-ef4899d5.json",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/independent-reviews/c05-independent-held-handoff-custody-review-ef4899d5.json.gz",
+      "original_bytes": 191450,
+      "original_sha256": "6e9ad0b9c076fce717ae052381d8debffdd836970ffe86cce17d5d96b2a96811",
+      "stored_bytes": 27739,
+      "stored_sha256": "f516cb6480c0b0f05b01373fd6553724c41dfd9a63bdd887ce4de48cbf2439d3",
+      "stored_git_blob": "c1143b8e3c9a7e52babb800f2abe7217906eac6b",
+      "encoding": "gzip"
+    }
+  ],
+  "native_output_files": 69,
+  "raw_ignored_receipt_policy": "Complete170MBscanner receipts stay ignored; durable commands/decoded identities and scoped readback are tracked. Every moderate deciding native stream is included losslessly."
+}

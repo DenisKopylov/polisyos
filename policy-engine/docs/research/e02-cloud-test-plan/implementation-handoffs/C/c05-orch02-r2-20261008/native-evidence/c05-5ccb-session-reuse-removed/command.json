@@ -1,0 +1,87 @@
+{
+  "schema": "orch02r2.native-command.v1",
+  "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "repo": "/workspace/orch02-c05",
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/basetemp",
+    "--junitxml",
+    "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/junit.xml",
+    "-q",
+    "-p",
+    "orch02_c05_session_probe",
+    "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api"
+  ],
+  "timeout_seconds": null,
+  "executable_path": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "executable_resolved": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "executable_sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine/tests:/workspace/orch02-r2/native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/cas",
+    "ORCH02_OUTPUT_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed",
+    "ORCH02_C05_SESSION": "remove_reuse"
+  },
+  "explicit_external_plugins": {
+    "orch02_c05_session_probe": "905a40f25946ddd1d9e1e4392b678dd6e6123fe44b59a5f7023061af1d4fd7d9"
+  },
+  "source_status_before": "",
+  "source_status_all_before": "",
+  "environment_profile": "/workspace/orch02-r2/native-c05-c12/environment-readiness.json",
+  "environment_profile_sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462",
+  "plugin_sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e",
+  "harness_sha256": "aa4271ce3e5ba3682c5ae81c3d539005095e13dcfb4e2c6ada7191037cc47fe4",
+  "command_python_input": {},
+  "disk_available_bytes_before": 11221082112,
+  "started_at_utc": "2026-10-08T19:54:17.004344+00:00",
+  "exit_code": 1,
+  "wall_seconds": 7.660611375998997,
+  "finished_at_utc": "2026-10-08T19:54:24.665001+00:00",
+  "source_status_after": "",
+  "source_sha_after": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_status_all_after": "",
+  "source_binding_intact": true,
+  "disk_available_bytes_after": 11218178048,
+  "outputs": {
+    "junit.xml": {
+      "bytes": 10612,
+      "sha256": "090fe350f64d7089bb840f1f98151962b238e3d72c48d10e6301baf8b2d44ede"
+    },
+    "session-events.json": {
+      "bytes": 7173,
+      "sha256": "f29a9f6f23c984db476d0d65d9243fd4e3053f32d91290fb3b5ba02bfe630192"
+    },
+    "stdout.txt": {
+      "bytes": 10479,
+      "sha256": "28fa581e6c24ade17162428bd012bab67e461f09d32bb6f3a8c9ded61d9f7460"
+    },
+    "runtime-origins.json": {
+      "bytes": 91791,
+      "sha256": "4760a6b0f2dc2bb5208f98b99b3ec960603c7b77b3f1bdf196496d261b0b2511"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "selected-tests.json": {
+      "bytes": 651,
+      "sha256": "9060dcb7198094de02e3cad59ae32bb340b84a5b7eae8c4e5bda722ff08b1fd4"
+    },
+    "resource.json": {
+      "bytes": 286,
+      "sha256": "cadf390d4bd6562b27d2706889bb7fc08a35a22469a742de3d64870d98ed9e85"
+    }
+  }
+}

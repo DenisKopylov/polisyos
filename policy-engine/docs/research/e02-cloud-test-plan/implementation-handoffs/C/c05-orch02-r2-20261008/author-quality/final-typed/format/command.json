@@ -1,0 +1,68 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+    "src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "src/polisyos/fabric/retrieval/service.py",
+    "tests/unit/remediation/test_dfi_03.py",
+    "tests/unit/remediation/test_dfk_02.py"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "head": "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+  "tree": "fe3e10ca4e87ef13e07390dfadc1dff0ecfbc80b",
+  "index_tree": "dac1d82c7761d0f8e11e19f1ee448133d606d73d",
+  "status": "A  policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-loader-contracts-r2.toml\nM  policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md\nM  policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py\nM  policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py\nM  policy-engine/src/polisyos/fabric/retrieval/service.py\nM  policy-engine/tests/unit/remediation/test_dfi_03.py\n",
+  "pythonpath": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 0.15724143899933551,
+  "max_rss_kib": 14720,
+  "user_seconds": 0.06584899999999999,
+  "system_seconds": 0.07728,
+  "stdout_sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "file_inputs": [
+    {
+      "path": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+      "sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "sha256": "8c7de1ad05e53e192beddbe0c307951d12deb54ad3fa16af078de2d9af8d5583"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "sha256": "f0d97a59d19f267072676327d75031bf4f45ba527af3c191a7519825a9a58663"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "sha256": "0f3dc393ca07fb702db41a7e815d8b04218e275cfbc656c29641ad48edba7c66"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+      "sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "sha256": "50a95bb57ccc7141bd2003b8939f2ec9ec6d8cdf0fd8b8312a76bba938255c6c"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "sha256": "4c82ba30b9f3fefd746a4aea29f1d6a736351f9748193333db2e79dd480c2439"
+    }
+  ]
+}

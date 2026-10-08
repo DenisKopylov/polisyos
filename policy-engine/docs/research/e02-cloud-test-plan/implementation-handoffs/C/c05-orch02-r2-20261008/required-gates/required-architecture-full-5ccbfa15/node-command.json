@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--ignore-scripts"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "state": "COMPLETED",
+  "start_utc": "2026-10-08T20:16:58.478282+00:00",
+  "node_version": "v22.23.3",
+  "timeout": null,
+  "resource_method": "os.wait4 exact direct child; Linux ru_maxrss KiB",
+  "child_pid": 77697,
+  "end_utc": "2026-10-08T20:17:03.571452+00:00",
+  "returncode": 0,
+  "wait_status": 0,
+  "wall_seconds": 5.031153370000538,
+  "max_rss_kib": 316848,
+  "user_seconds": 7.07817,
+  "system_seconds": 3.83928,
+  "source_after": {
+    "sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+    "tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+    "status": ""
+  },
+  "tracked_python_inputs_intact": true,
+  "outputs": {
+    "node.stdout.txt": {
+      "bytes": 521,
+      "sha256": "55400c08553e9fa9745859b07261d9d7cc239abdd590f3d7bd36fc8dab24b401"
+    },
+    "node.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

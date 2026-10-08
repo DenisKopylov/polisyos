@@ -1,0 +1,48 @@
+{
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/orch02-r2/c05/type-venv/bin/python",
+  "sys_path": [
+    "",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python314.zip",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/orch02-r2/c05/type-venv/lib/python3.14/site-packages",
+    "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/site-packages"
+  ],
+  "versions": {
+    "mypy": "1.19.1",
+    "ruff": "0.14.10",
+    "pandas": "2.3.3",
+    "duckdb": "1.4.3",
+    "PyYAML": "6.0.3",
+    "pandas-stubs": "2.3.2.250926",
+    "types-PyYAML": "6.0.12.20250915"
+  },
+  "module_origins": {
+    "mypy": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy/__init__.cpython-314-x86_64-linux-gnu.so",
+    "pandas": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pandas/__init__.py",
+    "pandas._typing": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pandas/_typing.py",
+    "yaml": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/yaml/__init__.py",
+    "duckdb": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py"
+  },
+  "isolated_stub_distributions": {
+    "pandas-stubs": "/workspace/orch02-r2/c05/type-venv/lib/python3.14/site-packages/pandas_stubs-2.3.2.250926.dist-info",
+    "types-PyYAML": "/workspace/orch02-r2/c05/type-venv/lib/python3.14/site-packages/types_pyyaml-6.0.12.20250915.dist-info"
+  },
+  "shared_readonly_pth": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages\n",
+  "shared_packages_written": false,
+  "stub_install": {
+    "command": [
+      "uv",
+      "pip",
+      "install",
+      "--python",
+      "/workspace/orch02-r2/c05/type-venv/bin/python",
+      "--no-deps",
+      "types-PyYAML==6.0.12.20250915",
+      "pandas-stubs==2.3.2.250926"
+    ],
+    "no_source_waiver": true
+  }
+}

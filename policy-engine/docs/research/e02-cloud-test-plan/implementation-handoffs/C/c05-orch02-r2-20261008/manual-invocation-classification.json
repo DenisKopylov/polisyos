@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.c05.manual-scoped-invocation-classification.v1",
+  "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "new_static_nodes": [
+    {
+      "symbol": "DatasetBatchConfig.run_signature",
+      "actual_callers": [
+        "batch.pipeline._input_fingerprint",
+        "batch.pipeline.run_pipeline checkpoint/receipt writes",
+        "core_sources.api.run_core_sources_ingest_async",
+        "core_sources.api._ingest_catalog_observations_parallel",
+        "core_sources.validators._write_observation_checkpoint_state"
+      ],
+      "boundary": "Property/receiver access is unresolved by this static model.",
+      "actual_fixture_witnesses": [
+        "final119 material_inputs profile_url and seed_evidence real producer/benchmark cases",
+        "paired profile/seed contribution controls: fresh benchmark-only refusal; contribution removal retains stale full-ready/current report"
+      ]
+    },
+    {
+      "symbol": "_MaterialFileSnapshot.generation_member",
+      "actual_callers": [
+        "batch.config._producer_material_input_basis list comprehension at material snapshot member construction"
+      ],
+      "boundary": "Dynamic receiver method calls are unresolved by this static model.",
+      "actual_fixture_witnesses": [
+        "final119 same-ID profile/material/WVS producer cases",
+        "native profile/seed contribution removals on exact final5ccb"
+      ]
+    },
+    {
+      "symbol": "load_proxy_metric_alignments",
+      "actual_callers": [
+        "knowledge.proxy_penalties.metric_proxy_alignments",
+        "knowledge.registry.DatasetRegistry.compute_p_star_z indirect static boundary",
+        "core_sources.registry._build_catalog_alignments uses metric_proxy_alignments"
+      ],
+      "boundary": "Existing cached/indirect reader route, not an orphan source function.",
+      "actual_fixture_witnesses": [
+        "final119 test_warm_proxy_policy_change_updates_actual_catalog_alignment",
+        "borrowed actual proxy alignment ingestion consumer in final119"
+      ]
+    }
+  ],
+  "classification": "Existing real caller routes and fixture execution are established only at those boundaries; final scanner remains FAIL_UNRESOLVED/partial, no production business invocation or gate substance claim."
+}

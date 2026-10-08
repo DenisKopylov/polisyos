@@ -1,0 +1,32 @@
+{
+  "owner_country_results": "UKR",
+  "actual_dispatch_calls": [
+    [
+      "canonical_owner",
+      "UA"
+    ],
+    [
+      "loader_override",
+      "UA"
+    ],
+    [
+      "request_context",
+      "UA"
+    ],
+    [
+      "loader_override",
+      "UA"
+    ]
+  ],
+  "actual_scalar_transformer_results": [
+    {
+      "raw": "2.5",
+      "actual_result": 2.5
+    },
+    {
+      "raw": "not-a-number",
+      "actual_result": null
+    }
+  ],
+  "oracle": "actual loader consumer output and delegated canonical transformer; context lifetime restored"
+}

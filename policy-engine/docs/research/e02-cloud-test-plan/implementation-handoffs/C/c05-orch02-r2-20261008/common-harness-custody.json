@@ -1,0 +1,38 @@
+{
+  "commit": "e5e32e19b69d1847b153efc0b83987fdd28e68c2",
+  "tree": "c6f7eee86568425e5659c0a4fb8786d7c0b45077",
+  "parent": "e2a737ffda0e3fc5b621e0ba539a0563fe151e1a",
+  "status": "",
+  "harness": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/run_gate_r2.py",
+      "git_blob": "bab005f157024c6e5ce0ba8ce93b331619983cc8",
+      "sha256": "6544e822bb11b92bd288ea63a55999ebe70f9d1477ed21b1f6df5a5989180e9d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_capture.py",
+      "git_blob": "7cbf86739ca1ab92c9979c036d566f7dadab5b23",
+      "sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/run_script_capture.py",
+      "git_blob": "8c5afec15978f40cd95b5d387f3f6acfd5c09912",
+      "sha256": "5944fef637d0f7edec3c0093f944a044c210e4905a5c63209f2a0ef460d4d396"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_profile_probe.py",
+      "git_blob": "9537b9bdf725d89b506f81bc5f966218b12e8647",
+      "sha256": "6be3ba8dba12cf0be0837fbed780df3ed22009a51a78d49b37973274386673e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/orch02_numeric_probe.py",
+      "git_blob": "949b3eca288e94e7cb3690d6e7bd0f62cc86c933",
+      "sha256": "aece30df4b4dc9968269b680d0afc199aac1d48da6b8354800160aa9948b7647"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/inputs/native-harness-c05-c12/environment-readiness.json",
+      "git_blob": "7bfb7ebba43fa686886bda767859c0e180d6618b",
+      "sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462"
+    }
+  ]
+}

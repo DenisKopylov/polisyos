@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/orch02-r2/c05/duckdb_integer_boundary.py"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "head": "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+  "tree": "fe3e10ca4e87ef13e07390dfadc1dff0ecfbc80b",
+  "status": " M policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py\n M policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py\n M policy-engine/src/polisyos/fabric/retrieval/service.py\n",
+  "pythonpath": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 9.42984444099966,
+  "max_rss_kib": 188216,
+  "user_seconds": 7.950857,
+  "system_seconds": 1.48647,
+  "stdout_sha256": "142a3fb77c7caacbb5780f7178b30df670a14be617cacd6d052970cbff14b49f",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

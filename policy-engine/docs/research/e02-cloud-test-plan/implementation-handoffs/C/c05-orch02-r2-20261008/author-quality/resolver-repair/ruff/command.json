@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/ruff",
+    "check",
+    "--output-format",
+    "json",
+    "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "head": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+  "tree": "dac1d82c7761d0f8e11e19f1ee448133d606d73d",
+  "index_tree": "dac1d82c7761d0f8e11e19f1ee448133d606d73d",
+  "status": " M policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py\n",
+  "pythonpath": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 0.08121476199994504,
+  "max_rss_kib": 19968,
+  "user_seconds": 0.09662799999999999,
+  "system_seconds": 0.060148999999999994,
+  "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "file_inputs": [
+    {
+      "path": "/workspace/polisyos/policy-engine/.venv/bin/ruff",
+      "sha256": "277d595a0a19a27a4f739cba2508bbcd7d958c6fcd0d18cda3c581e0091104f2"
+    },
+    {
+      "path": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "sha256": "f823450492750a25fc7d51fbf752638e0f157fde9c34fe0c210e00cadcc69ec3"
+    }
+  ]
+}

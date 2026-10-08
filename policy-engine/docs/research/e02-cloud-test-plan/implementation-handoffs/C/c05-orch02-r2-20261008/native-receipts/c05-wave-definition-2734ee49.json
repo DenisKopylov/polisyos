@@ -1,0 +1,212 @@
+{
+  "schema": "orch02r2.independent-c05-wave-definition.v1",
+  "source_sha": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+  "source_tree": "dac1d82c7761d0f8e11e19f1ee448133d606d73d",
+  "repo": "/workspace/orch02-c05",
+  "commands": [
+    {
+      "name": "c05-2734-affected-native",
+      "environment": {
+        "ORCH02_C05_SESSION": "observe"
+      },
+      "args": [
+        "pytest",
+        "-q",
+        "-p",
+        "orch02_c05_session_probe",
+        "tests/unit/remediation/test_dfi_03.py",
+        "tests/unit/remediation/test_dfk_02.py",
+        "tests/unit/fabric/test_retrieval_service_catalog.py",
+        "tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_load_wvs_bulk_rows_aggregates_social_trust_as_weighted_share",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_iter_eurostat_bulk_records_streams_long_rows",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_iter_ilo_bulk_records_reads_gzip_csv",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_iter_uis_bulk_records_reads_matching_indicator_from_zip",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_core_sources_ingest_adds_proxy_alignment_for_health_spending",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_parallel_observation_ingest_uses_eurostat_async_path",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_existing_observation_ids_accepts_iterables",
+        "/workspace/orch02-r2/native-c05-c12/test_c05_runtime_bindings.py"
+      ],
+      "purpose": "Parent authorized affected full DFI03/DFK02/catalog-retrieval file blast plus borrowed changed loader/API/SQL paths and one independent real owner/context consumer"
+    },
+    {
+      "name": "c05-2734-profile-control",
+      "environment": {},
+      "args": [
+        "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py",
+        "--repo",
+        "/workspace/orch02-c05",
+        "--kind",
+        "c05-profile",
+        "--remove",
+        "none"
+      ],
+      "purpose": "Unchanged literal owned assertions continued to actual outputs; profile/seed stop after fresh pre-repair benchmark; one selected property removed only in process"
+    },
+    {
+      "name": "c05-2734-profile-removed",
+      "environment": {},
+      "args": [
+        "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py",
+        "--repo",
+        "/workspace/orch02-c05",
+        "--kind",
+        "c05-profile",
+        "--remove",
+        "member"
+      ],
+      "purpose": "Unchanged literal owned assertions continued to actual outputs; profile/seed stop after fresh pre-repair benchmark; one selected property removed only in process"
+    },
+    {
+      "name": "c05-2734-seed-control",
+      "environment": {},
+      "args": [
+        "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py",
+        "--repo",
+        "/workspace/orch02-c05",
+        "--kind",
+        "c05-seed",
+        "--remove",
+        "none"
+      ],
+      "purpose": "Unchanged literal owned assertions continued to actual outputs; profile/seed stop after fresh pre-repair benchmark; one selected property removed only in process"
+    },
+    {
+      "name": "c05-2734-seed-removed",
+      "environment": {},
+      "args": [
+        "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py",
+        "--repo",
+        "/workspace/orch02-c05",
+        "--kind",
+        "c05-seed",
+        "--remove",
+        "member"
+      ],
+      "purpose": "Unchanged literal owned assertions continued to actual outputs; profile/seed stop after fresh pre-repair benchmark; one selected property removed only in process"
+    },
+    {
+      "name": "c05-2734-wvs-control",
+      "environment": {},
+      "args": [
+        "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py",
+        "--repo",
+        "/workspace/orch02-c05",
+        "--kind",
+        "c05-wvs",
+        "--remove",
+        "none"
+      ],
+      "purpose": "Unchanged literal owned assertions continued to actual outputs; profile/seed stop after fresh pre-repair benchmark; one selected property removed only in process"
+    },
+    {
+      "name": "c05-2734-wvs-removed",
+      "environment": {},
+      "args": [
+        "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py",
+        "--repo",
+        "/workspace/orch02-c05",
+        "--kind",
+        "c05-wvs",
+        "--remove",
+        "cache-core"
+      ],
+      "purpose": "Unchanged literal owned assertions continued to actual outputs; profile/seed stop after fresh pre-repair benchmark; one selected property removed only in process"
+    },
+    {
+      "name": "c05-2734-session-reuse-removed",
+      "environment": {
+        "ORCH02_C05_SESSION": "remove_reuse"
+      },
+      "args": [
+        "pytest",
+        "-q",
+        "-p",
+        "orch02_c05_session_probe",
+        "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api"
+      ],
+      "purpose": "Same two new actual API/WorldBank/ClientSession/DuckDB consumers; remove only canonical-cache existing-handle reuse, unchanged assertions must fail; real orphan cleanup retains native lifecycle"
+    },
+    {
+      "name": "c05-2734-wvs-forwarding-removed",
+      "environment": {},
+      "args": [
+        "pytest",
+        "-q",
+        "-p",
+        "orch02_c05_wvs_probe",
+        "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation"
+      ],
+      "purpose": "Same owned real DuckDB cell consumer; only omit response_type forwarding, original normalizer/current reader retained; actual 4 vs 1 snapshot reads"
+    }
+  ],
+  "harnesses": {
+    "/workspace/orch02-r2/native-c05-c12/run_gate_c05_r2.py": {
+      "bytes": 6527,
+      "sha256": "aa4271ce3e5ba3682c5ae81c3d539005095e13dcfb4e2c6ada7191037cc47fe4"
+    },
+    "/workspace/orch02-r2/native-c05-c12/orch02_capture.py": {
+      "bytes": 3543,
+      "sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e"
+    },
+    "/workspace/orch02-r2/native-c05-c12/run_script_capture.py": {
+      "bytes": 689,
+      "sha256": "5944fef637d0f7edec3c0093f944a044c210e4905a5c63209f2a0ef460d4d396"
+    },
+    "/workspace/orch02-r2/native-c05-c12/orch02_c05_session_probe.py": {
+      "bytes": 6183,
+      "sha256": "905a40f25946ddd1d9e1e4392b678dd6e6123fe44b59a5f7023061af1d4fd7d9"
+    },
+    "/workspace/orch02-r2/native-c05-c12/orch02_c05_wvs_probe.py": {
+      "bytes": 2764,
+      "sha256": "9379492513946a020f1ff244c8157d53dd19ad59ea30649880b8b706dadea158"
+    },
+    "/workspace/orch02-r2/native-c05-c12/test_c05_runtime_bindings.py": {
+      "bytes": 2491,
+      "sha256": "bc1855bcc07218e0d301c2e0bdb5524cb2eef01cad787f913ab56a5eb0487abf"
+    },
+    "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py": {
+      "bytes": 10307,
+      "sha256": "9585ce6f8916bbfb784a348a9c433d927df30ff7ad258b8c3a87bdc7e5c4723b"
+    },
+    "/workspace/orch02-r2/native-c05-c12/environment-readiness.json": {
+      "bytes": 6059,
+      "sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462"
+    }
+  },
+  "source_inputs": {
+    "tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py": {
+      "sha256": "60de000f47e8d7641dfb0159f251729bcbec3106138dff018ae074d42acb8674",
+      "git_blob": "c686b8cba418079f9c8deeee145a078faba8e53d"
+    },
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py": {
+      "sha256": "718b6a25e9a0b0439286c9bd37b043db5fac6b404f82a0d358ac4121f9ed3e4e",
+      "git_blob": "8cacedf9cd305c288b88f6bef1fd02e175356476"
+    },
+    "tests/unit/fabric/test_retrieval_service_catalog.py": {
+      "sha256": "df5832161ac72f62ea64916863dd59d495555ff3c8a11837299688514cace7ae",
+      "git_blob": "e2cd05ff2e8a47f2bc45fcc15f61f1f90c127e35"
+    },
+    "tests/unit/remediation/test_dfi_03.py": {
+      "sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f",
+      "git_blob": "b1cffbdc0181869e785acb7809371e0b590eac1f"
+    },
+    "tests/unit/remediation/test_dfk_02.py": {
+      "sha256": "4c82ba30b9f3fefd746a4aea29f1d6a736351f9748193333db2e79dd480c2439",
+      "git_blob": "6955626335354c08af77bf86a312c80f18ae0525"
+    }
+  },
+  "supplier_contour": {
+    "path": "/workspace/orch02-r2/c05/frozen/source-freeze.json",
+    "sha256": "c63254fd3db31942759c367e78dbe6066001160ae045e67d1e4bf5d4ef840966",
+    "declared_dependencies": 46
+  },
+  "runner_variant": {
+    "parent_path": "/workspace/orch02-r2/native-c05-c12/run_gate_r2.py",
+    "parent_sha256": "6544e822bb11b92bd288ea63a55999ebe70f9d1477ed21b1f6df5a5989180e9d",
+    "change": "Only controlled environment observation adds ORCH02_C05_SESSION; C12 executed runner unchanged"
+  },
+  "native_scope": "Affected new immutable inputs only, no old112/36/scanner replay; no G composition, production or whole performance PASS",
+  "source_oracle_review": "/workspace/orch02-r2/reviews/c05-independent-source-review-dac1d82c.json",
+  "origin_denominator": "All loaded polisyos/tools file-bearing module origins plus named native modules; no full executed function closure assertion"
+}

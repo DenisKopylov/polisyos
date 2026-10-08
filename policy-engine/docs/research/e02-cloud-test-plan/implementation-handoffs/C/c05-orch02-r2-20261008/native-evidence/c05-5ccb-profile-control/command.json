@@ -1,0 +1,73 @@
+{
+  "schema": "orch02r2.native-command.v1",
+  "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "repo": "/workspace/orch02-c05",
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "/workspace/orch02-r2/native-c05-c12/run_script_capture.py",
+    "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py",
+    "--repo",
+    "/workspace/orch02-c05",
+    "--kind",
+    "c05-profile",
+    "--remove",
+    "none"
+  ],
+  "timeout_seconds": null,
+  "executable_path": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "executable_resolved": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "executable_sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine/tests:/workspace/orch02-r2/native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/cas",
+    "ORCH02_OUTPUT_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control"
+  },
+  "explicit_external_plugins": {},
+  "source_status_before": "",
+  "source_status_all_before": "",
+  "environment_profile": "/workspace/orch02-r2/native-c05-c12/environment-readiness.json",
+  "environment_profile_sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462",
+  "plugin_sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e",
+  "harness_sha256": "aa4271ce3e5ba3682c5ae81c3d539005095e13dcfb4e2c6ada7191037cc47fe4",
+  "command_python_input": {
+    "/workspace/orch02-r2/native-c05-c12/run_script_capture.py": "5944fef637d0f7edec3c0093f944a044c210e4905a5c63209f2a0ef460d4d396",
+    "/workspace/orch02-native-c05-c12/semantic_collect-c05-v2-executed.py": "9585ce6f8916bbfb784a348a9c433d927df30ff7ad258b8c3a87bdc7e5c4723b"
+  },
+  "disk_available_bytes_before": 11263598592,
+  "started_at_utc": "2026-10-08T19:53:17.844861+00:00",
+  "exit_code": 0,
+  "wall_seconds": 14.383826903000227,
+  "finished_at_utc": "2026-10-08T19:53:32.228844+00:00",
+  "source_status_after": "",
+  "source_sha_after": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_status_all_after": "",
+  "source_binding_intact": true,
+  "disk_available_bytes_after": 11253067776,
+  "outputs": {
+    "semantic.json": {
+      "bytes": 10258,
+      "sha256": "a021a717f5456706a427d9e607587cf71395ad9cda518a5735f2590ecd62909c"
+    },
+    "stdout.txt": {
+      "bytes": 10258,
+      "sha256": "a021a717f5456706a427d9e607587cf71395ad9cda518a5735f2590ecd62909c"
+    },
+    "runtime-origins.json": {
+      "bytes": 92353,
+      "sha256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff"
+    },
+    "stderr.txt": {
+      "bytes": 189,
+      "sha256": "eb1b311b33bfa641b9e86170ca3a3dd8f459b02946b5d2a9dbd82676545d0a12"
+    },
+    "resource.json": {
+      "bytes": 289,
+      "sha256": "9042827daaa36f0715049ed09086c9d3d690750ad087970fe69fc3219b08f262"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "policyos.e02.c05.invocation-capture-metadata-note.v1",
+  "capture_script": "/workspace/orch02-r2/c05/capture_required_invocation.py",
+  "issue": "The auxiliary base field uses argv[7], which labels --receipt instead of the actual base value. The exact subprocess argv is unchanged and uses the correct --base argument at argv[6].",
+  "actual_base_from_argv": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+  "raw_capture_is_preserved": true,
+  "correction_scope": "Metadata interpretation only; no command or source change and no replay.",
+  "completion_status": "Use command.json state and actual wait4 returncode; this note makes no result claim."
+}

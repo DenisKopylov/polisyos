@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--skip-generated-checks"
+  ],
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "head": "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+  "tree": "fe3e10ca4e87ef13e07390dfadc1dff0ecfbc80b",
+  "status": " M policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py\n M policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py\n M policy-engine/src/polisyos/fabric/retrieval/service.py\n M policy-engine/tests/unit/remediation/test_dfi_03.py\n",
+  "pythonpath": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine",
+  "exit_code": 1,
+  "wall_seconds": 78.95184787299877,
+  "max_rss_kib": 85560,
+  "user_seconds": 68.756685,
+  "system_seconds": 2.790623,
+  "stdout_sha256": "8813425889a4049972e176fed666b07a83438f6dff801d6e379bf716e0dec3c7",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

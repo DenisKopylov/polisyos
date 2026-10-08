@@ -1,0 +1,409 @@
+{
+  "kind": "c05-seed",
+  "removal": {
+    "kind": "none",
+    "quantity": null,
+    "held_markers": true,
+    "source_files_changed": false
+  },
+  "owned_fixture_source": "/workspace/orch02-c05/policy-engine/tests/unit/remediation/test_dfi_03.py",
+  "source_sha256": "b31d482cf884714da9d2616dfede54287c0cbe4c576fbf7ea791305bf4e70a5f",
+  "oracle": "literal actual SQL/benchmark/native outputs; assertion observations continue beyond digest failures",
+  "verdict": "PASS",
+  "error": null,
+  "events": [
+    {
+      "line": 1746,
+      "expression": "connector._base_url(handle) == url",
+      "holds": true,
+      "actual_left": "https://example.test/original",
+      "expected_right": "https://example.test/original",
+      "fetch_urls": []
+    },
+    {
+      "line": 1747,
+      "expression": "url in {'https://example.test/original', 'https://example.test/changed'}",
+      "holds": true,
+      "actual_left": "https://example.test/original",
+      "expected_right": "{'https://example.test/changed', 'https://example.test/original'}",
+      "fetch_urls": []
+    },
+    {
+      "line": 1760,
+      "expression": "initial.metrics['core_observations'] == 1",
+      "holds": true,
+      "actual_left": 1,
+      "expected_right": 1,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1761,
+      "expression": "fetch_urls == ['https://example.test/original']",
+      "holds": true,
+      "actual_left": [
+        "https://example.test/original"
+      ],
+      "expected_right": [
+        "https://example.test/original"
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1768,
+      "expression": "initial_rows == [('wb-gdp', 'NY.GDP.MKTP.CD', 'UA', 2020, 1.1)]",
+      "holds": true,
+      "actual_left": [
+        [
+          "wb-gdp",
+          "NY.GDP.MKTP.CD",
+          "UA",
+          2020,
+          1.1
+        ]
+      ],
+      "expected_right": [
+        [
+          "wb-gdp",
+          "NY.GDP.MKTP.CD",
+          "UA",
+          2020,
+          1.1
+        ]
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1769,
+      "expression": "initial_report['evaluation_mode'] == 'full-ready'",
+      "holds": true,
+      "actual_left": "full-ready",
+      "expected_right": "full-ready",
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1770,
+      "expression": "initial_report['diagnostic_context']['core_output_receipt_current'] is True",
+      "holds": true,
+      "actual_left": true,
+      "expected_right": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1771,
+      "expression": "_current_core_output_receipt_state(config).is_current",
+      "holds": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1772,
+      "expression": "_should_skip_stage(config, 'benchmark')",
+      "holds": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1778,
+      "expression": "initial_evidence == [('seed_worldbank_wdi;source=worldbank',)]",
+      "holds": true,
+      "actual_left": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "expected_right": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1791,
+      "expression": "config.run_signature == initial_signature",
+      "holds": true,
+      "actual_left": "ed33882089682b6d91b149c571500868c53417b96a6de81d08e3b34f8374a7b0",
+      "expected_right": "ed33882089682b6d91b149c571500868c53417b96a6de81d08e3b34f8374a7b0",
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1793,
+      "expression": "fetch_urls == ['https://example.test/original']",
+      "holds": true,
+      "actual_left": [
+        "https://example.test/original"
+      ],
+      "expected_right": [
+        "https://example.test/original"
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1813,
+      "expression": "seed_path.stat().st_size == previous_seed_stat.st_size",
+      "holds": true,
+      "actual_left": 170,
+      "expected_right": 170,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1815,
+      "expression": "seed_path.stat().st_mtime_ns == previous_seed_stat.st_mtime_ns",
+      "holds": true,
+      "actual_left": 1791489224741197567,
+      "expected_right": 1791489224741197567,
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1819,
+      "expression": "registry_path.read_bytes() == registry_bytes",
+      "holds": true,
+      "actual_left": {
+        "bytes": 286,
+        "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b"
+      },
+      "expected_right": {
+        "bytes": 286,
+        "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b"
+      },
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1820,
+      "expression": "config.stage_state_path.read_bytes() == marker_bytes",
+      "holds": true,
+      "actual_left": {
+        "bytes": 20911,
+        "sha256": "e5cb249fc6b745e9616b747d43a833464045729f49a73d109835ea0f79c48328"
+      },
+      "expected_right": {
+        "bytes": 20911,
+        "sha256": "e5cb249fc6b745e9616b747d43a833464045729f49a73d109835ea0f79c48328"
+      },
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1821,
+      "expression": "config.observation_ingest_checkpoint_path.read_bytes() == checkpoint_bytes",
+      "holds": true,
+      "actual_left": {
+        "bytes": 4454,
+        "sha256": "0b61d971a5c5682a9fe589f5c2fce5c0d4a4c1e4a948178c2f256b4773825067"
+      },
+      "expected_right": {
+        "bytes": 4454,
+        "sha256": "0b61d971a5c5682a9fe589f5c2fce5c0d4a4c1e4a948178c2f256b4773825067"
+      },
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1822,
+      "expression": "config.benchmark_report_path.read_bytes() == report_bytes",
+      "holds": true,
+      "actual_left": {
+        "bytes": 25056,
+        "sha256": "dbdd932c9cc46c3651f4ee21b120d93c5e4c4d35ccd1278a05cf98e69e79de79"
+      },
+      "expected_right": {
+        "bytes": 25056,
+        "sha256": "dbdd932c9cc46c3651f4ee21b120d93c5e4c4d35ccd1278a05cf98e69e79de79"
+      },
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1823,
+      "expression": "config.run_signature != initial_signature",
+      "holds": true,
+      "actual_left": "7c5d7aaa41dafe12b59409a58135318d7eb560b911e614923e5dcf41b09ccc56",
+      "expected_right": "ed33882089682b6d91b149c571500868c53417b96a6de81d08e3b34f8374a7b0",
+      "fetch_urls": [
+        "https://example.test/original"
+      ]
+    },
+    {
+      "line": 1829,
+      "expression": "held_evidence == initial_evidence",
+      "holds": true,
+      "actual_left": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "expected_right": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1830,
+      "expression": "not _current_core_output_receipt_state(config).is_current",
+      "holds": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1831,
+      "expression": "not _should_skip_stage(config, 'benchmark')",
+      "holds": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1832,
+      "expression": "current_content_stage_receipt(config, 'benchmark') is None",
+      "holds": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1837,
+      "expression": "'benchmark' not in stale.skipped_stages",
+      "holds": true,
+      "actual_left": "benchmark",
+      "expected_right": [],
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1838,
+      "expression": "fetch_urls == ['https://example.test/original']",
+      "holds": true,
+      "actual_left": [
+        "https://example.test/original"
+      ],
+      "expected_right": [
+        "https://example.test/original"
+      ],
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1839,
+      "expression": "partial['evaluation_mode'] == 'partial-eval'",
+      "holds": true,
+      "actual_left": "partial-eval",
+      "expected_right": "partial-eval",
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1840,
+      "expression": "partial['metrics']['benchmark_partial_eval'] == 1",
+      "holds": true,
+      "actual_left": 1,
+      "expected_right": 1,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1841,
+      "expression": "partial['diagnostic_context']['core_output_receipt_current'] is False",
+      "holds": true,
+      "actual_left": false,
+      "expected_right": false,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    },
+    {
+      "line": 1842,
+      "expression": "not _should_skip_stage(benchmark_only, 'benchmark')",
+      "holds": true,
+      "fetch_urls": [
+        "https://example.test/original"
+      ],
+      "held_evidence": [
+        [
+          "seed_worldbank_wdi;source=worldbank"
+        ]
+      ]
+    }
+  ],
+  "marker_and_fixture_outputs": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/semantic-utjs2dyz"
+}

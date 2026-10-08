@@ -1,0 +1,104 @@
+{
+  "schema": "orch02r2.native-command.v1",
+  "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "branch": "codex/e02-C-orch02-c05-recovery",
+  "repo": "/workspace/orch02-c05",
+  "cwd": "/workspace/orch02-c05/policy-engine",
+  "argv": [
+    "/workspace/orch02-native-c05-c12/venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "orch02_capture",
+    "--basetemp",
+    "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/basetemp",
+    "--junitxml",
+    "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/junit.xml",
+    "-q",
+    "-p",
+    "orch02_c05_session_probe",
+    "tests/unit/remediation/test_dfi_03.py",
+    "tests/unit/remediation/test_dfk_02.py",
+    "tests/unit/fabric/test_retrieval_service_catalog.py",
+    "tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_load_wvs_bulk_rows_aggregates_social_trust_as_weighted_share",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_iter_eurostat_bulk_records_streams_long_rows",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_iter_ilo_bulk_records_reads_gzip_csv",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_iter_uis_bulk_records_reads_matching_indicator_from_zip",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_core_sources_ingest_adds_proxy_alignment_for_health_spending",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_parallel_observation_ingest_uses_eurostat_async_path",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_existing_observation_ids_accepts_iterables",
+    "/workspace/orch02-r2/native-c05-c12/test_c05_runtime_bindings.py"
+  ],
+  "timeout_seconds": null,
+  "executable_path": "/workspace/orch02-native-c05-c12/venv/bin/python",
+  "executable_resolved": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "executable_sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+  "timeout_basis": "first wall measurement; no arbitrary cutoff",
+  "environment": {
+    "PYTHONPATH": "/workspace/orch02-c05/policy-engine/src:/workspace/orch02-c05/policy-engine/tests:/workspace/orch02-r2/native-c05-c12",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_CAS_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/cas",
+    "ORCH02_OUTPUT_DIR": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native",
+    "ORCH02_C05_SESSION": "observe"
+  },
+  "explicit_external_plugins": {
+    "orch02_c05_session_probe": "905a40f25946ddd1d9e1e4392b678dd6e6123fe44b59a5f7023061af1d4fd7d9"
+  },
+  "source_status_before": "",
+  "source_status_all_before": "",
+  "environment_profile": "/workspace/orch02-r2/native-c05-c12/environment-readiness.json",
+  "environment_profile_sha256": "2240a2599b54b2b8d6bcd941d8bae0fac4932a48506449f2c6dae5e0fd7d1462",
+  "plugin_sha256": "9cfc5463e907c0420e58e74a68c82f81b573eeafa00768301c9ab0da32874c6e",
+  "harness_sha256": "aa4271ce3e5ba3682c5ae81c3d539005095e13dcfb4e2c6ada7191037cc47fe4",
+  "command_python_input": {
+    "/workspace/orch02-r2/native-c05-c12/test_c05_runtime_bindings.py": "bc1855bcc07218e0d301c2e0bdb5524cb2eef01cad787f913ab56a5eb0487abf"
+  },
+  "disk_available_bytes_before": 11330584576,
+  "started_at_utc": "2026-10-08T19:50:20.740946+00:00",
+  "exit_code": 0,
+  "wall_seconds": 94.22794814200097,
+  "finished_at_utc": "2026-10-08T19:51:54.969115+00:00",
+  "source_status_after": "",
+  "source_sha_after": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_status_all_after": "",
+  "source_binding_intact": true,
+  "disk_available_bytes_after": 11263623168,
+  "outputs": {
+    "junit.xml": {
+      "bytes": 20387,
+      "sha256": "ecca9de6dc6e48c9a09a2893d37174704605bed47567e936e4b4a64b483a041c"
+    },
+    "session-events.json": {
+      "bytes": 8581,
+      "sha256": "a318f03ac37d8bef70995bf81f042ea04aaa18adda1fbbe805b936fe9cc6b6b1"
+    },
+    "stdout.txt": {
+      "bytes": 639,
+      "sha256": "fa52396ca9044511fcdc741272442abcc2cfe8e40347de737cd49952ea71f6de"
+    },
+    "runtime-binding-events.json": {
+      "bytes": 549,
+      "sha256": "285f7460c0d4c5c1205faf367926dcd5bf7fdde9d55a073119dfaf2ffb0eccf9"
+    },
+    "runtime-origins.json": {
+      "bytes": 104814,
+      "sha256": "53720865752a37ac303d0f94c797cb15dba23f9d8f26ca63467fdbe95edb0f15"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "selected-tests.json": {
+      "bytes": 17687,
+      "sha256": "0e6339ff2b886c386508d771a5955ba77f9b17e6911a92029462b34b08de4c02"
+    },
+    "resource.json": {
+      "bytes": 293,
+      "sha256": "84dd0bc506d14e6b029148d4c7028688396901a1f5ca7d05e677500ab7603487"
+    }
+  }
+}

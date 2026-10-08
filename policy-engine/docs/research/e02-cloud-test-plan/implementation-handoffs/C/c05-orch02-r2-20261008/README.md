@@ -1,0 +1,7 @@
+# C05 original-C typed r2 handoff
+
+Source `5ccbfa15` is the ordinary forward repair on `2734ee49`, tree `9633ae3e`. The initial six-path typed/SQL/session change revealed two actual dispatch regressions in independent native119. Exactly three predecessor resolver calls are restored; the final same119 passes. Profile/seed/WVS and real session/hotloop removals retain their literal deciding failures.
+
+Final Ruff8 and strict mypy6 with two isolated stubs pass. Shared mypy retains two missing-stub errors. Final full default architecture is FAIL (actual exit 1), with 160 issue rows and four generated-family statuses {'PASS': 2, 'FAIL': 2, 'UNRUN': 0, 'UNESTABLISHED': 0}. The prior nongenerated158/six-owned-edge result is retained with its explicit --skip-generated-checks scope; required final invocation exits3, partial/unresolved, with no runtime invocation established. Full deciding output and raw negative failures remain source-qualified; no global green or formal acceptance is inferred.
+
+`handoff.json` gives the contracts, limits and exact identities. `artifact-aliases.json` maps lossless gzip to original bytes and immutable Git blobs. Four new independent executed harnesses are preserved here; common/historical harness custody is referenced without duplicate copies. Old112 remains source661-only; initial117+2 remains2734-only. The separate prospective G topic contains unapplied owned/public-companion patches with explicit supplier holds.

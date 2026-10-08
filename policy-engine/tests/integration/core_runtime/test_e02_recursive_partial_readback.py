@@ -12,6 +12,7 @@ claim.
 from __future__ import annotations
 
 import copy
+import os
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
@@ -49,7 +50,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION,
         CompiledRecursiveGenerationCycleRun,
     )
-    from polisyos.runtime.quality import substrate_registry
+    from polisyos.runtime.quality import recursive_generation_cycle, substrate_registry
     from polisyos.runtime.quality.generation_cycle import (
         validate_generation_cycle_run_history,
     )
@@ -65,6 +66,19 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
     from tests.unit.runtime.http.test_control_job_execution_intent import (
         _valid_intake_for_mode,
     )
+
+    if os.environ.get("POLISYOS_E02_NESTED_N6_HISTORY_REMOVAL") == "1":
+
+        def removed_recursive_history_check(
+            _payload: object,
+        ) -> tuple[dict[str, Any], ...]:
+            return ()
+
+        monkeypatch.setattr(
+            recursive_generation_cycle,
+            "validate_generation_cycle_run_history",
+            removed_recursive_history_check,
+        )
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")

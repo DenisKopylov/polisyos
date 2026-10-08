@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.orch03.git_publication_readback.v1",
+  "published_topic": "codex/e02-E-c09-20261008",
+  "remote_sha": "0c3c1ed6a40823f56fef6e8e565d8990df7b3942",
+  "remote_tree": "d71321a5a4da7ef103e17da754d6386edccfb87e",
+  "current_source": "1b8c9e1c84d9f2e86d4b0900bf5aa54515487747",
+  "current_source_tree": "7a4ee9e71c793827abef998540dcd12ab129c4ba",
+  "corrected_readback": "normal explicit heads/topic:refs/remotes/origin/topic fetch; no force or rewritten history",
+  "receipt_bytes": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission.json",
+      "sha256": "1031ca2e6a1da65a0fe1ca0cb95006f24edd71ab76f90936f6bef7d3053d1a48",
+      "bytes": 16525,
+      "matches_local": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/mean-error.json",
+      "sha256": "85ab55a0c81505ddd8ee7c7a408f5b446ff9b48cc2c3c7dc6e8469c64bc90631",
+      "bytes": 12320,
+      "matches_local": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/supplier-requirements.json",
+      "sha256": "f39422e0893db696e08be890704ae697db395939fd8fe8adacce3f0b27a1e078",
+      "bytes": 33910,
+      "matches_local": true
+    }
+  ],
+  "artifact_manifest_checks": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission/artifact-manifest.json",
+      "entries": 40,
+      "mismatches": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/mean-error/artifact-manifest.json",
+      "entries": 117,
+      "mismatches": []
+    }
+  ],
+  "first_attempt": {
+    "state": "ERROR readback-harness setup",
+    "command": "git fetch origin codex/e02-E-c09-20261008; followed by git show origin/codex/e02-E-c09-20261008:...",
+    "cause": "narrow origin.fetch only main left stale origin/topic514f9005 even successful fetch+remote publication0c3c; attempted mean-error receipt read from stale514 returned128",
+    "observed_stale_sha": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88",
+    "observed_stale_tree": "5b178089910f581c76a4e2557e61458ba88369d1",
+    "no_source_change": true,
+    "no_product_FAIL_or_PASS": true,
+    "complete_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/readback-attempt-1.tool-output.txt",
+      "bytes": 966,
+      "sha256": "39d31db7d45cab1ea88331519786ffbd78f8d4f700daf1f1c513be7ff5e938f8",
+      "kind": "exact recorded combined functions tool output, not independently separated stdout/stderr"
+    }
+  },
+  "source_acceptance_G": "not_issued",
+  "formal_finding_closure": "not_issued"
+}

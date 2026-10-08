@@ -1,0 +1,9 @@
+From https://github.com/DenisKopylov/polisyos
+ * branch                codex/e02-E-c09-20261008 -> FETCH_HEAD
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'show', 'origin/codex/e02-E-c09-20261008:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/mean-error.json']' returned non-zero exit status 128.
+{"remote_sha": "514f90058104f7dd8ada1c83b8bf5f62bfc33b88", "remote_tree": "5b178089910f581c76a4e2557e61458ba88369d1"}
+{"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-c09/interval-admission.json", "remote_sha256": "1031ca2e6a1da65a0fe1ca0cb95006f24edd71ab76f90936f6bef7d3053d1a48", "bytes": 16525, "matches_local": true}

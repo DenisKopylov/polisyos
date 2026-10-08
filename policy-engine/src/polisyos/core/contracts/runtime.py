@@ -1992,6 +1992,7 @@ class RecursiveCycleCheckpoint(BaseModel):
     verification_basis: Literal["resolved_core_cas_intrinsic"]
     root_n9_status: Literal["not_run"] = "not_run"
     leaf_promotion_statuses: dict[str, str]
+    leaf_terminal_kinds: dict[str, str] = Field(default_factory=dict)
     publication_authority: Literal[False] = False
 
 

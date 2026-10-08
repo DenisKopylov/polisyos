@@ -3850,6 +3850,9 @@ class ControlPlaneService(
                     for node in partial.leaf_nodes
                     if node.cycle_run is not None
                 },
+                leaf_terminal_kinds={
+                    node.node_ref: node.terminal.kind.value for node in partial.leaf_nodes
+                },
             )
         except (OSError, RuntimeError, TypeError, ValueError, KeyError):
             return None

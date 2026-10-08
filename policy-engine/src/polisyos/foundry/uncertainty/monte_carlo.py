@@ -333,12 +333,35 @@ def _mean_estimator_error(
 ) -> dict[str, Any]:
     """Describe conditional numerical error, never admit a scientific IID law."""
     n = int(values.size)
+    normal_input_profile = bool(input_envelopes) and all(
+        isinstance(env.distribution_payload, ParametricFitCarrier)
+        and env.distribution_family is DistributionFamily.NORMAL
+        and _normal_parametric_fit(env) is not None
+        and _normal_parametric_fit(env)[1] >= 1e-12
+        for env in input_envelopes.values()
+    )
     diagnostic: dict[str, Any] = {
         "status": "unavailable",
         "standard_error": None,
         "target": "implemented_push_forward_mean",
         "estimator": "sample_mean",
-        "sampling_law": "implemented_product_of_typed_normal_fits",
+        "sampling_law": (
+            "implemented_product_of_typed_normal_fits"
+            if normal_input_profile and qmc_method is None and not config.adaptive_stopping.enabled
+            else "implemented_input_sampling_recipe"
+        ),
+        "supported_estimator_profile": "fixed_random_product_of_typed_normal_fits",
+        "input_recipe_profiles": {
+            name: {
+                "distribution_family": env.distribution_family.value,
+                "carrier": (
+                    type(env.distribution_payload).__name__
+                    if env.distribution_payload is not None
+                    else None
+                ),
+            }
+            for name, env in input_envelopes.items()
+        },
         "sampling_method": config.mc_sampling_method,
         "seed": int(config.mc_seed),
         "requested_draw_count": requested_count,
@@ -357,13 +380,7 @@ def _mean_estimator_error(
         reason = "qmc_replica_means_not_retained"
     elif config.adaptive_stopping.enabled:
         reason = "adaptive_sampling"
-    elif not input_envelopes or any(
-        not isinstance(env.distribution_payload, ParametricFitCarrier)
-        or env.distribution_family is not DistributionFamily.NORMAL
-        or _normal_parametric_fit(env) is None
-        or _normal_parametric_fit(env)[1] < 1e-12
-        for env in input_envelopes.values()
-    ):
+    elif not normal_input_profile:
         reason = "unsupported_input_sampling_law"
     elif n < 2:
         reason = "insufficient_independent_draws"

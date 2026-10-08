@@ -60,3 +60,11 @@ Scientific source/law authority and served consumer admission remain separate.
 The diagnostic persists in the existing uncertainty envelope metadata and reads
 back through the maintained CAS reader. Existing outcome intervals, composition
 profiles, `mc_std` and their gate semantics are unchanged by this additive field.
+
+`sampling_law` describes the implemented input recipe; it names the typed-Normal
+product only on that actual fixed-random input profile. Other carriers, inferred
+laws, adaptive stopping and QMC paths keep a generic implemented-recipe label and
+their actual `input_recipe_profiles` family/carrier fields. The diagnostic's
+`supported_estimator_profile` is a separate eligibility profile, never an assertion
+that unsupported actual inputs followed that law. Input metadata labels cannot
+override these fields, and correcting them does not change any numerical estimator.

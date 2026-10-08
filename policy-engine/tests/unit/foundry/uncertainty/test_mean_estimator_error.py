@@ -123,6 +123,46 @@ def test_weighted_empirical_draw_axis_and_iid_marker_do_not_launder_profile() ->
     assert diagnostic["status"] == "unavailable"
     assert diagnostic["standard_error"] is None
     assert diagnostic["reason"] == "unsupported_input_sampling_law"
+    assert diagnostic["sampling_law"] == "implemented_input_sampling_recipe"
+    assert diagnostic["input_recipe_profiles"]["x"] == {
+        "distribution_family": "bootstrap",
+        "carrier": "PosteriorSamplesCarrier",
+    }
+
+
+@pytest.mark.parametrize("profile", ["typed_normal", "weighted_empirical", "legacy_inferred"])
+def test_observed_input_recipe_label_survives_actual_mc_and_fresh_cas(tmp_path, profile):
+    env = _normal_law()
+    if profile == "weighted_empirical":
+        env = env.model_copy(
+            update={
+                "distribution_family": DistributionFamily.BOOTSTRAP,
+                "distribution_payload": PosteriorSamplesCarrier(
+                    samples=(-1.0, 1.0), weights=(0.9, 0.1), sample_axis="draw"
+                ),
+                "metadata": {
+                    "sampling_law": "implemented_product_of_typed_normal_fits",
+                    "iid": True,
+                },
+            }
+        )
+    elif profile == "legacy_inferred":
+        env = env.model_copy(update={"distribution_payload": None})
+    result = _propagate(PropagationConfig(mc_n_samples=100, mc_seed=42), env)
+    ref = persist_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), result.envelope)
+    fresh = load_uncertainty_envelope(build_ir_artifact_store(tmp_path / "cas"), ref)
+    diagnostic = fresh.metadata["mean_estimator_error"]
+    assert diagnostic["requested_draw_count"] == diagnostic["attempted_draw_count"] == 100
+    assert diagnostic["finite_output_count"] == 100
+    assert diagnostic["gate_eligible"] is False and fresh.gate_eligible is False
+    assert diagnostic["supported_estimator_profile"] == "fixed_random_product_of_typed_normal_fits"
+    if profile == "typed_normal":
+        assert diagnostic["sampling_law"] == "implemented_product_of_typed_normal_fits"
+        assert diagnostic["status"] == "conditional_estimate"
+    else:
+        assert diagnostic["sampling_law"] == "implemented_input_sampling_recipe"
+        assert diagnostic["status"] == "unavailable" and diagnostic["standard_error"] is None
+        assert diagnostic["reason"] == "unsupported_input_sampling_law"
 
 
 def test_adaptive_sampling_does_not_use_fixed_iid_formula() -> None:

@@ -7,44 +7,44 @@
   "immutable_delivery_review_candidate": "ca78ef245e592f8adfbeb273f7a404c8e84a6ae8",
   "immutable_delivery_review_tree": "85a08af3359ed11302d2a355e514793ecb136989",
   "receipt_implementation_commit": "45c82745292baeeb5414b7367dde931872ee0417",
-  "independent_content_and_delivery_review": "ca78 immutable full58/61/68 binding reviewed bounded GO; late availability reviewer identified supply overclaim corrected here; narrow frozen correction review to follow. Authentic/installed positives UNRUN.",
+  "independent_content_and_delivery_review": "ca78 reviewed boundedGO. The3d5 narrow correction review found the same availability-overclaim class in directory/data wording; this append corrects all current bindings, with narrow final review pending. Authentic/installed positives UNRUN.",
   "final_source_closure_ids": [],
   "G_formal_status": "not_adjudicated",
   "files": [
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/parallel-20261008-l02-late-input-qualification.json",
-      "bytes": 3657,
-      "sha256": "b87d9a28f27e7ad149b079ed44e464f98a264a41cbb37d0b30b453da6d98a0d8"
+      "bytes": 3793,
+      "sha256": "435225e99e57bd4455dd85849a488c39c1679558ebd3d100168f09afb72b6751"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/parallel-20261008-l02-late-input-qualification.json",
-      "bytes": 3317,
-      "sha256": "e51f09387fb46f1a2081fac1d14ef91aaf5070922fe33d940ddb321adc54a870"
+      "bytes": 3453,
+      "sha256": "391afbae39545a6a171012219f3472d40cd27c75e17d291be28bdeecf8443372"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-l02-late-input-qualification.json",
-      "bytes": 3974,
-      "sha256": "e010af9edef9b7f143f4cdb1ca691b4626735e703bd89e272199f71e20e3fb9b"
+      "bytes": 4110,
+      "sha256": "76e27a4558242e65196cc8487b5e1d171bcd1b24101f3bead8f09bba50c8e54e"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/parallel-20261008-l02-late-input-qualification.json",
-      "bytes": 3371,
-      "sha256": "011a7ec871a238def60346d752493fd2b7e655edf3772a0fa6e7cd78c10955bd"
+      "bytes": 3507,
+      "sha256": "af43f21fd74fbb931cb6ee84ed325f54f789a3147e00ca594ecfe273d602b1e3"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/parallel-20261008-l02-late-input-qualification.json",
-      "bytes": 3657,
-      "sha256": "6538a8f50d1fac4f53913fced4f9106520086e765b7a0e2c1a446a0c039156e2"
+      "bytes": 3793,
+      "sha256": "9304b9db6949041959ddd6a293c55174be31af2050ac122b8ab56df460a6cb92"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-l02-late-input-qualification.json",
-      "bytes": 3450,
-      "sha256": "987aba2457b70976708d0e7c6491ca8149cc5c511f297d2faed77bf8a9decca1"
+      "bytes": 3586,
+      "sha256": "7f7ba034637570fc8f32c450d9b2446838eecf70d0d972aad7b68c3e1c240c43"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/README.md",
-      "bytes": 7244,
-      "sha256": "7f6887e6e8a5f8865ffe5e1c98027bc665547f632f1df99f1b3dc9829fbb12cb"
+      "bytes": 7441,
+      "sha256": "458aad6981c5b0c74893e5f38764c618b906f9e874a9a5069206b2ecebe42493"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/L01-ABC-delta-review.json",
@@ -186,7 +186,8 @@
     "correction": "README supply wording replaced with explicit published-facts / matching-tuple-not-established state; final next-owner pointer now names remaining tuples.",
     "historical_review": "closeout/delivery-independent-review.json retained byte-identically as earlier reviewer evidence. Its V1 phrase \u201cL01 supplies local profile/artifact facts\u201d denotes the next required supplier and does not establish actual supply; this current qualification supersedes that ambiguity.",
     "historical_preparation": "Prepared ABC delta inspected G71, where L01 was absent. Gd23 now contains it; no absence claim is current and no merge is a release prerequisite.",
-    "latest_G_source": "167 documentation paths from source f00; no code/test/config/lock delta. No Mac7/G77 repeat justified."
+    "latest_G_source": "167 documentation paths from source f00; no code/test/config/lock delta. No Mac7/G77 repeat justified.",
+    "same_class_second_review": "3d5 narrow reviewer found directory presence overstated as data existence. Corrected the common availability statement in README and all six unit data_and_permission_boundary bindings. L01 only establishes directory location; bytes/content/profile/admission not_established. Prior user-confirmed DB availability is historical separate evidence, not current authentic admission."
   },
   "late_input_reviews": {
     "ABC": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/closeout/L01-ABC-delta-review.json",

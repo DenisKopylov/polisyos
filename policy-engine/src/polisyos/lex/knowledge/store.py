@@ -6,6 +6,7 @@ This is the persistence layer used by ``search.py``.
 from __future__ import annotations
 
 import hashlib
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -124,11 +125,58 @@ _PROVISION_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
 
 
 @dataclass(frozen=True, slots=True)
+class LegalQueryProfile:
+    """Immutable request intent for one selected Legal embedding generation.
+
+    This snapshot is a requested selection, not model or legal authority.
+    The reader independently resolves its current selector, reconciles owner
+    membership, and verifies the live encoder before using the snapshot.
+    """
+
+    basis_kind: str
+    generation_id: str
+    inventory_bytes: bytes
+
+    def __post_init__(self) -> None:
+        """Require genuinely immutable primitive request-snapshot fields."""
+        if (
+            type(self.basis_kind) is not str
+            or not self.basis_kind
+            or type(self.generation_id) is not str
+            or not self.generation_id
+            or type(self.inventory_bytes) is not bytes
+            or not self.inventory_bytes
+        ):
+            raise LegalQueryProfileError("query_profile_malformed")
+
+    @classmethod
+    def from_generation(cls, generation: EmbeddingGenerationRef) -> LegalQueryProfile:
+        """Freeze an existing selected generation without aliasing its inventory."""
+        if not generation.selected or generation.status != "complete":
+            raise LegalQueryProfileError("query_profile_generation_unavailable")
+        basis = generation.inventory.get("basis")
+        basis_kind = basis.get("basis_kind") if isinstance(basis, dict) else None
+        if not isinstance(basis_kind, str) or not basis_kind:
+            raise LegalQueryProfileError("query_profile_generation_unavailable")
+        return cls(
+            basis_kind=basis_kind,
+            generation_id=generation.generation_id,
+            inventory_bytes=json.dumps(
+                generation.inventory,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8"),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class LegalQueryInput:
-    """Unencoded query text and the live local encoder used for Legal search."""
+    """Query text, live local encoder, and immutable requested generation intent."""
 
     text: str
     encoder: object
+    profile: tuple[LegalQueryProfile, ...] | None = None
 
 
 class LegalQueryProfileError(ValueError):
@@ -1097,6 +1145,48 @@ class LegalKnowledgeStore:
             return self._provision_index, self._provision_ids, self._provision_generation
 
     @staticmethod
+    def _require_query_profile(
+        query: LegalQueryInput,
+        generation: EmbeddingGenerationRef | None,
+        *,
+        table_name: str,
+    ) -> None:
+        """Compare immutable request intent with the freshly resolved selected inventory."""
+        if not isinstance(query, LegalQueryInput):
+            raise LegalQueryProfileError("unbound_query_vector")
+        if (
+            generation is None
+            or not generation.selected
+            or generation.status != "complete"
+            or generation.index_path is None
+        ):
+            raise LegalQueryProfileError("selected_generation_unavailable")
+        profile = query.profile
+        if profile is None:
+            raise LegalQueryProfileError("query_profile_unavailable")
+        if not isinstance(profile, tuple) or any(
+            not isinstance(item, LegalQueryProfile) for item in profile
+        ):
+            raise LegalQueryProfileError("query_profile_malformed")
+        matching = tuple(
+            item for item in profile if item.basis_kind == f"legal_{table_name}_embedding"
+        )
+        if len(matching) != 1:
+            raise LegalQueryProfileError("query_profile_unpaired")
+        requested = matching[0]
+        current_inventory = json.dumps(
+            generation.inventory,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        if (
+            requested.generation_id != generation.generation_id
+            or requested.inventory_bytes != current_inventory
+        ):
+            raise LegalQueryProfileError("query_profile_stale_or_mismatched")
+
+    @staticmethod
     def _query_vector_for_generation(
         query: LegalQueryInput,
         generation: EmbeddingGenerationRef | None,
@@ -1115,6 +1205,8 @@ class LegalKnowledgeStore:
             or generation.index_path is None
         ):
             raise LegalQueryProfileError("selected_generation_unavailable")
+
+        LegalKnowledgeStore._require_query_profile(query, generation, table_name=table_name)
 
         inventory = generation.inventory
         try:
@@ -1258,6 +1350,7 @@ class LegalKnowledgeStore:
         min_similarity: float = 0.3,
     ) -> list[LegalSearchResult]:
         index, entity_ids, generation = self._load_entity_index()
+        self._require_query_profile(query, generation, table_name="lex_entities")
         if generation is not None and (not generation.selected or generation.status != "complete"):
             raise LegalQueryProfileError("selected_generation_unavailable")
         if index is None or entity_ids is None:
@@ -1308,6 +1401,7 @@ class LegalKnowledgeStore:
         quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         index, fact_ids, generation = self._load_fact_index()
+        self._require_query_profile(query, generation, table_name="lex_facts")
         if generation is not None and (not generation.selected or generation.status != "complete"):
             raise LegalQueryProfileError("selected_generation_unavailable")
         if index is None or fact_ids is None:
@@ -1361,6 +1455,7 @@ class LegalKnowledgeStore:
         route_class: str | None = None,
     ) -> list[LegalProvisionResult]:
         index, provision_ids, generation = self._load_provision_index()
+        self._require_query_profile(query, generation, table_name="lex_provisions")
         if generation is not None and (not generation.selected or generation.status != "complete"):
             raise LegalQueryProfileError("selected_generation_unavailable")
         if index is None or provision_ids is None:

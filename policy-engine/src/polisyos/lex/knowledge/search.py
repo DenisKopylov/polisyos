@@ -23,6 +23,7 @@ from polisyos.common.logger import get_logger
 from polisyos.lex.knowledge.store import (
     LegalKnowledgeStore,
     LegalQueryInput,
+    LegalQueryProfile,
     LegalQueryProfileError,
 )
 from polisyos.lex.knowledge.types import (
@@ -52,6 +53,7 @@ class LegalKnowledgeGraph:
         openai_api_key: str | None = None,
         embedding_model: str = "text-embedding-3-large",
         query_encoder: object | None = None,
+        query_profile: tuple[LegalQueryProfile, ...] | None = None,
     ) -> None:
         """Open a read-only graph with an optional content-bound local query encoder.
 
@@ -62,10 +64,13 @@ class LegalKnowledgeGraph:
             embedding_model: Deprecated label retained for constructor compatibility.
             query_encoder: Live local encoder whose weights and tokenizer must match each
                 selected generation before vector search is allowed.
+            query_profile: Immutable expected selected-generation snapshots for the request.
+                Only the queried table must be paired. Missing or stale intent refuses vectors.
         """
         self._store = LegalKnowledgeStore(db_path, index_dir)
         self._embedding_model = embedding_model
         self._query_encoder = query_encoder
+        self._query_profile = query_profile
         self._query_profile_error = (
             None
             if query_encoder is not None
@@ -92,7 +97,9 @@ class LegalKnowledgeGraph:
             self._query_profile_error = LegalQueryProfileError("query_encoder_assets_unavailable")
             return None
         self._query_profile_error = None
-        return LegalQueryInput(text=query, encoder=self._query_encoder)
+        return LegalQueryInput(
+            text=query, encoder=self._query_encoder, profile=self._query_profile
+        )
 
     # ------------------------------------------------------------------
     # Search methods
@@ -342,7 +349,7 @@ class LegalKnowledgeGraph:
     ) -> list[LegalFactResult]:
         """Combined vector + text search with score fusion.
 
-        If no OpenAI API key is configured, falls back to text-only search.
+        Missing or rejected local encoder/profile falls back to text-only search.
         """
         text_results = self._store.text_search_facts(
             query,

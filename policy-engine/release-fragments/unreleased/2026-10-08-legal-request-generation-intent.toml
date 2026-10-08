@@ -1,0 +1,31 @@
+id = "2026-10-08-legal-request-generation-intent"
+title = "Bind Legal request intent to the selected generation"
+type = "changed"
+component = "lex"
+owner = "team-polisyos"
+summary = "Legal vector requests carry an immutable snapshot of their expected existing selected-generation inventory; missing, foreign, duplicate, or stale intent refuses before query encoding or HNSW."
+evidence = ["tests/unit/remediation/test_emb_03.py"]
+compatibility = "A query_encoder alone no longer authorizes a vector request. Supply query_profile snapshots for the queried tables; text search and hybrid text fallback remain available."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.lex LegalKnowledgeGraph; required LegalQueryProfile type dependency"
+migration = "Resolve the admitted request profile's existing EmbeddingGenerationRef locally, freeze each required nonempty table using LegalQueryProfile.from_generation(ref), and pass the resulting tuple with the matching query_encoder. Explicitly refresh request intent after selecting a new generation."
+api = "Adds query_profile to LegalKnowledgeGraph and profile to LegalQueryInput; the snapshot adapter is available from polisyos.lex.knowledge.store. Shared facades/generated references require G's separate lease."
+limitations = "Prepared source proposal; native verification is UNRUN. Snapshot creation freezes requested selection and supplies no production model, corpus, legal, or arbitrary encode-callable authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/lex/knowledge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lex-request-generation-intent"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.lex LegalKnowledgeGraph"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "request-selection hardening; missing intent remains unsupported"
+release_note = "Vector search requires expected selected-generation snapshots as well as a matching local encoder; stale request intent fails closed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/lex/knowledge/README.md"]
+runbook_docs = []

@@ -27,6 +27,7 @@ from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.store import (
     LegalKnowledgeStore,
     LegalQueryInput,
+    LegalQueryProfile,
     LegalQueryProfileError,
 )
 
@@ -348,6 +349,24 @@ def _selected_legal_vectors(output_dir: Path, embedding_name: str) -> tuple[list
     return ids, vectors
 
 
+def _legal_query_profile(output_dir: Path) -> tuple[LegalQueryProfile, ...]:
+    """Freeze fixture request intent from existing selected generation refs."""
+    profiles: list[LegalQueryProfile] = []
+    for embedding_name, index_name in (
+        ("lex_entity_embeddings", "lex_entity_index"),
+        ("lex_fact_embeddings", "lex_fact_index"),
+        ("lex_provision_embeddings", "lex_provision_index"),
+    ):
+        generation = resolve_embedding_generation(
+            output_dir / ".legal_embedding_generations" / embedding_name,
+            legacy_embeddings_path=output_dir / f"{embedding_name}.npz",
+            legacy_index_path=output_dir / f"{index_name}.hnsw",
+        )
+        if generation is not None and generation.status == "complete":
+            profiles.append(LegalQueryProfile.from_generation(generation))
+    return tuple(profiles)
+
+
 def _generation_selectors(output_dir: Path) -> list[Path]:
     return sorted(output_dir.rglob("embedding_generation.json"))
 
@@ -554,13 +573,18 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
     try:
         assert (
             stale_reader.search_entities_by_vector(
-                LegalQueryInput("Old entity", query_encoder), min_similarity=0.0
+                LegalQueryInput(
+                    "Old entity", query_encoder, _legal_query_profile(tmp_path)
+                ),
+                min_similarity=0.0
             )
             == []
         )
         assert (
             stale_reader.search_facts_by_vector(
-                LegalQueryInput("Old fact text", query_encoder),
+                LegalQueryInput(
+                    "Old fact text", query_encoder, _legal_query_profile(tmp_path)
+                ),
                 min_similarity=0.0,
                 include_candidates=True,
             )
@@ -568,7 +592,10 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
         )
         assert (
             stale_reader.search_provisions_by_vector(
-                LegalQueryInput("Old provision text", query_encoder), min_similarity=0.0
+                LegalQueryInput(
+                    "Old provision text", query_encoder, _legal_query_profile(tmp_path)
+                ),
+                min_similarity=0.0
             )
             == []
         )
@@ -590,13 +617,18 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
         assert [
             result.entity_id
             for result in reader.search_entities_by_vector(
-                LegalQueryInput("Changed entity text", query_encoder), min_similarity=0.0
+                LegalQueryInput(
+                    "Changed entity text", query_encoder, _legal_query_profile(tmp_path)
+                ),
+                min_similarity=0.0
             )
         ] == ["e-old"]
         assert [
             result.fact_id
             for result in reader.search_facts_by_vector(
-                LegalQueryInput("Changed fact text", query_encoder),
+                LegalQueryInput(
+                    "Changed fact text", query_encoder, _legal_query_profile(tmp_path)
+                ),
                 min_similarity=0.0,
                 include_candidates=True,
             )
@@ -604,7 +636,10 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
         assert [
             result.provision_id
             for result in reader.search_provisions_by_vector(
-                LegalQueryInput("Changed provision text", query_encoder), min_similarity=0.0
+                LegalQueryInput(
+                    "Changed provision text", query_encoder, _legal_query_profile(tmp_path)
+                ),
+                min_similarity=0.0
             )
         ] == ["p-old"]
     finally:
@@ -623,13 +658,18 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
     try:
         assert (
             withdrawn_reader.search_entities_by_vector(
-                LegalQueryInput("Changed entity text", query_encoder), min_similarity=0.0
+                LegalQueryInput(
+                    "Changed entity text", query_encoder, _legal_query_profile(tmp_path)
+                ),
+                min_similarity=0.0
             )
             == []
         )
         assert (
             withdrawn_reader.search_facts_by_vector(
-                LegalQueryInput("Changed fact text", query_encoder),
+                LegalQueryInput(
+                    "Changed fact text", query_encoder, _legal_query_profile(tmp_path)
+                ),
                 min_similarity=0.0,
                 include_candidates=True,
             )
@@ -637,7 +677,10 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
         )
         assert (
             withdrawn_reader.search_provisions_by_vector(
-                LegalQueryInput("Changed provision text", query_encoder), min_similarity=0.0
+                LegalQueryInput(
+                    "Changed provision text", query_encoder, _legal_query_profile(tmp_path)
+                ),
+                min_similarity=0.0
             )
             == []
         )
@@ -790,7 +833,9 @@ def test_legacy_entrypoint_uses_supported_encoder_and_legal_reader(
     reader = LegalKnowledgeStore(db_path, tmp_path)
     try:
         results = reader.search_entities_by_vector(
-            LegalQueryInput("recorded encoder target", encoder), top_k=1, min_similarity=0.0
+            LegalQueryInput("recorded encoder target", encoder, _legal_query_profile(tmp_path)),
+            top_k=1,
+            min_similarity=0.0
         )
     finally:
         reader.close()
@@ -822,7 +867,13 @@ def test_graph_query_encoder_reads_all_three_selected_legal_generations(
         stats.facts_embedded,
         stats.provisions_embedded,
     ) == (2, 2, 2)
-    graph = LegalKnowledgeGraph(db_path, tmp_path, query_encoder=query_encoder)
+    graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        embedding_model="deprecated-label-is-not-request-intent",
+        query_encoder=query_encoder,
+        query_profile=_legal_query_profile(tmp_path),
+    )
     try:
         assert [
             result.entity_id
@@ -879,6 +930,7 @@ def test_live_query_encoder_must_match_selected_generation_before_knn(
         db_path,
         tmp_path,
         query_encoder=_DirectionalLegalEncoder(revision=1),
+        query_profile=_legal_query_profile(tmp_path),
     )
     try:
         with pytest.raises(LegalQueryProfileError, match="encoder_identity_mismatch"):
@@ -919,6 +971,7 @@ def test_encoder_asset_change_during_query_encode_is_rejected_before_knn(
         db_path,
         tmp_path,
         query_encoder=_MutatingLegalEncoder(revision=0, mutate_during_encode=True),
+        query_profile=_legal_query_profile(tmp_path),
     )
     try:
         with pytest.raises(LegalQueryProfileError, match="query_encoder_changed_during_encode"):
@@ -958,7 +1011,9 @@ def test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminati
         reader._load_entity_index()
         assert reader._entity_index is not None
         assert reader._entity_ids is not None
-        valid_query = LegalQueryInput("target", _DirectionalLegalEncoder(revision=0))
+        valid_query = LegalQueryInput(
+            "target", _DirectionalLegalEncoder(revision=0), _legal_query_profile(tmp_path)
+        )
         original_validator = reader._query_vector_for_generation
         monkeypatch.setattr(
             reader,
@@ -991,6 +1046,7 @@ def test_wrong_selected_generation_rejects_previous_query_encoder(
         db_path,
         tmp_path,
         query_encoder=_DirectionalLegalEncoder(revision=0),
+        query_profile=_legal_query_profile(tmp_path),
     )
     try:
         assert graph.search_entities("target", top_k=1, min_similarity=0.0)
@@ -1003,7 +1059,7 @@ def test_wrong_selected_generation_rejects_previous_query_encoder(
             encoder=_DirectionalLegalEncoder(revision=1),
             incremental=False,
         )
-        with pytest.raises(LegalQueryProfileError, match="encoder_identity_mismatch"):
+        with pytest.raises(LegalQueryProfileError, match="query_profile_stale_or_mismatched"):
             graph.search_entities("target", top_k=1, min_similarity=0.0)
     finally:
         graph.close()
@@ -1056,6 +1112,7 @@ def test_concurrent_selector_replacement_keeps_query_on_one_generation(
         db_path,
         tmp_path,
         query_encoder=blocking_encoder,
+        query_profile=_legal_query_profile(tmp_path),
     )
     results: list[list[object]] = []
     failures: list[BaseException] = []
@@ -1083,7 +1140,7 @@ def test_concurrent_selector_replacement_keeps_query_on_one_generation(
         assert not search_thread.is_alive()
         assert failures == []
         assert [result.entity_id for result in results[0]] == ["entity-target"]
-        with pytest.raises(LegalQueryProfileError, match="encoder_identity_mismatch"):
+        with pytest.raises(LegalQueryProfileError, match="query_profile_stale_or_mismatched"):
             graph.search_entities("target", top_k=1, min_similarity=0.0)
     finally:
         release_encode.set()
@@ -1111,7 +1168,12 @@ def test_previous_rule_generation_is_unsupported_even_with_same_encoder(
     monkeypatch.setattr(
         legal_embedder, "LEGAL_EMBEDDING_PROJECTION_RULE_VERSION", "policyos.legal.embedding.v2"
     )
-    graph = LegalKnowledgeGraph(db_path, tmp_path, query_encoder=encoder)
+    graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=encoder,
+        query_profile=_legal_query_profile(tmp_path),
+    )
     try:
         with pytest.raises(LegalQueryProfileError, match="query_rule_version_mismatch"):
             graph.search_entities("target", top_k=1, min_similarity=0.0)
@@ -1157,3 +1219,222 @@ def test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back(
     finally:
         graph.close()
     assert calls == []
+
+
+@pytest.mark.parametrize("profile_case", ["missing", "foreign_table", "duplicate", "wrong_model", "malformed"])
+def test_actual_query_refuses_missing_unpaired_or_wrong_requested_profile_before_encode(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    profile_case: str,
+) -> None:
+    import hnswlib
+
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(db_path, entities=[("entity-target", "target entity")])
+    _prepare_legal_search_rows(db_path)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=_DirectionalLegalEncoder(revision=0),
+    )
+    profiles = _legal_query_profile(tmp_path)
+    entity = next(p for p in profiles if p.basis_kind == "legal_lex_entities_embedding")
+    requested: tuple[LegalQueryProfile, ...] | None
+    if profile_case == "missing":
+        requested = None
+        expected_code = "query_profile_unavailable"
+    elif profile_case == "foreign_table":
+        requested = tuple(p for p in profiles if p.basis_kind != entity.basis_kind)
+        expected_code = "query_profile_unpaired"
+    elif profile_case == "duplicate":
+        requested = (entity, entity)
+        expected_code = "query_profile_unpaired"
+    elif profile_case == "malformed":
+        requested = cast("tuple[LegalQueryProfile, ...]", list(profiles))
+        expected_code = "query_profile_malformed"
+    else:
+        wrong_inventory = json.loads(entity.inventory_bytes)
+        wrong_inventory["embedding_model"] = "wrong-same-dimension-model"
+        requested = (
+            LegalQueryProfile(
+                basis_kind=entity.basis_kind,
+                generation_id=entity.generation_id,
+                inventory_bytes=json.dumps(
+                    wrong_inventory, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+                ).encode("utf-8"),
+            ),
+        )
+        expected_code = "query_profile_stale_or_mismatched"
+
+    knn_calls = 0
+    original_knn = hnswlib.Index.knn_query
+
+    def record_knn(index: object, *args: object, **kwargs: object) -> object:
+        nonlocal knn_calls
+        knn_calls += 1
+        return original_knn(index, *args, **kwargs)
+
+    monkeypatch.setattr(hnswlib.Index, "knn_query", record_knn)
+    encoder = _DirectionalLegalEncoder(revision=0)
+    graph = LegalKnowledgeGraph(
+        db_path, tmp_path, query_encoder=encoder, query_profile=requested
+    )
+    try:
+        with pytest.raises(LegalQueryProfileError, match=expected_code):
+            graph.search_entities("target", top_k=1, min_similarity=0.0)
+        assert graph.query_profile_error is not None
+        assert graph.query_profile_error.code == expected_code
+        assert encoder.encoded_texts == []
+        assert knn_calls == 0
+    finally:
+        graph.close()
+
+
+def test_same_assets_new_generation_requires_fresh_request_intent_and_fresh_reader(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import hnswlib
+
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(
+        db_path,
+        entities=[("entity-target", "target entity"), ("entity-decoy", "decoy entity")],
+    )
+    _prepare_legal_search_rows(db_path)
+    producer = _DirectionalLegalEncoder(revision=0)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=producer,
+    )
+    previous = _legal_query_profile(tmp_path)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=producer,
+    )
+    current = _legal_query_profile(tmp_path)
+    previous_entity = next(p for p in previous if p.basis_kind == "legal_lex_entities_embedding")
+    current_entity = next(p for p in current if p.basis_kind == previous_entity.basis_kind)
+    assert previous_entity.generation_id != current_entity.generation_id
+    assert json.loads(previous_entity.inventory_bytes)["basis"] == json.loads(
+        current_entity.inventory_bytes
+    )["basis"]
+
+    knn_calls = 0
+    original_knn = hnswlib.Index.knn_query
+
+    def record_knn(index: object, *args: object, **kwargs: object) -> object:
+        nonlocal knn_calls
+        knn_calls += 1
+        return original_knn(index, *args, **kwargs)
+
+    monkeypatch.setattr(hnswlib.Index, "knn_query", record_knn)
+    encoder = _DirectionalLegalEncoder(revision=0)
+    stale = LegalKnowledgeGraph(
+        db_path, tmp_path, query_encoder=encoder, query_profile=previous
+    )
+    try:
+        with pytest.raises(LegalQueryProfileError, match="query_profile_stale_or_mismatched"):
+            stale.search_entities("target", top_k=1, min_similarity=0.0)
+        assert encoder.encoded_texts == []
+        assert knn_calls == 0
+
+        # Remove only request/selected-generation pairing. Keep the real local
+        # encoder, asset checks, normalization, membership, and native HNSW.
+        original_gate = stale._store._require_query_profile
+        monkeypatch.setattr(
+            LegalKnowledgeStore,
+            "_require_query_profile",
+            staticmethod(lambda *_args, **_kwargs: None),
+        )
+        assert [
+            result.entity_id
+            for result in stale.search_entities("target", top_k=1, min_similarity=0.0)
+        ] == ["entity-target"]
+        assert encoder.encoded_texts == ["target"]
+        assert knn_calls == 1
+        monkeypatch.setattr(
+            LegalKnowledgeStore, "_require_query_profile", staticmethod(original_gate)
+        )
+        with pytest.raises(LegalQueryProfileError, match="query_profile_stale_or_mismatched"):
+            stale.search_entities("target", top_k=1, min_similarity=0.0)
+        assert knn_calls == 1
+    finally:
+        stale.close()
+
+    fresh = LegalKnowledgeGraph(
+        db_path, tmp_path, query_encoder=_DirectionalLegalEncoder(revision=0), query_profile=current
+    )
+    try:
+        assert [
+            result.entity_id
+            for result in fresh.search_entities("target", top_k=1, min_similarity=0.0)
+        ] == ["entity-target"]
+        assert knn_calls == 2
+    finally:
+        fresh.close()
+
+
+def test_request_snapshot_does_not_alias_selected_generation_inventory(
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(db_path, entities=[("entity-target", "target entity")])
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=_DirectionalLegalEncoder(revision=0),
+    )
+    generation = resolve_embedding_generation(
+        tmp_path / ".legal_embedding_generations" / "lex_entity_embeddings"
+    )
+    assert generation is not None
+    requested = LegalQueryProfile.from_generation(generation)
+    frozen_bytes = requested.inventory_bytes
+    generation.inventory["embedding_model"] = "mutated-caller-dict"
+    assert requested.inventory_bytes == frozen_bytes
+    graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=_DirectionalLegalEncoder(revision=0),
+        query_profile=(requested,),
+    )
+    try:
+        assert [
+            result.entity_id
+            for result in graph.search_entities("target", top_k=1, min_similarity=0.0)
+        ] == ["entity-target"]
+    finally:
+        graph.close()
+
+
+@pytest.mark.parametrize(
+    "basis_kind,generation_id,inventory",
+    [
+        ("legal_lex_entities_embedding", "generation", bytearray(b"{}")),
+        ("", "generation", b"{}"),
+        ("legal_lex_entities_embedding", "", b"{}"),
+        ("legal_lex_entities_embedding", "generation", "{}"),
+    ],
+)
+def test_raw_query_profile_cannot_carry_mutable_or_malformed_snapshot(
+    basis_kind: str,
+    generation_id: str,
+    inventory: object,
+) -> None:
+    with pytest.raises(LegalQueryProfileError, match="query_profile_malformed"):
+        LegalQueryProfile(
+            basis_kind=basis_kind,
+            generation_id=generation_id,
+            inventory_bytes=cast("bytes", inventory),
+        )

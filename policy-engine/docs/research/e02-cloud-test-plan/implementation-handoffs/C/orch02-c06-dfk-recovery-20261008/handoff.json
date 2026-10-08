@@ -130,13 +130,13 @@
     },
     {
       "target_sha": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
-      "outcome": "IMPORT_PASS; ARCHITECTURE_FAIL; INVOCATION_PASS_PARTIAL_STATIC",
+      "outcome": "IMPORT_SCOPE_SKIPPED_ZERO_DENOMINATOR; ARCHITECTURE_FAIL; INVOCATION_PASS_PARTIAL_STATIC",
       "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/required-gates-summary.json",
       "scope": "Complete deciding commands/stdout/stderr and lossless graph receipt; initial writer schedulingERROR and narrow correction retained separately. Required architecture green not claimed."
     }
   ],
   "property": {
-    "statement": "Every ordinary porcelain record contributes one path; only rename/copy records consume an additional NUL source path. Both endpoints survive parser output; the CLI selected current-input set correctly excludes a removed rename source.",
+    "statement": "Every ordinary porcelain record contributes one path; only rename/copy records consume an additional NUL source path. Both endpoints survive parser output. A staged deleted rename source is absent from selected Git files; for real unstaged Y=R intent-to-add the missing old source remains tracked/selected and census reports incomplete reads with exit2, rather than silently dropping it.",
     "runtime_path": [
       "_git_status_paths: real git status --porcelain=v1 -z + admitted product-root prefix",
       "collect_census: selection.working_tree_changes = changed intersect complete selected set",
@@ -179,7 +179,8 @@
     "pipeline.schemas alias preserves canonical identity and remains through actual published notice N and later of next minor release or 90 days; no calendar notice assigned.",
     "Finite Git-visible selected UTF-8 text census does not establish computed-loader, ignored/binary, installed-distribution, historical or external-client absence.",
     "Own a13 source history requires G compatible source selection/integration; no main/integration publication by C06.",
-    "Required global architecture remains FAIL on exact candidate; full output records baseline/OpenAPI/trust drift. Initial writer packaging concurrency caused family isolationERROR; selected unchanged-helper correction removed that witness but trust mismatch remains. No inherited attribution or global green; G canonical generated/baseline owners decide scoped next action."
+    "Required global architecture remains FAIL on exact candidate; full output records baseline/OpenAPI/trust drift. Initial writer packaging concurrency caused family isolationERROR; selected unchanged-helper correction removed that witness but trust mismatch remains. No inherited attribution or global green; G canonical generated/baseline owners decide scoped next action.",
+    "Scoped src import-policy gate returned skipped with changed_file_count=0 for DFK tool/test-only changes; execution success does not establish measured import-policy PASS. Real unstaged Y=R preserves a missing tracked source in selection and reports its read failure/exit2; staged removed source selection differs."
   ],
   "handoff_companion_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/companion-inventory.json"

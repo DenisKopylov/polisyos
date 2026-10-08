@@ -793,8 +793,8 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/required-gates-summary.json",
-      "bytes": 2652,
-      "sha256": "84097cd2d2ef515324c429b45dd07ffd4161cc1aacf012a04d114b61896a701e"
+      "bytes": 2864,
+      "sha256": "17d09d63cc7c7ffc70ab7fa357ca01816106d690495c29d8ab4d030c5d081823"
     }
   ],
   "additional_paths": [
